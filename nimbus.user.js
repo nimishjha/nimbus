@@ -5,11 +5,18 @@
 // ==/UserScript==
 
 var debug = 1;
-var debug2 = 1;
 var logString = "";
 initialize();
 
-window.nut=function(){var e=document,t="firstChild",n="nextSibling",r="getElementsByClassName",i="length",s=function(t,n){var r=e.getElementById(t);return r?[r]:[]},o=function(e,r){var s=r[t],u=[],a;if(s)do s.nodeType==1&&(s.className&&s.className.match("\\b"+e+"\\b")&&u.push(s),(a=o(e,s))[i]&&(u=u.concat(a)));while(s=s[n]);return u},u=function(e,t){return t[r]?t[r](e):o(e,t)},a=function(e,t){return t.getElementsByTagName(e)};return function(t,n){n||(n=e),typeof n=="object"&&n.pop&&(n=n[0]);var r,o,f,l,c=[],h,p,d,v,m,g,y;t=t.split(","),m=-1;while(f=t[++m])t[m]=f.split(/\s+/);h=t[i];while(h){r=[n],p=-1,d=t[--h][i];while(++p<d)if(f=t[h][p]){f.charAt(0)=="#"?(f=f.substr(1),y=s):f.charAt(0)=="."?(f=f.substr(1),y=u):y=a,o=[],v=-1;while(r[++v]){l=y(f,r[v]),m=-1,g=l[i];while(++m<g)o.push(l[m])}r=o}c=c.concat(r)}return c}}();
+function listProperties(o)
+{
+	var s = "";
+	for(var prop in o)
+		if (o.hasOwnProperty(prop))
+			s += prop + ": " + o[prop] + ", ";
+	s = s.substring(0, s.length-2);
+	return s;
+}
 
 function hasClass(ele,cls)
 {
@@ -404,6 +411,8 @@ function handleKeyDown(e)
 		case 90:
 			//z
 			cleanupUnicode();
+			document.body.innerHTML = document.body.innerHTML.replace(/http:/g, "https:");
+			ylog("All links are now HTTPS", "h3", true);
 			break;
 		case 123:
 			//F12
@@ -513,6 +522,40 @@ function handleKeyDown(e)
 		}
 	}
 	window.focus();
+}
+
+function doFlickr()
+{
+	getLinksWithHrefContaining("_o_d.");
+	var e = document.getElementsByTagName("a")[0];
+	e.href = e.textContent = e.href.replace(/https/, "http");
+	e.innerHTML = '<h2>' + e.textContent + '<h2>';
+	e.setAttribute('style', 'position: absolute');
+	if(e.href.indexOf('_o_d.') > 0 && location.href.indexOf("nimishjha") < 0)
+		location.href = e.href;
+	replaceElement(".photo-title", "h1");
+}
+
+function doYoutube()
+{
+	del("object");
+	del("embed");
+	del(".comments");
+	var e = get("video")[0];
+	var s = e.src;
+	e.src = '';
+	e.pause();
+}
+
+function doGfycat()
+{
+	var e = get("#mp4source");
+	var s = e.src;
+	e.src = '';
+	e = get("#webmsource");
+	e.src = '';
+	del('video');
+	location.href = s;
 }
 
 function clickThanks()
@@ -748,7 +791,7 @@ function cleanupGeneral()
 	replaceFlash();
 	replaceIframes();
 	deleteUselessImages();
-	cleanupWordpress();
+	replaceWrongHeading();
 	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio"]);
 	replaceFontTags();
 	replaceElement("center", "div");
@@ -800,6 +843,11 @@ function replaceIframes()
 			e[i].parentNode.removeChild(e[i]);
 		}
 	}
+}
+
+function gid(s)
+{
+	return document.getElementById(s);
 }
 
 function handleMouseUp(e)
@@ -1077,7 +1125,7 @@ function setDocTitle(s)
 	if(s.indexOf("Thread - ") !== -1)
 		s = s.substr(s.indexOf("Thread - ") + 9);
 	
-	if(!(document.getElementsByTagName("h1").length && document.getElementsByTagName("h1")[0].textContent == s))
+	if(!(document.getElementsByTagName("h1").length && document.getElementsByTagName("h1")[0].textContent === s))
 	{
 		h = document.createElement('h1');
 		h.appendChild(document.createTextNode(s));
@@ -1612,7 +1660,7 @@ function highlightCode(highlightKeywords)
 			while (j--)
 			{
 				r = new RegExp("\\b" + keyword[j] + "\\b", "g");
-				s = s.replace(r, "<b>" + keyword[j] + "</b>");
+				s = s.replace(r, "<em>" + keyword[j] + "</em>");
 			}
 		}
 		
@@ -1666,16 +1714,7 @@ function delClassOrIdContaining(classes, beginningOnly)
 	}
 	i = todel.length;
 	while(i--)
-	{
-		if (todel[i].parentNode)
-		{
-			//ylog("deleting: " + (todel[i].id ? "#" + todel[i].id : "" + todel[i].className? "." + todel[i].className : "").toString(), "h6", true);
-			//todel[i].parentNode.removeChild(todel[i]);
-			//todel[i].innerHTML = '<h2><mark>' + "deleting: " + ((todel[i].id ? "#" + todel[i].id : "") + (todel[i].className? "." + todel[i].className : "")).toString() + '</mark></h2>';
-			//todel[i].innerHTML = '';
-			todel[i].className += '.hl';
-		}
-	}
+		todel[i].className += ' hl';
 }
 
 function deleteNonContentDivs(classes)
@@ -1709,8 +1748,8 @@ function deleteNonContentDivs(classes)
 		}
 	}
 	//delClassOrIdContaining(["ad", "social", "related"], true);
-	//var c = ["_ad", "ad-", "ad_", "adsense", "advert", "archive", "banner", "bread", "categories", "controls", "extra", "footer", "inline", "inset", "latest", "leader", "links", "login", "menu", "meta", "popular", "popup", "promo", "rail", "rate", "rating", "recent", "related", "respond", "search", "seealso", "send", "share", "side", "sidebar", "signup", "similar", "social", "sponsor", "tags", "tool", "util", "whitepapers", "widget", "nav_", "nav-"];
-	//delClassOrIdContaining(c);
+	var c = ["_ad", "ad-", "ad_", "adsense", "advert", "archive", "banner", "bread", "categories", "controls", "extra", "footer", "inline", "inset", "latest", "leader", "links", "login", "menu", "meta", "popular", "popup", "promo", "rail", "rate", "rating", "recent", "related", "respond", "search", "seealso", "send", "share", "side", "sidebar", "signup", "similar", "social", "sponsor", "tags", "tool", "util", "whitepapers", "widget", "nav"];
+	delClassOrIdContaining(c);
 }
 
 function removeClass(ele, cls)
@@ -1976,6 +2015,7 @@ function fixHeadings()
 
 function fixPres()
 {
+	replaceElement('font', 'span');
 	var e, i, ii, s, temp;
 	e = get("code");
 	i = e.length;
@@ -2248,17 +2288,19 @@ function getContentDivs(classes)
 	wrapper = document.createElement("div");
 	while (i--)
 	{
+		x[i].className += " hl";
 		for (j = 0; j < classes.length; j++)
 		{
+			xlog(classes[j]);
 			if (x[i].className && x[i].className.toLowerCase().indexOf(classes[j]) >= 0)
 			{
-				x[i].className += ' hl';
+				x[i].className = '';
 				xlog('Getting: ' + x[i].className);
 				break;
 			}
-			else if (x[i].id && x[i].id.toString().toLowerCase().indexOf(classes[j]) >= 0)
+			else if (x[i].id && x[i].id.toLowerCase().indexOf(classes[j]) >= 0)
 			{
-				x[i].className += ' hl';
+				x[i].className = '';
 				xlog('Getting: ' + x[i].id);
 				break;
 			}
@@ -2269,28 +2311,6 @@ function getContentDivs(classes)
 
 function getContent()
 {
-/*	var e = get("p");
-	for(var i = 0, ii = e.length; i < ii; i++)
-	{
-		if(e[i].parentNode)
-		{
-			var f = e[i].parentNode;
-			if(f && (f.tagName.toLowerCase() === "div" || f.tagName.toLowerCase() === "td"))
-			{
-				f.className = "hl";
-			}
-		}
-	}
-	e = get(".hl");
-	if(e.length)
-	{
-		for(i = 0, ii = e.length; i < ii; i++)
-		{
-			f = e[i].getElementsByTagName("p").length;
-			e[i].pcount = f;
-		}
-	}
-*/
 	if(get("#content"))
 		document.body.innerHTML = get("#content").innerHTML;
 	else
@@ -2587,7 +2607,7 @@ function wrapElement(obj, tag)
 	if( obj.parentNode  && obj.parentNode.tagName.toLowerCase() !== tag ) obj.parentNode.replaceChild(wrapper, obj);
 }
 
-function cleanupWordpress()
+function replaceWrongHeading()
 {
 	var heading1, heading1link, temp;
 	if(get("h1"))
@@ -2912,6 +2932,55 @@ function initialize()
 			case "dropbox.com":
 			case "www.dropbox.com":
 				load = false;
+				break;
+			case "www.imdb.com":
+				replaceElement(".head", "h2");
+				break;
+			case "drupal.org":
+				replaceElement(".codeblock", "pre");
+				break;
+			case "en.wikipedia.org":
+			case "secure.wikimedia.org":
+				cleanupWikipedia();
+				break;
+			case "www.google.com":
+			case "www.google.com.au":
+				if(location.href.indexOf("analytics") > 0)
+					break;
+				highlightNodesContaining("cite", "developer.mozilla.org");
+				highlightLinksWithHrefContaining("developer.mozilla.org");
+				highlightNodesContaining("cite", "opensubtitles");
+				highlightLinksWithHrefContaining("opensubtitles");
+				break;
+			case "php.net":
+			case "www.php.net":
+				replaceElement(".phpcode", "pre");
+				fixParagraphs();
+				break;
+			case "forums.whirlpool.net.au":
+				del(["h1", "h2"]);
+				highlightNodesContaining("a", "Micron21");
+				replaceElement("mark", "samp");
+				replaceElement(".wcrep1", "blockquote");
+				replaceElement(".replyuser", "h5");
+				replaceElement(".replytools", "h6");
+				replaceElement(".op", "samp");
+				break;
+			case 'imgur.com':
+				setDocTitle(document.title);
+				break;
+			case 'www.flickr.com':
+				//del('.global-nav-shim');
+				insertStyle('body, .pp-box, .sub-photo-container, .sub-photo-view, .fluid-subnav {background: #181818 !important; color: #666 !important;} .sub-photo-left-view img, .spaceball { display: none !important;} .photo-display-container .row .photo-display-item, .new-comment-text, #gn-search-field, .meta-field {background: #111 !important; color: #999 !important;}.global-nav-restyle .global-nav-content, .fluid .fluid-subnav.fixed { position: relative !important; }a{color:#CCC!important;}a:hover{color:#FFF!important;}');
+				setTimeout(doFlickr, 10000);
+				break;
+			case 'stackoverflow.com':
+			case 'superuser.com':
+				getContent();
+				del("img");
+				del("#sidebar");
+				cleanupGeneral();
+				highlightCode();
 				break;
 			default:
 				load = true;
