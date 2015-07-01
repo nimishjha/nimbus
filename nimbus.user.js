@@ -2964,13 +2964,6 @@ function initialize()
 				replaceElement(".author", "h4");
 				cleanupGeneral();
 				break;
-			case 'myaccount.lumoenergy.com.au':
-				if(get("#ctl00_Content_txtPassword"))
-				{
-					get("#ctl00_Content_txtPassword").value = "MuckingRhonicorous(12)";
-					get("#ctl00_Content_txtCustomerNo").value = "2255058";
-				}
-				break;
 			case 'imgur.com':
 				setDocTitle(document.title);
 				break;
