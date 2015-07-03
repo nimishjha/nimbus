@@ -659,8 +659,8 @@ function getImages()
 	{
 		for(i = 0; i < f.length; i++)
 		{
-			for(j = i+1; j < f.length; j++)
-				if(f[j].src === f[i].src)
+			for(j = 0; j < f.length; j++)
+				if(i !== j && f[j].src === f[i].src)
 					f[j].src = "duplicate";
 		}
 		for(i = 0, ii = f.length; i < ii; i++)
