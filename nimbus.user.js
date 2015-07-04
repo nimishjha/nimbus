@@ -661,11 +661,11 @@ function getImages()
 		{
 			for(j = 0; j < f.length; j++)
 				if(i !== j && f[j].src === f[i].src)
-					f[j].src = "duplicate";
+					f[j].removeAttribute("src");
 		}
 		for(i = 0, ii = f.length; i < ii; i++)
 		{
-			if(f[i].src !== "duplicate")
+			if(f[i].hasAttribute("src"))
 			{
 				f[i].removeAttribute("width");
 				f[i].removeAttribute("height");
