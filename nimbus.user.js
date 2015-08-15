@@ -9,6 +9,7 @@
 // @run-at         document-end
 // ==/UserScript==
 
+//"use strict";
 var debug = true;
 var logString = "";
 initialize();
@@ -66,7 +67,13 @@ function printArray(arr)
 
 function showResources()
 {
-	var e, f, i, s;
+	if(get(".xlog").length)
+	{
+		del(".xlog");
+		del("#style_show_resources");
+		return;
+	}
+	var e, f, g, i, s;
 	e = get("script");
 	i = e.length;
 	while(i--)
@@ -75,7 +82,10 @@ function showResources()
 		{
 			f = document.createElement("a");
 			f.textContent = f.href = e[i].src;
-			document.body.insertBefore(createElementWithChild("h6", f), document.body.firstChild);
+			g = document.createElement("h6");
+			g.className = "xlog";
+			g.appendChild(f);
+			document.body.insertBefore(g, document.body.firstChild);
 		}
 	}
 	if(e.length > 0)
@@ -84,15 +94,29 @@ function showResources()
 	i = e.length;
 	while(i--)
 	{
-		if(e[i].href)
+		if(e[i].hasAttribute("rel"))
+		{
+			switch(e[i].rel)
+			{
+				case "shortcut icon":
+				case "shortlink":
+					continue;
+					break;
+			}
+		}
+		if(e[i].href && e[i].href.indexOf("css") !== -1)
 		{
 			f = document.createElement("a");
 			f.textContent = f.href = e[i].href;
-			document.body.insertBefore(createElementWithChild("h6", f), document.body.firstChild);
+			g = document.createElement("h6");
+			g.className = "xlog";
+			g.appendChild(f);
+			document.body.insertBefore(g, document.body.firstChild);
 		}
 	}
 	if(e.length > 0)
-		ylog("Links", "h3", true);
+		ylog("Styles", "h3", true);
+	insertStyle(".xlog{ background: #000 !important; color: #FFF !important; margin: 0 !important; padding: 5px 10px !important; } .xlog a{text-decoration: none !important; font: 12px verdana !important; text-transform: none !important; color: #09F !important; } .xlog a:visited { color: #059 !important; } .xlog a:hover { color: #FFF !important; }", "style_show_resources");
 }
 
 function deleteUselessIframes()
@@ -159,7 +183,7 @@ function showMessage(s)
 		e = document.createElement("h2");
 		e.className = "xmessage";
 		document.body.insertBefore(e, document.body.firstChild);
-		insertStyle('.xmessage { position: fixed; z-index: 10000; left: 0px; bottom: 0px; background: #111 !important; color: #666 !important; margin: 0px; height: 20px; font: 12px verdana !important; line-height: 20px !important; display: block !important; width: 100% !important; }');
+		insertStyle('.xmessage { position: fixed; z-index: 10000; left: 0px !important; bottom: 0px !important; background: #111 !important; color: #666 !important; margin: 0px !important; padding: 0 !important; height: 20px !important; font: 12px verdana !important; line-height: 20px !important; display: block !important; width: 100% !important; text-transform: none !important; }');
 	}
 	else
 		e = get(".xmessage")[0];
@@ -258,7 +282,7 @@ function handleKeyDown(e)
 			//5
 			deleteSmallImages();
 			getImages();
-			insertStyle('img{ max-height: 400px; width: auto; }')
+			insertStyle('img{ max-height: 400px; width: auto; display: inline-block; }')
 			break;
 		case 54:
 			//6
@@ -659,13 +683,13 @@ function getImages()
 	{
 		for(i = 0; i < f.length; i++)
 		{
-			for(j = 0; j < f.length; j++)
-				if(i !== j && f[j].src === f[i].src)
-					f[j].removeAttribute("src");
+			for(j = i+1; j < f.length; j++)
+				if(f[j].src === f[i].src)
+					f[j].src = "duplicate";
 		}
 		for(i = 0, ii = f.length; i < ii; i++)
 		{
-			if(f[i].hasAttribute("src"))
+			if(f[i].src !== "duplicate")
 			{
 				f[i].removeAttribute("width");
 				f[i].removeAttribute("height");
@@ -1005,7 +1029,7 @@ function cleanupHead()
 	document.title = tempTitle;
 }
 
-function insertStyle(str)
+function insertStyle(str, identifier)
 {
 	var head = get("head")[0], style = document.createElement("style"), rules = document.createTextNode(str);
 	style.type = "text/css";
@@ -1013,6 +1037,8 @@ function insertStyle(str)
 		style.styleSheet.cssText = rules.nodeValue;
 	else
 		style.appendChild(rules);
+	if(identifier && identifier.length)
+		style.id = identifier;
 	head.appendChild(style);
 }
 
@@ -1168,6 +1194,7 @@ function setDocTitle(s)
 		hn = hn.replace(/\.com/, '');
 		hn = hn.replace(/\.org/, '');
 		hn = hn.replace(/\.net/, '');
+		hn = hn.replace(/developer\./, '');
 		hn = hn.replace(/\.wordpress/, '');
 		hn = hn.replace(/\.blogspot/, '');
 		labels = hn.split(".");
@@ -1544,7 +1571,7 @@ function logout()
 	var e, i, ii, newlink, found = false, s;
 	e = get("a");
 	i = e.length; 
-	while(i--)
+	for(i = 0, ii = e.length; i < ii; i++)
 	{
 		if(e[i].href)
 		{
@@ -1553,7 +1580,17 @@ function logout()
 			{
 				found = true;
 				ylog("Logging out...", "h1", true);
-				e[i].click();
+				if(e[i].href)
+				{
+					var tempLink = document.createElement("a");
+					tempLink.href = tempLink.textContent = e[i].href; 
+					document.body.insertBefore(tempLink, document.body.firstChild);
+					tempLink.click();
+				}
+				else
+				{
+					e[i].click();
+				}
 				break;
 			}
 		}
@@ -2533,13 +2570,14 @@ function analyze()
 		document.body.addEventListener('mouseover', analyze_mouseoverHandler, false);
 		document.body.addEventListener('click', analyze_clickHandler, false);
 		document.body.className += ' analyzer';
-		insertStyle('body.analyzer {padding-bottom: 300px !important; } #analyzer { padding: 5px 10px !important; position:fixed!important; left:0; bottom: 0; width: 50% !important; height: 200px!important; overflow: hidden !important; background:#000 !important; color:#aaa !important; text-align:left !important; z-index:1000 !important; font:11px verdana !important; } #analyzer b { color:#09f !important; } #analyzer div { padding:0;} #analyzer em { font-style:normal; color:#F80 !important; } .hovered { background: #000 !important; color: #FFF !important; }');
+		insertStyle('body.analyzer {padding-bottom: 300px !important; } #analyzer { padding: 5px 10px !important; position:fixed!important; left:0; bottom: 0; width: 50% !important; min-width: 500px !important; height: 200px!important; overflow: hidden !important; background:#000 !important; color:#aaa !important; text-align:left !important; z-index:100000 !important; font:11px verdana !important; } #analyzer b { color:#09f !important; } #analyzer div { padding:0;} #analyzer em { font-style:normal; color:#F80 !important; } .hovered { background: #000 !important; color: #FFF !important; }', "analyzer-style");
 	}
 	else
 	{
 		document.body.removeEventListener('mouseover', analyze_mouseoverHandler, false);
 		document.body.removeEventListener('click', analyze_clickHandler, false);
 		del('#analyzer');
+		del('#analyzer-style');
 		removeClass(document.body, "analyzer");
 		analyze_removeOldHover();
 	}
@@ -2744,6 +2782,7 @@ function highlightLinksInPres()
 function fillForms()
 {
 	var i, e;
+	/* Inputs */
 	e = get("input");
 	i = e.length;
 	while(i--)
@@ -2751,18 +2790,32 @@ function fillForms()
 		if(e[i].hasAttribute("type"))
 		{
 			inputType = e[i].type;
-			if(inputType !== "button" && inputType !== "submit" && inputType !== "image" && inputType !== "hidden")
+			if(inputType !== "button" && inputType !== "submit" && inputType !== "image" && inputType !== "hidden" && inputType !== "checkbox" && inputType !== "radio")
 			{
 				if(inputName = e[i].getAttribute("name"))
 				{
 					if(inputName === "companyname")
 						e[i].value = "";
+					else if(inputName.indexOf("first") >= 0)
+						e[i].value = "John";
+					else if(inputName.indexOf("last") >= 0)
+						e[i].value = "Doe";
 					else if(inputName.indexOf("name") >= 0)
 						e[i].value = "John Doe";
 					else if(inputName.indexOf("email") >= 0)
 						e[i].value = "test@test.com";
 					else if(inputName.indexOf("phone") >= 0)
 						e[i].value = "(00) 0000 0000";
+					else if(inputName.indexOf("mobile") >= 0)
+						e[i].value = "0400222333";
+					else if(inputName.indexOf("date") >= 0)
+						e[i].value = "23/08/1991";
+					else if(inputName.indexOf("suburb") >= 0)
+						e[i].value = "Docklands";
+					else if(inputName.indexOf("postcode") >= 0)
+						e[i].value = "3008";
+					else if(inputName.indexOf("state") >= 0)
+						e[i].value = "VIC";
 					else if(inputType == "number")
 						e[i].value = 42;
 					else if(inputType == "text")
@@ -2777,6 +2830,7 @@ function fillForms()
 			}
 		}
 	}
+	/* Textareas */
 	e = get("textarea");
 	i = e.length;
 	while(i--)
@@ -2792,6 +2846,18 @@ function fillForms()
 			e[i].focus();
 			break;
 		}
+	}
+	/* Selects */
+	e = get("select");
+	i = e.length;
+	while(i--)
+	{
+		var f = e[i].getElementsByTagName("option");
+		for(var j = 0, jj = f.length; j < jj; j++)
+		{
+			f[j].removeAttribute("selected");
+		}
+		f[j-1].setAttribute("selected", "selected");
 	}
 }
 
@@ -2866,11 +2932,9 @@ function fixForums()
 
 function inject()
 {
-	//deleteNonContentImages();
+	del("iframe");
 	document.addEventListener("keydown", handleKeyDown, false);
 	document.addEventListener("mouseup", handleMouseUp, false);
-	//replaceElement(".date-header", "h6");
-	//replaceElement(".post-title", "h1");
 	deleteUselessIframes();
 	showPassword();
 	fixForums();
@@ -3012,8 +3076,8 @@ function initialize()
 				highlightNodesContaining("label", ".rar");
 				replaceElement("label", "h3");
 				break;
-			case 'stackoverflow.com':
-			case 'superuser.com':
+			case 'astackoverflow.com':
+			case 'asuperuser.com':
 				getContent();
 				del("img");
 				del("#sidebar");
@@ -3028,10 +3092,11 @@ function initialize()
 				insertStyle('.GalleryNav {display: none !important; } .global-nav .people .count { color: #FFF !important; font-size: 18px !important; }')
 				break;
 			case 'thenounproject.com':
-				insertStyle('body, div, section, ul, li {background: #181818  !important; color: #FFF !important; }img{ filter: invert(1); }')
+				insertStyle('body, div, section, ul, li, input {background: #181818  !important; color: #FFF !important; }img{ filter: invert(1); }')
 				break;
 			case 'localhost':
-				insertStyle('#page_content { margin: 0 0 0 400px; }');
+				// for phpmyadmin, may be no longer needed
+				//insertStyle('#page_content { margin: 0 0 0 400px; }');
 				break;
 			default:
 				load = true;
