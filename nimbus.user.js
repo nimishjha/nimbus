@@ -9,7 +9,6 @@
 // @run-at         document-end
 // ==/UserScript==
 
-//"use strict";
 var debug = true;
 var logString = "";
 initialize();
@@ -117,6 +116,45 @@ function showResources()
 	if(e.length > 0)
 		ylog("Styles", "h3", true);
 	insertStyle(".xlog{ background: #000 !important; color: #FFF !important; margin: 0 !important; padding: 5px 10px !important; } .xlog a{text-decoration: none !important; font: 12px verdana !important; text-transform: none !important; color: #09F !important; } .xlog a:visited { color: #059 !important; } .xlog a:hover { color: #FFF !important; }", "style_show_resources");
+}
+
+function showDocumentStructure()
+{
+	if(get("#view-document-structure"))
+	{
+		del("#view-document-structure");
+	}
+	else
+	{
+		insertStyle("div, aside, section, blockquote { box-shadow: inset 1px 1px #F00, inset -1px -1px #F00 !important; } table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; } ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0 !important; } h1, h2, h3, h4, h5, h6 { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; }", "view-document-structure");
+	}
+}
+
+function showDocumentStructureWithNames()
+{
+	if (document.body.className.indexOf("showdivs") != -1)
+	{
+		del("x");
+		del("#showDivs");
+		removeClass(document.body, "showdivs");
+		return;
+	}
+	var tag, j, e, i, divid;
+	tag = ['table', 'tr', 'td', 'div', 'ul'];
+	for (j = 0, jj = tag.length; j < jj; j++)
+	{
+		e = get(tag[j]);
+		for (i = e.length - 1; i >= 0; i--)
+		{
+			divid = "";
+			if (e[i].hasAttribute("id")) divid += "#" + e[i].id;
+			if (e[i].hasAttribute("class")) divid += " ." + e[i].className;
+			if (e[i].firstChild != null) e[i].insertBefore(createElementWithText("x", divid), e[i].firstChild);
+			else e[i].appendChild(createElementWithText("x", divid));
+		}
+	}
+	document.body.className += " showdivs";
+	insertStyle('div, aside, section { box-shadow: inset 2px 2px #000, inset -2px -2px #000 !important; padding: 10px !important; border-radius: 0 !important; } x {color: #FF0 !important; background: #000 !important; font: 12px verdana !important; padding: 2px 4px !important; } div { min-height: 25px !important; }', 'showDivs');
 }
 
 function deleteUselessIframes()
@@ -535,6 +573,14 @@ function handleKeyDown(e)
 			var d = new Date();
 			s = zeroPad(d.getDate()) + "-" + zeroPad(d.getMonth()+1) + "-" + zeroPad(d.getFullYear());
 			prompt("Date", s);
+			break;
+		case 86:
+			//V
+			showDocumentStructure();
+			break;
+		case 66:
+			//B
+			showDocumentStructureWithNames();
 			break;
 		case 123:
 			//F12
@@ -2570,7 +2616,7 @@ function analyze()
 		document.body.addEventListener('mouseover', analyze_mouseoverHandler, false);
 		document.body.addEventListener('click', analyze_clickHandler, false);
 		document.body.className += ' analyzer';
-		insertStyle('body.analyzer {padding-bottom: 300px !important; } #analyzer { padding: 5px 10px !important; position:fixed!important; left:0; bottom: 0; width: 50% !important; min-width: 500px !important; height: 200px!important; overflow: hidden !important; background:#000 !important; color:#aaa !important; text-align:left !important; z-index:100000 !important; font:11px verdana !important; } #analyzer b { color:#09f !important; } #analyzer div { padding:0;} #analyzer em { font-style:normal; color:#F80 !important; } .hovered { background: #000 !important; color: #FFF !important; }', "analyzer-style");
+		insertStyle('body.analyzer {padding-bottom: 300px !important; } #analyzer { padding: 5px 10px !important; position:fixed!important; left:0; bottom: 0; width: 50% !important; min-width: 500px !important; height: 200px!important; overflow: hidden !important; background:#000 !important; color:#aaa !important; text-align:left !important; z-index:100000 !important; font:11px verdana !important; } #analyzer b { color:#09f !important; } #analyzer div { padding:0;} #analyzer em { font-style:normal; color:#F80 !important; } .hovered { background: #000 !important; color: #FFF !important; } div#analyzer, #analyzer div { box-shadow: none !important; min-height: 0 !important; margin: 0 !important; }', "analyzer-style");
 	}
 	else
 	{
@@ -2868,6 +2914,14 @@ function createElementWithChild(tag, obj)
 	return e;
 }
 
+function createElementWithText(tag, str)
+{
+	var e = document.createElement(tag);
+	if (e)
+		e.textContent = str;
+	return e;
+}
+
 function showSpecialLinks()
 {
 	var e, i, count = 0, links = [], newlink;
@@ -2932,7 +2986,7 @@ function fixForums()
 
 function inject()
 {
-	del("iframe");
+	//del("iframe");
 	document.addEventListener("keydown", handleKeyDown, false);
 	document.addEventListener("mouseup", handleMouseUp, false);
 	deleteUselessIframes();
@@ -3097,6 +3151,9 @@ function initialize()
 			case 'localhost':
 				// for phpmyadmin, may be no longer needed
 				//insertStyle('#page_content { margin: 0 0 0 400px; }');
+				break;
+			case 'developer.mozilla.org':
+				
 				break;
 			default:
 				load = true;
