@@ -126,7 +126,7 @@ function showDocumentStructure()
 	}
 	else
 	{
-		insertStyle("div, aside, section, blockquote { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00 !important; } table, tr, td { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F !important; } ul, ol { box-shadow: inset 2px 2px #0F0, inset -2px -2px #0F0 !important; } h1, h2, h3, h4, h5, h6 { box-shadow: inset 2px 2px #F0F, inset -2px -2px #F0F !important; } a, a * { background: #AF0 !important; }", "view-document-structure");
+		insertStyle("div, aside, section, blockquote { box-shadow: inset 1px 1px #F00, inset -1px -1px #F00 !important; } table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; } ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0 !important; } h1, h2, h3, h4, h5, h6 { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; } p { box-shadow: inset 1px 1px #FF0, inset -1px -1px #FF0 !important; } label { box-shadow: inset 1px 1px #FF0 !important, inset -1px -1px #FF0 !important; } form { border: 2px solid #0F0; } a, a * { background: #AF0 !important; }", "view-document-structure");
 	}
 }
 
