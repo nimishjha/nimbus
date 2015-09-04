@@ -115,7 +115,7 @@ function showResources()
 	}
 	if(e.length > 0)
 		ylog("Styles", "h3", true);
-	insertStyle(".xlog{ background: #000 !important; color: #FFF !important; margin: 0 !important; padding: 5px 10px !important; } .xlog a{text-decoration: none !important; font: 12px verdana !important; text-transform: none !important; color: #09F !important; } .xlog a:visited { color: #059 !important; } .xlog a:hover { color: #FFF !important; }", "style_show_resources");
+	insertStyle(".xlog{ background: #000 !important; color: #FFF !important; margin: 0 !important; padding: 5px 10px !important; } .xlog a{text-decoration: none !important; letter-spacing: 0 !important; font: 12px verdana !important; text-transform: none !important; color: #09F !important; } .xlog a:visited { color: #059 !important; } .xlog a:hover { color: #FFF !important; }", "style_show_resources");
 }
 
 function showDocumentStructure()
@@ -126,7 +126,7 @@ function showDocumentStructure()
 	}
 	else
 	{
-		insertStyle("div, aside, section, blockquote { box-shadow: inset 1px 1px #F00, inset -1px -1px #F00 !important; } table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; } ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0 !important; } h1, h2, h3, h4, h5, h6 { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; } p { box-shadow: inset 1px 1px #FF0, inset -1px -1px #FF0 !important; } label { box-shadow: inset 1px 1px #FF0 !important, inset -1px -1px #FF0 !important; } form { border: 2px solid #0F0; } a, a * { background: #AF0 !important; }", "view-document-structure");
+		insertStyle("header, footer, article, aside, section, div, blockquote { box-shadow: inset 1px 1px #F00, inset -1px -1px #F00 !important; } form, input, button { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90 !important; background: rgba(255, 150, 0, 0.5) !important; } table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; } ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0 !important; } h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; } a, a * { background: #AF0 !important; } ", "view-document-structure");
 	}
 }
 
@@ -152,7 +152,7 @@ function showDocumentStructureWithNames()
 		return;
 	}
 	var tag, j, e, i, divid;
-	tag = ['table', 'tr', 'td', 'div', 'ul'];
+	tag = ['table', 'tr', 'td', 'div', 'ul', 'aside', 'header', 'footer', 'article', 'section'];
 	for (j = 0, jj = tag.length; j < jj; j++)
 	{
 		e = get(tag[j]);
@@ -166,7 +166,7 @@ function showDocumentStructureWithNames()
 		}
 	}
 	document.body.className += " showdivs";
-	insertStyle('div, aside, section { box-shadow: inset 2px 2px #000, inset -2px -2px #000 !important; } x {color: #FF0 !important; background: #000 !important; font: 12px verdana !important; padding: 2px 4px !important; letter-spacing: 0 !important; display: inline-block; }', 'showDivs');
+	insertStyle('div, aside, section { box-shadow: inset 2px 2px #000, inset -2px -2px #000 !important; padding: 30px 10px 10px 10px !important; } x {color: #FF0 !important; background: #000 !important; font: 12px verdana !important; padding: 2px 4px !important; letter-spacing: 0 !important; display: block !important; margin: -30px -10px 0 -10px !important; }', 'showDivs');
 }
 
 function deleteUselessIframes()
@@ -312,6 +312,7 @@ function handleKeyDown(e)
 			break;
 		case 50:
 			//2
+			del("svg");
 			if(get("img").length)
 				del("img");
 			else
@@ -567,13 +568,21 @@ function handleKeyDown(e)
 		var s;
 		switch (k)
 		{
+		case 72:
+			//H
+			highlightElement();
+			break;
 		case 73:
-			// i
+			//I
 			appendIframes();
 			break;
 		case 49:
 			//1 - insert 'negative' style
 			insertStyleNegative();
+			break;
+		case 80:
+			//p
+			deleteEmptyParagraphs();
 			break;
 		case 82:
 			//r
@@ -687,6 +696,20 @@ function clickThanks()
 	}
 }
 
+function highlightElement()
+{
+	var s = prompt("Enter element to highlight");
+	if(!s.length)
+		return;
+	var e = get(s);
+	var i = e.length;
+	while(i--)
+	{
+		e[i].className += " hl";
+	}
+	insertStyle(".hl { border: 2px solid red !important; padding: 10px !important; margin: 10px !important; background: rgba(120, 0, 0, 0.2) !important; }")
+}
+
 function highlightParagraph(tag)
 {
 	var t;
@@ -747,11 +770,11 @@ function getImages()
 		{
 			for(j = i+1; j < f.length; j++)
 				if(f[j].src === f[i].src)
-					f[j].src = "duplicate";
+					f[j].removeAttribute("src");
 		}
 		for(i = 0, ii = f.length; i < ii; i++)
 		{
-			if(f[i].src !== "duplicate")
+			if(f[i].hasAttribute("src"))
 			{
 				f[i].removeAttribute("width");
 				f[i].removeAttribute("height");
@@ -3031,7 +3054,7 @@ function echoPassword(e)
 function insertStyleNegative()
 {
 	//cleanupGeneral();
-	insertStyle('html { background: #181818 !important; } body { margin: 0!important; } body, table, div, ul, ol { color: #888!important; background: #202020!important; font-weight: normal!important; } body.pad100 { padding: 100px!important; } body.pad100 table { width: 100%!important; } body.pad100 td, body.pad100 th { padding: 3px 10px!important; } body.pad100 image { display: block!important; } nav { background: #111!important; } body.xdark { background: #111!important; } body.xblack { background: #000!important; } body.xwrap { width: 500px!important; margin: 0 auto!important; } h1, h2, h3, h4, h5, h6 { color: #AAA!important; padding: 0.25em 10px!important; line-height: 160%!important; margin: 2px 0!important; background: #141414!important; border: 0!important; } h1 { font: 36px "swis721 cn bt", Calibri!important; } h2 { font: 28px "swis721 cn bt", Calibri!important; } h3 { font: 24px "swis721 cn bt", Calibri!important; } h4 { font: 20px "swis721 cn bt", Calibri!important; } h5 { font: 16px "swis721 cn bt", Calibri!important; } h6 { font: 12px Verdana!important; color: #999!important; } h5, h6 { padding: 0.5em 10px!important; } dl { border-left: 20px solid #111!important; } dt { color: inherit!important; padding: 0.5em 10px!important; line-height: 160%!important; margin: 2px 0!important; background: #111!important; border: 0!important; border-left: 20px solid #080808!important; color: #AAA!important; } dd { color: inherit!important; padding: 0.25em 10px!important; line-height: 160%!important; margin: 2px 0!important; background: #141414!important; border: 0!important; border-left: 20px solid #080808!important; } select, input, textarea { border: 0!important; padding: 5px 10px!important; background: #242424!important; box-shadow: inset 0 0 5px #000!important; color: #999!important; line-height: 100%!important; -moz-appearance: none!important; border-radius: 0!important; } input div { color: #999!important; } select:focus, textarea:focus, input:focus { color: #999!important; outline: 0!important; background: #080808!important; } textarea:focus *, input:focus * { color: #999!important; } a:link { color: #09F !important; text-decoration: none!important; text-shadow: none!important; } a:visited { color: #36A !important; text-decoration: none!important; } a:hover, a:focus { color: #FFF!important; text-decoration: none!important; outline: 0!important; } a:active { color: #FFF!important; outline: none!important; } div { background: transparent!important; } article, section, header, footer, hgroup, nav, ins, small, big, aside, details, font, article, form, fieldset, label, span, blockquote, div, ul, ol, li, a, i, b, strong, dl { color: inherit!important; background: transparent!important; border-color: #181818!important; line-height: inherit!important; font-family: inherit!important; font-size: inherit!important; font-weight: inherit!important; text-decoration: inherit!important; } li { font-size: 12px!important; list-style-image: none!important; background-image: none!important; } tbody, thead, th, tr, td, table { background: #141414!important; color: inherit!important; font: 12px verdana!important; } body.pad100 ul { list-style: none!important; } body.pad100 ul li { border-left: 5px solid #080808!important; padding: 0 0 0 10px!important; margin: 0 0 2px 0!important; } cite, u, em, i, b, strong { font-weight: normal!important; font-style: normal!important; text-decoration: none!important; color: #AAA!important; } a u, a em, a i, a b, a strong { color: inherit!important; } small { font-size: 80%!important; } input, input *, button, button *, div, td, p { font-size: 12px!important; font-family: Verdana!important; line-height: 150%!important; } p { margin: 0!important; padding: 5px 0!important; font-style: normal!important; font-weight: normal!important; line-height: 150%!important; color: inherit!important; background: inherit!important; border: 0!important; } blockquote { margin: 0 0 0 20px!important; padding: 10px 0 10px 20px!important; border-style: solid!important; border-width: 10px 0 0 10px!important; border-color: #080808!important; } blockquote blockquote { margin: 0 0 0 20px!important; padding: 0 0 0 20px!important; border-width: 0 0 0 10px!important; } code { background: #0C0C0C!important; font-family: Verdcode!important; padding: 1px 2px!important; } pre { background: #0c0c0c!important; border-style: solid!important; border-width: 0 0 0 10px!important; border-color: #444!important; padding: 10px 20px!important; font: 12px Verdcode!important; } pre, code { color: #999!important; } pre p { margin: 0!important; padding: 0!important; font: 12px Verdcode!important; } pre em { color: #57F!important; } pre i { color: #FFF!important; } pre b { color: #F90!important; } pre u { color: #0F0!important; text-decoration: none!important; } pre dfn { font-style: normal!important; color: #F70!important; background: #331500!important; } pre s { color: #F00!important; text-decoration: none!important; background: #400!important; } a img { border: none!important; } a:visited img { border-color: #666!important; } a:hover img { border-color: #F00!important; } button img, input img { display: none!important; } table { border-collapse: collapse!important; background: #141414!important; border: 0!important; } td { vertical-align: top!important; border-width: 0px!important; } caption, th { background: #111!important; border-color: #111!important; text-align: left!important; } th, tr, tbody { border: 0!important; } fieldset { border: 1px solid #111!important; margin: 0 0 1px 0!important; } span, ul, ol, li, div { border: 0!important; } hr { height: 2px!important; background: #282828!important; border-style: solid!important; border-color: #000!important; border-width: 1px 0 0 0!important; margin: 20px 0!important; } legend { background: #0e0e0e!important; } textarea, textarea div { font-family: verdcode!important; } mark, samp { background: #080808!important; color: #DDD!important; } samp, mark mark { font: 24px "swis721 cn bt"!important; }');
+	insertStyle('html { background: #181818 !important; } body { margin: 0!important; } body, table, div, ul, ol { color: #888!important; background: #202020!important; font-weight: normal!important; } body.pad100 { padding: 100px!important; } body.pad100 table { width: 100%!important; } body.pad100 td, body.pad100 th { padding: 3px 10px!important; } body.pad100 image { display: block!important; } nav { background: #111!important; } body.xdark { background: #111!important; } body.xblack { background: #000!important; } body.xwrap { width: 500px!important; margin: 0 auto!important; } h1, h2, h3, h4, h5, h6 { color: #AAA!important; padding: 15px 30px !important; line-height: 160%!important; margin: 2px 0!important; background: #141414!important; border: 0!important; } h1 { font: 36px "swis721 cn bt", Calibri!important; color: #FFF !important; } h2 { font: 28px "swis721 cn bt", Calibri!important; } h3 { font: 24px "swis721 cn bt", Calibri!important; } h4 { font: 20px "swis721 cn bt", Calibri!important; } h5 { font: 16px "swis721 cn bt", Calibri!important; } h6 { font: 12px Verdana!important; color: #999!important; } h5, h6 { padding: 0.5em 10px!important; } dl { border-left: 20px solid #111!important; } dt { color: inherit!important; padding: 0.5em 10px!important; line-height: 160%!important; margin: 2px 0!important; background: #111!important; border: 0!important; border-left: 20px solid #080808!important; color: #AAA!important; } dd { color: inherit!important; padding: 0.25em 10px!important; line-height: 160%!important; margin: 2px 0!important; background: #141414!important; border: 0!important; border-left: 20px solid #080808!important; } select, input, textarea { border: 0!important; padding: 5px 10px!important; background: #242424!important; box-shadow: inset 0 0 5px #000!important; color: #999!important; line-height: 100%!important; -moz-appearance: none!important; border-radius: 0!important; } input div { color: #999!important; } select:focus, textarea:focus, input:focus { color: #999!important; outline: 0!important; background: #080808!important; } textarea:focus *, input:focus * { color: #999!important; } a:link { color: #09F !important; text-decoration: none!important; text-shadow: none!important; } a:visited { color: #36A !important; text-decoration: none!important; } a:hover, a:focus { color: #FFF!important; text-decoration: none!important; outline: 0!important; } a:active { color: #FFF!important; outline: none!important; } div { background: transparent!important; } article, section, header, footer, hgroup, nav, ins, small, big, aside, details, font, article, form, fieldset, label, span, blockquote, div, ul, ol, li, a, i, b, strong, dl { color: inherit!important; background: transparent!important; border-color: #181818!important; line-height: inherit!important; font-family: inherit!important; font-size: inherit!important; font-weight: inherit!important; text-decoration: inherit!important; } li { font-size: 12px!important; list-style-image: none!important; background-image: none!important; } tbody, thead, th, tr, td, table { background: #141414!important; color: inherit!important; font: 12px verdana!important; } body.pad100 ul { list-style: none!important; } body.pad100 ul li { border-left: 5px solid #080808!important; padding: 0 0 0 10px!important; margin: 0 0 2px 0!important; } cite, u, em, i, b, strong { font-weight: normal!important; font-style: normal!important; text-decoration: none!important; color: #AAA!important; } a u, a em, a i, a b, a strong { color: inherit!important; } small { font-size: 80%!important; } input, input *, button, button *, div, td, p { font-size: 12px!important; font-family: Verdana!important; line-height: 150%!important; } p { margin: 0!important; padding: 5px 0!important; font-style: normal!important; font-weight: normal!important; line-height: 150%!important; color: inherit!important; background: inherit!important; border: 0!important; } blockquote { margin: 0 0 0 20px!important; padding: 10px 0 10px 20px!important; border-style: solid!important; border-width: 10px 0 0 10px!important; border-color: #080808!important; } blockquote blockquote { margin: 0 0 0 20px!important; padding: 0 0 0 20px!important; border-width: 0 0 0 10px!important; } code { background: #0C0C0C!important; font-family: Verdcode!important; padding: 1px 2px!important; } pre { background: #0c0c0c!important; border-style: solid!important; border-width: 0 0 0 10px!important; border-color: #444!important; padding: 10px 20px!important; font: 12px Verdcode!important; } pre, code { color: #999!important; } pre p { margin: 0!important; padding: 0!important; font: 12px Verdcode!important; } pre em { color: #57F!important; } pre i { color: #FFF!important; } pre b { color: #F90!important; } pre u { color: #0F0!important; text-decoration: none!important; } pre dfn { font-style: normal!important; color: #F70!important; background: #331500!important; } pre s { color: #F00!important; text-decoration: none!important; background: #400!important; } a img { border: none!important; } a:visited img { border-color: #666!important; } a:hover img { border-color: #F00!important; } button img, input img { display: none!important; } table { border-collapse: collapse!important; background: #141414!important; border: 0!important; } td { vertical-align: top!important; border-width: 0px!important; } caption, th { background: #111!important; border-color: #111!important; text-align: left!important; } th, tr, tbody { border: 0!important; } fieldset { border: 1px solid #111!important; margin: 0 0 1px 0!important; } span, ul, ol, li, div { border: 0!important; } hr { height: 2px!important; background: #282828!important; border-style: solid!important; border-color: #000!important; border-width: 1px 0 0 0!important; margin: 20px 0!important; } legend { background: #0e0e0e!important; } textarea, textarea div { font-family: verdcode!important; } mark, samp { background: #331500 !important; color: #F90 !important; } samp, mark mark { font: 24px "swis721 cn bt"!important; }');
 }
 
 function initialize()
