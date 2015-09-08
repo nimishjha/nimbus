@@ -17,7 +17,7 @@ function listProperties(o)
 {
 	var s = "";
 	for(var prop in o)
-		if (o.hasOwnProperty(prop))
+		if(o.hasOwnProperty(prop))
 			s += prop + ": " + o[prop] + ", ";
 	s = s.substring(0, s.length-2);
 	return s;
@@ -30,12 +30,12 @@ function hasClass(ele,cls)
  
 function addClass(ele,cls)
 {
-	if (!this.hasClass(ele,cls)) ele.className += " "+cls;
+	if(!this.hasClass(ele,cls)) ele.className += " "+cls;
 }
  
 function removeClass(ele,cls)
 {
-	if (hasClass(ele,cls)) {
+	if(hasClass(ele,cls)) {
 		var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)');
 		ele.className=ele.className.replace(reg,' ');
 	}
@@ -64,6 +64,16 @@ function printArray(arr)
 	ylog(s);
 }
 
+function prependMessage(str)
+{
+	f = document.createElement("a");
+	f.textContent = f.href = str;
+	g = document.createElement("h6");
+	g.className = "xlog";
+	g.appendChild(f);
+	document.body.insertBefore(g, document.body.firstChild);
+}
+
 function showResources()
 {
 	if(get(".xlog").length)
@@ -72,49 +82,31 @@ function showResources()
 		del("#style_show_resources");
 		return;
 	}
-	var e, f, g, i, s;
+	var e, f, g, i, count;
 	e = get("script");
 	i = e.length;
+	count = 0;
 	while(i--)
 	{
 		if(e[i].src)
 		{
-			f = document.createElement("a");
-			f.textContent = f.href = e[i].src;
-			g = document.createElement("h6");
-			g.className = "xlog";
-			g.appendChild(f);
-			document.body.insertBefore(g, document.body.firstChild);
+			prependMessage(e[i].src);
+			count++;
 		}
 	}
-	if(e.length > 0)
-		ylog("Scripts", "h3", true);
+	ylog(count + " scripts", "h3", true);
 	e = get("link");
 	i = e.length;
+	count = 0;
 	while(i--)
 	{
-		if(e[i].hasAttribute("rel"))
-		{
-			switch(e[i].rel)
-			{
-				case "shortcut icon":
-				case "shortlink":
-					continue;
-					break;
-			}
-		}
 		if(e[i].href && e[i].href.indexOf("css") !== -1)
 		{
-			f = document.createElement("a");
-			f.textContent = f.href = e[i].href;
-			g = document.createElement("h6");
-			g.className = "xlog";
-			g.appendChild(f);
-			document.body.insertBefore(g, document.body.firstChild);
+			prependMessage(e[i].href);
+			count++;
 		}
 	}
-	if(e.length > 0)
-		ylog("Styles", "h3", true);
+	ylog(count + " styles", "h3", true);
 	insertStyle(".xlog{ background: #000 !important; color: #FFF !important; margin: 0 !important; padding: 5px 10px !important; } .xlog a{text-decoration: none !important; letter-spacing: 0 !important; font: 12px verdana !important; text-transform: none !important; color: #09F !important; } .xlog a:visited { color: #059 !important; } .xlog a:hover { color: #FFF !important; }", "style_show_resources");
 }
 
@@ -126,7 +118,7 @@ function showDocumentStructure()
 	}
 	else
 	{
-		insertStyle("header, footer, article, aside, section, div, blockquote { box-shadow: inset 1px 1px #F00, inset -1px -1px #F00 !important; } form, input, button { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90 !important; background: rgba(255, 150, 0, 0.5) !important; } table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; } ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0 !important; } h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; } a, a * { background: #AF0 !important; } ", "view-document-structure");
+		insertStyle("header, footer, article, aside, section, div, blockquote { box-shadow: inset 1px 1px #000, inset -1px -1px #000 !important; } form, input, button { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90 !important; background: rgba(255, 150, 0, 0.5) !important; } table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; } ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0 !important; } h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; } a, a * { background: #AF0 !important; } ", "view-document-structure");
 	}
 }
 
@@ -144,7 +136,7 @@ function showDocumentStructure2()
 
 function showDocumentStructureWithNames()
 {
-	if (document.body.className.indexOf("showdivs") != -1)
+	if(document.body.className.indexOf("showdivs") != -1)
 	{
 		del("x");
 		del("#showDivs");
@@ -159,9 +151,9 @@ function showDocumentStructureWithNames()
 		for (i = e.length - 1; i >= 0; i--)
 		{
 			divid = "";
-			if (e[i].hasAttribute("id")) divid += "#" + e[i].id;
-			if (e[i].hasAttribute("class")) divid += " ." + e[i].className;
-			if (e[i].firstChild != null) e[i].insertBefore(createElementWithText("x", divid), e[i].firstChild);
+			if(e[i].hasAttribute("id")) divid += "#" + e[i].id;
+			if(e[i].hasAttribute("class")) divid += " ." + e[i].className;
+			if(e[i].firstChild != null) e[i].insertBefore(createElementWithText("x", divid), e[i].firstChild);
 			else e[i].appendChild(createElementWithText("x", divid));
 		}
 	}
@@ -241,9 +233,26 @@ function showMessage(s)
 	//setTimeout(deleteMessage, 5000);
 }
 
+function showAlert(s)
+{
+	var e;
+	if(!get(".xalert").length)
+	{
+		e = document.createElement("h2");
+		e.className = "xalert";
+		document.body.insertBefore(e, document.body.firstChild);
+		insertStyle('.xalert { position: absolute; margin: auto; z-index: 10000; height: 70px !important; top: 0 !important; left: 0px !important; bottom: 0px !important; right: 0 !important; background: #111 !important; color: #FFF !important; margin: 0px !important; padding: 0 !important; font: 32px "swis721 cn bt", verdana !important; line-height: 70px !important; padding: 0 20px !important; display: block !important; text-transform: none !important; }');
+	}
+	else
+		e = get(".xmessage")[0];
+	e.textContent = s;
+	setTimeout(deleteMessage, 2000);
+}
+
 function deleteMessage()
 {
 	del(".xmessage");
+	del(".xalert");
 }
 
 function handleKeyDown(e)
@@ -261,7 +270,7 @@ function handleKeyDown(e)
 		return;
 	}
 	// Alt
-	if (e.altKey && !e.shiftKey && !e.ctrlKey)
+	if(e.altKey && !e.shiftKey && !e.ctrlKey)
 	{
 		switch (k)
 		{
@@ -290,7 +299,7 @@ function handleKeyDown(e)
 		case 48:
 			//0
 			var selection = window.getSelection();
-			if (selection.toString().length) s = selection;
+			if(selection.toString().length) s = selection;
 			else s = prompt("Document title");
 			setDocTitle(s);
 			break;
@@ -320,7 +329,7 @@ function handleKeyDown(e)
 			break;
 		case 51:
 			//3
-			if (db.className && db.className.indexOf("xwrap") >= 0)
+			if(db.className && db.className.indexOf("xwrap") >= 0)
 				removeClass(db, "xwrap");
 			else
 				db.className += " xwrap";
@@ -333,7 +342,7 @@ function handleKeyDown(e)
 			//5
 			deleteSmallImages();
 			getImages();
-			insertStyle('img{ max-height: 400px; width: auto; display: inline-block; }')
+			insertStyle('img{ max-height: 200px; width: auto; display: inline-block; }')
 			break;
 		case 54:
 			//6
@@ -374,12 +383,12 @@ function handleKeyDown(e)
 		case 65:
 			//a
 			//forAll("a", addLinkTitles);
-			if (db.className.indexOf("xDontShowLinks") >= 0)
+			if(db.className.indexOf("xDontShowLinks") >= 0)
 			{
 				removeClass(db, "xDontShowLinks");
 				db.className += " xHideEverything";
 			}
-			else if (db.className.indexOf("xHideEverything") >= 0)
+			else if(db.className.indexOf("xHideEverything") >= 0)
 			{
 				removeClass(db, "xHideEverything");
 			}
@@ -403,7 +412,7 @@ function handleKeyDown(e)
 			break;
 		case 88:
 			//x
-			if (db.className.indexOf("xShowImages") >= 0) removeClass(db, "xShowImages");
+			if(db.className.indexOf("xShowImages") >= 0) removeClass(db, "xShowImages");
 			else db.className += " xShowImages";
 			break;
 		case 89:
@@ -423,7 +432,7 @@ function handleKeyDown(e)
 			break;
 		case 79:
 			//o
-			if (window.getSelection().toString().length)
+			if(window.getSelection().toString().length)
 			{
 				selection = window.getSelection().toString();
 				s = selection.toString();
@@ -432,7 +441,7 @@ function handleKeyDown(e)
 			{
 				s = prompt("Text to highlight");
 			}
-			if (s.length)
+			if(s.length)
 			{
 				var ss = escapeForRegExp(s);
 				var tempHTML = db.innerHTML;
@@ -504,7 +513,7 @@ function handleKeyDown(e)
 		}
 	}
 	// Alt-Shift
-	else if (e.altKey && e.shiftKey && !e.ctrlKey)
+	else if(e.altKey && e.shiftKey && !e.ctrlKey)
 	{
 		switch (k)
 		{
@@ -563,11 +572,15 @@ function handleKeyDown(e)
 		}
 	}
 	// Ctrl-Alt
-	else if (e.altKey && e.ctrlKey && !e.shiftKey)
+	else if(e.altKey && e.ctrlKey && !e.shiftKey)
 	{
 		var s;
 		switch (k)
 		{
+		case 70:
+			//F
+			del(["object", "embed", "video"]);
+			break;
 		case 72:
 			//H
 			highlightElement();
@@ -575,6 +588,10 @@ function handleKeyDown(e)
 		case 73:
 			//I
 			appendIframes();
+			break;
+		case 77:
+			//M
+			showAlert("This is an alert");
 			break;
 		case 49:
 			//1 - insert 'negative' style
@@ -698,6 +715,13 @@ function clickThanks()
 
 function highlightElement()
 {
+	if(get(".hl").length > 0)
+	{
+		forAll(".hl", function(x){
+			removeClass(x, "hl");
+		});
+		return;
+	}
 	var s = prompt("Enter element to highlight");
 	if(!s.length)
 		return;
@@ -707,7 +731,7 @@ function highlightElement()
 	{
 		e[i].className += " hl";
 	}
-	insertStyle(".hl { border: 2px solid red !important; padding: 10px !important; margin: 10px !important; background: rgba(120, 0, 0, 0.2) !important; }")
+	insertStyle(".hl { box-shadow: inset 10px 10px #F00, inset -10px -10px #F00 !important; }")
 }
 
 function highlightParagraph(tag)
@@ -731,10 +755,10 @@ function makeHeadingFromSelection(tagname)
 {
 	var selection = window.getSelection(),
 		newNode;
-	if (!selection) return;
+	if(!selection) return;
 	var node = selection.anchorNode;
-	if (node.tagName == undefined) node = node.parentNode;
-	if (node && node.parentNode && node.parentNode.tagName !== "body")
+	if(node.tagName == undefined) node = node.parentNode;
+	if(node && node.parentNode && node.parentNode.tagName !== "body")
 	{
 		newNode = document.createElement(tagname);
 		newNode.innerHTML = node.innerHTML;
@@ -749,14 +773,14 @@ function makeHeadingFromSelection(tagname)
 function annotate()
 {
 	var selection = window.getSelection();
-	if (!selection) return;
+	if(!selection) return;
 	var node = selection.anchorNode;
-	if (node.tagName == undefined) node = node.parentNode;
-	if (node && node.parentNode)
+	if(node.tagName == undefined) node = node.parentNode;
+	if(node && node.parentNode)
 	{
 		var d = document.createElement("ruby");
 		d.textContent = prompt("_________________________________________________________________________________________________________");
-		if (d.textContent.length) node.parentNode.insertBefore(d, node);
+		if(d.textContent.length) node.parentNode.insertBefore(d, node);
 	}
 }
 
@@ -764,7 +788,7 @@ function getImages()
 {
 	var f = get("img"), db = document.body, i, ii, j, jj, e = [];
 	var tempNode = document.createElement("div");
-	if (f && f.length)
+	if(f && f.length)
 	{
 		for(i = 0; i < f.length; i++)
 		{
@@ -778,7 +802,7 @@ function getImages()
 			{
 				f[i].removeAttribute("width");
 				f[i].removeAttribute("height");
-				if (f[i].parentNode && f[i].parentNode.tagName && f[i].parentNode.tagName === "A")
+				if(f[i].parentNode && f[i].parentNode.tagName && f[i].parentNode.tagName === "A")
 					tempNode.appendChild(f[i].parentNode.cloneNode(true));
 				else
 					tempNode.appendChild(f[i].cloneNode(true));
@@ -806,7 +830,7 @@ function deleteImagesSmallerThan(x, y)
 	var f = document.getElementsByTagName('img');
 	for (var i = f.length - 1; i >= 0; i--)
 	{
-		if (f[i].clientWidth < x || f[i].clientHeight < y)
+		if(f[i].clientWidth < x || f[i].clientHeight < y)
 		{
 			var altText = document.createTextNode("");
 			f[i].parentNode.replaceChild(altText, f[i]);
@@ -819,12 +843,12 @@ function deleteSmallImages()
 	var f = document.getElementsByTagName('img');
 	for (var i = f.length - 1; i >= 0; i--)
 	{
-		if (f[i].clientWidth < 40 || f[i].clientHeight < 40)
+		if(f[i].clientWidth < 40 || f[i].clientHeight < 40)
 		{
 			deleteImagesSmallerThan(40, 40);
 			return;
 		}
-		if (f[i].clientWidth < 120 || f[i].clientHeight < 120)
+		if(f[i].clientWidth < 120 || f[i].clientHeight < 120)
 		{
 			deleteImagesSmallerThan(120, 120);
 			return;
@@ -860,7 +884,7 @@ function replaceFlash()
 		s = s.replace(/\r/g, " ");
 		s = s.replace(/\s+/g, " ");
 		index1 = s.indexOf("http");
-		if (index1 >= 0)
+		if(index1 >= 0)
 		{
 			s = s.substr(index1);
 		}
@@ -984,11 +1008,6 @@ function replaceIframes()
 	}
 }
 
-function gid(s)
-{
-	return document.getElementById(s);
-}
-
 function handleMouseUp(e)
 {
 	var db = document.body;
@@ -996,9 +1015,9 @@ function handleMouseUp(e)
 	var targ;
 	if(!e) e = window.event;
 	if(e.target) targ = e.target;
-	if (e.shiftKey)
+	if(e.shiftKey)
 	{
-		if (targ.tagName == "A")
+		if(targ.tagName == "A")
 		{
 			var str = targ.href;
 			db.innerHTML += '<iframe src="' + str + '" width="100%" height="100px" />';
@@ -1011,9 +1030,9 @@ function get(s)
 {
 	s = s.toString();
 	var t = s.substr(1, s.length - 1);
-	if (s.indexOf("#") === 0) return document.getElementById(t);
-	else if (s.indexOf(".") === 0) return document.getElementsByClassName(t);
-	else if (document.getElementsByTagName(s).length) return document.getElementsByTagName(s);
+	if(s.indexOf("#") === 0) return document.getElementById(t);
+	else if(s.indexOf(".") === 0) return document.getElementsByClassName(t);
+	else if(document.getElementsByTagName(s).length) return document.getElementsByTagName(s);
 	else return 0;
 }
 
@@ -1021,9 +1040,9 @@ function count(s)
 {
 	s = s.toString();
 	var e, t = s.substr(1, s.length - 1);
-	if (s.indexOf("#") === 0) e = document.getElementById(t);
-	else if (s.indexOf(".") === 0) e = document.getElementsByClassName(t);
-	else if (document.getElementsByTagName(s).length) e = document.getElementsByTagName(s);
+	if(s.indexOf("#") === 0) e = document.getElementById(t);
+	else if(s.indexOf(".") === 0) e = document.getElementsByClassName(t);
+	else if(document.getElementsByTagName(s).length) e = document.getElementsByTagName(s);
 	if(e.length)
 		return e.length;
 	else
@@ -1038,7 +1057,7 @@ function isArray(o)
 function del(c)
 {
 	var todel = [];
-	if (isArray(c))
+	if(isArray(c))
 	{
 		for (var i = 0, ii = c.length; i < ii; i++)
 		{
@@ -1048,7 +1067,7 @@ function del(c)
 	else
 	{
 		var f = get(c);
-		if (f && f.length)
+		if(f && f.length)
 		{
 			for (var j = 0, jj = f.length; j < jj; j++)
 			todel.push(f[j]);
@@ -1057,9 +1076,9 @@ function del(c)
 				todel[j].parentNode.removeChild(todel[j]);
 			}
 		}
-		else if (f)
+		else if(f)
 		{
-			if (f.parentNode) f.parentNode.removeChild(f);
+			if(f.parentNode) f.parentNode.removeChild(f);
 		}
 	}
 }
@@ -1068,7 +1087,7 @@ function replaceElement(e1, e2)
 {
 	var replacement, e, toreplace, i, ii;
 	e = get(e1);
-	if (e.length)
+	if(e.length)
 	{
 		toreplace = [];
 		for (i = 0, ii = e.length; i < ii; i++)
@@ -1082,7 +1101,7 @@ function replaceElement(e1, e2)
 			toreplace[i].parentNode.replaceChild(replacement, toreplace[i]);
 		}
 	}
-	else if (e && e.parentNode)
+	else if(e && e.parentNode)
 	{
 		replacement = document.createElement(e2);
 		replacement.innerHTML = e.innerHTML;
@@ -1095,7 +1114,7 @@ function delTag(c)
 	for (var i = 0, ii = c.length; i < ii; i++)
 	{
 		var f = document.getElementsByTagName(c[i]);
-		if (f.length)
+		if(f.length)
 		{
 			for (var j = f.length - 1; j >= 0; j--)
 			{
@@ -1118,7 +1137,7 @@ function insertStyle(str, identifier)
 {
 	var head = get("head")[0], style = document.createElement("style"), rules = document.createTextNode(str);
 	style.type = "text/css";
-	if (style.styleSheet)
+	if(style.styleSheet)
 		style.styleSheet.cssText = rules.nodeValue;
 	else
 		style.appendChild(rules);
@@ -1136,10 +1155,10 @@ function removeEventListeners()
 	var i = elems.length;
 	while (i--)
 	{
-		if (elems[i].hasAttribute("onmousedown")) elems[i].removeAttribute("onmousedown");
-		if (elems[i].hasAttribute("onmouseup")) elems[i].removeAttribute("onmouseup");
-		if (elems[i].hasAttribute("onmouseover")) elems[i].removeAttribute("onmouseover");
-		if (elems[i].hasAttribute("onclick")) elems[i].removeAttribute("onclick");
+		if(elems[i].hasAttribute("onmousedown")) elems[i].removeAttribute("onmousedown");
+		if(elems[i].hasAttribute("onmouseup")) elems[i].removeAttribute("onmouseup");
+		if(elems[i].hasAttribute("onmouseover")) elems[i].removeAttribute("onmouseover");
+		if(elems[i].hasAttribute("onclick")) elems[i].removeAttribute("onclick");
 	}
 }
 
@@ -1163,7 +1182,7 @@ function chooseDocumentHeading()
 	}
 	if(!s.length)
 	{
-		if (document.title)
+		if(document.title)
 			s = document.title;
 		else
 			s = window.location.hostname;
@@ -1273,7 +1292,7 @@ function setDocTitle(s)
 		document.body.insertBefore(h, document.body.firstChild);
 	}
 	// Append domain name to title for easy searching
-	if (location.hostname.length > 0)
+	if(location.hostname.length > 0)
 	{
 		var hn = location.hostname.replace(/www\./, '');
 		hn = hn.replace(/\.com/, '');
@@ -1287,7 +1306,7 @@ function setDocTitle(s)
 		longestlabel = '';
 		while (i--)
 		{
-			if (longestlabel.length < labels[i].length) longestlabel = labels[i];
+			if(longestlabel.length < labels[i].length) longestlabel = labels[i];
 		}
 		if(!(s.indexOf(longestlabel) > 0))
 			s += " [" + longestlabel + "]";
@@ -1297,7 +1316,7 @@ function setDocTitle(s)
 
 function delClassContaining(s)
 {
-	if (s.length <= 0) return;
+	if(s.length <= 0) return;
 	var e = document.getElementsByTagName('div');
 	var i = e.length;
 	while(i--)
@@ -1318,18 +1337,18 @@ function delClassContaining(s)
 function zeroPad(n)
 {
 	n += '';
-	if (n.length < 2) n = '0' + n;
+	if(n.length < 2) n = '0' + n;
 	return n;
 }
 
 function appendInfo()
 {
 	var url;
-	if (window.location.href.indexOf("file:///") >= 0) return;
-	if (document.getElementsByTagName("h4").length)
+	if(window.location.href.indexOf("file:///") >= 0) return;
+	if(document.getElementsByTagName("h4").length)
 	{
 		var hh = document.getElementsByTagName("h4");
-		if (hh[hh.length - 1].textContent.indexOf("URL:") === 0) return;
+		if(hh[hh.length - 1].textContent.indexOf("URL:") === 0) return;
 	}
 	var d = new Date();
 	var saveTime = d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
@@ -1337,7 +1356,7 @@ function appendInfo()
 	h.appendChild(document.createTextNode("URL: "));
 	var a = document.createElement("a");
 	url = window.location.href;
-	if (url.indexOf("?utm_source") > 0)
+	if(url.indexOf("?utm_source") > 0)
 	{
 		url = url.substr(0, url.indexOf("?utm_source"));
 	}
@@ -1355,10 +1374,10 @@ function replaceFontTags()
 		h;
 	for (var i = 0, ii = f.length; i < ii; i++)
 	{
-		if (f[i].getAttribute("size"))
+		if(f[i].getAttribute("size"))
 		{
 			var hl = f[i].getAttribute("size");
-			if (hl.indexOf("+") >= 0)
+			if(hl.indexOf("+") >= 0)
 			{
 				hl = hl[1];
 			}
@@ -1410,7 +1429,7 @@ function removeAttributes()
 	document.body.removeAttribute("background");
 	for (var i = 0; i < x.length; i++)
 	{
-		if (x[i].attributes)
+		if(x[i].attributes)
 		{
 			var attrs = x[i].attributes;
 			for (var j = attrs.length - 1; j >= 0; j--)
@@ -1483,7 +1502,7 @@ function delNewlines()
 	while (i--)
 	{
 		var s = paragraphs[i].textContent.replace(/\s/g, '');
-		if (s.length === 0 && !paragraphs[i].getElementsByTagName("img").length)
+		if(s.length === 0 && !paragraphs[i].getElementsByTagName("img").length)
 		{
 			paragraphs[i].parentNode.removeChild(paragraphs[i]);
 		}
@@ -1519,7 +1538,7 @@ function cleanupHeadings()
 			s = s.replace(/<[^as\/][a-z0-9]*>/g, " ");
 			s = s.replace(/<\/[^as][a-z0-9]*>/g, " ");
 			h[j].innerHTML = s.trim();
-			if (trim(h[j].textContent).length === 0)
+			if(trim(h[j].textContent).length === 0)
 			{
 				h[j].parentNode.removeChild(h[j]);
 			}
@@ -1533,13 +1552,13 @@ function addParagraphs()
 	var i = divs.length;
 	while (i--)
 	{
-		if (divs[i].getElementsByTagName("div").length) continue;
+		if(divs[i].getElementsByTagName("div").length) continue;
 		var s = divs[i].innerHTML;
 		s = s.replace(/&nbsp;/g, ' ');
 		s = s.replace(/\s+/g, '');
-		if (s.length)
+		if(s.length)
 		{
-			if (! (s[0] === '<' && s[1].toLowerCase() === "p")) divs[i].innerHTML = '<p>' + divs[i].innerHTML + '</p>';
+			if(! (s[0] === '<' && s[1].toLowerCase() === "p")) divs[i].innerHTML = '<p>' + divs[i].innerHTML + '</p>';
 		}
 		else
 		{
@@ -1558,15 +1577,15 @@ function makeHeadings()
 		s = e[i].textContent;
 		s = s.replace(/\s*/g, '');
 		len = s.length;
-		if (len === 0)
+		if(len === 0)
 		{
-			if (!e[i].getElementsByTagName("img").length)
+			if(!e[i].getElementsByTagName("img").length)
 			{
 				e[i].className = "deleteme";
 				continue;
 			}
 		}
-		else if ( s.match(/[IVX\.]+/g) && s.match(/[IVX\.]+/g)[0] === s )
+		else if( s.match(/[IVX\.]+/g) && s.match(/[IVX\.]+/g)[0] === s )
 		{
 			e[i].className = "parah2";
 			continue;
@@ -1582,9 +1601,9 @@ function makeHeadings()
 		tags = ["b", "strong", "em"];
 		for (j = tags.length - 1; j >= 0; j--)
 		{
-			if (e[i].getElementsByTagName(tags[j]).length === 1)
+			if(e[i].getElementsByTagName(tags[j]).length === 1)
 			{
-				if (e[i].getElementsByTagName(tags[j])[0].textContent && removeWhitespace(e[i].getElementsByTagName(tags[j])[0].textContent) === s)
+				if(e[i].getElementsByTagName(tags[j])[0].textContent && removeWhitespace(e[i].getElementsByTagName(tags[j])[0].textContent) === s)
 				{
 					e[i].className = "parah2";
 				}
@@ -1618,7 +1637,7 @@ function deleteNonContentLists()
 	var i = e.length, j;
 	while (i--)
 	{
-		if (removeWhitespace(e[i].textContent).length === 0 && e[i].getElementsByTagName("img").length === 0)
+		if(removeWhitespace(e[i].textContent).length === 0 && e[i].getElementsByTagName("img").length === 0)
 		{
 			e[i].parentNode.removeChild(e[i]);
 			break;
@@ -1741,24 +1760,24 @@ function clickHandler(e)
 {
 	e.stopPropagation();
 	var targ;
-	if (!e) e = window.event;
-	if (e.target)
+	if(!e) e = window.event;
+	if(e.target)
 	{
 		targ = e.target;
 	}
 	var tn = targ.tagName.toLowerCase();
 	// Get clicked element
-	if (e.ctrlKey && e.shiftKey)
+	if(e.ctrlKey && e.shiftKey)
 	{
 		document.body.innerHTML = targ.innerHTML;
 		document.body.removeEventListener('mouseup', clickHandler, false);
 		removeClass(document.body, "debug");
 	}
 	// delete clicked element
-	else if (e.ctrlKey && !e.shiftKey)
+	else if(e.ctrlKey && !e.shiftKey)
 	{
-		if (targ.tagName == 'BODY') return;
-		if (tn == "li" || tn == "p")
+		if(targ.tagName == 'BODY') return;
+		if(tn == "li" || tn == "p")
 		{
 			targ = targ.parentNode;
 		}
@@ -1767,15 +1786,15 @@ function clickHandler(e)
 		return false;
 	}
 	// append clicked element to a div 
-	else if (e.shiftKey)
+	else if(e.shiftKey)
 	{
-		if (!document.getElementById("newbody"))
+		if(!document.getElementById("newbody"))
 		{
 			var newbody = document.createElement("div");
 			newbody.id = "newbody";
 			document.body.appendChild(newbody);
 		}
-		if (targ.tagName == 'BODY') return;
+		if(targ.tagName == 'BODY') return;
 		document.getElementById("newbody").appendChild(targ);
 	}
 }
@@ -1827,17 +1846,17 @@ function delClassOrIdContaining(classes, beginningOnly)
 	{
 		for (j = 0; j < classes.length; j++)
 		{
-//			if (!x[i].getElementsByTagName("p").length || x[i].getElementsByTagName("p").length < 5)
+//			if(!x[i].getElementsByTagName("p").length || x[i].getElementsByTagName("p").length < 5)
 //			{
 				if(beginningOnly)
 				{
-					if (x[i].className && x[i].className.toLowerCase().indexOf(classes[j]) === 0)
+					if(x[i].className && x[i].className.toLowerCase().indexOf(classes[j]) === 0)
 					{
 						todel.push(x[i]);
 						xlog(x[i].className);
 						break;
 					}
-					else if (x[i].id && x[i].id.toString().toLowerCase().indexOf(classes[j]) === 0)
+					else if(x[i].id && x[i].id.toString().toLowerCase().indexOf(classes[j]) === 0)
 					{
 						todel.push(x[i]);
 						xlog(x[i].id);
@@ -1846,13 +1865,13 @@ function delClassOrIdContaining(classes, beginningOnly)
 				}
 				else
 				{
-					if (x[i].className && x[i].className.toLowerCase().indexOf(classes[j]) >= 0)
+					if(x[i].className && x[i].className.toLowerCase().indexOf(classes[j]) >= 0)
 					{
 						todel.push(x[i]);
 						xlog(x[i].className);
 						break;
 					}
-					else if (x[i].id && x[i].id.toString().toLowerCase().indexOf(classes[j]) >= 0)
+					else if(x[i].id && x[i].id.toString().toLowerCase().indexOf(classes[j]) >= 0)
 					{
 						todel.push(x[i]);
 						xlog(x[i].id);
@@ -1892,7 +1911,7 @@ function deleteNonContentDivs(classes)
 		weight += x[i].getElementsByTagName("h4").length;
 		weight += x[i].getElementsByTagName("h5").length;
 		weight += x[i].getElementsByTagName("h6").length;
-		if (!weight)
+		if(!weight)
 		{
 			//x[i].innerHTML = '<h2><mark>' + "deleting: " + ((x[i].id ? "#" + x[i].id : "") + (x[i].className? "." + x[i].className : "")).toString() + '</mark></h2>' + x[i].innerHTML;
 			x[i].className += " hl";
@@ -1908,7 +1927,7 @@ function removeClass(ele, cls)
 {
 	var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
 	ele.className = ele.className.replace(reg, ' ');
-	if (removeWhitespace(ele.className) === '') ele.removeAttribute("class");
+	if(removeWhitespace(ele.className) === '') ele.removeAttribute("class");
 }
 
 function formatContent()
@@ -1916,7 +1935,7 @@ function formatContent()
 	var db = document.body;
 	replaceElement("strong", "b");
 	replaceElement("dt", "h6");
-	if (get(".date").length)
+	if(get(".date").length)
 	{
 		replaceElement(".date", "h6");
 	}
@@ -1937,9 +1956,9 @@ function deleteEmptyParagraphs()
 	var i = p.length;
 	while (i--)
 	{
-		if ( p[i].textContent )
+		if( p[i].textContent )
 		{
-			if ( removeWhitespace(p[i].textContent).length === 0 && !p[i].getElementsByTagName("img").length )
+			if( removeWhitespace(p[i].textContent).length === 0 && !p[i].getElementsByTagName("img").length )
 				p[i].parentNode.removeChild(p[i]);
 		}
 		else
@@ -1951,7 +1970,7 @@ function deleteEmptyParagraphs()
 	p = document.getElementsByTagName("ul");
 	i = p.length;
 	while (i--)
-	if (p[i].textContent && removeWhitespace(p[i].textContent).length === 0 && !p[i].getElementsByTagName("img").length) p[i].parentNode.removeChild(p[i]);
+	if(p[i].textContent && removeWhitespace(p[i].textContent).length === 0 && !p[i].getElementsByTagName("img").length) p[i].parentNode.removeChild(p[i]);
 }
 
 function deleteEmptyElements(tag)
@@ -1960,9 +1979,9 @@ function deleteEmptyElements(tag)
 	var i = p.length;
 	while (i--)
 	{
-		if (p[i].textContent.length)
+		if(p[i].textContent.length)
 		{
-			if (removeWhitespace(p[i].textContent).length === 0) p[i].parentNode.removeChild(p[i]);
+			if(removeWhitespace(p[i].textContent).length === 0) p[i].parentNode.removeChild(p[i]);
 		}
 		else
 		{
@@ -1980,9 +1999,9 @@ function deleteEmptyHeadings()
 		i = e.length;
 		while (i--)
 		{
-			if (e[i].textContent)
+			if(e[i].textContent)
 			{
-				if (removeWhitespace(e[i].textContent).length == 0) e[i].parentNode.removeChild(e[i]);
+				if(removeWhitespace(e[i].textContent).length == 0) e[i].parentNode.removeChild(e[i]);
 			}
 			else
 			{
@@ -1998,7 +2017,7 @@ function deleteEmptyDivs()
 	var i = p.length;
 	while (i--)
 	{
-		if (p[i].textContent && removeWhitespace(p[i].textContent).length === 0 && !p[i].getElementsByTagName("img").length)
+		if(p[i].textContent && removeWhitespace(p[i].textContent).length === 0 && !p[i].getElementsByTagName("img").length)
 		{
 			p[i].parentNode.removeChild(p[i]);
 		}
@@ -2017,10 +2036,10 @@ function escapeForRegExp(str)
 
 function getSelectionHTML()
 {
-	if (window.getSelection)
+	if(window.getSelection)
 	{
 		var userSelection = window.getSelection();
-		if (userSelection.getRangeAt)
+		if(userSelection.getRangeAt)
 		{
 			var range = userSelection.getRangeAt(0);
 		}
@@ -2036,7 +2055,7 @@ function getSelectionHTML()
 		div.appendChild(clonedSelection);
 		return div.innerHTML;
 	}
-	else if (document.selection)
+	else if(document.selection)
 	{
 		// Explorer selection, return the HTML
 		userSelection = document.selection.createRange();
@@ -2061,12 +2080,12 @@ function highlightSelection()
 {
 	var selection, selectionBegin, selectionEnd, node, nodeHTML, i, j, k, index1, index2, index3, index4;
 	var textBeforeSelection, textOfSelection, textAfterSelection, words;
-	if (!window.getSelection().toString().length) return;
+	if(!window.getSelection().toString().length) return;
 	selection = window.getSelection();
 	node = selection.anchorNode;
 	while (node.nodeType != 1 && node.parentNode)
 		node = node.parentNode;
-	if (node.tagName === undefined)
+	if(node.tagName === undefined)
 	{
 		ylog("Couldn't get anchorNode", "h1");
 		return;
@@ -2268,33 +2287,33 @@ function deleteElementsContainingText(tag, str)
 	var i = e.length;
 	while (i--)
 	{
-		if (e[i].getElementsByTagName(tag).length) continue;
-		if (e[i].textContent.indexOf(str) >= 0) e[i].parentNode.removeChild(e[i]);
+		if(e[i].getElementsByTagName(tag).length) continue;
+		if(e[i].textContent.indexOf(str) >= 0) e[i].parentNode.removeChild(e[i]);
 	}
 }
 
 function highlightNodesContaining(tag, str)
 {
-	if (!arguments.length)
+	if(!arguments.length)
 	{
 		tag = prompt("highlightNodesContaining\ntagName");
-		if (!tag.length) return;
+		if(!tag.length) return;
 		str = prompt("Containing text");
-		if (! (tag.length && str.length)) return;
+		if(! (tag.length && str.length)) return;
 	}
 	var e = document.getElementsByTagName(tag);
 	var i = e.length;
 	while (i--)
 	{
-		if (e[i].getElementsByTagName(tag).length) continue;
-		if (e[i].textContent.indexOf(str) >= 0)
+		if(e[i].getElementsByTagName(tag).length) continue;
+		if(e[i].textContent.indexOf(str) >= 0)
 		{
 			e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
 			e[i].className += " hl";
 		}
 		if(tag.toLowerCase() === "a")
 		{
-			if (e[i].href && e[i].href.indexOf(str) >= 0)
+			if(e[i].href && e[i].href.indexOf(str) >= 0)
 			{
 				e[i].innerHTML = "<samp>" + e[i].innerHTML + "</samp>";
 				e[i].className += " hl";
@@ -2306,16 +2325,16 @@ function highlightNodesContaining(tag, str)
 function highlightLinksWithHrefContaining(str)
 {
 	var wrapper;
-	if (!arguments.length)
+	if(!arguments.length)
 	{
 		str = prompt("Containing text");
-		if ( !str.length ) return;
+		if( !str.length ) return;
 	}
 	var e = document.getElementsByTagName("a");
 	var i = e.length;
 	while (i--)
 	{
-		if (e[i].href.indexOf(str) >= 0)
+		if(e[i].href.indexOf(str) >= 0)
 		{
 			e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
 		}
@@ -2326,16 +2345,16 @@ function getLinksWithHrefContaining(str)
 {
 	highlightLinksWithHrefContaining(str);
 	var wrapper;
-	if (!arguments.length)
+	if(!arguments.length)
 	{
 		str = prompt("Containing text");
-		if ( !str.length ) return;
+		if( !str.length ) return;
 	}
 	var e = document.getElementsByTagName("a"), i, ii;
 	var containerDiv = document.createElement("div");
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
-		if (e[i].href.indexOf(str) >= 0 || (e[i].title && e[i].title.indexOf(str) >= 0))
+		if(e[i].href.indexOf(str) >= 0 || (e[i].title && e[i].title.indexOf(str) >= 0))
 		{
 			var newLink = document.createElement("a");
 			newLink.href = newLink.textContent = e[i].href;
@@ -2359,7 +2378,7 @@ function xlog(str, logTag)
 
 function ylog(str, elem, prepend)
 {
-	if (elem) var d = document.createElement(elem);
+	if(elem) var d = document.createElement(elem);
 	else d = document.createElement("h6");
 	d.className = "xlog";
 	d.innerHTML = str;
@@ -2373,7 +2392,7 @@ function insertElem(elem, str, classname)
 {
 	var d = document.createElement(elem);
 	d.innerHTML = str;
-	if (classname)
+	if(classname)
 	{
 		d.className = classname;
 	}
@@ -2386,9 +2405,9 @@ function getPager(div)
 	var elen = e.length;
 	for (var j = 0; j < elen; j++)
 	{
-		if (e[j] && e[j].textContent && removeWhitespace(e[j].textContent).indexOf("Page") === 0)
+		if(e[j] && e[j].textContent && removeWhitespace(e[j].textContent).indexOf("Page") === 0)
 		{
-			if (e[j].parentNode)
+			if(e[j].parentNode)
 			{
 				var node = e[j].parentNode;
 				while (node.tagName !== "TABLE")
@@ -2415,13 +2434,13 @@ function getContentDivs(classes)
 		for (j = 0; j < classes.length; j++)
 		{
 			xlog(classes[j]);
-			if (x[i].className && x[i].className.toLowerCase().indexOf(classes[j]) >= 0)
+			if(x[i].className && x[i].className.toLowerCase().indexOf(classes[j]) >= 0)
 			{
 				x[i].className = '';
 				xlog('Getting: ' + x[i].className);
 				break;
 			}
-			else if (x[i].id && x[i].id.toLowerCase().indexOf(classes[j]) >= 0)
+			else if(x[i].id && x[i].id.toLowerCase().indexOf(classes[j]) >= 0)
 			{
 				x[i].className = '';
 				xlog('Getting: ' + x[i].id);
@@ -2443,7 +2462,7 @@ function deleteImagesBySrcContaining(str)
 {
 	var elems = document.getElementsByTagName("img"), i = elems.length;
 	while (i--)
-	if (elems[i].src.indexOf(str) >= 0)
+	if(elems[i].src.indexOf(str) >= 0)
 	{
 		xlog("Deleting image with src containing " + elems[i].src);
 		elems[i].parentNode.removeChild(elems[i]);
@@ -2453,12 +2472,12 @@ function deleteImagesBySrcContaining(str)
 function create(selector, html)
 {
 	var tag = '', idname = '', classname = '';
-	if (selector.indexOf("#"))
+	if(selector.indexOf("#"))
 	{
 		tag = selector.split("#")[0];
 		classname = selector.split("#")[1];
 	}
-	else if (selector.indexOf("."))
+	else if(selector.indexOf("."))
 	{
 		tag = selector.split(".")[0];
 		idname = selector.split(".")[1];
@@ -2468,9 +2487,9 @@ function create(selector, html)
 		tag = selector;
 	}
 	var e = document.createElement(tag);
-	if (idname.length) e.id = idname;
-	else if (classname.length) e.className = classname;
-	if (html.length) e.innerHTML = html;
+	if(idname.length) e.id = idname;
+	else if(classname.length) e.className = classname;
+	if(html.length) e.innerHTML = html;
 	return e;
 }
 
@@ -2485,7 +2504,7 @@ function removeEmptyIframes()
 	var i = iframes.length;
 	while (i--)
 	{
-		if (iframes[i].contentDocument.body && iframes[i].contentDocument.body.textContent.length === 0) iframes[i].parentNode.removeChild(iframes[i]);
+		if(iframes[i].contentDocument.body && iframes[i].contentDocument.body.textContent.length === 0) iframes[i].parentNode.removeChild(iframes[i]);
 	}
 }
 
@@ -2554,7 +2573,7 @@ function getKeys(obj)
 {
 	var keys = [], key;
 	for (key in obj)
-		if (obj.hasOwnProperty && obj.hasOwnProperty(key))
+		if(obj.hasOwnProperty && obj.hasOwnProperty(key))
 			keys.push(key);
 	return keys;
 }
@@ -2562,17 +2581,17 @@ function getKeys(obj)
 function getAttributes(targ)
 {
 	var d = document, div2 = document.createElement('div');
-	if (targ.tagName) div2.innerHTML = "<b>" + targ.tagName.toLowerCase() + "</b>";
-	if (targ.attributes)
+	if(targ.tagName) div2.innerHTML = "<b>" + targ.tagName.toLowerCase() + "</b>";
+	if(targ.attributes)
 	{
 		var ta = targ.attributes;
 		var str = ' ';
 		for (var i = 0; i < ta.length; i++)
 		{
-			if (ta[i])
+			if(ta[i])
 			{
 				str += "<em>" + ta[i].name + "</em> ";
-				if (removeWhitespace(ta[i].value) != "hovered")
+				if(removeWhitespace(ta[i].value) != "hovered")
 				{
 					str += '=\"' + ta[i].value + '\" ';
 					str = str.replace(/hovered/g, '');
@@ -2586,7 +2605,7 @@ function getAttributes(targ)
 		div2.innerHTML += str;
 		str = '';
 		var k = getKeys(targ);
-		for (i = 0; i < k.length; i++) if (k[i] !== 'addEventListener') str += k[i] + ' ';
+		for (i = 0; i < k.length; i++) if(k[i] !== 'addEventListener') str += k[i] + ' ';
 		var events = document.createElement('em');
 		events.appendChild(document.createTextNode(str));
 		div2.appendChild(events);
@@ -2609,8 +2628,8 @@ function analyze_mouseoverHandler(e)
 	b.appendChild(document.createTextNode(''));
 	e.stopPropagation();
 	var targ;
-	if (!e) e = window.event;
-	if (e.target)
+	if(!e) e = window.event;
+	if(e.target)
 	{
 		targ = e.target;
 	}
@@ -2647,7 +2666,7 @@ function cleanupUnicode()
 
 function analyze()
 {
-	if (!get("#analyzer"))
+	if(!get("#analyzer"))
 	{
 		var b = document.createElement("div");
 		b.id = "analyzer";
@@ -2672,14 +2691,14 @@ function analyze_clickHandler(e)
 {
 	e.stopPropagation();
 	var targ;
-	if (!e) e = window.event;
-	if (e.target)
+	if(!e) e = window.event;
+	if(e.target)
 	{
 		targ = e.target;
 	}
-	if (e.shiftKey)
+	if(e.shiftKey)
 	{
-		if (get("#analyzer"))
+		if(get("#analyzer"))
 		{
 			prompt("", get("#analyzer").textContent);
 		}
@@ -2693,9 +2712,9 @@ function highlightPagination()
 	for (i = elems.length - 1; i >= 0; i--)
 	{
 		c = elems[i].className;
-		if (c && c.length)
+		if(c && c.length)
 		{
-			if (c.indexOf("page") >= 0 || c.indexOf("pagin") >= 0)
+			if(c.indexOf("page") >= 0 || c.indexOf("pagin") >= 0)
 			{
 				wrapElement(elems[i], "h1");
 			}
@@ -2798,7 +2817,7 @@ function highlightButton()
 		return;
 	}
 	for (i = 0; i < len; i++)
-		if (inputs[i].type && (inputs[i].type == "button" || inputs[i].type == "submit"))
+		if(inputs[i].type && (inputs[i].type == "button" || inputs[i].type == "submit"))
 			inputfields.push(inputs[i]);
 	found = false;
 	for(i = 0, ii = inputfields.length; i < ii; i++)
@@ -2819,7 +2838,7 @@ function highlightButton()
 
 function highlightText(s)
 {
-	if (!s)
+	if(!s)
 	{
 		s = prompt("Text to highlight");
 	}
@@ -2834,7 +2853,7 @@ function highlightText(s)
 function showLog(prepend)
 {
 	var logDiv;
-	if (logString.length > 0)
+	if(logString.length > 0)
 	{
 		logDiv = document.createElement("log");
 		logDiv.innerHTML = logString;
@@ -2926,7 +2945,7 @@ function fillForms()
 	i = e.length;
 	while(i--)
 	{
-		if (e[i].getAttribute("type") == "submit")
+		if(e[i].getAttribute("type") == "submit")
 		{
 			e[i].focus();
 			break;
@@ -2956,7 +2975,7 @@ function createElementWithChild(tag, obj)
 function createElementWithText(tag, str)
 {
 	var e = document.createElement(tag);
-	if (e)
+	if(e)
 		e.textContent = str;
 	return e;
 }
@@ -3060,15 +3079,15 @@ function insertStyleNegative()
 function initialize()
 {
 	var load = true;
-	if (location.hostname)
+	if(location.hostname)
 	{
 		switch (location.hostname)
 		{
 			case "maps.google.com.au":
 			case "maps.google.com":
 			case "sn132w.snt132.mail.live.com":
-			case "dropbox.com":
-			case "www.dropbox.com":
+			//case "dropbox.com":
+			//case "www.dropbox.com":
 				load = false;
 				break;
 			case "www.imdb.com":
@@ -3198,9 +3217,9 @@ function initialize()
 				load = true;
 		}
 	}
-	if (load)
+	if(load)
 	{
-		inject();
+		setTimeout(inject, 200);
 	}
 	else
 	{
