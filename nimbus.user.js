@@ -110,6 +110,24 @@ function showResources()
 	insertStyle(".xlog{ background: #000 !important; color: #FFF !important; margin: 0 !important; padding: 5px 10px !important; } .xlog a{text-decoration: none !important; letter-spacing: 0 !important; font: 12px verdana !important; text-transform: none !important; color: #09F !important; } .xlog a:visited { color: #059 !important; } .xlog a:hover { color: #FFF !important; }", "style_show_resources");
 }
 
+function makeDocumentClickable()
+{
+	var db = document.body;
+	if(get("#view-document-structure"))
+	{
+		del("#view-document-structure");
+		db.removeEventListener('mouseup', clickHandler, false);
+		removeClass(db, "debug");
+	}
+	else
+	{
+		db.addEventListener('mouseup', clickHandler, false);
+		db.className += " debug";
+		insertStyle("header, footer, article, aside, section, div, blockquote { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F !important; } form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90 !important; background: rgba(255, 150, 0, 0.5) !important; } table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; } ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0 !important; } h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; } a, a * { background: rgba(180, 255, 0, 0.5) !important; }", "view-document-structure");
+	}
+}
+
+
 function showDocumentStructure()
 {
 	if(get("#view-document-structure"))
@@ -118,7 +136,7 @@ function showDocumentStructure()
 	}
 	else
 	{
-		insertStyle("header, footer, article, aside, section, div, blockquote { box-shadow: inset 1px 1px #000, inset -1px -1px #000 !important; } form, input, button { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90 !important; background: rgba(255, 150, 0, 0.5) !important; } table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; } ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0 !important; } h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; } a, a * { background: #AF0 !important; } ", "view-document-structure");
+		insertStyle("header, footer, article, aside, section, div, blockquote { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F !important; } form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90 !important; background: rgba(255, 150, 0, 0.5) !important; } table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; } ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0 !important; } h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; } a, a * { background: rgba(180, 255, 0, 0.5) !important; } ", "view-document-structure");
 	}
 }
 
@@ -233,26 +251,33 @@ function showMessage(s)
 	//setTimeout(deleteMessage, 5000);
 }
 
-function showAlert(s)
-{
-	var e;
-	if(!get(".xalert").length)
-	{
-		e = document.createElement("h2");
-		e.className = "xalert";
-		document.body.insertBefore(e, document.body.firstChild);
-		insertStyle('.xalert { position: absolute; margin: auto; z-index: 10000; height: 70px !important; top: 0 !important; left: 0px !important; bottom: 0px !important; right: 0 !important; background: #111 !important; color: #FFF !important; margin: 0px !important; padding: 0 !important; font: 32px "swis721 cn bt", verdana !important; line-height: 70px !important; padding: 0 20px !important; display: block !important; text-transform: none !important; }');
-	}
-	else
-		e = get(".xmessage")[0];
-	e.textContent = s;
-	setTimeout(deleteMessage, 2000);
-}
-
 function deleteMessage()
 {
 	del(".xmessage");
 	del(".xalert");
+}
+
+function showDialog(s)
+{
+	var e;
+	if(!get("#xdialog"))
+	{
+		e = document.createElement("input");
+		e.id = "xdialog";
+		document.body.insertBefore(e, document.body.firstChild);
+		insertStyle('#xdialog { position: absolute; margin: auto; z-index: 10000; height: 400px !important; top: 0 !important; left: 0px !important; bottom: 0px !important; right: 0 !important; background: #111 !important; color: #FFF !important; padding: 0 !important; font: 32px "swis721 cn bt", verdana !important; line-height: 70px !important; padding: 0 20px !important; display: block !important; text-transform: none !important; width: 800px !important; }', "xdialog");
+		e.focus();
+		e.addEventListener("keydown", guiHandler, false);
+	}
+	else
+		e = get("#xdialog");
+}
+
+function guiHandler(e)
+{
+	e.stopPropagation();
+	var k = e.keyCode;
+	showMessage(String.fromCharCode(k));
 }
 
 function handleKeyDown(e)
@@ -364,13 +389,11 @@ function handleKeyDown(e)
 			break;
 		case 56:
 			//8
-			db.addEventListener('mouseup', clickHandler, false);
-			db.className += " debug";
+			makeDocumentClickable();
 			break;
 		case 57:
 			//9
-			removeClass(db, "debug");
-			db.removeEventListener('mouseup', clickHandler, false);
+			ylog("unbound", "h2", true);
 			break;
 		case 73:
 			// i
@@ -726,10 +749,13 @@ function highlightElement()
 	if(!s.length)
 		return;
 	var e = get(s);
-	var i = e.length;
-	while(i--)
+	if(e.length)
 	{
-		e[i].className += " hl";
+		var i = e.length;
+		while(i--)
+		{
+			e[i].className += " hl";
+		}
 	}
 	insertStyle(".hl { box-shadow: inset 10px 10px #F00, inset -10px -10px #F00 !important; }")
 }
