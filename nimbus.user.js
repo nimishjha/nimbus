@@ -13,6 +13,16 @@ var debug = true;
 var logString = "";
 initialize();
 
+function get(s)
+{
+	s = s.toString();
+	var t = s.substr(1, s.length - 1);
+	if(s.indexOf("#") === 0) return document.getElementById(t);
+	else if(s.indexOf(".") === 0) return document.getElementsByClassName(t);
+	else if(document.getElementsByTagName(s).length) return document.getElementsByTagName(s);
+	else return 0;
+}
+
 function listProperties(o)
 {
 	var s = "";
@@ -33,13 +43,15 @@ function addClass(ele,cls)
 	if(!this.hasClass(ele,cls)) ele.className += " "+cls;
 }
  
-function removeClass(ele,cls)
+function removeClass(ele, cls)
 {
-	if(hasClass(ele,cls)) {
-		var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)');
-		ele.className=ele.className.replace(reg,' ');
-	}
+	if(!ele)
+		return;
+	var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
+	ele.className = ele.className.replace(reg, ' ');
+	if(removeWhitespace(ele.className) === '') ele.removeAttribute("class");
 }
+
 
 function getDebugData()
 {
@@ -622,7 +634,7 @@ function handleKeyDown(e)
 			break;
 		case 80:
 			//p
-			deleteEmptyParagraphs();
+			deleteEmptyElements("*");
 			break;
 		case 82:
 			//r
@@ -1050,16 +1062,6 @@ function handleMouseUp(e)
 			return false;
 		}
 	}
-}
-
-function get(s)
-{
-	s = s.toString();
-	var t = s.substr(1, s.length - 1);
-	if(s.indexOf("#") === 0) return document.getElementById(t);
-	else if(s.indexOf(".") === 0) return document.getElementsByClassName(t);
-	else if(document.getElementsByTagName(s).length) return document.getElementsByTagName(s);
-	else return 0;
 }
 
 function count(s)
@@ -1912,7 +1914,7 @@ function delClassOrIdContaining(classes, beginningOnly)
 		todel[i].className += ' hl';
 }
 
-function deleteNonContentDivs(classes)
+function deleteNonContentDivs_old(classes)
 {
 	if(get(".hl").length)
 	{
@@ -1949,11 +1951,64 @@ function deleteNonContentDivs(classes)
 	delClassOrIdContaining(c);
 }
 
-function removeClass(ele, cls)
+function getElements(str)
 {
-	var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
-	ele.className = ele.className.replace(reg, ' ');
-	if(removeWhitespace(ele.className) === '') ele.removeAttribute("class");
+	var s = "", found = 0, f;
+	f = get(str);
+	tempNode = document.createElement("div");
+	tempNode.id = "replacerDiv";
+	if (f && f.length)
+	{
+		for (i = 0; i < f.length; i++)
+			tempNode.appendChild(f[i].cloneNode(true));
+		document.body.innerHTML = "";
+		document.body.appendChild(tempNode.cloneNode(true), document.body.firstChild);
+	}
+	else if (f)
+	{
+		document.body.innerHTML = "";
+		document.body.appendChild(f.cloneNode(true), document.body.firstChild);
+	}
+	else
+	{
+		alert("Not found");
+	}
+}
+
+function deleteNonContentDivs()
+{
+	replaceElement("article", "div");
+
+	deleteNonContentLists();
+	deleteNonContentImages();
+	deleteEmptyParagraphs();
+	deleteEmptyElements("*");
+
+	var e = get("p");
+	if(e == 0)
+	{
+		ylog("No paragraphs found", "h3", true);
+	}
+	for(var i = 0, ii = e.length; i < ii; i++)
+	{
+		if(e[i].parentNode)
+			addClass(e[i].parentNode, "toget");
+	}
+	// hls that are children of other hls need to have their hl class removed
+	e = get(".toget");
+	for(var i = 0, ii = e.length; i < ii; i++)
+	{
+		var f = e[i].getElementsByClassName("toget");
+		for(var j = 0, jj = f.length; j < jj; j++)
+		{
+			removeClass(f[j], "toget");
+		}
+		e = get(".toget");
+		ii = e.length;
+	}
+	getElements(".toget");
+	del(["link", "style", "script"]);
+	document.body.className = "pad100";
 }
 
 function formatContent()
@@ -2001,19 +2056,25 @@ function deleteEmptyParagraphs()
 
 function deleteEmptyElements(tag)
 {
-	var p = document.getElementsByTagName(tag);
-	var i = p.length;
+	var t1 = new Date();
+	var e = document.getElementsByTagName(tag);
+	var i = e.length;
 	while (i--)
 	{
-		if(p[i].textContent.length)
+		if(!e[i].getElementsByTagName("img").length)
 		{
-			if(removeWhitespace(p[i].textContent).length === 0) p[i].parentNode.removeChild(p[i]);
-		}
-		else
-		{
-			p[i].parentNode.removeChild(p[i]);
+			if(e[i].textContent && removeWhitespace(e[i].textContent).length === 0)
+			{
+				e[i].parentNode.removeChild(e[i]);
+			}
+			else
+			{
+				e[i].parentNode.removeChild(e[i]);
+			}
 		}
 	}
+	var t2 = new Date();
+	ylog(t2-t1 + " ms: deleteEmptyElements");
 }
 
 function deleteEmptyHeadings()
@@ -3214,8 +3275,8 @@ function initialize()
 				highlightNodesContaining("label", ".rar");
 				replaceElement("label", "h3");
 				break;
-			case 'astackoverflow.com':
-			case 'asuperuser.com':
+			case 'stackoverflow.com':
+			case 'superuser.com':
 				getContent();
 				del("img");
 				del("#sidebar");
