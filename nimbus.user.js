@@ -634,7 +634,9 @@ function handleKeyDown(e)
 			break;
 		case 80:
 			//p
-			deleteEmptyElements("*");
+			deleteEmptyElements("p");
+			deleteEmptyElements("div");
+			deleteEmptyHeadings();
 			break;
 		case 82:
 			//r
@@ -2059,22 +2061,21 @@ function deleteEmptyElements(tag)
 	var t1 = new Date();
 	var e = document.getElementsByTagName(tag);
 	var i = e.length;
-	while (i--)
+	while(i--)
 	{
-		if(!e[i].getElementsByTagName("img").length)
+		if( e[i].textContent )
 		{
-			if(e[i].textContent && removeWhitespace(e[i].textContent).length === 0)
-			{
+			if( removeWhitespace(e[i].textContent).length === 0 && !e[i].getElementsByTagName("img").length )
 				e[i].parentNode.removeChild(e[i]);
-			}
-			else
-			{
+		}
+		else
+		{
+			if( !e[i].getElementsByTagName("img").length)
 				e[i].parentNode.removeChild(e[i]);
-			}
 		}
 	}
 	var t2 = new Date();
-	ylog(t2-t1 + " ms: deleteEmptyElements");
+	xlog(t2-t1 + " ms: deleteEmptyElements");
 }
 
 function deleteEmptyHeadings()
