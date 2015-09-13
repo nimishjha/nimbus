@@ -1295,7 +1295,7 @@ function sanitizeTitle(s)
 	s = s.replace(/\u00df/g, 'SS');
 
 	s = s.replace(/[:|\?]/g, " - ");
-	s = s.replace(/[^0-9A-Za-z_!@\[\]\-\(\)'",]/g, " ");
+	s = s.replace(/[^\.\(\)0-9A-Za-z_!@\[\]\-\(\)'",]/g, " ");
 	s = s.replace(/\s+/g, " ");
 	return s;
 }
@@ -1987,15 +1987,29 @@ function deleteNonContentDivs()
 	deleteEmptyElements("*");
 
 	var e = get("p");
-	if(e == 0)
+	if(!e)
 	{
 		ylog("No paragraphs found", "h3", true);
+		return;
 	}
 	for(var i = 0, ii = e.length; i < ii; i++)
 	{
 		if(e[i].parentNode)
 			addClass(e[i].parentNode, "toget");
 	}
+
+	e = get("h1");
+	if(!e)
+	{
+		ylog("No H1s found", "h3", true);
+		return;
+	}
+	for(i = 0, ii = e.length; i < ii; i++)
+	{
+		if(e[i].parentNode)
+			addClass(e[i].parentNode, "toget");
+	}
+
 	// hls that are children of other hls need to have their hl class removed
 	e = get(".toget");
 	for(var i = 0, ii = e.length; i < ii; i++)
@@ -3130,6 +3144,17 @@ function fixForums()
 	del(".signature");
 }
 
+function removeAccesskeys()
+{
+	var e = get("a");
+	var i = e.length;
+	while(i--)
+	{
+		if(e[i].hasAttribute("accesskey"))
+			e[i].removeAttribute("accesskey");
+	}
+}
+
 function inject()
 {
 	//del("iframe");
@@ -3138,6 +3163,7 @@ function inject()
 	deleteUselessIframes();
 	showPassword();
 	fixForums();
+	removeAccesskeys();
 	//appendInfo();
 }
 
