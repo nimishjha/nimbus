@@ -57,6 +57,8 @@ function getDebugData()
 {
 	var e, i;
 	e = get("pre");
+	if(!e)
+		return;
 	i = e.length;
 	while(i--)
 		if(e[i].innerHTML.indexOf("cache-&gt;") >= 0)
@@ -2854,7 +2856,6 @@ function highlightForm()
 	var inputs, len, i, ii, found, e = [];
 	inputs = get("input");
 	len = inputs.length;
-	// ylog("number of input fields: " + len, "h1", true);
 	if(len === 1)
 	{
 		inputs[0].focus();
@@ -3237,7 +3238,6 @@ function initialize()
 				break;
 			case "forums.whirlpool.net.au":
 				del(["h1", "h2"]);
-				highlightNodesContaining("a", "Micron21");
 				replaceElement("mark", "samp");
 				replaceElement(".wcrep1", "blockquote");
 				replaceElement(".replyuser", "h5");
@@ -3272,7 +3272,6 @@ function initialize()
 				//	location.href = get(".the_photo")[0].src;
 				break;
 			case 'www.flickr.com':
-				//del('.global-nav-shim');
 				insertStyle('body, .pp-box, .sub-photo-container, .sub-photo-view, .fluid-subnav {background: #181818 !important; color: #666 !important;} .sub-photo-left-view img, .spaceball { display: none !important;} .photo-display-container .row .photo-display-item, .new-comment-text, #gn-search-field, .meta-field {background: #111 !important; color: #999 !important;}.global-nav-restyle .global-nav-content, .fluid .fluid-subnav.fixed { position: relative !important; }a{color:#CCC!important;}a:hover{color:#FFF!important;}');
 				setTimeout(doFlickr, 10000);
 				break;
@@ -3319,13 +3318,6 @@ function initialize()
 				break;
 			case 'thenounproject.com':
 				insertStyle('body, div, section, ul, li, input {background: #181818  !important; color: #FFF !important; }img{ filter: invert(1); }')
-				break;
-			case 'localhost':
-				// for phpmyadmin, may be no longer needed
-				//insertStyle('#page_content { margin: 0 0 0 400px; }');
-				break;
-			case 'developer.mozilla.org':
-				
 				break;
 			default:
 				load = true;
