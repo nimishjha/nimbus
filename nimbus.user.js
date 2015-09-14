@@ -40,7 +40,7 @@ function hasClass(ele,cls)
  
 function addClass(ele,cls)
 {
-	if(!this.hasClass(ele,cls)) ele.className += " "+cls;
+	if(!hasClass(ele,cls)) ele.className += " "+cls;
 }
  
 function removeClass(ele, cls)
@@ -646,10 +646,11 @@ function handleKeyDown(e)
 			highlightParagraph(s);
 			break;
 		case 84:
-			//T - insert timestamp
-			var d = new Date();
-			s = zeroPad(d.getDate()) + "-" + zeroPad(d.getMonth()+1) + "-" + zeroPad(d.getFullYear());
-			prompt("Date", s);
+			//T
+			//var d = new Date();
+			//s = zeroPad(d.getDate()) + "-" + zeroPad(d.getMonth()+1) + "-" + zeroPad(d.getFullYear());
+			//prompt("Date", s);
+			setDocTitle();
 			break;
 		case 86:
 			//V
@@ -1202,7 +1203,7 @@ function chooseDocumentHeading()
 		e = document.getElementsByTagName(candidateTags[i]);
 		for(j = 0, jj = e.length; j < jj; j++)
 		{
-			if(e[j].textContent && e[j].textContent.indexOf("iframe:") === -1)
+			if(e[j].textContent && e[j].textContent.indexOf("iframe:") === -1 && ns(e[j].textContent).length > 3)
 			{
 				s = e[j].textContent;
 				found = true;
@@ -1212,7 +1213,7 @@ function chooseDocumentHeading()
 		if(found)
 			break;
 	}
-	if(!s.length)
+	if(s.length < 3)
 	{
 		if(document.title)
 			s = document.title;
@@ -1716,17 +1717,10 @@ function logout()
 			{
 				found = true;
 				ylog("Logging out...", "h1", true);
-				if(e[i].href)
-				{
-					var tempLink = document.createElement("a");
-					tempLink.href = tempLink.textContent = e[i].href; 
-					document.body.insertBefore(tempLink, document.body.firstChild);
-					tempLink.click();
-				}
-				else
-				{
-					e[i].click();
-				}
+				var tempLink = document.createElement("a");
+				tempLink.href = tempLink.textContent = e[i].href;
+				document.body.insertBefore(tempLink, document.body.firstChild);
+				tempLink.click();
 				break;
 			}
 		}
@@ -1988,24 +1982,18 @@ function deleteNonContentDivs()
 	deleteEmptyParagraphs();
 	deleteEmptyElements("*");
 
-	var e = get("p");
-	if(!e)
+	var tag = ["p", "img", "h1", "h2"];
+	var j = tag.length;
+	while(j--)
 	{
-		ylog("No paragraphs found", "h3", true);
-		return;
-	}
-	for(var i = 0, ii = e.length; i < ii; i++)
-	{
-		if(e[i].parentNode)
-			addClass(e[i].parentNode, "toget");
+		var e = get(tag[j]);
+		for(var i = 0, ii = e.length; i < ii; i++)
+		{
+			if(e[i].parentNode)
+				addClass(e[i].parentNode, "toget");
+		}
 	}
 
-	e = get("h1");
-	if(!e)
-	{
-		ylog("No H1s found", "h3", true);
-		return;
-	}
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
 		if(e[i].parentNode)
@@ -2014,7 +2002,7 @@ function deleteNonContentDivs()
 
 	// hls that are children of other hls need to have their hl class removed
 	e = get(".toget");
-	for(var i = 0, ii = e.length; i < ii; i++)
+	for(var i = 0; i < e.length; i++)
 	{
 		var f = e[i].getElementsByClassName("toget");
 		for(var j = 0, jj = f.length; j < jj; j++)
@@ -2022,9 +2010,9 @@ function deleteNonContentDivs()
 			removeClass(f[j], "toget");
 		}
 		e = get(".toget");
-		ii = e.length;
 	}
 	getElements(".toget");
+	removeAttributes();
 	del(["link", "style", "script"]);
 	document.body.className = "pad100";
 }
@@ -2556,6 +2544,7 @@ function getContentDivs(classes)
 
 function getContent()
 {
+	del(["aside", "footer"]);
 	if(get("#content"))
 		document.body.innerHTML = get("#content").innerHTML;
 	else
