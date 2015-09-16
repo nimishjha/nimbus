@@ -3307,6 +3307,9 @@ function initialize()
 			case 'thenounproject.com':
 				insertStyle('body, div, section, ul, li, input {background: #181818  !important; color: #FFF !important; }img{ filter: invert(1); }')
 				break;
+			case 'localhost':
+				insertStyle('#page_content { margin: 0 0 0 400px; }');
+				break;
 			default:
 				load = true;
 		}
