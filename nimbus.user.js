@@ -150,7 +150,7 @@ function showDocumentStructure()
 	}
 	else
 	{
-		insertStyle("header, footer, article, aside, section, div, blockquote { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F !important; } form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90 !important; background: rgba(255, 150, 0, 0.5) !important; } table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; } ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0 !important; } h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; } a, a * { background: rgba(180, 255, 0, 0.5) !important; } ", "view-document-structure");
+		insertStyle("header, footer, article, aside, section, div, blockquote { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F !important; } form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90 !important; background: rgba(255, 150, 0, 0.2) !important; } table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; } ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0 !important; } h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; } a, a * { background: rgba(180, 255, 0, 0.25) !important; } img{ background: rgba(0, 0, 0, 0.5) !important; }", "view-document-structure");
 	}
 }
 
@@ -2079,7 +2079,7 @@ function deleteEmptyElements(tag)
 		}
 	}
 	var t2 = new Date();
-	xlog(t2-t1 + " ms: deleteEmptyElements");
+	xlog(t2-t1 + " ms: deleteEmptyElements('" + tag + "')");
 }
 
 function deleteEmptyHeadings()
