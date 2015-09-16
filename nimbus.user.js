@@ -244,8 +244,6 @@ function cleanupBlogs()
 	deleteElementsContainingText("div", "Thanked");
 	deleteElementsContainingText("table", "Users Say Thank You to");
 	deleteElementsContainingText("table", "View Public Profile");
-	//deleteElementsContainingText("p", "Like or Dislike");
-	//deleteElementsContainingText("p", "Hot debate. What do you think");
 	del(["#share", "#comments_posting"]);
 }
 
@@ -276,21 +274,29 @@ function showDialog(s)
 	var e;
 	if(!get("#xdialog"))
 	{
-		e = document.createElement("input");
+		e = document.createElement("textarea");
 		e.id = "xdialog";
 		document.body.insertBefore(e, document.body.firstChild);
-		insertStyle('#xdialog { position: absolute; margin: auto; z-index: 10000; height: 400px !important; top: 0 !important; left: 0px !important; bottom: 0px !important; right: 0 !important; background: #111 !important; color: #FFF !important; padding: 0 !important; font: 32px "swis721 cn bt", verdana !important; line-height: 70px !important; padding: 0 20px !important; display: block !important; text-transform: none !important; width: 800px !important; }', "xdialog");
+		insertStyle('#xdialog { position: absolute; margin: auto; z-index: 10000; height: 400px !important; top: 0 !important; left: 0px !important; bottom: 0px !important; right: 0 !important; background: #111 !important; color: #FFF !important; padding: 0 !important; font: 32px "swis721 cn bt", verdana !important; line-height: 70px !important; padding: 0 20px !important; display: block !important; text-transform: none !important; width: 800px !important; }', "style-xdialog");
 		e.focus();
 		e.addEventListener("keydown", guiHandler, false);
 	}
 	else
-		e = get("#xdialog");
+	{
+		del("#xdialog");
+		del("#style-xdialog");
+	}
 }
 
 function guiHandler(e)
 {
 	e.stopPropagation();
 	var k = e.keyCode;
+	if(k === 27)
+	{
+		del("#xdialog");
+		return;
+	}
 	showMessage(String.fromCharCode(k));
 }
 
@@ -628,7 +634,7 @@ function handleKeyDown(e)
 			break;
 		case 77:
 			//M
-			showAlert("This is an alert");
+			showDialog("Test dialog");
 			break;
 		case 49:
 			//1 - insert 'negative' style
@@ -1976,11 +1982,10 @@ function getElements(str)
 function deleteNonContentDivs()
 {
 	replaceElement("article", "div");
-
 	deleteNonContentLists();
 	deleteNonContentImages();
 	deleteEmptyParagraphs();
-	deleteEmptyElements("*");
+	deleteEmptyElements("div");
 
 	var tag = ["p", "img", "h1", "h2"];
 	var j = tag.length;
@@ -1994,18 +1999,13 @@ function deleteNonContentDivs()
 		}
 	}
 
-	for(i = 0, ii = e.length; i < ii; i++)
-	{
-		if(e[i].parentNode)
-			addClass(e[i].parentNode, "toget");
-	}
-
 	// hls that are children of other hls need to have their hl class removed
 	e = get(".toget");
 	for(var i = 0; i < e.length; i++)
 	{
 		var f = e[i].getElementsByClassName("toget");
-		for(var j = 0, jj = f.length; j < jj; j++)
+		var j = f.length;
+		while(j--)
 		{
 			removeClass(f[j], "toget");
 		}
@@ -2014,6 +2014,7 @@ function deleteNonContentDivs()
 	getElements(".toget");
 	removeAttributes();
 	del(["link", "style", "script"]);
+	//insertStyle(".toget{ background: rgba(0, 200, 0, 0.5); }");
 	document.body.className = "pad100";
 }
 
@@ -2517,24 +2518,22 @@ function getPager(div)
 function getContentDivs(classes)
 {
 	var toget = [];
-	var x = document.getElementsByTagName("div"), i, j, wrapper;
+	var x = document.getElementsByTagName("div"), i, j;
 	i = x.length;
-	wrapper = document.createElement("div");
 	while (i--)
 	{
-		x[i].className += " hl";
 		for (j = 0; j < classes.length; j++)
 		{
-			xlog(classes[j]);
+			//xlog("testing for classes containing " + classes[j]);
 			if(x[i].className && x[i].className.toLowerCase().indexOf(classes[j]) >= 0)
 			{
-				x[i].className = '';
+				x[i].className += " hl";
 				xlog('Getting: ' + x[i].className);
 				break;
 			}
 			else if(x[i].id && x[i].id.toLowerCase().indexOf(classes[j]) >= 0)
 			{
-				x[i].className = '';
+				x[i].className += " hl";
 				xlog('Getting: ' + x[i].id);
 				break;
 			}
@@ -2548,7 +2547,7 @@ function getContent()
 	if(get("#content"))
 		document.body.innerHTML = get("#content").innerHTML;
 	else
-		getContentDivs(['content']);
+		ylog("#content not found", "h3", true);
 }
 
 function deleteImagesBySrcContaining(str)
