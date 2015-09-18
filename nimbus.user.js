@@ -168,7 +168,7 @@ function showDocumentStructure2()
 
 function showDocumentStructureWithNames()
 {
-	if(document.body.className.indexOf("showdivs") != -1)
+	if(hasClass(document.body, "showdivs"))
 	{
 		del("x");
 		del("#showDivs");
@@ -190,7 +190,7 @@ function showDocumentStructureWithNames()
 		}
 	}
 	document.body.className += " showdivs";
-	insertStyle('div, aside, section { box-shadow: inset 2px 2px #000, inset -2px -2px #000 !important; padding: 30px 10px 10px 10px !important; margin-top: 10px !important; } x {color: #FF0 !important; background: #000 !important; font: 12px verdana !important; padding: 2px 4px !important; letter-spacing: 0 !important; display: block !important; margin: -30px -10px 0 -10px !important; }', 'showDivs');
+	insertStyle('div, aside, section, header, footer, aside, ul, ol { box-shadow: inset 2px 2px #000, inset -2px -2px #000 !important; padding: 30px 10px 10px 10px !important; margin-top: 10px !important; } x {color: #FFF !important; background: #000 !important; font: 12px verdana !important; padding: 5px 10px !important; letter-spacing: 0 !important; display: block !important; margin: -30px -10px 0 -10px !important; }', 'showDivs');
 }
 
 function deleteUselessIframes()
