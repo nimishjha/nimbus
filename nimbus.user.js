@@ -150,7 +150,7 @@ function showDocumentStructure()
 	}
 	else
 	{
-		insertStyle("header, footer, article, aside, section, div, blockquote { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F !important; } form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90 !important; background: rgba(255, 150, 0, 0.2) !important; } table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; } ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0 !important; } h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; } a, a * { background: rgba(180, 255, 0, 0.25) !important; } img{ background: rgba(0, 0, 0, 0.5) !important; }", "view-document-structure");
+		insertStyle("header, footer, article, aside, section, div, blockquote { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F !important; } form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90 !important; background: rgba(255, 150, 0, 0.2) !important; } table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; } ul, ol, li { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0 !important; } h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; } a, a * { background: rgba(180, 255, 0, 0.25) !important; } img{ background: #800 !important; padding: 2px !important; box-sizing: border-box !important; }", "view-document-structure");
 	}
 }
 
@@ -190,7 +190,7 @@ function showDocumentStructureWithNames()
 		}
 	}
 	document.body.className += " showdivs";
-	insertStyle('div, aside, section { box-shadow: inset 2px 2px #000, inset -2px -2px #000 !important; padding: 30px 10px 10px 10px !important; } x {color: #FF0 !important; background: #000 !important; font: 12px verdana !important; padding: 2px 4px !important; letter-spacing: 0 !important; display: block !important; margin: -30px -10px 0 -10px !important; }', 'showDivs');
+	insertStyle('div, aside, section { box-shadow: inset 2px 2px #000, inset -2px -2px #000 !important; padding: 30px 10px 10px 10px !important; margin-top: 10px !important; } x {color: #FF0 !important; background: #000 !important; font: 12px verdana !important; padding: 2px 4px !important; letter-spacing: 0 !important; display: block !important; margin: -30px -10px 0 -10px !important; }', 'showDivs');
 }
 
 function deleteUselessIframes()
@@ -691,6 +691,27 @@ function handleKeyDown(e)
 	window.focus();
 }
 
+function doStackOverflow()
+{
+	var sites = ["stackexchange", "stackoverflow", "superuser"], found = false;
+	for(var i = 0, ii = sites.length; i < ii; i++)
+	{
+		if(location.hostname.indexOf(sites[i]) !== -1)
+		{
+			found = true;
+			break;
+		}
+	}
+	if(found)
+	{
+		getContent();
+		del("img");
+		del("#sidebar");
+		cleanupGeneral();
+		highlightCode();
+	}
+}
+
 function doFlickr()
 {
 	getLinksWithHrefContaining("_o_d.");
@@ -761,13 +782,13 @@ function clickThanks()
 
 function highlightElement()
 {
-	if(get(".hl").length > 0)
+/*	if(get(".hl").length > 0)
 	{
 		forAll(".hl", function(x){
 			removeClass(x, "hl");
 		});
 		return;
-	}
+	}*/
 	var s = prompt("Enter element to highlight");
 	if(!s.length)
 		return;
@@ -780,7 +801,7 @@ function highlightElement()
 			e[i].className += " hl";
 		}
 	}
-	insertStyle(".hl { box-shadow: inset 10px 10px #F00, inset -10px -10px #F00 !important; }")
+	insertStyle(".hl { box-shadow: inset 10px 10px #F00, inset -10px -10px #F00 !important; }");
 }
 
 function highlightParagraph(tag)
@@ -1955,10 +1976,10 @@ function deleteNonContentDivs_old(classes)
 	delClassOrIdContaining(c);
 }
 
-function getElements(str)
+function getElementsWithClass(strClass)
 {
 	var s = "", found = 0, f;
-	f = get(str);
+	f = get(strClass);
 	tempNode = document.createElement("div");
 	tempNode.id = "replacerDiv";
 	if (f && f.length)
@@ -2011,9 +2032,9 @@ function deleteNonContentDivs()
 		}
 		e = get(".toget");
 	}
-	getElements(".toget");
+	getElementsWithClass(".toget");
 	removeAttributes();
-	del(["link", "style", "script"]);
+	del(["link", "style", "script", "form", "fieldset", "input", "select", "textarea"]);
 	//insertStyle(".toget{ background: rgba(0, 200, 0, 0.5); }");
 	document.body.className = "pad100";
 }
@@ -3154,6 +3175,8 @@ function inject()
 	fixForums();
 	removeAccesskeys();
 	//appendInfo();
+	insertStyle(" .hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00 !important; } .hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F !important; } .hl::after, .hl2::after { content: ' '; display: block; clear: both; }");
+	doStackOverflow();
 }
 
 function showPassword()
@@ -3288,14 +3311,6 @@ function initialize()
 				highlightNodesContaining("span", "Password");
 				highlightNodesContaining("label", ".rar");
 				replaceElement("label", "h3");
-				break;
-			case 'stackoverflow.com':
-			case 'superuser.com':
-				getContent();
-				del("img");
-				del("#sidebar");
-				cleanupGeneral();
-				highlightCode();
 				break;
 			case 'theawesomer.com':
 				replaceElement("h2", "h6");
