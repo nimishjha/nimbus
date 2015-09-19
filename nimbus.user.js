@@ -300,6 +300,49 @@ function guiHandler(e)
 	showMessage(String.fromCharCode(k));
 }
 
+function removeNonAlpha(s)
+{
+	return s.replace(/[^A-Za-z]/g, '');
+}
+
+function prevPage()
+{
+	var links, i, s;
+	links = get("a");
+	i = links.length;
+	while(i--)
+	{
+		if(s = links[i].textContent)
+		{
+			s = removeNonAlpha(s).toLowerCase();
+			if(s === "prev" || s === "previous")
+			{
+				location.href = links[i].href;
+				return;
+			}
+		}
+	}
+}
+
+function nextPage()
+{
+	var links, i, s;
+	links = get("a");
+	i = links.length;
+	while(i--)
+	{
+		if(s = links[i].textContent)
+		{
+			s = removeNonAlpha(s).toLowerCase();
+			if(s === "next" || s === "nextpage")
+			{
+				location.href = links[i].href;
+				return;
+			}
+		}
+	}
+}
+
 function handleKeyDown(e)
 {
 	if(!(e.altKey || e.shiftKey || e.ctrlKey))
@@ -620,6 +663,12 @@ function handleKeyDown(e)
 		var s;
 		switch (k)
 		{
+		case 37: // left arrow
+			prevPage();
+			break;
+		case 39: // right arrow
+			nextPage();
+			break;
 		case 70:
 			//F
 			del(["object", "embed", "video"]);
@@ -730,9 +779,13 @@ function doYoutube()
 	del("embed");
 	del(".comments");
 	var e = get("video")[0];
-	var s = e.src;
-	e.src = '';
-	e.pause();
+	if(e)
+	{
+		var s = e.src;
+		e.src = '';
+		e.pause();
+	}
+	ylog("doYoutube()");
 }
 
 function doGfycat()
@@ -3227,7 +3280,6 @@ function initialize()
 				break;
 			case "bolt.cd":
 				doBolt();
-				//clickThanks();
 				break;
 			case "en.wikipedia.org":
 			case "secure.wikimedia.org":
@@ -3287,7 +3339,7 @@ function initialize()
 				setTimeout(doFlickr, 10000);
 				break;
 			case 'www.youtube.com':
-				setTimeout(doYoutube, 1000);
+				//setTimeout(doYoutube, 3000);
 				break;
 			case 'gfycat.com':
 			case 'www.gfycat.com':
@@ -3298,10 +3350,6 @@ function initialize()
 				s = s.replace(/giant\./, '');
 				alert(s);
 				location.href = s;
-				break;
-			case 'secure.professionalhosting.com.au':
-				if(location.href.indexOf('phpMyAdmin') > 0)
-					insertStyle('#page_content { margin: 0 0 0 300px !important; }');
 				break;
 			case 'tumblr.com':
 				insertStyle('html, body, body * { background-color: #111 !important; color: #777 !important; }');
