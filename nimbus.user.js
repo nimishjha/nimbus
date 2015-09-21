@@ -190,7 +190,7 @@ function showDocumentStructureWithNames()
 		}
 	}
 	document.body.className += " showdivs";
-	insertStyle('div, aside, section, header, footer, aside, ul, ol { box-shadow: inset 2px 2px #000, inset -2px -2px #000 !important; padding: 30px 10px 10px 10px !important; margin-top: 10px !important; } x {color: #FFF !important; background: #000 !important; font: 12px verdana !important; padding: 5px 10px !important; letter-spacing: 0 !important; display: block !important; margin: -30px -10px 0 -10px !important; }', 'showDivs');
+	insertStyle('div, aside, section, header, footer, aside, ul, ol { box-shadow: inset 2px 2px #000, inset -2px -2px #000 !important; padding: 30px 10px 10px 10px !important; margin-top: 10px !important; } x {color: #FC0 !important; background: #000 !important; font: 12px verdana !important; padding: 5px 10px !important; letter-spacing: 0 !important; display: block !important; margin: -30px -10px 0 -10px !important; }', 'showDivs');
 }
 
 function deleteUselessIframes()
@@ -271,19 +271,22 @@ function deleteMessage()
 
 function showDialog(s)
 {
-	var e;
+	var e, f, g;
 	if(!get("#xdialog"))
 	{
+		f = document.createElement("div");
+		f.id = "xxdialog"
 		e = document.createElement("textarea");
-		e.id = "xdialog";
-		document.body.insertBefore(e, document.body.firstChild);
-		insertStyle('#xdialog { position: absolute; margin: auto; z-index: 10000; height: 400px !important; top: 0 !important; left: 0px !important; bottom: 0px !important; right: 0 !important; background: #111 !important; color: #FFF !important; padding: 0 !important; font: 32px "swis721 cn bt", verdana !important; line-height: 70px !important; padding: 0 20px !important; display: block !important; text-transform: none !important; width: 800px !important; }', "style-xdialog");
+		e.id = "xxdialoginput";
+		f.appendChild(e);
+		document.body.insertBefore(f, document.body.firstChild);
+		insertStyle('#xxdialog { position: absolute; margin: auto; z-index: 10000; height: 400px ; top: 0 ; left: 0px ; bottom: 0px ; right: 0 ; background: #111 ; color: #FFF ; display: block ; text-transform: none ; width: 800px ; } #xxdialoginput { font: 32px "swis721 cn bt", verdana ; background: #000 ; color: #FFF ; padding: 0 ; border: 0 ; }', "style-xdialog");
 		e.focus();
 		e.addEventListener("keydown", guiHandler, false);
 	}
 	else
 	{
-		del("#xdialog");
+		del("#xxdialog");
 		del("#style-xdialog");
 	}
 }
@@ -292,12 +295,20 @@ function guiHandler(e)
 {
 	e.stopPropagation();
 	var k = e.keyCode;
-	if(k === 27)
+	var c = String.fromCharCode(k).toLowerCase();
+	showMessage(c);
+	switch(c)
 	{
-		del("#xdialog");
+		case 'c':
+			ylog("c", "h2", true);
+			break;
+	}
+	if(k === 27) //Esc
+	{
+		ylog(get("#xxdialoginput").value);
+		del("#xxdialog");
 		return;
 	}
-	showMessage(String.fromCharCode(k));
 }
 
 function removeNonAlpha(s)
@@ -368,7 +379,6 @@ function handleKeyDown(e)
 			break;
 		case 98:
 			// Numpad 2
-			//showMessage("getLinksWithHrefContaining");
 			getLinksWithHrefContaining();
 			break;
 		case 109:
@@ -468,7 +478,6 @@ function handleKeyDown(e)
 			break;
 		case 65:
 			//a
-			//forAll("a", addLinkTitles);
 			if(db.className.indexOf("xDontShowLinks") >= 0)
 			{
 				removeClass(db, "xDontShowLinks");
@@ -485,9 +494,10 @@ function handleKeyDown(e)
 			break;
 		case 67:
 			//c
-			getContent();
-			setDocTitle();
-			appendInfo();
+			//getContent();
+			//setDocTitle();
+			//appendInfo();
+			deleteNonContentDivs();
 			break;
 		case 71:
 			//g
@@ -498,8 +508,10 @@ function handleKeyDown(e)
 			break;
 		case 88:
 			//x
-			if(db.className.indexOf("xShowImages") >= 0) removeClass(db, "xShowImages");
-			else db.className += " xShowImages";
+			if(db.className.indexOf("xShowImages") >= 0)
+				removeClass(db, "xShowImages");
+			else
+				db.className += " xShowImages";
 			break;
 		case 89:
 			//y
@@ -610,6 +622,10 @@ function handleKeyDown(e)
 		case 50:
 			//2
 			replaceImagesWithTextLinks();
+			break;
+		case 71:
+			//g
+			getElementsContainingText();
 			break;
 		case 87:
 			//w
@@ -1605,7 +1621,7 @@ function forAll(selector, callback)
 	var e = get(selector);
 	var i = e.length;
 	while (i--)
-	callback(e[i]);
+		callback(e[i]);
 }
 
 function delNewlines()
@@ -2032,6 +2048,10 @@ function deleteNonContentDivs_old(classes)
 function getElementsWithClass(strClass)
 {
 	var s = "", found = 0, f;
+	if(!strClass || strClass.length === 0)
+		return;
+	if(strClass.indexOf(".") !== 0)
+		strClass = "." + strClass;
 	f = get(strClass);
 	tempNode = document.createElement("div");
 	tempNode.id = "replacerDiv";
@@ -2049,8 +2069,25 @@ function getElementsWithClass(strClass)
 	}
 	else
 	{
-		alert("Not found");
+		ylog("Not found", "h2", true);
 	}
+}
+
+function getElementsContainingText()
+{
+	var s, t;
+	s = prompt("Get Elements (tag)");
+	t = prompt("Containing text");
+	if(!(s.length && t.length))
+		return;
+	var e = get(s);
+	for(var i = 0, ii = e.length; i < ii; i++)
+	{
+		ylog(e[i]);
+		if(e[i].textContent && e[i].textContent.indexOf(t) !== -1 /*&& e[i].getElementsByTagName(s).length === 0*/)
+			e[i].className = "toget";
+	}
+	getElementsWithClass("toget");
 }
 
 function deleteNonContentDivs()
@@ -2473,7 +2510,7 @@ function highlightNodesContaining(tag, str)
 	while (i--)
 	{
 		if(e[i].getElementsByTagName(tag).length) continue;
-		if(e[i].textContent.indexOf(str) >= 0)
+		if(e[i].textContent.indexOf(str) !== -1)
 		{
 			e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
 			e[i].className += " hl";
@@ -2657,11 +2694,6 @@ function create(selector, html)
 	else if(classname.length) e.className = classname;
 	if(html.length) e.innerHTML = html;
 	return e;
-}
-
-function addLinkTitles(x)
-{
-	x.setAttribute("title", x.href);
 }
 
 function removeEmptyIframes()
@@ -3251,8 +3283,7 @@ function echoPassword(e)
 
 function insertStyleNegative()
 {
-	//cleanupGeneral();
-	insertStyle('html { background: #181818 !important; } body { margin: 0!important; } body, table, div, ul, ol { color: #888!important; background: #202020!important; font-weight: normal!important; } body.pad100 { padding: 100px!important; } body.pad100 table { width: 100%!important; } body.pad100 td, body.pad100 th { padding: 3px 10px!important; } body.pad100 image { display: block!important; } nav { background: #111!important; } body.xdark { background: #111!important; } body.xblack { background: #000!important; } body.xwrap { width: 500px!important; margin: 0 auto!important; } h1, h2, h3, h4, h5, h6 { color: #AAA!important; padding: 15px 30px !important; line-height: 160%!important; margin: 2px 0!important; background: #141414!important; border: 0!important; } h1 { font: 36px "swis721 cn bt", Calibri!important; color: #FFF !important; } h2 { font: 28px "swis721 cn bt", Calibri!important; } h3 { font: 24px "swis721 cn bt", Calibri!important; } h4 { font: 20px "swis721 cn bt", Calibri!important; } h5 { font: 16px "swis721 cn bt", Calibri!important; } h6 { font: 12px Verdana!important; color: #999!important; } h5, h6 { padding: 0.5em 10px!important; } dl { border-left: 20px solid #111!important; } dt { color: inherit!important; padding: 0.5em 10px!important; line-height: 160%!important; margin: 2px 0!important; background: #111!important; border: 0!important; border-left: 20px solid #080808!important; color: #AAA!important; } dd { color: inherit!important; padding: 0.25em 10px!important; line-height: 160%!important; margin: 2px 0!important; background: #141414!important; border: 0!important; border-left: 20px solid #080808!important; } select, input, textarea { border: 0!important; padding: 5px 10px!important; background: #242424!important; box-shadow: inset 0 0 5px #000!important; color: #999!important; line-height: 100%!important; -moz-appearance: none!important; border-radius: 0!important; } input div { color: #999!important; } select:focus, textarea:focus, input:focus { color: #999!important; outline: 0!important; background: #080808!important; } textarea:focus *, input:focus * { color: #999!important; } a:link { color: #09F !important; text-decoration: none!important; text-shadow: none!important; } a:visited { color: #36A !important; text-decoration: none!important; } a:hover, a:focus { color: #FFF!important; text-decoration: none!important; outline: 0!important; } a:active { color: #FFF!important; outline: none!important; } div { background: transparent!important; } article, section, header, footer, hgroup, nav, ins, small, big, aside, details, font, article, form, fieldset, label, span, blockquote, div, ul, ol, li, a, i, b, strong, dl { color: inherit!important; background: transparent!important; border-color: #181818!important; line-height: inherit!important; font-family: inherit!important; font-size: inherit!important; font-weight: inherit!important; text-decoration: inherit!important; } li { font-size: 12px!important; list-style-image: none!important; background-image: none!important; } tbody, thead, th, tr, td, table { background: #141414!important; color: inherit!important; font: 12px verdana!important; } body.pad100 ul { list-style: none!important; } body.pad100 ul li { border-left: 5px solid #080808!important; padding: 0 0 0 10px!important; margin: 0 0 2px 0!important; } cite, u, em, i, b, strong { font-weight: normal!important; font-style: normal!important; text-decoration: none!important; color: #AAA!important; } a u, a em, a i, a b, a strong { color: inherit!important; } small { font-size: 80%!important; } input, input *, button, button *, div, td, p { font-size: 12px!important; font-family: Verdana!important; line-height: 150%!important; } p { margin: 0!important; padding: 5px 0!important; font-style: normal!important; font-weight: normal!important; line-height: 150%!important; color: inherit!important; background: inherit!important; border: 0!important; } blockquote { margin: 0 0 0 20px!important; padding: 10px 0 10px 20px!important; border-style: solid!important; border-width: 10px 0 0 10px!important; border-color: #080808!important; } blockquote blockquote { margin: 0 0 0 20px!important; padding: 0 0 0 20px!important; border-width: 0 0 0 10px!important; } code { background: #0C0C0C!important; font-family: Verdcode!important; padding: 1px 2px!important; } pre { background: #0c0c0c!important; border-style: solid!important; border-width: 0 0 0 10px!important; border-color: #444!important; padding: 10px 20px!important; font: 12px Verdcode!important; } pre, code { color: #999!important; } pre p { margin: 0!important; padding: 0!important; font: 12px Verdcode!important; } pre em { color: #57F!important; } pre i { color: #FFF!important; } pre b { color: #F90!important; } pre u { color: #0F0!important; text-decoration: none!important; } pre dfn { font-style: normal!important; color: #F70!important; background: #331500!important; } pre s { color: #F00!important; text-decoration: none!important; background: #400!important; } a img { border: none!important; } a:visited img { border-color: #666!important; } a:hover img { border-color: #F00!important; } button img, input img { display: none!important; } table { border-collapse: collapse!important; background: #141414!important; border: 0!important; } td { vertical-align: top!important; border-width: 0px!important; } caption, th { background: #111!important; border-color: #111!important; text-align: left!important; } th, tr, tbody { border: 0!important; } fieldset { border: 1px solid #111!important; margin: 0 0 1px 0!important; } span, ul, ol, li, div { border: 0!important; } hr { height: 2px!important; background: #282828!important; border-style: solid!important; border-color: #000!important; border-width: 1px 0 0 0!important; margin: 20px 0!important; } legend { background: #0e0e0e!important; } textarea, textarea div { font-family: verdcode!important; } mark, samp { background: #331500 !important; color: #F90 !important; } samp, mark mark { font: 24px "swis721 cn bt"!important; }');
+	insertStyle('html { background: #181818 !important; } body { margin: 0!important; } body, table, div, ul, ol { color: #888!important; background: #202020!important; font-weight: normal!important; } body.pad100 { padding: 100px!important; } body.pad100 table { width: 100%!important; } body.pad100 td, body.pad100 th { padding: 3px 10px!important; } body.pad100 image { display: block!important; } nav { background: #111!important; } body.xdark { background: #111!important; } body.xblack { background: #000!important; } body.xwrap { width: 500px!important; margin: 0 auto!important; } h1, h2, h3, h4, h5, h6 { color: #AAA!important; padding: 15px 30px !important; line-height: 160%!important; margin: 2px 0!important; background: #141414!important; border: 0!important; } h1 { font: 36px "swis721 cn bt", Calibri!important; color: #FFF !important; } h2 { font: 28px "swis721 cn bt", Calibri!important; } h3 { font: 24px "swis721 cn bt", Calibri!important; } h4 { font: 20px "swis721 cn bt", Calibri!important; } h5 { font: 16px "swis721 cn bt", Calibri!important; } h6 { font: 12px Verdana!important; color: #999!important; } h5, h6 { padding: 0.5em 10px!important; } dl { border-left: 20px solid #111!important; } dt { color: inherit!important; padding: 0.5em 10px!important; line-height: 160%!important; margin: 2px 0!important; background: #111!important; border: 0!important; border-left: 20px solid #080808!important; color: #AAA!important; } dd { color: inherit!important; padding: 0.25em 10px!important; line-height: 160%!important; margin: 2px 0!important; background: #141414!important; border: 0!important; border-left: 20px solid #080808!important; } select, input, textarea { border: 0!important; padding: 5px 10px!important; background: #242424!important; box-shadow: inset 0 0 5px #000!important; color: #999!important; line-height: 100%!important; -moz-appearance: none!important; border-radius: 0!important; } input div { color: #999!important; } select:focus, textarea:focus, input:focus { color: #999!important; outline: 0!important; background: #080808!important; } textarea:focus *, input:focus * { color: #999!important; } a:link { color: #09F !important; text-decoration: none!important; text-shadow: none!important; } a:visited { color: #36A !important; text-decoration: none!important; } a:hover, a:focus { color: #FFF!important; text-decoration: none!important; outline: 0!important; } a:active { color: #FFF!important; outline: none!important; } div { background: transparent!important; } article, section, header, footer, hgroup, nav, ins, small, big, aside, details, font, article, form, fieldset, label, span, blockquote, div, ul, ol, li, a, i, b, strong, dl { color: inherit!important; background: transparent!important; border-color: #181818!important; line-height: inherit!important; font-family: inherit!important; font-size: inherit!important; font-weight: inherit!important; text-decoration: inherit!important; } li { font-size: 12px!important; list-style-image: none!important; background-image: none!important; } tbody, thead, th, tr, td, table { background: #141414!important; color: inherit!important; font: 12px verdana!important; } body.pad100 ul { list-style: none!important; } body.pad100 ul li { border-left: 5px solid #080808!important; padding: 0 0 0 10px!important; margin: 0 0 2px 0!important; } cite, u, em, i, b, strong { font-weight: normal!important; font-style: normal!important; text-decoration: none!important; color: #AAA!important; } a u, a em, a i, a b, a strong { color: inherit!important; } small { font-size: 80%!important; } input, input *, button, button *, div, td, p { font-size: 12px!important; font-family: Verdana!important; line-height: 150%!important; } p { margin: 0!important; padding: 5px 0!important; font-style: normal!important; font-weight: normal!important; line-height: 150%!important; color: inherit!important; background: inherit!important; border: 0!important; } blockquote { margin: 0 0 0 20px!important; padding: 10px 0 10px 20px!important; border-style: solid!important; border-width: 10px 0 0 10px!important; border-color: #080808!important; } blockquote blockquote { margin: 0 0 0 20px!important; padding: 0 0 0 20px!important; border-width: 0 0 0 10px!important; } code { background: #0C0C0C!important; font-family: Verdcode!important; padding: 1px 2px!important; } pre { background: #0c0c0c!important; border-style: solid!important; border-width: 0 0 0 10px!important; border-color: #444!important; padding: 10px 20px!important; font: 12px Verdcode!important; } pre, code { color: #999!important; } pre p { margin: 0!important; padding: 0!important; font: 12px Verdcode!important; } pre em { color: #57F!important; } pre i { color: #FFF!important; } pre b { color: #F90!important; } pre u { color: #0F0!important; text-decoration: none!important; } pre dfn { font-style: normal!important; color: #F70!important; background: #331500!important; } pre s { color: #F00!important; text-decoration: none!important; background: #400!important; } a img { border: none!important; } a:visited img { border-color: #666!important; } a:hover img { border-color: #F00!important; } button img, input img { display: none!important; } table { border-collapse: collapse!important; background: #141414!important; border: 0!important; } td { vertical-align: top!important; border-width: 0px!important; } caption, th { background: #111!important; border-color: #111!important; text-align: left!important; } th, tr, tbody { border: 0!important; } fieldset { border: 1px solid #111!important; margin: 0 0 1px 0!important; } span, ul, ol, li, div { border: 0!important; } hr { height: 2px!important; background: #282828!important; border-style: solid!important; border-color: #000!important; border-width: 1px 0 0 0!important; margin: 20px 0!important; } legend { background: #0e0e0e!important; } textarea, textarea div { font-family: verdcode!important; } samp, mark, hl, kbd { background: #310 !important; color: #F90 !important; padding: 2px 0 !important; } container { border: 2px solid red !important; margin: 10px !important; display: block !important; padding: 10px !important; } samp a:link, mark a:link, a:link samp, a:link mark { background: #420 !important; color: #FD0 !important; } samp a:visited, mark a:visited, a:visited samp, a:visited mark { color: #A50 !important; } mark a:hover, a:hover mark, samp a:hover, a:hover samp { background-color: #000 !important; color: #FFF !important; } samp, mark mark { font: 24px "swis721 cn bt" !important; } a:hover mark, a:focus mark, a:hover samp, a:focus samp { background-color: #630 !important; color: #FC0 !important; } figure { border: 0 !important; background: #171717 !important; padding: 20px !important; } figcaption { background: #171717 !important; color: #888 !important; } ruby { margin: 10px 0; background: #000; color: #888; padding: 20px 40px; display: block; } rp { margin: 10px 0; background: #171717 !important; color: #888; padding: 40px; display: block; font: 24px "swis721 cn bt" !important; border-top: 50px solid #000 !important; border-bottom: 50px solid #000 !important; } rt { margin: 10px 0!important; padding: 20px!important; display: block!important; background: #171717!important; } rt:before { content: ""!important; display: block!important; width: 10px!important; height: 15px!important; border: 2px solid #AAA!important; float: left!important; margin: -3px 20px 0 0!important; }');
 }
 
 function initialize()
@@ -3264,7 +3295,7 @@ function initialize()
 		{
 			case "maps.google.com.au":
 			case "maps.google.com":
-			case "sn132w.snt132.mail.live.com":
+			//case "sn132w.snt132.mail.live.com":
 			//case "dropbox.com":
 			//case "www.dropbox.com":
 				load = false;
