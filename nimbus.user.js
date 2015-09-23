@@ -86,7 +86,6 @@ function removeClass(ele, cls)
 	if(removeWhitespace(ele.className) === '') ele.removeAttribute("class");
 }
 
-
 function getDebugData()
 {
 	var e, i;
@@ -175,7 +174,6 @@ function makeDocumentClickable()
 	}
 }
 
-
 function showDocumentStructure()
 {
 	if(get("#view-document-structure"))
@@ -225,6 +223,36 @@ function showDocumentStructureWithNames()
 	}
 	document.body.className += " showdivs";
 	insertStyle('div, aside, section, header, footer, aside, ul, ol { box-shadow: inset 2px 2px #000, inset -2px -2px #000 !important; padding: 30px 10px 10px 10px !important; margin-top: 10px !important; } x {color: #FC0 !important; background: #000 !important; font: 12px verdana !important; padding: 5px 10px !important; letter-spacing: 0 !important; display: block !important; margin: -30px -10px 0 -10px !important; }', 'showDivs');
+}
+
+function highlightSelectionOrText()
+{
+	if(window.getSelection().toString().length)
+	{
+		selection = window.getSelection().toString();
+		s = selection.toString();
+	}
+	else
+	{
+		s = prompt("Text to highlight");
+	}
+	if(s.length)
+	{
+		var ss = escapeForRegExp(s);
+		var tempHTML = document.body.innerHTML;
+		//tempHTML = tempHTML.replace(/\n/g, " ");
+		//tempHTML = tempHTML.replace(/\r/g, " ");
+		//tempHTML = tempHTML.replace(/\s+/g, " ");
+
+		//var r = new RegExp("\\b" + ss + "\\b", "gi");
+		var r = new RegExp(ss, "gi");
+		tempHTML = tempHTML.replace(r, "<samp>" + s + "</samp>");
+		
+		//var r = new RegExp("(>[^<>]*)" + ss + "([^<>]*<)", "gi");
+		//tempHTML = tempHTML.replace(r, "$1<samp>" + s + "</samp>$2");
+
+		document.body.innerHTML = tempHTML;
+	}
 }
 
 function deleteUselessIframes()
@@ -564,32 +592,7 @@ function handleKeyDown(e)
 			break;
 		case 79:
 			//o
-			if(window.getSelection().toString().length)
-			{
-				selection = window.getSelection().toString();
-				s = selection.toString();
-			}
-			else
-			{
-				s = prompt("Text to highlight");
-			}
-			if(s.length)
-			{
-				var ss = escapeForRegExp(s);
-				var tempHTML = db.innerHTML;
-				//tempHTML = tempHTML.replace(/\n/g, " ");
-				//tempHTML = tempHTML.replace(/\r/g, " ");
-				//tempHTML = tempHTML.replace(/\s+/g, " ");
-
-				//var r = new RegExp("\\b" + ss + "\\b", "gi");
-				var r = new RegExp(ss, "gi");
-				tempHTML = tempHTML.replace(r, "<samp>" + s + "</samp>");
-				
-				//var r = new RegExp("(>[^<>]*)" + ss + "([^<>]*<)", "gi");
-				//tempHTML = tempHTML.replace(r, "$1<samp>" + s + "</samp>$2");
-
-				db.innerHTML = tempHTML;
-			}
+			highlightSelectionOrText();
 			break;
 		case 75:
 			//k
@@ -719,6 +722,10 @@ function handleKeyDown(e)
 		case 39: // right arrow
 			nextPage();
 			break;
+		case 49:
+			//1 - insert 'negative' style
+			insertStyleNegative();
+			break;
 		case 70:
 			//F
 			del(["object", "embed", "video"]);
@@ -735,9 +742,9 @@ function handleKeyDown(e)
 			//M
 			showDialog("Test dialog");
 			break;
-		case 49:
-			//1 - insert 'negative' style
-			insertStyleNegative();
+		case 79:
+			//o
+			highlightSpecificNodesContaining();
 			break;
 		case 80:
 			//p
@@ -2499,6 +2506,19 @@ function deleteElementsContainingText(tag, str)
 		if(e[i].getElementsByTagName(tag).length) continue;
 		if(e[i].textContent.indexOf(str) >= 0) e[i].parentNode.removeChild(e[i]);
 	}
+}
+
+function highlightSpecificNodesContaining()
+{
+	var s = prompt("Find text");
+	if(!s.length)
+		return;
+	highlightNodesContaining("p", s);
+	highlightNodesContaining("h1", s);
+	highlightNodesContaining("h2", s);
+	highlightNodesContaining("h3", s);
+	highlightNodesContaining("td", s);
+	highlightNodesContaining("li", s);
 }
 
 function highlightNodesContaining(tag, str)
