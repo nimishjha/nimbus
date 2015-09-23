@@ -3337,14 +3337,20 @@ function echoPassword(e)
 
 function insertStyleNegative()
 {
-	var s = '* { box-shadow: none !important; text-shadow: none !important; letter-spacing: 0 !important; text-decoration: none !important; letter-spacing: 0 !important; font-style: normal !important; outline: 0 !important; }' + 
+	if(get("#style_negative"))
+	{
+		del("#style_negative");
+		return;
+	}
+	
+	var s = '* { box-shadow: none !important; text-shadow: none !important; letter-spacing: 0 !important; text-decoration: none !important; letter-spacing: 0 !important; font-style: normal !important; outline: 0 !important; border: 0 !important; color: inherit !important; background-image: none !important; }' + 
 	'html { background: #202020 !important; }' + 
-	'body { margin: 0 !important; font: 12px Verdana !important; }' + 
-	'body, table, ul, ol {color: #888 !important; background: #282828 none !important; font-weight: normal !important; }' + 
+	'body { margin: 0 !important; font: 12px Verdana !important; background: #282828 !important; color: #888 !important; }' + 
 	'body.pad100 { padding: 100px 200px !important; }' + 
 	'body.pad100 td, body.pad100 th { padding: 3px 10px !important; }' + 
 	'body.pad100 image { display: block !important; }' + 
-	'header, footer, section, aside, main, article { background: #202020 !important; padding: 10px 20px !important; }' + 
+	'div, header, footer, section, aside, main, article { background: #202020 !important; padding: 10px 20px !important; background-image: none !important; }' + 
+	'table, tbody, thead, tr, td, th { background-image: none !important; background-color: inherit !important; }' + 
 	'nav { background: #181818 !important; }' + 
 	'ul, ol, li, p, td, rt { font: inherit !important; }' + 
 	'ul { list-style: none !important; margin: 0 !important; padding: 0 20px !important; }' + 
@@ -3389,7 +3395,7 @@ function insertStyleNegative()
 	'th, tr, tbody { border: 0 !important; }' + 
 	'table, td { word-wrap: normal !important; }';
 
-	insertStyle(s);
+	insertStyle(s, "style_negative");
 }
 
 function initialize()
