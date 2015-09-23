@@ -23,6 +23,40 @@ function get(s)
 	else return 0;
 }
 
+function isArray(o)
+{
+	return Object.prototype.toString.call(o) === '[object Array]';
+}
+
+function del(c)
+{
+	var todel = [];
+	if(isArray(c))
+	{
+		for (var i = 0, ii = c.length; i < ii; i++)
+		{
+			del(c[i]);
+		}
+	}
+	else
+	{
+		var f = get(c);
+		if(f && f.length)
+		{
+			for (var j = 0, jj = f.length; j < jj; j++)
+			todel.push(f[j]);
+			for (j = todel.length - 1; j > -1; j--)
+			{
+				todel[j].parentNode.removeChild(todel[j]);
+			}
+		}
+		else if(f)
+		{
+			if(f.parentNode) f.parentNode.removeChild(f);
+		}
+	}
+}
+
 function listProperties(o)
 {
 	var s = "";
@@ -709,6 +743,7 @@ function handleKeyDown(e)
 			//p
 			deleteEmptyElements("p");
 			deleteEmptyElements("div");
+			deleteEmptyElements("tr");
 			deleteEmptyHeadings();
 			break;
 		case 82:
@@ -774,6 +809,10 @@ function doStackOverflow()
 		del("#sidebar");
 		cleanupGeneral();
 		highlightCode();
+		forAll("td", function f(x) {
+			if(x.textContent && x.textContent.indexOf("up vote") !== -1)
+			x.setAttribute("style", "width: 200px");
+		});
 	}
 }
 
@@ -1176,40 +1215,6 @@ function count(s)
 		return e.length;
 	else
 		return 0;
-}
-
-function isArray(o)
-{
-	return Object.prototype.toString.call(o) === '[object Array]';
-}
-
-function del(c)
-{
-	var todel = [];
-	if(isArray(c))
-	{
-		for (var i = 0, ii = c.length; i < ii; i++)
-		{
-			del(c[i]);
-		}
-	}
-	else
-	{
-		var f = get(c);
-		if(f && f.length)
-		{
-			for (var j = 0, jj = f.length; j < jj; j++)
-			todel.push(f[j]);
-			for (j = todel.length - 1; j > -1; j--)
-			{
-				todel[j].parentNode.removeChild(todel[j]);
-			}
-		}
-		else if(f)
-		{
-			if(f.parentNode) f.parentNode.removeChild(f);
-		}
-	}
 }
 
 function replaceElement(e1, e2)
@@ -2577,7 +2582,7 @@ function xlog(str, logTag)
 		tag = logTag;
 	else
 		tag = "h6";
-	logString += "<" + tag + ">" + str + "</" + tag + ">\r\n";
+	logString += '<' + tag + ' class="xlog">' + str + '</' + tag + '>\r\n';
 }
 
 function ylog(str, elem, prepend)
