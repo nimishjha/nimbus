@@ -3367,7 +3367,7 @@ function insertStyleNegative()
 	'body.pad100 { padding: 100px 200px !important; }' + 
 	'body.pad100 td, body.pad100 th { padding: 3px 10px !important; }' + 
 	'body.pad100 image { display: block !important; }' + 
-	'div, header, footer, section, aside, main, article { background: #202020 !important; padding: 10px 20px !important; background-image: none !important; }' + 
+	'div, header, footer, section, aside, main, article { background: #202020 !important; background-image: none !important; }' + 
 	'table, tbody, thead, tr, td, th { background-image: none !important; background-color: inherit !important; }' + 
 	'nav { background: #181818 !important; }' + 
 	'ul, ol, li, p, td, rt { font: inherit !important; }' + 
