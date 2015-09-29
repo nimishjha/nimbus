@@ -850,8 +850,7 @@ function doStackOverflow()
 	if(found)
 	{
 		getContent();
-		//del("img");
-		del("#sidebar");
+		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", ".signup-prompt"]);
 		cleanupGeneral();
 		highlightCode();
 		forAll("td", function f(x) {
@@ -2104,7 +2103,9 @@ function deleteNonContentDivs()
 	deleteEmptyParagraphs();
 	deleteEmptyElements("div");
 
-	var tag = ["p", "img", "h1", "h2"];
+	// tags which are used to mark content divs
+	// if a div contains any of these tags, we want to retain it
+	var tag = ["p", "img", "h1", "h2", "pre"];
 	var j = tag.length;
 	while(j--)
 	{
@@ -2511,6 +2512,9 @@ function highlightSpecificNodesContaining()
 	highlightNodesContaining("h1", s);
 	highlightNodesContaining("h2", s);
 	highlightNodesContaining("h3", s);
+	highlightNodesContaining("h4", s);
+	highlightNodesContaining("h5", s);
+	highlightNodesContaining("h6", s);
 	highlightNodesContaining("td", s);
 	highlightNodesContaining("li", s);
 }
