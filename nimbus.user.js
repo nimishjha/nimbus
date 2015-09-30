@@ -761,8 +761,12 @@ function handleKeyDown(e)
 			nextPage();
 			break;
 		case 49:
-			//1 - insert 'negative' style
+			//1
 			insertStyleNegative();
+			break;
+		case 50:
+			//2
+			insertStyleWhite();
 			break;
 		case 70:
 			//F
@@ -2512,9 +2516,6 @@ function highlightSpecificNodesContaining()
 	highlightNodesContaining("h1", s);
 	highlightNodesContaining("h2", s);
 	highlightNodesContaining("h3", s);
-	highlightNodesContaining("h4", s);
-	highlightNodesContaining("h5", s);
-	highlightNodesContaining("h6", s);
 	highlightNodesContaining("td", s);
 	highlightNodesContaining("li", s);
 }
@@ -3395,8 +3396,20 @@ function insertStyleNegative()
 
 	s = s.replace(/;/g, " !important;");
 	insertStyle(s, "style_negative");
+}
+
+function insertStyleWhite()
+{
+	if(get("#style_negative"))
+	{
+		del("#style_negative");
+		return;
+	}
 	
-	document.body.innerHTML = document.body.innerHTML.replace(/style=/g, "xtyle=");
+	var s = 'body, input, select, textarea { background: #FFF; color: #000; }';
+
+	s = s.replace(/;/g, " !important;");
+	insertStyle(s, "style_negative");
 }
 
 function initialize()
