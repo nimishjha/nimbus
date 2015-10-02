@@ -352,7 +352,7 @@ function showMessage(s)
 	var e;
 	if(!get(".xmessage").length)
 	{
-		e = document.createElement("h2");
+		e = document.createElement("h6");
 		e.className = "xmessage";
 		document.body.insertBefore(e, document.body.firstChild);
 		insertStyle('.xmessage { position: fixed; z-index: 10000; left: 0px !important; bottom: 0px !important; background: #111 !important; color: #666 !important; margin: 0px !important; padding: 0 !important; height: 20px !important; font: 12px verdana !important; line-height: 20px !important; display: block !important; width: 100% !important; text-transform: none !important; }');
@@ -3287,7 +3287,7 @@ function inject()
 {
 	//del("iframe");
 	document.addEventListener("keydown", handleKeyDown, false);
-	document.addEventListener("mouseup", handleMouseUp, false);
+	//document.addEventListener("mouseup", handleMouseUp, false);
 	deleteUselessIframes();
 	showPassword();
 	fixForums();
