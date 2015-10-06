@@ -878,7 +878,7 @@ function handleKeyDown(e)
 
 function doStackOverflow()
 {
-	var sites = ["stackexchange", "stackoverflow", "superuser"], found = false;
+	var sites = ["stackexchange", "stackoverflow", "superuser", "serverfault"], found = false;
 	for(var i = 0, ii = sites.length; i < ii; i++)
 	{
 		if(location.hostname.indexOf(sites[i]) !== -1)
