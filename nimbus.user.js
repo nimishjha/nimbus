@@ -378,11 +378,18 @@ function showMessage(s, msgClass)
 {
 	var e;
 	msgClass = msgClass || "";
+	var strStyle = 'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; }' + 
+	'message.big { font: 32px "Swis721 cn bt"; color: #F33; height: 60px; line-height: 60px; font-weight: 500 !important; }';
+
 	if(!get("message"))
 	{
 		e = document.createElement("message");
 		e.className = msgClass;
 		document.body.insertBefore(e, document.body.firstChild);
+		if(!get("#style_message"))
+		{
+			insertStyle(strStyle, "style_message");
+		}
 	}
 	else
 	{
@@ -390,13 +397,14 @@ function showMessage(s, msgClass)
 		e.className = msgClass;
 	}
 	e.textContent = s;
-	//setTimeout(deleteMessage, 5000);
+	setTimeout(deleteMessage, 5000);
 }
 
 function deleteMessage()
 {
 	del("message");
 	del(".xalert");
+	del("#style_message");
 }
 
 function showDialog(s)
@@ -3325,9 +3333,7 @@ function inject()
 	//appendInfo();
 	var s = '.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00 !important; }' + 
 		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F !important; }' + 
-		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }' + 
-		'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; }' + 
-		'message.big { font: 32px "Swis721 cn bt"; color: #F33; height: 60px; line-height: 60px; font-weight: 500 !important; }';
+		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
 	insertStyle(s);
 	doStackOverflow();
 }
