@@ -378,7 +378,7 @@ function showMessage(s, msgClass)
 {
 	var e;
 	msgClass = msgClass || "";
-	var strStyle = 'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; }' + 
+	var strStyle = 'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; text-align: left; }' + 
 	'message.big { font: 32px "Swis721 cn bt"; color: #F33; height: 60px; line-height: 60px; font-weight: 500 !important; }';
 
 	if(!get("message"))
@@ -397,7 +397,7 @@ function showMessage(s, msgClass)
 		e.className = msgClass;
 	}
 	e.textContent = s;
-	setTimeout(deleteMessage, 5000);
+	//setTimeout(deleteMessage, 5000);
 }
 
 function deleteMessage()
