@@ -75,6 +75,25 @@ function selectRandom(arr)
 	return arr[n];
 }
 
+function markTableRowsAndColumns()
+{
+	var tr = get("tr"), td, i, ii, j, jj;
+	for(i = 0, ii = tr.length; i < ii; i++)
+	{
+		tr[i].className = "row" + i;
+		td = tr[i].getElementsByTagName("td");
+		for(j = 0, jj = td.length; j < jj; j++)
+		{
+			td[j].className = "col" + j;
+		}
+		td = tr[i].getElementsByTagName("th");
+		for(j = 0, jj = td.length; j < jj; j++)
+		{
+			td[j].className = "col" + j;
+		}
+	}
+}
+
 // https://gist.github.com/minhnc/2333095
 function unRegisterAllEventListeners(obj)
 {
@@ -810,10 +829,8 @@ function handleKeyDown(e)
 			break;
 		case 84:
 			//T
-			//var d = new Date();
-			//s = zeroPad(d.getDate()) + "-" + zeroPad(d.getMonth()+1) + "-" + zeroPad(d.getFullYear());
-			//prompt("Date", s);
-			setDocTitle();
+			//setDocTitle();
+			markTableRowsAndColumns();
 			break;
 		case 86:
 			//V
