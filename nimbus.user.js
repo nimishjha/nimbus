@@ -395,7 +395,7 @@ function showMessage(s, msgClass)
 
 function deleteMessage()
 {
-	del(".xmessage");
+	del("message");
 	del(".xalert");
 }
 
@@ -1857,7 +1857,7 @@ function logout()
 				break;
 			}
 		}
-		if(!found && e[i].textContent)
+		if(e[i].textContent)
 		{
 			s = ns(e[i].textContent);
 			if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
@@ -1890,7 +1890,7 @@ function logout()
 	}
 	if(!found)
 	{
-		showMessage("Logout link not found", "big");
+		showMessage("Logout link not found", "big error");
 	}
 }
 
@@ -3327,7 +3327,7 @@ function inject()
 		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F !important; }' + 
 		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }' + 
 		'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; }' + 
-		'message.big { font: 32px "Swis721 cn bt"; color: #FFF; height: 60px; line-height: 60px; }';
+		'message.big { font: 32px "Swis721 cn bt"; color: #F33; height: 60px; line-height: 60px; font-weight: 500 !important; }';
 	insertStyle(s);
 	doStackOverflow();
 }
