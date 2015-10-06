@@ -374,18 +374,21 @@ function cleanupBlogs()
 	del(["#share", "#comments_posting"]);
 }
 
-function showMessage(s)
+function showMessage(s, msgClass)
 {
 	var e;
-	if(!get(".xmessage").length)
+	msgClass = msgClass || "";
+	if(!get("message"))
 	{
 		e = document.createElement("message");
-		e.className = "xmessage";
+		e.className = msgClass;
 		document.body.insertBefore(e, document.body.firstChild);
-		insertStyle('.xmessage { position: fixed; z-index: 10000; left: 0px !important; bottom: 0px !important; background: #111 !important; color: #555 !important; margin: 0px !important; padding: 0 !important; height: 20px !important; font: 12px verdana !important; line-height: 20px !important; display: block !important; width: 100% !important; text-transform: none !important; }');
 	}
 	else
-		e = get(".xmessage")[0];
+	{
+		e = get("message")[0];
+		e.className = msgClass;
+	}
 	e.textContent = s;
 	//setTimeout(deleteMessage, 5000);
 }
@@ -1846,7 +1849,7 @@ function logout()
 			if( (s.indexOf("logout") >= 0 && s.indexOf("logout_gear") === -1) || s.indexOf("signout") >= 0)
 			{
 				found = true;
-				ylog("Logging out...", "h1", true);
+				showMessage("Logging out...", "big");
 				var tempLink = document.createElement("a");
 				tempLink.href = tempLink.textContent = e[i].href;
 				document.body.insertBefore(tempLink, document.body.firstChild);
@@ -1860,7 +1863,7 @@ function logout()
 			if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 			{
 				found = true;
-				ylog("Logging out...", "h1", true);
+				showMessage("Logging out...", "big");
 				e[i].click();
 				break;
 			}
@@ -1877,7 +1880,7 @@ function logout()
 				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 				{
 					found = true;
-					ylog("Logging out...", "h1", true);
+					showMessage("Logging out...", "big");
 					e[i].click();
 					break;
 				}
@@ -1886,7 +1889,9 @@ function logout()
 		
 	}
 	if(!found)
-		ylog("Logout link not found", "h1", true);
+	{
+		showMessage("Logout link not found", "big");
+	}
 }
 
 function showPrintLink()
@@ -3318,7 +3323,12 @@ function inject()
 	fixForums();
 	removeAccesskeys();
 	//appendInfo();
-	insertStyle(" .hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00 !important; } .hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F !important; } .hl::after, .hl2::after { content: ' '; display: block; clear: both; }");
+	var s = '.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00 !important; }' + 
+		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F !important; }' + 
+		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }' + 
+		'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; }' + 
+		'message.big { font: 32px "Swis721 cn bt"; color: #FFF; height: 60px; line-height: 60px; }';
+	insertStyle(s);
 	doStackOverflow();
 }
 
