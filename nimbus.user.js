@@ -379,7 +379,7 @@ function showMessage(s, msgClass)
 	var e;
 	msgClass = msgClass || "";
 	var strStyle = 'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; text-align: left; }' + 
-	'message.big { font: 32px "Swis721 cn bt"; color: #F33; height: 60px; line-height: 60px; font-weight: 500 !important; }';
+	'message.big { font: 32px "Swis721 cn bt"; color: #FFF; height: 60px; line-height: 60px; font-weight: 500 !important; }';
 
 	if(!get("message"))
 	{
@@ -805,6 +805,10 @@ function handleKeyDown(e)
 		case 50:
 			//2
 			insertStyleWhite();
+			break;
+		case 51:
+			//3
+			insertStyleFonts();
 			break;
 		case 70:
 			//F
@@ -1363,6 +1367,16 @@ function insertStyle(str, identifier)
 	if(identifier && identifier.length)
 		style.id = identifier;
 	head.appendChild(style);
+}
+
+function insertStyleFonts()
+{
+	if(get("#style_fonts"))
+	{
+		del("#style_fonts");
+		return;
+	}
+	insertStyle('p, li, td, div, input, select, textarea { font: 12px Verdana !important;} h1, h2, h3, h4, h5, h6 { font-family: "swis721 cn bt" !important; } span, b, em, strong, i { font: inherit !important; } pre, code { font: 12px verdcode !important; }', 'style_fonts');
 }
 
 function removeEventListeners()
