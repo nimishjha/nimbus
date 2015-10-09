@@ -240,7 +240,7 @@ function showDocumentStructure()
 		var s = 'header, footer, article, aside, section, div, blockquote { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F !important; }' + 
 		'form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90 !important; background: rgba(255, 150, 0, 0.2) !important; }' + 
 		'table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; }' + 
-		'ul, ol, li { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0 !important; }' + 
+		'ul, ol, li, span { box-shadow: inset 1px 1px #080, inset -1px -1px #080 !important; }' + 
 		'h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; }' + 
 		'a, a * { background: rgba(180, 255, 0, 0.25) !important; }' + 
 		'img { background: #800 !important; padding: 2px !important; box-sizing: border-box !important; }';
@@ -284,8 +284,9 @@ function showDocumentStructureWithNames()
 		}
 	}
 	document.body.className += " showdivs";
-	var s = 'div, aside, section, header, footer, aside, ul, ol { box-shadow: inset 2px 2px #000, inset -2px -2px #000 !important; padding: 30px 10px 10px 10px !important; margin-top: 10px !important; }' +
-	'x { color: #FC0 !important; background: #000 !important; font: 12px verdana !important; padding: 5px 10px !important; letter-spacing: 0 !important; display: block !important; margin: -30px -10px 0 -10px !important; }';
+	var s = 'div, aside, section, header, footer, aside, ul, ol { box-shadow: inset 2px 2px #000, inset -2px -2px #000 !important; min-height: 30px !important; padding: 0 10px 10px 10px !important; margin-top: 10px !important; }' +
+	'div::after { content: " "; display: block; clear: both; }' +
+	'x { color: #FC0 !important; background: #000 !important; font: 11px Verdana !important; padding: 5px 10px !important; letter-spacing: 0 !important; display: block !important; margin : 0 -10px 10px -10px !important; }';
 	insertStyle(s, 'showDivs');
 }
 
@@ -810,6 +811,10 @@ function handleKeyDown(e)
 			//3
 			insertStyleFonts();
 			break;
+		case 69:
+			//e
+			replaceElement();
+			break;
 		case 70:
 			//F
 			del(["object", "embed", "video"]);
@@ -1308,6 +1313,11 @@ function count(s)
 
 function replaceElement(e1, e2)
 {
+	if(!(e1 && e2))
+	{
+		e1 = prompt("Element to replace");
+		e2 = prompt("Replacement");
+	}
 	var replacement, e, toreplace, i, ii;
 	e = get(e1);
 	if(e.length)
