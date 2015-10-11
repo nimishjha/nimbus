@@ -2792,13 +2792,14 @@ function getContentDivs(classes)
 	}
 }
 
-function getContent()
+function getContent(str)
 {
+	s = str || "#content";
 	del(["aside", "footer"]);
-	if(get("#content"))
-		document.body.innerHTML = get("#content").innerHTML;
+	if(get(s))
+		document.body.innerHTML = get(s).innerHTML;
 	else
-		ylog("#content not found", "h3", true);
+		ylog(s + " not found", "h3", true);
 }
 
 function deleteImagesBySrcContaining(str)
@@ -3654,6 +3655,9 @@ function initialize()
 				break;
 			case 'localhost':
 				insertStyle('#page_content { margin: 0 0 0 400px; }');
+				break;
+			case 'www.head-fi.org':
+				getContent("#main");
 				break;
 			default:
 				load = true;
