@@ -1017,7 +1017,7 @@ function highlightParagraph(tag)
 	if(!selection)
 		return;
 	var node = selection.anchorNode;
-	if(node.tagName == undefined)
+	if(node.tagName === undefined)
 		node = node.parentNode;
 	if(node && node.parentNode)
 		node.innerHTML = "<" + t + ">" + node.innerHTML + "</" + t + ">";
@@ -1029,7 +1029,7 @@ function makeHeadingFromSelection(tagname)
 		newNode;
 	if(!selection) return;
 	var node = selection.anchorNode;
-	if(node.tagName == undefined) node = node.parentNode;
+	if(node.tagName === undefined) node = node.parentNode;
 	if(node && node.parentNode && node.parentNode.tagName !== "body")
 	{
 		newNode = document.createElement(tagname);
@@ -1047,7 +1047,7 @@ function annotate()
 	var selection = window.getSelection();
 	if(!selection) return;
 	var node = selection.anchorNode;
-	if(node.tagName == undefined) node = node.parentNode;
+	if(node.tagName === undefined) node = node.parentNode;
 	if(node && node.parentNode)
 	{
 		var d = document.createElement("ruby");
@@ -1062,6 +1062,7 @@ function getImages()
 	var tempNode = document.createElement("div");
 	if(f && f.length)
 	{
+		//mark duplicates by removing the src
 		for(i = 0; i < f.length; i++)
 		{
 			for(j = i+1; j < f.length; j++)
@@ -1070,11 +1071,11 @@ function getImages()
 		}
 		for(i = 0, ii = f.length; i < ii; i++)
 		{
-			if(f[i].hasAttribute("src"))
+			if(f[i].hasAttribute("src")) // if it's not a duplicate
 			{
 				f[i].removeAttribute("width");
 				f[i].removeAttribute("height");
-				if(f[i].parentNode && f[i].parentNode.tagName && f[i].parentNode.tagName === "A")
+				if(f[i].parentNode && f[i].parentNode.tagName && f[i].parentNode.tagName.toLowerCase() === "a")
 					tempNode.appendChild(f[i].parentNode.cloneNode(true));
 				else
 					tempNode.appendChild(f[i].cloneNode(true));
@@ -1289,7 +1290,7 @@ function handleMouseUp(e)
 	if(e.target) targ = e.target;
 	if(e.shiftKey)
 	{
-		if(targ.tagName == "A")
+		if(targ.tagName.toLowerCase() === "a")
 		{
 			var str = targ.href;
 			db.innerHTML += '<iframe src="' + str + '" width="100%" height="100px" />';
@@ -1969,7 +1970,7 @@ function clickHandler(e)
 	// delete clicked element
 	else if(e.ctrlKey && !e.shiftKey)
 	{
-		if(targ.tagName == 'BODY') return;
+		if(targ.tagName.toLowerCase() == 'body') return;
 		if(tn == "li" || tn == "p")
 		{
 			targ = targ.parentNode;
@@ -1987,7 +1988,7 @@ function clickHandler(e)
 			newbody.id = "newbody";
 			document.body.appendChild(newbody);
 		}
-		if(targ.tagName == 'BODY') return;
+		if(targ.tagName.toLowerCase() == 'body') return;
 		document.getElementById("newbody").appendChild(targ);
 	}
 }
@@ -3422,7 +3423,8 @@ function insertStyleNegative()
 	'html a:active { color: #FFF; outline: none; }' + 
 	'html .pagination a:link { font: bold 30px "swis721 cn bt"; border: 0; background: #111; padding: 10px; }' + 
 	'main, article, section, header, footer, hgroup, nav, ins, small, big, aside, details, font, article, form, fieldset, label, span, span[class], blockquote, div, div[class], ul, ol, li, a, i, b, strong, dl { color: inherit; background: transparent none; line-height: inherit; font-family: inherit; font-size: inherit; font-weight: inherit; text-decoration: inherit; }' + 
-	'li { font-size: 12px; list-style-image: none; background-image: none; }' + 
+	'ul { list-style: none; margin: 0; padding: 10px 0 10px 20px; }' +
+	'li { font-size: 12px; list-style-image: none; background-image: none; line-height: 150%; }' + 
 	'tbody, thead, th, tr, td, table { background: #202020; color: inherit; font: 12px verdana; }' + 
 	'body.pad100 ul li { border-left: 5px solid #0C0C0C; padding: 0 0 0 10px; margin: 0 0 2px 0; }' + 
 	'cite, u, em, i, b, strong { font-weight: normal; font-style: normal; text-decoration: none; color: #AAA; font-size: inherit; }' + 
