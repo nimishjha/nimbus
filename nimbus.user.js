@@ -579,7 +579,6 @@ function handleKeyDown(e)
 			//5
 			deleteSmallImages();
 			getImages();
-			insertStyle('img{ max-height: 200px; width: auto; display: inline-block; }')
 			break;
 		case 54:
 			//6
@@ -793,6 +792,11 @@ function handleKeyDown(e)
 		var s;
 		switch (k)
 		{
+		case 219: //[
+			changeGalleryImage(true);
+			break;
+		case 221: //]
+			changeGalleryImage();
 		case 37: // left arrow
 			prevPage();
 			break;
@@ -1060,6 +1064,7 @@ function getImages()
 {
 	var f = get("img"), db = document.body, i, ii, j, jj, e = [];
 	var tempNode = document.createElement("div");
+	tempNode.id = "nimbus_gallery";
 	if(f && f.length)
 	{
 		//mark duplicates by removing the src
@@ -1095,6 +1100,45 @@ function getImages()
 	else
 	{
 		ylog("No images found", "h1", true);
+	}
+	buildGallery();
+}
+
+function buildGallery()
+{
+	var e, images = get("img");
+	if(e = get("#nimbus_gallery") && images)
+	{
+		insertStyle('body { margin: 0; padding: 0; } #nimbus_gallery {width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; } #nimbus_gallery img { display: none; } #nimbus_gallery img.currentImage { height: 90%; width: auto; margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; }');
+		addClass(images[0], "currentImage");
+	}
+}
+
+function changeGalleryImage(prev)
+{
+	var e = get("img"), i, ii;
+	for(i = 0, ii = e.length; i < ii; i++)
+	{
+		if(hasClass(e[i], "currentImage"))
+		{
+			e[i].className = '';
+			if(prev)
+			{
+				if(i === 0)
+					addClass(e[ii-1], "currentImage");
+				else
+					addClass(e[i-1], "currentImage");
+				break;
+			}
+			else
+			{
+				if(i === ii-1)
+					addClass(e[0], "currentImage");
+				else
+					addClass(e[i+1], "currentImage");
+				break;
+			}
+		}
 	}
 }
 
