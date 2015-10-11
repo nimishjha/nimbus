@@ -577,7 +577,6 @@ function handleKeyDown(e)
 			break;
 		case 53:
 			//5
-			deleteSmallImages();
 			getImages();
 			break;
 		case 54:
@@ -1062,6 +1061,12 @@ function annotate()
 
 function getImages()
 {
+	if(get("#style_nimbus_gallery"))
+	{
+		del("#style_nimbus_gallery");
+		return;
+	}
+	deleteSmallImages();
 	var f = get("img"), db = document.body, i, ii, j, jj, e = [];
 	var tempNode = document.createElement("div");
 	tempNode.id = "nimbus_gallery";
@@ -1109,13 +1114,17 @@ function buildGallery()
 	var e, images = get("img");
 	if(e = get("#nimbus_gallery") && images)
 	{
-		insertStyle('body { margin: 0; padding: 0; } #nimbus_gallery {width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; } #nimbus_gallery img { display: none; } #nimbus_gallery img.currentImage { height: 90%; width: auto; margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; }');
+		insertStyle('body { margin: 0; padding: 0; } #nimbus_gallery {width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; } #nimbus_gallery img { display: none; } #nimbus_gallery img.currentImage { height: 90%; width: auto; margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; }', 'style_nimbus_gallery');
 		addClass(images[0], "currentImage");
 	}
 }
 
 function changeGalleryImage(prev)
 {
+	if(!get("#style_nimbus_gallery"))
+	{
+		return;
+	}
 	var e = get("img"), i, ii;
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
