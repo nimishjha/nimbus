@@ -11,6 +11,7 @@
 
 var debug = true;
 var logString = "";
+var messageTimeout;
 initialize();
 
 function get(s)
@@ -97,7 +98,7 @@ function markTableRowsAndColumns()
 // https://gist.github.com/minhnc/2333095
 function unRegisterAllEventListeners(obj)
 {
-	if ( typeof obj._eventListeners == 'undefined' || obj._eventListeners.length == 0 )
+	if ( typeof obj._eventListeners === 'undefined' || obj._eventListeners.length === 0 )
 	{
 		return;
 	}
@@ -375,12 +376,14 @@ function cleanupBlogs()
 	del(["#share", "#comments_posting"]);
 }
 
-function showMessage(s, msgClass)
+function showMessage(s, msgClass, persist)
 {
+	clearTimeout(window.messageTimeout);
 	var e;
 	msgClass = msgClass || "";
 	var strStyle = 'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; text-align: left; }' + 
-	'message.big { font: 32px "Swis721 cn bt"; color: #FFF; height: 60px; line-height: 60px; font-weight: 500 !important; }';
+	'message.messagebig { font: 32px "Swis721 cn bt"; color: #FFF; height: 60px; line-height: 60px; font-weight: 500 !important; }' +
+	'message.messageerror { color: #FFF; background: #A00; }';
 
 	if(!get("message"))
 	{
@@ -398,7 +401,8 @@ function showMessage(s, msgClass)
 		e.className = msgClass;
 	}
 	e.textContent = s;
-	//setTimeout(deleteMessage, 5000);
+	if(!persist)
+		window.messageTimeout = setTimeout(deleteMessage, 2000);
 }
 
 function deleteMessage()
@@ -467,7 +471,7 @@ function prevPage()
 			s = removeNonAlpha(s).toLowerCase();
 			if(s === "prev" || s === "previous")
 			{
-				location.href = links[i].href;
+				links[i].click();
 				return;
 			}
 		}
@@ -486,7 +490,7 @@ function nextPage()
 			s = removeNonAlpha(s).toLowerCase();
 			if(s === "next" || s === "nextpage")
 			{
-				location.href = links[i].href;
+				links[i].click();
 				return;
 			}
 		}
@@ -1114,7 +1118,7 @@ function buildGallery()
 	var e, images = get("img");
 	if(e = get("#nimbus_gallery") && images)
 	{
-		insertStyle('body { margin: 0; padding: 0; } #nimbus_gallery {width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; } #nimbus_gallery img { display: none; } #nimbus_gallery img.currentImage { height: 90%; width: auto; margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; }', 'style_nimbus_gallery');
+		insertStyle('body { margin: 0; padding: 0; } #nimbus_gallery {width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; z-index: 2000000000; } #nimbus_gallery img { display: none; } #nimbus_gallery img.currentImage { height: 90%; width: auto; margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; } #nimbus_gallery a { color: #000; }', 'style_nimbus_gallery');
 		addClass(images[0], "currentImage");
 	}
 }
@@ -1425,11 +1429,17 @@ function insertStyle(str, identifier)
 	var head = get("head")[0], style = document.createElement("style"), rules = document.createTextNode(str);
 	style.type = "text/css";
 	if(style.styleSheet)
+	{
 		style.styleSheet.cssText = rules.nodeValue;
+	}
 	else
+	{
 		style.appendChild(rules);
+	}
 	if(identifier && identifier.length)
+	{
 		style.id = identifier;
+	}
 	head.appendChild(style);
 }
 
@@ -1508,9 +1518,11 @@ function replaceDiacritics(s)
 	return s;
 }
 
-function sanitizeTitle(s)
+function sanitizeTitle(str)
 {
-	s = s.toString();
+	if(str === undefined)
+		return;
+	s = str.toString();
 	s = replaceDiacritics(s);
 
 	s = s.replace(/&/g, " and ");
@@ -1529,7 +1541,7 @@ function setDocTitle(s)
 	deleteEmptyElements("h2");
 	deleteEmptyElements("h3");
 
-	if(s == null)
+	if(s === undefined)
 		s = sanitizeTitle(chooseDocumentHeading());
 	else
 		s = sanitizeTitle(s);
@@ -1976,7 +1988,7 @@ function logout()
 	}
 	if(!found)
 	{
-		showMessage("Logout link not found", "big error");
+		showMessage("Logout link not found", "messagebig messageerror");
 	}
 }
 
@@ -2023,8 +2035,8 @@ function clickHandler(e)
 	// delete clicked element
 	else if(e.ctrlKey && !e.shiftKey)
 	{
-		if(targ.tagName.toLowerCase() == 'body') return;
-		if(tn == "li" || tn == "p")
+		if(targ.tagName.toLowerCase() === 'body') return;
+		if(tn === "li" || tn === "p")
 		{
 			targ = targ.parentNode;
 		}
@@ -2041,7 +2053,7 @@ function clickHandler(e)
 			newbody.id = "newbody";
 			document.body.appendChild(newbody);
 		}
-		if(targ.tagName.toLowerCase() == 'body') return;
+		if(targ.tagName.toLowerCase() === 'body') return;
 		document.getElementById("newbody").appendChild(targ);
 	}
 }
@@ -2069,7 +2081,7 @@ function highlightCode(highlightKeywords)
 		// PHP comments
 		//s = s.replace(/[^: ]#([A-Za-z ]+)/g, '<dfn>#$1</dfn>');
 
-		if(highlightKeywords == true)
+		if(highlightKeywords === true)
 		{
 			var keyword = ["abstract", "applet", "object", "param", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue", "debugger", "default", "delete", "do", "double", "else", "enum", "export", "extends", "false", "final", "finally", "float", "for", "function", "goto", "if", "implements", "import", "in", "instanceof", "int", "interface", "long", "native", "new", "null", "package", "private", "protected", "public", "return", "short", "static", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try", "typeof", "var", "void", "volatile", "while", "with", "script", "javascript", "document", "createElement", "createTextNode", "getElementsByTagName"];
 			var j = keyword.length;
@@ -2332,29 +2344,12 @@ function deleteEmptyHeadings()
 		{
 			if(e[i].textContent)
 			{
-				if(removeWhitespace(e[i].textContent).length == 0) e[i].parentNode.removeChild(e[i]);
+				if(removeWhitespace(e[i].textContent).length === 0) e[i].parentNode.removeChild(e[i]);
 			}
 			else
 			{
 				e[i].parentNode.removeChild(e[i]);
 			}
-		}
-	}
-}
-
-function deleteEmptyDivs()
-{
-	var p = document.getElementsByTagName("div");
-	var i = p.length;
-	while (i--)
-	{
-		if(p[i].textContent && removeWhitespace(p[i].textContent).length === 0 && !p[i].getElementsByTagName("img").length)
-		{
-			p[i].parentNode.removeChild(p[i]);
-		}
-		else
-		{
-			p[i].innerHTML = p[i].innerHTML.replace(/\s+/g, " ");
 		}
 	}
 }
@@ -3125,7 +3120,7 @@ function highlightForm()
 	found = false;
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
-		if(/*e[i] == document.activeElement || */e[i].className.indexOf("focused") !== -1)
+		if(/*e[i] === document.activeElement || */e[i].className.indexOf("focused") !== -1)
 		{
 			removeClass(e[i], "focused");
 			found = true;
@@ -3164,12 +3159,12 @@ function highlightButton()
 		return;
 	}
 	for (i = 0; i < len; i++)
-		if(inputs[i].type && (inputs[i].type == "button" || inputs[i].type == "submit"))
+		if(inputs[i].type && (inputs[i].type === "button" || inputs[i].type === "submit"))
 			inputfields.push(inputs[i]);
 	found = false;
 	for(i = 0, ii = inputfields.length; i < ii; i++)
 	{
-		if(inputfields[i] == document.activeElement)
+		if(inputfields[i] === document.activeElement)
 		{
 			found = true;
 			if(i < ii-1)
@@ -3204,7 +3199,7 @@ function showLog(prepend)
 	{
 		logDiv = document.createElement("log");
 		logDiv.innerHTML = logString;
-		if(prepend == true)
+		if(prepend === true)
 			document.body.insertBefore(logDiv, document.body.firstChild);
 		else
 			document.body.appendChild(logDiv);
@@ -3267,15 +3262,15 @@ function fillForms()
 						e[i].value = "3008";
 					else if(inputName.indexOf("state") >= 0)
 						e[i].value = "VIC";
-					else if(inputType == "number")
+					else if(inputType === "number")
 						e[i].value = 42;
-					else if(inputType == "text")
+					else if(inputType === "text")
 						e[i].value = e[i].name.replace(/_/g, ' ');
-					else if(inputType == "checkbox")
+					else if(inputType === "checkbox")
 						e[i].checked = true;
-					else if(inputType == "radio")
+					else if(inputType === "radio")
 						e[i].checked = true;
-					else if(inputType != 'file')
+					else if(inputType !== 'file')
 						e[i].value = inputName.replace(/_/g, ' ');
 				}
 			}
@@ -3292,7 +3287,7 @@ function fillForms()
 	i = e.length;
 	while(i--)
 	{
-		if(e[i].getAttribute("type") == "submit")
+		if(e[i].getAttribute("type") === "submit")
 		{
 			e[i].focus();
 			break;
@@ -3431,7 +3426,7 @@ function echoPassword(e)
 {
 	var e;
 	e = e.target;
-	showMessage(e.value);
+	showMessage(e.value, "none", true);
 }
 
 function insertStyleNegative()
@@ -3452,7 +3447,7 @@ function insertStyleNegative()
 	'nav { background: #111; }' + 
 	'body.xdark { background: #111; }' + 
 	'body.xblack { background: #000; }' + 
-	'body.xwrap { width: 500px; margin: 0 auto; }' + 
+	'body.xwrap { width: 700px; margin: 0 auto; }' + 
 	'html h1, html h2, html h3, html h4, html h5, html h6, html h1[class], html h2[class], html h3[class], html h4[class], html h5[class], html h6[class] { color: #AAA; padding: 10px 20px; line-height: 160%; margin: 2px 0; background: #141414; border: 0; }' + 
 	'html h1, html h1[class], div[class] h1 { font: 36px "Swis721 Cn BT", Calibri, sans-serif; color: #FFF; }' + 
 	'html h2, html h2[class], div[class] h2 { font: 28px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }' + 
@@ -3537,7 +3532,7 @@ function insertStyleWhite()
 		del("#style_negative");
 		return;
 	}
-	
+
 	var s = 'body, input, select, textarea { background: #FFF; color: #000; }';
 
 	s = s.replace(/;/g, " !important;");
@@ -3658,6 +3653,9 @@ function initialize()
 				break;
 			case 'www.head-fi.org':
 				getContent("#main");
+				cleanupGeneral();
+				fixParagraphs();
+				replaceElement("strong", "h2");
 				break;
 			default:
 				load = true;
