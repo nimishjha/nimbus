@@ -3653,6 +3653,7 @@ function initialize()
 				break;
 			case 'www.head-fi.org':
 				getContent("#main");
+				replaceElement(".quote-container", "blockquote");
 				cleanupGeneral();
 				fixParagraphs();
 				replaceElement("strong", "h2");
