@@ -1007,8 +1007,12 @@ function highlightElement()
 		var i = e.length;
 		while(i--)
 		{
-			e[i].className += " hl";
+			addClass(e[i], "hl");
 		}
+	}
+	else if(e)
+	{
+		addClass(e, "hl");
 	}
 	insertStyle(".hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00 !important; }");
 }
@@ -1068,6 +1072,7 @@ function getImages()
 	if(get("#style_nimbus_gallery"))
 	{
 		del("#style_nimbus_gallery");
+		del("#nimbus_gallery");
 		return;
 	}
 	deleteSmallImages();
@@ -1095,12 +1100,12 @@ function getImages()
 					tempNode.appendChild(f[i].cloneNode(true));
 			}
 		}
-		del("img");
+		//del("img");
 		db.insertBefore(tempNode, db.firstChild);
-		var head = document.getElementsByTagName('head')[0];
-		var tempTitle = document.title;
-		head.innerHTML = '';
-		document.title = tempTitle;
+		//var head = document.getElementsByTagName('head')[0];
+		//var tempTitle = document.title;
+		//head.innerHTML = '';
+		//document.title = tempTitle;
 	}
 	else if(f)
 	{
@@ -1115,8 +1120,11 @@ function getImages()
 
 function buildGallery()
 {
-	var e, images = get("img");
-	if(e = get("#nimbus_gallery") && images)
+	var e, gallery, images;
+	if(!(gallery = get("#nimbus_gallery")))
+		return;
+	images = gallery.querySelectorAll("img");
+	if(gallery && images)
 	{
 		insertStyle('body { margin: 0; padding: 0; } #nimbus_gallery {width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; z-index: 2000000000; } #nimbus_gallery img { display: none; } #nimbus_gallery img.currentImage { height: 90%; width: auto; margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; } #nimbus_gallery a { color: #000; }', 'style_nimbus_gallery');
 		addClass(images[0], "currentImage");
@@ -1125,11 +1133,14 @@ function buildGallery()
 
 function changeGalleryImage(prev)
 {
+	var gallery, e; 
 	if(!get("#style_nimbus_gallery"))
 	{
 		return;
 	}
-	var e = get("img"), i, ii;
+	if(!(gallery = get("#nimbus_gallery")))
+		return;
+	var e = gallery.querySelectorAll("img"), i, ii;
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
 		if(hasClass(e[i], "currentImage"))
@@ -2607,14 +2618,20 @@ function deleteSignatures()
 	}
 }
 
-function deleteElementsContainingText(tag, str)
+function deleteElementsContainingText(selector, str)
 {
-	var e = document.getElementsByTagName(tag);
+	var e = get(selector);
 	var i = e.length;
 	while (i--)
 	{
-		if(e[i].getElementsByTagName(tag).length) continue;
-		if(e[i].textContent.indexOf(str) >= 0) e[i].parentNode.removeChild(e[i]);
+		if(e[i].querySelector(selector))
+		{
+			continue;
+		}
+		if(e[i].textContent.indexOf(str) >= 0)
+		{
+			e[i].parentNode.removeChild(e[i]);
+		}
 	}
 }
 
