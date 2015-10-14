@@ -1076,7 +1076,7 @@ function getImages()
 		del("#nimbus_gallery");
 		return;
 	}
-	//deleteSmallImages();
+	deleteSmallImages();
 	var f = get("img"), db = document.body, i, ii, j, jj, e = [], w, h;
 	var tempNode = document.createElement("div");
 	tempNode.id = "nimbus_gallery";
@@ -1104,10 +1104,10 @@ function getImages()
 					else
 						f[i].className = "tall ratio" + w + "x" + h;
 				}
-				if(f[i].parentNode && f[i].parentNode.tagName && f[i].parentNode.tagName.toLowerCase() === "a")
-					tempNode.appendChild(f[i].parentNode.cloneNode(true));
-				else
-					tempNode.appendChild(f[i].cloneNode(true));
+				//if(f[i].parentNode && f[i].parentNode.tagName && f[i].parentNode.tagName.toLowerCase() === "a")
+				//	tempNode.appendChild(f[i].parentNode.cloneNode(true));
+				//else
+				tempNode.appendChild(f[i].cloneNode(true));
 			}
 		}
 		//del("img");
