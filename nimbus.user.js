@@ -6,6 +6,7 @@
 // @author         Nimish Jha
 // @description    Swiss Army Knife for browsing
 // @include        *
+// @include        file:///*
 // @run-at         document-end
 // ==/UserScript==
 
@@ -1075,8 +1076,8 @@ function getImages()
 		del("#nimbus_gallery");
 		return;
 	}
-	deleteSmallImages();
-	var f = get("img"), db = document.body, i, ii, j, jj, e = [];
+	//deleteSmallImages();
+	var f = get("img"), db = document.body, i, ii, j, jj, e = [], w, h;
 	var tempNode = document.createElement("div");
 	tempNode.id = "nimbus_gallery";
 	if(f && f.length)
@@ -1094,6 +1095,15 @@ function getImages()
 			{
 				f[i].removeAttribute("width");
 				f[i].removeAttribute("height");
+				w = f[i].clientWidth;
+				h = f[i].clientHeight;
+				if(w && h && (w > window.innerWidth || h > window.innerHeight))
+				{
+					if((w/h) > (16/9))
+						f[i].className = "wide ratio" + w + "x" + h;
+					else
+						f[i].className = "tall ratio" + w + "x" + h;
+				}
 				if(f[i].parentNode && f[i].parentNode.tagName && f[i].parentNode.tagName.toLowerCase() === "a")
 					tempNode.appendChild(f[i].parentNode.cloneNode(true));
 				else
@@ -1120,13 +1130,21 @@ function getImages()
 
 function buildGallery()
 {
-	var e, gallery, images;
+	var e, gallery, images, s;
 	if(!(gallery = get("#nimbus_gallery")))
 		return;
 	images = gallery.querySelectorAll("img");
+
 	if(gallery && images)
 	{
-		insertStyle('body { margin: 0; padding: 0; } #nimbus_gallery {width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; z-index: 2000000000; } #nimbus_gallery img { display: none; } #nimbus_gallery img.currentImage { height: 90%; width: auto; margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; } #nimbus_gallery a { color: #000; }', 'style_nimbus_gallery');
+		s = 'body { margin: 0; padding: 0; }' + 
+		'#nimbus_gallery { width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; z-index: 2000000000; }' + 
+		'#nimbus_gallery img { display: none; }' + 
+		'#nimbus_gallery img.currentImage { margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; }' + 
+		'#nimbus_gallery img.currentImage.tall { height: 100%; width: auto; }' + 
+		'#nimbus_gallery img.currentImage.wide { width: 100%; height: auto; }' + 
+		'#nimbus_gallery a { color: #000; }';
+		insertStyle(s, 'style_nimbus_gallery');
 		addClass(images[0], "currentImage");
 	}
 }
@@ -1145,7 +1163,7 @@ function changeGalleryImage(prev)
 	{
 		if(hasClass(e[i], "currentImage"))
 		{
-			e[i].className = '';
+			removeClass(e[i], "currentImage");
 			if(prev)
 			{
 				if(i === 0)
