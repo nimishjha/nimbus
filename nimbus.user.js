@@ -94,6 +94,7 @@ function markTableRowsAndColumns()
 			td[j].className = "col" + j;
 		}
 	}
+	insertStyle("table, tr, td { box-shadow: inset 1px 1px #444, inset -1px -1px #444 !important; }", "style_showtables");
 }
 
 // https://gist.github.com/minhnc/2333095
@@ -1455,6 +1456,15 @@ function cleanupHead()
 
 function insertStyle(str, identifier)
 {
+	if(identifier !== undefined)
+	{
+		identifier_hash = "#" + identifier;
+		if(get(identifier_hash))
+		{
+			del(identifier_hash);
+			return;
+		}
+	}
 	var head = get("head")[0], style = document.createElement("style"), rules = document.createTextNode(str);
 	style.type = "text/css";
 	if(style.styleSheet)
