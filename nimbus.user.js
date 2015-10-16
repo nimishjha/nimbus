@@ -915,6 +915,7 @@ function doStackOverflow()
 			if(x.textContent && x.textContent.indexOf("up vote") !== -1)
 			x.setAttribute("style", "width: 200px");
 		});
+		insertStyleNegative();
 	}
 }
 
@@ -3476,12 +3477,6 @@ function echoPassword(e)
 
 function insertStyleNegative()
 {
-	if(get("#style_negative"))
-	{
-		del("#style_negative");
-		return;
-	}
-	
 	var s = 'html { background: #181818; }' + 
 	'html body { margin: 0; }' + 
 	'html body, html body[class] { color: #888; background: #282828; font-weight: normal; }' + 
@@ -3572,16 +3567,9 @@ function insertStyleNegative()
 
 function insertStyleWhite()
 {
-	if(get("#style_negative"))
-	{
-		del("#style_negative");
-		return;
-	}
-
 	var s = 'body, input, select, textarea { background: #FFF; color: #000; }';
-
 	s = s.replace(/;/g, " !important;");
-	insertStyle(s, "style_negative");
+	insertStyle(s, "style_white");
 }
 
 function initialize()
