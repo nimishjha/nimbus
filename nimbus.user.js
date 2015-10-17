@@ -820,6 +820,14 @@ function handleKeyDown(e)
 			//3
 			insertStyleFonts();
 			break;
+		case 52:
+			//4
+			deleteEmptyElements("p");
+			deleteEmptyElements("div");
+			deleteEmptyElements("tr");
+			deleteEmptyElements("li");
+			deleteEmptyHeadings();
+			break;
 		case 69:
 			//e
 			replaceElement();
@@ -843,13 +851,6 @@ function handleKeyDown(e)
 		case 79:
 			//o
 			highlightSpecificNodesContaining();
-			break;
-		case 80:
-			//p
-			deleteEmptyElements("p");
-			deleteEmptyElements("div");
-			deleteEmptyElements("tr");
-			deleteEmptyHeadings();
 			break;
 		case 82:
 			//r
@@ -1114,10 +1115,6 @@ function getImages()
 		}
 		//del("img");
 		db.insertBefore(tempNode, db.firstChild);
-		//var head = document.getElementsByTagName('head')[0];
-		//var tempTitle = document.title;
-		//head.innerHTML = '';
-		//document.title = tempTitle;
 	}
 	else if(f)
 	{
@@ -2694,14 +2691,14 @@ function highlightNodesContaining(tag, str)
 		if(e[i].textContent.indexOf(str) !== -1)
 		{
 			e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
-			e[i].className += " hl";
+			//e[i].className += " hl";
 		}
 		if(tag.toLowerCase() === "a")
 		{
 			if(e[i].href && e[i].href.indexOf(str) >= 0)
 			{
 				e[i].innerHTML = "<samp>" + e[i].innerHTML + "</samp>";
-				e[i].className += " hl";
+				//e[i].className += " hl";
 			}
 		}
 	}
