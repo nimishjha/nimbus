@@ -32,6 +32,7 @@ function isArray(o)
 
 function del(c)
 {
+	var t1 = new Date();
 	if(c.toString() === '[object HTMLElement]')
 	{
 		c.parentNode.removeChild(c);	
@@ -62,13 +63,15 @@ function del(c)
 			if(f.parentNode) f.parentNode.removeChild(f);
 		}
 	}
+	var t2 = new Date();
+	xlog(t2-t1 + 'ms: del(' + c + ')');
 }
 
 function listProperties(o)
 {
 	var s = "";
 	for(var prop in o)
-		if(o.hasOwnProperty(prop))
+		//if(o.hasOwnProperty(prop))
 			s += prop + ": " + o[prop] + ", ";
 	s = s.substring(0, s.length-2);
 	return s;
@@ -80,6 +83,25 @@ function selectRandom(arr)
 		return;
 	var n = Math.floor(Math.random() * arr.length);
 	return arr[n];
+}
+
+function getStyles(e)
+{
+	var styles, bgImage, bgColor;
+	styles = getComputedStyle(e, null);
+	if(styles)
+	{
+		bgColor = styles.getPropertyValue("background-color");
+		bgImage = styles.getPropertyValue("background-image");
+		if(bgColor !== "transparent")
+		{
+			var s = document.createElement("x");
+			s.textContent = bgColor;
+			if(bgImage !== "none")
+				s.textContent += " " + bgImage;
+			e.appendChild(s);
+		}
+	}
 }
 
 function markTableRowsAndColumns()
@@ -100,6 +122,18 @@ function markTableRowsAndColumns()
 		}
 	}
 	insertStyle("table, tr, td { box-shadow: inset 1px 1px #444, inset -1px -1px #444 !important; }", "style_showtables");
+}
+
+function containsString(s, arrStrings)
+{
+	var i = arrStrings.length;
+	var found = false;
+	while(i--)
+	{
+		if(s.indexOf(arrStrings[i]) !== -1)
+			found++;
+	}
+	return found;
 }
 
 // https://gist.github.com/minhnc/2333095
@@ -164,14 +198,58 @@ function printArray(arr)
 	ylog(s);
 }
 
-function prependMessage(str)
+function showResource(str)
 {
-	f = document.createElement("a");
-	f.textContent = f.href = str;
-	g = document.createElement("h6");
-	g.className = "xlog";
-	g.appendChild(f);
-	document.body.insertBefore(g, document.body.firstChild);
+	var resourceLink, resourceLinkWrapper, resourceDelete;
+	resourceLink = document.createElement("a");
+	resourceLink.textContent = resourceLink.href = str;
+	resourceLinkWrapper = document.createElement("h6");
+	resourceLinkWrapper.className = "xlog";
+	resourceDelete = document.createElement("span");
+	resourceDelete.textContent = "[Delete] ";
+	document.body.addEventListener('mouseup', deleteResource, false);
+	resourceLinkWrapper.appendChild(resourceDelete);
+	resourceLinkWrapper.appendChild(resourceLink);
+	document.body.insertBefore(resourceLinkWrapper, document.body.firstChild);
+}
+
+function deleteResource(evt)
+{
+	if(!(evt.target.parentNode.tagName.toLowerCase() === "h6" && evt.target.tagName.toLowerCase() === "span"))
+		return;
+	evt.stopPropagation();
+	evt.preventDefault();
+	var s = evt.target.parentNode.getElementsByTagName("a")[0].textContent, t, e;
+	s = s.split('/');
+	s = s[s.length-1];
+	e = get("link");
+	var i = e.length;
+	while(i--)
+	{
+		t = e[i].getAttribute("href");
+		if(t.indexOf(s) !== -1)
+		{
+			e[i].parentNode.removeChild(e[i]);
+			ylog("deleted style: " + t);
+			break;
+		}
+	}
+	e = get("script");
+	var i = e.length;
+	while(i--)
+	{
+		t = e[i].getAttribute("src");
+		if(t)
+		{
+			if(t.indexOf(s) !== -1)
+			{
+				e[i].parentNode.removeChild(e[i]);
+				ylog("deleted script: " + t);
+				break;
+			}
+		}
+	}
+	evt.target.parentNode.parentNode.removeChild(evt.target.parentNode);
 }
 
 function showResources()
@@ -190,7 +268,7 @@ function showResources()
 	{
 		if(e[i].src)
 		{
-			prependMessage(e[i].src);
+			showResource(e[i].src);
 			count++;
 		}
 	}
@@ -202,12 +280,12 @@ function showResources()
 	{
 		if(e[i].href && e[i].href.indexOf("css") !== -1)
 		{
-			prependMessage(e[i].href);
+			showResource(e[i].href);
 			count++;
 		}
 	}
 	ylog(count + " styles", "h3", true);
-	var s = '.xlog { background: #000 !important; color: #FFF !important; margin: 0 !important; padding: 5px 10px !important; }' + 
+	var s = '.xlog { background: #000 !important; color: #FFF !important; margin: 0 !important; padding: 5px 10px !important; z-index: 2000000000 !important; font: 12px verdana !important; }' + 
 	'.xlog a { text-decoration: none !important; letter-spacing: 0 !important; font: 12px verdana !important; text-transform: none !important; color: #09F !important; }' + 
 	'.xlog a:visited { color: #059 !important; }' + 
 	'.xlog a:hover { color: #FFF !important; }';	
@@ -227,13 +305,10 @@ function makeDocumentClickable()
 	{
 		db.addEventListener('mouseup', clickHandler, false);
 		db.className += " debug";
-		var s = 'header, footer, article, aside, section, div, blockquote { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F !important; }' + 
-		'form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90 !important; background: rgba(255, 150, 0, 0.5) !important; }' + 
-		'table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; }' + 
-		'ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0 !important; }' + 
-		'h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; }' + 
-		'a, a * { background: rgba(180, 255, 0, 0.5) !important; }';
-		insertStyle(s, "view-document-structure");
+		var s = 'header, footer, article, aside, section, div { border: 2px solid #666; margin: 5px; padding: 5px; }' + 
+		'header:hover, footer:hover, article:hover, aside:hover, section:hover, div:hover { border-color: #F00; }' + 
+		'body>header, body>footer, body>article, body>aside, body>section, body>div { border-width: 10px 10px 10px 20px; }';
+		insertStyle(s, "view-document-structure", true);
 	}
 }
 
@@ -294,7 +369,7 @@ function showDocumentStructureWithNames()
 	document.body.className += " showdivs";
 	var s = 'div, aside, section, header, footer, aside, ul, ol { box-shadow: inset 2px 2px #000, inset -2px -2px #000 !important; min-height: 30px !important; padding: 0 10px 10px 10px !important; margin-top: 10px !important; }' +
 	'div::after { content: " "; display: block; clear: both; }' +
-	'x { color: #FC0 !important; background: #000 !important; font: 11px Verdana !important; padding: 5px 10px !important; letter-spacing: 0 !important; display: block !important; margin : 0 -10px 10px -10px !important; }';
+	'x { color: #FC0 !important; background: #000 !important; font: 12px Verdana !important; padding: 5px 10px !important; letter-spacing: 0 !important; display: block !important; margin : 0 -10px 10px -10px !important; }';
 	insertStyle(s, 'showDivs');
 }
 
@@ -525,16 +600,13 @@ function handleKeyDown(e)
 	{
 		switch (k)
 		{
-		case 97:
-			// Numpad 1
+		case 97: // Numpad 1
 			fillForms();
 			break;
-		case 98:
-			// Numpad 2
+		case 98: // Numpad 2
 			getLinksWithHrefContaining();
 			break;
-		case 109:
-			// Numpad -
+		case 109: // Numpad -
 			if(location.href.indexOf("/stage/") > 0 )
 			{
 				var loc = location.href.split('/');
@@ -546,59 +618,48 @@ function handleKeyDown(e)
 				location.href = "http://" + location.hostname + "/manager.php";
 			}
 			break;
-		case 48:
-			//0
+		case 48: //0
 			var selection = window.getSelection();
 			if(selection.toString().length) s = selection;
 			else s = prompt("Document title");
 			setDocTitle(s);
 			break;
-		case 112:
-			//F1
+		case 112: //F1
 			makeHeadingFromSelection("h1");
 			break;
-		case 113:
-			//F2
+		case 113: //F2
 			makeHeadingFromSelection("h2");
 			break;
-		case 114:
-			//F3
+		case 114: //F3
 			makeHeadingFromSelection("h3");
 			break;
-		case 49:
-			//1
+		case 49: //1
 			cleanupGeneral();
 			break;
-		case 50:
-			//2
+		case 50: //2
 			del("svg");
 			if(get("img").length)
 				del("img");
 			else
 				del("rt");
 			break;
-		case 51:
-			//3
+		case 51: //3
 			if(db.className && db.className.indexOf("xwrap") >= 0)
 				removeClass(db, "xwrap");
 			else
 				db.className += " xwrap";
 			break;
-		case 52:
-			//4
+		case 52: //4
 			deleteSmallImages();
 			break;
-		case 53:
-			//5
+		case 53: //5
 			getImages();
 			break;
-		case 54:
-			//6
+		case 54: //6
 			del(["iframe"]);
 			deleteElementsContainingText("h2", "iframe:");
 			deleteElementsContainingText("div", "Advertisement");
 			break;
-		case 55: //7
 		case 96: //Numpad 0
 			s = db.innerHTML;
 			s = s.replace(/<!--/g, '<pre>');
@@ -610,24 +671,20 @@ function handleKeyDown(e)
 		case 99: //Numpad 3
 			clickThanks();
 			break;
-		case 56:
-			//8
+		case 56: //8
 			makeDocumentClickable();
 			break;
-		case 57:
-			//9
-			ylog("unbound", "h2", true);
+		case 57: //9
+			forAll("div", getStyles);
+			insertStyle("x {background:#000;color:#FF0;}", "temp", true);
 			break;
-		case 73:
-			// i
+		case 73: // i
 			deleteSignatures();
 			break;
-		case 80:
-			//p
+		case 80: //p
 			fixParagraphs();
 			break;
-		case 65:
-			//a
+		case 65: //a
 			if(db.className.indexOf("xDontShowLinks") >= 0)
 			{
 				removeClass(db, "xDontShowLinks");
@@ -642,48 +699,40 @@ function handleKeyDown(e)
 				db.className += " xDontShowLinks";
 			}
 			break;
-		case 67:
-			//c
+		case 67: //c
 			//getContent();
 			//setDocTitle();
 			//appendInfo();
 			deleteNonContentDivs();
 			break;
-		case 71:
-			//g
+		case 71: //g
 			var elems = prompt("Delete elements containing text");
 			var textContained = prompt("Containing text");
 			var arr = [textContained];
 			deleteElementsContainingText(elems, arr);
 			break;
-		case 88:
-			//x
+		case 88: //x
 			if(db.className.indexOf("xShowImages") >= 0)
 				removeClass(db, "xShowImages");
 			else
 				db.className += " xShowImages";
 			break;
-		case 89:
-			//y
+		case 89: //y
 			highlightNodesContaining();
 			break;
-		case 192:
-			//`
+		case 192: //`
 			highlightSelection();
 			break;
-		case 74:
-			//j
+		case 74: //j
 			//db.innerHTML = db.innerHTML.replace(/\n/g, ' ');db.innerHTML = db.innerHTML.replace(/\s+/g, ' ');
 			var sh = getSelectionHTML();
 			sh = escapeForRegExp(sh);
 			db.innerHTML = db.innerHTML.replace(new RegExp(sh, "g"), "<mark>" + sh + "</mark>");
 			break;
-		case 79:
-			//o
+		case 79: //o
 			highlightSelectionOrText();
 			break;
-		case 75:
-			//k
+		case 75: //k
 			var f = get("iframe");
 			s = '';
 			for (i = 0, ii = f.length; i < ii; i++)
@@ -693,43 +742,35 @@ function handleKeyDown(e)
 			f[i].parentNode.removeChild(f[i]);
 			db.innerHTML += s;
 			break;
-		case 76:
-			// l
+		case 76: // l
 			showLog();
 			break;
-		case 81:
-			//q
+		case 81: //q
 			fixHeadings();
 			break;
-		case 82:
-			//r
+		case 82: //r
 			highlightParagraph();
 			break;
-		case 85:
-			//u
+		case 85: //u
 			del("ul");
 			del("dl");
 			break;
-		case 87:
-			//w
+		case 87: //w
 			var d;
 			deleteEmptyHeadings();
 			cleanupHead();
 			del(["#side", "#sidebar", "#respond", "#send", "#comments_posting", ".rating"]);
 			cleanupGeneral_light();
 			break;
-		case 90:
-			//z
+		case 90: //z
 			cleanupUnicode();
 			document.body.innerHTML = document.body.innerHTML.replace(/http:/g, "https:");
 			ylog("All links are now HTTPS", "h3", true);
 			break;
-		case 123:
-			//F12
+		case 123: //F12
 			highlightCode();
 			break;
-		case 191:
-			// /
+		case 191: ///
 			xlog("highlightForm");
 			highlightForm();
 			break;
@@ -740,60 +781,45 @@ function handleKeyDown(e)
 	{
 		switch (k)
 		{
-		case 49:
-			//1
+		case 49: //1
 			showResources();
 			break;
-		case 50:
-			//2
+		case 50: //2
 			replaceImagesWithTextLinks();
 			break;
-		case 71:
-			//g
+		case 71: //g
 			getElementsContainingText();
 			break;
-		case 87:
-			//w
-			WikipediaGetLargeImages();
+		case 87: //w
 			break;
-		case 123:
-			//F12
+		case 123: //F12
 			highlightCode(true);
 			break;
-		case 65:
-			//a
+		case 65: //a
 			annotate();
 			break;
-		case 67:
-			//c
+		case 67: //c
 			deleteNonContentDivs();
 			break;
-		case 68:
-			// d
+		case 68: // d
 			del("log");
 			break;
-		case 80:
-			// p
+		case 80: // p
 			highlightLinksInPres();
 			break;
-		case 82:
-			//r
+		case 82: //r
 			highlightParagraph("blockquote");
 			break;
-		case 75:
-			// k
+		case 75: // k
 			showPrintLink();
 			break;
-		case 76:
-			// l
+		case 76: // l
 			logout();
 			break;
-		case 87:
-			// w
+		case 87: // w
 			removeAttributes();
 			break;
-		case 191:
-			// /
+		case 191: // /
 			highlightButton();
 			break;
 		}
@@ -815,83 +841,77 @@ function handleKeyDown(e)
 		case 39: // right arrow
 			nextPage();
 			break;
-		case 49:
-			//1
-			insertStyleNegative();
+		case 49: //1
+			insertStyleNegative(true);
 			break;
-		case 50:
-			//2
+		case 50: //2
 			insertStyleWhite();
 			break;
-		case 51:
-			//3
+		case 51: //3
 			insertStyleFonts();
 			break;
-		case 52:
-			//4
+		case 52: //4
 			deleteEmptyElements("p");
-			deleteEmptyElements("div");
 			deleteEmptyElements("tr");
 			deleteEmptyElements("li");
+			deleteEmptyElements("div");
 			deleteEmptyHeadings();
 			break;
-		case 69:
-			//e
+		case 53: //5
+			break;
+		case 69: //e
 			replaceElement();
 			break;
-		case 70:
-			//F
+		case 70: //f
 			del(["object", "embed", "video"]);
 			break;
-		case 72:
-			//H
+		case 72: //h
 			highlightElement();
 			break;
-		case 73:
-			//I
+		case 73: //I
 			appendIframes();
 			break;
-		case 77:
-			//M
+		case 77: //M
 			showDialog("Test dialog");
 			break;
-		case 79:
-			//o
+		case 79: //o
 			highlightSpecificNodesContaining();
 			break;
-		case 82:
-			//r
+		case 82: //r
 			s = prompt("Tag");
 			highlightParagraph(s);
 			break;
-		case 84:
-			//T
-			//setDocTitle();
+		case 84: //T
 			markTableRowsAndColumns();
 			break;
-		case 86:
-			//V
+		case 86: //V
 			showDocumentStructure();
 			break;
-		case 66:
-			//B
+		case 66: //B
 			showDocumentStructureWithNames();
 			break;
-		case 78:
-			//N
+		case 78: //N
 			showDocumentStructure2();
 			break;
-		case 123:
-			//F12
+		case 123: //F12
 			analyze();
 			break;
+		}
+	}
+	else if(e.altKey && e.ctrlKey && e.shiftKey) //Ctrl-Alt-Shift
+	{
+		switch(k)
+		{
+			case 72: //h
+				forAll(".hl", unhighlightElement);
+				break;
 		}
 	}
 	else
 	{
 		switch (k)
 		{
-		case 113: // F2
+		case 113: //F2
 			//ylog("F2");
 			//window.close();
 			break;
@@ -916,7 +936,8 @@ function doStackOverflow()
 	if(found)
 	{
 		getContent();
-		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", ".signup-prompt"]);
+		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", ".signup-prompt", "form"]);
+		deleteElementsContainingText("h2", "Not the answer");
 		cleanupGeneral();
 		highlightCode();
 		forAll("td", function f(x) {
@@ -951,7 +972,6 @@ function doYoutube()
 		e.src = '';
 		e.pause();
 	}
-	ylog("doYoutube()");
 }
 
 function doGfycat()
@@ -1001,7 +1021,8 @@ function clickThanks()
 
 function highlightElement()
 {
-/*	if(get(".hl").length > 0)
+/*	Un-highlight previously highlighted elements, if any
+	if(get(".hl").length > 0)
 	{
 		forAll(".hl", function(x){
 			removeClass(x, "hl");
@@ -1025,6 +1046,11 @@ function highlightElement()
 		addClass(e, "hl");
 	}
 	insertStyle(".hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00 !important; }");
+}
+
+function unhighlightElement(x)
+{
+	removeClass(x, "hl");
 }
 
 function highlightParagraph(tag)
@@ -1087,7 +1113,7 @@ function getImages()
 	}
 	deleteSmallImages();
 	var f = get("img"), db = document.body, i, ii, j, jj, e = [], w, h;
-	var tempNode = document.createElement("div");
+	var tempNode = document.createElement("slideshow");
 	tempNode.id = "nimbus_gallery";
 	if(f && f.length)
 	{
@@ -1151,6 +1177,7 @@ function buildGallery()
 		'#nimbus_gallery a { color: #000; }';
 		insertStyle(s, 'style_nimbus_gallery');
 		addClass(images[0], "currentImage");
+		window.scrollTo(0, 0);
 	}
 }
 
@@ -1433,7 +1460,8 @@ function replaceElement(e1, e2)
 		e2 = prompt("Replacement");
 	}
 	var replacement, e, toreplace, i, ii;
-	e = get(e1);
+	//e = get(e1);
+	e = document.querySelectorAll(e1);
 	if(e.length)
 	{
 		toreplace = [];
@@ -1515,7 +1543,7 @@ function insertStyle(str, identifier, important)
 
 function insertStyleFonts()
 {
-	insertStyle('p, li, td, div, input, select, textarea { font: 12px Verdana !important;} h1, h2, h3, h4, h5, h6 { font-family: "swis721 cn bt" !important; } span, b, em, strong, i { font: inherit !important; } pre, code { font: 12px verdcode !important; }', 'style_fonts');
+	insertStyle('p, li, td, div, input, select, textarea { font: 12px Verdana; } h1, h2, h3, h4, h5, h6 { font-family: "swis721 cn bt"; } span, b, em, strong, i { font: inherit; } pre, code { font: 12px verdcode; }', 'style_fonts', true);
 }
 
 function insertStyleNegative(important)
@@ -1523,7 +1551,7 @@ function insertStyleNegative(important)
 	var s = 'html { background: #181818; }' + 
 	'html body { margin: 0; }' + 
 	'html body, html body[class] { color: #888; background: #282828; font-weight: normal; }' + 
-	'body.pad100 { padding: 100px; }' + 
+	'body.pad100 { padding: 100px 150px; }' + 
 	'body.pad100 table { width: 100%; }' + 
 	'body.pad100 td, body.pad100 th { padding: 3px 10px; }' + 
 	'body.pad100 image { display: block; }' + 
@@ -1611,9 +1639,8 @@ function insertStyleNegative(important)
 
 function insertStyleWhite()
 {
-	var s = 'body, input, select, textarea { background: #FFF; color: #000; }';
-	s = s.replace(/;/g, " !important;");
-	insertStyle(s, "style_white");
+	var s = 'body, input, select, textarea, div, p, span, table, th, td, h1, h2, h3, h4, h5, h6 { background: #FFF; color: #000; }';
+	insertStyle(s, "style_white", true);
 }
 
 function removeEventListeners()
@@ -1634,7 +1661,7 @@ function removeEventListeners()
 
 function chooseDocumentHeading()
 {
-	var candidateTags = ['h1', 'h2'], s = '', i, ii, j, jj, found = false;
+	var candidateTags = ['h1', 'h2', 'h3'], s = '', i, ii, j, jj, found = false;
 	for(i = 0, ii = candidateTags.length; i < ii; i++)
 	{
 		e = document.getElementsByTagName(candidateTags[i]);
@@ -1683,7 +1710,7 @@ function replaceDiacritics(s)
 
 function sanitizeTitle(str)
 {
-	if(str === undefined)
+	if(str === undefined || str === null)
 		return;
 	s = str.toString();
 	s = replaceDiacritics(s);
@@ -1699,12 +1726,14 @@ function sanitizeTitle(str)
 
 function setDocTitle(s)
 {
+	if(s)
+		ylog("setDocTitle(" + s + ")", "h6");
 	var i, labels, longestlabel, h;
 	deleteEmptyElements("h1");
 	deleteEmptyElements("h2");
 	deleteEmptyElements("h3");
 
-	if(s === undefined)
+	if(!s)
 		s = sanitizeTitle(chooseDocumentHeading());
 	else
 		s = sanitizeTitle(s);
@@ -1712,7 +1741,7 @@ function setDocTitle(s)
 	if(s.indexOf("Thread - ") !== -1)
 		s = s.substr(s.indexOf("Thread - ") + 9);
 	
-	if(!(document.getElementsByTagName("h1").length && document.getElementsByTagName("h1")[0].textContent === s))
+	if(!(get("h1") && get("h1")[0].innerHTML === s))
 	{
 		h = document.createElement('h1');
 		h.appendChild(document.createTextNode(s));
@@ -1916,7 +1945,7 @@ function removeAttributes_fast()
 
 function forAll(selector, callback)
 {
-	var e = get(selector);
+	var e = document.querySelectorAll(selector);
 	var i = e.length;
 	while (i--)
 		callback(e[i]);
@@ -2099,6 +2128,12 @@ function ns(s) // normalize string
 
 function logout()
 {
+	// special case for Gmail
+	if(location.hostname === "mail.google.com" && get("#gb_71"))
+	{
+		get("#gb_71").click();
+		return;
+	}
 	var e, i, ii, newlink, found = false, s;
 	e = get("a");
 	i = e.length; 
@@ -2110,11 +2145,13 @@ function logout()
 			if( (s.indexOf("logout") >= 0 && s.indexOf("logout_gear") === -1) || s.indexOf("signout") >= 0)
 			{
 				found = true;
-				showMessage("Logging out...", "big");
+/*				showMessage("Logging out...", "big");
 				var tempLink = document.createElement("a");
 				tempLink.href = tempLink.textContent = e[i].href;
 				document.body.appendChild(tempLink);
-				tempLink.click();
+				tempLink.click();*/
+				ylog(e[i].href, "h6", true);
+				e[i].click();
 				break;
 			}
 		}
@@ -2257,6 +2294,12 @@ function highlightCode(highlightKeywords)
 		
 		tagpre[i].innerHTML = s;
 	}
+	forAll("dfn", htmlToText);
+}
+
+function htmlToText(e)
+{
+	e.innerHTML = e.textContent; 
 }
 
 function delClassOrIdContaining(classes, beginningOnly)
@@ -2386,14 +2429,14 @@ function getElementsContainingText()
 		for(var i = 0, ii = e.length; i < ii; i++)
 		{
 			if(e[i].textContent && e[i].textContent.indexOf(t) !== -1 /*&& e[i].getElementsByTagName(s).length === 0*/)
-				e[i].className = "toget";
+				e[i].className += " toget";
 		}
 	}
 	else
 	{
 		for(var i = 0, ii = e.length; i < ii; i++)
 		{
-			e[i].className = "toget";
+			e[i].className += " toget";
 		}
 		
 	}
@@ -2435,10 +2478,8 @@ function deleteNonContentDivs()
 		e = get(".toget");
 	}
 	getElementsWithClass(".toget");
-	removeAttributes();
 	del(["link", "style", "script", "form", "fieldset", "input", "select", "textarea"]);
-	//insertStyle(".toget{ background: rgba(0, 200, 0, 0.5); }");
-	document.body.className = "pad100";
+	cleanupGeneral();
 }
 
 function formatContent()
@@ -2738,7 +2779,7 @@ function restorePres()
 		e[i].innerHTML = e[i].innerHTML.replace(/GYZYtab/g, "\t");
 		e[i].innerHTML = e[i].innerHTML.replace(/GYZYnl/g, "\n");
 		e[i].innerHTML = e[i].innerHTML.replace(/\n+/g, "\n");
-		e[i].innerHTML = e[i].innerHTML.replace(/([^:]\/\/[^\n]+)/g, "<dfn>$1</dfn>");
+		e[i].innerHTML = e[i].innerHTML.replace(/[^:](\/\/[^\n]+)/g, "<dfn>$1</dfn>");
 		e[i].innerHTML = e[i].innerHTML.replace(/^(\/\/[^\n]+)/g, "<dfn>$1</dfn>");
 	}
 	
@@ -2782,13 +2823,15 @@ function deleteSignatures()
 
 function deleteElementsContainingText(selector, str)
 {
+	var t1 = new Date();
 	var e = get(selector);
-	ylog(e + ": " + e.length);
+	xlog("deleteElementsContainingText(" + selector + ", \"" + str + "\")");
 	if(!e)
 		return;
 	if(e.length)
 	{
 		var i = e.length;
+		xlog("Deleting " + i + ' ' + selector + ' elements');
 		while (i--)
 		{
 			if(e[i].querySelector(selector))
@@ -2810,6 +2853,8 @@ function deleteElementsContainingText(selector, str)
 	{
 		e.parentNode.removeChild(e);
 	}
+	var t2 = new Date();
+	xlog(t2 - t1 + "ms: deleteElementsContainingText(" + selector + ', "' + str + '")');
 }
 
 function highlightSpecificNodesContaining()
@@ -2842,14 +2887,12 @@ function highlightNodesContaining(tag, str)
 		if(e[i].textContent.indexOf(str) !== -1)
 		{
 			e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
-			//e[i].className += " hl";
 		}
 		if(tag.toLowerCase() === "a")
 		{
 			if(e[i].href && e[i].href.indexOf(str) >= 0)
 			{
 				e[i].innerHTML = "<samp>" + e[i].innerHTML + "</samp>";
-				//e[i].className += " hl";
 			}
 		}
 	}
@@ -2997,7 +3040,7 @@ function deleteImagesBySrcContaining(str)
 	while (i--)
 	if(elems[i].src.indexOf(str) >= 0)
 	{
-		xlog("Deleting image with src containing " + elems[i].src);
+		xlog("Deleting image with src " + elems[i].src);
 		elems[i].parentNode.removeChild(elems[i]);
 	}
 }
@@ -3051,50 +3094,6 @@ function insertLink(linktext, linkhref)
 	e.href = linkhref;
 	e.innerHTML = "<h6>" + linktext + "</h6>";
 	document.body.appendChild(e);
-}
-
-function WikipediaGetLargeImages()
-{
-	var i, ii, e, e2, request, fragment, largeImage, d;
-	e = get("img");
-	for( i = 0, ii = e.length; i < ii; i++ )
-	{
-		if( e[i].parentNode && e[i].parentNode.tagName.toLowerCase() === "a")
-		{
-			//request = new XMLHttpRequest();
-			//																		
-			request = GM_xmlhttpRequest({
-				method: "GET",
-				url: e[i].parentNode.href,
-				onload: function(res) {
-					//GM_log(res.responseText);
-					var d = document.createElement("div");
-					d.innerHTML = res.responseText;
-					d.id = "tempDiv";
-					document.body.appendChild(d);
-					if(document.getElementById("file"))
-					{
-						if( document.getElementById("file").getElementsByTagName("img") )
-						{
-							var newSrc = document.getElementById("file").getElementsByTagName("img")[0].src;
-							if(newSrc)
-							{
-								insertLink(newSrc, newSrc);
-								var newImage = document.createElement("img");
-								newImage.src = newSrc;
-								document.body.appendChild(newImage);
-							}
-						}
-					}
-					del("#tempDiv");
-				},
-				onerror: function(res) {
-					ylog(res);
-				}
-			});
-			//																		
-		}
-	}
 }
 
 function getKeys(obj)
@@ -3204,7 +3203,7 @@ function analyze()
 		document.body.className += ' analyzer';
 
 		var s = 'body.analyzer { padding-bottom: 300px !important; }' + 
-		'#analyzer { padding: 5px 10px !important; position:fixed!important; left:0; bottom: 0; width: 50% !important; min-width: 500px !important; height: 200px!important; overflow: hidden !important; background:#000 !important; color:#aaa !important; text-align:left !important; z-index:100000 !important; font:11px verdana !important; letter-spacing: 0 !important; }' + 
+		'#analyzer { padding: 5px 10px !important; position:fixed!important; left:0; bottom: 0; width: 50% !important; min-width: 500px !important; height: 200px!important; overflow: hidden !important; background:#000 !important; color:#aaa !important; text-align:left !important; z-index: 2000000000 !important; font:12px verdana !important; letter-spacing: 0 !important; }' + 
 		'#analyzer b { color:#09f !important; }' + 
 		'#analyzer div { padding:0;}' + 
 		'#analyzer em { font-style:normal; color:#F80 !important; }' + 
@@ -3565,17 +3564,20 @@ function showTextToHTMLRatio()
 
 function fixForums()
 {
+	var t1 = new Date();
 	if(!document.body)
 		return;
-	if(document.body.innerHTML.indexOf("bb-quote") !== -1)
-		replaceElement(".bb-quote", "blockquote");
-	if(document.body.innerHTML.indexOf("quote_container") !== -1)
-		replaceElement(".quote_container", "blockquote");
-	if(document.body.innerHTML.indexOf("quote-container") !== -1)
-		replaceElement(".quote-container", "blockquote");
-	if(document.body.innerHTML.indexOf("quotecontent") !== -1)
-		replaceElement(".quotecontent", "blockquote");
-	del(".signature");
+	var e = get("div");
+	var i = e.length;
+	while(i--)
+	{
+		if(e[i].className && e[i].className.toLowerCase().indexOf("quote") !== -1)
+		{
+			e[i].innerHTML = '<blockquote>' + e[i].innerHTML + '</blockquote>';
+		}
+	}
+	var t2 = new Date();
+	xlog(t2-t1 +"ms: fixForums");
 }
 
 function removeAccesskeys()
@@ -3599,10 +3601,10 @@ function inject()
 	fixForums();
 	removeAccesskeys();
 	//appendInfo();
-	var s = '.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00 !important; }' + 
-		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F !important; }' + 
+	var s = '.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }' + 
+		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' + 
 		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
-	insertStyle(s);
+	insertStyle(s, "style_helper", true);
 	doStackOverflow();
 }
 
@@ -3625,18 +3627,8 @@ function echoPassword(e)
 
 function simpleHash(s)
 {
-	var hash = 0, i, chr, len;
-	if(s.length == 0)
-		return false;
-	for(i = 0, len = s.length; i < len; i++)
-	{
-		chr = s.charCodeAt(i);
-		hash = ((hash << 5) - hash) + chr;
-		ylog(hash);
-		hash |= 0; /* Convert to 32bit integer */
-	}
-	return hash;
-};
+	return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
+}
 
 function initialize()
 {
@@ -3746,9 +3738,6 @@ function initialize()
 				break;
 			case 'thenounproject.com':
 				insertStyle('body, div, section, ul, li, input {background: #181818  !important; color: #FFF !important; }img{ filter: invert(1); }')
-				break;
-			case 'localhost':
-				insertStyle('#page_content { margin: 0 0 0 400px; }');
 				break;
 			case 'www.head-fi.org':
 				getContent("#main");
