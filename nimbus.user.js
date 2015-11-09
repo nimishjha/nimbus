@@ -100,8 +100,10 @@ function getStyles(e)
 			if(bgImage !== "none")
 				s.textContent += " " + bgImage;
 			e.appendChild(s);
+			e.className += " hl";
 		}
 	}
+	insertStyle("x {background:#000;color:#FF0;}", "temp", true);
 }
 
 function markTableRowsAndColumns()
@@ -499,7 +501,7 @@ function deleteMessage()
 function showDialog(s)
 {
 	var e, f, g;
-	if(!get("#xdialog"))
+	if(!get("#xxdialog"))
 	{
 		f = document.createElement("div");
 		f.id = "xxdialog"
@@ -507,14 +509,14 @@ function showDialog(s)
 		e.id = "xxdialoginput";
 		f.appendChild(e);
 		document.body.insertBefore(f, document.body.firstChild);
-		insertStyle('#xxdialog { position: absolute; margin: auto; z-index: 10000; height: 400px ; top: 0 ; left: 0px ; bottom: 0px ; right: 0 ; background: #111 ; color: #FFF ; display: block ; text-transform: none ; width: 800px ; } #xxdialoginput { font: 32px "swis721 cn bt", verdana ; background: #000 ; color: #FFF ; padding: 0 ; border: 0 ; }', "style-xdialog");
+		insertStyle('#xxdialog { position: absolute; margin: auto; z-index: 10000; height: 400px ; top: 0 ; left: 0px ; bottom: 0px ; right: 0 ; background: #111 ; color: #FFF; border: 10px solid #000; display: block ; text-transform: none ; width: 800px ; }#xxdialoginput { font: 32px "swis721 cn bt", verdana ; background: #000 ; color: #FFF ; padding: 0 ; border: 0 ; width: 100%; height: 100%; }', "style-xxdialog", true);
 		e.focus();
 		e.addEventListener("keydown", guiHandler, false);
 	}
 	else
 	{
 		del("#xxdialog");
-		del("#style-xdialog");
+		del("#style-xxdialog");
 	}
 }
 
@@ -532,8 +534,7 @@ function guiHandler(e)
 	}
 	if(k === 27) //Esc
 	{
-		ylog(simpleHash(get("#xxdialoginput").value), "h2", true);
-		del("#xxdialog");
+		showDialog();
 		return;
 	}
 }
@@ -676,7 +677,7 @@ function handleKeyDown(e)
 			break;
 		case 57: //9
 			forAll("div", getStyles);
-			insertStyle("x {background:#000;color:#FF0;}", "temp", true);
+			forAll("section", getStyles);
 			break;
 		case 73: // i
 			deleteSignatures();
@@ -1021,15 +1022,7 @@ function clickThanks()
 
 function highlightElement()
 {
-/*	Un-highlight previously highlighted elements, if any
-	if(get(".hl").length > 0)
-	{
-		forAll(".hl", function(x){
-			removeClass(x, "hl");
-		});
-		return;
-	}*/
-	var s = prompt("Enter element to highlight");
+	var s = prompt("Enter selector for elements to highlight");
 	if(!s.length)
 		return;
 	var e = get(s);
@@ -2283,7 +2276,7 @@ function highlightCode(highlightKeywords)
 
 		if(highlightKeywords === true)
 		{
-			var keyword = ["abstract", "applet", "object", "param", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue", "debugger", "default", "delete", "do", "double", "else", "enum", "export", "extends", "false", "final", "finally", "float", "for", "function", "goto", "if", "implements", "import", "in", "instanceof", "int", "interface", "long", "native", "new", "null", "package", "private", "protected", "public", "return", "short", "static", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try", "typeof", "var", "void", "volatile", "while", "with", "script", "javascript", "document", "createElement", "createTextNode", "getElementsByTagName"];
+			var keyword = ["abstract", "applet", "object", "prototype", "param", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue", "debugger", "default", "delete", "do", "double", "else", "enum", "export", "extends", "false", "final", "finally", "float", "for", "function", "goto", "if", "implements", "import", "in", "instanceof", "int", "interface", "long", "native", "new", "null", "package", "private", "protected", "public", "return", "short", "static", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try", "typeof", "var", "void", "volatile", "while", "with", "script", "javascript", "document", "createElement", "createTextNode", "getElementsByTagName"];
 			var j = keyword.length;
 			while (j--)
 			{
@@ -2779,7 +2772,7 @@ function restorePres()
 		e[i].innerHTML = e[i].innerHTML.replace(/GYZYtab/g, "\t");
 		e[i].innerHTML = e[i].innerHTML.replace(/GYZYnl/g, "\n");
 		e[i].innerHTML = e[i].innerHTML.replace(/\n+/g, "\n");
-		e[i].innerHTML = e[i].innerHTML.replace(/[^:](\/\/[^\n]+)/g, "<dfn>$1</dfn>");
+		e[i].innerHTML = e[i].innerHTML.replace(/([^:])(\/\/[^\n]+)/g, "$1<dfn>$2</dfn>");
 		e[i].innerHTML = e[i].innerHTML.replace(/^(\/\/[^\n]+)/g, "<dfn>$1</dfn>");
 	}
 	
@@ -2862,12 +2855,11 @@ function highlightSpecificNodesContaining()
 	var s = prompt("Find text");
 	if(!s.length)
 		return;
-	highlightNodesContaining("p", s);
-	highlightNodesContaining("h1", s);
-	highlightNodesContaining("h2", s);
-	highlightNodesContaining("h3", s);
-	highlightNodesContaining("td", s);
-	highlightNodesContaining("li", s);
+	var tagNames = ["p", "h1", "h2", "h3", "td", "li"];
+	for(var i = 0, ii = tagNames.length; i < ii; i++)
+	{
+		highlightNodesContaining(tagNames[i], s);
+	}
 }
 
 function highlightNodesContaining(tag, str)
@@ -3596,7 +3588,7 @@ function inject()
 	//del("iframe");
 	document.addEventListener("keydown", handleKeyDown, false);
 	//document.addEventListener("mouseup", handleMouseUp, false);
-	deleteUselessIframes();
+	//deleteUselessIframes();
 	showPassword();
 	fixForums();
 	removeAccesskeys();
