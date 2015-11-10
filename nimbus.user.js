@@ -93,6 +93,7 @@ function getStyles(e)
 	{
 		bgColor = styles.getPropertyValue("background-color");
 		bgImage = styles.getPropertyValue("background-image");
+		elemWidth = styles.getPropertyValue("width");
 		if(bgColor !== "transparent")
 		{
 			var s = document.createElement("x");
@@ -1267,7 +1268,10 @@ function replaceImagesWithTextLinks()
 				f.href = f.textContent = e[i].src;
 				g = document.createElement("rt");
 				g.appendChild(f);
-				e[i].parentNode.insertBefore(g, e[i]);
+				if(e[i].parentNode.tagName.toLowerCase() === "a")
+					e[i].parentNode.parentNode.replaceChild(g, e[i].parentNode);
+				else
+					e[i].parentNode.insertBefore(g, e[i]);
 			}
 		}
 		del("img");
