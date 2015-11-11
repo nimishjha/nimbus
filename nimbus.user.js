@@ -935,7 +935,8 @@ function doStackOverflow()
 			break;
 		}
 	}
-	if(found)
+	// we only want to run this code on the individual question pages
+	if(found && location.href.match(/questions\/[0-9]+/) !== null)
 	{
 		getContent();
 		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", ".signup-prompt", "form"]);
