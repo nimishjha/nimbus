@@ -127,7 +127,9 @@ function markTableRowsAndColumns()
 	insertStyle("table, tr, td { box-shadow: inset 1px 1px #444, inset -1px -1px #444 !important; }", "style_showtables");
 }
 
-function containsString(s, arrStrings)
+// checks if a given string contains any of an array of strings
+// much better than using s.indexOf('a') || s.indexOf('b')...
+function containsAnyString(s, arrStrings)
 {
 	var i = arrStrings.length;
 	var found = false;
@@ -1159,7 +1161,7 @@ function buildGallery()
 	var e, gallery, images, s;
 	if(!(gallery = get("#nimbus_gallery")))
 		return;
-	images = gallery.querySelectorAll("img");
+	images = gallery.getElementsByTagName("img");
 
 	if(gallery && images)
 	{
@@ -1185,7 +1187,7 @@ function changeGalleryImage(prev)
 	}
 	if(!(gallery = get("#nimbus_gallery")))
 		return;
-	var e = gallery.querySelectorAll("img"), i, ii;
+	var e = gallery.getElementsByTagName("img"), i, ii;
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
 		if(hasClass(e[i], "currentImage"))
@@ -1454,8 +1456,8 @@ function replaceElement(e1, e2)
 {
 	if(!(e1 && e2))
 	{
-		e1 = prompt("Element to replace");
-		e2 = prompt("Replacement");
+		e1 = prompt("Element to replace (querySelectorAll)");
+		e2 = prompt("Replacement (tagName)");
 	}
 	var replacement, e, toreplace, i, ii;
 	//e = get(e1);
@@ -1575,11 +1577,13 @@ function insertStyleNegative(important)
 	'input div { color: #999; }' + 
 	'select:focus, textarea:focus, input:focus { color: #999; outline: 0; background: #0C0C0C; }' + 
 	'textarea:focus *, input:focus * { color: #999; }' + 
+
 	'html a, html a:link { color: #09F; text-decoration: none; text-shadow: none; font: inherit; }' + 
 	'html a:visited { color: #36A; text-decoration: none; }' + 
 	'html a:hover, html a:focus, html a:hover *, html a:focus * { color: #FFF; text-decoration: none; outline: 0; }' + 
 	'html a:active { color: #FFF; outline: none; }' + 
 	'html .pagination a:link { font: bold 30px "swis721 cn bt"; border: 0; background: #111; padding: 10px; }' + 
+
 	'main, article, section, header, footer, hgroup, nav, ins, small, big, aside, details, font, article, form, fieldset, label, span, span[class], blockquote, div, div[class], ul, ol, li, a, i, b, strong, dl { color: inherit; background: transparent none; line-height: inherit; font-family: inherit; font-size: inherit; font-weight: inherit; text-decoration: inherit; }' + 
 	'ul { list-style: none; margin: 0; padding: 10px 0 10px 20px; }' +
 	'li { font-size: 12px; list-style-image: none; background-image: none; line-height: 150%; }' + 
@@ -1592,16 +1596,22 @@ function insertStyleNegative(important)
 	'p { margin: 0; padding: 5px 0; font-style: normal; font-weight: normal; line-height: 150%; color: inherit; background: inherit; border: 0; }' + 
 	'blockquote { margin: 0 0 0 20px; padding: 10px 0 10px 20px; border-style: solid; border-width: 10px 0 0 10px; border-color: #0C0C0C; }' + 
 	'blockquote blockquote { margin: 0 0 0 20px; padding: 0 0 0 20px; border-width: 0 0 0 10px; }' + 
+
 	'code { background: #0C0C0C; font-family: Verdcode, Consolas, sans-serif; padding: 1px 2px; }' + 
 	'pre { background: #0C0C0C; border-style: solid; border-width: 0 0 0 10px; border-color: #444; padding: 10px 20px; font: 12px Verdcode; }' + 
 	'pre, code { color: #999; }' + 
-	'pre p { margin: 0; padding: 0; font: 12px Verdcode, Consolas, sans-serif; }' + 
-	'pre em { color: #57F; }' + 
-	'pre i { color: #FFF; }' + 
-	'pre b { color: #F90; }' + 
-	'pre u { color: #0F0; text-decoration: none; }' + 
-	'pre dfn { font-style: normal; color: #F90; background: #331500; }' + 
-	'pre s { color: #F00; text-decoration: none; background: #400; }' + 
+	'pre p { margin: 0; padding: 0; font: 12px Verdcode, Consolas, sans-serif; }' +
+
+	'pre q1 { color: #57F; background: #024; }' +
+	'pre q2 { color: #C7F; background: #214; }' +
+	'pre c1 { font-style: normal; color: #F90; background: #331500; }' +
+	'pre c2 { color: #F00; background: #400; }' +
+	'pre b1 { color: #AF0; }' +
+	'pre b2 { color: #FF0; }' +
+	'pre b3 { color: #F90; }' +
+	'pre xk { color: #29F; }' +
+	'pre xh { color: #57F; }' +
+
 	'a img { border: none; }' + 
 	'button img, input img { display: none; }' + 
 	'table { border-collapse: collapse; background: #141414; border: 0; }' + 
@@ -1879,6 +1889,7 @@ function replaceFontTags()
 
 function removeAttributes()
 {
+	var t1 = new Date();
 	var x = document.getElementsByTagName('*');
 	document.body.removeAttribute("background");
 	for (var i = 0; i < x.length; i++)
@@ -1909,10 +1920,13 @@ function removeAttributes()
 			}
 		}
 	}
+	var t2 = new Date();
+	xlog((t2-t1) + "ms: removeAttributes");
 }
 
 function removeAttributes_fast()
 {
+	var t1 = new Date();
 	var temp, a, i, attnode, old_att;
 	document.body.removeAttribute("background");
 	document.body.innerHTML = document.body.innerHTML.replace(/(<[^ai][a-z0-9]*) [^>]+/gi, '$1');
@@ -1939,11 +1953,13 @@ function removeAttributes_fast()
 		}
 		a[i].src = temp;
 	}
+	var t2 = new Date();
+	xlog((t2-t1) + "ms: removeAttributes_fast");
 }
 
 function forAll(selector, callback)
 {
-	var e = document.querySelectorAll(selector);
+	var e = get(selector);
 	var i = e.length;
 	while (i--)
 		callback(e[i]);
@@ -2256,43 +2272,124 @@ function clickHandler(e)
 	}
 }
 
+function highlightCode2(s)
+{
+	var t = "";
+	var cur, prev, next;
+	for(var i = 0, ii = s.length; i < ii;  i++)
+	{
+		cur = s[i];
+		prev = (i > 0) ? s[i-1] : null;
+		next = (i < ii-1) ? s[i+1] : null;
+		switch(cur)
+		{
+			// double quote strings
+			case '"':
+				t += '<q1>"';
+				i++;
+				while(s[i] && s[i]!== '"')
+				{
+					t += s[i];
+					i++;
+				}
+				t += '"</q1>';
+				break;
+			// single quote strings
+			case "'":
+				t += "<q2>'";
+				i++;
+				while(s[i] && s[i]!== "'")
+				{
+					t += s[i];
+					i++;
+				}
+				t += "'</q2>";
+				break;
+			// comments
+			case '/':
+				if(next === '/')
+				{
+					t += "<c1>/";
+					i++;
+					while(s[i] && s[i].match(/[\r\n]/) === null)
+					{
+						t += s[i];
+						i++;
+					}
+					t += '</c1>\r\n';
+				}
+				else if(next === '*')
+				{
+					t += '<c2>' + cur;
+					i++;
+					while(s[i] && !(s[i] === '*' && s[i+1] === '/'))
+					{
+						t += s[i];
+						i++;
+					}
+					t += '*/</c2>';
+				}
+				break;
+			// brackets
+			case '{':
+			case '}':
+				t += '<b1>' + cur + '</b1>';
+				break;
+			case '(':
+			case ')':
+				t += '<b2>' + cur + '</b2>';
+				break;
+			case '[':
+			case ']':
+				t += '<b3>' + cur + '</b3>';
+				break;
+			// no highlighting
+			default:
+				t += cur;
+				break;
+		}
+	}
+	return t;
+}
+
 function highlightCode(highlightKeywords)
 {
 	var tagpre = get("pre");
 	var i = tagpre.length;
 	while (i--)
 	{
-		var s = tagpre[i].innerHTML,
-			r;
+		var s = tagpre[i].innerHTML, r;
 		s = s.replace(/<span[^>]*>/g, "");
 		s = s.replace(/<\/span>/g, "");
-		s = s.replace(/\(/g, '<em>(</em>');
-		s = s.replace(/\)/g, '<em>)</em>');
-		s = s.replace(/{/g, '<u>{</u>');
-		s = s.replace(/}/g, '<u>}</u>');
-		s = s.replace(/\[/g, '<i>[</i>');
-		s = s.replace(/\]/g, '<i>]</i>');
+		
+		s = highlightCode2(s);
+		
 		// Everything between angle brackets
-		s = s.replace(/(&lt;\/?[^&\r\n]+&gt;)/g, '<em>$1</em>');
-		// C-style block comments
-		s = s.replace(/\/\*(.+)\*\//g, '<dfn>/*$1*/</dfn>');
-		// PHP comments
-		//s = s.replace(/[^: ]#([A-Za-z ]+)/g, '<dfn>#$1</dfn>');
+		s = s.replace(/(&lt;\/?[^&\r\n]+&gt;)/g, '<xh>$1</xh>');
 
 		if(highlightKeywords === true)
 		{
-			var keyword = ["abstract", "applet", "object", "prototype", "param", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue", "debugger", "default", "delete", "do", "double", "else", "enum", "export", "extends", "false", "final", "finally", "float", "for", "function", "goto", "if", "implements", "import", "in", "instanceof", "int", "interface", "long", "native", "new", "null", "package", "private", "protected", "public", "return", "short", "static", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try", "typeof", "var", "void", "volatile", "while", "with", "script", "javascript", "document", "createElement", "createTextNode", "getElementsByTagName"];
+			var keyword = [
+				"abstract", "applet", "object", "prototype", "param", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
+				"debugger", "default", "delete", "do", "double", "else", "enum", "export", "extends", "false", "final", "finally", "float", "for", "function", 
+				"getElementsByClassName", "getElementsByID", "getElementsByTagName", "goto", "if", "implements", "import", "in", "instanceof", "int", "interface", 
+				"long", "native", "new", "null", "package", "private", "protected", "public", "querySelector", "querySelectorAll", "return", 
+				"short", "static", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try", "typeof", 
+				"var", "void", "volatile", "while", "with", "script", "javascript", "document", "createElement", "createTextNode", "getElementsByTagName"
+			];
 			var j = keyword.length;
 			while (j--)
 			{
 				r = new RegExp("\\b" + keyword[j] + "\\b", "g");
-				s = s.replace(r, "<em>" + keyword[j] + "</em>");
+				s = s.replace(r, "<xk>" + keyword[j] + "</xk>");
 			}
 		}
 		
 		tagpre[i].innerHTML = s;
 	}
-	forAll("dfn", htmlToText);
+	// un-highlight elements in comments
+	forAll("c1", htmlToText);
+	forAll("c2", htmlToText);
 }
 
 function htmlToText(e)
@@ -2417,11 +2514,11 @@ function getElementsWithClass(strClass)
 function getElementsContainingText()
 {
 	var s, t;
-	s = prompt("Get Elements (tag)");
+	s = prompt("Get Elements");
 	t = prompt("Containing text");
 	if(!s.length)
 		return;
-	var e = get(s);
+	var e = document.querySelectorAll(s);
 	if(t && t.length)
 	{
 		for(var i = 0, ii = e.length; i < ii; i++)
@@ -2777,8 +2874,8 @@ function restorePres()
 		e[i].innerHTML = e[i].innerHTML.replace(/GYZYtab/g, "\t");
 		e[i].innerHTML = e[i].innerHTML.replace(/GYZYnl/g, "\n");
 		e[i].innerHTML = e[i].innerHTML.replace(/\n+/g, "\n");
-		e[i].innerHTML = e[i].innerHTML.replace(/([^:])(\/\/[^\n]+)/g, "$1<dfn>$2</dfn>");
-		e[i].innerHTML = e[i].innerHTML.replace(/^(\/\/[^\n]+)/g, "<dfn>$1</dfn>");
+		//e[i].innerHTML = e[i].innerHTML.replace(/([^:])(\/\/[^\n]+)/g, "$1<dfn>$2</dfn>");
+		//e[i].innerHTML = e[i].innerHTML.replace(/^(\/\/[^\n]+)/g, "<dfn>$1</dfn>");
 	}
 	
 }
