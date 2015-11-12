@@ -1726,6 +1726,7 @@ function sanitizeTitle(str)
 	s = s.replace(/&/g, " and ");
 	s = s.replace(/\u00df/g, 'SS');
 	s = s.replace(/[:|\?]/g, " - ");
+	s = s.replace(/[\/]/g, "-");
 	s = s.replace(/[^\.\(\)0-9A-Za-z_!@\[\]\-\(\)'",]/g, " ");
 	s = s.replace(/\s+/g, " ");
 
@@ -2272,7 +2273,7 @@ function clickHandler(e)
 	}
 }
 
-function highlightCode2(s)
+function parseCode(s)
 {
 	var t = "";
 	var cur, prev, next;
@@ -2362,7 +2363,7 @@ function highlightCode(highlightKeywords)
 		s = s.replace(/<span[^>]*>/g, "");
 		s = s.replace(/<\/span>/g, "");
 		
-		s = highlightCode2(s);
+		s = parseCode(s);
 		
 		// Everything between angle brackets
 		s = s.replace(/(&lt;\/?[^&\r\n]+&gt;)/g, '<xh>$1</xh>');
