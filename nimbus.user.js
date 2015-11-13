@@ -2334,6 +2334,7 @@ function parseCode(s)
 						i++;
 					}
 					t += '*/</c2>';
+					i++;
 				}
 				else
 				{
