@@ -1550,7 +1550,7 @@ function insertStyleNegative(important)
 {
 	var s = 'html { background: #181818; }' + 
 	'html body { margin: 0; }' + 
-	'html body, html body[class] { color: #888; background: #282828; font-weight: normal; }' + 
+	'html body, html body[class] { color: #888; background: #242424; font-weight: normal; }' + 
 	'body.pad100 { padding: 100px 150px; }' + 
 	'body.pad100 table { width: 100%; }' + 
 	'body.pad100 td, body.pad100 th { padding: 3px 10px; }' + 
@@ -1606,11 +1606,12 @@ function insertStyleNegative(important)
 	'pre q2 { color: #C7F; background: #214; }' +
 	'pre c1 { font-style: normal; color: #F90; background: #331500; }' +
 	'pre c2 { color: #F00; background: #400; }' +
-	'pre b1 { color: #AF0; }' +
-	'pre b2 { color: #FF0; }' +
+	'pre b1 { color: #0F0; }' +
+	'pre b2 { color: #FFF; }' +
 	'pre b3 { color: #F90; }' +
 	'pre xk { color: #29F; }' +
 	'pre xh { color: #57F; }' +
+	'pre xv { color: #F47; }' +
 
 	'a img { border: none; }' + 
 	'button img, input img { display: none; }' + 
@@ -2308,7 +2309,11 @@ function parseCode(s)
 				break;
 			// comments
 			case '/':
-				if(next === '/')
+				if(prev && prev === ":") // is a URL, don't highlight
+				{
+					t += cur;
+				}
+				else if(next === '/') // single-line comment
 				{
 					t += "<c1>/";
 					i++;
@@ -2319,7 +2324,7 @@ function parseCode(s)
 					}
 					t += '</c1>\r\n';
 				}
-				else if(next === '*')
+				else if(next === '*') // block comment
 				{
 					t += '<c2>' + cur;
 					i++;
@@ -2329,6 +2334,37 @@ function parseCode(s)
 						i++;
 					}
 					t += '*/</c2>';
+				}
+				else
+				{
+					t += cur;
+				}
+				break;
+			// PHP variables
+			case '$':
+				if(next && next.match(/[a-z0-9_\-]/i) !== null)
+				{
+					t += '<xv>' + cur;
+					i++;
+					if(s[i] && s[i].match(/[a-z0-9_\-]/i) !== null)
+					{
+						while(s[i] && s[i].match(/[a-z0-9_\-]/i) !== null)
+						{
+							xlog(s[i]);
+							t += s[i];
+							i++;
+						}
+						i--;
+					}
+					else
+					{
+						t += cur;
+					}
+					t += '</xv>';
+				}
+				else
+				{
+					t += cur;
 				}
 				break;
 			// brackets
@@ -2371,8 +2407,8 @@ function highlightCode(highlightKeywords)
 		if(highlightKeywords === true)
 		{
 			var keyword = [
-				"abstract", "applet", "object", "prototype", "param", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
-				"debugger", "default", "delete", "do", "double", "else", "enum", "export", "extends", "false", "final", "finally", "float", "for", "function", 
+				"abstract", "addEventListener", "object", "prototype", "break", "byte", "case", "catch", "char", "class", "const", "continue",
+				"debugger", "default", "delete", "do", "document", "documentElement", "double", "else", "enum", "export", "extends", "false", "final", "finally", "float", "for", "function", 
 				"getElementsByClassName", "getElementsByID", "getElementsByTagName", "goto", "if", "implements", "import", "in", "instanceof", "int", "interface", 
 				"long", "native", "new", "null", "package", "private", "protected", "public", "querySelector", "querySelectorAll", "return", 
 				"short", "static", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try", "typeof", 
@@ -2890,7 +2926,7 @@ function fixParagraphs()
 	s = s.replace(/<br>([a-z])/g, " $1");
 	s = s.replace(/\s*<p>\s*/g, "<p>");
 	s = s.replace(/\s*<\/p>\s*/g, "</p>");
-	s = s.replace(/([a-z\-0-9])<\/p>\s*<p>([a-z])/g, "$1 $2");
+	s = s.replace(/([a-z\-0-9])<\/p>\s*<p>([A-Za-z])/g, "$1 $2");
 	s = s.replace(/<br>/g, "</p><p>");
 	s = s.replace(/&nbsp;/g, " ");
 	s = s.replace(/\s+/g, " ");
@@ -3660,10 +3696,11 @@ function showTextToHTMLRatio()
 function fixForums()
 {
 	var t1 = new Date();
+	var e, i;
 	if(!document.body)
 		return;
-	var e = get("div");
-	var i = e.length;
+	e = get("div");
+	i = e.length;
 	while(i--)
 	{
 		if(e[i].className && e[i].className.toLowerCase().indexOf("quote") !== -1)
@@ -3671,6 +3708,17 @@ function fixForums()
 			e[i].innerHTML = '<blockquote>' + e[i].innerHTML + '</blockquote>';
 		}
 	}
+
+/*	e = get("a");
+	i = e.length;
+	while(i--)
+	{
+		if(e[i].href.indexOf("/u/") !== -1)
+			e[i].className += " hl";
+		else if(e[i].className && e[i].className.indexOf("author") !== false)
+			e[i].className += " hl";
+	}*/
+
 	var t2 = new Date();
 	xlog(t2-t1 +"ms: fixForums");
 }
