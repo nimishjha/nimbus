@@ -87,22 +87,31 @@ function selectRandom(arr)
 
 function getStyles(e)
 {
-	var styles, bgImage, bgColor;
+	var styles, bgImage, bgColor, s, w;
 	styles = getComputedStyle(e, null);
 	if(styles)
 	{
 		bgColor = styles.getPropertyValue("background-color");
 		bgImage = styles.getPropertyValue("background-image");
 		elemWidth = styles.getPropertyValue("width");
-		if(bgColor !== "transparent")
+/*		if(bgColor !== "transparent")
 		{
-			var s = document.createElement("x");
+			s = document.createElement("x");
 			s.textContent = bgColor;
 			if(bgImage !== "none")
 				s.textContent += " " + bgImage;
 			e.appendChild(s);
 			e.className += " hl";
 		}
+		if(elemWidth.indexOf("px") !== -1)
+		{
+			w = parseInt(elemWidth, 10);
+			var w2 = w * 2;
+			e.style.width = w2 + "px";
+			s = document.createElement("x");
+			s.textContent = w + " -> " + w2;
+			e.appendChild(s);
+		}*/
 	}
 	insertStyle("x {background:#000;color:#FF0;}", "temp", true);
 }
@@ -679,8 +688,8 @@ function handleKeyDown(e)
 			makeDocumentClickable();
 			break;
 		case 57: //9
-			forAll("div", getStyles);
-			forAll("section", getStyles);
+			//forAll("div", getStyles);
+			//forAll("section", getStyles);
 			break;
 		case 73: // i
 			deleteSignatures();
