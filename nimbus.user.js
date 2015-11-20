@@ -1664,9 +1664,9 @@ function insertStyleNegative(important)
 	'body.xDontShowLinks a:hover *, body.xDontShowLinks a:focus *, body.xDontShowLinks a:hover, body.xDontShowLinks a:focus { color: #FFF; text-decoration: none; }';
 
 	if(important)
-		insertStyle(s, "style_negative", true);
+		insertStyle(s, "style_negative_v2", true);
 	else
-		insertStyle(s, "style_negative");
+		insertStyle(s, "style_negative_v2");
 }
 
 function insertStyleWhite()
@@ -1749,6 +1749,7 @@ function sanitizeTitle(str)
 
 	s = s.replace(/&/g, " and ");
 	s = s.replace(/\u00df/g, 'SS');
+	s = s.replace(/\u2019/g, "'");
 	s = s.replace(/[:|\?]/g, " - ");
 	s = s.replace(/[\/]/g, "-");
 	s = s.replace(/[^\.\(\)0-9A-Za-z_!@\[\]\-\(\)'",]/g, " ");
@@ -2375,7 +2376,6 @@ function parseCode(s)
 					{
 						while(s[i] && s[i].match(phpVarRegex) !== null)
 						{
-							xlog(s[i]);
 							t += s[i];
 							i++;
 						}
@@ -2416,10 +2416,21 @@ function parseCode(s)
 
 function highlightCode(highlightKeywords)
 {
+	var t1 = new Date();
+	fixPres();
+	restorePres();
+	
 	var tagpre = get("pre");
 	var i = tagpre.length;
 	while (i--)
 	{
+		// delete the <pre>s that only contain line numbers
+		if(tagpre[i].textContent && tagpre[i].textContent.match(/[a-z]/) === null)
+		{
+			tagpre[i].parentNode.removeChild(tagpre[i]);
+			continue;
+		}
+		
 		var s = tagpre[i].innerHTML, r;
 		s = s.replace(/<span[^>]*>/g, "");
 		s = s.replace(/<\/span>/g, "");
@@ -2453,6 +2464,8 @@ function highlightCode(highlightKeywords)
 	// un-highlight elements in comments
 	forAll("c1", htmlToText);
 	forAll("c2", htmlToText);
+	var t2 = new Date();
+	xlog(t2 - t1 + "ms: highlightCode");
 }
 
 function htmlToText(e)
@@ -2622,6 +2635,8 @@ function deleteNonContentDivs()
 				addClass(e[i].parentNode, "toget");
 		}
 	}
+	// if the <body> has a .toget class, it will be appended to the existing <body>
+	document.body.className = '';
 
 	// hls that are children of other hls need to have their hl class removed
 	e = get(".toget");
@@ -2890,7 +2905,7 @@ function fixPres()
 	i = e.length;
 	while(i--)
 	{
-		if(e[i].innerHTML.toLowerCase().indexOf("<br>") >= 0)
+		if(e[i].innerHTML.toLowerCase().indexOf("<br>") !== -1)
 		{
 			temp = document.createElement("pre");
 			temp.innerHTML = e[i].innerHTML;
@@ -3424,7 +3439,7 @@ function wrapElement(obj, tag)
 
 function replaceWrongHeading()
 {
-	var heading1, heading1link, temp;
+	var heading1, heading2, heading1link, temp;
 	if(get("h1"))
 	{
 		heading1 = get("h1")[0];
@@ -3432,9 +3447,24 @@ function replaceWrongHeading()
 		{
 			if((heading1link.href === "http://" + location.hostname + "/") || (heading1link.href === "https://" + location.hostname + "/"))
 			{
-				temp = document.createElement("h6");
+				temp = document.createElement("h3");
 				temp.innerHTML = heading1.innerHTML;
 				heading1.parentNode.replaceChild(temp, heading1);
+			}
+		}
+		// blogs will often have the blog title as the first h1, which is useless
+		if(get("h1").length > 1)
+		{
+			heading1 = get("h1")[0];
+			heading2 = get("h1")[1];
+			if(heading1.textContent && heading2.textContent)
+			{
+				if(heading2.textContent.length > heading1.textContent.length)
+				{
+					temp = document.createElement("h3");
+					temp.innerHTML = heading1.innerHTML;
+					heading1.parentNode.replaceChild(temp, heading1);
+				}
 			}
 		}
 	}
