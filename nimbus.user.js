@@ -43,7 +43,6 @@ function isArray(o)
 
 function del(c)
 {
-	var t1 = new Date();
 	if(c.toString() === '[object HTMLElement]')
 	{
 		c.parentNode.removeChild(c);
@@ -74,8 +73,6 @@ function del(c)
 			if(f.parentNode) f.parentNode.removeChild(f);
 		}
 	}
-	var t2 = new Date();
-	xlog(t2-t1 + 'ms: del(' + c + ')');
 }
 
 function listProperties(o)
@@ -98,6 +95,7 @@ function selectRandom(arr)
 
 function getStyles(e)
 {
+/*
 	var styles, bgImage, bgColor, s, w;
 	styles = getComputedStyle(e, null);
 	if(styles)
@@ -105,7 +103,7 @@ function getStyles(e)
 		bgColor = styles.getPropertyValue("background-color");
 		bgImage = styles.getPropertyValue("background-image");
 		elemWidth = styles.getPropertyValue("width");
-/*		if(bgColor !== "transparent")
+		if(bgColor !== "transparent")
 		{
 			s = document.createElement("x");
 			s.textContent = bgColor;
@@ -122,9 +120,10 @@ function getStyles(e)
 			s = document.createElement("x");
 			s.textContent = w + " -> " + w2;
 			e.appendChild(s);
-		}*/
+		}
 	}
 	insertStyle("x {background:#000;color:#FF0;}", "temp", true);
+*/
 }
 
 function markTableRowsAndColumns()
@@ -2700,7 +2699,6 @@ function deleteEmptyParagraphs()
 
 function deleteEmptyElements(tag)
 {
-	var t1 = new Date();
 	var e = document.getElementsByTagName(tag);
 	var i = e.length;
 	while(i--)
@@ -2716,8 +2714,6 @@ function deleteEmptyElements(tag)
 				e[i].parentNode.removeChild(e[i]);
 		}
 	}
-	var t2 = new Date();
-	xlog(t2-t1 + " ms: deleteEmptyElements('" + tag + "')");
 }
 
 function deleteEmptyHeadings()
