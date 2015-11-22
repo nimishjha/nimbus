@@ -469,6 +469,8 @@ function deleteNonContentImages()
 	deleteImagesBySrcContaining("mt-static");
 	deleteImagesBySrcContaining("feed.");
 	deleteImagesBySrcContaining("twitter.");
+	deleteImagesBySrcContaining("bluesaint");
+	deleteImagesBySrcContaining("board/images");
 }
 
 function cleanupBlogs()
@@ -1048,7 +1050,7 @@ function clickThanks()
 function highlightElement()
 {
 	var s = prompt("Enter selector for elements to highlight");
-	if(!s.length)
+	if(!(s && s.length))
 		return;
 	var e = get(s);
 	if(e.length)
@@ -3045,7 +3047,7 @@ function highlightNodesContaining(tag, str)
 		tag = prompt("highlightNodesContaining\ntagName");
 		if(!tag.length) return;
 		str = prompt("Containing text");
-		if(! (tag.length && str.length)) return;
+		if(!str.length) return;
 	}
 	var e = document.getElementsByTagName(tag);
 	var i = e.length;
@@ -3054,13 +3056,15 @@ function highlightNodesContaining(tag, str)
 		if(e[i].getElementsByTagName(tag).length) continue;
 		if(e[i].textContent.indexOf(str) !== -1)
 		{
-			e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
+			//e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
+			e[i].className += " hl";
 		}
 		if(tag.toLowerCase() === "a")
 		{
 			if(e[i].href && e[i].href.indexOf(str) >= 0)
 			{
-				e[i].innerHTML = "<samp>" + e[i].innerHTML + "</samp>";
+				//e[i].innerHTML = "<samp>" + e[i].innerHTML + "</samp>";
+				e[i].className += " hl";
 			}
 		}
 	}
@@ -3738,7 +3742,8 @@ function fixForums()
 		}
 	}
 
-/*	e = get("a");
+	// highlight usernames
+	e = get("a");
 	i = e.length;
 	while(i--)
 	{
@@ -3746,7 +3751,9 @@ function fixForums()
 			e[i].className += " hl";
 		else if(e[i].className && e[i].className.indexOf("author") !== false)
 			e[i].className += " hl";
-	}*/
+		else if(e[i].href.indexOf("profile") !== -1)
+			e[i].className += " hl";
+	}
 
 	var t2 = new Date();
 	xlog(t2-t1 +"ms: fixForums");
