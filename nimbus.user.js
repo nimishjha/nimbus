@@ -3749,9 +3749,9 @@ function fixForums()
 	{
 		if(e[i].href.indexOf("/u/") !== -1)
 			e[i].className += " hl";
-		else if(e[i].className && e[i].className.indexOf("author") !== false)
+		else if(e[i].className && e[i].className.indexOf("author") !== -1)
 			e[i].className += " hl";
-		else if(e[i].href.indexOf("profile") !== -1)
+		else if(e[i].href.indexOf("/profile") !== -1)
 			e[i].className += " hl";
 	}
 
