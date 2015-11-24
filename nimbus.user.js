@@ -15,17 +15,6 @@ var logString = "";
 var messageTimeout;
 initialize();
 
-function Console(){}
-
-Console.prototype.log = function(s) {
-	var e = document.createElement("h6");
-	e.textContent = s;
-	document.body.appendChild(e);
-}
-
-var console = new Console();
-
-
 function get(s)
 {
 	s = s.toString();
@@ -273,7 +262,8 @@ function deleteResource(evt)
 			}
 		}
 	}
-	evt.target.parentNode.parentNode.removeChild(evt.target.parentNode);
+	if(evt.target.parentNode.parentNode)
+		evt.target.parentNode.parentNode.removeChild(evt.target.parentNode);
 }
 
 function showResources()
@@ -702,8 +692,6 @@ function handleKeyDown(e)
 			makeDocumentClickable();
 			break;
 		case 57: //9
-			//forAll("div", getStyles);
-			//forAll("section", getStyles);
 			break;
 		case 73: // i
 			deleteSignatures();
@@ -727,9 +715,6 @@ function handleKeyDown(e)
 			}
 			break;
 		case 67: //c
-			//getContent();
-			//setDocTitle();
-			//appendInfo();
 			deleteNonContentDivs();
 			break;
 		case 71: //g
@@ -798,7 +783,8 @@ function handleKeyDown(e)
 			highlightCode();
 			break;
 		case 191: ///
-			xlog("highlightForm");
+			// testing to see if this will fix the problem where on some forms showPassword() doesn't work
+			showPassword();
 			highlightForm();
 			break;
 		}
@@ -885,6 +871,7 @@ function handleKeyDown(e)
 			deleteEmptyHeadings();
 			break;
 		case 53: //5
+			insertStyleShowClass();
 			break;
 		case 69: //e
 			replaceElement();
@@ -1052,7 +1039,7 @@ function highlightElement()
 	var s = prompt("Enter selector for elements to highlight");
 	if(!(s && s.length))
 		return;
-	var e = get(s);
+	var e = document.querySelectorAll(s);
 	if(e.length)
 	{
 		var i = e.length;
@@ -1423,24 +1410,26 @@ function replaceIframes()
 	var i = e.length;
 	while(i--)
 	{
+		iframereplacement = document.createElement("rp");
+		iframelink = document.createElement("a");
+		s = e[i].src;
+		if(containsAnyString(s, ["facebook", "twitter"]))
+		{
+			e[i].parentNode.removeChild(e[i]);
+			continue;
+		}
+		iframelink.href = s;
 		if(e[i].src.indexOf("youtube") !== -1)
 		{
-			iframereplacement = document.createElement("rp");
-			iframelink = document.createElement("a");
-			s = e[i].src;
 			s = s.replace(/\/embed\//, '/watch?v=');
 			segments = s.split('?');
 			iframelink.href = segments[0] + '?' + segments[1];
 			if(s.indexOf(".") > 0)
 				s = s.match(/:\/\/(.[^/]+)/)[1];
-			iframelink.textContent = iframelink.href;
-			iframereplacement.appendChild(iframelink);
-			e[i].parentNode.replaceChild(iframereplacement, e[i]);
 		}
-		else
-		{
-			e[i].parentNode.removeChild(e[i]);
-		}
+		iframelink.textContent = iframelink.href;
+		iframereplacement.appendChild(iframelink);
+		e[i].parentNode.replaceChild(iframereplacement, e[i]);
 	}
 }
 
@@ -1567,6 +1556,13 @@ function insertStyle(str, identifier, important)
 function insertStyleFonts()
 {
 	insertStyle('p, li, td, div, input, select, textarea { font: 12px Verdana; } h1, h2, h3, h4, h5, h6 { font-family: "swis721 cn bt"; } span, b, em, strong, i { font: inherit; } pre, code { font: 12px verdcode; }', 'style_fonts', true);
+}
+
+function insertStyleShowClass()
+{
+	var s = '* { display: block; padding: 5px; border: 1px solid #111; }' +
+	'*::before { content: attr(class); color: #FF0; }';
+	insertStyle(s, "style_showClass", true);
 }
 
 function insertStyleNegative(important)
@@ -2440,6 +2436,9 @@ function highlightCode(highlightKeywords)
 
 		// Everything between angle brackets
 		s = s.replace(/(&lt;\/?[^&\r\n]+&gt;)/g, '<xh>$1</xh>');
+		// php opening and closing tags
+		s = s.replace(/(&lt;\?php)/g, '<b1>$1</b1>');
+		s = s.replace(/(\?&gt;)/g, '<b1>$1</b1>');
 
 		if(highlightKeywords === true)
 		{
@@ -2523,7 +2522,7 @@ function delClassOrIdContaining(classes, beginningOnly)
 		todel[i].className += ' hl';
 }
 
-function deleteNonContentDivs_old(classes)
+function deleteNonContentDivs_old()
 {
 	if(get(".hl").length)
 	{
@@ -2548,7 +2547,7 @@ function deleteNonContentDivs_old(classes)
 		weight += x[i].getElementsByTagName("h4").length;
 		weight += x[i].getElementsByTagName("h5").length;
 		weight += x[i].getElementsByTagName("h6").length;
-		if(!weight)
+		if(weight)
 		{
 			//x[i].innerHTML = '<h2><mark>' + "deleting: " + ((x[i].id ? "#" + x[i].id : "") + (x[i].className? "." + x[i].className : "")).toString() + '</mark></h2>' + x[i].innerHTML;
 			x[i].className += " hl";
@@ -2625,7 +2624,7 @@ function deleteNonContentDivs()
 
 	// tags which are used to mark content divs
 	// if a div contains any of these tags, we want to retain it
-	var tag = ["p", "img", "h1", "h2", "pre"];
+	var tag = ["p", "img", "h1", "h2", "pre", "ol", "cite"];
 	var j = tag.length;
 	while(j--)
 	{
@@ -2654,6 +2653,13 @@ function deleteNonContentDivs()
 	getElementsWithClass(".toget");
 	del(["link", "style", "script", "form", "fieldset", "input", "select", "textarea"]);
 	cleanupGeneral();
+
+	// e = get(".toget");
+	// for(var i = 0; i < e.length; i++)
+	// {
+	// 	e[i].className = "hl";
+	// }
+	// insertStyle(".hl{box-shadow: inset 2px 2px #f00, inset -2px -2px #F00}", "asd", true);
 }
 
 function formatContent()
@@ -3040,26 +3046,27 @@ function highlightSpecificNodesContaining()
 	}
 }
 
-function highlightNodesContaining(tag, str)
+function highlightNodesContaining(selector, str)
 {
 	if(!arguments.length)
 	{
-		tag = prompt("highlightNodesContaining\ntagName");
-		if(!tag.length) return;
+		selector = prompt("highlightNodesContaining\nEnter selector");
+		if(!selector.length) return;
 		str = prompt("Containing text");
 		if(!str.length) return;
 	}
-	var e = document.getElementsByTagName(tag);
+	var e = document.querySelectorAll(selector);
 	var i = e.length;
 	while (i--)
 	{
-		if(e[i].getElementsByTagName(tag).length) continue;
+		if(e[i].querySelectorAll(selector).length)
+			continue;
 		if(e[i].textContent.indexOf(str) !== -1)
 		{
 			//e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
 			e[i].className += " hl";
 		}
-		if(tag.toLowerCase() === "a")
+		if(selector.toLowerCase() === "a")
 		{
 			if(e[i].href && e[i].href.indexOf(str) >= 0)
 			{
@@ -3743,7 +3750,7 @@ function fixForums()
 	}
 
 	// highlight usernames
-	e = get("a");
+/*	e = get("a");
 	i = e.length;
 	while(i--)
 	{
@@ -3753,7 +3760,7 @@ function fixForums()
 			e[i].className += " hl";
 		else if(e[i].href.indexOf("/profile") !== -1)
 			e[i].className += " hl";
-	}
+	}*/
 
 	var t2 = new Date();
 	xlog(t2-t1 +"ms: fixForums");
@@ -3783,10 +3790,8 @@ function inject()
 		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
 		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
 	insertStyle(s, "style_helper", true);
-	doStackOverflow();
+	setTimeout(doStackOverflow, 500);
 }
-
-
 
 function showPassword()
 {
@@ -3794,8 +3799,13 @@ function showPassword()
 	e = get("input");
 	i = e.length;
 	while(i--)
-		if(e[i].type && e[i].type === "password")
+	{
+		if(e[i].type && e[i].type === "password" && !hasClass(e[i], "showPassword"))
+		{
 			e[i].addEventListener("keyup", echoPassword, false);
+			e[i].className += " showPassword";
+		}
+	}
 }
 
 function echoPassword(e)
