@@ -800,6 +800,9 @@ function handleKeyDown(e)
 		case 50: //2
 			replaceImagesWithTextLinks();
 			break;
+		case 53: //5
+			getImages(true);
+			break;
 		case 71: //g
 			getElementsContainingText();
 			break;
@@ -1110,7 +1113,7 @@ function annotate()
 	}
 }
 
-function getImages()
+function getImages(slideshow)
 {
 	if(get("#style_nimbus_gallery"))
 	{
@@ -1152,7 +1155,8 @@ function getImages()
 				tempNode.appendChild(f[i].cloneNode(true));
 			}
 		}
-		//del("img");
+		if(!slideshow)
+			del("img");
 		db.insertBefore(tempNode, db.firstChild);
 	}
 	else if(f)
@@ -1163,10 +1167,11 @@ function getImages()
 	{
 		ylog("No images found", "h1", true);
 	}
-	buildGallery();
+	if(slideshow)
+		buildSlideshow();
 }
 
-function buildGallery()
+function buildSlideshow()
 {
 	var e, gallery, images, s;
 	if(!(gallery = get("#nimbus_gallery")))
