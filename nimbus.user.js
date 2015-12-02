@@ -101,7 +101,6 @@ function selectRandom(arr)
 
 function getStyles(e)
 {
-/*
 	var styles, bgImage, bgColor, s, w;
 	styles = getComputedStyle(e, null);
 	if(styles)
@@ -118,7 +117,7 @@ function getStyles(e)
 			e.appendChild(s);
 			e.className += " hl";
 		}
-		if(elemWidth.indexOf("px") !== -1)
+/*		if(elemWidth.indexOf("px") !== -1)
 		{
 			w = parseInt(elemWidth, 10);
 			var w2 = w * 2;
@@ -126,10 +125,9 @@ function getStyles(e)
 			s = document.createElement("x");
 			s.textContent = w + " -> " + w2;
 			e.appendChild(s);
-		}
+		}*/
 	}
 	insertStyle("x {background:#000;color:#FF0;}", "temp", true);
-*/
 }
 
 function markTableRowsAndColumns()
@@ -579,7 +577,7 @@ function removeNonAlpha(s)
 
 function prevPage()
 {
-	var links, i, s;
+	var links, i, s, found = false;
 	links = get("a");
 	i = links.length;
 	while(i--)
@@ -589,16 +587,21 @@ function prevPage()
 			s = removeNonAlpha(s).toLowerCase();
 			if(s === "prev" || s === "previous")
 			{
+				found = true;
 				links[i].click();
 				return;
 			}
 		}
 	}
+	if(!found)
+	{
+		pager(true);
+	}
 }
 
 function nextPage()
 {
-	var links, i, s;
+	var links, i, s, found = false;
 	links = get("a");
 	i = links.length;
 	while(i--)
@@ -610,6 +613,33 @@ function nextPage()
 			{
 				links[i].click();
 				return;
+			}
+		}
+	}
+	if(!found)
+	{
+		pager();
+	}
+}
+
+function pager(prev)
+{
+	var pageString, curPage, links, i;
+	if(pageString = document.body.innerHTML.match(/Page [0-9]+ of [0-9]+/))
+	{
+		curPage = parseInt(pageString[0].match(/[0-9]+/)[0], 10);
+		links = get("a");
+		i = links.length;
+		if(prev)
+			--curPage;
+		else
+			++curPage;
+		while(i--)
+		{
+			if(links[i].textContent && links[i].textContent === (curPage).toString())
+			{
+				links[i].className += " hl";
+				links[i].focus();
 			}
 		}
 	}
@@ -709,6 +739,8 @@ function handleKeyDown(e)
 			makeDocumentClickable();
 			break;
 		case 57: //9
+			insertStyle("*::before{content:attr(class);color:#FF0;padding:2px;background:#000;margin: 0 2px 0 0;}", "style_calibre", true);
+			//forAll("div", getStyles);
 			break;
 		case 73: // i
 			deleteSignatures();
