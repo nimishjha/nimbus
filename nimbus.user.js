@@ -624,22 +624,22 @@ function nextPage()
 
 function pager(prev)
 {
-	var pageString, curPage, links, i;
+	var pageString, curPage, links, i, ii;
 	if(pageString = document.body.innerHTML.match(/Page [0-9]+ of [0-9]+/))
 	{
 		curPage = parseInt(pageString[0].match(/[0-9]+/)[0], 10);
 		links = get("a");
-		i = links.length;
 		if(prev)
 			--curPage;
 		else
 			++curPage;
-		while(i--)
+		for(i = 0, ii = links.length; i < ii; i++)
 		{
 			if(links[i].textContent && links[i].textContent === (curPage).toString())
 			{
 				links[i].className += " hl";
 				links[i].focus();
+				break;
 			}
 		}
 	}
