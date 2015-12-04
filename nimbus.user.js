@@ -2178,9 +2178,10 @@ function makeHeadings()
 	}
 }
 
-function deleteNonContentLists()
+// deletes elements that are either empty, or contain only links
+function deleteNonContentElements()
 {
-	var e, f, g, i, j, k, kk, tags = ["ul", "ol"];
+	var e, f, g, i, j, k, kk, tags = ["div", "ul", "ol"];
 	for(k = 0, kk = tags.length; k < kk; ++k)
 	{
 		e = get(tags[k]);
@@ -2587,7 +2588,7 @@ function deleteNonContentDivs_old()
 		del(".hl");
 		return;
 	}
-	deleteNonContentLists();
+	deleteNonContentElements();
 	deleteNonContentImages();
 	var x = document.getElementsByTagName("div");
 	var i = x.length;
@@ -2675,7 +2676,7 @@ function getElementsContainingText()
 function deleteNonContentDivs()
 {
 	replaceElement("article", "div");
-	deleteNonContentLists();
+	deleteNonContentElements();
 	deleteNonContentImages();
 	deleteEmptyParagraphs();
 	deleteEmptyElements("div");
