@@ -13,18 +13,18 @@
 //	Nimbus
 //	Copyright (C) 2008-2015 Nimish Jha 
 //
-//    This program is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//	This program is free software: you can redistribute it and/or modify
+//	it under the terms of the GNU General Public License as published by
+//	the Free Software Foundation, either version 3 of the License, or
+//	(at your option) any later version.
+//	
+//	This program is distributed in the hope that it will be useful,
+//	but WITHOUT ANY WARRANTY; without even the implied warranty of
+//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//	GNU General Public License for more details.
+//	
+//	You should have received a copy of the GNU General Public License
+//	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 var debug = true;
@@ -2180,31 +2180,35 @@ function makeHeadings()
 
 function deleteNonContentLists()
 {
-	var e = get("ul"), f, g;
-	var i = e.length, j;
-	while (i--)
+	var e, f, g, i, j, k, kk, tags = ["ul", "ol"];
+	for(k = 0, kk = tags.length; k < kk; ++k)
 	{
-		if(removeWhitespace(e[i].textContent).length === 0 && e[i].getElementsByTagName("img").length === 0)
+		e = get(tags[k]);
+		i = e.length;
+		while (i--)
 		{
-			e[i].parentNode.removeChild(e[i]);
-			break;
-		}
-		f = e[i].getElementsByTagName("li");
-		j = f.length;
-		while (j--)
-		{
-			// if a list contains only links, it's likely not content
-			if(f[j].textContent.length && f[j].getElementsByTagName("a").length === 1)
+			if(removeWhitespace(e[i].textContent).length === 0 && e[i].getElementsByTagName("img").length === 0)
 			{
-				g = f[j].getElementsByTagName("a")[0];
-				if(removeWhitespace(f[j].textContent).length === removeWhitespace(g.textContent).length)
+				e[i].parentNode.removeChild(e[i]);
+				break;
+			}
+			f = e[i].getElementsByTagName("li");
+			j = f.length;
+			while (j--)
+			{
+				// if a list contains only links, it's likely not content
+				if(f[j].textContent.length && f[j].getElementsByTagName("a").length === 1)
 				{
-					e[i].parentNode.removeChild(e[i]);
-					break;
+					g = f[j].getElementsByTagName("a")[0];
+					if(removeWhitespace(f[j].textContent).length === removeWhitespace(g.textContent).length)
+					{
+						e[i].parentNode.removeChild(e[i]);
+						break;
+					}
 				}
 			}
 		}
-	}
+	}	
 }
 
 function removeWhitespace(s)
@@ -3989,6 +3993,11 @@ function initialize()
 				cleanupGeneral();
 				fixParagraphs();
 				replaceElement("strong", "h2");
+				highlightLinksWithHrefContaining("/u/");
+				deleteElementsContainingText("li", "Select All Posts");
+				deleteElementsContainingText("li", "Posts. Joined");
+				deleteElementsContainingText("li", "Location:");
+				deleteElementsContainingText("li", "Trader Feedback");
 				break;
 			default:
 				load = true;
