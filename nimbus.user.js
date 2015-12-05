@@ -594,9 +594,7 @@ function prevPage()
 		}
 	}
 	if(!found)
-	{
 		pager(true);
-	}
 }
 
 function nextPage()
@@ -611,22 +609,22 @@ function nextPage()
 			s = removeNonAlpha(s).toLowerCase();
 			if(s === "next" || s === "nextpage")
 			{
+				found = true;
 				links[i].click();
 				return;
 			}
 		}
 	}
 	if(!found)
-	{
 		pager();
-	}
 }
 
 function pager(prev)
 {
 	var pageString, curPage, links, i, ii;
-	if(pageString = document.body.innerHTML.match(/Page [0-9]+ of [0-9]+/))
+	if(document.body.innerHTML.match(/Page [0-9]+ of [0-9]+/))
 	{
+		pageString = document.body.innerHTML.match(/Page [0-9]+ of [0-9]+/)
 		curPage = parseInt(pageString[0].match(/[0-9]+/)[0], 10);
 		links = get("a");
 		if(prev)
@@ -643,7 +641,31 @@ function pager(prev)
 			}
 		}
 	}
+	else
+	{
+		highlightPagination();
+	}
 }
+
+function highlightPagination()
+{
+	var s, e, i, ii;
+	e = get("a");
+	for(i = 0, ii = e.length; i < ii; i++)
+	{
+		if(e[i].textContent && e[i].textContent.length)
+		{
+			s = removeWhitespace(e[i].textContent);
+			if(parseInt(s, 10) && s.match(/[^0-9]+/) === null)
+			{
+				e[i].focus();
+				e[i].className = "hl";
+				break;
+			}
+		}
+	}
+}
+
 
 function handleKeyDown(e)
 {
@@ -3475,23 +3497,6 @@ function analyze_clickHandler(e)
 		if(get("#analyzer"))
 		{
 			prompt("", get("#analyzer").textContent);
-		}
-	}
-}
-
-function highlightPagination()
-{
-	var elems, i, c;
-	elems = document.getElementsByTagName('div');
-	for (i = elems.length - 1; i >= 0; i--)
-	{
-		c = elems[i].className;
-		if(c && c.length)
-		{
-			if(c.indexOf("page") >= 0 || c.indexOf("pagin") >= 0)
-			{
-				wrapElement(elems[i], "h1");
-			}
 		}
 	}
 }
