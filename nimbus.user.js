@@ -1046,7 +1046,13 @@ function doFlickr()
 	if(e.href.indexOf('_o_d.') > 0 && location.href.indexOf("nimishjha") < 0)
 		location.href = e.href;
 	replaceElement(".photo-title", "h1");
-	insertStyle('body, .pp-box, .sub-photo-container, .sub-photo-view, .fluid-subnav {background: #181818 !important; color: #666 !important;} .sub-photo-left-view img, .spaceball { display: none !important;} .photo-display-container .row .photo-display-item, .new-comment-text, #gn-search-field, .meta-field {background: #111 !important; color: #999 !important;}.global-nav-restyle .global-nav-content, .fluid .fluid-subnav.fixed { position: relative !important; }a{color:#CCC!important;}a:hover{color:#FFF!important;}');
+	var s = 'body, .pp-box, .sub-photo-container, .sub-photo-view, .fluid-subnav { background: #181818 !important; color: #666 !important;}' +
+	'.sub-photo-left-view img, .spaceball { display: none !important;}' +
+	'.photo-display-container .row .photo-display-item, .new-comment-text, #gn-search-field, .meta-field { background: #111 !important; color: #999 !important;}' +
+	'.global-nav-restyle .global-nav-content, .fluid .fluid-subnav.fixed { position: relative !important; }' +
+	'a { color:#CCC!important;}' +
+	'a:hover { color:#FFF!important;}';
+	insertStyle(s, "style_flickr", true);
 }
 
 function doYoutube()
@@ -2324,6 +2330,7 @@ function showPrintLink()
 			newlink.href = e[i].href;
 			newlink.textContent = 'Print';
 			document.body.insertBefore(createElementWithChild("h2", newlink), document.body.firstChild);
+			newlink.focus();
 			break;
 		}
 	}
