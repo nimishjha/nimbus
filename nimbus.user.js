@@ -743,7 +743,7 @@ function handleKeyDown(e)
 			break;
 		case 54: //6
 			del(["iframe"]);
-			//deleteElementsContainingText("h2", "iframe:");
+			deleteElementsContainingText("rp", "iframe:");
 			deleteElementsContainingText("div", "Advertisement");
 			break;
 		case 96: //Numpad 0
@@ -1509,7 +1509,7 @@ function replaceIframes()
 			if(s.indexOf(".") > 0)
 				s = s.match(/:\/\/(.[^/]+)/)[1];
 		}
-		iframelink.textContent = iframelink.href;
+		iframelink.textContent = "iframe: " + iframelink.href;
 		iframereplacement.appendChild(iframelink);
 		e[i].parentNode.replaceChild(iframereplacement, e[i]);
 	}
