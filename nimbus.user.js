@@ -34,10 +34,9 @@ initialize();
 
 function get(s)
 {
-	s = s.toString();
-	var t = s.substr(1, s.length - 1);
-	if(s.indexOf("#") === 0) return document.getElementById(t);
-	else if(s.indexOf(".") === 0) return document.getElementsByClassName(t);
+	s = trim(s);
+	if(s.indexOf("#") === 0) return document.getElementById(s.substring(1, s.length));
+	else if(s.indexOf(".") === 0) return document.getElementsByClassName(s.substring(1, s.length));
 	else if(document.getElementsByTagName(s).length) return document.getElementsByTagName(s);
 	else return 0;
 }
@@ -2657,14 +2656,13 @@ function getElementsWithClass(strClass)
 	f = get(strClass);
 	tempNode = document.createElement("div");
 	tempNode.id = "replacerDiv";
-	if (f && f.length)
+	if(f && f.length)
 	{
-		for (i = 0; i < f.length; i++)
+		for(i = 0; i < f.length; i++)
 			tempNode.appendChild(f[i].cloneNode(true));
-		document.body.innerHTML = "";
-		document.body.appendChild(tempNode.cloneNode(true), document.body.firstChild);
+		document.body.innerHTML = tempNode.innerHTML;
 	}
-	else if (f)
+	else if(f)
 	{
 		document.body.innerHTML = "";
 		document.body.appendChild(f.cloneNode(true), document.body.firstChild);
@@ -3047,7 +3045,6 @@ function restorePres()
 		//e[i].innerHTML = e[i].innerHTML.replace(/([^:])(\/\/[^\n]+)/g, "$1<dfn>$2</dfn>");
 		//e[i].innerHTML = e[i].innerHTML.replace(/^(\/\/[^\n]+)/g, "<dfn>$1</dfn>");
 	}
-
 }
 
 function fixParagraphs()
@@ -3862,6 +3859,7 @@ function inject()
 		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
 	insertStyle(s, "style_helper", true);
 	setTimeout(doStackOverflow, 500);
+	xlog("Referrer: " + document.referrer);
 }
 
 function showPassword()
