@@ -35,8 +35,8 @@ initialize();
 function get(s)
 {
 	s = trim(s);
-	if(s.indexOf("#") === 0) return document.getElementById(s.substring(1, s.length));
-	else if(s.indexOf(".") === 0) return document.getElementsByClassName(s.substring(1, s.length));
+	if(s.indexOf("#") === 0) return document.getElementById(s.substr(1, s.length));
+	else if(s.indexOf(".") === 0) return document.getElementsByClassName(s.substr(1, s.length));
 	else if(document.getElementsByTagName(s).length) return document.getElementsByTagName(s);
 	else return 0;
 }
@@ -2208,7 +2208,7 @@ function makeHeadings()
 // deletes elements that are either empty, or contain only links
 function deleteNonContentElements()
 {
-	var e, f, g, i, j, k, kk, tags = ["div", "ul", "ol"];
+	var e, f, g, i, j, k, kk, tags = ["ul", "ol"];
 	for(k = 0, kk = tags.length; k < kk; ++k)
 	{
 		e = get(tags[k]);
@@ -2609,43 +2609,6 @@ function delClassOrIdContaining(classes, beginningOnly)
 		todel[i].className += ' hl';
 }
 
-function deleteNonContentDivs_old()
-{
-	if(get(".hl").length)
-	{
-		del(".hl");
-		return;
-	}
-	deleteNonContentElements();
-	deleteNonContentImages();
-	var x = document.getElementsByTagName("div");
-	var i = x.length;
-	while (i--)
-	{
-		var weight = 0;
-		weight += x[i].getElementsByTagName("p").length;
-		weight += x[i].getElementsByTagName("blockquote").length;
-		weight += x[i].getElementsByTagName("pre").length;
-		weight += x[i].getElementsByTagName("img").length;
-		weight += x[i].getElementsByTagName("cite").length;
-		weight += x[i].getElementsByTagName("h1").length;
-		weight += x[i].getElementsByTagName("h2").length;
-		weight += x[i].getElementsByTagName("h3").length;
-		weight += x[i].getElementsByTagName("h4").length;
-		weight += x[i].getElementsByTagName("h5").length;
-		weight += x[i].getElementsByTagName("h6").length;
-		if(weight)
-		{
-			//x[i].innerHTML = '<h2><mark>' + "deleting: " + ((x[i].id ? "#" + x[i].id : "") + (x[i].className? "." + x[i].className : "")).toString() + '</mark></h2>' + x[i].innerHTML;
-			x[i].className += " hl";
-			//x[i].parentNode.removeChild(x[i]);
-		}
-	}
-	//delClassOrIdContaining(["ad", "social", "related"], true);
-	var c = ["_ad", "ad-", "ad_", "adsense", "advert", "archive", "banner", "bread", "categories", "controls", "extra", "footer", "inline", "inset", "latest", "leader", "links", "login", "menu", "meta", "popular", "popup", "promo", "rail", "rate", "rating", "recent", "related", "respond", "search", "seealso", "send", "share", "side", "sidebar", "signup", "similar", "social", "sponsor", "tags", "tool", "util", "whitepapers", "widget", "nav", "left", "right"];
-	delClassOrIdContaining(c);
-}
-
 function getElementsWithClass(strClass)
 {
 	var s = "", found = 0, f;
@@ -2702,6 +2665,7 @@ function getElementsContainingText()
 
 function deleteNonContentDivs()
 {
+	var sClass = "hl";
 	replaceElement("article", "div");
 	deleteNonContentElements();
 	deleteNonContentImages();
@@ -2718,34 +2682,27 @@ function deleteNonContentDivs()
 		for(var i = 0, ii = e.length; i < ii; i++)
 		{
 			if(e[i].parentNode)
-				addClass(e[i].parentNode, "toget");
+				addClass(e[i].parentNode, sClass);
 		}
 	}
 	// if the <body> has a .toget class, it will be appended to the existing <body>
 	document.body.className = '';
 
 	// hls that are children of other hls need to have their hl class removed
-	e = get(".toget");
+	e = get(sClass);
 	for(var i = 0; i < e.length; i++)
 	{
-		var f = e[i].getElementsByClassName("toget");
+		var f = e[i].getElementsByClassName(sClass);
 		var j = f.length;
 		while(j--)
 		{
-			removeClass(f[j], "toget");
+			removeClass(f[j], sClass);
 		}
-		e = get(".toget");
+		e = get(sClass);
 	}
-	getElementsWithClass(".toget");
+	getElementsWithClass(sClass);
 	del(["link", "style", "script", "form", "fieldset", "input", "select", "textarea"]);
 	cleanupGeneral();
-
-	// e = get(".toget");
-	// for(var i = 0; i < e.length; i++)
-	// {
-	// 	e[i].className = "hl";
-	// }
-	// insertStyle(".hl{box-shadow: inset 2px 2px #f00, inset -2px -2px #F00}", "asd", true);
 }
 
 function formatContent()
