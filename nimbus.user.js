@@ -34,6 +34,11 @@ initialize();
 
 function get(s)
 {
+	if(!(s && s.length))
+	{
+		ylog("no selector specified", "h2", true);
+		return;
+	}
 	s = trim(s);
 	if(s.indexOf("#") === 0) return document.getElementById(s.substr(1, s.length));
 	else if(s.indexOf(".") === 0) return document.getElementsByClassName(s.substr(1, s.length));
@@ -2220,7 +2225,7 @@ function deleteNonContentElements()
 				e[i].parentNode.removeChild(e[i]);
 				break;
 			}
-			f = e[i].getElementsByTagName("li");
+			f = e[i].getElementsByTagName("a");
 			j = f.length;
 			while (j--)
 			{
@@ -2669,7 +2674,7 @@ function deleteNonContentDivs()
 	replaceElement("article", "div");
 	deleteNonContentElements();
 	deleteNonContentImages();
-	deleteEmptyParagraphs();
+	deleteEmptyElements("p");
 	deleteEmptyElements("div");
 
 	// tags which are used to mark content divs
@@ -2723,29 +2728,6 @@ function formatContent()
 	replaceElement(".metadata", "h6");
 	//Make headings of numbered lists
 	db.innerHTML = db.innerHTML.replace(/<p>([0-9]+)\./gi, "<h6>$1</h6><p>");
-}
-
-function deleteEmptyParagraphs()
-{
-	var p = document.getElementsByTagName("p");
-	var i = p.length;
-	while (i--)
-	{
-		if( p[i].textContent )
-		{
-			if( removeWhitespace(p[i].textContent).length === 0 && !p[i].getElementsByTagName("img").length )
-				p[i].parentNode.removeChild(p[i]);
-		}
-		else
-		{
-			if( !p[i].getElementsByTagName("img").length)
-				p[i].parentNode.removeChild(p[i]);
-		}
-	}
-	p = document.getElementsByTagName("ul");
-	i = p.length;
-	while (i--)
-	if(p[i].textContent && removeWhitespace(p[i].textContent).length === 0 && !p[i].getElementsByTagName("img").length) p[i].parentNode.removeChild(p[i]);
 }
 
 function deleteEmptyElements(tag)
@@ -3023,7 +3005,7 @@ function fixParagraphs()
 	s = s.replace(/<div/g, "\r\n<div");
 	document.body.innerHTML = s;
 	restorePres();
-	deleteEmptyParagraphs();
+	deleteEmptyElements("p");
 	cleanupHeadings();
 }
 
