@@ -851,8 +851,8 @@ function handleKeyDown(e)
 			break;
 		case 90: //z
 			cleanupUnicode();
-			document.body.innerHTML = document.body.innerHTML.replace(/http:/g, "https:");
-			ylog("All links are now HTTPS", "h3", true);
+			//document.body.innerHTML = document.body.innerHTML.replace(/http:/g, "https:");
+			//ylog("All links are now HTTPS", "h3", true);
 			break;
 		case 123: //F12
 			highlightCode();
@@ -1017,14 +1017,8 @@ function handleKeyDown(e)
 function doStackOverflow()
 {
 	var sites = ["stackexchange", "stackoverflow", "superuser", "serverfault"], found = false;
-	for(var i = 0, ii = sites.length; i < ii; i++)
-	{
-		if(location.hostname.indexOf(sites[i]) !== -1)
-		{
-			found = true;
-			break;
-		}
-	}
+	if(containsAnyString(location.hostname, sites))
+		found = true;
 	// we only want to run this code on the individual question pages
 	if(found && location.href.match(/questions\/[0-9]+/) !== null)
 	{
@@ -3375,6 +3369,7 @@ function analyze_mouseoverHandler(e)
 function cleanupUnicode()
 {
 	var s = document.body.innerHTML;
+	s = s.replace(/\u00e2\u20ac\u0022/g, '"');
 	s = s.replace(/\u00e2\u20ac\u2122/g, "'");
 	s = s.replace(/\u00e2\u20ac\u00a6/g, "...");
 	s = s.replace(/\u00e2\u20ac\u201d/g, "&mdash;");
