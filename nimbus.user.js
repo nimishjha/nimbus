@@ -1748,7 +1748,8 @@ function insertStyleNegative(important)
 
 function insertStyleWhite()
 {
-	var s = 'body, input, select, textarea, div, p, span, table, th, td, h1, h2, h3, h4, h5, h6 { background: #FFF; color: #000; }';
+	var s = 'body, input, select, textarea { background: #FFF; color: #000; }' + 
+	'input, select, textarea { font: 12px verdana; }';
 	insertStyle(s, "style_white", true);
 }
 
@@ -2664,7 +2665,8 @@ function getElementsContainingText()
 
 function deleteNonContentDivs()
 {
-	var sClass = "hl";
+	var sClass = "toget", e, f, i, j, tag;
+
 	replaceElement("article", "div");
 	deleteNonContentElements();
 	deleteNonContentImages();
@@ -2673,31 +2675,31 @@ function deleteNonContentDivs()
 
 	// tags which are used to mark content divs
 	// if a div contains any of these tags, we want to retain it
-	var tag = ["p", "img", "h1", "h2", "pre", "ol", "cite"];
-	var j = tag.length;
+	tag = ["p", "img", "h1", "h2", "pre", "ol", "cite"];
+	j = tag.length;
 	while(j--)
 	{
-		var e = get(tag[j]);
-		for(var i = 0, ii = e.length; i < ii; i++)
+		e = get(tag[j]);
+		for(i = 0, ii = e.length; i < ii; i++)
 		{
 			if(e[i].parentNode)
-				addClass(e[i].parentNode, sClass);
+				e[i].parentNode.className = sClass;
 		}
 	}
 	// if the <body> has a .toget class, it will be appended to the existing <body>
 	document.body.className = '';
 
-	// hls that are children of other hls need to have their hl class removed
-	e = get(sClass);
-	for(var i = 0; i < e.length; i++)
+	// marked elements that are children of other marked divs need to be unmarked, or we'll have duplication
+	e = get("." + sClass);
+	for(i = 0; i < e.length; i++)
 	{
-		var f = e[i].getElementsByClassName(sClass);
-		var j = f.length;
+		f = e[i].getElementsByClassName(sClass);
+		j = f.length;
 		while(j--)
 		{
-			removeClass(f[j], sClass);
+			f[j].className = '';
 		}
-		e = get(sClass);
+		e = get("." + sClass);
 	}
 	getElementsWithClass(sClass);
 	del(["link", "style", "script", "form", "fieldset", "input", "select", "textarea"]);
