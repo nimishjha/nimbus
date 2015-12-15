@@ -2726,7 +2726,7 @@ function getContentByParagraphCount()
 		cleanupGeneral();
 		return;
 	}
-	var e, i, np, lastnp;
+	var e, f, i, np, lastnp;
 	replaceElement("article", "div");
 	e = get("div");
 	i = e.length;
@@ -2737,6 +2737,11 @@ function getContentByParagraphCount()
 		e[i].setAttribute("data-pcount", np);
 		if(np > lastnp)
 			lastnp = np;
+	}
+	if(lastnp === 0)
+	{
+		xlog("No <p>s found", "h3", true);
+		return;
 	}
 	e = get("div");
 	i = e.length;
@@ -2749,7 +2754,7 @@ function getContentByParagraphCount()
 			break;
 		}
 	}
-	e = get("h1");
+	e = document.querySelectorAll("h1, h2");
 	i = e.length;
 	while(i--)
 	{
