@@ -1644,6 +1644,14 @@ function insertStyle(str, identifier, important)
 	head.appendChild(style);
 }
 
+function insertStyleHighlight()
+{
+	var s = '.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }' +
+		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
+		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
+	insertStyle(s, "style_highlight", true);
+}
+
 function insertStyleFonts()
 {
 	insertStyle('p, li, td, div, input, select, textarea { font: 12px Verdana; } h1, h2, h3, h4, h5, h6 { font-family: "swis721 cn bt"; } span, b, em, strong, i { font: inherit; } pre, code { font: 12px verdcode; }', 'style_fonts', true);
@@ -2726,6 +2734,9 @@ function getContentByParagraphCount()
 		cleanupGeneral();
 		return;
 	}
+	del(["link", "style"]);
+	insertStyleNegative();
+	insertStyleHighlight();
 	var e, f, i, np, lastnp;
 	replaceElement("article", "div");
 	e = get("div");
@@ -3848,10 +3859,7 @@ function inject()
 	fixForums();
 	removeAccesskeys();
 	//appendInfo();
-	var s = '.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }' +
-		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
-		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
-	insertStyle(s, "style_helper", true);
+	insertStyleHighlight();
 	setTimeout(doStackOverflow, 500);
 	xlog("Referrer: " + document.referrer);
 }
