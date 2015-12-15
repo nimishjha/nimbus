@@ -961,6 +961,9 @@ function handleKeyDown(e)
 		case 70: //f
 			del(["object", "embed", "video"]);
 			break;
+		case 71: //g
+			getContentByParagraphCount();
+			break;
 		case 72: //h
 			highlightElement();
 			break;
@@ -1510,8 +1513,12 @@ function replaceIframes()
 			iframelink.href = segments[0] + '?' + segments[1];
 			if(s.indexOf(".") > 0)
 				s = s.match(/:\/\/(.[^/]+)/)[1];
+			iframelink.textContent = iframelink.href;
 		}
-		iframelink.textContent = "iframe: " + iframelink.href;
+		else
+		{
+			iframelink.textContent = "iframe: " + iframelink.href;
+		}
 		iframereplacement.appendChild(iframelink);
 		e[i].parentNode.replaceChild(iframereplacement, e[i]);
 	}
@@ -2710,6 +2717,47 @@ function deleteNonContentDivs()
 	cleanupGeneral();
 	showTextToHTMLRatio();
 }
+
+function getContentByParagraphCount()
+{
+	if(get(".hl").length)
+	{
+		getElementsWithClass("hl");
+		cleanupGeneral();
+		return;
+	}
+	var e, i, np, lastnp;
+	replaceElement("article", "div");
+	e = get("div");
+	i = e.length;
+	lastnp = 0;
+	while(i--)
+	{
+		np = e[i].getElementsByTagName("p").length;
+		e[i].setAttribute("data-pcount", np);
+		if(np > lastnp)
+			lastnp = np;
+	}
+	e = get("div");
+	i = e.length;
+	while(i--)
+	{
+		np = parseInt(e[i].getAttribute("data-pcount"), 10);
+		if(np === lastnp)
+		{
+			e[i].className = "hl";
+			break;
+		}
+	}
+	e = get("h1");
+	i = e.length;
+	while(i--)
+	{
+		e[i].className = "hl";
+	}
+	
+}
+
 
 function formatContent()
 {
