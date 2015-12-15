@@ -400,10 +400,11 @@ function showDocumentStructureWithNames()
 		}
 	}
 	document.body.className += " showdivs";
-	var s = 'div, aside, section, header, footer, aside, ul, ol { box-shadow: inset 2px 2px #000, inset -2px -2px #000 !important; min-height: 30px !important; padding: 0 10px 10px 10px !important; margin-top: 10px !important; }' +
+	var s = 'body { padding: 100px; }' +
+	'div, aside, section, header, footer, aside, ul, ol { box-shadow: inset 2px 2px #000, inset -2px -2px #000; min-height: 30px; padding: 0 10px 10px 10px; margin-top: 10px; }' +
 	'div::after { content: " "; display: block; clear: both; }' +
-	'x { color: #FC0 !important; background: #000 !important; font: 12px Verdana !important; padding: 5px 10px !important; letter-spacing: 0 !important; display: block !important; margin : 0 -10px 10px -10px !important; }';
-	insertStyle(s, 'showDivs');
+	'x { color: #FC0; background: #000; font: 12px Verdana; padding: 5px 10px; letter-spacing: 0; display: block; margin : 0 -10px 10px -10px; }';
+	insertStyle(s, 'showDivs', true);
 }
 
 function highlightSelectionOrText()
@@ -942,14 +943,17 @@ function handleKeyDown(e)
 			insertStyleFonts();
 			break;
 		case 52: //4
+			insertStyle('html div, html div[class] { background-color: #222; }', 'style_divbg', true);
+			break;
+		case 53: //5
+			insertStyleShowClass();
+			break;
+		case 68: //d
 			deleteEmptyElements("p");
 			deleteEmptyElements("tr");
 			deleteEmptyElements("li");
 			deleteEmptyElements("div");
 			deleteEmptyHeadings();
-			break;
-		case 53: //5
-			insertStyleShowClass();
 			break;
 		case 69: //e
 			replaceElement();
@@ -2704,6 +2708,7 @@ function deleteNonContentDivs()
 	getElementsWithClass(sClass);
 	del(["link", "style", "script", "form", "fieldset", "input", "select", "textarea"]);
 	cleanupGeneral();
+	showTextToHTMLRatio();
 }
 
 function formatContent()
@@ -3731,8 +3736,8 @@ function showTextToHTMLRatio()
 		h = e[i].innerHTML;
 		if(t && h)
 		{
-			if(t.length/h.length < 0.4)
-				e[i].className = "todelete";
+			if(t.length/h.length < 0.6)
+				e[i].className = "hl";
 		}
 	}
 }
