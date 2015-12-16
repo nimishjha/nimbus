@@ -791,13 +791,10 @@ function handleKeyDown(e)
 			}
 			break;
 		case 67: //c
-			deleteNonContentDivs();
+			getContentByParagraphCount();
 			break;
 		case 71: //g
-			var elems = prompt("Delete elements containing text");
-			var textContained = prompt("Containing text");
-			var arr = [textContained];
-			deleteElementsContainingText(elems, arr);
+			deleteElementsContainingText();
 			break;
 		case 88: //x
 			if(db.className.indexOf("xShowImages") >= 0)
@@ -962,7 +959,7 @@ function handleKeyDown(e)
 			del(["object", "embed", "video"]);
 			break;
 		case 71: //g
-			getContentByParagraphCount();
+			deleteNonContentDivs();
 			break;
 		case 72: //h
 			highlightElement();
@@ -1858,7 +1855,7 @@ function sanitizeTitle(str)
 function setDocTitle(s)
 {
 	if(s)
-		ylog("setDocTitle(" + s + ")", "h6");
+		xlog("setDocTitle(" + s + ")", "h6");
 	var i, labels, longestlabel, h;
 	deleteEmptyElements("h1");
 	deleteEmptyElements("h2");
@@ -2651,7 +2648,7 @@ function getElementsWithClass(strClass)
 	}
 	else
 	{
-		ylog("Not found", "h2", true);
+		showMessage(strClass + " not found", "messagebig");
 	}
 }
 
@@ -2737,6 +2734,7 @@ function getContentByParagraphCount()
 	del(["link", "style"]);
 	insertStyleNegative();
 	insertStyleHighlight();
+	document.body.className = "pad100 xwrap";
 	var e, f, i, np, lastnp;
 	replaceElement("article", "div");
 	e = get("div");
@@ -3090,6 +3088,19 @@ function deleteSignatures()
 function deleteElementsContainingText(selector, str)
 {
 	var t1 = new Date();
+
+	if(!(selector && str))
+	{
+		var elems = prompt("Delete elements containing text");
+		var textContained = prompt("Containing text");
+		if(elems.length)
+		{
+			var arr = [textContained];
+			deleteElementsContainingText(elems, arr);
+		}
+		return;
+	}
+
 	var e = get(selector);
 	xlog("deleteElementsContainingText(" + selector + ", \"" + str + "\")");
 	if(!e)
