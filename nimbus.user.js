@@ -1038,25 +1038,6 @@ function doStackOverflow()
 	}
 }
 
-function doFlickr()
-{
-	getLinksWithHrefContaining("_o_d.");
-	var e = document.getElementsByTagName("a")[0];
-	e.href = e.textContent = e.href.replace(/https/, "http");
-	e.innerHTML = '<h2>' + e.textContent + '<h2>';
-	e.setAttribute('style', 'position: absolute');
-	if(e.href.indexOf('_o_d.') > 0 && location.href.indexOf("nimishjha") < 0)
-		location.href = e.href;
-	replaceElement(".photo-title", "h1");
-	var s = 'body, .pp-box, .sub-photo-container, .sub-photo-view, .fluid-subnav { background: #181818 !important; color: #666 !important;}' +
-	'.sub-photo-left-view img, .spaceball { display: none !important;}' +
-	'.photo-display-container .row .photo-display-item, .new-comment-text, #gn-search-field, .meta-field { background: #111 !important; color: #999 !important;}' +
-	'.global-nav-restyle .global-nav-content, .fluid .fluid-subnav.fixed { position: relative !important; }' +
-	'a { color:#CCC!important;}' +
-	'a:hover { color:#FFF!important;}';
-	insertStyle(s, "style_flickr", true);
-}
-
 function doYoutube()
 {
 	del("object");
@@ -1074,9 +1055,6 @@ function doYoutube()
 function doBolt()
 {
 	var e, i;
-	//deleteImagesBySrcContaining("bluesaint");
-	//deleteImagesBySrcContaining("icons/");
-	//deleteElementsContainingText("li", "The Following");
 	if(get("#searchform"))
 	{
 		e = get("input");
@@ -2289,7 +2267,7 @@ function logout()
 			if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 			{
 				found = true;
-				showMessage("Logging out...", "big");
+				showMessage("Logging out...", "messagebig");
 				e[i].click();
 				break;
 			}
@@ -2306,7 +2284,7 @@ function logout()
 				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 				{
 					found = true;
-					showMessage("Logging out...", "big");
+					showMessage("Logging out...", "messagebig");
 					e[i].click();
 					break;
 				}
@@ -3965,14 +3943,6 @@ function initialize()
 			case 'last.fm':
 			case 'www.last.fm':
 				insertStyle('body { background: #222; } article, section, div { background-color: #222 !important; color: #999 !important; border-color: #111 !important; } td, span { background-color: #181818 !important; color: #999 !important; }');
-				break;
-			case '500px.com':
-				insertStyle('#px, .photo_wrap, .photo_buy, .photo_show, .photo_activity { background: #111 !important; } ');
-				//if(get(".the_photo").length)
-				//	location.href = get(".the_photo")[0].src;
-				break;
-			case 'www.flickr.com':
-				setTimeout(doFlickr, 10000);
 				break;
 			case 'www.youtube.com':
 				//setTimeout(doYoutube, 3000);
