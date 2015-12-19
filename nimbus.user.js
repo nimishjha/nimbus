@@ -1071,17 +1071,6 @@ function doYoutube()
 	}
 }
 
-function doGfycat()
-{
-	var e = get("#mp4source");
-	var s = e.src;
-	e.src = '';
-	e = get("#webmsource");
-	e.src = '';
-	del('video');
-	location.href = s;
-}
-
 function doBolt()
 {
 	var e, i;
@@ -1111,7 +1100,7 @@ function clickThanks()
 		if(e[i].href && e[i].href.indexOf("post_thanks_add") > 0)
 		{
 			e[i].click();
-			ylog("clicked thanks", "h5", true);
+			log2("clicked thanks");
 		}
 	}
 }
@@ -1244,7 +1233,7 @@ function getImages(slideshow)
 	}
 	else
 	{
-		ylog("No images found", "h1", true);
+		log2("No images found");
 	}
 	if(slideshow)
 		buildSlideshow();
@@ -2289,7 +2278,7 @@ function logout()
 				tempLink.href = tempLink.textContent = e[i].href;
 				document.body.appendChild(tempLink);
 				tempLink.click();*/
-				ylog(e[i].href, "h6", true);
+				ylog(e[i].href, "h2", true);
 				e[i].click();
 				break;
 			}
@@ -2729,15 +2718,15 @@ function getContentByParagraphCount()
 	{
 		getElementsWithClass("hl");
 		cleanupGeneral();
+		document.body.className = "pad100 xwrap";
 		return;
 	}
-	del(["link", "style"]);
-	insertStyleNegative();
+	//del(["link", "style"]);
+	//insertStyleNegative();
+	//document.body.className = "pad100 xwrap";
 	insertStyleHighlight();
-	document.body.className = "pad100 xwrap";
 	var e, f, i, np, lastnp;
-	replaceElement("article", "div");
-	e = get("div");
+	e = document.querySelectorAll("div, article, main, section");
 	i = e.length;
 	lastnp = 0;
 	while(i--)
@@ -2771,7 +2760,6 @@ function getContentByParagraphCount()
 	}
 	
 }
-
 
 function formatContent()
 {
@@ -3241,6 +3229,13 @@ function ylog(str, elem, prepend)
 		document.body.insertBefore(d, document.body.firstChild);
 	else
 		document.body.appendChild(d);
+}
+
+function log2(str)
+{
+	var d = document.createElement("h2");
+	d.innerHTML = "[log]" + str;
+	document.body.appendChild(d);
 }
 
 function insertElem(elem, str, classname)
@@ -3981,16 +3976,6 @@ function initialize()
 				break;
 			case 'www.youtube.com':
 				//setTimeout(doYoutube, 3000);
-				break;
-			case 'gfycat.com':
-			case 'www.gfycat.com':
-				setTimeout(doGfycat, 100);
-				break;
-			case 'giant.gfycat.com':
-				var s = location.href.replace(/\.gif/, '');
-				s = s.replace(/giant\./, '');
-				alert(s);
-				location.href = s;
 				break;
 			case 'tumblr.com':
 				insertStyle('html, body, body * { background-color: #111 !important; color: #777 !important; }');
