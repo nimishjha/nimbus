@@ -2552,39 +2552,36 @@ function delClassOrIdContaining(classes, beginningOnly)
 	{
 		for (j = 0; j < classes.length; j++)
 		{
-//			if(!x[i].getElementsByTagName("p").length || x[i].getElementsByTagName("p").length < 5)
-//			{
-				if(beginningOnly)
+			if(beginningOnly)
+			{
+				if(x[i].className && x[i].className.toLowerCase().indexOf(classes[j]) === 0)
 				{
-					if(x[i].className && x[i].className.toLowerCase().indexOf(classes[j]) === 0)
-					{
-						todel.push(x[i]);
-						xlog(x[i].className);
-						break;
-					}
-					else if(x[i].id && x[i].id.toString().toLowerCase().indexOf(classes[j]) === 0)
-					{
-						todel.push(x[i]);
-						xlog(x[i].id);
-						break;
-					}
+					todel.push(x[i]);
+					xlog(x[i].className);
+					break;
 				}
-				else
+				else if(x[i].id && x[i].id.toString().toLowerCase().indexOf(classes[j]) === 0)
 				{
-					if(x[i].className && x[i].className.toLowerCase().indexOf(classes[j]) >= 0)
-					{
-						todel.push(x[i]);
-						xlog(x[i].className);
-						break;
-					}
-					else if(x[i].id && x[i].id.toString().toLowerCase().indexOf(classes[j]) >= 0)
-					{
-						todel.push(x[i]);
-						xlog(x[i].id);
-						break;
-					}
+					todel.push(x[i]);
+					xlog(x[i].id);
+					break;
 				}
-//			}
+			}
+			else
+			{
+				if(x[i].className && x[i].className.toLowerCase().indexOf(classes[j]) >= 0)
+				{
+					todel.push(x[i]);
+					xlog(x[i].className);
+					break;
+				}
+				else if(x[i].id && x[i].id.toString().toLowerCase().indexOf(classes[j]) >= 0)
+				{
+					todel.push(x[i]);
+					xlog(x[i].id);
+					break;
+				}
+			}
 		}
 	}
 	i = todel.length;
