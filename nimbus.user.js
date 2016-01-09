@@ -454,6 +454,25 @@ function deleteUselessIframes()
 	}
 }
 
+function deleteUselessScripts()
+{
+	var e, i, ii, domains = ["google.com", "googletagmanager.com"];
+	e = get("script");
+	i = e.length;
+	while(i--)
+	{
+		if(e[i].hasAttribute("src"))
+		{
+			if(containsAnyString(e[i].src, domains) && !(containsAnyString(location.hostname, domains)))
+			{
+				log2("Deleting " + e[i].src);
+				e[i].parentNode.removeChild(e[i]);
+			}
+		}
+	}
+	insertStyle(".xlog { background: #181818; color: #AAA; font: 24px swis721 cn bt; margin: 0 0 1px 0; }", "style_log2", true);
+}
+
 function deleteNonContentImages()
 {
 	deleteImagesBySrcContaining("transparent.");
@@ -1610,7 +1629,7 @@ function insertStyle(str, identifier, important)
 
 function insertStyleHighlight()
 {
-	var s = '.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }' +
+	var s = '.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; color: #FFF; }' +
 		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
 		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
 	insertStyle(s, "style_highlight", true);
@@ -1642,7 +1661,7 @@ function insertStyleNegative(important)
 	'body.xblack { background: #000; }' +
 	'body.xwrap { width: 700px; margin: 0 auto; }' +
 	'html h1, html h2, html h3, html h4, html h5, html h6, html h1[class], html h2[class], html h3[class], html h4[class], html h5[class], html h6[class] { color: #AAA; padding: 10px 20px; line-height: 160%; margin: 2px 0; background: #141414; border: 0; }' +
-	'html h1, html h1[class], div[class] h1 { font: 36px "Swis721 Cn BT", Calibri, sans-serif; color: #FFF; }' +
+	'html h1, html h1[class], div[class] h1 { font: 40px "Swis721 Cn BT", Calibri, sans-serif; color: #FFF; }' +
 	'html h2, html h2[class], div[class] h2 { font: 28px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }' +
 	'html h3, html h3[class], div[class] h3 { font: 24px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }' +
 	'html h4, html h4[class], div[class] h4 { font: 20px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }' +
@@ -2645,6 +2664,13 @@ function getElementsContainingText()
 
 function deleteNonContentDivs()
 {
+	if(get(".hl").length)
+	{
+		del(".hl");
+		cleanupGeneral();
+		document.body.className = "pad100 xwrap";
+		return;
+	}
 	var sClass = "toget", e, f, i, j, tag;
 
 	replaceElement("article", "div");
@@ -2670,7 +2696,7 @@ function deleteNonContentDivs()
 	document.body.className = '';
 
 	// marked elements that are children of other marked divs need to be unmarked, or we'll have duplication
-	e = get("." + sClass);
+/*	e = get("." + sClass);
 	for(i = 0; i < e.length; i++)
 	{
 		f = e[i].getElementsByClassName(sClass);
@@ -2683,8 +2709,16 @@ function deleteNonContentDivs()
 	}
 	getElementsWithClass(sClass);
 	del(["link", "style", "script", "form", "fieldset", "input", "select", "textarea"]);
-	cleanupGeneral();
-	showTextToHTMLRatio();
+*/
+	e = get("div");
+	i = e.length;
+	while(i--)
+	{
+		if(e[i].className.indexOf(sClass) === -1 && !e[i].getElementsByClassName(sClass).length)
+			e[i].className = "hl";
+	}
+	//cleanupGeneral();
+	//showTextToHTMLRatio();
 }
 
 function getContentByParagraphCount()
@@ -3007,8 +3041,6 @@ function restorePres()
 		e[i].innerHTML = e[i].innerHTML.replace(/GYZYtab/g, "\t");
 		e[i].innerHTML = e[i].innerHTML.replace(/GYZYnl/g, "\n");
 		e[i].innerHTML = e[i].innerHTML.replace(/\n+/g, "\n");
-		//e[i].innerHTML = e[i].innerHTML.replace(/([^:])(\/\/[^\n]+)/g, "$1<dfn>$2</dfn>");
-		//e[i].innerHTML = e[i].innerHTML.replace(/^(\/\/[^\n]+)/g, "<dfn>$1</dfn>");
 	}
 }
 
@@ -3126,14 +3158,12 @@ function highlightNodesContaining(selector, str)
 			continue;
 		if(e[i].textContent.indexOf(str) !== -1)
 		{
-			//e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
 			e[i].className += " hl";
 		}
 		if(selector.toLowerCase() === "a")
 		{
 			if(e[i].href && e[i].href.indexOf(str) >= 0)
 			{
-				//e[i].innerHTML = "<samp>" + e[i].innerHTML + "</samp>";
 				e[i].className += " hl";
 			}
 		}
@@ -3169,19 +3199,19 @@ function getLinksWithHrefContaining(str)
 		if( !str.length ) return;
 	}
 	var e = document.getElementsByTagName("a"), i, ii;
-	var containerDiv = document.createElement("div");
+	var container = document.createElement("textarea");
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
 		if(e[i].href.indexOf(str) >= 0 || (e[i].title && e[i].title.indexOf(str) >= 0))
 		{
 			var newLink = document.createElement("a");
 			newLink.href = newLink.textContent = e[i].href;
-			var newLinkWrapper = document.createElement("div");
+			var newLinkWrapper = document.createElement("h6");
 			newLinkWrapper.appendChild(newLink);
-			containerDiv.appendChild(newLinkWrapper);
+			container.appendChild(newLinkWrapper);
 		}
 	}
-	document.body.insertBefore(containerDiv, document.body.firstChild);
+	document.body.insertBefore(container, document.body.firstChild);
 }
 
 function xlog(str, logTag)
@@ -3209,7 +3239,8 @@ function ylog(str, elem, prepend)
 function log2(str)
 {
 	var d = document.createElement("h2");
-	d.innerHTML = "[log]" + str;
+	d.className = "xlog";
+	d.innerHTML = str;
 	document.body.appendChild(d);
 }
 
@@ -3520,7 +3551,7 @@ function replaceWrongHeading()
 			heading2 = get("h1")[1];
 			if(heading1.textContent && heading2.textContent)
 			{
-				if(heading2.textContent.length > heading1.textContent.length)
+				if(trim(ns(heading2.textContent)).length > trim(ns(heading1.textContent)).length)
 				{
 					temp = document.createElement("h3");
 					temp.innerHTML = heading1.innerHTML;
@@ -3697,9 +3728,9 @@ function fillForms()
 					else if(inputName.indexOf("date") >= 0)
 						e[i].value = "23/08/1991";
 					else if(inputName.indexOf("suburb") >= 0)
-						e[i].value = "Docklands";
+						e[i].value = "Melbourne";
 					else if(inputName.indexOf("postcode") >= 0)
-						e[i].value = "3008";
+						e[i].value = "3000";
 					else if(inputName.indexOf("state") >= 0)
 						e[i].value = "VIC";
 					else if(inputType === "number")
@@ -3833,6 +3864,7 @@ function removeAccesskeys()
 
 function inject()
 {
+	//deleteUselessScripts();
 	document.addEventListener("keydown", handleKeyDown, false);
 	//document.addEventListener("mouseup", handleMouseUp, false);
 	//deleteUselessIframes();
@@ -3843,6 +3875,9 @@ function inject()
 	insertStyleHighlight();
 	setTimeout(doStackOverflow, 500);
 	xlog("Referrer: " + document.referrer);
+	var d = new Date();
+	var saveTime = d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
+	xlog("Page loaded at " + saveTime);
 }
 
 function showPassword()
