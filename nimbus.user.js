@@ -56,12 +56,12 @@ function del(c)
 	if(c.toString() === '[object HTMLElement]')
 	{
 		c.parentNode.removeChild(c);
-		return;
+		return 1;
 	}
 	var todel = [];
 	if(isArray(c))
 	{
-		for (var i = 0, ii = c.length; i < ii; i++)
+		for(var i = 0, ii = c.length; i < ii; i++)
 		{
 			del(c[i]);
 		}
@@ -77,10 +77,15 @@ function del(c)
 			{
 				todel[j].parentNode.removeChild(todel[j]);
 			}
+			return jj;
 		}
 		else if(f)
 		{
-			if(f.parentNode) f.parentNode.removeChild(f);
+			if(f.parentNode)
+			{
+				f.parentNode.removeChild(f);
+				return 1;
+			}
 		}
 	}
 }
@@ -227,12 +232,16 @@ function printArray(arr)
 		else
 			s = s + arr[i] + ", ";
 	}
-	ylog(s);
+	return s;
 }
 
 function showResource(str)
 {
 	var resourceLink, resourceLinkWrapper, resourceDelete;
+	if(str.indexOf("?") !== -1)
+	{
+		str = str.substr(0, str.indexOf("?"));
+	}
 	resourceLink = document.createElement("a");
 	resourceLink.textContent = resourceLink.href = str;
 	resourceLinkWrapper = document.createElement("h6");
@@ -318,11 +327,12 @@ function showResources()
 		}
 	}
 	ylog(count + " styles", "h3", true);
-	var s = '.xlog { background: #000 !important; color: #FFF !important; margin: 0 !important; padding: 5px 10px !important; z-index: 2000000000 !important; font: 12px verdana !important; }' +
-	'.xlog a { text-decoration: none !important; letter-spacing: 0 !important; font: 12px verdana !important; text-transform: none !important; color: #09F !important; }' +
-	'.xlog a:visited { color: #059 !important; }' +
-	'.xlog a:hover { color: #FFF !important; } h3.xlog:nth-of-type(1) {margin-top: 50px !important;}';
-	insertStyle(s, "style_show_resources");
+	var s = '.xlog { background: #000; color: #FFF; margin: 0; padding: 5px 10px; z-index: 2000000000; font: 12px verdana; text-align: left; }' +
+	'.xlog a { text-decoration: none; letter-spacing: 0; font: 12px verdana; text-transform: none; color: #09F; }' +
+	'.xlog a:visited { color: #059; }' +
+	'.xlog a:hover { color: #FFF; } h3.xlog:nth-of-type(1) {margin-top: 50px;}';
+	insertStyle(s, "style_show_resources", true);
+	window.scrollTo(0, 0);
 }
 
 function makeDocumentClickable()
@@ -353,14 +363,14 @@ function showDocumentStructure()
 	}
 	else
 	{
-		var s = 'header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F !important; }' +
-		'form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90 !important; background: rgba(255, 150, 0, 0.2) !important; }' +
-		'table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F !important; }' +
-		'ul, ol, li, span { box-shadow: inset 1px 1px #080, inset -1px -1px #080 !important; }' +
-		'h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F !important; }' +
-		'a, a * { background: rgba(180, 255, 0, 0.25) !important; }' +
-		'img { background: #800 !important; padding: 2px !important; box-sizing: border-box !important; }';
-		insertStyle(s, "view-document-structure");
+		var s = 'header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F; }' +
+		'form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90; background: rgba(255, 150, 0, 0.2); }' +
+		'table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F; }' +
+		'ul, ol, li, span { box-shadow: inset 1px 1px #080, inset -1px -1px #080; }' +
+		'h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }' +
+		'a, a * { background: rgba(180, 255, 0, 0.25); }' +
+		'img { background: #800; padding: 2px; box-sizing: border-box; }';
+		insertStyle(s, "view-document-structure", true);
 	}
 }
 
@@ -372,7 +382,7 @@ function showDocumentStructure2()
 	}
 	else
 	{
-		insertStyle("div { background: linear-gradient(135deg, black, white) !important; } h1, h2, h3, h4, h5, h6 { background: #F00 !important; } p { background: #09F !important; } ol, ul { background: #00F !important; } table { background: #080 !important; }", "view-document-structure");
+		insertStyle("div { background: linear-gradient(135deg, black, white); } h1, h2, h3, h4, h5, h6 { background: #F00; } p { background: #09F; } ol, ul { background: #00F; } table { background: #080; }", "view-document-structure", true);
 	}
 }
 
@@ -521,7 +531,7 @@ function showMessage(s, msgClass, persist)
 	var e;
 	msgClass = msgClass || "";
 	var strStyle = 'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; text-align: left; }' +
-	'message.messagebig { font: 32px "Swis721 cn bt"; color: #FFF; height: 60px; line-height: 60px; font-weight: 500 !important; }' +
+	'message.messagebig { font: 32px "Swis721 cn bt"; color: #FFF; height: 60px; line-height: 60px; font-weight: 500; }' +
 	'message.messageerror { color: #FFF; background: #A00; }';
 
 	if(!get("message"))
@@ -531,7 +541,7 @@ function showMessage(s, msgClass, persist)
 		document.body.insertBefore(e, document.body.firstChild);
 		if(!get("#style_message"))
 		{
-			insertStyle(strStyle, "style_message");
+			insertStyle(strStyle, "style_message", true);
 		}
 	}
 	else
@@ -690,6 +700,25 @@ function highlightPagination()
 	}
 }
 
+// http://stackoverflow.com/questions/2952667/find-all-css-rules-that-apply-to-an-element
+// http://stackoverflow.com/a/22638396
+function css(elem)
+{
+	var sheets = document.styleSheets, rulesArray = [];
+	elem.matches = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector || elem.oMatchesSelector;
+	for(var i in sheets)
+	{
+		var rules = sheets[i].rules || sheets[i].cssRules;
+		for(var r in rules)
+		{
+			if(elem.matches(rules[r].selectorText))
+			{
+				rulesArray.push(rules[r].cssText);
+			}
+		}
+	}
+	return rulesArray;
+}
 
 function handleKeyDown(e)
 {
@@ -766,9 +795,10 @@ function handleKeyDown(e)
 			getImages();
 			break;
 		case 54: //6
-			del(["iframe"]);
+			var numIframes = del("iframe");
 			deleteElementsContainingText("rp", "iframe:");
 			deleteElementsContainingText("div", "Advertisement");
+			showMessage(numIframes + " iframes deleted", "messagebig");
 			break;
 		case 96: //Numpad 0
 			s = db.innerHTML;
@@ -785,7 +815,7 @@ function handleKeyDown(e)
 			makeDocumentClickable();
 			break;
 		case 57: //9
-			insertStyle("*::before{content:attr(class);color:#FF0;padding:2px;background:#000;margin: 0 2px 0 0;}", "style_calibre", true);
+			insertStyleDebug();
 			//forAll("div", getStyles);
 			break;
 		case 73: // i
@@ -964,6 +994,9 @@ function handleKeyDown(e)
 		case 53: //5
 			insertStyleShowClass();
 			break;
+		case 66: //B
+			showDocumentStructureWithNames();
+			break;
 		case 68: //d
 			deleteEmptyElements("p");
 			deleteEmptyElements("tr");
@@ -986,6 +1019,9 @@ function handleKeyDown(e)
 		case 73: //I
 			appendIframes();
 			break;
+		case 78: //N
+			showDocumentStructure2();
+			break;
 		case 77: //M
 			showDialog("Test dialog");
 			break;
@@ -996,17 +1032,17 @@ function handleKeyDown(e)
 			s = prompt("Tag");
 			highlightParagraph(s);
 			break;
+		case 83: //s
+			highlightElementsWithAttribute("style");
+			break;
 		case 84: //T
 			markTableRowsAndColumns();
 			break;
 		case 86: //V
 			showDocumentStructure();
 			break;
-		case 66: //B
-			showDocumentStructureWithNames();
-			break;
-		case 78: //N
-			showDocumentStructure2();
+		case 87: //W
+			highlightElementsWithSetWidths();
 			break;
 		case 123: //F12
 			analyze();
@@ -1120,12 +1156,68 @@ function highlightElement()
 	{
 		addClass(e, "hl");
 	}
-	insertStyle(".hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00 !important; }");
+	else
+	{
+		showMessage("No elements found for selector " + s, "messagebig messageerror");
+	}
 }
 
 function unhighlightElement(x)
 {
 	removeClass(x, "hl");
+}
+
+function getIDandClass(e)
+{
+	var s = "";
+	if(e.id)
+		s += "#" + e.id + " ";
+	if(e.className)
+		s += "." + e.className;
+	return s;
+}
+
+function highlightElementsWithAttribute(s)
+{
+	showMessage("Highlighting elements with attribute \"" + s + '"', "messagebig");
+	ylog("Highlighting elements with attribute " + s, "h2");
+	var e = get("*");
+	if(e.length)
+	{
+		var i = e.length;
+		while(i--)
+		{
+			if(e[i].hasAttribute("style"))
+			{
+				addClass(e[i], "hl");
+				ylog(getIDandClass(e[i]) + ": " + e[i].style.cssText);
+			}
+		}
+	}
+	insertStyle(".hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }", "style_hewa", true);
+}
+
+function highlightElementsWithSetWidths()
+{
+	showMessage("Finding divs with pixel widths...", "messagebig");
+	ylog("Highlighting elements with pixel widths", "h2");
+	var e = get("div");
+	var i = e.length, s, w, j, cssRules;
+	while(i--)
+	{
+		cssRules = css(e[i]);
+		j = cssRules.length;
+		while(j--)
+		{
+			if( (cssRules[j].match(/width:[^;]*px/) !== null))
+			{
+				e[i].className += " hl";
+				e[i].innerHTML = "<x>#" + e[i].id + " ." + e[i].className + " " + getComputedStyle(e[i], null).getPropertyValue("width") + "</x>" + e[i].innerHTML;
+				ylog(cssRules[j]);
+			}
+		}
+	}
+	insertStyle("x { background: #000; color: #FFF; padding: 2px 4px; display: block; font: 12px verdana;  } .xlog { clear: both; } .hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }", "style_hewsw", true);
 }
 
 function highlightParagraph(tag)
@@ -1230,7 +1322,7 @@ function getImages(slideshow)
 	}
 	else
 	{
-		log2("No images found");
+		showMessage("No images found", "messagebig messageerror");
 	}
 	if(slideshow)
 		buildSlideshow();
@@ -1291,6 +1383,21 @@ function changeGalleryImage(prev)
 			}
 		}
 	}
+}
+
+function deleteIframes()
+{
+	var numIframes = get("iframe").length;
+	if(numIframes !== undefined)
+	{
+		del("iframe");
+		showMessage(numIframes + " iframes deleted", "messagebig");
+	}
+	else
+	{
+		showMessage("No iframes found", "messagebig");
+	}
+	deleteElementsContainingText("rp", "iframe:");
 }
 
 function deleteImagesSmallerThan(x, y)
@@ -1447,7 +1554,7 @@ function cleanupGeneral()
 	deleteNonContentImages();
 	replaceWrongHeading();
 	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio"]);
-	replaceFontTags();
+	//replaceFontTags();
 	replaceElement("center", "div");
 	setDocTitle();
 	removeAttributes();
@@ -1462,16 +1569,19 @@ function cleanupGeneral()
 
 function cleanupGeneral_light()
 {
+	var t1 = new Date();
 	replaceFlash();
 	replaceIframes();
 	delTag(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "noscript"]);
-	replaceFontTags();
+	//replaceFontTags();
 	replaceElement("center", "div");
 	setDocTitle();
 	del("x");
 	removeAttributes_fast();
 	appendInfo();
 	document.body.className = "pad100 xShowImages";
+	var t2 = new Date();
+	xlog(t2-t1 + " ms: cleanupGeneral_light");
 }
 
 function replaceIframes()
@@ -1596,7 +1706,6 @@ function cleanupHead()
 
 function insertStyle(str, identifier, important)
 {
-	// if a style with that id already exists, delete it and return
 	if(identifier !== undefined)
 	{
 		identifier_hash = "#" + identifier;
@@ -1637,7 +1746,19 @@ function insertStyleHighlight()
 
 function insertStyleFonts()
 {
-	insertStyle('p, li, td, div, input, select, textarea { font: 12px Verdana; } h1, h2, h3, h4, h5, h6 { font-family: "swis721 cn bt"; } span, b, em, strong, i { font: inherit; } pre, code { font: 12px verdcode; }', 'style_fonts', true);
+	var s = 'a, p, li, td, div, input, select, textarea { font: bold 15px arial; }' +
+	'h1 { font: 40px "swis721 cn bt"; }' +
+	'h2 { font: 32px "swis721 cn bt"; }' +
+	'h3 { font: 28px "swis721 cn bt"; }' +
+	'h4 { font: 24px "swis721 cn bt"; }' +
+	'h5 { font: 18px "swis721 cn bt"; }' +
+	'h6 { font: 16px "swis721 cn bt"; }' +
+	'span, b, em, strong, i { font: inherit; }' +
+	'body { background: #FFF; color: #000; }' +
+	'p, li { line-height: 150%; }' +
+	'p { margin: 0; padding: 5px 0; }' +
+	'pre, code { font: 12px verdcode; }';
+	insertStyle(s, 'style_fonts', true);
 }
 
 function insertStyleShowClass()
@@ -1753,6 +1874,19 @@ function insertStyleWhite()
 	var s = 'body, input, select, textarea { background: #FFF; color: #000; }' + 
 	'input, select, textarea { font: 12px verdana; }';
 	insertStyle(s, "style_white", true);
+}
+
+function insertStyleDebug()
+{
+	del("script");
+	del("link");
+	del("style");
+	var s = 'body { background: #333;  color: #888; }' +
+	'body * { display: block; padding: 10px; border: 1px solid #000; }' +
+	'body *::before{content:attr(class); color:#FF0; padding:2px; background:#000; margin: 0 2px 0 0 }' +
+	'select, textarea, input { background: #444; border: 1px solid red; }' +
+	'button { background: #222; color: #AAA; }';
+	insertStyle(s, "style_debug", true);
 }
 
 function removeEventListeners()
@@ -2028,6 +2162,15 @@ function removeAttributes()
 	}
 	var t2 = new Date();
 	xlog((t2-t1) + "ms: removeAttributes");
+}
+
+function removeAttributesOf(selector, attribute)
+{
+	var x = document.querySelectorAll(selector);
+	for (var i = 0; i < x.length; i++)
+	{
+		x[i].removeAttribute(attribute);
+	}
 }
 
 function removeAttributes_fast()
@@ -3459,14 +3602,16 @@ function cleanupUnicode()
 	s = s.replace(/\u00e2\u20ac\u2122/g, "'");
 	s = s.replace(/\u00e2\u20ac\u00a6/g, "...");
 	s = s.replace(/\u00e2\u20ac\u201d/g, "&mdash;");
-	s = s.replace(/\u00e2\u20ac\u009d/g, "\"");
-	s = s.replace(/\u00e2\u20ac\u0153/g, "\"");
-	s = s.replace(/\u00e2\u20ac\u00a6/g, "\"");
+	s = s.replace(/\u00e2\u20ac\u009d/g, '"');
+	s = s.replace(/\u00e2\u20ac\u0153/g, '"');
+	s = s.replace(/\u00e2\u20ac\u00a6/g, '"');
+	s = s.replace(/\u00e2\u20ac\u02dc/g, "'");
+
 	s = s.replace(/\u00c2/g, " ");
-	s = s.replace(/\u00c4\u00fa/g, "\"");
-	s = s.replace(/\u00c4\u00f9/g, "\"");
+	s = s.replace(/\u00c4\u00fa/g, '"');
+	s = s.replace(/\u00c4\u00f9/g, '"');
 	s = s.replace(/\u00c4\u00f4/g, "'");
-	s = s.replace(/\u00e2\u20ac/g, "\"");
+	s = s.replace(/\u00e2\u20ac/g, '"');
 	s = s.replace(/\u00c3\u00a9/g, "&eacute;");
 	s = s.replace(/\ufffd/g, "&mdash;");
 	s = s.replace(/\u00cb\u0153/g, "'");
@@ -3486,15 +3631,15 @@ function analyze()
 		document.body.addEventListener('click', analyze_clickHandler, false);
 		document.body.className += ' analyzer';
 
-		var s = 'body.analyzer { padding-bottom: 300px !important; }' +
-		'#analyzer { padding: 5px 10px !important; position:fixed!important; left:0; bottom: 0; width: 50% !important; min-width: 500px !important; height: 200px!important; overflow: hidden !important; background:#000 !important; color:#aaa !important; text-align:left !important; z-index: 2000000000 !important; font:12px verdana !important; letter-spacing: 0 !important; }' +
-		'#analyzer b { color:#09f !important; }' +
+		var s = 'body.analyzer { padding-bottom: 300px; }' +
+		'#analyzer { padding: 5px 10px; position:fixed; left:0; bottom: 0; width: 50%; min-width: 500px; height: 200px; overflow: hidden; background:#000; color:#aaa; text-align:left; z-index: 2000000000; font:12px verdana; letter-spacing: 0; }' +
+		'#analyzer b { color:#09f; }' +
 		'#analyzer div { padding:0;}' +
-		'#analyzer em { font-style:normal; color:#F80 !important; }' +
-		'.hovered { background: rgba(0, 0, 0, 0.5) !important; color: #FFF !important; }' +
-		'div#analyzer, #analyzer div { box-shadow: none !important; min-height: 0 !important; margin: 0 !important; }';
+		'#analyzer em { font-style:normal; color:#F80; }' +
+		'.hovered { background: rgba(0, 0, 0, 0.5); color: #FFF; }' +
+		'div#analyzer, #analyzer div { box-shadow: none; min-height: 0; margin: 0; }';
 
-		insertStyle(s, "analyzer-style");
+		insertStyle(s, "analyzer-style", true);
 	}
 	else
 	{
@@ -3962,9 +4107,6 @@ function initialize()
 				replaceElement(".replytools", "h6");
 				replaceElement(".op", "samp");
 				break;
-			case "www.thinkstockphotos.com.au":
-				insertStyle("body, header, aside, article, section, div, td, ul, ol {background: #222 !important;color:#808080 !important;font:12px verdana !important;border:0 !important;border-style:solid!Important;border-color:#000!important;} a{background: #111 !important; }")
-				break;
 			case 'redditlog.com':
 			case 'www.redditlog.com':
 				replaceElement(".title", "h1");
@@ -3974,10 +4116,6 @@ function initialize()
 				break;
 			case 'imgur.com':
 				setDocTitle(document.title);
-				break;
-			case 'last.fm':
-			case 'www.last.fm':
-				insertStyle('body { background: #222; } article, section, div { background-color: #222 !important; color: #999 !important; border-color: #111 !important; } td, span { background-color: #181818 !important; color: #999 !important; }');
 				break;
 			case 'www.youtube.com':
 				//setTimeout(doYoutube, 3000);
