@@ -11,7 +11,7 @@
 // ==/UserScript==
 
 //	Nimbus
-//	Copyright (C) 2008-2015 Nimish Jha 
+//	Copyright (C) 2008-2016 Nimish Jha 
 //
 //	This program is free software: you can redistribute it and/or modify
 //	it under the terms of the GNU General Public License as published by
@@ -1097,7 +1097,7 @@ function clickThanks()
 		if(e[i].href && e[i].href.indexOf("post_thanks_add") > 0)
 		{
 			e[i].click();
-			log2("clicked thanks");
+			showMessage("clicked thanks", "messagebig");
 		}
 	}
 }
@@ -1629,7 +1629,7 @@ function insertStyle(str, identifier, important)
 
 function insertStyleHighlight()
 {
-	var s = '.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; color: #FFF; }' +
+	var s = '.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }' +
 		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
 		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
 	insertStyle(s, "style_highlight", true);
@@ -2276,6 +2276,7 @@ function logout()
 				document.body.appendChild(tempLink);
 				tempLink.click();*/
 				ylog(e[i].href, "h2", true);
+				e[i].className += " hl";
 				e[i].click();
 				break;
 			}
@@ -2287,6 +2288,7 @@ function logout()
 			{
 				found = true;
 				showMessage("Logging out...", "messagebig");
+				e[i].className += " hl";
 				e[i].click();
 				break;
 			}
@@ -2304,6 +2306,7 @@ function logout()
 				{
 					found = true;
 					showMessage("Logging out...", "messagebig");
+					e[i].className += " hl";
 					e[i].click();
 					break;
 				}
