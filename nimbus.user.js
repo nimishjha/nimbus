@@ -989,7 +989,8 @@ function handleKeyDown(e)
 			insertStyleFonts();
 			break;
 		case 52: //4
-			insertStyle('html div, html div[class] { background-color: #222; }', 'style_divbg', true);
+			//insertStyle('html div, html div[class] { background-color: #222; }', 'style_divbg', true);
+			insertStyle('html, body, div { filter: invert(1) grayscale(1); }', 'style_divbg', true);
 			break;
 		case 53: //5
 			insertStyleShowClass();
@@ -2047,18 +2048,27 @@ function zeroPad(n)
 
 function appendInfo()
 {
-	var url;
+	var url, d, saveTime, h, a, s;
 	if(window.location.href.indexOf("file:///") >= 0) return;
 	if(document.getElementsByTagName("h4").length)
 	{
 		var hh = document.getElementsByTagName("h4");
 		if(hh[hh.length - 1].textContent.indexOf("URL:") === 0) return;
 	}
-	var d = new Date();
-	var saveTime = d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
-	var h = document.createElement("h4");
+
+	h = document.createElement("h4");
+	a = document.createElement("a");
+	s = window.location.toString().split("/");
+	a.href = a.textContent = s[0] + "//" + s[2];
+	a.textContent = "Domain: " + a.textContent;
+	h.appendChild(a);
+	document.body.appendChild(h);
+
+	d = new Date();
+	saveTime = d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
+	h = document.createElement("h4");
 	h.appendChild(document.createTextNode("URL: "));
-	var a = document.createElement("a");
+	a = document.createElement("a");
 	url = window.location.href;
 	if(url.indexOf("?utm_source") > 0)
 	{
@@ -2418,7 +2428,7 @@ function logout()
 				tempLink.href = tempLink.textContent = e[i].href;
 				document.body.appendChild(tempLink);
 				tempLink.click();*/
-				ylog(e[i].href, "h2", true);
+				showMessage(e[i].href, "messagebig");
 				e[i].className += " hl";
 				e[i].click();
 				break;
@@ -2430,7 +2440,7 @@ function logout()
 			if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 			{
 				found = true;
-				showMessage("Logging out...", "messagebig");
+				showMessage(e[i].href, "messagebig");
 				e[i].className += " hl";
 				e[i].click();
 				break;
@@ -3693,7 +3703,7 @@ function replaceWrongHeading()
 			}
 		}
 		// blogs will often have the blog title as the first h1, which is useless
-		if(get("h1").length > 1)
+/*		if(get("h1").length > 1)
 		{
 			heading1 = get("h1")[0];
 			heading2 = get("h1")[1];
@@ -3706,7 +3716,7 @@ function replaceWrongHeading()
 					heading1.parentNode.replaceChild(temp, heading1);
 				}
 			}
-		}
+		}*/
 	}
 }
 
@@ -4091,8 +4101,6 @@ function initialize()
 					break;
 				highlightNodesContaining("cite", "developer.mozilla.org");
 				highlightLinksWithHrefContaining("developer.mozilla.org");
-				highlightNodesContaining("cite", "opensubtitles");
-				highlightLinksWithHrefContaining("opensubtitles");
 				break;
 			case "php.net":
 			case "www.php.net":
