@@ -34,12 +34,6 @@ initialize();
 
 function get(s)
 {
-	if(!(s && s.length))
-	{
-		ylog("no selector specified", "h2", true);
-		return;
-	}
-	s = trim(s);
 	if(s.indexOf("#") === 0) return document.getElementById(s.substr(1, s.length));
 	else if(s.indexOf(".") === 0) return document.getElementsByClassName(s.substr(1, s.length));
 	else if(document.getElementsByTagName(s).length) return document.getElementsByTagName(s);
@@ -137,6 +131,57 @@ function getStyles(e)
 		}*/
 	}
 	insertStyle("x {background:#000;color:#FF0;}", "temp", true);
+}
+
+function highlightElementsWithInlineWidthOrHeight()
+{
+	var e = document.querySelectorAll("div, aside, article, section, table, tr, td");
+	var i = e.length;
+	while(i--)
+	{
+		var s = e[i].getAttribute("style");
+		if(!s)
+		{
+			continue;
+		}
+		if(s.indexOf("width") !== -1)
+		{
+			e[i].className += " hl";
+			//e[i].innerHTML = "<mark>" + s + "</mark>" + e[i].innerHTML;
+		}
+		else if(s.indexOf("height") !== -1)
+		{
+			e[i].className += " hl2";
+			//e[i].innerHTML = "<mark>" + s + "</mark>" + e[i].innerHTML;
+		}
+	}
+	insertStyle(".hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; } .hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }", "style_hewiwoh", true);
+}
+
+function highlightElementsWithCSSRule()
+{
+	var styles, prop, val, cssRule, e, i, s;
+	prop = prompt("Highlight elements where CSS Property");
+	val = prompt("has the value");
+	e = document.getElementsByTagName("*");
+	i = e.length;
+	while(i--)
+	{
+		styles = getComputedStyle(e[i], null);
+		if(styles)
+		{
+			s = styles.getPropertyValue(prop);
+			if(val.length && val === s)
+			{
+				e[i].className += " hl";
+			}
+		}
+		else
+		{
+			ylog("asd");
+		}
+	}
+	insertStyleHighlight();
 }
 
 function markTableRowsAndColumns()
@@ -990,7 +1035,7 @@ function handleKeyDown(e)
 			break;
 		case 52: //4
 			//insertStyle('html div, html div[class] { background-color: #222; }', 'style_divbg', true);
-			insertStyle('html, body, div { filter: invert(1) grayscale(1); }', 'style_divbg', true);
+			insertStyle('body { filter: invert(1) hue-rotate(0deg) saturate(2); } body { -webkit-filter: invert(1) hue-rotate(0deg) saturate(2); }', 'style_divbg', true);
 			break;
 		case 53: //5
 			insertStyleShowClass();
@@ -1012,13 +1057,13 @@ function handleKeyDown(e)
 			del(["object", "embed", "video"]);
 			break;
 		case 71: //g
-			deleteNonContentDivs();
+			highlightElementsWithInlineWidthOrHeight();
 			break;
 		case 72: //h
 			highlightElement();
 			break;
 		case 73: //I
-			appendIframes();
+			showMessage(k + " is unbound", "messagebig");
 			break;
 		case 78: //N
 			showDocumentStructure2();
@@ -1091,20 +1136,6 @@ function doStackOverflow()
 			if(x.textContent && x.textContent.indexOf("up vote") !== -1)
 				x.setAttribute("style", "width: 200px");
 		});
-	}
-}
-
-function doYoutube()
-{
-	del("object");
-	del("embed");
-	del(".comments");
-	var e = get("video")[0];
-	if(e)
-	{
-		var s = e.src;
-		e.src = '';
-		e.pause();
 	}
 }
 
@@ -1316,6 +1347,10 @@ function getImages(slideshow)
 		if(!slideshow)
 			del("img");
 		db.insertBefore(tempNode, db.firstChild);
+
+		cleanupHead();
+		del("style");
+		insertStyle("img { display: block; float: left; height: 300px; }", "style_gallery", true);
 	}
 	else if(f)
 	{
@@ -1345,7 +1380,7 @@ function buildSlideshow()
 		'#nimbus_gallery img.currentImage.tall { height: 100%; width: auto; }' +
 		'#nimbus_gallery img.currentImage.wide { width: 100%; height: auto; }' +
 		'#nimbus_gallery a { color: #000; }';
-		insertStyle(s, 'style_nimbus_gallery');
+		insertStyle(s, 'style_nimbus_gallery', true);
 		addClass(images[0], "currentImage");
 		window.scrollTo(0, 0);
 	}
@@ -1434,16 +1469,16 @@ function deleteSmallImages()
 
 function replaceImagesWithTextLinks()
 {
-	var e, f, g, i;
+	var e, imageLink, imageReplacement, i;
 	if(get("rt"))
 	{
 		e = get("rt");
 		i = e.length;
 		while(i--)
 		{
-			f = document.createElement("img");
-			f.src = e[i].getElementsByTagName("a")[0].href;
-			e[i].parentNode.replaceChild(f, e[i]);
+			imageLink = document.createElement("img");
+			imageLink.src = e[i].getElementsByTagName("a")[0].href;
+			e[i].parentNode.replaceChild(imageLink, e[i]);
 		}
 		del('#style_replace_images');
 		return;
@@ -1455,14 +1490,14 @@ function replaceImagesWithTextLinks()
 		{
 			if(e[i].src)
 			{
-				f = document.createElement("a");
-				f.href = f.textContent = e[i].src;
-				g = document.createElement("rt");
-				g.appendChild(f);
+				imageLink = document.createElement("a");
+				imageLink.href = imageLink.textContent = e[i].src;
+				imageReplacement = document.createElement("rt");
+				imageReplacement.appendChild(imageLink);
 				if(e[i].parentNode.tagName.toLowerCase() === "a")
-					e[i].parentNode.parentNode.replaceChild(g, e[i].parentNode);
+					e[i].parentNode.parentNode.replaceChild(imageReplacement, e[i].parentNode);
 				else
-					e[i].parentNode.insertBefore(g, e[i]);
+					e[i].parentNode.insertBefore(imageReplacement, e[i]);
 			}
 		}
 		del("img");
@@ -1707,7 +1742,7 @@ function cleanupHead()
 
 function insertStyle(str, identifier, important)
 {
-	if(identifier !== undefined)
+	if(identifier !== undefined && identifier.length)
 	{
 		identifier_hash = "#" + identifier;
 		if(get(identifier_hash))
@@ -1742,7 +1777,7 @@ function insertStyleHighlight()
 	var s = '.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }' +
 		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
 		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
-	insertStyle(s, "style_highlight", true);
+	insertStyle(s, undefined, true);
 }
 
 function insertStyleFonts()
@@ -1862,7 +1897,10 @@ function insertStyleNegative(important)
 	'rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }' +
 	'body.xDontShowLinks a, body.xDontShowLinks a *, body.xDontShowLinks a:link { color: inherit; text-decoration: none; }' +
 	'body.xDontShowLinks a:visited *, body.xDontShowLinks a:visited { color: inherit; text-decoration: none; }' +
-	'body.xDontShowLinks a:hover *, body.xDontShowLinks a:focus *, body.xDontShowLinks a:hover, body.xDontShowLinks a:focus { color: #FFF; text-decoration: none; }';
+	'body.xDontShowLinks a:hover *, body.xDontShowLinks a:focus *, body.xDontShowLinks a:hover, body.xDontShowLinks a:focus { color: #FFF; text-decoration: none; }' +
+	'.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }' +
+	'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
+	'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
 
 	if(important)
 		insertStyle(s, "style_negative_v2", true);
@@ -2449,12 +2487,24 @@ function logout()
 	}
 	if(!found)
 	{
-		e = get("input");
+		e = document.querySelectorAll("input", "button");
 		for(i = 0, ii = e.length; i < ii; i++)
 		{
 			if(e[i].value)
 			{
 				s = ns(e[i].value);
+				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
+				{
+					found = true;
+					showMessage("Logging out...", "messagebig");
+					e[i].className += " hl";
+					e[i].click();
+					break;
+				}
+			}
+			else if(e[i].textContent)
+			{
+				s = ns(e[i].textContent);
 				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 				{
 					found = true;
@@ -2815,7 +2865,10 @@ function getElementsContainingText()
 		}
 
 	}
-	getElementsWithClass("toget");
+	if(get(".toget").length)
+		getElementsWithClass("toget");
+	else
+		showMessage("Not found", "messagebig messageerror");
 }
 
 function deleteNonContentDivs()
@@ -2883,7 +2936,7 @@ function getContentByParagraphCount()
 	{
 		getElementsWithClass("hl");
 		cleanupGeneral();
-		document.body.className = "pad100 xwrap";
+		document.body.className = "pad100";
 		return;
 	}
 	//del(["link", "style"]);
@@ -2901,12 +2954,13 @@ function getContentByParagraphCount()
 		if(np > lastnp)
 			lastnp = np;
 	}
+	showMessage("Highest paragraph count is " + lastnp);
 	if(lastnp === 0)
 	{
 		xlog("No <p>s found", "h3", true);
 		return;
 	}
-	e = get("div");
+	//e = document.querySelectorAll("div, article, main, section");
 	i = e.length;
 	while(i--)
 	{
@@ -2923,7 +2977,6 @@ function getContentByParagraphCount()
 	{
 		e[i].className = "hl";
 	}
-	
 }
 
 function formatContent()
@@ -3970,8 +4023,7 @@ function showTextToHTMLRatio()
 		h = e[i].innerHTML;
 		if(t && h)
 		{
-			if(t.length/h.length < 0.6)
-				e[i].className = "hl";
+			e[i].innerHTML = "<mark>" + t.length/h.length + "</mark>" + e[i].innerHTML;
 		}
 	}
 }
@@ -4027,7 +4079,7 @@ function inject()
 	//document.addEventListener("mouseup", handleMouseUp, false);
 	//deleteUselessIframes();
 	showPassword();
-	fixForums();
+	//fixForums();
 	removeAccesskeys();
 	//appendInfo();
 	insertStyleHighlight();
@@ -4035,6 +4087,7 @@ function inject()
 	xlog("Referrer: " + document.referrer);
 	var d = new Date();
 	var saveTime = d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
+	get("body")[0].removeAttribute("style");
 	xlog("Page loaded at " + saveTime);
 }
 
@@ -4060,11 +4113,6 @@ function echoPassword(e)
 	showMessage(e.value, "none", true);
 }
 
-function simpleHash(s)
-{
-	return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
-}
-
 function initialize()
 {
 	var load = true;
@@ -4074,22 +4122,10 @@ function initialize()
 		{
 			case "maps.google.com.au":
 			case "maps.google.com":
-			//case "sn132w.snt132.mail.live.com":
-			//case "dropbox.com":
-			//case "www.dropbox.com":
 				load = false;
 				break;
 			case "www.imdb.com":
 				replaceElement(".head", "h2");
-				break;
-			case "drupal.org":
-				replaceElement(".codeblock", "pre");
-				break;
-			case "isohunt.com":
-				del(["embed", "object", "img"]);
-				break;
-			case "bolt.cd":
-				doBolt();
 				break;
 			case "en.wikipedia.org":
 			case "secure.wikimedia.org":
@@ -4101,63 +4137,6 @@ function initialize()
 					break;
 				highlightNodesContaining("cite", "developer.mozilla.org");
 				highlightLinksWithHrefContaining("developer.mozilla.org");
-				break;
-			case "php.net":
-			case "www.php.net":
-				replaceElement(".phpcode", "pre");
-				fixParagraphs();
-				break;
-			case "forums.whirlpool.net.au":
-				del(["h1", "h2"]);
-				replaceElement("mark", "samp");
-				replaceElement(".wcrep1", "blockquote");
-				replaceElement(".replyuser", "h5");
-				replaceElement(".replytools", "h6");
-				replaceElement(".op", "samp");
-				break;
-			case 'redditlog.com':
-			case 'www.redditlog.com':
-				replaceElement(".title", "h1");
-				replaceElement("div", "blockquote");
-				replaceElement(".author", "h4");
-				cleanupGeneral();
-				break;
-			case 'imgur.com':
-				setDocTitle(document.title);
-				break;
-			case 'www.youtube.com':
-				//setTimeout(doYoutube, 3000);
-				break;
-			case 'tumblr.com':
-				insertStyle('html, body, body * { background-color: #111 !important; color: #777 !important; }');
-				break;
-			case 'www.nzbindex.nl':
-				highlightNodesContaining("span", "missing");
-				highlightNodesContaining("span", "Password");
-				highlightNodesContaining("label", ".rar");
-				replaceElement("label", "h3");
-				break;
-			case 'theawesomer.com':
-				replaceElement("h2", "h6");
-				break;
-			case 'twitter.com':
-			case 'www.twitter.com':
-				insertStyle('.GalleryNav {display: none !important; } .global-nav .people .count { color: #FFF !important; font-size: 18px !important; }')
-				break;
-			case 'thenounproject.com':
-				insertStyle('body, div, section, ul, li, input {background: #181818  !important; color: #FFF !important; }img{ filter: invert(1); }')
-				break;
-			case 'www.head-fi.org':
-				getContent("#main");
-				replaceElement(".quote-container", "blockquote");
-				cleanupGeneral();
-				fixParagraphs();
-				replaceElement("strong", "h2");
-				highlightLinksWithHrefContaining("/u/");
-				deleteElementsContainingText("li", "Select All Posts");
-				deleteElementsContainingText("li", "Posts. Joined");
-				deleteElementsContainingText("li", "Location:");
-				deleteElementsContainingText("li", "Trader Feedback");
 				break;
 			default:
 				load = true;
