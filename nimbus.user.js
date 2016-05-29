@@ -8,6 +8,7 @@
 // @include        *
 // @include        file:///*
 // @run-at         document-end
+// @grant		none
 // ==/UserScript==
 
 //	Nimbus
@@ -25,7 +26,6 @@
 //	
 //	You should have received a copy of the GNU General Public License
 //	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 
 var debug = true;
 var logString = "";
@@ -155,7 +155,7 @@ function highlightElementsWithInlineWidthOrHeight()
 			//e[i].innerHTML = "<mark>" + s + "</mark>" + e[i].innerHTML;
 		}
 	}
-	insertStyle(".hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; } .hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }", "style_hewiwoh", true);
+	insertStyleHighlight();
 }
 
 function highlightElementsWithCSSRule()
@@ -171,7 +171,7 @@ function highlightElementsWithCSSRule()
 		if(styles)
 		{
 			s = styles.getPropertyValue(prop);
-			if(val.length && val === s)
+			if(val && val === s)
 			{
 				e[i].className += " hl";
 			}
@@ -263,8 +263,12 @@ function getDebugData()
 		return;
 	i = e.length;
 	while(i--)
+	{
 		if(e[i].innerHTML.indexOf("cache-&gt;") >= 0)
+		{
 			document.body.insertBefore(e[i], document.body.firstChild);
+		}
+	}
 }
 
 function printArray(arr)
@@ -365,7 +369,7 @@ function showResources()
 	count = 0;
 	while(i--)
 	{
-		if(e[i].href && e[i].href.indexOf("css") !== -1)
+		if( (e[i].href && e[i].href.indexOf("css") !== -1) || ( e[i].type && e[i].type === "text/css" ) )
 		{
 			showResource(e[i].href);
 			count++;
@@ -450,7 +454,7 @@ function showDocumentStructureWithNames()
 			divid = "";
 			if(e[i].hasAttribute("id")) divid += "#" + e[i].id;
 			if(e[i].hasAttribute("class")) divid += " ." + e[i].className;
-			if(e[i].firstChild != null) e[i].insertBefore(createElementWithText("x", divid), e[i].firstChild);
+			if(e[i].firstChild !== null) e[i].insertBefore(createElementWithText("x", divid), e[i].firstChild);
 			else e[i].appendChild(createElementWithText("x", divid));
 		}
 	}
@@ -608,7 +612,7 @@ function deleteMessage()
 
 function showDialog(s)
 {
-	var e, f, g;
+	var e, f, g, s = s || "";
 	if(!get("#xxdialog"))
 	{
 		f = document.createElement("div");
@@ -617,7 +621,7 @@ function showDialog(s)
 		e.id = "xxdialoginput";
 		f.appendChild(e);
 		document.body.insertBefore(f, document.body.firstChild);
-		var s = '#xxdialog { position: absolute; margin: auto; z-index: 10000; height: 400px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
+		s = '#xxdialog { position: absolute; margin: auto; z-index: 10000; height: 400px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
 		'#xxdialoginput { font: 32px "swis721 cn bt", verdana; background: #000; color: #FFF; padding: 0; border: 0; width: 100%; height: 100%; }';
 		insertStyle(s, "style-xxdialog", true);
 		e.focus();
@@ -840,7 +844,12 @@ function handleKeyDown(e)
 			getImages();
 			break;
 		case 54: //6
-			var numIframes = del("iframe");
+			var numIframes = get("iframe").length;
+			if(numIframes)
+			{
+				del("iframe");
+				showMessage(numIframes + " iframes deleted", "messagebig");
+			}
 			deleteElementsContainingText("rp", "iframe:");
 			deleteElementsContainingText("div", "Advertisement");
 			showMessage(numIframes + " iframes deleted", "messagebig");
@@ -1035,7 +1044,8 @@ function handleKeyDown(e)
 			break;
 		case 52: //4
 			//insertStyle('html div, html div[class] { background-color: #222; }', 'style_divbg', true);
-			insertStyle('body { filter: invert(1) hue-rotate(0deg) saturate(2); } body { -webkit-filter: invert(1) hue-rotate(0deg) saturate(2); }', 'style_divbg', true);
+			//insertStyle('body { filter: invert(1) hue-rotate(0deg) saturate(2); } body { -webkit-filter: invert(1) hue-rotate(0deg) saturate(2); }', 'style_divbg', true);
+			insertStyle('body { width: 800px; padding: 100px; margin: 0 auto; background: #303840; color: #c0c8d0; font: 18px "Helvetica 65 Medium"; } mark { background: #36A; color: #FFF; padding: 4px 2px;  } p { line-height: 150%; }', 'style_divbg', true);
 			break;
 		case 53: //5
 			insertStyleShowClass();
@@ -1063,7 +1073,7 @@ function handleKeyDown(e)
 			highlightElement();
 			break;
 		case 73: //I
-			showMessage(k + " is unbound", "messagebig");
+			highlightElementsWithCSSRule();
 			break;
 		case 78: //N
 			showDocumentStructure2();
@@ -1090,6 +1100,9 @@ function handleKeyDown(e)
 		case 87: //W
 			highlightElementsWithSetWidths();
 			break;
+		case 89: //Y
+			highlightElementsWithCSSRule();
+			break;
 		case 123: //F12
 			analyze();
 			break;
@@ -1101,6 +1114,11 @@ function handleKeyDown(e)
 		{
 			case 72: //h
 				forAll(".hl", unhighlightElement);
+				break;
+			case 83: //s
+				forAll(".hl", function(x){
+					removeAttribute("style");
+				});
 				break;
 		}
 	}
@@ -1183,15 +1201,13 @@ function highlightElement()
 		{
 			addClass(e[i], "hl");
 		}
-	}
-	else if(e)
-	{
-		addClass(e, "hl");
+		showMessage("Highlighted " + e.length + " elements", "messagebig");
 	}
 	else
 	{
 		showMessage("No elements found for selector " + s, "messagebig messageerror");
 	}
+	insertStyleHighlight();
 }
 
 function unhighlightElement(x)
@@ -1320,8 +1336,12 @@ function getImages(slideshow)
 		for(i = 0; i < f.length; i++)
 		{
 			for(j = i+1; j < f.length; j++)
+			{
 				if(f[j].src === f[i].src)
+				{
 					f[j].removeAttribute("src");
+				}
+			}
 		}
 		for(i = 0, ii = f.length; i < ii; i++)
 		{
@@ -1344,13 +1364,17 @@ function getImages(slideshow)
 				tempNode.appendChild(f[i].cloneNode(true));
 			}
 		}
+
 		if(!slideshow)
+		{
 			del("img");
+			cleanupHead();
+			//del("style");
+			insertStyle("img { display: block; float: left; height: 300px; }", "style_gallery", true);
+		}
+
 		db.insertBefore(tempNode, db.firstChild);
 
-		cleanupHead();
-		del("style");
-		insertStyle("img { display: block; float: left; height: 300px; }", "style_gallery", true);
 	}
 	else if(f)
 	{
@@ -1388,14 +1412,14 @@ function buildSlideshow()
 
 function changeGalleryImage(prev)
 {
-	var gallery, e;
+	var gallery, e, i, ii;
 	if(!get("#style_nimbus_gallery"))
 	{
 		return;
 	}
 	if(!(gallery = get("#nimbus_gallery")))
 		return;
-	var e = gallery.getElementsByTagName("img"), i, ii;
+	e = gallery.getElementsByTagName("img");
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
 		if(hasClass(e[i], "currentImage"))
@@ -1623,7 +1647,7 @@ function cleanupGeneral_light()
 function replaceIframes()
 {
 	var e = get("iframe"), i, iframereplacement, iframelink, s, segments;
-	var i = e.length;
+	i = e.length;
 	while(i--)
 	{
 		iframereplacement = document.createElement("rp");
@@ -1641,7 +1665,7 @@ function replaceIframes()
 			segments = s.split('?');
 			iframelink.href = segments[0] + '?' + segments[1];
 			if(s.indexOf(".") > 0)
-				s = s.match(/:\/\/(.[^/]+)/)[1];
+				s = s.match(/:\/\/(.[^\/]+)/)[1];
 			iframelink.textContent = iframelink.href;
 		}
 		else
@@ -1970,8 +1994,12 @@ function chooseDocumentHeading()
 			s = window.location.hostname;
 	}
 	if(document.body.textContent.match(/Page [0-9]+ of [0-9]+/))
+	{
 		if(!s.match(/Page [0-9]+/i))
+		{
 			s = s + " - " + document.body.textContent.match(/Page [0-9]+ of [0-9]+/)[0];
+		}
+	}
 	return s;
 }
 
@@ -2005,7 +2033,7 @@ function sanitizeTitle(str)
 	s = s.replace(/\u2019/g, "'");
 	s = s.replace(/[:|\?]/g, " - ");
 	s = s.replace(/[\/]/g, "-");
-	s = s.replace(/[^\.\(\)0-9A-Za-z_!@\[\]\-\(\)'",]/g, " ");
+	s = s.replace(/[^\+\.\(\)0-9A-Za-z_!@\[\]\-\(\)'",]/g, " ");
 	s = s.replace(/\s+/g, " ");
 
 	return s;
@@ -2191,6 +2219,7 @@ function removeAttributes()
 				{
 					case "href":
 					case "src":
+					case "srcset":
 					case "name":
 					case "colspan":
 					case "rowspan":
@@ -2243,10 +2272,10 @@ function removeAttributes_fast()
 	a = get("img");
 	i = a.length;
 	while (i--) {
-		var temp = a[i].src ? a[i].src : null;
+		temp = a[i].src ? a[i].src : null;
 		while (a[i].attributes.length > 0) {
-			var attnode = a[i].attributes[0];
-			var old_att = a[i].removeAttributeNode(attnode);
+			attnode = a[i].attributes[0];
+			old_att = a[i].removeAttributeNode(attnode);
 		}
 		a[i].src = temp;
 	}
@@ -2843,7 +2872,7 @@ function getElementsWithClass(strClass)
 
 function getElementsContainingText()
 {
-	var s, t;
+	var s, t, i, ii;
 	s = prompt("Get Elements");
 	t = prompt("Containing text");
 	if(!s.length)
@@ -2851,7 +2880,7 @@ function getElementsContainingText()
 	var e = document.querySelectorAll(s);
 	if(t && t.length)
 	{
-		for(var i = 0, ii = e.length; i < ii; i++)
+		for(i = 0, ii = e.length; i < ii; i++)
 		{
 			if(e[i].textContent && e[i].textContent.indexOf(t) !== -1 /*&& e[i].getElementsByTagName(s).length === 0*/)
 				e[i].className += " toget";
@@ -2859,7 +2888,7 @@ function getElementsContainingText()
 	}
 	else
 	{
-		for(var i = 0, ii = e.length; i < ii; i++)
+		for(i = 0, ii = e.length; i < ii; i++)
 		{
 			e[i].className += " toget";
 		}
@@ -3284,8 +3313,12 @@ function deleteSignatures()
 	{
 		e = get(tag[j]), i = e.length;
 		while(i--)
+		{
 			if(e[i].innerHTML.indexOf("________") >= 0 && !e[i].getElementsByTagName(tag[j]).length)
+			{
 				e[i].innerHTML = e[i].innerHTML.substr(0, e[i].innerHTML.indexOf("________")-1);
+			}
+		}
 	}
 }
 
@@ -3368,12 +3401,14 @@ function highlightNodesContaining(selector, str)
 		if(e[i].textContent.indexOf(str) !== -1)
 		{
 			e[i].className += " hl";
+			e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
 		}
 		if(selector.toLowerCase() === "a")
 		{
 			if(e[i].href && e[i].href.indexOf(str) >= 0)
 			{
 				e[i].className += " hl";
+				e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
 			}
 		}
 	}
@@ -3413,14 +3448,15 @@ function getLinksWithHrefContaining(str)
 	{
 		if(e[i].href.indexOf(str) >= 0 || (e[i].title && e[i].title.indexOf(str) >= 0))
 		{
-			var newLink = document.createElement("a");
+			ylog(e[i], "h6", true);
+/*			var newLink = document.createElement("a");
 			newLink.href = newLink.textContent = e[i].href;
 			var newLinkWrapper = document.createElement("h6");
 			newLinkWrapper.appendChild(newLink);
-			container.appendChild(newLinkWrapper);
+			container.appendChild(newLinkWrapper);*/
 		}
 	}
-	document.body.insertBefore(container, document.body.firstChild);
+	//document.body.insertBefore(container, document.body.firstChild);
 }
 
 function xlog(str, logTag)
@@ -3589,8 +3625,12 @@ function getKeys(obj)
 {
 	var keys = [], key;
 	for (key in obj)
+	{
 		if(obj.hasOwnProperty && obj.hasOwnProperty(key))
+		{
 			keys.push(key);
+		}
+	}
 	return keys;
 }
 
@@ -3621,7 +3661,10 @@ function getAttributes(targ)
 		div2.innerHTML += str;
 		str = '';
 		var k = getKeys(targ);
-		for (i = 0; i < k.length; i++) if(k[i] !== 'addEventListener') str += k[i] + ' ';
+		for (i = 0; i < k.length; i++)
+		{
+			if(k[i] !== 'addEventListener') str += k[i] + ' ';
+		}
 		var events = document.createElement('em');
 		events.appendChild(document.createTextNode(str));
 		div2.appendChild(events);
@@ -3746,7 +3789,8 @@ function replaceWrongHeading()
 	if(get("h1"))
 	{
 		heading1 = get("h1")[0];
-		if(heading1link = heading1.getElementsByTagName("a")[0])
+		heading1link = heading1.getElementsByTagName("a")[0];
+		if(heading1link)
 		{
 			if((heading1link.href === "http://" + location.hostname + "/") || (heading1link.href === "https://" + location.hostname + "/"))
 			{
@@ -3842,8 +3886,12 @@ function highlightButton()
 		return;
 	}
 	for (i = 0; i < len; i++)
+	{
 		if(inputs[i].type && (inputs[i].type === "button" || inputs[i].type === "submit"))
+		{
 			inputfields.push(inputs[i]);
+		}
+	}
 	found = false;
 	for(i = 0, ii = inputfields.length; i < ii; i++)
 	{
@@ -3920,7 +3968,8 @@ function fillForms()
 			inputType = e[i].type;
 			if(inputType !== "button" && inputType !== "submit" && inputType !== "image" && inputType !== "hidden" && inputType !== "checkbox" && inputType !== "radio")
 			{
-				if(inputName = e[i].getAttribute("name"))
+				inputName = e[i].getAttribute("name");
+				if(inputName)
 				{
 					if(inputName === "companyname")
 						e[i].value = "";
@@ -3963,7 +4012,7 @@ function fillForms()
 	i = e.length;
 	while(i--)
 	{
-		e[i].value = "Line 1\r\nLine 2"
+		e[i].value = "Line 1\r\nLine 2";
 	}
 	e = document.getElementsByTagName("input");
 	i = e.length;
@@ -4087,7 +4136,7 @@ function inject()
 	xlog("Referrer: " + document.referrer);
 	var d = new Date();
 	var saveTime = d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
-	get("body")[0].removeAttribute("style");
+	//get("body")[0].removeAttribute("style");
 	xlog("Page loaded at " + saveTime);
 }
 
@@ -4140,6 +4189,7 @@ function initialize()
 				break;
 			default:
 				load = true;
+				break;
 		}
 	}
 	if(load)
