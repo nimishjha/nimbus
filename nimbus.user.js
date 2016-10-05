@@ -12,18 +12,18 @@
 // ==/UserScript==
 
 //	Nimbus
-//	Copyright (C) 2008-2016 Nimish Jha 
+//	Copyright (C) 2008-2016 Nimish Jha
 //
 //	This program is free software: you can redistribute it and/or modify
 //	it under the terms of the GNU General Public License as published by
 //	the Free Software Foundation, either version 3 of the License, or
 //	(at your option) any later version.
-//	
+//
 //	This program is distributed in the hope that it will be useful,
 //	but WITHOUT ANY WARRANTY; without even the implied warranty of
 //	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //	GNU General Public License for more details.
-//	
+//
 //	You should have received a copy of the GNU General Public License
 //	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -178,7 +178,7 @@ function highlightElementsWithCSSRule()
 		}
 		else
 		{
-			ylog("asd");
+			ylog("Styles is " + styles);
 		}
 	}
 	insertStyleHighlight();
@@ -284,6 +284,35 @@ function printArray(arr)
 	return s;
 }
 
+function createElement(args)
+{
+	if(!args)
+		return false;
+
+	var elemClass = args.strClass || undefined;
+	var elemId = args.strId || undefined;
+	var elemInnerHtml = args.strInnerHtml || undefined;
+	var elemTagName = args.strTagName || undefined;
+	var elem;
+
+	if(elemTagName)
+		elem = document.createElement(elemTagName);
+	else
+		elem = document.createElement("div");
+
+	if(elem)
+	{
+		if(elemId)
+			elem.id = elemId;
+		if(elemClass)
+			elem.className = elemClass;
+		if(elemInnerHtml && elemInnerHtml.length)
+			elem.innerHTML = elemInnerHtml;
+	}
+
+	return elem;
+}
+
 function showResource(str)
 {
 	var resourceLink, resourceLinkWrapper, resourceDelete;
@@ -293,10 +322,8 @@ function showResource(str)
 	}
 	resourceLink = document.createElement("a");
 	resourceLink.textContent = resourceLink.href = str;
-	resourceLinkWrapper = document.createElement("h6");
-	resourceLinkWrapper.className = "xlog";
-	resourceDelete = document.createElement("span");
-	resourceDelete.textContent = "[Delete] ";
+	resourceLinkWrapper = createElement({ strTagName: "h6", strClass: "xlog" });
+	resourceDelete = createElement({ strTagName: "span", strInnerHtml: "[Delete]" });
 	document.body.addEventListener('mouseup', deleteResource, false);
 	resourceLinkWrapper.appendChild(resourceDelete);
 	resourceLinkWrapper.appendChild(resourceLink);
@@ -612,20 +639,18 @@ function deleteMessage()
 
 function showDialog(s)
 {
-	var e, f, g, s = s || "";
+	var dialog, dialogInput, s = s || "";
 	if(!get("#xxdialog"))
 	{
-		f = document.createElement("div");
-		f.id = "xxdialog"
-		e = document.createElement("textarea");
-		e.id = "xxdialoginput";
-		f.appendChild(e);
-		document.body.insertBefore(f, document.body.firstChild);
+		dialog = createElement({ strId: "xxdialog" });
+		dialogInput = createElement({ strTagName: "textarea", strId: "xxdialoginput" });
+		dialog.appendChild(dialogInput);
+		document.body.insertBefore(dialog, document.body.firstChild);
 		s = '#xxdialog { position: absolute; margin: auto; z-index: 10000; height: 400px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
 		'#xxdialoginput { font: 32px "swis721 cn bt", verdana; background: #000; color: #FFF; padding: 0; border: 0; width: 100%; height: 100%; }';
 		insertStyle(s, "style-xxdialog", true);
-		e.focus();
-		e.addEventListener("keydown", guiHandler, false);
+		dialogInput.focus();
+		dialogInput.addEventListener("keydown", guiHandler, false);
 	}
 	else
 	{
@@ -794,6 +819,9 @@ function handleKeyDown(e)
 		case 98: // Numpad 2
 			getLinksWithHrefContaining();
 			break;
+		case 100: // Numpad 4
+			forceReloadCss();
+			break;
 		case 109: // Numpad -
 			if(location.href.indexOf("/stage/") > 0 )
 			{
@@ -882,11 +910,11 @@ function handleKeyDown(e)
 			if(db.className.indexOf("xDontShowLinks") >= 0)
 			{
 				removeClass(db, "xDontShowLinks");
-				db.className += " xHideEverything";
+				db.className += " xHE";
 			}
-			else if(db.className.indexOf("xHideEverything") >= 0)
+			else if(db.className.indexOf("xHE") >= 0)
 			{
-				removeClass(db, "xHideEverything");
+				removeClass(db, "xHE");
 			}
 			else
 			{
@@ -1045,7 +1073,7 @@ function handleKeyDown(e)
 		case 52: //4
 			//insertStyle('html div, html div[class] { background-color: #222; }', 'style_divbg', true);
 			//insertStyle('body { filter: invert(1) hue-rotate(0deg) saturate(2); } body { -webkit-filter: invert(1) hue-rotate(0deg) saturate(2); }', 'style_divbg', true);
-			insertStyle('body { width: 800px; padding: 100px; margin: 0 auto; background: #303840; color: #c0c8d0; font: 18px "Helvetica 65 Medium"; } mark { background: #36A; color: #FFF; padding: 4px 2px;  } p { line-height: 150%; }', 'style_divbg', true);
+			insertStyleGrey();
 			break;
 		case 53: //5
 			insertStyleShowClass();
@@ -1154,6 +1182,7 @@ function doStackOverflow()
 			if(x.textContent && x.textContent.indexOf("up vote") !== -1)
 				x.setAttribute("style", "width: 200px");
 		});
+		setTimeout(cleanupHead, 1000);
 	}
 }
 
@@ -1622,7 +1651,7 @@ function cleanupGeneral()
 	//removeEventListeners();
 	appendInfo();
 	document.body.className = "pad100";
-	insertStyleNegative();
+	//insertStyleNegative();
 	var t2 = new Date();
 	xlog(t2-t1 + " ms: cleanupGeneral");
 }
@@ -1764,6 +1793,20 @@ function cleanupHead()
 	document.title = tempTitle;
 }
 
+function forceReloadCss()
+{
+	showMessage("Force-reloading CSS");
+	var i, styleLinks, styleSheet;
+	styleLinks = document.getElementsByTagName('link');
+	for (i = 0; i < styleLinks.length; i++) {
+		styleSheet = styleLinks[i];
+		if (styleSheet.rel.toLowerCase().indexOf('stylesheet') >= 0 && styleSheet.href) {
+			var h = styleSheet.href.replace(/(&|%5C?)forceReload=\d+/, '');
+			styleSheet.href = h + (h.indexOf('?') >= 0 ? '&' : '?') + 'forceReload=' + (new Date().valueOf());
+		}
+	}
+}
+
 function insertStyle(str, identifier, important)
 {
 	if(identifier !== undefined && identifier.length)
@@ -1828,19 +1871,30 @@ function insertStyleShowClass()
 	insertStyle(s, "style_showClass", true);
 }
 
+function insertStyleGrey()
+{
+	var s = 'body { background: #303840; color: #c0c8d0; font: 24px "swis721 cn bt"; }' +
+	'body.pad100 { width: 800px; padding: 100px; margin: 0 auto; } ' +
+	'mark { background: #05A; color: #FFF; padding: 4px 2px; }' +
+	'p { line-height: 150%; }' +
+	'a { text-decoration: none; }' +
+	'em, i, strong, b { font-style: normal; font-weight: normal; color: #FFF; }';
+	insertStyle(s, "style_showClass", true);
+}
+
 function insertStyleNegative(important)
 {
 	var s = 'html { background: #181818; }' +
 	'html body { margin: 0; }' +
 	'html body, html body[class] { color: #888; background: #242424; font-weight: normal; }' +
-	'body.pad100 { padding: 100px 150px; }' +
+	'body.pad100 { padding: 100px 300px; }' +
 	'body.pad100 table { width: 100%; }' +
 	'body.pad100 td, body.pad100 th { padding: 3px 10px; }' +
 	'body.pad100 image { display: block; }' +
 	'nav { background: #111; }' +
 	'body.xdark { background: #111; }' +
 	'body.xblack { background: #000; }' +
-	'body.xwrap { width: 700px; margin: 0 auto; }' +
+	'body.xwrap { width: 1400px; margin: 0 auto; padding: 100px 300px; }' +
 	'html h1, html h2, html h3, html h4, html h5, html h6, html h1[class], html h2[class], html h3[class], html h4[class], html h5[class], html h6[class] { color: #AAA; padding: 10px 20px; line-height: 160%; margin: 2px 0; background: #141414; border: 0; }' +
 	'html h1, html h1[class], div[class] h1 { font: 40px "Swis721 Cn BT", Calibri, sans-serif; color: #FFF; }' +
 	'html h2, html h2[class], div[class] h2 { font: 28px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }' +
@@ -1934,7 +1988,7 @@ function insertStyleNegative(important)
 
 function insertStyleWhite()
 {
-	var s = 'body, input, select, textarea { background: #FFF; color: #000; }' + 
+	var s = 'body, input, select, textarea { background: #FFF; color: #000; }' +
 	'input, select, textarea { font: 12px verdana; }';
 	insertStyle(s, "style_white", true);
 }
@@ -1976,7 +2030,7 @@ function chooseDocumentHeading()
 		e = document.getElementsByTagName(candidateTags[i]);
 		for(j = 0, jj = e.length; j < jj; j++)
 		{
-			if(e[j].textContent && e[j].textContent.indexOf("iframe:") === -1 && ns(e[j].textContent).length > 3)
+			if(e[j].textContent && e[j].textContent.indexOf("iframe:") === -1 && normalizeString(e[j].textContent).length > 3)
 			{
 				s = e[j].textContent;
 				found = true;
@@ -2030,6 +2084,7 @@ function sanitizeTitle(str)
 
 	s = s.replace(/&/g, " and ");
 	s = s.replace(/\u00df/g, 'SS');
+	s = s.replace(/\u0142/g, "'l");
 	s = s.replace(/\u2019/g, "'");
 	s = s.replace(/[:|\?]/g, " - ");
 	s = s.replace(/[\/]/g, "-");
@@ -2163,29 +2218,14 @@ function replaceFontTags()
 			}
 			switch (hl)
 			{
-			case '7':
-				h = document.createElement("h1");
-				break;
-			case '6':
-				h = document.createElement("h2");
-				break;
-			case '5':
-				h = document.createElement("h3");
-				break;
-			case '4':
-				h = document.createElement("h4");
-				break;
-			case '3':
-				h = document.createElement("h5");
-				break;
-			case '2':
-				h = document.createElement("p");
-				break;
-			case '1':
-				h = document.createElement("p");
-				break;
-			default:
-				h = document.createElement("p");
+				case '7': h = document.createElement("h1"); break;
+				case '6': h = document.createElement("h2"); break;
+				case '5': h = document.createElement("h3"); break;
+				case '4': h = document.createElement("h4"); break;
+				case '3': h = document.createElement("h5"); break;
+				case '2': h = document.createElement("p"); break;
+				case '1': h = document.createElement("p"); break;
+				default: h = document.createElement("p");
 			}
 			h.innerHTML = f[i].innerHTML;
 			replacements.push(h);
@@ -2458,7 +2498,7 @@ function deleteNonContentElements()
 				}
 			}
 		}
-	}	
+	}
 }
 
 function removeWhitespace(s)
@@ -2466,7 +2506,7 @@ function removeWhitespace(s)
 	return s.replace(/\s/g, '');
 }
 
-function ns(s) // normalize string
+function normalizeString(s) // normalize string
 {
 	return removeWhitespace(s.toLowerCase());
 }
@@ -2486,7 +2526,7 @@ function logout()
 	{
 		if(e[i].href)
 		{
-			s = ns(e[i].href);
+			s = normalizeString(e[i].href);
 			if( (s.indexOf("logout") >= 0 && s.indexOf("logout_gear") === -1) || s.indexOf("signout") >= 0)
 			{
 				found = true;
@@ -2503,7 +2543,7 @@ function logout()
 		}
 		if(e[i].textContent)
 		{
-			s = ns(e[i].textContent);
+			s = normalizeString(e[i].textContent);
 			if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 			{
 				found = true;
@@ -2521,7 +2561,7 @@ function logout()
 		{
 			if(e[i].value)
 			{
-				s = ns(e[i].value);
+				s = normalizeString(e[i].value);
 				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 				{
 					found = true;
@@ -2533,7 +2573,7 @@ function logout()
 			}
 			else if(e[i].textContent)
 			{
-				s = ns(e[i].textContent);
+				s = normalizeString(e[i].textContent);
 				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 				{
 					found = true;
@@ -2740,7 +2780,7 @@ function highlightCode(highlightKeywords)
 	var t1 = new Date();
 	fixPres();
 	restorePres();
-	
+
 	var tagpre = get("pre");
 	var i = tagpre.length;
 	while (i--)
@@ -2751,7 +2791,7 @@ function highlightCode(highlightKeywords)
 			tagpre[i].parentNode.removeChild(tagpre[i]);
 			continue;
 		}
-		
+
 		var s = tagpre[i].innerHTML, r;
 		s = s.replace(/<span[^>]*>/g, "");
 		s = s.replace(/<\/span>/g, "");
@@ -3006,26 +3046,6 @@ function getContentByParagraphCount()
 	{
 		e[i].className = "hl";
 	}
-}
-
-function formatContent()
-{
-	var db = document.body;
-	replaceElement("strong", "b");
-	replaceElement("dt", "h6");
-	if(get(".date").length)
-	{
-		replaceElement(".date", "h6");
-	}
-	else
-	{
-		replaceElement(".author", "h6");
-	}
-	replaceElement(".cmtinfo", "h6");
-	replaceElement(".commentmetadata", "h6");
-	replaceElement(".metadata", "h6");
-	//Make headings of numbered lists
-	db.innerHTML = db.innerHTML.replace(/<p>([0-9]+)\./gi, "<h6>$1</h6><p>");
 }
 
 function deleteEmptyElements(tag)
@@ -3576,12 +3596,12 @@ function create(selector, html)
 	if(selector.indexOf("#"))
 	{
 		tag = selector.split("#")[0];
-		classname = selector.split("#")[1];
+		idname = selector.split("#")[1];
 	}
 	else if(selector.indexOf("."))
 	{
 		tag = selector.split(".")[0];
-		idname = selector.split(".")[1];
+		classname = selector.split(".")[1];
 	}
 	else
 	{
@@ -3600,7 +3620,8 @@ function removeEmptyIframes()
 	var i = iframes.length;
 	while (i--)
 	{
-		if(iframes[i].contentDocument.body && iframes[i].contentDocument.body.textContent.length === 0) iframes[i].parentNode.removeChild(iframes[i]);
+		if(iframes[i].contentDocument.body && iframes[i].contentDocument.body.textContent.length === 0)
+			iframes[i].parentNode.removeChild(iframes[i]);
 	}
 }
 
@@ -3637,7 +3658,8 @@ function getKeys(obj)
 function getAttributes(targ)
 {
 	var d = document, div2 = document.createElement('div');
-	if(targ.tagName) div2.innerHTML = "<b>" + targ.tagName.toLowerCase() + "</b>";
+	if(targ.tagName)
+		div2.innerHTML = "<b>" + targ.tagName.toLowerCase() + "</b>";
 	if(targ.attributes)
 	{
 		var ta = targ.attributes;
@@ -3721,6 +3743,7 @@ function cleanupUnicode()
 	s = s.replace(/\u00c3\u00a9/g, "&eacute;");
 	s = s.replace(/\ufffd/g, "&mdash;");
 	s = s.replace(/\u00cb\u0153/g, "'");
+	s = s.replace(/\u0142/g, "'l");
 
 	s = s.replace(/\s+/g, " ");
 	document.body.innerHTML = s;
@@ -3762,25 +3785,20 @@ function analyze_clickHandler(e)
 {
 	e.stopPropagation();
 	var targ;
-	if(!e) e = window.event;
+	if(!e)
+		e = window.event;
 	if(e.target)
-	{
 		targ = e.target;
-	}
-	if(e.shiftKey)
-	{
-		if(get("#analyzer"))
-		{
-			prompt("", get("#analyzer").textContent);
-		}
-	}
+	if(e.shiftKey && get("#analyzer"))
+		prompt("", get("#analyzer").textContent);
 }
 
 function wrapElement(obj, tag)
 {
 	var wrapper = document.createElement(tag);
 	wrapper.appendChild(obj.cloneNode(true));
-	if( obj.parentNode  && obj.parentNode.tagName.toLowerCase() !== tag ) obj.parentNode.replaceChild(wrapper, obj);
+	if(obj.parentNode  && obj.parentNode.tagName.toLowerCase() !== tag)
+		obj.parentNode.replaceChild(wrapper, obj);
 }
 
 function replaceWrongHeading()
@@ -3800,20 +3818,20 @@ function replaceWrongHeading()
 			}
 		}
 		// blogs will often have the blog title as the first h1, which is useless
-/*		if(get("h1").length > 1)
+		if(get("h1").length > 1)
 		{
 			heading1 = get("h1")[0];
 			heading2 = get("h1")[1];
 			if(heading1.textContent && heading2.textContent)
 			{
-				if(trim(ns(heading2.textContent)).length > trim(ns(heading1.textContent)).length)
+				if(trim(normalizeString(heading2.textContent)).length > trim(normalizeString(heading1.textContent)).length)
 				{
 					temp = document.createElement("h3");
 					temp.innerHTML = heading1.innerHTML;
 					heading1.parentNode.replaceChild(temp, heading1);
 				}
 			}
-		}*/
+		}
 	}
 }
 
@@ -4132,12 +4150,13 @@ function inject()
 	removeAccesskeys();
 	//appendInfo();
 	insertStyleHighlight();
-	setTimeout(doStackOverflow, 500);
 	xlog("Referrer: " + document.referrer);
 	var d = new Date();
 	var saveTime = d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
 	//get("body")[0].removeAttribute("style");
 	xlog("Page loaded at " + saveTime);
+
+	doStackOverflow();
 }
 
 function showPassword()
