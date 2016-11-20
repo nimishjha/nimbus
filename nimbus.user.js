@@ -53,7 +53,7 @@ function del(c)
 		return 1;
 	}
 	var todel = [];
-	if(isArray(c))
+	if(Object.prototype.toString.call(c) === '[object Array]')
 	{
 		for(var i = 0, ii = c.length; i < ii; i++)
 		{
@@ -91,6 +91,57 @@ function listProperties(o)
 		//if(o.hasOwnProperty(prop))
 			s += prop + ": " + o[prop] + ", ";
 	s = s.substring(0, s.length-2);
+	return s;
+}
+
+function logObject(o, indentLevel, parent)
+{
+	if(!indentLevel)
+		indentLevel = 0;
+
+	// console.log(indentLevel);
+
+	var s = "", type;
+	var indentString = "<dd>";
+	var indentStringParent = "<dd>";
+	var indentStringClose = "";
+	var indentStringParentClose = "";
+	for(var i = 0; i < indentLevel; i++)
+	{
+		indentString += "<blockquote>";
+		indentStringClose += "</blockquote>";
+	}
+	for(var i = 0; i < (indentLevel-1); i++)
+	{
+		indentStringParent += "<blockquote>";
+		indentStringParentClose += "</blockquote>";
+	}
+	indentStringClose += "</dd>";
+	indentStringParentClose += "</dd>";
+	if(parent)
+		s = indentStringParent + "<h2>" + parent + "</h2>" + indentStringParentClose;
+
+	for(var prop in o)
+	{
+		if(o.hasOwnProperty(prop))
+		{
+			type = Object.prototype.toString.call(o[prop]);
+			console.log(prop + ": " + type);
+			switch(type)
+			{
+				case "[object Object]":
+					s += logObject(o[prop], indentLevel + 1, prop);
+					break;
+				// case "[object Array]":
+				// 	s += indentString + prop + " [Array]: " + o[prop].length;
+				// 	break;
+				default:
+					s += indentString + "<em>" + prop + "</em>: <i>" + o[prop] + "</i>" + indentStringClose;
+					break;
+			}
+
+		}
+	}
 	return s;
 }
 
@@ -221,8 +272,9 @@ function containsAnyString(s, arrStrings)
 // https://gist.github.com/minhnc/2333095
 function unRegisterAllEventListeners(obj)
 {
-	if ( typeof obj._eventListeners === 'undefined' || obj._eventListeners.length === 0 )
+	if( typeof obj._eventListeners === 'undefined' || obj._eventListeners.length === 0 )
 	{
+		showMessage("obj._eventListeners is " + obj._eventListeners);
 		return;
 	}
 
@@ -248,11 +300,16 @@ function addClass(ele,cls)
 
 function removeClass(ele, cls)
 {
-	if(!ele)
-		return;
+	if(!ele) return;
 	var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
 	ele.className = ele.className.replace(reg, ' ');
 	if(removeWhitespace(ele.className) === '') ele.removeAttribute("class");
+}
+
+function toggleClass(element, sClass)
+{
+	if(element.className && element.className.indexOf(sClass) !== -1) element.classList.remove(sClass);
+	else element.classList.add(sClass);
 }
 
 function getDebugData()
@@ -1873,13 +1930,14 @@ function insertStyleShowClass()
 
 function insertStyleGrey()
 {
-	var s = 'body { background: #303840; color: #c0c8d0; font: 24px "swis721 cn bt"; }' +
-	'body.pad100 { width: 800px; padding: 100px; margin: 0 auto; } ' +
-	'mark { background: #05A; color: #FFF; padding: 4px 2px; }' +
+	var s = 'body { background: #203040; color: #B0C0D0; font: 24px "swis721 cn bt"; }' +
+	'body.pad100 { width: 1000px; padding: 100px; margin: 0 auto; }' +
+	'mark { background: #005090; color: #DEF; padding: 4px 2px; }' +
 	'p { line-height: 150%; }' +
 	'a { text-decoration: none; }' +
-	'em, i, strong, b { font-style: normal; font-weight: normal; color: #FFF; }';
-	insertStyle(s, "style_showClass", true);
+	'em, i, strong, b { font-style: normal; font-weight: normal; color: #FFF; }' +
+	'pre { background: #012; color: #9AB; padding: 20px; }';
+	insertStyle(s, "style_Grey", true);
 }
 
 function insertStyleNegative(important)
@@ -2914,7 +2972,8 @@ function getElementsContainingText()
 {
 	var s, t, i, ii;
 	s = prompt("Get Elements");
-	t = prompt("Containing text");
+	if(s !== "img")
+		t = prompt("Containing text");
 	if(!s.length)
 		return;
 	var e = document.querySelectorAll(s);
@@ -3345,11 +3404,15 @@ function deleteSignatures()
 function deleteElementsContainingText(selector, str)
 {
 	var t1 = new Date();
+	var elems, textContained;
 
 	if(!(selector && str))
 	{
-		var elems = prompt("Delete elements containing text");
-		var textContained = prompt("Containing text");
+		elems = prompt("Delete elements containing text");
+		if(elems !== "img")
+			textContained = prompt("Containing text");
+		else
+			textContained = "";
 		if(elems.length)
 		{
 			var arr = [textContained];
