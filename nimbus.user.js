@@ -1898,7 +1898,7 @@ function insertStyle(str, identifier, important)
 
 function insertStyleHighlight()
 {
-	var s = '.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }' +
+	var s = '.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }' +
 		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
 		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
 	insertStyle(s, undefined, true);
@@ -1924,7 +1924,8 @@ function insertStyleFonts()
 function insertStyleShowClass()
 {
 	var s = '* { display: block; padding: 5px; border: 1px solid #111; }' +
-	'*::before { content: attr(class); color: #FF0; }';
+	'*::before { content: attr(class); color: #FF0; }' +
+	'head { display: none; }';
 	insertStyle(s, "style_showClass", true);
 }
 
