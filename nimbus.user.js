@@ -12,7 +12,7 @@
 // ==/UserScript==
 
 //	Nimbus
-//	Copyright (C) 2008-2016 Nimish Jha
+//	Copyright (C) 2008-2017 Nimish Jha
 //
 //	This program is free software: you can redistribute it and/or modify
 //	it under the terms of the GNU General Public License as published by
@@ -126,11 +126,13 @@ function logObject(o, indentLevel, parent)
 		if(o.hasOwnProperty(prop))
 		{
 			type = Object.prototype.toString.call(o[prop]);
-			console.log(prop + ": " + type);
+			// console.log(prop + ": " + type);
 			switch(type)
 			{
 				case "[object Object]":
 					s += logObject(o[prop], indentLevel + 1, prop);
+					break;
+				case "[object Function]":
 					break;
 				// case "[object Array]":
 				// 	s += indentString + prop + " [Array]: " + o[prop].length;
@@ -616,6 +618,19 @@ function deleteUselessScripts()
 	insertStyle(".xlog { background: #181818; color: #AAA; font: 24px swis721 cn bt; margin: 0 0 1px 0; }", "style_log2", true);
 }
 
+function getBestImageSrc()
+{
+	var e = get("img");
+	var i = e.length;
+	while(i--)
+	{
+		if(e[i].currentSrc)
+			e[i].src = e[i].currentSrc;
+		if(e[i].hasAttribute("srcset"))
+			e[i].removeAttribute("srcset");
+	}
+}
+
 function deleteNonContentImages()
 {
 	deleteImagesBySrcContaining("transparent.");
@@ -707,7 +722,7 @@ function showDialog(s)
 		'#xxdialoginput { font: 32px "swis721 cn bt", verdana; background: #000; color: #FFF; padding: 0; border: 0; width: 100%; height: 100%; }';
 		insertStyle(s, "style-xxdialog", true);
 		dialogInput.focus();
-		dialogInput.addEventListener("keydown", guiHandler, false);
+		dialogInput.addEventListener("keydown", handleDialogInput, false);
 	}
 	else
 	{
@@ -716,7 +731,7 @@ function showDialog(s)
 	}
 }
 
-function guiHandler(e)
+function handleDialogInput(e)
 {
 	e.stopPropagation();
 	var k = e.keyCode;
@@ -954,13 +969,12 @@ function handleKeyDown(e)
 			makeDocumentClickable();
 			break;
 		case 57: //9
-			insertStyleDebug();
+			toggleShowClasses();
 			//forAll("div", getStyles);
 			break;
 		case 73: // i
 			deleteSignatures();
-			break;
-		case 80: //p
+			case 80: //p
 			fixParagraphs();
 			break;
 		case 65: //a
@@ -1707,6 +1721,7 @@ function cleanupGeneral()
 	replaceAudio();
 	//removeEventListeners();
 	appendInfo();
+	getBestImageSrc();
 	document.body.className = "pad100";
 	//insertStyleNegative();
 	var t2 = new Date();
@@ -2052,14 +2067,13 @@ function insertStyleWhite()
 	insertStyle(s, "style_white", true);
 }
 
-function insertStyleDebug()
+function toggleShowClasses()
 {
 	del("script");
 	del("link");
-	del("style");
-	var s = 'body { background: #333;  color: #888; }' +
-	'body * { display: block; padding: 10px; border: 1px solid #000; }' +
-	'body *::before{content:attr(class); color:#FF0; padding:2px; background:#000; margin: 0 2px 0 0 }' +
+	var s = 'body { background: #333; color: #888; }' +
+	'div::before, span::before, p::before { content:attr(class); color:#FF0; padding:0px; background:#000; }' +
+	'div::after, span::after, p::after { content:attr(id); color:#0FF; padding:0px; background:#000;}' +
 	'select, textarea, input { background: #444; border: 1px solid red; }' +
 	'button { background: #222; color: #AAA; }';
 	insertStyle(s, "style_debug", true);
@@ -2144,6 +2158,7 @@ function sanitizeTitle(str)
 	s = s.replace(/&/g, " and ");
 	s = s.replace(/\u00df/g, 'SS');
 	s = s.replace(/\u0142/g, "'l");
+	s = s.replace(/\u2018/g, "'");
 	s = s.replace(/\u2019/g, "'");
 	s = s.replace(/[:|\?]/g, " - ");
 	s = s.replace(/[\/]/g, "-");
@@ -3532,15 +3547,15 @@ function getLinksWithHrefContaining(str)
 	{
 		if(e[i].href.indexOf(str) >= 0 || (e[i].title && e[i].title.indexOf(str) >= 0))
 		{
-			ylog(e[i], "h6", true);
-/*			var newLink = document.createElement("a");
+			// ylog(e[i], "h6", true);
+			var newLink = document.createElement("a");
 			newLink.href = newLink.textContent = e[i].href;
 			var newLinkWrapper = document.createElement("h6");
 			newLinkWrapper.appendChild(newLink);
-			container.appendChild(newLinkWrapper);*/
+			container.appendChild(newLinkWrapper);
 		}
 	}
-	//document.body.insertBefore(container, document.body.firstChild);
+	document.body.insertBefore(container, document.body.firstChild);
 }
 
 function xlog(str, logTag)
@@ -3825,12 +3840,12 @@ function analyze()
 		document.body.className += ' analyzer';
 
 		var s = 'body.analyzer { padding-bottom: 300px; }' +
-		'#analyzer { padding: 5px 10px; position:fixed; left:0; bottom: 0; width: 50%; min-width: 500px; height: 200px; overflow: hidden; background:#000; color:#aaa; text-align:left; z-index: 2000000000; font:12px verdana; letter-spacing: 0; }' +
+		'#analyzer { padding: 5px 10px; position:fixed; left:0; bottom: 0; width: 50%; min-width: 500px; height: 500px; overflow: hidden; background:#000; color:#aaa; text-align:left; z-index: 2000000000; font:12px verdana; letter-spacing: 0; }' +
 		'#analyzer b { color:#09f; }' +
 		'#analyzer div { padding:0;}' +
 		'#analyzer em { font-style:normal; color:#F80; }' +
 		'.hovered { background: rgba(0, 0, 0, 0.5); color: #FFF; }' +
-		'div#analyzer, #analyzer div { box-shadow: none; min-height: 0; margin: 0; }';
+		'div#analyzer, #analyzer div { box-shadow: none; min-height: 500px; margin: 0; }';
 
 		insertStyle(s, "analyzer-style", true);
 	}
@@ -4040,7 +4055,9 @@ function highlightLinksInPres()
 function fillForms()
 {
 	var i, e;
-	/* Inputs */
+	//
+	//	Inputs
+	//
 	e = get("input");
 	i = e.length;
 	while(i--)
@@ -4053,60 +4070,40 @@ function fillForms()
 				inputName = e[i].getAttribute("name");
 				if(inputName)
 				{
-					if(inputName === "companyname")
-						e[i].value = "";
-					else if(inputName.indexOf("first") >= 0)
-						e[i].value = "John";
-					else if(inputName.indexOf("last") >= 0)
-						e[i].value = "Doe";
-					else if(inputName.indexOf("name") >= 0)
-						e[i].value = "John Doe";
-					else if(inputName.indexOf("email") >= 0)
-						e[i].value = "test@test.com";
-					else if(inputName.indexOf("phone") >= 0)
-						e[i].value = "(00) 0000 0000";
-					else if(inputName.indexOf("mobile") >= 0)
-						e[i].value = "0400222333";
-					else if(inputName.indexOf("date") >= 0)
-						e[i].value = "23/08/1991";
-					else if(inputName.indexOf("suburb") >= 0)
-						e[i].value = "Melbourne";
-					else if(inputName.indexOf("postcode") >= 0)
-						e[i].value = "3000";
-					else if(inputName.indexOf("state") >= 0)
-						e[i].value = "VIC";
-					else if(inputType === "number")
-						e[i].value = 42;
-					else if(inputType === "text")
-						e[i].value = e[i].name.replace(/_/g, ' ');
-					else if(inputType === "checkbox")
-						e[i].checked = true;
-					else if(inputType === "radio")
-						e[i].checked = true;
-					else if(inputType !== 'file')
-						e[i].value = inputName.replace(/_/g, ' ');
+					if(inputName === "companyname") e[i].value = "";
+					else if(inputName.indexOf("first") >= 0) e[i].value = "John";
+					else if(inputName.indexOf("last") >= 0) e[i].value = "Doe";
+					else if(inputName.indexOf("name") >= 0) e[i].value = "John Doe";
+					else if(inputName.indexOf("email") >= 0) e[i].value = "test@test.com";
+					else if(inputName.indexOf("phone") >= 0) e[i].value = "(00) 0000 0000";
+					else if(inputName.indexOf("mobile") >= 0) e[i].value = "0400222333";
+					else if(inputName.indexOf("date") >= 0) e[i].value = "23/08/1991";
+					else if(inputName.indexOf("suburb") >= 0) e[i].value = "Melbourne";
+					else if(inputName.indexOf("postcode") >= 0) e[i].value = "3000";
+					else if(inputName.indexOf("state") >= 0) e[i].value = "VIC";
+					else if(inputType === "number") e[i].value = 42;
+					else if(inputType === "text") e[i].value = e[i].name.replace(/_/g, ' ');
+					else if(inputType === "checkbox") e[i].checked = true;
+					else if(inputType === "radio") e[i].checked = true;
+					else if(inputType !== 'file') e[i].value = inputName.replace(/_/g, ' ');
 				}
 			}
 		}
 	}
-	/* Textareas */
+
+	//
+	//	Textareas
+	//
 	e = get("textarea");
 	i = e.length;
 	while(i--)
 	{
 		e[i].value = "Line 1\r\nLine 2";
 	}
-	e = document.getElementsByTagName("input");
-	i = e.length;
-	while(i--)
-	{
-		if(e[i].getAttribute("type") === "submit")
-		{
-			e[i].focus();
-			break;
-		}
-	}
-	/* Selects */
+
+	//
+	//	Selects
+	//
 	e = get("select");
 	i = e.length;
 	while(i--)
@@ -4118,6 +4115,21 @@ function fillForms()
 		}
 		f[j-1].setAttribute("selected", "selected");
 	}
+
+	//
+	//	Focus submit button
+	//
+	e = document.getElementsByTagName("input");
+	i = e.length;
+	while(i--)
+	{
+		if(e[i].getAttribute("type") === "submit")
+		{
+			e[i].focus();
+			break;
+		}
+	}
+
 }
 
 function createElementWithChild(tag, obj)
@@ -4130,8 +4142,7 @@ function createElementWithChild(tag, obj)
 function createElementWithText(tag, str)
 {
 	var e = document.createElement(tag);
-	if(e)
-		e.textContent = str;
+	if(e) e.textContent = str;
 	return e;
 }
 
