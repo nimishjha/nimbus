@@ -192,20 +192,12 @@ function highlightElementsWithInlineWidthOrHeight()
 	var i = e.length;
 	while(i--)
 	{
-		var s = e[i].getAttribute("style");
-		if(!s)
+		if(e[i].getAttribute("style"))
 		{
-			continue;
-		}
-		if(s.indexOf("width") !== -1)
-		{
-			e[i].className += " hl";
-			//e[i].innerHTML = "<mark>" + s + "</mark>" + e[i].innerHTML;
-		}
-		else if(s.indexOf("height") !== -1)
-		{
-			e[i].className += " hl2";
-			//e[i].innerHTML = "<mark>" + s + "</mark>" + e[i].innerHTML;
+			if(s.indexOf("width") !== -1)
+				e[i].className += " hl";
+			else if(s.indexOf("height") !== -1)
+				e[i].className += " hl2";
 		}
 	}
 	insertStyleHighlight();
@@ -259,14 +251,32 @@ function markTableRowsAndColumns()
 
 // checks if a given string contains any of an array of strings
 // much better than using s.indexOf('a') || s.indexOf('b')...
-function containsAnyString(s, arrStrings)
+function containsAnyOfTheStrings(s, arrStrings)
 {
 	var i = arrStrings.length;
 	var found = false;
 	while(i--)
 	{
 		if(s.indexOf(arrStrings[i]) !== -1)
+		{
 			found++;
+			break;
+		}
+	}
+	return found;
+}
+
+function isInArray(s, arr)
+{
+	var i = arr.length;
+	var found = false;
+	while(i--)
+	{
+		if(arr[i] === s )
+		{
+			found++;
+			break;
+		}
 	}
 	return found;
 }
@@ -608,7 +618,7 @@ function deleteUselessScripts()
 	{
 		if(e[i].hasAttribute("src"))
 		{
-			if(containsAnyString(e[i].src, domains) && !(containsAnyString(location.hostname, domains)))
+			if(containsAnyOfTheStrings(e[i].src, domains) && !(containsAnyOfTheStrings(location.hostname, domains)))
 			{
 				log2("Deleting " + e[i].src);
 				e[i].parentNode.removeChild(e[i]);
@@ -952,7 +962,6 @@ function handleKeyDown(e)
 			}
 			deleteElementsContainingText("rp", "iframe:");
 			deleteElementsContainingText("div", "Advertisement");
-			showMessage(numIframes + " iframes deleted", "messagebig");
 			break;
 		case 96: //Numpad 0
 			s = db.innerHTML;
@@ -1060,7 +1069,7 @@ function handleKeyDown(e)
 		case 191: ///
 			// testing to see if this will fix the problem where on some forms showPassword() doesn't work
 			showPassword();
-			highlightForm();
+			focusFormElement();
 			break;
 		}
 	}
@@ -1111,7 +1120,7 @@ function handleKeyDown(e)
 			removeAttributes();
 			break;
 		case 191: // /
-			highlightButton();
+			focusButton();
 			break;
 		}
 	}
@@ -1239,7 +1248,7 @@ function handleKeyDown(e)
 function doStackOverflow()
 {
 	var sites = ["stackexchange", "stackoverflow", "superuser", "serverfault"], found = false;
-	if(containsAnyString(location.hostname, sites))
+	if(containsAnyOfTheStrings(location.hostname, sites))
 		found = true;
 	// we only want to run this code on the individual question pages
 	if(found && location.href.match(/questions\/[0-9]+/) !== null)
@@ -1255,23 +1264,6 @@ function doStackOverflow()
 		});
 		setTimeout(cleanupHead, 1000);
 	}
-}
-
-function doBolt()
-{
-	var e, i;
-	if(get("#searchform"))
-	{
-		e = get("input");
-		i = e.length;
-		while(i--)
-		{
-			if(e[i].value && e[i].value === "1")
-				e[i].checked = true;
-		}
-		get("#keyword").focus();
-	}
-	del("iframe");
 }
 
 function clickThanks()
@@ -1754,7 +1746,7 @@ function replaceIframes()
 		iframereplacement = document.createElement("rp");
 		iframelink = document.createElement("a");
 		s = e[i].src;
-		if(containsAnyString(s, ["facebook", "twitter"]))
+		if(containsAnyOfTheStrings(s, ["facebook", "twitter"]))
 		{
 			e[i].parentNode.removeChild(e[i]);
 			continue;
@@ -1949,7 +1941,7 @@ function insertStyleGrey()
 	var s = 'body { background: #203040; color: #B0C0D0; font: 24px "swis721 cn bt"; }' +
 	'body.pad100 { width: 1000px; padding: 100px; margin: 0 auto; }' +
 	'mark { background: #005090; color: #DEF; padding: 4px 2px; }' +
-	'p { line-height: 150%; }' +
+	'p { line-height: 150%; text-align: justify; }' +
 	'a { text-decoration: none; }' +
 	'em, i, strong, b { font-style: normal; font-weight: normal; color: #FFF; }' +
 	'pre { background: #012; color: #9AB; padding: 20px; }';
@@ -3153,7 +3145,8 @@ function deleteEmptyHeadings()
 		{
 			if(e[i].textContent)
 			{
-				if(removeWhitespace(e[i].textContent).length === 0) e[i].parentNode.removeChild(e[i]);
+				if(removeWhitespace(e[i].textContent).length === 0)
+					e[i].parentNode.removeChild(e[i]);
 			}
 			else
 			{
@@ -3709,7 +3702,32 @@ function cleanupWikipedia()
 	cleanupHead();
 	document.title = document.getElementsByTagName("h1")[0].textContent;
 	document.getElementsByTagName("h1")[0].textContent = document.title;
-	del(["iframe", "script", "object", "embed", "link", "#siteNotice", "#contentSub", "#jump-to-nav", "#catlinks", "#toctitle", "#section_SpokenWikipedia", "#footer", "#column-one", ".noprint", ".rellink", ".editsection", ".metadata", ".internal", ".dablink", ".messagebox", "#mw-articlefeedback", "form", "#mw-navigation", ".mw-editsection"]);
+	del([
+		"iframe",
+		"script",
+		"object",
+		"embed",
+		"link",
+		"#siteNotice",
+		"#contentSub",
+		"#jump-to-nav",
+		"#catlinks",
+		"#toctitle",
+		"#section_SpokenWikipedia",
+		"#footer",
+		"#column-one",
+		".noprint",
+		".rellink",
+		".editsection",
+		".metadata",
+		".internal",
+		".dablink",
+		".messagebox",
+		"#mw-articlefeedback",
+		"form",
+		"#mw-navigation",
+		".mw-editsection"
+	]);
 	document.body.className = "pad100";
 }
 
@@ -3736,9 +3754,9 @@ function getKeys(obj)
 
 function getAttributes(targ)
 {
-	var d = document, div2 = document.createElement('div');
+	var d = document, divText = document.createElement('div');
 	if(targ.tagName)
-		div2.innerHTML = "<b>" + targ.tagName.toLowerCase() + "</b>";
+		divText.innerHTML = "<b>" + targ.tagName.toLowerCase() + "</b>";
 	if(targ.attributes)
 	{
 		var ta = targ.attributes;
@@ -3759,7 +3777,7 @@ function getAttributes(targ)
 				}
 			}
 		}
-		div2.innerHTML += str;
+		divText.innerHTML += str;
 		str = '';
 		var k = getKeys(targ);
 		for (i = 0; i < k.length; i++)
@@ -3768,9 +3786,9 @@ function getAttributes(targ)
 		}
 		var events = document.createElement('em');
 		events.appendChild(document.createTextNode(str));
-		div2.appendChild(events);
+		divText.appendChild(events);
 		var analyzerdiv = document.getElementById("analyzer");
-		analyzerdiv.appendChild(div2);
+		analyzerdiv.appendChild(divText);
 	}
 }
 
@@ -3788,17 +3806,21 @@ function analyze_mouseoverHandler(e)
 	b.appendChild(document.createTextNode(''));
 	e.stopPropagation();
 	var targ;
-	if(!e) e = window.event;
+	// if(!e) e = window.event;
 	if(e.target)
 	{
 		targ = e.target;
+		analyze_removeOldHover();
+		targ.className += ' hovered';
+		while (targ)
+		{
+			getAttributes(targ);
+			targ = targ.parentNode;
+		}
 	}
-	analyze_removeOldHover();
-	targ.className += ' hovered';
-	while (targ)
+	else
 	{
-		getAttributes(targ);
-		targ = targ.parentNode;
+		ylog("couldn't get e.target");
 	}
 }
 
@@ -3842,10 +3864,10 @@ function analyze()
 		var s = 'body.analyzer { padding-bottom: 300px; }' +
 		'#analyzer { padding: 5px 10px; position:fixed; left:0; bottom: 0; width: 50%; min-width: 500px; height: 500px; overflow: hidden; background:#000; color:#aaa; text-align:left; z-index: 2000000000; font:12px verdana; letter-spacing: 0; }' +
 		'#analyzer b { color:#09f; }' +
-		'#analyzer div { padding:0;}' +
 		'#analyzer em { font-style:normal; color:#F80; }' +
 		'.hovered { background: rgba(0, 0, 0, 0.5); color: #FFF; }' +
-		'div#analyzer, #analyzer div { box-shadow: none; min-height: 500px; margin: 0; }';
+		'div#analyzer { box-shadow: none; min-height: 500px; margin: 0; }' +
+		'#analyzer div { box-shadow: none; margin: 0; padding: 0; }';
 
 		insertStyle(s, "analyzer-style", true);
 	}
@@ -3914,7 +3936,7 @@ function replaceWrongHeading()
 	}
 }
 
-function highlightForm()
+function focusFormElement()
 {
 	var inputs, len, i, ii, found, e = [];
 	inputs = get("input");
@@ -3933,7 +3955,7 @@ function highlightForm()
 		}
 		if(inputs[i].type)
 		{
-			if(inputs[i].type !== "hidden" && inputs[i].type !== "submit" && inputs[i].type !== "reset" && inputs[i].type !== "button" && inputs[i].type !== "radio" && inputs[i].type !== "checkbox" && inputs[i].type !== "image")
+			if(!isInArray(inputs[i].type, ["hidden", "submit", "reset", "button", "radio", "checkbox", "image"]))
 				e.push(inputs[i]);
 		}
 		else
@@ -3971,7 +3993,7 @@ function highlightForm()
 	}
 }
 
-function highlightButton()
+function focusButton()
 {
 	var inputs, len, i, ii, found, inputfields = [];
 	inputs = get("input");
@@ -4217,20 +4239,15 @@ function removeAccesskeys()
 function inject()
 {
 	//deleteUselessScripts();
-	document.addEventListener("keydown", handleKeyDown, false);
-	//document.addEventListener("mouseup", handleMouseUp, false);
 	//deleteUselessIframes();
+	document.addEventListener("keydown", handleKeyDown, false);
 	showPassword();
-	//fixForums();
 	removeAccesskeys();
-	//appendInfo();
 	insertStyleHighlight();
 	xlog("Referrer: " + document.referrer);
 	var d = new Date();
-	var saveTime = d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
-	//get("body")[0].removeAttribute("style");
-	xlog("Page loaded at " + saveTime);
-
+	var pageLoadTime = d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
+	xlog("Page loaded at " + pageLoadTime);
 	doStackOverflow();
 }
 
