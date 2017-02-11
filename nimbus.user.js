@@ -34,10 +34,22 @@ initialize();
 
 function get(s)
 {
-	if(s.indexOf("#") === 0) return document.getElementById(s.substr(1, s.length));
-	else if(s.indexOf(".") === 0) return document.getElementsByClassName(s.substr(1, s.length));
-	else if(document.getElementsByTagName(s).length) return document.getElementsByTagName(s);
-	else return 0;
+	if(s.indexOf("#") === 0)
+	{
+		return document.getElementById(s.substr(1, s.length));
+	}
+	else if(s.indexOf(".") === 0)
+	{
+		return document.getElementsByClassName(s.substr(1, s.length));
+	}
+	else
+	{
+		var elems = document.getElementsByTagName(s);
+		if(elems.length)
+			return elems;
+		else
+			return 0;
+	}
 }
 
 function isArray(o)
@@ -385,12 +397,11 @@ function createElement(args)
 function showResource(str)
 {
 	var resourceLink, resourceLinkWrapper, resourceDelete;
-	if(str.indexOf("?") !== -1)
-	{
-		str = str.substr(0, str.indexOf("?"));
-	}
+	// if(str.indexOf("?") !== -1)
+	// 	str = str.substr(0, str.indexOf("?"));
 	resourceLink = document.createElement("a");
-	resourceLink.textContent = resourceLink.href = str;
+	resourceLink.textContent = str;
+	resourceLink.href = str;
 	resourceLinkWrapper = createElement({ strTagName: "h6", strClass: "xlog" });
 	resourceDelete = createElement({ strTagName: "span", strInnerHtml: "[Delete]" });
 	document.body.addEventListener('mouseup', deleteResource, false);
@@ -1583,6 +1594,16 @@ function deleteSmallImages()
 	}
 }
 
+function replaceSpans()
+{
+	var e = get("span");
+	var i = e.length;
+	while(i--)
+	{
+		e[i].parentNode.replaceChild(document.createTextNode(e[i].textContent), e[i]);
+	}
+}
+
 function replaceImagesWithTextLinks()
 {
 	var e, imageLink, imageReplacement, i;
@@ -1697,13 +1718,35 @@ function replaceAudio()
 	replaceElement("audio", "div");
 }
 
+function addLinksToLargerImages()
+{
+	if(get("rt"))
+		return;
+	var links = document.getElementsByTagName("a");
+	var link, linkLower;
+	var i = links.length;
+	while(i--)
+	{
+		link = links[i].href;
+		if(containsAnyOfTheStrings(link.toLowerCase(), [".png", ".jpg", ".jpeg", ".gif"]))
+		{
+			var largeImage = document.createElement("rt");
+			// largeImage.href = link;
+			largeImage.textContent = link;
+			links[i].parentNode.insertBefore(largeImage, links[i]);
+		}
+	}
+}
+
 function cleanupGeneral()
 {
 	var t1 = new Date();
 	cleanupHead();
+	get("body")[0].removeAttribute("style");
 	replaceFlash();
 	replaceIframes();
 	deleteNonContentImages();
+	addLinksToLargerImages();
 	replaceWrongHeading();
 	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio"]);
 	//replaceFontTags();
@@ -3113,6 +3156,10 @@ function getContentByParagraphCount()
 	{
 		e[i].className = "hl";
 	}
+	e = document.querySelectorAll(".hl h1, .hl h2");
+	i = e.length;
+	while(i--)
+		e[i].className = "";
 }
 
 function deleteEmptyElements(tag)
@@ -3535,7 +3582,7 @@ function getLinksWithHrefContaining(str)
 		if( !str.length ) return;
 	}
 	var e = document.getElementsByTagName("a"), i, ii;
-	var container = document.createElement("textarea");
+	var container = document.createElement("div");
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
 		if(e[i].href.indexOf(str) >= 0 || (e[i].title && e[i].title.indexOf(str) >= 0))
