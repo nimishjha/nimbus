@@ -106,24 +106,74 @@ function listProperties(o)
 	return s;
 }
 
-function logObject(o, indentLevel, parent)
+function parseObjectPlainText(o, indentLevel, parent)
+{
+	if(!indentLevel)
+		indentLevel = 0;
+
+	var s = "", type, i, ii;
+	var indentString = "\r\n";
+	var indentStringParent = "\r\n";
+	for(i = 0; i < indentLevel * 8; i++)
+		indentString += " ";
+	for(i = 0; i < (indentLevel-1) * 8; i++)
+		indentStringParent += " ";
+	if(parent)
+		s =  indentStringParent + parent;
+
+	for(var prop in o)
+	{
+		if(o.hasOwnProperty(prop))
+		{
+			type = Object.prototype.toString.call(o[prop]);
+			switch(type)
+			{
+				case "[object Object]":
+					s += parseObjectPlainText(o[prop], indentLevel + 1, prop);
+					break;
+				case "[object Array]":
+					if(o[prop].length > 20)
+					{
+						break;
+					}
+					else
+					{
+						for(i = 0, ii = o[prop].length; i < ii; i++)
+						{
+							s += parseObjectPlainText(o[prop][i], indentLevel + 1, prop + "[" + i + "]");
+						}
+					}
+					break;
+				case "[object Function]": continue;
+					break;
+				default:
+					s += indentString + prop + ": " + o[prop];
+					break;
+			}
+
+		}
+	}
+	return s;
+}
+
+function parseObject(o, indentLevel, parent)
 {
 	if(!indentLevel)
 		indentLevel = 0;
 
 	// console.log(indentLevel);
 
-	var s = "", type;
+	var s = "", type, i, ii;
 	var indentString = "<dd>";
 	var indentStringParent = "<dd>";
 	var indentStringClose = "";
 	var indentStringParentClose = "";
-	for(var i = 0; i < indentLevel; i++)
+	for(i = 0; i < indentLevel; i++)
 	{
 		indentString += "<blockquote>";
 		indentStringClose += "</blockquote>";
 	}
-	for(var i = 0; i < (indentLevel-1); i++)
+	for(i = 0; i < (indentLevel-1); i++)
 	{
 		indentStringParent += "<blockquote>";
 		indentStringParentClose += "</blockquote>";
@@ -142,13 +192,23 @@ function logObject(o, indentLevel, parent)
 			switch(type)
 			{
 				case "[object Object]":
-					s += logObject(o[prop], indentLevel + 1, prop);
+					s += parseObject(o[prop], indentLevel + 1, prop);
 					break;
-				case "[object Function]":
+				case "[object Array]":
+					if(o[prop].length > 10)
+					{
+						break;
+					}
+					else
+					{
+						for(i = 0, ii = o[prop].length; i < ii; i++)
+						{
+							s += parseObject(o[prop][i], indentLevel + 1, prop + "[" + i + "]");
+						}
+					}
 					break;
-				// case "[object Array]":
-				// 	s += indentString + prop + " [Array]: " + o[prop].length;
-				// 	break;
+				case "[object Function]": continue;
+					break;
 				default:
 					s += indentString + "<em>" + prop + "</em>: <i>" + o[prop] + "</i>" + indentStringClose;
 					break;
@@ -1274,6 +1334,7 @@ function doStackOverflow()
 				x.setAttribute("style", "width: 200px");
 		});
 		setTimeout(cleanupHead, 1000);
+		setTimeout(cleanupHead, 5000);
 	}
 }
 
@@ -1351,7 +1412,6 @@ function highlightElementsWithAttribute(s)
 function highlightElementsWithSetWidths()
 {
 	showMessage("Finding divs with pixel widths...", "messagebig");
-	ylog("Highlighting elements with pixel widths", "h2");
 	var e = get("div");
 	var i = e.length, s, w, j, cssRules;
 	while(i--)
@@ -1748,7 +1808,7 @@ function cleanupGeneral()
 	deleteNonContentImages();
 	addLinksToLargerImages();
 	replaceWrongHeading();
-	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio"]);
+	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet"]);
 	//replaceFontTags();
 	replaceElement("center", "div");
 	setDocTitle();
