@@ -2041,13 +2041,24 @@ function insertStyleShowClass()
 
 function insertStyleGrey()
 {
-	var s = 'body { background: #203040; color: #B0C0D0; font: 24px "swis721 cn bt"; }' +
+	var s = 'body { background: #182838; color: #B0C0D0; font: 24px "swis721 cn bt"; }' +
 	'body.pad100 { width: 1000px; padding: 100px; margin: 0 auto; }' +
 	'mark { background: #005090; color: #DEF; padding: 4px 2px; }' +
 	'p { line-height: 150%; text-align: justify; }' +
 	'a { text-decoration: none; }' +
 	'em, i, strong, b { font-style: normal; font-weight: normal; color: #FFF; }' +
-	'pre { background: #012; color: #9AB; padding: 20px; }';
+	'code { background: #012; color: #9AB; }' +
+	'pre { background: #012; color: #9AB; padding: 20px; }' +
+	'pre q1 { color: #57F; background: #024; }' +
+	'pre q2 { color: #C7F; background: #214; }' +
+	'pre c1 { font-style: normal; color: #F90; background: #331500; }' +
+	'pre c2 { color: #F00; background: #400; }' +
+	'pre b1 { color: #0F0; }' +
+	'pre b2 { color: #FFF; }' +
+	'pre b3 { color: #F90; }' +
+	'pre xk { color: #29F; }' +
+	'pre xh { color: #57F; }' +
+	'pre xv { color: #F47; }';
 	insertStyle(s, "style_Grey", true);
 }
 
