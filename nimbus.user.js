@@ -11,6 +11,7 @@
 // @grant		none
 // ==/UserScript==
 
+//
 //	Nimbus
 //	Copyright (C) 2008-2017 Nimish Jha
 //
@@ -26,11 +27,12 @@
 //
 //	You should have received a copy of the GNU General Public License
 //	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
 
-var debug = true;
-var logString = "";
-var messageTimeout;
-initialize();
+var Nimbus = {
+	logString: "",
+	messageTimeout: null
+};
 
 function get(s)
 {
@@ -756,7 +758,7 @@ function cleanupBlogs()
 
 function showMessage(s, msgClass, persist)
 {
-	clearTimeout(window.messageTimeout);
+	clearTimeout(Nimbus.messageTimeout);
 	var e;
 	msgClass = msgClass || "";
 	var strStyle = 'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; text-align: left; }' +
@@ -780,7 +782,7 @@ function showMessage(s, msgClass, persist)
 	}
 	e.textContent = s;
 	if(!persist)
-		window.messageTimeout = setTimeout(deleteMessage, 2000);
+		Nimbus.messageTimeout = setTimeout(deleteMessage, 2000);
 }
 
 function deleteMessage()
@@ -1237,6 +1239,7 @@ function handleKeyDown(e)
 			deleteEmptyElements("tr");
 			deleteEmptyElements("li");
 			deleteEmptyElements("div");
+			deleteEmptyElements("figure");
 			deleteEmptyHeadings();
 			break;
 		case 69: //e
@@ -2041,14 +2044,16 @@ function insertStyleShowClass()
 
 function insertStyleGrey()
 {
-	var s = 'body { background: #182838; color: #B0C0D0; font: 24px "swis721 cn bt"; }' +
-	'body.pad100 { width: 1000px; padding: 100px; margin: 0 auto; }' +
-	'mark { background: #005090; color: #DEF; padding: 4px 2px; }' +
-	'p { line-height: 150%; text-align: justify; }' +
-	'a { text-decoration: none; }' +
+	var s = 'body { background: #203040; color: #ABC; font: 24px "swis721 cn bt"; }' +
+	'h1, h2, h3, h4, h5, h6 { background: #123; padding: 0.35em 10px; font-weight: normal; }' +
+	'body.pad100 { padding: 100px; }' +
+	'body.xwrap { width: 1000px; margin: 0 auto; }' +
+	'mark { background: #049; color: #7CF; padding: 4px 2px; }' +
+	'p { line-height: 135%; text-align: justify; }' +
+	'a { text-decoration: none; color: #09F; }' +
 	'em, i, strong, b { font-style: normal; font-weight: normal; color: #FFF; }' +
-	'code { background: #012; color: #9AB; }' +
-	'pre { background: #012; color: #9AB; padding: 20px; }' +
+	'code { background: #012; color: #ABC; }' +
+	'pre { background: #012; color: #ABC; padding: 20px; }' +
 	'pre q1 { color: #57F; background: #024; }' +
 	'pre q2 { color: #C7F; background: #214; }' +
 	'pre c1 { font-style: normal; color: #F90; background: #331500; }' +
@@ -3676,7 +3681,7 @@ function xlog(str, logTag)
 		tag = logTag;
 	else
 		tag = "h6";
-	logString += '<' + tag + ' class="xlog">' + str + '</' + tag + '>\r\n';
+	Nimbus.logString += '<' + tag + ' class="xlog">' + str + '</' + tag + '>\r\n';
 }
 
 function ylog(str, elem, prepend)
@@ -4162,15 +4167,15 @@ function highlightText(s)
 function showLog(prepend)
 {
 	var logDiv;
-	if(logString.length > 0)
+	if(Nimbus.logString.length > 0)
 	{
 		logDiv = document.createElement("log");
-		logDiv.innerHTML = logString;
+		logDiv.innerHTML = Nimbus.logString;
 		if(prepend === true)
 			document.body.insertBefore(logDiv, document.body.firstChild);
 		else
 			document.body.appendChild(logDiv);
-		logString = "";
+		Nimbus.logString = "";
 	}
 	else
 	{
@@ -4269,7 +4274,6 @@ function fillForms()
 			break;
 		}
 	}
-
 }
 
 function createElementWithChild(tag, obj)
@@ -4354,21 +4358,6 @@ function removeAccesskeys()
 	}
 }
 
-function inject()
-{
-	//deleteUselessScripts();
-	//deleteUselessIframes();
-	document.addEventListener("keydown", handleKeyDown, false);
-	showPassword();
-	removeAccesskeys();
-	insertStyleHighlight();
-	xlog("Referrer: " + document.referrer);
-	var d = new Date();
-	var pageLoadTime = d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
-	xlog("Page loaded at " + pageLoadTime);
-	doStackOverflow();
-}
-
 function showPassword()
 {
 	var e, i, s;
@@ -4389,6 +4378,21 @@ function echoPassword(e)
 	var e;
 	e = e.target;
 	showMessage(e.value, "none", true);
+}
+
+function inject()
+{
+	//deleteUselessScripts();
+	//deleteUselessIframes();
+	document.addEventListener("keydown", handleKeyDown, false);
+	showPassword();
+	removeAccesskeys();
+	insertStyleHighlight();
+	xlog("Referrer: " + document.referrer);
+	var d = new Date();
+	var pageLoadTime = d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
+	xlog("Page loaded at " + pageLoadTime);
+	doStackOverflow();
 }
 
 function initialize()
@@ -4430,3 +4434,8 @@ function initialize()
 		ylog("not injected");
 	}
 }
+
+//
+//	Program entry point
+//
+initialize();
