@@ -34,6 +34,83 @@ var Nimbus = {
 	messageTimeout: null
 };
 
+var KEYCODES = {
+	ZERO: 48,
+	ONE: 49,
+	TWO: 50,
+	THREE: 51,
+	FOUR: 52,
+	FIVE: 53,
+	SIX: 54,
+	SEVEN: 55,
+	EIGHT: 56,
+	NINE: 57,
+	A: 65,
+	B: 66,
+	C: 67,
+	D: 68,
+	E: 69,
+	F: 70,
+	G: 71,
+	H: 72,
+	I: 73,
+	J: 74,
+	K: 75,
+	L: 76,
+	M: 77,
+	N: 78,
+	O: 79,
+	P: 80,
+	Q: 81,
+	R: 82,
+	S: 83,
+	T: 84,
+	U: 85,
+	V: 86,
+	W: 87,
+	X: 88,
+	Y: 89,
+	Z: 90,
+	F1: 112,
+	F2: 113,
+	F3: 114,
+	F4: 115,
+	F5: 116,
+	F6: 117,
+	F7: 118,
+	F8: 119,
+	F9: 120,
+	F10: 121,
+	F11: 122,
+	F12: 123,
+	NUMPAD0: 96,
+	NUMPAD1: 97,
+	NUMPAD2: 98,
+	NUMPAD3: 99,
+	NUMPAD4: 100,
+	NUMPAD5: 101,
+	NUMPAD6: 102,
+	NUMPAD7: 103,
+	NUMPAD8: 104,
+	NUMPAD9: 105,
+	NUMPAD_MULTIPLY: 106,
+	NUMPAD_ADD: 107,
+	NUMPAD_SUBTRACT: 109,
+	NUMPAD_DECIMAL_POINT: 110,
+	NUMPAD_DIVIDE: 111,
+	FORWARD_SLASH: 191,
+	TILDE: 192,
+	SPACE: 32,
+	UPARROW: 38,
+	DOWNARROW: 40,
+	LEFTARROW: 37,
+	RIGHTARROW: 39,
+	ENTER: 13,
+	ESCAPE: 27,
+	SQUARE_BRACKET_OPEN: 219,
+	SQUARE_BRACKET_CLOSE: 221
+};
+
 function get(s)
 {
 	if(s.indexOf("#") === 0)
@@ -102,122 +179,9 @@ function listProperties(o)
 {
 	var s = "";
 	for(var prop in o)
-		//if(o.hasOwnProperty(prop))
+		if(o.hasOwnProperty(prop))
 			s += prop + ": " + o[prop] + ", ";
 	s = s.substring(0, s.length-2);
-	return s;
-}
-
-function parseObjectPlainText(o, indentLevel, parent)
-{
-	if(!indentLevel)
-		indentLevel = 0;
-
-	var s = "", type, i, ii;
-	var indentString = "\r\n";
-	var indentStringParent = "\r\n";
-	for(i = 0; i < indentLevel * 8; i++)
-		indentString += " ";
-	for(i = 0; i < (indentLevel-1) * 8; i++)
-		indentStringParent += " ";
-	if(parent)
-		s =  indentStringParent + parent;
-
-	for(var prop in o)
-	{
-		if(o.hasOwnProperty(prop))
-		{
-			type = Object.prototype.toString.call(o[prop]);
-			switch(type)
-			{
-				case "[object Object]":
-					s += parseObjectPlainText(o[prop], indentLevel + 1, prop);
-					break;
-				case "[object Array]":
-					if(o[prop].length > 20)
-					{
-						break;
-					}
-					else
-					{
-						for(i = 0, ii = o[prop].length; i < ii; i++)
-						{
-							s += parseObjectPlainText(o[prop][i], indentLevel + 1, prop + "[" + i + "]");
-						}
-					}
-					break;
-				case "[object Function]": continue;
-					break;
-				default:
-					s += indentString + prop + ": " + o[prop];
-					break;
-			}
-
-		}
-	}
-	return s;
-}
-
-function parseObject(o, indentLevel, parent)
-{
-	if(!indentLevel)
-		indentLevel = 0;
-
-	// console.log(indentLevel);
-
-	var s = "", type, i, ii;
-	var indentString = "<dd>";
-	var indentStringParent = "<dd>";
-	var indentStringClose = "";
-	var indentStringParentClose = "";
-	for(i = 0; i < indentLevel; i++)
-	{
-		indentString += "<blockquote>";
-		indentStringClose += "</blockquote>";
-	}
-	for(i = 0; i < (indentLevel-1); i++)
-	{
-		indentStringParent += "<blockquote>";
-		indentStringParentClose += "</blockquote>";
-	}
-	indentStringClose += "</dd>";
-	indentStringParentClose += "</dd>";
-	if(parent)
-		s = indentStringParent + "<h2>" + parent + "</h2>" + indentStringParentClose;
-
-	for(var prop in o)
-	{
-		if(o.hasOwnProperty(prop))
-		{
-			type = Object.prototype.toString.call(o[prop]);
-			// console.log(prop + ": " + type);
-			switch(type)
-			{
-				case "[object Object]":
-					s += parseObject(o[prop], indentLevel + 1, prop);
-					break;
-				case "[object Array]":
-					if(o[prop].length > 10)
-					{
-						break;
-					}
-					else
-					{
-						for(i = 0, ii = o[prop].length; i < ii; i++)
-						{
-							s += parseObject(o[prop][i], indentLevel + 1, prop + "[" + i + "]");
-						}
-					}
-					break;
-				case "[object Function]": continue;
-					break;
-				default:
-					s += indentString + "<em>" + prop + "</em>: <i>" + o[prop] + "</i>" + indentStringClose;
-					break;
-			}
-
-		}
-	}
 	return s;
 }
 
@@ -277,7 +241,7 @@ function highlightElementsWithInlineWidthOrHeight()
 	insertStyleHighlight();
 }
 
-function highlightElementsWithCSSRule()
+function highlightElementsWithCssRule()
 {
 	var styles, prop, val, cssRule, e, i, s;
 	prop = prompt("Highlight elements where CSS Property");
@@ -323,8 +287,10 @@ function markTableRowsAndColumns()
 	insertStyle("table, tr, td { box-shadow: inset 1px 1px #444, inset -1px -1px #444 !important; }", "style_showtables");
 }
 
-// checks if a given string contains any of an array of strings
-// much better than using s.indexOf('a') || s.indexOf('b')...
+//
+//	checks if a given string contains any of an array of strings
+//	much better than using s.indexOf('a') || s.indexOf('b')...
+//
 function containsAnyOfTheStrings(s, arrStrings)
 {
 	var i = arrStrings.length;
@@ -340,38 +306,19 @@ function containsAnyOfTheStrings(s, arrStrings)
 	return found;
 }
 
-function isInArray(s, arr)
+function isInArray(item, arr)
 {
 	var i = arr.length;
 	var found = false;
 	while(i--)
 	{
-		if(arr[i] === s )
+		if(item === arr[i])
 		{
 			found++;
 			break;
 		}
 	}
 	return found;
-}
-
-// https://gist.github.com/minhnc/2333095
-function unRegisterAllEventListeners(obj)
-{
-	if( typeof obj._eventListeners === 'undefined' || obj._eventListeners.length === 0 )
-	{
-		showMessage("obj._eventListeners is " + obj._eventListeners);
-		return;
-	}
-
-	for(var i = 0, len = obj._eventListeners.length; i < len; i++)
-	{
-		var e = obj._eventListeners[i];
-		xlog(e);
-		obj.removeEventListener(e.event, e.callback);
-	}
-
-	obj._eventListeners = [];
 }
 
 function hasClass(ele,cls)
@@ -398,6 +345,45 @@ function toggleClass(element, sClass)
 	else element.classList.add(sClass);
 }
 
+function cycleClass(elem, arrClasses)
+{
+	var i, ii, found = false;
+	for(i = 0, ii = arrClasses.length; i < ii; i++)
+	{
+		if(hasClass(elem, arrClasses[i]))
+		{
+			if(i < ii-1)
+			{
+				removeClass(elem, arrClasses[i])
+				addClass(elem, arrClasses[i+1]);
+			}
+			else
+			{
+				removeClass(elem, arrClasses[i])
+				addClass(elem, arrClasses[0]);
+			}
+			found = true;
+			break;
+		}
+	}
+	if(!found)
+	{
+		addClass(elem, arrClasses[0]);
+	}
+}
+
+function getIframes()
+{
+	var f = get("iframe");
+	s = '';
+	for (i = 0, ii = f.length; i < ii; i++)
+		s += f[i].contentDocument.body.innerHTML;
+	i = f.length;
+	while (i--)
+		f[i].parentNode.removeChild(f[i]);
+	db.innerHTML += s;
+}
+
 function getDebugData()
 {
 	var e, i;
@@ -412,6 +398,17 @@ function getDebugData()
 			document.body.insertBefore(e[i], document.body.firstChild);
 		}
 	}
+}
+
+function createUUID()
+{
+	return 'nimbus-xxxx-xxxx-xxxx-xxxx-xxxx'.replace(/x/g, function (c)
+	{
+		var r, v, c;
+		r = Math.random() * 16 | 0;
+		v = (c === 'x') ? r : r & 0x3 | 0x8;
+		return v.toString(16);
+	});
 }
 
 function printArray(arr)
@@ -456,16 +453,17 @@ function createElement(args)
 	return elem;
 }
 
-function showResource(str)
+function showResource(str, uuid)
 {
-	var resourceLink, resourceLinkWrapper, resourceDelete;
-	// if(str.indexOf("?") !== -1)
-	// 	str = str.substr(0, str.indexOf("?"));
+	var resourceLink, resourceLinkWrapper, resourceDelete, strSanitized = str;
+	if(str.indexOf("?") !== -1)
+	 	strSanitized = str.substr(0, str.indexOf("?"));
 	resourceLink = document.createElement("a");
-	resourceLink.textContent = str;
+	resourceLink.textContent = strSanitized;
 	resourceLink.href = str;
-	resourceLinkWrapper = createElement({ strTagName: "h6", strClass: "xlog" });
+	resourceLinkWrapper = createElement({ strTagName: "h6", strClass: "xlog", strId: "link" + uuid });
 	resourceDelete = createElement({ strTagName: "span", strInnerHtml: "[Delete]" });
+	resourceDelete.setAttribute("data-delete", uuid);
 	document.body.addEventListener('mouseup', deleteResource, false);
 	resourceLinkWrapper.appendChild(resourceDelete);
 	resourceLinkWrapper.appendChild(resourceLink);
@@ -478,38 +476,10 @@ function deleteResource(evt)
 		return;
 	evt.stopPropagation();
 	evt.preventDefault();
-	var s = evt.target.parentNode.getElementsByTagName("a")[0].textContent, t, e;
-	s = s.split('/');
-	s = s[s.length-1];
-	e = get("link");
-	var i = e.length;
-	while(i--)
-	{
-		t = e[i].getAttribute("href");
-		if(t.indexOf(s) !== -1)
-		{
-			e[i].parentNode.removeChild(e[i]);
-			ylog("deleted style: " + t);
-			break;
-		}
-	}
-	e = get("script");
-	var i = e.length;
-	while(i--)
-	{
-		t = e[i].getAttribute("src");
-		if(t)
-		{
-			if(t.indexOf(s) !== -1)
-			{
-				e[i].parentNode.removeChild(e[i]);
-				ylog("deleted script: " + t);
-				break;
-			}
-		}
-	}
-	if(evt.target.parentNode.parentNode)
-		evt.target.parentNode.parentNode.removeChild(evt.target.parentNode);
+	var idToDelete = evt.target.getAttribute("data-delete");
+	xlog("idToDelete: " + idToDelete);
+	del("#" + idToDelete);
+	del("#link" + idToDelete);
 }
 
 function showResources()
@@ -520,7 +490,7 @@ function showResources()
 		del("#style_show_resources");
 		return;
 	}
-	var e, f, g, i, count;
+	var e, f, g, i, count, uuid;
 	e = get("script");
 	i = e.length;
 	count = 0;
@@ -528,7 +498,9 @@ function showResources()
 	{
 		if(e[i].src)
 		{
-			showResource(e[i].src);
+			uuid = createUUID();
+			e[i].id = uuid;
+			showResource(e[i].src, uuid);
 			count++;
 		}
 	}
@@ -540,7 +512,9 @@ function showResources()
 	{
 		if( (e[i].href && e[i].href.indexOf("css") !== -1) || ( e[i].type && e[i].type === "text/css" ) )
 		{
-			showResource(e[i].href);
+			uuid = createUUID();
+			e[i].id = uuid;
+			showResource(e[i].href, uuid);
 			count++;
 		}
 	}
@@ -792,7 +766,7 @@ function deleteMessage()
 	del("#style_message");
 }
 
-function showDialog(s)
+function openDialog(s)
 {
 	var dialog, dialogInput, s = s || "";
 	if(!get("#xxdialog"))
@@ -807,29 +781,23 @@ function showDialog(s)
 		dialogInput.focus();
 		dialogInput.addEventListener("keydown", handleDialogInput, false);
 	}
-	else
-	{
-		del("#xxdialog");
-		del("#style-xxdialog");
-	}
+}
+
+function closeDialog()
+{
+	del("#xxdialog");
+	del("#style-xxdialog");
 }
 
 function handleDialogInput(e)
 {
 	e.stopPropagation();
-	var k = e.keyCode;
-	var c = String.fromCharCode(k).toLowerCase();
-	showMessage(c);
-	switch(c)
+	var keyCode = e.keyCode;
+	var c = String.fromCharCode(keyCode).toLowerCase();
+	switch(keyCode)
 	{
-		case 'c':
-			ylog("c", "h2", true);
-			break;
-	}
-	if(k === 27) //Esc
-	{
-		showDialog();
-		return;
+		case KEYCODES.ESCAPE: closeDialog(); break;
+		default: showMessage(c, "messagebig"); break;
 	}
 }
 
@@ -838,17 +806,20 @@ function removeNonAlpha(s)
 	return s.replace(/[^A-Za-z]/g, '');
 }
 
-function prevPage()
+function changePage(direction)
 {
 	var links, i, s, found = false;
 	links = get("a");
 	i = links.length;
+	var matchStrings = [];
+	if(direction === "prev") matchStrings = ["prev", "previous"];
+	else if(direction === "next") matchStrings = ["next", "nextpage"];
 	while(i--)
 	{
 		if(s = links[i].textContent)
 		{
 			s = removeNonAlpha(s).toLowerCase();
-			if(s === "prev" || s === "previous")
+			if(containsAnyOfTheStrings(s, matchStrings))
 			{
 				found = true;
 				links[i].click();
@@ -858,28 +829,6 @@ function prevPage()
 	}
 	if(!found)
 		pager(true);
-}
-
-function nextPage()
-{
-	var links, i, s, found = false;
-	links = get("a");
-	i = links.length;
-	while(i--)
-	{
-		if(s = links[i].textContent)
-		{
-			s = removeNonAlpha(s).toLowerCase();
-			if(s === "next" || s === "nextpage")
-			{
-				found = true;
-				links[i].click();
-				return;
-			}
-		}
-	}
-	if(!found)
-		pager();
 }
 
 function pager(prev)
@@ -929,6 +878,20 @@ function highlightPagination()
 	}
 }
 
+function openManager()
+{
+	if(location.href.indexOf("/stage/") > 0 )
+	{
+		var loc = location.href.split('/');
+		var managerloc = "http://" + loc[2] + '/' + loc[3] + '/' + loc[4] + '/manager.php';
+		location.href = managerloc;
+	}
+	else
+	{
+		location.href = "http://" + location.hostname + "/manager.php";
+	}
+}
+
 // http://stackoverflow.com/questions/2952667/find-all-css-rules-that-apply-to-an-element
 // http://stackoverflow.com/a/22638396
 function css(elem)
@@ -949,376 +912,6 @@ function css(elem)
 	return rulesArray;
 }
 
-function handleKeyDown(e)
-{
-	if(!(e.altKey || e.shiftKey || e.ctrlKey))
-	{
-		return;
-	}
-	var db = document.body;
-	var s, i, j, ii, k;
-	k = e.keyCode;
-	if(!k)
-	{
-		xlog("couldn't get key");
-		return;
-	}
-	// Alt
-	if(e.altKey && !e.shiftKey && !e.ctrlKey)
-	{
-		switch (k)
-		{
-		case 97: // Numpad 1
-			fillForms();
-			break;
-		case 98: // Numpad 2
-			getLinksWithHrefContaining();
-			break;
-		case 100: // Numpad 4
-			forceReloadCss();
-			break;
-		case 109: // Numpad -
-			if(location.href.indexOf("/stage/") > 0 )
-			{
-				var loc = location.href.split('/');
-				var managerloc = "http://" + loc[2] + '/' + loc[3] + '/' + loc[4] + '/manager.php';
-				location.href = managerloc;
-			}
-			else
-			{
-				location.href = "http://" + location.hostname + "/manager.php";
-			}
-			break;
-		case 48: //0
-			var selection = window.getSelection();
-			if(selection.toString().length) s = selection;
-			else s = prompt("Document title");
-			setDocTitle(s);
-			break;
-		case 112: //F1
-			makeHeadingFromSelection("h1");
-			break;
-		case 113: //F2
-			makeHeadingFromSelection("h2");
-			break;
-		case 114: //F3
-			makeHeadingFromSelection("h3");
-			break;
-		case 49: //1
-			cleanupGeneral();
-			break;
-		case 50: //2
-			del("svg");
-			if(get("img").length)
-				del("img");
-			else
-				del("rt");
-			break;
-		case 51: //3
-			if(db.className && db.className.indexOf("xwrap") >= 0)
-				removeClass(db, "xwrap");
-			else
-				db.className += " xwrap";
-			break;
-		case 52: //4
-			deleteSmallImages();
-			break;
-		case 53: //5
-			getImages();
-			break;
-		case 54: //6
-			var numIframes = get("iframe").length;
-			if(numIframes)
-			{
-				del("iframe");
-				showMessage(numIframes + " iframes deleted", "messagebig");
-			}
-			deleteElementsContainingText("rp", "iframe:");
-			deleteElementsContainingText("div", "Advertisement");
-			break;
-		case 96: //Numpad 0
-			s = db.innerHTML;
-			s = s.replace(/<!--/g, '<pre>');
-			s = s.replace(/-->/g, '</pre>');
-			db.innerHTML = s;
-			insertStyleNegative();
-			getDebugData();
-			break;
-		case 99: //Numpad 3
-			clickThanks();
-			break;
-		case 56: //8
-			makeDocumentClickable();
-			break;
-		case 57: //9
-			toggleShowClasses();
-			//forAll("div", getStyles);
-			break;
-		case 73: // i
-			deleteSignatures();
-			case 80: //p
-			fixParagraphs();
-			break;
-		case 65: //a
-			if(db.className.indexOf("xDontShowLinks") >= 0)
-			{
-				removeClass(db, "xDontShowLinks");
-				db.className += " xHE";
-			}
-			else if(db.className.indexOf("xHE") >= 0)
-			{
-				removeClass(db, "xHE");
-			}
-			else
-			{
-				db.className += " xDontShowLinks";
-			}
-			break;
-		case 67: //c
-			getContentByParagraphCount();
-			break;
-		case 71: //g
-			deleteElementsContainingText();
-			break;
-		case 88: //x
-			if(db.className.indexOf("xShowImages") >= 0)
-				removeClass(db, "xShowImages");
-			else
-				db.className += " xShowImages";
-			break;
-		case 89: //y
-			highlightNodesContaining();
-			break;
-		case 192: //`
-			highlightSelection();
-			break;
-		case 74: //j
-			//db.innerHTML = db.innerHTML.replace(/\n/g, ' ');db.innerHTML = db.innerHTML.replace(/\s+/g, ' ');
-			var sh = getSelectionHTML();
-			sh = escapeForRegExp(sh);
-			db.innerHTML = db.innerHTML.replace(new RegExp(sh, "g"), "<mark>" + sh + "</mark>");
-			break;
-		case 79: //o
-			highlightSelectionOrText();
-			break;
-		case 75: //k
-			var f = get("iframe");
-			s = '';
-			for (i = 0, ii = f.length; i < ii; i++)
-			s += f[i].contentDocument.body.innerHTML;
-			i = f.length;
-			while (i--)
-			f[i].parentNode.removeChild(f[i]);
-			db.innerHTML += s;
-			break;
-		case 76: // l
-			showLog();
-			break;
-		case 81: //q
-			fixHeadings();
-			break;
-		case 82: //r
-			highlightParagraph();
-			break;
-		case 85: //u
-			del("ul");
-			del("dl");
-			break;
-		case 87: //w
-			var d;
-			deleteEmptyHeadings();
-			cleanupHead();
-			del(["#side", "#sidebar", "#respond", "#send", "#comments_posting", ".rating"]);
-			cleanupGeneral_light();
-			break;
-		case 90: //z
-			cleanupUnicode();
-			//document.body.innerHTML = document.body.innerHTML.replace(/http:/g, "https:");
-			//ylog("All links are now HTTPS", "h3", true);
-			break;
-		case 123: //F12
-			highlightCode();
-			break;
-		case 191: ///
-			// testing to see if this will fix the problem where on some forms showPassword() doesn't work
-			showPassword();
-			focusFormElement();
-			break;
-		}
-	}
-	// Alt-Shift
-	else if(e.altKey && e.shiftKey && !e.ctrlKey)
-	{
-		switch (k)
-		{
-		case 49: //1
-			showResources();
-			break;
-		case 50: //2
-			replaceImagesWithTextLinks();
-			break;
-		case 53: //5
-			getImages(true);
-			break;
-		case 71: //g
-			getElementsContainingText();
-			break;
-		case 87: //w
-			break;
-		case 123: //F12
-			highlightCode(true);
-			break;
-		case 65: //a
-			annotate();
-			break;
-		case 67: //c
-			deleteNonContentDivs();
-			break;
-		case 68: // d
-			del("log");
-			break;
-		case 80: // p
-			highlightLinksInPres();
-			break;
-		case 82: //r
-			highlightParagraph("blockquote");
-			break;
-		case 75: // k
-			showPrintLink();
-			break;
-		case 76: // l
-			logout();
-			break;
-		case 87: // w
-			removeAttributes();
-			break;
-		case 191: // /
-			focusButton();
-			break;
-		}
-	}
-	// Ctrl-Alt
-	else if(e.altKey && e.ctrlKey && !e.shiftKey)
-	{
-		var s;
-		switch (k)
-		{
-		case 219: //[
-			changeGalleryImage(true);
-			break;
-		case 221: //]
-			changeGalleryImage();
-		case 37: // left arrow
-			prevPage();
-			break;
-		case 39: // right arrow
-			nextPage();
-			break;
-		case 49: //1
-			insertStyleNegative(true);
-			break;
-		case 50: //2
-			insertStyleWhite();
-			break;
-		case 51: //3
-			insertStyleFonts();
-			break;
-		case 52: //4
-			//insertStyle('html div, html div[class] { background-color: #222; }', 'style_divbg', true);
-			//insertStyle('body { filter: invert(1) hue-rotate(0deg) saturate(2); } body { -webkit-filter: invert(1) hue-rotate(0deg) saturate(2); }', 'style_divbg', true);
-			insertStyleGrey();
-			break;
-		case 53: //5
-			insertStyleShowClass();
-			break;
-		case 66: //B
-			showDocumentStructureWithNames();
-			break;
-		case 68: //d
-			deleteEmptyElements("p");
-			deleteEmptyElements("tr");
-			deleteEmptyElements("li");
-			deleteEmptyElements("div");
-			deleteEmptyElements("figure");
-			deleteEmptyHeadings();
-			break;
-		case 69: //e
-			replaceElement();
-			break;
-		case 70: //f
-			del(["object", "embed", "video"]);
-			break;
-		case 71: //g
-			highlightElementsWithInlineWidthOrHeight();
-			break;
-		case 72: //h
-			highlightElement();
-			break;
-		case 73: //I
-			highlightElementsWithCSSRule();
-			break;
-		case 78: //N
-			showDocumentStructure2();
-			break;
-		case 77: //M
-			showDialog("Test dialog");
-			break;
-		case 79: //o
-			highlightSpecificNodesContaining();
-			break;
-		case 82: //r
-			s = prompt("Tag");
-			highlightParagraph(s);
-			break;
-		case 83: //s
-			highlightElementsWithAttribute("style");
-			break;
-		case 84: //T
-			markTableRowsAndColumns();
-			break;
-		case 86: //V
-			showDocumentStructure();
-			break;
-		case 87: //W
-			highlightElementsWithSetWidths();
-			break;
-		case 89: //Y
-			highlightElementsWithCSSRule();
-			break;
-		case 123: //F12
-			analyze();
-			break;
-		}
-	}
-	else if(e.altKey && e.ctrlKey && e.shiftKey) //Ctrl-Alt-Shift
-	{
-		switch(k)
-		{
-			case 72: //h
-				forAll(".hl", unhighlightElement);
-				break;
-			case 83: //s
-				forAll(".hl", function(x){
-					removeAttribute("style");
-				});
-				break;
-		}
-	}
-	else
-	{
-		switch (k)
-		{
-		case 113: //F2
-			//ylog("F2");
-			//window.close();
-			break;
-		default:
-			break;
-		}
-	}
-	window.focus();
-}
-
 function doStackOverflow()
 {
 	var sites = ["stackexchange", "stackoverflow", "superuser", "serverfault"], found = false;
@@ -1328,7 +921,7 @@ function doStackOverflow()
 	if(found && location.href.match(/questions\/[0-9]+/) !== null)
 	{
 		getContent();
-		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", ".signup-prompt", "form"]);
+		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form"]);
 		deleteElementsContainingText("h2", "Not the answer");
 		cleanupGeneral();
 		highlightCode(true);
@@ -1355,7 +948,7 @@ function clickThanks()
 	}
 }
 
-function highlightElement()
+function highlightElementsBySelector()
 {
 	var s = prompt("Enter selector for elements to highlight");
 	if(!(s && s.length))
@@ -1377,12 +970,17 @@ function highlightElement()
 	insertStyleHighlight();
 }
 
-function unhighlightElement(x)
+function unhighlightElement(elem)
 {
-	removeClass(x, "hl");
+	removeClass(elem, "hl");
 }
 
-function getIDandClass(e)
+function unhighlightAllHighlightedElements()
+{
+	forAll(".hl", unhighlightElement);
+}
+
+function getIdAndClass(e)
 {
 	var s = "";
 	if(e.id)
@@ -1405,7 +1003,7 @@ function highlightElementsWithAttribute(s)
 			if(e[i].hasAttribute("style"))
 			{
 				addClass(e[i], "hl");
-				ylog(getIDandClass(e[i]) + ": " + e[i].style.cssText);
+				ylog(getIdAndClass(e[i]) + ": " + e[i].style.cssText);
 			}
 		}
 	}
@@ -1434,7 +1032,14 @@ function highlightElementsWithSetWidths()
 	insertStyle("x { background: #000; color: #FFF; padding: 2px 4px; display: block; font: 12px verdana;  } .xlog { clear: both; } .hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }", "style_hewsw", true);
 }
 
-function highlightParagraph(tag)
+function wrapNodeInTag()
+{
+	var s = prompt("Enter tag to wrap selected node in");
+	if(s && s.length)
+		highlightNode(s);
+}
+
+function highlightNode(tag)
 {
 	var t;
 	if(tag && tag.length)
@@ -1479,7 +1084,7 @@ function annotate()
 	if(node && node.parentNode)
 	{
 		var d = document.createElement("ruby");
-		d.textContent = prompt("_________________________________________________________________________________________________________");
+		d.textContent = prompt("______________________________________________ Annotate ___________________________________________________________________");
 		if(d.textContent.length) node.parentNode.insertBefore(d, node);
 	}
 }
@@ -1576,7 +1181,7 @@ function buildSlideshow()
 	}
 }
 
-function changeGalleryImage(prev)
+function changeGalleryImage(direction)
 {
 	var gallery, e, i, ii;
 	if(!get("#style_nimbus_gallery"))
@@ -1591,7 +1196,7 @@ function changeGalleryImage(prev)
 		if(hasClass(e[i], "currentImage"))
 		{
 			removeClass(e[i], "currentImage");
-			if(prev)
+			if(direction === "prev")
 			{
 				if(i === 0)
 					addClass(e[ii-1], "currentImage");
@@ -1599,7 +1204,7 @@ function changeGalleryImage(prev)
 					addClass(e[i-1], "currentImage");
 				break;
 			}
-			else
+			else if(direction === "next")
 			{
 				if(i === ii-1)
 					addClass(e[0], "currentImage");
@@ -1626,10 +1231,18 @@ function deleteIframes()
 	deleteElementsContainingText("rp", "iframe:");
 }
 
+function deleteImages()
+{
+	del("svg");
+	if(get("img").length) del("img");
+	else del("rt");
+}
+
 function deleteImagesSmallerThan(x, y)
 {
 	var f = document.getElementsByTagName('img');
-	for (var i = f.length - 1; i >= 0; i--)
+	var i = f.length;
+	while(i--)
 	{
 		if(f[i].clientWidth < x || f[i].clientHeight < y)
 		{
@@ -1644,12 +1257,19 @@ function deleteSmallImages()
 	var f = document.getElementsByTagName('img');
 	for (var i = f.length - 1; i >= 0; i--)
 	{
+		if(!(f[i].clientWidth && f[i].clientHeight))
+			continue;
 		if(f[i].clientWidth < 40 || f[i].clientHeight < 40)
 		{
 			deleteImagesSmallerThan(40, 40);
 			return;
 		}
 		if(f[i].clientWidth < 120 || f[i].clientHeight < 120)
+		{
+			deleteImagesSmallerThan(120, 120);
+			return;
+		}
+		if(f[i].clientWidth < 240 || f[i].clientHeight < 240)
 		{
 			deleteImagesSmallerThan(120, 120);
 			return;
@@ -1665,6 +1285,14 @@ function replaceSpans()
 	{
 		e[i].parentNode.replaceChild(document.createTextNode(e[i].textContent), e[i]);
 	}
+}
+
+function replaceCommentsWithPres()
+{
+	var s = db.innerHTML;
+	s = s.replace(/<!--/g, '<pre>');
+	s = s.replace(/-->/g, '</pre>');
+	db.innerHTML = s;
 }
 
 function replaceImagesWithTextLinks()
@@ -1803,6 +1431,7 @@ function addLinksToLargerImages()
 
 function cleanupGeneral()
 {
+	var t0 = performance.now();
 	var t1 = new Date();
 	cleanupHead();
 	get("body")[0].removeAttribute("style");
@@ -1821,14 +1450,15 @@ function cleanupGeneral()
 	appendInfo();
 	getBestImageSrc();
 	document.body.className = "pad100";
-	//insertStyleNegative();
-	var t2 = new Date();
-	xlog(t2-t1 + " ms: cleanupGeneral");
+	var t1 = performance.now();
+	xlog(Math.floor((t1 - t0) * 1000) + " microseconds: cleanupGeneral");
 }
 
 function cleanupGeneral_light()
 {
 	var t1 = new Date();
+	deleteEmptyHeadings();
+	cleanupHead();
 	replaceFlash();
 	replaceIframes();
 	delTag(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "noscript"]);
@@ -2050,6 +1680,7 @@ function insertStyleGrey()
 	'body.xwrap { width: 1000px; margin: 0 auto; }' +
 	'mark { background: #049; color: #7CF; padding: 4px 2px; }' +
 	'p { line-height: 135%; text-align: justify; }' +
+	'blockquote { margin: 0 0 0 40px; padding: 10px 20px; border-left: 10px solid #123; }' +
 	'a { text-decoration: none; color: #09F; }' +
 	'em, i, strong, b { font-style: normal; font-weight: normal; color: #FFF; }' +
 	'code { background: #012; color: #ABC; }' +
@@ -2325,6 +1956,14 @@ function setDocTitle(s)
 	document.title = s;
 }
 
+function setDocTitleFromSelection()
+{
+	var selection = window.getSelection();
+	if(selection.toString().length) s = selection;
+	else s = prompt("Document title");
+	setDocTitle(s);
+}
+
 function delClassContaining(s)
 {
 	if(s.length <= 0) return;
@@ -2426,6 +2065,13 @@ function replaceFontTags()
 	{
 		f[i].parentNode.replaceChild(replacements[i], f[i]);
 	}
+}
+
+function removeStyleFromHighlightedElements()
+{
+	forAll(".hl", function (x){
+		removeAttribute("style");
+	});
 }
 
 function removeAttributes()
@@ -3238,6 +2884,17 @@ function getContentByParagraphCount()
 		e[i].className = "";
 }
 
+function deleteSpecificEmptyElements()
+{
+	deleteEmptyElements("a");
+	deleteEmptyElements("p");
+	deleteEmptyElements("tr");
+	deleteEmptyElements("li");
+	deleteEmptyElements("div");
+	deleteEmptyElements("figure");
+	deleteEmptyHeadings();
+}
+
 function deleteEmptyElements(tag)
 {
 	var e = document.getElementsByTagName(tag);
@@ -3650,13 +3307,13 @@ function highlightLinksWithHrefContaining(str)
 
 function getLinksWithHrefContaining(str)
 {
-	highlightLinksWithHrefContaining(str);
-	var wrapper;
 	if(!arguments.length)
 	{
 		str = prompt("Containing text");
 		if( !str.length ) return;
 	}
+	highlightLinksWithHrefContaining(str);
+	var newLink, newLinkWrapper;
 	var e = document.getElementsByTagName("a"), i, ii;
 	var container = document.createElement("div");
 	for(i = 0, ii = e.length; i < ii; i++)
@@ -3664,9 +3321,9 @@ function getLinksWithHrefContaining(str)
 		if(e[i].href.indexOf(str) >= 0 || (e[i].title && e[i].title.indexOf(str) >= 0))
 		{
 			// ylog(e[i], "h6", true);
-			var newLink = document.createElement("a");
+			newLink = document.createElement("a");
 			newLink.href = newLink.textContent = e[i].href;
-			var newLinkWrapper = document.createElement("h6");
+			newLinkWrapper = document.createElement("h6");
 			newLinkWrapper.appendChild(newLink);
 			container.appendChild(newLinkWrapper);
 		}
@@ -4433,6 +4090,145 @@ function initialize()
 	{
 		ylog("not injected");
 	}
+}
+
+//
+//
+//	Keyboard shortcuts
+//
+//
+function handleKeyDown(e)
+{
+	if(!(e.altKey || e.shiftKey || e.ctrlKey))
+	{
+		return;
+	}
+	var db = document.body;
+	var s;
+	var k = e.keyCode;
+	if(!k)
+	{
+		xlog("couldn't get key");
+		return;
+	}
+	//
+	//	Alt
+	//
+	if(e.altKey && !e.shiftKey && !e.ctrlKey)
+	{
+		switch (k)
+		{
+			case KEYCODES.TILDE: highlightSelection(); break;
+			case KEYCODES.NUMPAD1: fillForms(); break;
+			case KEYCODES.NUMPAD2: getLinksWithHrefContaining(); break;
+			case KEYCODES.NUMPAD3: clickThanks(); break;
+			case KEYCODES.NUMPAD4: forceReloadCss(); break;
+			case KEYCODES.NUMPAD_SUBTRACT: openManager(); break;
+			case KEYCODES.F1: makeHeadingFromSelection("h1"); break;
+			case KEYCODES.F2: makeHeadingFromSelection("h2"); break;
+			case KEYCODES.F3: makeHeadingFromSelection("h3"); break;
+			case KEYCODES.ZERO: setDocTitleFromSelection(); break;
+			case KEYCODES.ONE: cleanupGeneral(); break;
+			case KEYCODES.TWO: deleteImages(); break;
+			case KEYCODES.THREE: toggleClass(document.body, "xwrap"); break;
+			case KEYCODES.FOUR: deleteSmallImages(); break;
+			case KEYCODES.FIVE: getImages(); break;
+			case KEYCODES.SIX: deleteIframes(); break;
+			case KEYCODES.SEVEN: replaceCommentsWithPres(); break;
+			case KEYCODES.EIGHT: makeDocumentClickable(); break;
+			case KEYCODES.NINE: toggleShowClasses(); break;
+			case KEYCODES.I: deleteSignatures(); break;
+			case KEYCODES.P: fixParagraphs(); break;
+			case KEYCODES.A: cycleClass(document.body, ["xDontShowLinks", "xHE", "irrelevantString"]); break;
+			case KEYCODES.C: getContentByParagraphCount(); break;
+			case KEYCODES.G: deleteElementsContainingText(); break;
+			case KEYCODES.X: toggleClass(document.body, "xShowImages"); break;
+			case KEYCODES.Y: highlightNodesContaining(); break;
+			case KEYCODES.O: highlightSelectionOrText(); break;
+			case KEYCODES.K: getIframes(); break;
+			case KEYCODES.L: showLog(); break;
+			case KEYCODES.Q: fixHeadings(); break;
+			case KEYCODES.R: highlightNode(); break;
+			case KEYCODES.U: del("ul"); del("dl"); break;
+			case KEYCODES.W: cleanupGeneral_light(); break;
+			case KEYCODES.Z: cleanupUnicode(); break;
+			case KEYCODES.F12: highlightCode(); break;
+			case KEYCODES.FORWARD_SLASH: showPassword(); focusFormElement(); break;
+		}
+	}
+	//
+	//	Alt-Shift
+	//
+	else if(e.altKey && e.shiftKey && !e.ctrlKey)
+	{
+		e.preventDefault();
+		switch (k)
+		{
+			case KEYCODES.ONE: showResources(); break;
+			case KEYCODES.TWO: replaceImagesWithTextLinks(); break;
+			case KEYCODES.FIVE: getImages(true); break;
+			case KEYCODES.G: getElementsContainingText(); break;
+			case KEYCODES.F12: highlightCode(true); break;
+			case KEYCODES.A: annotate(); break;
+			case KEYCODES.C: deleteNonContentDivs(); break;
+			case KEYCODES.D: del("log"); break;
+			case KEYCODES.P: highlightLinksInPres(); break;
+			case KEYCODES.R: highlightNode("blockquote"); break;
+			case KEYCODES.K: showPrintLink(); break;
+			case KEYCODES.L: logout(); break;
+			case KEYCODES.W: removeAttributes(); break;
+			case KEYCODES.FORWARD_SLASH: focusButton(); break;
+		}
+	}
+	//
+	//	Ctrl-Alt
+	//
+	else if(e.altKey && e.ctrlKey && !e.shiftKey)
+	{
+		e.preventDefault();
+		switch (k)
+		{
+			case KEYCODES.SQUARE_BRACKET_OPEN: changeGalleryImage("prev"); break;
+			case KEYCODES.SQUARE_BRACKET_CLOSE: changeGalleryImage("next"); break;
+			case KEYCODES.LEFTARROW: changePage("prev"); break;
+			case KEYCODES.RIGHTARROW: changePage("next"); break;
+			case KEYCODES.ONE: insertStyleNegative(true); break;
+			case KEYCODES.TWO: insertStyleWhite(); break;
+			case KEYCODES.THREE: insertStyleFonts(); break;
+			case KEYCODES.FOUR: insertStyleGrey(); break;
+			case KEYCODES.FIVE: insertStyleShowClass(); break;
+			case KEYCODES.D: deleteSpecificEmptyElements(); break;
+			case KEYCODES.E: replaceElement(); break;
+			case KEYCODES.F: del(["object", "embed", "video"]); break;
+			case KEYCODES.G: highlightElementsWithInlineWidthOrHeight(); break;
+			case KEYCODES.H: highlightElementsBySelector(); break;
+			case KEYCODES.L: highlightElementsWithCssRule(); break;
+			case KEYCODES.V: showDocumentStructure(); break;
+			case KEYCODES.B: showDocumentStructureWithNames(); break;
+			case KEYCODES.N: showDocumentStructure2(); break;
+			case KEYCODES.M: openDialog("Test dialog"); break;
+			case KEYCODES.O: highlightSpecificNodesContaining(); break;
+			case KEYCODES.R: wrapNodeInTag(); break;
+			case KEYCODES.S: highlightElementsWithAttribute("style"); break;
+			case KEYCODES.T: markTableRowsAndColumns(); break;
+			case KEYCODES.W: highlightElementsWithSetWidths(); break;
+			case KEYCODES.Y: highlightElementsWithCssRule(); break;
+			case KEYCODES.F12: analyze(); break;
+		}
+	}
+	//
+	//	Ctrl-Alt-Shift
+	//
+	else if(e.altKey && e.ctrlKey && e.shiftKey)
+	{
+		e.preventDefault();
+		switch(k)
+		{
+			case KEYCODES.H: unhighlightAllHighlightedElements(); break;
+			case KEYCODES.S: removeStyleFromHighlightedElements(); break;
+		}
+	}
+	window.focus();
 }
 
 //
