@@ -1271,7 +1271,7 @@ function deleteSmallImages()
 		}
 		if(f[i].clientWidth < 240 || f[i].clientHeight < 240)
 		{
-			deleteImagesSmallerThan(120, 120);
+			deleteImagesSmallerThan(240, 240);
 			return;
 		}
 	}
