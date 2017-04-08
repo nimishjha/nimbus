@@ -1153,7 +1153,7 @@ function getImages(slideshow)
 	}
 	else
 	{
-		showMessage("No images found", "messagebig messageerror");
+		showMessage("No images found", "messagebig");
 	}
 	if(slideshow)
 		buildSlideshow();
@@ -1255,24 +1255,18 @@ function deleteImagesSmallerThan(x, y)
 function deleteSmallImages()
 {
 	var f = document.getElementsByTagName('img');
+	var dimensions = [20, 50, 100, 200, 300, 400];
 	for (var i = f.length - 1; i >= 0; i--)
 	{
 		if(!(f[i].clientWidth && f[i].clientHeight))
 			continue;
-		if(f[i].clientWidth < 40 || f[i].clientHeight < 40)
+		for(j = 0, jj = dimensions.length; j < jj; j++)
 		{
-			deleteImagesSmallerThan(40, 40);
-			return;
-		}
-		if(f[i].clientWidth < 120 || f[i].clientHeight < 120)
-		{
-			deleteImagesSmallerThan(120, 120);
-			return;
-		}
-		if(f[i].clientWidth < 240 || f[i].clientHeight < 240)
-		{
-			deleteImagesSmallerThan(240, 240);
-			return;
+			if(f[i].clientWidth < dimensions[j] || f[i].clientHeight < dimensions[j])
+			{
+				deleteImagesSmallerThan(dimensions[j], dimensions[j]);
+				return;
+			}
 		}
 	}
 }
@@ -2124,32 +2118,9 @@ function removeAttributesOf(selector, attribute)
 function removeAttributes_fast()
 {
 	var t1 = new Date();
-	var temp, a, i, attnode, old_att;
+	var temp, a, i, attribute, old_att;
 	document.body.removeAttribute("background");
 	document.body.innerHTML = document.body.innerHTML.replace(/(<[^ai][a-z0-9]*) [^>]+/gi, '$1');
-
-	a = get("a");
-	i = a.length;
-	while (i--)
-	{
-		temp = a[i].href ? a[i].href : null;
-		while (a[i].attributes.length > 0)
-		{
-			attnode = a[i].attributes[0];
-			old_att = a[i].removeAttributeNode(attnode);
-		}
-		a[i].href = temp;
-	}
-	a = get("img");
-	i = a.length;
-	while (i--) {
-		temp = a[i].src ? a[i].src : null;
-		while (a[i].attributes.length > 0) {
-			attnode = a[i].attributes[0];
-			old_att = a[i].removeAttributeNode(attnode);
-		}
-		a[i].src = temp;
-	}
 	var t2 = new Date();
 	xlog((t2-t1) + "ms: removeAttributes_fast");
 }
@@ -2419,7 +2390,7 @@ function logout()
 	}
 	if(!found)
 	{
-		showMessage("Logout link not found", "messagebig messageerror");
+		showMessage("Logout link not found", "messagebig");
 	}
 }
 
@@ -2769,7 +2740,7 @@ function getElementsContainingText()
 	if(get(".toget").length)
 		getElementsWithClass("toget");
 	else
-		showMessage("Not found", "messagebig messageerror");
+		showMessage("Not found", "messagebig");
 }
 
 function deleteNonContentDivs()
