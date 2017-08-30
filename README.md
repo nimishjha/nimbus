@@ -4,7 +4,7 @@ Browsing utility toolkit for use with Scriptish/Greasemonkey
 
 This user script gives the user a great deal of control over the browsing experience. It includes a number of commands that can be invoked using the keyboard.
 
-##With Alt key
+## With Alt key
 
 - 0: Use currently selected text to create the document heading and title
 - 1: Delete all styles and scripts, remove all attributes from all elements excluding **link** and **img** src, append URL and time to document, replace embedded videos and iframes with links to their src. Useful for saving web pages for reference.
@@ -30,7 +30,7 @@ This user script gives the user a great deal of control over the browsing experi
 - Numpad 2: Get links with href or title containing the given string
 - /: Cycle through and focus form input fields. Useful when you don't want to take your hand off the keyboard to select an input field.
 
-##With Alt-Shift
+## With Alt-Shift
 
 - 1: Create links to all **link** and **script** elements at the top of the webpage. Useful if you want to view or save CSS or JS files used on a page.
 - 2: Replace all images with links. Useful if you want to save a document without the images, but want to save the image links for future reference.
@@ -45,7 +45,7 @@ This user script gives the user a great deal of control over the browsing experi
 - L: If the page has a "Log out" link or button, click it. Useful if you hate taking your hands off the keyboard.
 - /: Cycle through and focus form submit buttons
 
-##With Ctrl-Alt
+## With Ctrl-Alt
 
 - 1: Insert a custom stylesheet. This stylesheet will display highlighted text, annotations etc. correctly.
 - 2-6: More custom stylesheets.
