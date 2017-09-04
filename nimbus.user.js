@@ -228,9 +228,10 @@ function highlightElementsWithInlineWidthOrHeight()
 {
 	var e = document.querySelectorAll("div, aside, article, section, table, tr, td");
 	var i = e.length;
+	var s;
 	while(i--)
 	{
-		if(e[i].getAttribute("style"))
+		if(s = e[i].getAttribute("style"))
 		{
 			if(s.indexOf("width") !== -1)
 				e[i].className += " hl";
@@ -299,7 +300,7 @@ function containsAnyOfTheStrings(s, arrStrings)
 	{
 		if(s.indexOf(arrStrings[i]) !== -1)
 		{
-			found++;
+			found = true;
 			break;
 		}
 	}
@@ -314,7 +315,7 @@ function isInArray(item, arr)
 	{
 		if(item === arr[i])
 		{
-			found++;
+			found = true;
 			break;
 		}
 	}
@@ -900,7 +901,7 @@ function css(elem)
 	elem.matches = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector || elem.oMatchesSelector;
 	for(var i in sheets)
 	{
-		var rules = sheets[i].rules || sheets[i].cssRules;
+		var rules = sheets[i].cssRules;
 		for(var r in rules)
 		{
 			if(elem.matches(rules[r].selectorText))
@@ -930,7 +931,7 @@ function doStackOverflow()
 				x.setAttribute("style", "width: 200px");
 		});
 		setTimeout(cleanupHead, 1000);
-		setTimeout(cleanupHead, 5000);
+		setTimeout(cleanupHead, 10000);
 	}
 }
 
@@ -1240,7 +1241,6 @@ function deleteImages()
 
 function deleteImagesSmallerThan(x, y)
 {
-	showMessage("Deleting images smaller than " + x + " x " + y);
 	var f = document.getElementsByTagName('img');
 	var i = f.length;
 	while(i--)
@@ -1586,6 +1586,7 @@ function cleanupHead()
 	var tempTitle = document.title;
 	document.getElementsByTagName('head')[0].innerHTML = '';
 	document.title = tempTitle;
+	showMessage("cleanupHead", "messagebig");
 }
 
 function forceReloadCss()
@@ -1809,9 +1810,8 @@ function toggleShowClasses()
 	del("script");
 	del("link");
 	var s = 'body { background: #333; color: #888; }' +
-	'div::before, p::before { content:attr(class); color:#FF0; padding:0px; background:#000; }' +
-	'div::after, p::after { content:attr(id); color:#0FF; padding:0px; background:#000;}' +
-	'span::before { content:attr(class); color:#0F0; padding:0px; background:#000; }' +
+	'div::before, span::before, p::before { content:attr(class); color:#FF0; padding:0px; background:#000; }' +
+	'div::after, span::after, p::after { content:attr(id); color:#0FF; padding:0px; background:#000;}' +
 	'select, textarea, input { background: #444; border: 1px solid red; }' +
 	'button { background: #222; color: #AAA; }';
 	insertStyle(s, "style_debug", true);
@@ -1989,7 +1989,7 @@ function zeroPad(n)
 
 function appendInfo()
 {
-	var url, d, saveTime, h, a, s;
+	var url, saveTime, h, a, s;
 	if(window.location.href.indexOf("file:///") >= 0) return;
 	if(document.getElementsByTagName("h4").length)
 	{
@@ -2005,8 +2005,7 @@ function appendInfo()
 	h.appendChild(a);
 	document.body.appendChild(h);
 
-	d = new Date();
-	saveTime = d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
+	saveTime = getTimestamp();
 	h = document.createElement("h4");
 	h.appendChild(document.createTextNode("URL: "));
 	a = document.createElement("a");
@@ -3183,7 +3182,7 @@ function deleteElementsContainingText(selector, str)
 		return;
 	}
 
-	var e = document.querySelectorAll(selector);
+	var e = get(selector);
 	xlog("deleteElementsContainingText(" + selector + ", \"" + str + "\")");
 	if(!e)
 		return;
@@ -3406,12 +3405,15 @@ function getContent(str)
 
 function deleteImagesBySrcContaining(str)
 {
-	var elems = document.getElementsByTagName("img"), i = elems.length;
+	var elems = document.getElementsByTagName("img");
+	var i = elems.length;
 	while (i--)
-	if(elems[i].src.indexOf(str) >= 0)
 	{
-		xlog("Deleting image with src " + elems[i].src);
-		elems[i].parentNode.removeChild(elems[i]);
+		if(elems[i].src.indexOf(str) >= 0)
+		{
+			xlog("Deleting image with src " + elems[i].src);
+			elems[i].parentNode.removeChild(elems[i]);
+		}
 	}
 }
 
@@ -3603,23 +3605,26 @@ function cleanupUnicode()
 	document.body.innerHTML = s;
 }
 
-function analyze()
+function analyze(onTop)
 {
 	if(!get("#analyzer"))
 	{
 		var b = document.createElement("div");
 		b.id = "analyzer";
+		if(onTop)
+			b.className = "onTop";
 		document.body.insertBefore(b, document.body.firstChild);
 		document.body.addEventListener('mouseover', analyze_mouseoverHandler, false);
 		document.body.addEventListener('click', analyze_clickHandler, false);
 		document.body.className += ' analyzer';
 
 		var s = 'body.analyzer { padding-bottom: 300px; }' +
-		'#analyzer { padding: 5px 10px; position:fixed; left:0; bottom: 0; width: 50%; min-width: 500px; height: 500px; overflow: hidden; background:#000; color:#aaa; text-align:left; z-index: 2000000000; font:12px verdana; letter-spacing: 0; }' +
+		'#analyzer { padding: 5px 10px; position:fixed; left:0; bottom: 0; width: 50%; min-width: 500px; height: 200px; overflow: hidden; background:#000; color:#aaa; text-align:left; z-index: 2000000000; font:12px verdana; letter-spacing: 0; }' +
+		'#analyzer.onTop { bottom: auto; top: 0; }' +
 		'#analyzer b { color:#09f; }' +
 		'#analyzer em { font-style:normal; color:#F80; }' +
 		'.hovered { background: rgba(0, 0, 0, 0.5); color: #FFF; }' +
-		'div#analyzer { box-shadow: none; min-height: 500px; margin: 0; }' +
+		'div#analyzer { box-shadow: none; min-height: 200px; margin: 0; }' +
 		'#analyzer div { box-shadow: none; margin: 0; padding: 0; }';
 
 		insertStyle(s, "analyzer-style", true);
@@ -4010,6 +4015,12 @@ function echoPassword(e)
 	showMessage(e.value, "none", true);
 }
 
+function getTimestamp()
+{
+	var d = new Date();
+	return d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
+}
+
 function inject()
 {
 	//deleteUselessScripts();
@@ -4019,8 +4030,7 @@ function inject()
 	removeAccesskeys();
 	insertStyleHighlight();
 	xlog("Referrer: " + document.referrer);
-	var d = new Date();
-	var pageLoadTime = d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
+	var pageLoadTime = getTimestamp();
 	xlog("Page loaded at " + pageLoadTime);
 	doStackOverflow();
 }
@@ -4199,6 +4209,7 @@ function handleKeyDown(e)
 		{
 			case KEYCODES.H: unhighlightAllHighlightedElements(); break;
 			case KEYCODES.S: removeStyleFromHighlightedElements(); break;
+			case KEYCODES.F12: analyze(true); break;
 		}
 	}
 	window.focus();
