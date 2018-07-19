@@ -226,6 +226,17 @@ function getStyles(e)
 	insertStyle("x {background:#000;color:#FF0;}", "temp", true);
 }
 
+function highlightWithinPreformattedBlocks(str)
+{
+	var reg = new RegExp('([^\n]*' + str + '[^\n]+)', 'gi');
+	var pres = get("pre");
+	var i = pres.length;
+	while(i--)
+	{
+		pres[i].innerHTML = pres[i].innerHTML.replace(reg, "<mark>$1</mark>");
+	}
+}
+
 function highlightElementsWithInlineWidthOrHeight()
 {
 	var e = document.querySelectorAll("div, aside, article, section, table, tr, td");
