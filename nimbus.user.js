@@ -3012,6 +3012,7 @@ function highlightSelection()
 			// expand to word boundaries
 			while(nodeHTML[index1].match(/[^ <>]/) && index1 > 0)
 				index1--;
+			index1++;
 			while(nodeHTML[index2] && nodeHTML[index2].match(/[^ <>]/) && index2 < nodeHTML.length )
 				index2++;
 			if(nodeHTML.length - index2 < 10)
