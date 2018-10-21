@@ -113,22 +113,12 @@ var KEYCODES = {
 
 function get(s)
 {
-	if(s.indexOf("#") === 0)
-	{
-		return document.getElementById(s.substr(1, s.length));
-	}
-	else if(s.indexOf(".") === 0)
-	{
-		return document.getElementsByClassName(s.substr(1, s.length));
-	}
-	else
-	{
-		var elems = document.getElementsByTagName(s);
-		if(elems.length)
-			return elems;
-		else
-			return 0;
-	}
+	var result = false;
+	if(s.indexOf("#") === 0 && (result = document.getElementById(s.substr(1, s.length)))) return result;
+	else if(s.indexOf(".") === 0 && (result = document.getElementsByClassName(s.substr(1, s.length)))) return result;
+	else if(document.getElementsByTagName(s).length && (result = document.getElementsByTagName(s))) return result;
+	console.warn("get(" + s + ") is " + result);
+	return false;
 }
 
 function isArray(o)
@@ -1732,7 +1722,7 @@ function insertStyleNegative(important)
 	'nav { background: #111; }' +
 	'body.xdark { background: #111; }' +
 	'body.xblack { background: #000; }' +
-	'body.xwrap { width: 800px; margin: 0 auto; padding: 100px 100px; }' +
+	'body.xwrap { width: 1400px; margin: 0 auto; padding: 100px 300px; }' +
 	'html h1, html h2, html h3, html h4, html h5, html h6, html h1[class], html h2[class], html h3[class], html h4[class], html h5[class], html h6[class] { color: #AAA; padding: 10px 20px; line-height: 160%; margin: 2px 0; background: #141414; border: 0; }' +
 	'html h1, html h1[class], div[class] h1 { font: 40px "Swis721 Cn BT", Calibri, sans-serif; color: #FFF; }' +
 	'html h2, html h2[class], div[class] h2 { font: 28px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }' +
@@ -1761,12 +1751,12 @@ function insertStyleNegative(important)
 	'main, article, section, header, footer, hgroup, nav, ins, small, big, aside, details, font, article, form, fieldset, label, span, span[class], blockquote, div, div[class], ul, ol, li, a, i, b, strong, dl { color: inherit; background: transparent none; line-height: inherit; font-family: inherit; font-size: inherit; font-weight: inherit; text-decoration: inherit; }' +
 	'ul { list-style: none; margin: 0; padding: 10px 0 10px 20px; }' +
 	'li { font-size: 14px; list-style-image: none; background-image: none; line-height: 150%; }' +
-	'tbody, thead, th, tr, td, table { background: #202020; color: inherit; font: 14px verdana; }' +
+	'tbody, thead, th, tr, td, table { background: #202020; color: inherit; font: 22px "Swis721 Cn BT"; }' +
 	'body.pad100 ul li { border-left: 5px solid #0C0C0C; padding: 0 0 0 10px; margin: 0 0 2px 0; }' +
 	'cite, u, em, i, b, strong { font-weight: normal; font-style: normal; text-decoration: none; color: #CCC; font-size: inherit; }' +
 	'a u, a em, a i, a b, a strong { color: inherit; }' +
 	'small { font-size: 80%; }' +
-	'input, input *, button, button *, div, td, p { font-size: 14px; font-family: Verdana, sans-serif; line-height: 150%; }' +
+	'input, input *, button, button *, div, td, p { font-size: 22px; font-family: "Swis721 Cn BT", sans-serif; line-height: 150%; }' +
 	'p { margin: 0; padding: 5px 0; font-style: normal; font-weight: normal; line-height: 150%; color: inherit; background: inherit; border: 0; }' +
 	'blockquote { margin: 0 0 0 20px; padding: 10px 0 10px 20px; border-style: solid; border-width: 10px 0 0 10px; border-color: #0C0C0C; }' +
 	'blockquote blockquote { margin: 0 0 0 20px; padding: 0 0 0 20px; border-width: 0 0 0 10px; }' +
@@ -1836,8 +1826,8 @@ function toggleShowClasses()
 	del("script");
 	del("link");
 	var s = 'body { background: #333; color: #888; }' +
-	'div::before, span::before, p::before { content:attr(class); color:#FF0; padding:0px; background:#000; }' +
-	'div::after, span::after, p::after { content:attr(id); color:#0FF; padding:0px; background:#000;}' +
+	'div::before, span::before, p::before { content:attr(class); color:#FF0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
+	'div::after, span::after, p::after { content:attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
 	'select, textarea, input { background: #444; border: 1px solid red; }' +
 	'button { background: #222; color: #AAA; }';
 	insertStyle(s, "style_debug", true);
@@ -4056,6 +4046,7 @@ function inject()
 {
 	//deleteUselessScripts();
 	//deleteUselessIframes();
+  document.body.id = "nimbusDark";
 	document.addEventListener("keydown", handleKeyDown, false);
 	showPassword();
 	removeAccesskeys();
@@ -4156,7 +4147,7 @@ function handleKeyDown(e)
 			case KEYCODES.NINE: toggleShowClasses(); break;
 			case KEYCODES.I: deleteSignatures(); break;
 			case KEYCODES.P: fixParagraphs(); break;
-			case KEYCODES.A: cycleClass(document.body, ["xDontShowLinks", "xHE", "irrelevantString"]); break;
+			case KEYCODES.A: cycleClass(document.body, ["xDontShowLinks", "xHE", "irrelevantString"]); cycleClass(document.getElementsByTagName("html")[0], ["xDontShowLinks", "xHE", "irrelevantString"]); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.G: deleteElementsContainingText(); break;
