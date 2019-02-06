@@ -645,31 +645,26 @@ function highlightSelectionOrText()
 function deleteUselessIframes()
 {
 	var domainsRequiringIframes = ["google.com"];
+	var safeIframes = ["google.com"];
 	if(containsAnyOfTheStrings(location.hostname, domainsRequiringIframes))
 	{
 		return;
 	}
-	var iframes = get("iframe");
+	var iframes = Array.prototype.slice.call(document.getElementsByTagName("iframe"));
 	var i = iframes.length;
 	while(i--)
 	{
-		ylog("Deleting iframe " + iframes[i].src);
+		if(containsAnyOfTheStrings(iframes[i].src, safeIframes))
+		{
+			ylog("Not deleting iframe " + iframes[i].src);
+			continue;
+		}
+		else
+		{
+			ylog("Deleting iframe " + iframes[i].src);
+			iframes[i].parentNode.removeChild(iframes[i]);
+		}
 	}
-	// del("iframe");
-
-	// var e = get("iframe"), i, iframereplacement, iframelink, domains = ["facebook", "twitter", "linkedin"];
-	// for (i = e.length - 1; i >= 0; i--)
-	// {
-	// 	if( !e[i].src )
-	// 		continue;
-	// 	for(j = domains.length-1; j >= 0; j--)
-	// 	{
-	// 		if(e[i].src.indexOf(domains[j]) > 0 && location.hostname.indexOf(domains[j]) === -1)
-	// 		{
-	// 			e[i].parentNode.removeChild(e[i]);
-	// 		}
-	// 	}
-	// }
 }
 
 function deleteUselessScripts()
@@ -891,20 +886,6 @@ function highlightPagination()
 				break;
 			}
 		}
-	}
-}
-
-function openManager()
-{
-	if(location.href.indexOf("/stage/") > 0 )
-	{
-		var loc = location.href.split('/');
-		var managerloc = "http://" + loc[2] + '/' + loc[3] + '/' + loc[4] + '/manager.php';
-		location.href = managerloc;
-	}
-	else
-	{
-		location.href = "http://" + location.hostname + "/manager.php";
 	}
 }
 
@@ -4119,7 +4100,6 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD2: getLinksWithHrefContaining(); break;
 			case KEYCODES.NUMPAD3: clickThanks(); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
-			case KEYCODES.NUMPAD_SUBTRACT: openManager(); break;
 			case KEYCODES.F1: makeHeadingFromSelection("h1"); break;
 			case KEYCODES.F2: makeHeadingFromSelection("h2"); break;
 			case KEYCODES.F3: makeHeadingFromSelection("h3"); break;
