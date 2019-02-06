@@ -13,7 +13,7 @@
 
 //
 //	Nimbus
-//	Copyright (C) 2008-2017 Nimish Jha
+//	Copyright (C) 2008-2019 Nimish Jha
 //
 //	This program is free software: you can redistribute it and/or modify
 //	it under the terms of the GNU General Public License as published by
@@ -113,12 +113,9 @@ var KEYCODES = {
 
 function get(s)
 {
-	var result = false;
-	if(s.indexOf("#") === 0 && (result = document.getElementById(s.substr(1, s.length)))) return result;
-	else if(s.indexOf(".") === 0 && (result = document.getElementsByClassName(s.substr(1, s.length)))) return result;
-	else if(document.getElementsByTagName(s).length && (result = document.getElementsByTagName(s))) return result;
-	console.warn("get(" + s + ") is " + result);
-	return false;
+	var nodes = document.querySelectorAll(s);
+	if(nodes.length) return nodes;
+	else return false;
 }
 
 function isArray(o)
@@ -658,7 +655,7 @@ function deleteUselessIframes()
 	{
 		ylog("Deleting iframe " + iframes[i].src);
 	}
-	del("iframe");
+	// del("iframe");
 
 	// var e = get("iframe"), i, iframereplacement, iframelink, domains = ["facebook", "twitter", "linkedin"];
 	// for (i = e.length - 1; i >= 0; i--)
@@ -1563,16 +1560,15 @@ function count(s)
 		return 0;
 }
 
-function replaceElement(e1, e2)
+function replaceElement(selector, tagName)
 {
-	if(!(e1 && e2))
+	if(!(selector && tagName))
 	{
-		e1 = prompt("Element to replace (querySelectorAll)");
-		e2 = prompt("Replacement (tagName)");
+		selector = prompt("Element to replace (querySelectorAll)");
+		tagName = prompt("Tag to replace with");
 	}
 	var replacement, e, toreplace, i, ii;
-	//e = get(e1);
-	e = document.querySelectorAll(e1);
+	e = document.querySelectorAll(selector);
 	if(e.length)
 	{
 		toreplace = [];
@@ -1582,14 +1578,14 @@ function replaceElement(e1, e2)
 		}
 		for (i = toreplace.length - 1; i >= 0; i--)
 		{
-			replacement = document.createElement(e2);
+			replacement = document.createElement(tagName);
 			replacement.innerHTML = toreplace[i].innerHTML;
 			toreplace[i].parentNode.replaceChild(replacement, toreplace[i]);
 		}
 	}
 	else if(e && e.parentNode)
 	{
-		replacement = document.createElement(e2);
+		replacement = document.createElement(tagName);
 		replacement.innerHTML = e.innerHTML;
 		e.parentNode.replaceChild(replacement, e);
 	}
@@ -3198,55 +3194,34 @@ function deleteSignatures()
 
 function deleteElementsContainingText(selector, str)
 {
-	var t1 = new Date();
-	var elems, textContained;
-
-	if(!(selector && str))
+	var sel, text;
+	if (! (selector && str))
 	{
-		elems = prompt("Delete elements containing text");
-		if(elems !== "img")
-			textContained = prompt("Containing text");
-		else
-			textContained = "";
-		if(elems.length)
+		sel = prompt("Delete elements containing text");
+		text = prompt("Containing text");
+		if (sel.length)
 		{
-			var arr = [textContained];
-			deleteElementsContainingText(elems, arr);
+			if (sel === "img") deleteImagesBySrcContaining(text);
+			else deleteElementsContainingText(sel, text);
 		}
 		return;
 	}
-
 	var e = get(selector);
-	xlog("deleteElementsContainingText(" + selector + ", \"" + str + "\")");
-	if(!e)
-		return;
-	if(e.length)
+	if (!e) return;
+	if (e.length)
 	{
 		var i = e.length;
-		xlog("Deleting " + i + ' ' + selector + ' elements');
 		while (i--)
 		{
-			if(e[i].querySelector(selector))
-			{
-				continue;
-			}
-			if(str)
-			{
-				if(e[i].textContent.indexOf(str) >= 0)
-					e[i].parentNode.removeChild(e[i]);
-			}
-			else
-			{
-				e[i].parentNode.removeChild(e[i]);
-			}
+			if (e[i].querySelector(selector)) continue;
+			if (str && e[i].textContent.indexOf(str) >= 0) e[i].parentNode.removeChild(e[i]);
+			else e[i].parentNode.removeChild(e[i]);
 		}
 	}
-	else if(e.parentNode)
+	else if (e.parentNode)
 	{
 		e.parentNode.removeChild(e);
 	}
-	var t2 = new Date();
-	xlog(t2 - t1 + "ms: deleteElementsContainingText(" + selector + ', "' + str + '")');
 }
 
 function highlightSpecificNodesContaining()
@@ -3687,12 +3662,11 @@ function analyze_clickHandler(e)
 		prompt("", get("#analyzer").textContent);
 }
 
-function wrapElement(obj, tag)
+function wrapElement(node, tag)
 {
-	var wrapper = document.createElement(tag);
-	wrapper.appendChild(obj.cloneNode(true));
-	if(obj.parentNode  && obj.parentNode.tagName.toLowerCase() !== tag)
-		obj.parentNode.replaceChild(wrapper, obj);
+	var s = node.outerHTML;
+	s = "<" + tag + ">" + s + "</" + tag + ">";
+	node.outerHTML = s;
 }
 
 function replaceWrongHeading()
@@ -4060,7 +4034,7 @@ function inject()
 {
 	//deleteUselessScripts();
 	deleteUselessIframes();
-  document.body.id = "nimbusDark";
+	// document.body.id = "nimbusDark";
 	document.addEventListener("keydown", handleKeyDown, false);
 	showPassword();
 	removeAccesskeys();
