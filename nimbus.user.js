@@ -123,43 +123,31 @@ function isArray(o)
 	return Object.prototype.toString.call(o) === '[object Array]';
 }
 
-function del(c)
+function del(arg)
 {
-	if(c.toString() === '[object HTMLElement]')
+	var i, ii, j, jj;
+	if(Object.prototype.toString.call(arg) === '[object HTMLElement]')
 	{
-		c.parentNode.removeChild(c);
-		return 1;
+		arg.parentNode.removeChild(arg);
+		return;
 	}
-	var todel = [];
-	if(Object.prototype.toString.call(c) === '[object Array]')
+	else if(Object.prototype.toString.call(arg) === '[object Array]')
 	{
-		for(var i = 0, ii = c.length; i < ii; i++)
-		{
-			del(c[i]);
-		}
+		for(i = 0, ii = arg.length; i < ii; i++)
+			del(arg[i]);
 	}
 	else
 	{
-		var f = get(c);
-		if(f && f.length)
+		var f = get(arg);
+		if(!f) return;
+		if(f.length)
 		{
-			for(var j = 0, jj = f.length; j < jj; j++)
-			{
-				todel.push(f[j]);
-			}
-			for(j = todel.length - 1; j > -1; j--)
-			{
-				todel[j].parentNode.removeChild(todel[j]);
-			}
-			return jj;
+			for(j = 0, jj = f.length; j < jj; j++)
+				f[j].parentNode.removeChild(f[j]);
 		}
-		else if(f)
+		else if(f.parentNode)
 		{
-			if(f.parentNode)
-			{
-				f.parentNode.removeChild(f);
-				return 1;
-			}
+			f.parentNode.removeChild(f);
 		}
 	}
 }
@@ -3363,17 +3351,6 @@ function create(selector, html)
 	else if(classname.length) e.className = classname;
 	if(html.length) e.innerHTML = html;
 	return e;
-}
-
-function removeEmptyIframes()
-{
-	var iframes = document.getElementsByTagName("iframe");
-	var i = iframes.length;
-	while (i--)
-	{
-		if(iframes[i].contentDocument.body && iframes[i].contentDocument.body.textContent.length === 0)
-			iframes[i].parentNode.removeChild(iframes[i]);
-	}
 }
 
 function cleanupWikipedia()
