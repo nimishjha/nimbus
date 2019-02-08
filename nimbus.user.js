@@ -3103,8 +3103,15 @@ function deleteElementsContainingText(selector, str)
 		text = prompt("Containing text");
 		if (sel.length)
 		{
-			if (sel === "img") deleteImagesBySrcContaining(text);
-			else deleteElementsContainingText(sel, text);
+			if(text.length)
+			{
+				if (sel === "img") deleteImagesBySrcContaining(text);
+				else deleteElementsContainingText(sel, text);
+			}
+			else
+			{
+				del(sel);
+			}
 		}
 		return;
 	}
@@ -3908,7 +3915,6 @@ function getTimestamp()
 
 function inject()
 {
-	//deleteUselessScripts();
 	deleteUselessIframes();
 	document.body.classList.add("nimbusDark");
 	document.addEventListener("keydown", handleKeyDown, false);
