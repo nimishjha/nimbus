@@ -3913,6 +3913,15 @@ function getTimestamp()
 	return d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
 }
 
+function exposeFunctions()
+{
+	var scriptText = "function get(s) { var nodes = document.querySelectorAll(s); if(nodes.length) return nodes; else return false; } function del(arg) { var i, ii, j, jj; if(Object.prototype.toString.call(arg) === '[object HTMLElement]') { arg.parentNode.removeChild(arg); return; } else if(Object.prototype.toString.call(arg) === '[object Array]') { for(i = 0, ii = arg.length; i < ii; i++) del(arg[i]); } else { var f = get(arg); if(!f) return; if(f.length) { for(j = 0, jj = f.length; j < jj; j++) f[j].parentNode.removeChild(f[j]); } else if(f.parentNode) { f.parentNode.removeChild(f); } } } function forAll(selector, callback) { var e = get(selector); var i = e.length; while (i--) callback(e[i]); } ";
+	var scriptElement = createElement({ strTagName: "script" });
+	scriptElement.type = "text/javascript";
+	scriptElement.textContent = scriptText;
+	document.body.appendChild(scriptElement);
+}
+
 function inject()
 {
 	deleteUselessIframes();
@@ -3925,6 +3934,7 @@ function inject()
 	var pageLoadTime = getTimestamp();
 	xlog("Page loaded at " + pageLoadTime);
 	doStackOverflow();
+	exposeFunctions();
 }
 
 function initialize()
