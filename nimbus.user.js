@@ -889,12 +889,11 @@ function css(elem)
 function doStackOverflow()
 {
 	var sites = ["stackexchange", "stackoverflow", "superuser", "serverfault"], found = false;
-	if(containsAnyOfTheStrings(location.hostname, sites))
-		found = true;
+	if(containsAnyOfTheStrings(location.hostname, sites)) found = true;
 	// we only want to run this code on the individual question pages
 	if(found && location.href.match(/questions\/[0-9]+/) !== null)
 	{
-		getContent();
+		// getContent();
 		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form"]);
 		deleteElementsContainingText("h2", "Not the answer");
 		cleanupGeneral();
@@ -916,20 +915,6 @@ function doStackOverflow()
 			});
 		})
 		observer.observe(document.getElementsByTagName("head")[0], { childList: true });
-	}
-}
-
-function clickThanks()
-{
-	var e = get("a");
-	var i = e.length;
-	while(i--)
-	{
-		if(e[i].href && e[i].href.indexOf("post_thanks_add") > 0)
-		{
-			e[i].click();
-			showMessage("clicked thanks", "messagebig");
-		}
 	}
 }
 
@@ -1435,7 +1420,7 @@ function cleanupGeneral_light()
 	cleanupHead();
 	replaceFlash();
 	replaceIframes();
-	delTag(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "noscript"]);
+	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "noscript"]);
 	//replaceFontTags();
 	replaceElement("center", "div");
 	setDocTitle();
@@ -1539,21 +1524,6 @@ function replaceElement(selector, tagName)
 		replacement = document.createElement(tagName);
 		replacement.innerHTML = e.innerHTML;
 		e.parentNode.replaceChild(replacement, e);
-	}
-}
-
-function delTag(c)
-{
-	for (var i = 0, ii = c.length; i < ii; i++)
-	{
-		var f = document.getElementsByTagName(c[i]);
-		if(f.length)
-		{
-			for (var j = f.length - 1; j >= 0; j--)
-			{
-				f[j].parentNode.removeChild(f[j]);
-			}
-		}
 	}
 }
 
@@ -3503,8 +3473,8 @@ function getAttributes(targ)
 
 function analyze_removeOldHover()
 {
-	var elem = document.getElementsByClassName("hovered");
-	for (var i = 0; i < elem.length; i++) elem[i].classList.remove("hovered");
+	var e = document.querySelectorAll(".hovered");
+	for (var i = 0; i < e.length; i++) e[i].classList.remove("hovered");
 }
 
 function analyze_mouseoverHandler(e)
