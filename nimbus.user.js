@@ -170,8 +170,7 @@ function listProperties(o)
 
 function selectRandom(arr)
 {
-	if(!arr || !arr.length)
-		return;
+	if(!(arr && arr.length)) return;
 	var n = Math.floor(Math.random() * arr.length);
 	return arr[n];
 }
@@ -232,7 +231,7 @@ function highlightWithinPreformattedBlocks(str)
 
 function highlightElementsWithInlineWidthOrHeight()
 {
-	var e = document.querySelectorAll("div, aside, article, section, table, tr, td");
+	var e = get("div, aside, article, section, table, tr, td");
 	var i = e.length;
 	var s;
 	while(i--)
@@ -918,9 +917,8 @@ function doStackOverflow()
 function highlightElementsBySelector()
 {
 	var s = prompt("Enter selector for elements to highlight");
-	if(!(s && s.length))
-		return;
-	var e = document.querySelectorAll(s);
+	if(!(s && s.length)) return;
+	var e = get(s);
 	if(e.length)
 	{
 		var i = e.length;
@@ -941,7 +939,7 @@ function unhighlightElement(elem)
 
 function unhighlightAllHighlightedElements()
 {
-	forAll(".hl", unhighlightElement);
+	get(".hl").forEach(unhighlightElement);
 }
 
 function getIdAndClass(e)
@@ -1988,13 +1986,6 @@ function replaceFontTags()
 	}
 }
 
-function removeStyleFromHighlightedElements()
-{
-	forAll(".hl", function (x){
-		removeAttribute("style");
-	});
-}
-
 function removeAttributes()
 {
 	var t1 = new Date();
@@ -2633,25 +2624,29 @@ function getElementsWithClass(strClass)
 function getElementsContainingText()
 {
 	var s, t, i, ii;
-	s = prompt("Get Elements");
-	if(s !== "img")
-		t = prompt("Containing text");
-	if(!s.length)
-		return;
-	var e = document.querySelectorAll(s);
+	s = prompt("Get elements containing text by selector: ");
+	if(s !== "img") t = prompt("And containing text");
+	if(!s.length) return;
+	var t1 = new Date();
+	var e = get(s);
+	var tempNode = document.createElement("div");
 	if(t && t.length)
 	{
 		for(i = 0, ii = e.length; i < ii; i++)
-		{
-			if(e[i].textContent && e[i].textContent.indexOf(t) !== -1 /*&& e[i].getElementsByTagName(s).length === 0*/) e[i].classList.add("toget");
-		}
+			if(e[i].textContent && e[i].textContent.indexOf(t) !== -1 && !e[i].querySelector(s))
+				tempNode.appendChild(e[i]);
 	}
 	else
 	{
-		for(i = 0, ii = e.length; i < ii; i++) e[i].classList.add("toget");
+		for(i = 0, ii = e.length; i < ii; i++)
+			tempNode.appendChild(e[i]);
 	}
-	if(get(".toget").length) getElementsWithClass("toget");
-	else showMessage("Not found", "messagebig");
+	if(tempNode.innerHTML.length)
+		document.body.innerHTML = tempNode.innerHTML;
+	else
+		showMessage("Not found", "messagebig");
+	var t2 = new Date();
+	console.log((t2 - t1) + "ms: getElementsContainingText");
 }
 
 function deleteNonContentDivs()
@@ -2685,23 +2680,7 @@ function deleteNonContentDivs()
 		}
 	}
 	// if the <body> has a .toget class, it will be appended to the existing <body>
-	document.body.className = '';
-
-	// marked elements that are children of other marked divs need to be unmarked, or we'll have duplication
-/*	e = get("." + sClass);
-	for(i = 0; i < e.length; i++)
-	{
-		f = e[i].getElementsByClassName(sClass);
-		j = f.length;
-		while(j--)
-		{
-			f[j].className = '';
-		}
-		e = get("." + sClass);
-	}
-	getElementsWithClass(sClass);
-	del(["link", "style", "script", "form", "fieldset", "input", "select", "textarea"]);
-*/
+	document.body.classList.remove("toget");
 	e = get("div");
 	i = e.length;
 	while(i--)
@@ -2709,8 +2688,6 @@ function deleteNonContentDivs()
 		if(e[i].className.indexOf(sClass) === -1 && !e[i].getElementsByClassName(sClass).length)
 			e[i].className = "hl";
 	}
-	//cleanupGeneral();
-	//showTextToHTMLRatio();
 }
 
 function getContentByParagraphCount()
@@ -3767,7 +3744,7 @@ function showTextToHTMLRatio()
 		h = e[i].innerHTML;
 		if(t && h)
 		{
-			e[i].innerHTML = "<mark>" + t.length/h.length + "</mark>" + e[i].innerHTML;
+			e[i].innerHTML = "<mark>" + Math.floor(t.length / h.length) + "</mark>" + e[i].innerHTML;
 		}
 	}
 }
@@ -3926,7 +3903,6 @@ function handleKeyDown(e)
 			case KEYCODES.TILDE: highlightSelection(); break;
 			case KEYCODES.NUMPAD1: fillForms(); break;
 			case KEYCODES.NUMPAD2: getLinksWithHrefContaining(); break;
-			case KEYCODES.NUMPAD3: clickThanks(); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.F1: makeHeadingFromSelection("h1"); break;
 			case KEYCODES.F2: makeHeadingFromSelection("h2"); break;
@@ -4033,7 +4009,7 @@ function handleKeyDown(e)
 		switch(k)
 		{
 			case KEYCODES.H: unhighlightAllHighlightedElements(); break;
-			case KEYCODES.S: removeStyleFromHighlightedElements(); break;
+			case KEYCODES.S: forceReloadCss(); break;
 			case KEYCODES.F12: analyze(true); break;
 		}
 	}
