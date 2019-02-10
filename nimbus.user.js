@@ -113,10 +113,15 @@ var KEYCODES = {
 
 function get(s)
 {
+	if(s.indexOf("#") === 0 && s.indexOf(" ") === -1 && s.indexOf(".") === -1) return document.querySelector(s);
 	var nodes = document.querySelectorAll(s);
-	if(nodes.length === 1) return nodes[0];
-	else if(nodes.length) return nodes;
+	if(nodes.length) return nodes;
 	return false;
+}
+
+function getOne(s)
+{
+	return document.querySelector(s);
 }
 
 function isArray(o)
@@ -407,43 +412,36 @@ function printArray(arr)
 
 function createElement(args)
 {
-	if(!args)
-		return false;
+	if(!args) return false;
 
-	var elemClass = args.strClass || undefined;
-	var elemId = args.strId || undefined;
-	var elemInnerHtml = args.strInnerHtml || undefined;
-	var elemTagName = args.strTagName || undefined;
-	var elem;
+	var elemTagName = args.tag || "div";
+	var elem = document.createElement(elemTagName);
+	var keys = Object.keys(args);
+	var i = keys.length;
+	var settableProperties = ["id", "className", "textContent", "innerHTML"];
+	var toIgnore = ["tag"];
 
-	if(elemTagName)
-		elem = document.createElement(elemTagName);
-	else
-		elem = document.createElement("div");
-
-	if(elem)
+	while(i--)
 	{
-		if(elemId)
-			elem.id = elemId;
-		if(elemClass)
-			elem.className = elemClass;
-		if(elemInnerHtml && elemInnerHtml.length)
-			elem.innerHTML = elemInnerHtml;
+		key = keys[i];
+		if(settableProperties.includes(key))
+			elem[key] = args[key];
+		else if(!toIgnore.includes(key))
+			elem.setAttribute(key, args[key]);
 	}
 
 	return elem;
-}
+};
 
 function showResource(str, uuid)
 {
 	var resourceLink, resourceLinkWrapper, resourceDelete, strSanitized = str;
 	if(str.indexOf("?") !== -1)
 	 	strSanitized = str.substr(0, str.indexOf("?"));
-	resourceLink = document.createElement("a");
-	resourceLink.textContent = strSanitized;
-	resourceLink.href = str;
-	resourceLinkWrapper = createElement({ strTagName: "h6", strClass: "xlog", strId: "link" + uuid });
-	resourceDelete = createElement({ strTagName: "span", strInnerHtml: "[Delete]" });
+	resourceLink = createElement("a");
+	resourceLink = createElement({ tag: "a", textContent: strSanitized, href: str });
+	resourceLinkWrapper = createElement({ tag: "h6", strClass: "xlog", id: "link" + uuid });
+	resourceDelete = createElement({ tag: "span", innerHTML: "[Delete]" });
 	resourceDelete.setAttribute("data-delete", uuid);
 	document.body.addEventListener('mouseup', deleteResource, false);
 	resourceLinkWrapper.appendChild(resourceDelete);
@@ -731,17 +729,16 @@ function showMessage(s, msgClass, persist)
 
 	if(!get("message"))
 	{
-		e = document.createElement("message");
-		e.className = msgClass;
+		e = createElement({ tag: "message", className: msgClass });
 		document.body.insertBefore(e, document.body.firstChild);
-		if(!get("#style_message"))
+		if(!getOne("#style_message"))
 		{
 			insertStyle(strStyle, "style_message", true);
 		}
 	}
 	else
 	{
-		e = get("message")[0];
+		e = getOne("message");
 		e.className = msgClass;
 	}
 	e.textContent = s;
@@ -761,8 +758,8 @@ function openDialog(s)
 	var dialog, dialogInput, s = s || "";
 	if(!get("#xxdialog"))
 	{
-		dialog = createElement({ strId: "xxdialog" });
-		dialogInput = createElement({ strTagName: "textarea", strId: "xxdialoginput" });
+		dialog = createElement({ id: "xxdialog" });
+		dialogInput = createElement({ tag: "textarea", id: "xxdialoginput" });
 		dialog.appendChild(dialogInput);
 		document.body.insertBefore(dialog, document.body.firstChild);
 		s = '#xxdialog { position: absolute; margin: auto; z-index: 10000; height: 400px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
@@ -916,7 +913,7 @@ function doStackOverflow()
 				}
 			});
 		})
-		observer.observe(document.getElementsByTagName("head")[0], { childList: true });
+		observer.observe(getOne("head"), { childList: true });
 	}
 }
 
@@ -1034,8 +1031,7 @@ function makeHeadingFromSelection(tagname)
 	if(node.tagName === undefined) node = node.parentNode;
 	if(node && node.parentNode && node.parentNode.tagName !== "body")
 	{
-		newNode = document.createElement(tagname);
-		newNode.innerHTML = node.innerHTML;
+		newNode = createElement({ tag: tagname, innerHTML: node.innerHTML });
 		node.parentNode.replaceChild(newNode, node);
 	}
 	else
@@ -1068,8 +1064,7 @@ function getImages(slideshow)
 	}
 	deleteSmallImages();
 	var f = get("img"), db = document.body, i, ii, j, jj, e = [], w, h;
-	var tempNode = document.createElement("slideshow");
-	tempNode.id = "nimbus_gallery";
+	var tempNode = createElement({ tag: "slideshow", id: "nimbus_gallery" });
 	if(f && f.length)
 	{
 		//mark duplicates by removing the src
@@ -1263,8 +1258,7 @@ function replaceImagesWithTextLinks()
 		i = e.length;
 		while(i--)
 		{
-			imageLink = document.createElement("img");
-			imageLink.src = e[i].getElementsByTagName("a")[0].href;
+			imageLink = createElement({ tag: "img", src: e[i].querySelector("a").href });
 			e[i].parentNode.replaceChild(imageLink, e[i]);
 		}
 		del('#style_replace_images');
@@ -1391,10 +1385,9 @@ function addLinksToLargerImages()
 
 function cleanupGeneral()
 {
-	var t0 = performance.now();
-	var t1 = new Date();
+	var t1 = performance.now();
 	cleanupHead();
-	get("body")[0].removeAttribute("style");
+	getOne("body").removeAttribute("style");
 	replaceFlash();
 	replaceIframes();
 	deleteNonContentImages();
@@ -1411,13 +1404,13 @@ function cleanupGeneral()
 	getBestImageSrc();
 	document.body.className = "pad100";
 	insertStyleNegative();
-	var t1 = performance.now();
-	xlog(Math.floor((t1 - t0) * 1000) + " microseconds: cleanupGeneral");
+	var t2 = performance.now();
+	xlog(((t2 - t1)) + " ms: cleanupGeneral");
 }
 
 function cleanupGeneral_light()
 {
-	var t1 = new Date();
+	var t1 = performance.now();
 	deleteEmptyHeadings();
 	cleanupHead();
 	replaceFlash();
@@ -1430,7 +1423,7 @@ function cleanupGeneral_light()
 	removeAttributes_fast();
 	appendInfo();
 	document.body.className = "pad100 xShowImages";
-	var t2 = new Date();
+	var t2 = performance.now();
 	xlog(t2-t1 + " ms: cleanupGeneral_light");
 }
 
@@ -1516,25 +1509,23 @@ function replaceElement(selector, tagName)
 		}
 		for (i = toreplace.length - 1; i >= 0; i--)
 		{
-			replacement = document.createElement(tagName);
-			replacement.innerHTML = toreplace[i].innerHTML;
+			replacement = createElement({ tag: tagName, innerHTML: toreplace[i].innerHTML });
 			toreplace[i].parentNode.replaceChild(replacement, toreplace[i]);
 		}
 	}
 	else if(e && e.parentNode)
 	{
-		replacement = document.createElement(tagName);
-		replacement.innerHTML = e.innerHTML;
+		replacement = createElement({ tag: tagName, innerHTML: e.innerHTML });
 		e.parentNode.replaceChild(replacement, e);
 	}
 }
 
 function cleanupHead()
 {
-	if(!get("head"))
-		return;
+	var h = getOne("head");
+	if(!h) return;
 	var tempTitle = document.title;
-	document.getElementsByTagName('head')[0].innerHTML = '';
+	h.innerHTML = '';
 	document.title = tempTitle;
 }
 
@@ -1567,7 +1558,7 @@ function insertStyle(str, identifier, important)
 	{
 		str = str.replace(/;/g, " !important;");
 	}
-	var head = get("head")[0], style = document.createElement("style"), rules = document.createTextNode(str);
+	var head = getOne("head"), style = document.createElement("style"), rules = document.createTextNode(str);
 	style.type = "text/css";
 	if(style.styleSheet)
 	{
@@ -1872,7 +1863,7 @@ function setDocTitle(s)
 	if(s.indexOf("Thread - ") !== -1)
 		s = s.substr(s.indexOf("Thread - ") + 9);
 
-	if(!(get("h1") && get("h1")[0].innerHTML === s))
+	if(!(getOne("h1") && getOne("h1").innerHTML === s))
 	{
 		h = document.createElement('h1');
 		h.appendChild(document.createTextNode(s));
@@ -2191,7 +2182,7 @@ function makeHeadings()
 		{
 			if(e[i].getElementsByTagName(tags[j]).length === 1)
 			{
-				if(e[i].getElementsByTagName(tags[j])[0].textContent && removeWhitespace(e[i].getElementsByTagName(tags[j])[0].textContent) === s)
+				if(e[i].querySelector(tags[j]).textContent && removeWhitespace(e[i].querySelector(tags[j]).textContent) === s)
 				{
 					e[i].className = "parah2";
 				}
@@ -2241,7 +2232,7 @@ function deleteNonContentElements()
 				// if a list contains only links, it's likely not content
 				if(f[j].textContent.length && f[j].getElementsByTagName("a").length === 1)
 				{
-					g = f[j].getElementsByTagName("a")[0];
+					g = f[j].querySelector("a");
 					if(removeWhitespace(f[j].textContent).length === removeWhitespace(g.textContent).length)
 					{
 						e[i].parentNode.removeChild(e[i]);
@@ -3377,8 +3368,8 @@ function create(selector, html)
 function cleanupWikipedia()
 {
 	cleanupHead();
-	document.title = document.getElementsByTagName("h1")[0].textContent;
-	document.getElementsByTagName("h1")[0].textContent = document.title;
+	firstHeading = getOne("h1");
+	document.title = firstHeading.textContent;
 	del([
 		"iframe",
 		"script",
@@ -3585,8 +3576,8 @@ function replaceWrongHeading()
 	var heading1, heading2, heading1link, temp;
 	if(get("h1"))
 	{
-		heading1 = get("h1")[0];
-		heading1link = heading1.getElementsByTagName("a")[0];
+		heading1 = getOne("h1");
+		heading1link = heading1.querySelector("a");
 		if(heading1link)
 		{
 			if((heading1link.href === "http://" + location.hostname + "/") || (heading1link.href === "https://" + location.hostname + "/"))
@@ -3930,7 +3921,7 @@ function getTimestamp()
 function exposeFunctions()
 {
 	var scriptText = "function get(s) { var nodes = document.querySelectorAll(s); if(nodes.length) return nodes; else return false; } function del(arg) { var i, ii, j, jj; if(Object.prototype.toString.call(arg) === '[object HTMLElement]') { arg.parentNode.removeChild(arg); return; } else if(Object.prototype.toString.call(arg) === '[object Array]') { for(i = 0, ii = arg.length; i < ii; i++) del(arg[i]); } else { var f = get(arg); if(!f) return; if(f.length) { for(j = 0, jj = f.length; j < jj; j++) f[j].parentNode.removeChild(f[j]); } else if(f.parentNode) { f.parentNode.removeChild(f); } } } function forAll(selector, callback) { var e = get(selector); var i = e.length; while (i--) callback(e[i]); } ";
-	var scriptElement = createElement({ strTagName: "script" });
+	var scriptElement = createElement({ tag: "script" });
 	scriptElement.type = "text/javascript";
 	scriptElement.textContent = scriptText;
 	document.body.appendChild(scriptElement);
