@@ -1080,8 +1080,8 @@ function getImages(slideshow)
 			{
 				f[i].removeAttribute("width");
 				f[i].removeAttribute("height");
-				w = f[i].clientWidth;
-				h = f[i].clientHeight;
+				w = f[i].naturalWidth;
+				h = f[i].naturalHeight;
 				if(w && h && (w > window.innerWidth || h > window.innerHeight))
 				{
 					if((w/h) > (16/9))
@@ -1107,10 +1107,6 @@ function getImages(slideshow)
 		db.insertBefore(tempNode, db.firstChild);
 
 	}
-	else if(f)
-	{
-		db.innerHTML = f.innerHTML;
-	}
 	else
 	{
 		showMessage("No images found", "messagebig");
@@ -1124,7 +1120,7 @@ function buildSlideshow()
 	var e, gallery, images, s;
 	if(!(gallery = get("#nimbus_gallery")))
 		return;
-	images = gallery.getElementsByTagName("img");
+	images = gallery.querySelectorAll("img");
 
 	if(gallery && images)
 	{
@@ -1145,9 +1141,7 @@ function changeGalleryImage(direction)
 {
 	var gallery, e, i, ii;
 	if(!get("#style_nimbus_gallery"))
-	{
 		return;
-	}
 	if(!(gallery = get("#nimbus_gallery")))
 		return;
 	e = gallery.getElementsByTagName("img");
@@ -1200,7 +1194,7 @@ function deleteImagesSmallerThan(x, y)
 	var i = f.length;
 	while(i--)
 	{
-		if(f[i].clientWidth < x || f[i].clientHeight < y)
+		if(f[i].naturalWidth < x || f[i].naturalHeight < y)
 		{
 			var altText = document.createTextNode("");
 			f[i].parentNode.replaceChild(altText, f[i]);
