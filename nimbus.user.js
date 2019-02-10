@@ -114,8 +114,9 @@ var KEYCODES = {
 function get(s)
 {
 	var nodes = document.querySelectorAll(s);
-	if(nodes.length) return nodes;
-	else return false;
+	if(nodes.length === 1) return nodes[0];
+	else if(nodes.length) return nodes;
+	return false;
 }
 
 function isArray(o)
@@ -170,6 +171,28 @@ function selectRandom(arr)
 	return arr[n];
 }
 
+function getSelectorsWithLightBackgrounds()
+{
+	var e = Array.prototype.slice.call(document.getElementsByTagName("*"));
+	var i = e.length;
+	var count = 0;
+	var str = "";
+	for (i = 0, count = 0; i < e.length, count < 4000; i++, count++)
+	{
+		if(!e[i]) continue;
+		count++;
+		var s = getComputedStyle(e[i]);
+		var bgColor = s.getPropertyValue("background-color");
+		if (bgColor.match(/2[0-9][0-9]/))
+		{
+			if(e[i].id) str += "#" + e[i].id;
+			if(e[i].className) str += "." + e[i].className;
+			 str +=  ": " + bgColor + "\r\n";
+		}
+	}
+	console.log(str);
+}
+
 function getStyles(e)
 {
 	var styles, bgImage, bgColor, s, w;
@@ -188,15 +211,6 @@ function getStyles(e)
 			e.appendChild(s);
 			e.classList.add("hl");
 		}
-/*		if(elemWidth.indexOf("px") !== -1)
-		{
-			w = parseInt(elemWidth, 10);
-			var w2 = w * 2;
-			e.style.width = w2 + "px";
-			s = document.createElement("x");
-			s.textContent = w + " -> " + w2;
-			e.appendChild(s);
-		}*/
 	}
 	insertStyle("x {background:#000;color:#FF0;}", "temp", true);
 }
