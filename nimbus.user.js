@@ -1126,7 +1126,7 @@ function buildSlideshow()
 	{
 		s = 'body { margin: 0; padding: 0; }' +
 		'#nimbus_gallery { width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; z-index: 2000000000; }' +
-		'#nimbus_gallery img { display: none; }' +
+		'#nimbus_gallery img { position: absolute; top: -1000em; left: -1000em; }' +
 		'#nimbus_gallery img.currentImage { margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; }' +
 		'#nimbus_gallery img.currentImage.tall { height: 100%; width: auto; }' +
 		'#nimbus_gallery img.currentImage.wide { width: 100%; height: auto; }' +
