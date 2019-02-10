@@ -891,7 +891,6 @@ function doStackOverflow()
 	// we only want to run this code on the individual question pages
 	if(found && location.href.match(/questions\/[0-9]+/) !== null)
 	{
-		// getContent();
 		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form"]);
 		deleteElementsContainingText("h2", "Not the answer");
 		cleanupGeneral();
@@ -1853,8 +1852,7 @@ function setDocTitle(s)
 
 	if(!(getOne("h1") && getOne("h1").innerHTML === s))
 	{
-		h = document.createElement('h1');
-		h.appendChild(document.createTextNode(s));
+		h = createElement({ tag: "h1", textContent: s })
 		document.body.insertBefore(h, document.body.firstChild);
 	}
 	// Append domain name to title for easy searching
@@ -2244,12 +2242,6 @@ function normalizeString(s) // normalize string
 
 function logout()
 {
-	// special case for Gmail
-	if(location.hostname === "mail.google.com" && get("#gb_71"))
-	{
-		get("#gb_71").click();
-		return;
-	}
 	var e, i, ii, newlink, found = false, s;
 	e = get("a");
 	i = e.length;
@@ -2261,11 +2253,6 @@ function logout()
 			if( (s.indexOf("logout") >= 0 && s.indexOf("logout_gear") === -1) || s.indexOf("signout") >= 0)
 			{
 				found = true;
-/*				showMessage("Logging out...", "big");
-				var tempLink = document.createElement("a");
-				tempLink.href = tempLink.textContent = e[i].href;
-				document.body.appendChild(tempLink);
-				tempLink.click();*/
 				showMessage(e[i].href, "messagebig");
 				e[i].classList.add("hl");
 				e[i].click();
@@ -3197,17 +3184,14 @@ function getLinksWithHrefContaining(str)
 	}
 	highlightLinksWithHrefContaining(str);
 	var newLink, newLinkWrapper;
-	var e = document.getElementsByTagName("a"), i, ii;
+	var e = get("a"), i, ii;
 	var container = document.createElement("div");
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
 		if(e[i].href.indexOf(str) >= 0 || (e[i].title && e[i].title.indexOf(str) >= 0))
 		{
-			// ylog(e[i], "h6", true);
-			newLink = document.createElement("a");
-			newLink.href = newLink.textContent = e[i].href;
-			newLinkWrapper = document.createElement("h6");
-			newLinkWrapper.appendChild(newLink);
+			newLink = createElement({ tag: "a", href: e[i].href, textContent: e[i].href});
+			newLinkWrapper = createElementWithChild("h6", newLink);
 			container.appendChild(newLinkWrapper);
 		}
 	}
@@ -3224,12 +3208,10 @@ function xlog(str, logTag)
 	Nimbus.logString += '<' + tag + ' class="xlog">' + str + '</' + tag + '>\r\n';
 }
 
-function ylog(str, elem, prepend)
+function ylog(str, tag, prepend)
 {
-	if(elem) var d = document.createElement(elem);
-	else d = document.createElement("h6");
-	d.className = "xlog";
-	d.innerHTML = str;
+	var tag = tag || "h6";
+	var d = createElement({ tag: tag, className: "xlog", innerHTML: str });
 	if(prepend)
 		document.body.insertBefore(d, document.body.firstChild);
 	else
@@ -3238,21 +3220,7 @@ function ylog(str, elem, prepend)
 
 function log2(str)
 {
-	var d = document.createElement("h2");
-	d.className = "xlog";
-	d.innerHTML = str;
-	document.body.appendChild(d);
-}
-
-function insertElem(elem, str, classname)
-{
-	var d = document.createElement(elem);
-	d.innerHTML = str;
-	if(classname)
-	{
-		d.className = classname;
-	}
-	document.body.insertBefore(d, document.body.firstChild);
+	document.body.appendChild(createElement({ tag: "h2", className: "xlog", innerHTML: str }));
 }
 
 function getPager(div)
@@ -3276,42 +3244,6 @@ function getPager(div)
 			}
 		}
 	}
-}
-
-function getContentDivs(classes)
-{
-	var toget = [];
-	var x = document.getElementsByTagName("div"), i, j;
-	i = x.length;
-	while (i--)
-	{
-		for (j = 0; j < classes.length; j++)
-		{
-			//xlog("testing for classes containing " + classes[j]);
-			if(x[i].className && x[i].className.toLowerCase().indexOf(classes[j]) >= 0)
-			{
-				x[i].classList.add("hl");
-				xlog('Getting: ' + x[i].className);
-				break;
-			}
-			else if(x[i].id && x[i].id.toLowerCase().indexOf(classes[j]) >= 0)
-			{
-				x[i].classList.add("hl");
-				xlog('Getting: ' + x[i].id);
-				break;
-			}
-		}
-	}
-}
-
-function getContent(str)
-{
-	s = str || "#content";
-	del(["aside", "footer"]);
-	if(get(s))
-		document.body.innerHTML = get(s).innerHTML;
-	else
-		ylog(s + " not found", "h3", true);
 }
 
 function deleteImagesBySrcContaining(str)
