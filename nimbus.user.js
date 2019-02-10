@@ -436,7 +436,7 @@ function showResource(str, uuid)
 	var resourceLink, resourceLinkWrapper, resourceDelete, strSanitized = str;
 	if(str.indexOf("?") !== -1)
 	 	strSanitized = str.substr(0, str.indexOf("?"));
-	resourceLink = createElement("a");
+	resourceLink = createElement({ tag: "a" });
 	resourceLink = createElement({ tag: "a", textContent: strSanitized, href: str });
 	resourceLinkWrapper = createElement({ tag: "h6", strClass: "xlog", id: "link" + uuid });
 	resourceDelete = createElement({ tag: "span", innerHTML: "[Delete]" });
@@ -467,9 +467,9 @@ function showResources()
 		del("#style_show_resources");
 		return;
 	}
-	var e, f, g, i, count, uuid;
-	e = get("script");
-	i = e.length;
+	var count, uuid;
+	var e = get("script");
+	var i = e.length;
 	count = 0;
 	while(i--)
 	{
@@ -557,25 +557,25 @@ function showDocumentStructure2()
 
 function showDocumentStructureWithNames()
 {
-	if(hasClass(document.body, "showdivs"))
+	if(document.body.classList.contains("showdivs"))
 	{
 		del("x");
 		del("#showDivs");
 		document.body.classList.remove("showdivs");
 		return;
 	}
-	var tag, j, e, i, divid;
-	tag = ['table', 'tr', 'td', 'div', 'ul', 'aside', 'header', 'footer', 'article', 'section'];
-	for (j = 0, jj = tag.length; j < jj; j++)
+	var tag = ['table', 'tr', 'td', 'div', 'ul', 'aside', 'header', 'footer', 'article', 'section'];
+	for (var j = 0, jj = tag.length; j < jj; j++)
 	{
-		e = get(tag[j]);
-		for (i = e.length - 1; i >= 0; i--)
+		var e = get(tag[j]);
+		var i = e.length;
+		while(i--)
 		{
-			divid = "";
-			if(e[i].hasAttribute("id")) divid += "#" + e[i].id;
-			if(e[i].hasAttribute("class")) divid += " ." + e[i].className;
-			if(e[i].firstChild !== null) e[i].insertBefore(createElement({ tag: "x", textContent: divid }), e[i].firstChild);
-			else e[i].appendChild(createElement({ tag: "x", textContent: divid}));
+			var idsAndClasses = "";
+			if(e[i].hasAttribute("id")) idsAndClasses += "#" + e[i].id;
+			if(e[i].hasAttribute("class")) idsAndClasses += " ." + e[i].className;
+			if(e[i].firstChild !== null) e[i].insertBefore(createElement({ tag: "x", textContent: idsAndClasses }), e[i].firstChild);
+			else e[i].appendChild(createElement({ tag: "x", textContent: idsAndClasses }));
 		}
 	}
 	document.body.classList.add("showdivs");
@@ -1153,7 +1153,7 @@ function changeGalleryImage(direction)
 	e = gallery.getElementsByTagName("img");
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
-		if(hasClass(e[i], "currentImage"))
+		if(e[i].classList.contains("currentImage"))
 		{
 			e[i].classList.remove("currentImage");
 			if(direction === "prev")
@@ -1214,17 +1214,24 @@ function deleteSmallImages()
 	var dimensions = [20, 50, 100, 200, 300, 400];
 	for (var i = f.length - 1; i >= 0; i--)
 	{
-		if(!(f[i].clientWidth && f[i].clientHeight))
-			continue;
-		for(j = 0, jj = dimensions.length; j < jj; j++)
+               	if(!(f[i].naturalWidth && f[i].naturalHeight))
+                       	continue;
+                   	for(j = 0, jj = dimensions.length; j < jj; j++)
 		{
-			if(f[i].clientWidth < dimensions[j] || f[i].clientHeight < dimensions[j])
+			if(f[i].naturalWidth < dimensions[j] || f[i].naturalHeight < dimensions[j])
 			{
 				deleteImagesSmallerThan(dimensions[j], dimensions[j]);
 				return;
 			}
 		}
 	}
+}
+
+function deletePlainSpanTags()
+{
+	var s = document.body.innerHTML;
+	s = s.replace(/<span>/g, "").replace(/<\/span>/g, "");
+	document.body.innerHTML = s;
 }
 
 function replaceSpans()
@@ -1383,6 +1390,7 @@ function cleanupGeneral()
 	replaceElement("center", "div");
 	setDocTitle();
 	removeAttributes();
+	deletePlainSpanTags();
 	replaceAudio();
 	//removeEventListeners();
 	appendInfo();
@@ -1405,7 +1413,7 @@ function cleanupGeneral_light()
 	replaceElement("center", "div");
 	setDocTitle();
 	del("x");
-	removeAttributes_fast();
+	removeAttributes_regex();
 	appendInfo();
 	document.body.className = "pad100 xShowImages";
 	var t2 = performance.now();
@@ -1968,7 +1976,7 @@ function replaceFontTags()
 				case '3': h = document.createElement("h5"); break;
 				case '2': h = document.createElement("p"); break;
 				case '1': h = document.createElement("p"); break;
-				default: h = document.createElement("p");
+				default: h = document.createElement("p"); break;
 			}
 			h.innerHTML = f[i].innerHTML;
 			replacements.push(h);
@@ -2033,14 +2041,13 @@ function removeAttributesOf(selector, attribute)
 	}
 }
 
-function removeAttributes_fast()
+function removeAttributes_regex()
 {
 	var t1 = new Date();
-	var temp, a, i, attribute, old_att;
 	document.body.removeAttribute("background");
 	document.body.innerHTML = document.body.innerHTML.replace(/(<[^ai][a-z0-9]*) [^>]+/gi, '$1');
 	var t2 = new Date();
-	xlog((t2-t1) + "ms: removeAttributes_fast");
+	xlog((t2-t1) + "ms: removeAttributes_regex");
 }
 
 function forAll(selector, callback)
@@ -2369,6 +2376,7 @@ function clickHandler(e)
 		if(targ.tagName.toLowerCase() === 'body') return;
 		document.getElementById("newbody").appendChild(targ);
 	}
+	return true;
 }
 
 function parseCode(s)
@@ -2699,45 +2707,42 @@ function getContentByParagraphCount()
 		document.body.className = "pad100";
 		return;
 	}
-	//del(["link", "style"]);
-	//insertStyleNegative();
-	//document.body.className = "pad100 xwrap";
 	insertStyleHighlight();
-	var e, f, i, np, lastnp;
-	e = document.querySelectorAll("div, article, main, section");
-	i = e.length;
-	lastnp = 0;
+	var f, numParas;
+	var e = document.querySelectorAll("div, article, main, section");
+	var i = e.length;
+	var highestNumParas = 0;
 	while(i--)
 	{
-		np = e[i].getElementsByTagName("p").length;
-		e[i].setAttribute("data-pcount", np);
-		if(np > lastnp)
-			lastnp = np;
+		numParas = e[i].getElementsByTagName("p").length;
+		e[i].setAttribute("data-pcount", numParas);
+		if(numParas > highestNumParas)
+			highestNumParas = numParas;
 	}
-	showMessage("Highest paragraph count is " + lastnp);
-	if(lastnp === 0)
+	if(highestNumParas === 0)
 	{
-		xlog("No <p>s found", "h3", true);
+		showMessage("No paragraphs found", "h2", true);
 		return;
 	}
-	//e = document.querySelectorAll("div, article, main, section");
+	else
+		showMessage("Highest paragraph count is " + highestNumParas);
 	i = e.length;
 	while(i--)
 	{
-		np = parseInt(e[i].getAttribute("data-pcount"), 10);
-		if(np === lastnp)
+		numParas = parseInt(e[i].getAttribute("data-pcount"), 10);
+		if(numParas === highestNumParas)
 		{
 			e[i].className = "hl";
 			break;
 		}
 	}
-	e = document.querySelectorAll("h1, h2");
+	e = get("h1, h2, h3, h4, h5, h6");
 	i = e.length;
 	while(i--)
 	{
 		e[i].className = "hl";
 	}
-	e = document.querySelectorAll(".hl h1, .hl h2");
+	e = get(".hl h1, .hl h2");
 	i = e.length;
 	while(i--)
 		e[i].className = "";
@@ -3035,14 +3040,15 @@ function fixParagraphs()
 
 function deleteSignatures()
 {
-	var e, i, j, tag = ["div", "td"];
-	j = tag.length;
+	var tags = ["div", "td"];
+	var j = tags.length;
 	while(j--)
 	{
-		e = get(tag[j]), i = e.length;
+		var e = get(tags[j]);
+		var i = e.length;
 		while(i--)
 		{
-			if(e[i].innerHTML.indexOf("________") >= 0 && !e[i].getElementsByTagName(tag[j]).length)
+			if(e[i].innerHTML.indexOf("________") >= 0 && !e[i].getElementsByTagName(tags[j]).length)
 			{
 				e[i].innerHTML = e[i].innerHTML.substr(0, e[i].innerHTML.indexOf("________")-1);
 			}
@@ -3079,8 +3085,8 @@ function deleteElementsContainingText(selector, str)
 		while (i--)
 		{
 			if (e[i].querySelector(selector)) continue;
-			if (str && e[i].textContent.indexOf(str) >= 0) e[i].parentNode.removeChild(e[i]);
-			else e[i].parentNode.removeChild(e[i]);
+			if (e[i].textContent.indexOf(str) >= 0)
+				e[i].parentNode.removeChild(e[i]);
 		}
 	}
 	else if (e.parentNode)
@@ -3334,10 +3340,6 @@ function getAttributes(targ)
 				{
 					str += '=\"' + ta[i].value + '\" ';
 					str = str.replace(/hovered/g, '');
-				}
-				else
-				{
-					/*str = '';*/
 				}
 			}
 		}
@@ -3786,7 +3788,7 @@ function showPassword()
 	i = e.length;
 	while(i--)
 	{
-		if(e[i].type && e[i].type === "password" && !hasClass(e[i], "showPassword"))
+		if(e[i].type && e[i].type === "password" && !(e[i].classList.contains("showPassword")))
 		{
 			e[i].addEventListener("keyup", echoPassword, false);
 			e[i].classList.add("showPassword");
@@ -3848,16 +3850,6 @@ function initialize()
 			case "en.wikipedia.org":
 			case "secure.wikimedia.org":
 				cleanupWikipedia();
-				break;
-			case "www.google.com":
-			case "www.google.com.au":
-				if(location.href.indexOf("analytics") > 0)
-					break;
-				highlightNodesContaining("cite", "developer.mozilla.org");
-				highlightLinksWithHrefContaining("developer.mozilla.org");
-				break;
-			default:
-				load = true;
 				break;
 		}
 	}
