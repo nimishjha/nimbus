@@ -209,8 +209,7 @@ function getStyles(e)
 		elemWidth = styles.getPropertyValue("width");
 		if(bgColor !== "transparent")
 		{
-			s = document.createElement("x");
-			s.textContent = bgColor;
+			s = createElement({ tag: "x", textContent: bgColor });
 			if(bgImage !== "none")
 				s.textContent += " " + bgImage;
 			e.appendChild(s);
@@ -576,8 +575,8 @@ function showDocumentStructureWithNames()
 			divid = "";
 			if(e[i].hasAttribute("id")) divid += "#" + e[i].id;
 			if(e[i].hasAttribute("class")) divid += " ." + e[i].className;
-			if(e[i].firstChild !== null) e[i].insertBefore(createElementWithText("x", divid), e[i].firstChild);
-			else e[i].appendChild(createElementWithText("x", divid));
+			if(e[i].firstChild !== null) e[i].insertBefore(createElement({ tag: "x", textContent: divid }), e[i].firstChild);
+			else e[i].appendChild(createElement({ tag: "x", textContent: divid}));
 		}
 	}
 	document.body.classList.add("showdivs");
@@ -1271,10 +1270,8 @@ function replaceImagesWithTextLinks()
 		{
 			if(e[i].src)
 			{
-				imageLink = document.createElement("a");
-				imageLink.href = imageLink.textContent = e[i].src;
-				imageReplacement = document.createElement("rt");
-				imageReplacement.appendChild(imageLink);
+				imageLink = createElement({ tag: "a", href: e[i].src, textContent: e[i].src });
+				imageReplacement = createElementWithChild("rt", imageLink);
 				if(e[i].parentNode.tagName.toLowerCase() === "a")
 					e[i].parentNode.parentNode.replaceChild(imageReplacement, e[i].parentNode);
 				else
@@ -1318,11 +1315,8 @@ function replaceFlash()
 			if(s.length)
 			{
 				s = s.replace(/&amp;/g, "&");
-				flashlink = document.createElement("a");
-				flashlinkcontainer = document.createElement("h6");
-				flashlink.href = s;
-				flashlink.textContent = "[video]";
-				flashlinkcontainer.appendChild(flashlink);
+				flashlink = createElement({ tag: "a", href: s, textContent: "[video]"})
+				flashlinkcontainer = createElementWithChild("h6", flashlink);
 				objects[i].parentNode.replaceChild(flashlinkcontainer, objects[i]);
 			}
 		}
@@ -1334,11 +1328,8 @@ function replaceFlash()
 		if(s && s.length)
 		{
 			s = s.replace(/&amp;/g, "&");
-			flashlink = document.createElement("a");
-			flashlinkcontainer = document.createElement("h6");
-			flashlink.href = s;
-			flashlink.textContent = "[video]";
-			flashlinkcontainer.appendChild(flashlink);
+			flashlink = createElement({ tag: "a", href: s, textContent: "[video]"})
+			flashlinkcontainer = createElementWithChild("h6", flashlink);
 			objects[i].parentNode.replaceChild(flashlinkcontainer, objects[i]);
 		}
 	}
@@ -1352,10 +1343,8 @@ function replaceAudio()
 	{
 		if(e[i].src)
 		{
-			f = document.createElement("a");
-			f.href = f.textContent = e[i].src;
-			g = document.createElement("h2");
-			g.appendChild(f);
+			f = createElement({ tag: "a", href: e[i].src, textContent: e[i].src });
+			g = createElementWithChild("h2", f);
 			e[i].parentNode.replaceChild(g, e[i]);
 		}
 	}
@@ -1366,7 +1355,7 @@ function addLinksToLargerImages()
 {
 	if(get("rt"))
 		return;
-	var links = document.getElementsByTagName("a");
+	var links = get("a");
 	var link, linkLower;
 	var i = links.length;
 	while(i--)
@@ -1374,10 +1363,9 @@ function addLinksToLargerImages()
 		link = links[i].href;
 		if(containsAnyOfTheStrings(link.toLowerCase(), [".png", ".jpg", ".jpeg", ".gif"]))
 		{
-			var largeImage = document.createElement("rt");
-			var imageLink = document.createElement("a");
-			imageLink.href = imageLink.textContent = link;
-			largeImage.appendChild(imageLink);
+
+			var imageLink = createElement({ tag: "a", href: link, textContent: link});
+			var largeImage = createElementWithChild("rt", imageLink);
 			links[i].parentNode.insertBefore(largeImage, links[i]);
 		}
 	}
@@ -2637,8 +2625,7 @@ function getElementsWithClass(strClass)
 	if(strClass.indexOf(".") !== 0)
 		strClass = "." + strClass;
 	f = get(strClass);
-	tempNode = document.createElement("div");
-	tempNode.id = "replacerDiv";
+	tempNode = createElement({ id: "replacerDiv" });
 	if(f && f.length)
 	{
 		for(i = 0; i < f.length; i++)
@@ -3826,13 +3813,6 @@ function createElementWithChild(tag, obj)
 {
 	var e = document.createElement(tag);
 	e.appendChild(obj);
-	return e;
-}
-
-function createElementWithText(tag, str)
-{
-	var e = document.createElement(tag);
-	if(e) e.textContent = str;
 	return e;
 }
 
