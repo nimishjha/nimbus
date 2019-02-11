@@ -208,7 +208,7 @@ function getStyles(e)
 		elemWidth = styles.getPropertyValue("width");
 		if(bgColor !== "transparent")
 		{
-			s = createElement({ tag: "x", textContent: bgColor });
+			s = createElement("x", { textContent: bgColor });
 			if(bgImage !== "none")
 				s.textContent += " " + bgImage;
 			e.appendChild(s);
@@ -408,26 +408,20 @@ function printArray(arr)
 	return s;
 }
 
-function createElement(args)
+function createElement(tag, props)
 {
-	if(!args) return false;
-
-	var elemTagName = args.tag || "div";
-	var elem = document.createElement(elemTagName);
-	var keys = Object.keys(args);
+	var elem = document.createElement(tag);
+	var keys = Object.keys(props);
 	var i = keys.length;
-	var settableProperties = ["id", "className", "textContent", "innerHTML"];
-	var toIgnore = ["tag"];
-
+	var settableProperties = ["id", "className", "textContent", "innerHTML", "value"];
 	while(i--)
 	{
 		key = keys[i];
 		if(settableProperties.includes(key))
-			elem[key] = args[key];
-		else if(!toIgnore.includes(key))
+			elem[key] = props[key];
+		else
 			elem.setAttribute(key, args[key]);
 	}
-
 	return elem;
 };
 
@@ -436,10 +430,9 @@ function showResource(str, uuid)
 	var resourceLink, resourceLinkWrapper, resourceDelete, strSanitized = str;
 	if(str.indexOf("?") !== -1)
 	 	strSanitized = str.substr(0, str.indexOf("?"));
-	resourceLink = createElement({ tag: "a" });
-	resourceLink = createElement({ tag: "a", textContent: strSanitized, href: str });
-	resourceLinkWrapper = createElement({ tag: "h6", strClass: "xlog", id: "link" + uuid });
-	resourceDelete = createElement({ tag: "span", innerHTML: "[Delete]" });
+	resourceLink = createElement("a", { textContent: strSanitized, href: str });
+	resourceLinkWrapper = createElement("h6", { className: "xlog", id: "link" + uuid });
+	resourceDelete = createElement("span", { innerHTML: "[Delete]" });
 	resourceDelete.setAttribute("data-delete", uuid);
 	document.body.addEventListener('mouseup', deleteResource, false);
 	resourceLinkWrapper.appendChild(resourceDelete);
@@ -574,8 +567,8 @@ function showDocumentStructureWithNames()
 			var idsAndClasses = "";
 			if(e[i].hasAttribute("id")) idsAndClasses += "#" + e[i].id;
 			if(e[i].hasAttribute("class")) idsAndClasses += " ." + e[i].className;
-			if(e[i].firstChild !== null) e[i].insertBefore(createElement({ tag: "x", textContent: idsAndClasses }), e[i].firstChild);
-			else e[i].appendChild(createElement({ tag: "x", textContent: idsAndClasses }));
+			if(e[i].firstChild !== null) e[i].insertBefore(createElement("x", { textContent: idsAndClasses }), e[i].firstChild);
+			else e[i].appendChild(createElement("x", { textContent: idsAndClasses }));
 		}
 	}
 	document.body.classList.add("showdivs");
@@ -727,7 +720,7 @@ function showMessage(s, msgClass, persist)
 
 	if(!get("message"))
 	{
-		e = createElement({ tag: "message", className: msgClass });
+		e = createElement("message", { className: msgClass });
 		document.body.insertBefore(e, document.body.firstChild);
 		if(!getOne("#style_message"))
 		{
@@ -756,8 +749,8 @@ function openDialog(s)
 	var dialog, dialogInput, s = s || "";
 	if(!get("#xxdialog"))
 	{
-		dialog = createElement({ id: "xxdialog" });
-		dialogInput = createElement({ tag: "textarea", id: "xxdialoginput" });
+		dialog = createElement("div", { id: "xxdialog" });
+		dialogInput = createElement("textarea", { id: "xxdialoginput" });
 		dialog.appendChild(dialogInput);
 		document.body.insertBefore(dialog, document.body.firstChild);
 		s = '#xxdialog { position: absolute; margin: auto; z-index: 10000; height: 400px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
@@ -1027,7 +1020,7 @@ function makeHeadingFromSelection(tagname)
 	if(node.tagName === undefined) node = node.parentNode;
 	if(node && node.parentNode && node.parentNode.tagName !== "body")
 	{
-		newNode = createElement({ tag: tagname, innerHTML: node.innerHTML });
+		newNode = createElement(tagname, { innerHTML: node.innerHTML });
 		node.parentNode.replaceChild(newNode, node);
 	}
 	else
@@ -1044,7 +1037,7 @@ function annotate()
 	if(node.tagName === undefined) node = node.parentNode;
 	if(node && node.parentNode)
 	{
-		var d = document.createElement("ruby");
+		var d = createElement("ruby");
 		d.textContent = prompt("______________________________________________ Annotate ___________________________________________________________________");
 		if(d.textContent.length) node.parentNode.insertBefore(d, node);
 	}
@@ -1060,7 +1053,7 @@ function getImages(slideshow)
 	}
 	deleteSmallImages();
 	var f = get("img"), db = document.body, i, ii, j, jj, e = [], w, h;
-	var tempNode = createElement({ tag: "slideshow", id: "nimbus_gallery" });
+	var tempNode = createElement("slideshow", { id: "nimbus_gallery" });
 	if(f && f.length)
 	{
 		//mark duplicates by removing the src
@@ -1255,7 +1248,7 @@ function replaceImagesWithTextLinks()
 		i = e.length;
 		while(i--)
 		{
-			imageLink = createElement({ tag: "img", src: e[i].querySelector("a").href });
+			imageLink = createElement("img", { src: e[i].querySelector("a").href });
 			e[i].parentNode.replaceChild(imageLink, e[i]);
 		}
 		del('#style_replace_images');
@@ -1268,7 +1261,7 @@ function replaceImagesWithTextLinks()
 		{
 			if(e[i].src)
 			{
-				imageLink = createElement({ tag: "a", href: e[i].src, textContent: e[i].src });
+				imageLink = createElement("a", { href: e[i].src, textContent: e[i].src });
 				imageReplacement = createElementWithChild("rt", imageLink);
 				if(e[i].parentNode.tagName.toLowerCase() === "a")
 					e[i].parentNode.parentNode.replaceChild(imageReplacement, e[i].parentNode);
@@ -1313,7 +1306,7 @@ function replaceFlash()
 			if(s.length)
 			{
 				s = s.replace(/&amp;/g, "&");
-				flashlink = createElement({ tag: "a", href: s, textContent: "[video]"})
+				flashlink = createElement("a", { href: s, textContent: "[video]"})
 				flashlinkcontainer = createElementWithChild("h6", flashlink);
 				objects[i].parentNode.replaceChild(flashlinkcontainer, objects[i]);
 			}
@@ -1326,7 +1319,7 @@ function replaceFlash()
 		if(s && s.length)
 		{
 			s = s.replace(/&amp;/g, "&");
-			flashlink = createElement({ tag: "a", href: s, textContent: "[video]"})
+			flashlink = createElement("a", { href: s, textContent: "[video]"})
 			flashlinkcontainer = createElementWithChild("h6", flashlink);
 			objects[i].parentNode.replaceChild(flashlinkcontainer, objects[i]);
 		}
@@ -1341,7 +1334,7 @@ function replaceAudio()
 	{
 		if(e[i].src)
 		{
-			f = createElement({ tag: "a", href: e[i].src, textContent: e[i].src });
+			f = createElement("a", { href: e[i].src, textContent: e[i].src });
 			g = createElementWithChild("h2", f);
 			e[i].parentNode.replaceChild(g, e[i]);
 		}
@@ -1362,7 +1355,7 @@ function addLinksToLargerImages()
 		if(containsAnyOfTheStrings(link.toLowerCase(), [".png", ".jpg", ".jpeg", ".gif"]))
 		{
 
-			var imageLink = createElement({ tag: "a", href: link, textContent: link});
+			var imageLink = createElement("a", { href: link, textContent: link});
 			var largeImage = createElementWithChild("rt", imageLink);
 			links[i].parentNode.insertBefore(largeImage, links[i]);
 		}
@@ -1496,13 +1489,13 @@ function replaceElement(selector, tagName)
 		}
 		for (i = toreplace.length - 1; i >= 0; i--)
 		{
-			replacement = createElement({ tag: tagName, innerHTML: toreplace[i].innerHTML });
+			replacement = createElement(tagName, { innerHTML: toreplace[i].innerHTML });
 			toreplace[i].parentNode.replaceChild(replacement, toreplace[i]);
 		}
 	}
 	else if(e && e.parentNode)
 	{
-		replacement = createElement({ tag: tagName, innerHTML: e.innerHTML });
+		replacement = createElement(tagName, { innerHTML: e.innerHTML });
 		e.parentNode.replaceChild(replacement, e);
 	}
 }
@@ -1536,29 +1529,18 @@ function insertStyle(str, identifier, important)
 	{
 		identifier_hash = "#" + identifier;
 		if(get(identifier_hash))
-		{
 			del(identifier_hash);
-			return;
-		}
 	}
 	if(important)
-	{
 		str = str.replace(/;/g, " !important;");
-	}
 	var head = getOne("head"), style = document.createElement("style"), rules = document.createTextNode(str);
 	style.type = "text/css";
 	if(style.styleSheet)
-	{
 		style.styleSheet.cssText = rules.nodeValue;
-	}
 	else
-	{
 		style.appendChild(rules);
-	}
 	if(identifier && identifier.length)
-	{
 		style.id = identifier;
-	}
 	head.appendChild(style);
 }
 
@@ -1852,7 +1834,7 @@ function setDocTitle(s)
 
 	if(!(getOne("h1") && getOne("h1").innerHTML === s))
 	{
-		h = createElement({ tag: "h1", textContent: s })
+		h = createElement("h1", { textContent: s })
 		document.body.insertBefore(h, document.body.firstChild);
 	}
 	// Append domain name to title for easy searching
@@ -2605,7 +2587,7 @@ function getElementsWithClass(strClass)
 	if(strClass.indexOf(".") !== 0)
 		strClass = "." + strClass;
 	f = get(strClass);
-	tempNode = createElement({ id: "replacerDiv" });
+	tempNode = createElement("div", { id: "replacerDiv" });
 	if(f && f.length)
 	{
 		for(i = 0; i < f.length; i++)
@@ -3167,7 +3149,7 @@ function getLinksWithHrefContaining(str)
 	{
 		if(e[i].href.indexOf(str) >= 0 || (e[i].title && e[i].title.indexOf(str) >= 0))
 		{
-			newLink = createElement({ tag: "a", href: e[i].href, textContent: e[i].href});
+			newLink = createElement("a", { href: e[i].href, textContent: e[i].href});
 			newLinkWrapper = createElementWithChild("h6", newLink);
 			container.appendChild(newLinkWrapper);
 		}
@@ -3188,7 +3170,7 @@ function xlog(str, logTag)
 function ylog(str, tag, prepend)
 {
 	var tag = tag || "h6";
-	var d = createElement({ tag: tag, className: "xlog", innerHTML: str });
+	var d = createElement(tag, { className: "xlog", innerHTML: str });
 	if(prepend)
 		document.body.insertBefore(d, document.body.firstChild);
 	else
@@ -3197,7 +3179,7 @@ function ylog(str, tag, prepend)
 
 function log2(str)
 {
-	document.body.appendChild(createElement({ tag: "h2", className: "xlog", innerHTML: str }));
+	document.body.appendChild(createElement("h2", { className: "xlog", innerHTML: str }));
 }
 
 function getPager(div)
@@ -3806,9 +3788,7 @@ function getTimestamp()
 function exposeFunctions()
 {
 	var scriptText = "function get(s) { var nodes = document.querySelectorAll(s); if(nodes.length) return nodes; else return false; } function del(arg) { var i, ii, j, jj; if(Object.prototype.toString.call(arg) === '[object HTMLElement]') { arg.parentNode.removeChild(arg); return; } else if(Object.prototype.toString.call(arg) === '[object Array]') { for(i = 0, ii = arg.length; i < ii; i++) del(arg[i]); } else { var f = get(arg); if(!f) return; if(f.length) { for(j = 0, jj = f.length; j < jj; j++) f[j].parentNode.removeChild(f[j]); } else if(f.parentNode) { f.parentNode.removeChild(f); } } } function forAll(selector, callback) { var e = get(selector); var i = e.length; while (i--) callback(e[i]); } ";
-	var scriptElement = createElement({ tag: "script" });
-	scriptElement.type = "text/javascript";
-	scriptElement.textContent = scriptText;
+	var scriptElement = createElement("script", { type: "text/javascript", textContent: scriptText });
 	document.body.appendChild(scriptElement);
 }
 
