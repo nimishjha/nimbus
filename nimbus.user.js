@@ -129,33 +129,15 @@ function isArray(o)
 	return Object.prototype.toString.call(o) === '[object Array]';
 }
 
-function deleteArrayOfElements(arr)
-{
-	for(var i = 0, ii = arr.length; i < ii; i++)
-		if(arr[i].parentNode)
-			arr[i].parentNode.removeChild(arr[i]);
-}
-
 function del(arg)
 {
-	var i, ii, j, jj;
-	switch(Object.prototype.toString.call(arg))
-	{
-		case "[object HTMLElement]":
-			arg.parentNode.removeChild(arg);
-			break;
-		case "[object Array]":
-			deleteArrayOfElements(arg);
-			break;
-		default:
-			var e = get(arg);
-			if(!e) return;
-			if(e.length)
-				deleteArrayOfElements(e);
-			else if(e.parentNode)
-				e.parentNode.removeChild(e);
-			break;
-	}
+	if(arg.nodeType)
+		arg.parentNode.removeChild(arg);
+	else if(arg.length && typeof(arg) === "string")
+		del(get(arg));
+	else
+		for(var i = 0, ii = arg.length; i < ii; i++)
+			del(arg[i]);
 }
 
 function listProperties(o)
@@ -1331,7 +1313,7 @@ function cleanupGeneral()
 	deleteNonContentImages();
 	addLinksToLargerImages();
 	replaceWrongHeading();
-	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet"]);
+	del(["link", "style", "iframe", "script", "form", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet"]);
 	//replaceFontTags();
 	replaceElementsBySelector("center", "div");
 	setDocTitle();
@@ -3807,7 +3789,6 @@ function makeHeadingsByTextLength()
 				textLength += e[i].textContent.length;
 		}
 		var averageTextLength = Math.floor(textLength / e.length);
-		console.log(className + ": " + averageTextLength);
 		if(averageTextLength < 80 && averageTextLength > 2 && e.length > 4)
 		{
 			headingClasses.push({
