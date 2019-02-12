@@ -3802,10 +3802,11 @@ function makeHeadingsByTextLength()
 		var textLength = 0;
 		while(i--)
 		{
-			textLength += e[i].textContent.length;
+			if(e[i].textContent.length)
+				textLength += e[i].textContent.length;
 		}
 		var averageTextLength = Math.floor(textLength / e.length);
-		if(averageTextLength < 100 && averageTextLength > 10 && e.length > 4)
+		if(averageTextLength < 80 && averageTextLength > 10 && e.length > 4)
 		{
 			headingClasses.push({
 				className: className,
@@ -4016,6 +4017,7 @@ function handleKeyDown(e)
 		e.preventDefault();
 		switch(k)
 		{
+			case KEYCODES.F: formatEbook(); break;
 			case KEYCODES.H: unhighlightAllHighlightedElements(); break;
 			case KEYCODES.S: forceReloadCss(); break;
 			case KEYCODES.F12: analyze(true); break;
