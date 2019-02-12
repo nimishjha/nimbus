@@ -115,7 +115,7 @@ function get(s)
 {
 	if(s.indexOf("#") === 0 && s.indexOf(" ") === -1 && s.indexOf(".") === -1) return document.querySelector(s);
 	var nodes = document.querySelectorAll(s);
-	if(nodes.length) return nodes;
+	if(nodes.length) return Array.from(nodes);
 	return false;
 }
 
@@ -129,32 +129,31 @@ function isArray(o)
 	return Object.prototype.toString.call(o) === '[object Array]';
 }
 
+function deleteArrayOfElements(arr)
+{
+	for(var i = 0, ii = arr.length; i < ii; i++)
+		arr[i].parentNode.removeChild(arr[i]);
+}
+
 function del(arg)
 {
 	var i, ii, j, jj;
-	if(Object.prototype.toString.call(arg) === '[object HTMLElement]')
+	switch(Object.prototype.toString.call(arg))
 	{
-		arg.parentNode.removeChild(arg);
-		return;
-	}
-	else if(Object.prototype.toString.call(arg) === '[object Array]')
-	{
-		for(i = 0, ii = arg.length; i < ii; i++)
-			del(arg[i]);
-	}
-	else
-	{
-		var f = get(arg);
-		if(!f) return;
-		if(f.length)
-		{
-			for(j = 0, jj = f.length; j < jj; j++)
-				f[j].parentNode.removeChild(f[j]);
-		}
-		else if(f.parentNode)
-		{
-			f.parentNode.removeChild(f);
-		}
+		case "[object HTMLElement]":
+			arg.parentNode.removeChild(arg);
+			break;
+		case "[object Array]":
+			deleteArrayOfElements(arg);
+			break;
+		default:
+			var e = get(arg);
+			if(!e) return;
+			if(e.length)
+				deleteArrayOfElements(e);
+			else if(e.parentNode)
+				e.parentNode.removeChild(e);
+			break;
 	}
 }
 
@@ -640,18 +639,19 @@ function deleteUselessScripts()
 	var e, i, ii, domains = ["google.com", "googletagmanager.com"];
 	e = get("script");
 	i = e.length;
+	var elem;
 	while(i--)
 	{
-		if(e[i].hasAttribute("src"))
+		elem = e[i];
+		if(elem.hasAttribute("src"))
 		{
-			if(containsAnyOfTheStrings(e[i].src, domains) && !(containsAnyOfTheStrings(location.hostname, domains)))
+			if(containsAnyOfTheStrings(elem.src, domains) && !(containsAnyOfTheStrings(location.hostname, domains)))
 			{
-				log2("Deleting " + e[i].src);
-				e[i].parentNode.removeChild(e[i]);
+				log2("Deleting " + elem.src);
+				elem.parentNode.removeChild(elem);
 			}
 		}
 	}
-	insertStyle(".xlog { background: #181818; color: #AAA; font: 24px swis721 cn bt; margin: 0 0 1px 0; }", "style_log2", true);
 }
 
 function getBestImageSrc()
@@ -876,6 +876,13 @@ function css(elem)
 	return rulesArray;
 }
 
+function getContentById(id)
+{
+	var toGet = getOne(id);
+	if(toGet)
+		document.body.innerHTML = toGet.innerHTML;
+}
+
 function doStackOverflow()
 {
 	var sites = ["stackexchange", "stackoverflow", "superuser", "serverfault"], found = false;
@@ -885,6 +892,7 @@ function doStackOverflow()
 	{
 		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form"]);
 		deleteElementsContainingText("h2", "Not the answer");
+		getContentById("#content");
 		cleanupGeneral();
 		highlightCode(true);
 		forAll("td", function f(x) {
@@ -1277,55 +1285,6 @@ function replaceImagesWithTextLinks()
 	}
 }
 
-function replaceFlash()
-{
-	var objects, s, index1, flashlink, flashlinkcontainer, i;
-	objects = document.getElementsByTagName("object");
-	for (i = objects.length - 1; i >= 0; i--)
-	{
-		s = objects[i].innerHTML;
-		s = s.replace(/\n/g, " ");
-		s = s.replace(/\r/g, " ");
-		s = s.replace(/\s+/g, " ");
-		index1 = s.indexOf("http");
-		if(index1 >= 0)
-		{
-			s = s.substr(index1);
-		}
-		else if(objects[i].getAttribute("data"))
-		{
-			s = objects[i].getAttribute("data").toString();
-		}
-		else
-		{
-			s = "";
-		}
-		if(s.length)
-		{
-			s = s.match(/[^>]+/g)[0];
-			if(s.length)
-			{
-				s = s.replace(/&amp;/g, "&");
-				flashlink = createElement("a", { href: s, textContent: "[video]"})
-				flashlinkcontainer = createElementWithChild("h6", flashlink);
-				objects[i].parentNode.replaceChild(flashlinkcontainer, objects[i]);
-			}
-		}
-	}
-	objects = document.getElementsByTagName("embed");
-	for (i = objects.length - 1; i >= 0; i--)
-	{
-		s = objects[i].src;
-		if(s && s.length)
-		{
-			s = s.replace(/&amp;/g, "&");
-			flashlink = createElement("a", { href: s, textContent: "[video]"})
-			flashlinkcontainer = createElementWithChild("h6", flashlink);
-			objects[i].parentNode.replaceChild(flashlinkcontainer, objects[i]);
-		}
-	}
-}
-
 function replaceAudio()
 {
 	var e, i, f, g;
@@ -1339,7 +1298,7 @@ function replaceAudio()
 			e[i].parentNode.replaceChild(g, e[i]);
 		}
 	}
-	replaceElement("audio", "div");
+	replaceElementsBySelector("audio", "div");
 }
 
 function addLinksToLargerImages()
@@ -1367,14 +1326,13 @@ function cleanupGeneral()
 	var t1 = performance.now();
 	cleanupHead();
 	getOne("body").removeAttribute("style");
-	replaceFlash();
 	replaceIframes();
 	deleteNonContentImages();
 	addLinksToLargerImages();
 	replaceWrongHeading();
 	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet"]);
 	//replaceFontTags();
-	replaceElement("center", "div");
+	replaceElementsBySelector("center", "div");
 	setDocTitle();
 	removeAttributes();
 	deletePlainSpanTags();
@@ -1393,11 +1351,10 @@ function cleanupGeneral_light()
 	var t1 = performance.now();
 	deleteEmptyHeadings();
 	cleanupHead();
-	replaceFlash();
 	replaceIframes();
 	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "noscript"]);
 	//replaceFontTags();
-	replaceElement("center", "div");
+	replaceElementsBySelector("center", "div");
 	setDocTitle();
 	del("x");
 	removeAttributes_regex();
@@ -1471,7 +1428,7 @@ function count(s)
 		return 0;
 }
 
-function replaceElement(selector, tagName)
+function replaceElementsBySelector(selector, tagName)
 {
 	if(!(selector && tagName))
 	{
@@ -2159,8 +2116,8 @@ function makeHeadings()
 			e[i].className = "highlightthis";
 		}
 	}
-	replaceElement(".parah2", "h2");
-	replaceElement(".parah3", "h3");
+	replaceElementsBySelector(".parah2", "h2");
+	replaceElementsBySelector(".parah3", "h3");
 	del(".deleteme");
 	e = get(".highlightthis");
 	i = e.length;
@@ -2216,6 +2173,14 @@ function normalizeString(s) // normalize string
 
 function logout()
 {
+	switch (location.hostname)
+	{
+		case 'mail.google.com':
+		case 'accounts.google.com':
+			location.href = 'https://accounts.google.com/Logout';
+			return;
+			break;
+	}
 	var e, i, ii, newlink, found = false, s;
 	e = get("a");
 	i = e.length;
@@ -2644,7 +2609,7 @@ function deleteNonContentDivs()
 	}
 	var sClass = "toget", e, f, i, j, tag;
 
-	replaceElement("article", "div");
+	replaceElementsBySelector("article", "div");
 	deleteNonContentElements();
 	deleteNonContentImages();
 	deleteEmptyElements("p");
@@ -2935,7 +2900,7 @@ function fixHeadings()
 
 function fixPres()
 {
-	replaceElement('font', 'span');
+	replaceElementsBySelector('font', 'span');
 	var e, i, ii, s, temp;
 	e = get("code");
 	i = e.length;
@@ -3727,25 +3692,6 @@ function showTextToHTMLRatio()
 	}
 }
 
-function fixForums()
-{
-	var t1 = new Date();
-	var e, i;
-	if(!document.body)
-		return;
-	e = get("div");
-	i = e.length;
-	while(i--)
-	{
-		if(e[i].className && e[i].className.toLowerCase().indexOf("quote") !== -1)
-		{
-			e[i].innerHTML = '<blockquote>' + e[i].innerHTML + '</blockquote>';
-		}
-	}
-	var t2 = new Date();
-	xlog(t2-t1 +"ms: fixForums");
-}
-
 function removeAccesskeys()
 {
 	var e = get("a");
@@ -3792,6 +3738,102 @@ function exposeFunctions()
 	document.body.appendChild(scriptElement);
 }
 
+function hasClassesContaining(element, arrStr)
+{
+	var classes = element.className;
+	for (var i = 0, ii = arrStr.length; i < ii; i++)
+	{
+		var str = arrStr[i];
+		if (classes.indexOf(str) !== -1)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+function replaceSingleElement(e, tag)
+{
+	var replacement = document.createElement(tag);
+	replacement.innerHTML = e.innerHTML;
+	e.parentNode.replaceChild(replacement, e);
+}
+
+function createTagsByClassName()
+{
+	var e = document.querySelectorAll("div, p");
+	var i = e.length;
+	while (i--)
+	{
+		var element = e[i];
+		if (hasClassesContaining(element, ["cn", "ct", "heading"])) replaceSingleElement(element, "h2");
+	}
+	e = document.querySelectorAll("span");
+	var i = e.length;
+	while (i--)
+	{
+		var element = e[i];
+		if (hasClassesContaining(element, ["bold"])) replaceSingleElement(element, "b");
+		else if (hasClassesContaining(element, ["italic"])) replaceSingleElement(element, "b");
+	}
+}
+
+function makeHeadingsByTextLength()
+{
+	var e = document.querySelectorAll("div, p");
+	var i = e.length, ii;
+	var classes = {};
+	var headingClasses = [];
+	while(i--)
+	{
+		var strClass = e[i].className.replace(/\s+/, "");
+		if(strClass.length && !classes[strClass])
+		{
+			classes[strClass] = null;
+		}
+	}
+
+	for(className in classes)
+	{
+		var selector = "." + className;
+		if(selector.length < 2) continue;
+		e = document.querySelectorAll(selector);
+		i = e.length;
+		var textLength = 0;
+		while(i--)
+		{
+			textLength += e[i].textContent.length;
+		}
+		var averageTextLength = Math.floor(textLength / e.length);
+		if(averageTextLength < 100 && averageTextLength > 10 && e.length > 4)
+		{
+			headingClasses.push({
+				className: className,
+				averageTextLength: averageTextLength
+			});
+		}
+	}
+	console.table(headingClasses);
+	headingClasses = headingClasses.sort(function(a, b){
+		if(a.averageTextLength > b.averageTextLength) return 1;
+		else if(a.averageTextLength < b.averageTextLength) return -1;
+		else return 0;
+	})
+	// headingClasses = headingClasses.slice(0, 6);
+	// var headingLevel = 1;
+	for(i = 0, ii = headingClasses.length; i < ii; i++)
+	{
+		// replaceElementsBySelector("." + headingClasses[i].className, "h" + headingLevel++);
+		replaceElementsBySelector("." + headingClasses[i].className, "h3");
+	}
+}
+
+function formatEbook()
+{
+	createTagsByClassName();
+	makeHeadingsByTextLength();
+}
+
 function inject()
 {
 	deleteUselessIframes();
@@ -3819,7 +3861,7 @@ function initialize()
 				load = false;
 				break;
 			case "www.imdb.com":
-				replaceElement(".head", "h2");
+				replaceElementsBySelector(".head", "h2");
 				break;
 			case "en.wikipedia.org":
 			case "secure.wikimedia.org":
@@ -3914,7 +3956,7 @@ function handleKeyDown(e)
 			case KEYCODES.ONE: showResources(); break;
 			case KEYCODES.TWO: replaceImagesWithTextLinks(); break;
 			case KEYCODES.FIVE: getImages(true); break;
-			case KEYCODES.E: replaceElement(); break;
+			case KEYCODES.E: replaceElementsBySelector(); break;
 			case KEYCODES.G: getElementsContainingText(); break;
 			case KEYCODES.F12: highlightCode(true); break;
 			case KEYCODES.A: annotate(); break;
@@ -3945,7 +3987,7 @@ function handleKeyDown(e)
 			case KEYCODES.THREE: insertStyleFonts(); break;
 			case KEYCODES.FOUR: insertStyleGrey(); break;
 			case KEYCODES.FIVE: insertStyleShowClass(); break;
-			case KEYCODES.E: replaceElement(); break;
+			case KEYCODES.E: replaceElementsBySelector(); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
 			case KEYCODES.G: highlightElementsWithInlineWidthOrHeight(); break;
 			case KEYCODES.H: highlightElementsBySelector(); break;
