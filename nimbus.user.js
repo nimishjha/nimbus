@@ -132,7 +132,8 @@ function isArray(o)
 function deleteArrayOfElements(arr)
 {
 	for(var i = 0, ii = arr.length; i < ii; i++)
-		arr[i].parentNode.removeChild(arr[i]);
+		if(arr[i].parentNode)
+			arr[i].parentNode.removeChild(arr[i]);
 }
 
 function del(arg)
@@ -3766,7 +3767,7 @@ function createTagsByClassName()
 	while (i--)
 	{
 		var element = e[i];
-		if (hasClassesContaining(element, ["cn", "ct", "heading"])) replaceSingleElement(element, "h2");
+		if (hasClassesContaining(element, ["cn", "ct", "heading", "chapternumber", "chaptertitle"])) replaceSingleElement(element, "h2");
 	}
 	e = document.querySelectorAll("span");
 	var i = e.length;
@@ -3806,7 +3807,8 @@ function makeHeadingsByTextLength()
 				textLength += e[i].textContent.length;
 		}
 		var averageTextLength = Math.floor(textLength / e.length);
-		if(averageTextLength < 80 && averageTextLength > 10 && e.length > 4)
+		console.log(className + ": " + averageTextLength);
+		if(averageTextLength < 80 && averageTextLength > 2 && e.length > 4)
 		{
 			headingClasses.push({
 				className: className,
