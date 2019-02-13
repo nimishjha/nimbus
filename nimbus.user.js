@@ -2248,7 +2248,7 @@ function logout()
 
 function showPrintLink()
 {
-	var e, i, newlink, found = false;
+	var e, i, printLink, found = false;
 	e = get("a");
 	i = e.length;
 	while(i--)
@@ -2256,17 +2256,15 @@ function showPrintLink()
 		if(e[i].href && removeWhitespace(e[i].href).toLowerCase().indexOf("print") >= 0)
 		{
 			found = true;
-			newlink = document.createElement("a");
-			newlink.href = e[i].href;
-			newlink.textContent = 'Print';
-			document.body.insertBefore(createElementWithChild("h2", newlink), document.body.firstChild);
-			newlink.focus();
+			printLink = createElement("a", { href: e[i].href, textContent: "Print" });
+			document.body.insertBefore(createElementWithChild("h2", printLink), document.body.firstChild);
+			printLink.focus();
 			break;
 		}
 	}
 	if(!found)
 	{
-		showMessage("Print link not found");
+		showMessage("Print link not found", "messagebig");
 	}
 }
 
