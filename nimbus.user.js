@@ -1327,7 +1327,7 @@ function cleanupGeneral()
 	addLinksToLargerImages();
 	replaceWrongHeading();
 
-	del(["link", "style", "iframe", "script", "form", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet"]);
+	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet"]);
 	//replaceFontTags();
 	replaceElementsBySelector("center", "div");
 	setDocTitle();
@@ -1340,7 +1340,7 @@ function cleanupGeneral()
 	document.body.className = "pad100";
 	insertStyleNegative();
 	var t2 = performance.now();
-	xlog(((t2 - t1)) + " ms: cleanupGeneral");
+	xlog(Math.round(t2 - t1) + " ms: cleanupGeneral");
 }
 
 function cleanupGeneral_light()
@@ -1358,7 +1358,7 @@ function cleanupGeneral_light()
 	appendInfo();
 	document.body.className = "pad100 xShowImages";
 	var t2 = performance.now();
-	xlog(t2-t1 + " ms: cleanupGeneral_light");
+	xlog(Math.round(t2 - t1) + " ms: cleanupGeneral_light");
 }
 
 function replaceIframes()
