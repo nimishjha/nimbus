@@ -3764,6 +3764,7 @@ function createTagsByClassName()
 	{
 		var element = e[i];
 		if (hasClassesContaining(element, ["cn", "ct", "heading", "chapternumber", "chaptertitle"])) replaceSingleElement(element, "h2");
+		else if (hasClassesContaining(element, ["quote", "extract"])) replaceSingleElement(element, "blockquote");
 	}
 	e = document.querySelectorAll("span");
 	var i = e.length;
