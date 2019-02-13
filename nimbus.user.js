@@ -402,7 +402,7 @@ function createElement(tag, props)
 		if(settableProperties.includes(key))
 			elem[key] = props[key];
 		else
-			elem.setAttribute(key, args[key]);
+			elem.setAttribute(key, props[key]);
 	}
 	return elem;
 };
@@ -564,31 +564,45 @@ function showDocumentStructureWithNames()
 function highlightSelectionOrText()
 {
 	showMessage("Highlight selection or text", "messagebig");
+	var s, i, ii;
+	var node, nodes, regex;
+	var links, linkHrefs;
+
 	if(window.getSelection().toString().length)
-	{
-		selection = window.getSelection().toString();
-		s = selection.toString();
-	}
+		s = window.getSelection().toString();
 	else
-	{
 		s = prompt("Text to highlight");
-	}
-	if(s && s.length)
+
+	// if(s && s.length)
+	// {
+	// 	var ss = escapeForRegExp(s);
+	// 	var tempHTML = document.body.innerHTML;
+	// 	var r = new RegExp(ss, "gi");
+	// 	tempHTML = tempHTML.replace(r, "<samp>" + s + "</samp>");
+	// 	document.body.innerHTML = tempHTML;
+	// }
+
+	if (s && s.length)
 	{
-		var ss = escapeForRegExp(s);
-		var tempHTML = document.body.innerHTML;
-		//tempHTML = tempHTML.replace(/\n/g, " ");
-		//tempHTML = tempHTML.replace(/\r/g, " ");
-		//tempHTML = tempHTML.replace(/\s+/g, " ");
+		linkHrefs = [];
+		links = get("a");
+		for(i = 0, ii = links.length; i < ii; i++)
+			linkHrefs.push(links[i].href);
 
-		//var r = new RegExp("\\b" + ss + "\\b", "gi");
-		var r = new RegExp(ss, "gi");
-		tempHTML = tempHTML.replace(r, "<samp>" + s + "</samp>");
+		regex = new RegExp(escapeForRegExp(s), "gi");
+		nodes = document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li, blockquote");
+		for (i = 0, ii = nodes.length; i < ii; i++)
+		{
+			node = nodes[i];
+			if (~node.innerHTML.indexOf(s))
+				node.innerHTML = node.innerHTML.replace(regex, "<mark>" + s + "</mark>");
+			else if(~node.textContent.indexOf(s))
+				node.innerHTML = "<mark>" + node.innerHTML + "</mark>";
+		}
 
-		//var r = new RegExp("(>[^<>]*)" + ss + "([^<>]*<)", "gi");
-		//tempHTML = tempHTML.replace(r, "$1<samp>" + s + "</samp>$2");
-
-		document.body.innerHTML = tempHTML;
+		links = get("a");
+		for(i = 0, ii = links.length; i < ii; i++)
+			links[i].href = linkHrefs[i];
 	}
 }
 
@@ -1289,17 +1303,16 @@ function addLinksToLargerImages()
 	if(get("rt"))
 		return;
 	var links = get("a");
-	var link, linkLower;
+	var link;
 	var i = links.length;
 	while(i--)
 	{
 		link = links[i].href;
 		if(containsAnyOfTheStrings(link.toLowerCase(), [".png", ".jpg", ".jpeg", ".gif"]))
 		{
-
 			var imageLink = createElement("a", { href: link, textContent: link});
-			var largeImage = createElementWithChild("rt", imageLink);
-			links[i].parentNode.insertBefore(largeImage, links[i]);
+			var largeImageLink = createElementWithChild("rt", imageLink);
+			links[i].parentNode.insertBefore(largeImageLink, links[i]);
 		}
 	}
 }
@@ -1313,6 +1326,7 @@ function cleanupGeneral()
 	deleteNonContentImages();
 	addLinksToLargerImages();
 	replaceWrongHeading();
+
 	del(["link", "style", "iframe", "script", "form", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet"]);
 	//replaceFontTags();
 	replaceElementsBySelector("center", "div");
