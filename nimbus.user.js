@@ -131,6 +131,8 @@ function isArray(o)
 
 function del(arg)
 {
+	if(!arg)
+		return;
 	if(arg.nodeType)
 		arg.parentNode.removeChild(arg);
 	else if(arg.length && typeof(arg) === "string")
@@ -171,6 +173,7 @@ function getSelectorsWithLightBackgrounds()
 		var bgColor = s.getPropertyValue("background-color");
 		if (bgColor.match(/2[0-9][0-9]/))
 		{
+			str += e[i].tagName;
 			if(e[i].id) str += "#" + e[i].id;
 			if(e[i].className) str += "." + e[i].className;
 			 str +=  ": " + bgColor + "\r\n";
