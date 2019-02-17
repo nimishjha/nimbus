@@ -3731,7 +3731,7 @@ function getTimestamp()
 
 function exposeFunctions()
 {
-	var scriptText = "function get(s) { var nodes = document.querySelectorAll(s); if(nodes.length) return nodes; else return false; } function del(arg) { var i, ii, j, jj; if(Object.prototype.toString.call(arg) === '[object HTMLElement]') { arg.parentNode.removeChild(arg); return; } else if(Object.prototype.toString.call(arg) === '[object Array]') { for(i = 0, ii = arg.length; i < ii; i++) del(arg[i]); } else { var f = get(arg); if(!f) return; if(f.length) { for(j = 0, jj = f.length; j < jj; j++) f[j].parentNode.removeChild(f[j]); } else if(f.parentNode) { f.parentNode.removeChild(f); } } } function forAll(selector, callback) { var e = get(selector); var i = e.length; while (i--) callback(e[i]); } ";
+	var scriptText = 'function get(s) { if(s.indexOf("#") === 0 && s.indexOf(" ") === -1 && s.indexOf(".") === -1) return document.querySelector(s); var nodes = document.querySelectorAll(s); if(nodes.length) return Array.from(nodes); return false; } function del(arg) { var i, ii, j, jj; if(Object.prototype.toString.call(arg) === "[object HTMLElement]") { arg.parentNode.removeChild(arg); return; } else if(Object.prototype.toString.call(arg) === "[object Array]") { for(i = 0, ii = arg.length; i < ii; i++) del(arg[i]); } else { var f = get(arg); if(!f) return; if(f.length) { for(j = 0, jj = f.length; j < jj; j++) f[j].parentNode.removeChild(f[j]); } else if(f.parentNode) { f.parentNode.removeChild(f); } } } function forAll(selector, callback) { var e = get(selector); var i = e.length; while (i--) callback(e[i]); }';
 	var scriptElement = createElement("script", { type: "text/javascript", textContent: scriptText });
 	document.body.appendChild(scriptElement);
 }
@@ -3832,6 +3832,28 @@ function formatEbook()
 {
 	createTagsByClassName();
 	makeHeadingsByTextLength();
+}
+
+function showMutations(mutations)
+{
+	var i, ii, j, jj, mutation;
+	for(var i = 0, ii = mutations.length; i < ii; i++)
+	{
+		mutation = mutations[i];
+		if (mutation.addedNodes.length)
+		{
+			for(var j = 0, jj = mutation.addedNodes.length; j < jj; j++)
+			{
+				console.log(mutation.addedNodes[j].outerHTML);
+			}
+		}
+	}
+}
+
+function observeAddedNodes()
+{
+	var observer = new MutationObserver(showMutations);
+	observer.observe(document.getElementsByTagName("body")[0],{ childList: true });
 }
 
 function inject()
