@@ -293,21 +293,6 @@ function containsAnyOfTheStrings(s, arrStrings)
 	return found;
 }
 
-function isInArray(item, arr)
-{
-	var i = arr.length;
-	var found = false;
-	while(i--)
-	{
-		if(item === arr[i])
-		{
-			found = true;
-			break;
-		}
-	}
-	return found;
-}
-
 function toggleClass(element, sClass)
 {
 	if(element.classList.contains(sClass)) element.classList.remove(sClass);
@@ -611,7 +596,7 @@ function highlightSelectionOrText()
 
 function deleteUselessIframes()
 {
-	var domainsRequiringIframes = ["google.com"];
+	var domainsRequiringIframes = ["google.com", "jsperf.com", "measurethat"];
 	var safeIframes = ["google.com"];
 	if(containsAnyOfTheStrings(location.hostname, domainsRequiringIframes))
 	{
@@ -3461,7 +3446,7 @@ function focusFormElement()
 		}
 		if(inputs[i].type)
 		{
-			if(!isInArray(inputs[i].type, ["hidden", "submit", "reset", "button", "radio", "checkbox", "image"]))
+			if( !["hidden", "submit", "reset", "button", "radio", "checkbox", "image"].indexOf(inputs[i].type) )
 				e.push(inputs[i]);
 		}
 		else
