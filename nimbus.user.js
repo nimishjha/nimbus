@@ -1170,7 +1170,12 @@ function deleteIframes()
 function deleteImages()
 {
 	del("svg");
-	if(get("img").length) del("img");
+	var images = get("img");
+	if(images && images.length)
+	{
+		del("img");
+		showMessage("Deleted " + images.length + " images", "messagebig");
+	}
 	else del("rt");
 }
 
@@ -3446,7 +3451,7 @@ function focusFormElement()
 		}
 		if(inputs[i].type)
 		{
-			if( !["hidden", "submit", "reset", "button", "radio", "checkbox", "image"].indexOf(inputs[i].type) )
+			if( ["hidden", "submit", "reset", "button", "radio", "checkbox", "image"].indexOf(inputs[i].type) === -1 )
 				e.push(inputs[i]);
 		}
 		else
