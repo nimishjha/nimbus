@@ -326,18 +326,6 @@ function cycleClass(elem, arrClasses)
 	}
 }
 
-function getIframes()
-{
-	var f = get("iframe");
-	s = '';
-	for (i = 0, ii = f.length; i < ii; i++)
-		s += f[i].contentDocument.body.innerHTML;
-	i = f.length;
-	while (i--)
-		f[i].parentNode.removeChild(f[i]);
-	db.innerHTML += s;
-}
-
 function getDebugData()
 {
 	var e, i;
@@ -647,8 +635,7 @@ function getBestImageSrc()
 	{
 		if(e[i].currentSrc)
 			e[i].src = e[i].currentSrc;
-		if(e[i].hasAttribute("srcset"))
-			e[i].removeAttribute("srcset");
+		e[i].removeAttribute("srcset");
 	}
 }
 
@@ -3755,9 +3742,11 @@ function createTagsByClassName()
 	{
 		var element = e[i];
 		if (hasClassesContaining(element, ["cn", "ct", "heading", "chapternumber", "chaptertitle"])) replaceSingleElement(element, "h2");
+		else if (hasClassesContaining(element, ["h1"])) replaceSingleElement(element, "h1");
+		else if (hasClassesContaining(element, ["h2"])) replaceSingleElement(element, "h2");
 		else if (hasClassesContaining(element, ["quote", "extract"])) replaceSingleElement(element, "blockquote");
 	}
-	e = document.querySelectorAll("span");
+	e = get("span");
 	var i = e.length;
 	while (i--)
 	{
@@ -3769,7 +3758,7 @@ function createTagsByClassName()
 
 function makeHeadingsByTextLength()
 {
-	var e = document.querySelectorAll("div, p");
+	var e = get("div, p");
 	var i = e.length, ii;
 	var classes = {};
 	var headingClasses = [];
@@ -3786,7 +3775,7 @@ function makeHeadingsByTextLength()
 	{
 		var selector = "." + className;
 		if(selector.length < 2) continue;
-		e = document.querySelectorAll(selector);
+		e = get(selector);
 		i = e.length;
 		var textLength = 0;
 		while(i--)
@@ -3843,7 +3832,7 @@ function showMutations(mutations)
 function observeAddedNodes()
 {
 	var observer = new MutationObserver(showMutations);
-	observer.observe(document.getElementsByTagName("body")[0],{ childList: true });
+	observer.observe(getOne("body"),{ childList: true });
 }
 
 function inject()
@@ -3871,9 +3860,6 @@ function initialize()
 			case "maps.google.com.au":
 			case "maps.google.com":
 				load = false;
-				break;
-			case "www.imdb.com":
-				replaceElementsBySelector(".head", "h2");
 				break;
 			case "en.wikipedia.org":
 			case "secure.wikimedia.org":
@@ -3930,7 +3916,7 @@ function handleKeyDown(e)
 			case KEYCODES.ZERO: setDocTitleFromSelection(); break;
 			case KEYCODES.ONE: cleanupGeneral(); break;
 			case KEYCODES.TWO: deleteImages(); break;
-			case KEYCODES.THREE: toggleClass(document.body, "xwrap"); break;
+			case KEYCODES.THREE: toggleClass(db, "xwrap"); break;
 			case KEYCODES.FOUR: deleteSmallImages(); break;
 			case KEYCODES.FIVE: getImages(); break;
 			case KEYCODES.SIX: deleteIframes(); break;
@@ -3939,14 +3925,13 @@ function handleKeyDown(e)
 			case KEYCODES.NINE: toggleShowClasses(); break;
 			case KEYCODES.I: deleteSignatures(); break;
 			case KEYCODES.P: fixParagraphs(); break;
-			case KEYCODES.A: cycleClass(document.body, ["xDontShowLinks", "xHE", "irrelevantString"]); cycleClass(document.getElementsByTagName("html")[0], ["xDontShowLinks", "xHE", "irrelevantString"]); break;
+			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", "irrelevantString"]); cycleClass(getOne("html"), ["xDontShowLinks", "xHE", "irrelevantString"]); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.G: deleteElementsContainingText(); break;
-			case KEYCODES.X: toggleClass(document.body, "xShowImages"); break;
+			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: highlightNodesContaining(); break;
 			case KEYCODES.O: highlightSelectionOrText(); break;
-			case KEYCODES.K: getIframes(); break;
 			case KEYCODES.L: showLog(); break;
 			case KEYCODES.Q: fixHeadings(); break;
 			case KEYCODES.R: highlightNode(); break;
