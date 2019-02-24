@@ -1306,15 +1306,13 @@ function cleanupGeneral()
 	deleteNonContentImages();
 	addLinksToLargerImages();
 	replaceWrongHeading();
-
 	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet"]);
-	//replaceFontTags();
+	deleteElementsContainingText("h6", "Deleting iframe");
 	replaceElementsBySelector("center", "div");
 	setDocTitle();
 	removeAttributes();
 	deletePlainSpanTags();
 	replaceAudio();
-	//removeEventListeners();
 	appendInfo();
 	getBestImageSrc();
 	document.body.className = "pad100";
@@ -1480,7 +1478,7 @@ function insertStyle(str, identifier, important)
 
 function insertStyleHighlight()
 {
-	var s = '.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }' +
+	var s = '.hl, .focused { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }' +
 		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
 		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
 	insertStyle(s, undefined, true);
