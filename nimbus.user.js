@@ -326,22 +326,6 @@ function cycleClass(elem, arrClasses)
 	}
 }
 
-function getDebugData()
-{
-	var e, i;
-	e = get("pre");
-	if(!e)
-		return;
-	i = e.length;
-	while(i--)
-	{
-		if(e[i].innerHTML.indexOf("cache-&gt;") >= 0)
-		{
-			document.body.insertBefore(e[i], document.body.firstChild);
-		}
-	}
-}
-
 function createUUID()
 {
 	return 'nimbus-xxxx-xxxx-xxxx-xxxx-xxxx'.replace(/x/g, function (c)
