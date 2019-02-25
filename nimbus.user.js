@@ -270,7 +270,7 @@ function markTableRowsAndColumns()
 			td[j].className = "col" + j;
 		}
 	}
-	insertStyle("table, tr, td { box-shadow: inset 1px 1px #444, inset -1px -1px #444 !important; }", "style_showtables");
+	insertStyle("table, tr, td { box-shadow: inset 1px 1px #444, inset -1px -1px #444 !important; }", "styleShowTables");
 }
 
 //
@@ -399,7 +399,7 @@ function showResources()
 	if(get(".xlog").length)
 	{
 		del(".xlog");
-		del("#style_show_resources");
+		del("#styleShowResources");
 		return;
 	}
 	var count, uuid;
@@ -435,7 +435,7 @@ function showResources()
 	'.xlog a { text-decoration: none; letter-spacing: 0; font: 12px verdana; text-transform: none; color: #09F; }' +
 	'.xlog a:visited { color: #059; }' +
 	'.xlog a:hover { color: #FFF; } h3.xlog:nth-of-type(1) {margin-top: 50px;}';
-	insertStyle(s, "style_show_resources", true);
+	insertStyle(s, "styleShowResources", true);
 	window.scrollTo(0, 0);
 }
 
@@ -550,7 +550,7 @@ function highlightSelectionOrText()
 			linkHrefs.push(links[i].href);
 
 		regex = new RegExp(escapeForRegExp(s), "gi");
-		nodes = document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li, blockquote");
+		nodes = document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li, blockquote, td");
 		for (i = 0, ii = nodes.length; i < ii; i++)
 		{
 			node = nodes[i];
@@ -678,9 +678,9 @@ function showMessage(s, msgClass, persist)
 	{
 		e = createElement("message", { className: msgClass });
 		document.body.insertBefore(e, document.body.firstChild);
-		if(!getOne("#style_message"))
+		if(!getOne("#styleMessage"))
 		{
-			insertStyle(strStyle, "style_message", true);
+			insertStyle(strStyle, "styleMessage", true);
 		}
 	}
 	else
@@ -697,7 +697,7 @@ function deleteMessage()
 {
 	del("message");
 	del(".xalert");
-	del("#style_message");
+	del("#styleMessage");
 }
 
 function openDialog(s)
@@ -926,7 +926,7 @@ function highlightElementsWithAttribute(s)
 			}
 		}
 	}
-	insertStyle(".hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }", "style_hewa", true);
+	insertStyle(".hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }", "styleHighlightElementsWithAttribute", true);
 }
 
 function highlightElementsWithSetWidths()
@@ -948,7 +948,7 @@ function highlightElementsWithSetWidths()
 			}
 		}
 	}
-	insertStyle("x { background: #000; color: #FFF; padding: 2px 4px; display: block; font: 12px verdana;  } .xlog { clear: both; } .hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }", "style_hewsw", true);
+	insertStyle("x { background: #000; color: #FFF; padding: 2px 4px; display: block; font: 12px verdana;  } .xlog { clear: both; } .hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }", "styleHighlightElementsWithSetWidths", true);
 }
 
 function wrapNodeInTag()
@@ -1009,15 +1009,15 @@ function annotate()
 
 function getImages(slideshow)
 {
-	if(get("#style_nimbus_gallery"))
+	if(get("#styleNimbusGallery"))
 	{
-		del("#style_nimbus_gallery");
-		del("#nimbus_gallery");
+		del("#styleNimbusGallery");
+		del("#nimbusGallery");
 		return;
 	}
 	deleteSmallImages();
 	var f = get("img"), db = document.body, i, ii, j, jj, e = [], w, h;
-	var tempNode = createElement("slideshow", { id: "nimbus_gallery" });
+	var tempNode = createElement("slideshow", { id: "nimbusGallery" });
 	if(f && f.length)
 	{
 		//mark duplicates by removing the src
@@ -1058,7 +1058,7 @@ function getImages(slideshow)
 			del("img");
 			cleanupHead();
 			//del("style");
-			insertStyle("img { display: block; float: left; height: 300px; }", "style_gallery", true);
+			insertStyle("img { display: block; float: left; height: 300px; }", "styleGallery", true);
 		}
 
 		db.insertBefore(tempNode, db.firstChild);
@@ -1075,20 +1075,20 @@ function getImages(slideshow)
 function buildSlideshow()
 {
 	var e, gallery, images, s;
-	if(!(gallery = get("#nimbus_gallery")))
+	if(!(gallery = get("#nimbusGallery")))
 		return;
 	images = gallery.querySelectorAll("img");
 
 	if(gallery && images)
 	{
 		s = 'body { margin: 0; padding: 0; }' +
-		'#nimbus_gallery { width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; z-index: 2000000000; }' +
-		'#nimbus_gallery img { position: absolute; top: -1000em; left: -1000em; }' +
-		'#nimbus_gallery img.currentImage { margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; }' +
-		'#nimbus_gallery img.currentImage.tall { height: 100%; width: auto; }' +
-		'#nimbus_gallery img.currentImage.wide { width: 100%; height: auto; }' +
-		'#nimbus_gallery a { color: #000; }';
-		insertStyle(s, 'style_nimbus_gallery', true);
+		'#nimbusGallery { width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; z-index: 2000000000; }' +
+		'#nimbusGallery img { position: absolute; top: -1000em; left: -1000em; }' +
+		'#nimbusGallery img.currentImage { margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; }' +
+		'#nimbusGallery img.currentImage.tall { height: 100%; width: auto; }' +
+		'#nimbusGallery img.currentImage.wide { width: 100%; height: auto; }' +
+		'#nimbusGallery a { color: #000; }';
+		insertStyle(s, 'styleNimbusGallery', true);
 		images[0].classList.add("currentImage");
 		window.scrollTo(0, 0);
 	}
@@ -1097,9 +1097,9 @@ function buildSlideshow()
 function changeGalleryImage(direction)
 {
 	var gallery, e, i, ii;
-	if(!get("#style_nimbus_gallery"))
+	if(!get("#styleNimbusGallery"))
 		return;
-	if(!(gallery = get("#nimbus_gallery")))
+	if(!(gallery = get("#nimbusGallery")))
 		return;
 	e = gallery.getElementsByTagName("img");
 	for(i = 0, ii = e.length; i < ii; i++)
@@ -1220,7 +1220,7 @@ function replaceImagesWithTextLinks()
 			imageLink = createElement("img", { src: e[i].querySelector("a").href });
 			e[i].parentNode.replaceChild(imageLink, e[i]);
 		}
-		del('#style_replace_images');
+		del('#styleReplaceImages');
 		return;
 	}
 	else if(get("img"))
@@ -1242,7 +1242,7 @@ function replaceImagesWithTextLinks()
 		var s = 'rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px verdana; }' +
 		'rt a { color: #FFF; }' +
 		'rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }';
-		insertStyle(s, "style_replace_images");
+		insertStyle(s, "styleReplaceImages");
 	}
 }
 
@@ -1462,10 +1462,11 @@ function insertStyle(str, identifier, important)
 
 function insertStyleHighlight()
 {
-	var s = '.hl, .focused { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }' +
-		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
-		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
-	insertStyle(s, undefined, true);
+	// var s = '.hl, .focused { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }' +
+	// 	'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
+	// 	'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
+	var s = '.hl { filter: brightness(1.7); }';
+	insertStyle(s, styleHighlight, true);
 }
 
 function insertStyleFonts()
@@ -1482,7 +1483,7 @@ function insertStyleFonts()
 	'p, li { line-height: 150%; }' +
 	'p { margin: 0; padding: 5px 0; }' +
 	'pre, code { font: 12px verdcode; }';
-	insertStyle(s, 'style_fonts', true);
+	insertStyle(s, 'styleFonts', true);
 }
 
 function insertStyleShowClass()
@@ -1490,7 +1491,7 @@ function insertStyleShowClass()
 	var s = '* { display: block; padding: 5px; border: 1px solid #111; }' +
 	'*::before { content: attr(class); color: #FF0; }' +
 	'head { display: none; }';
-	insertStyle(s, "style_showClass", true);
+	insertStyle(s, "styleShowClass", true);
 }
 
 function insertStyleGrey()
@@ -1516,7 +1517,7 @@ function insertStyleGrey()
 	'pre xk { color: #29F; }' +
 	'pre xh { color: #57F; }' +
 	'pre xv { color: #F47; }';
-	insertStyle(s, "style_Grey", true);
+	insertStyle(s, "styleGrey", true);
 }
 
 function insertStyleNegative(important)
@@ -1618,16 +1619,16 @@ function insertStyleNegative(important)
 	'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
 
 	if(important)
-		insertStyle(s, "style_negative_v2", true);
+		insertStyle(s, "styleNegativeV2", true);
 	else
-		insertStyle(s, "style_negative_v2");
+		insertStyle(s, "styleNegativeV2");
 }
 
 function insertStyleWhite()
 {
 	var s = 'body, input, select, textarea { background: #FFF; color: #000; }' +
 	'input, select, textarea { font: 12px verdana; }';
-	insertStyle(s, "style_white", true);
+	insertStyle(s, "styleWhite", true);
 }
 
 function toggleShowClasses()
@@ -1639,7 +1640,7 @@ function toggleShowClasses()
 	'div::after, span::after, p::after { content:attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
 	'select, textarea, input { background: #444; border: 1px solid red; }' +
 	'button { background: #222; color: #AAA; }';
-	insertStyle(s, "style_debug", true);
+	insertStyle(s, "styleDebug", true);
 }
 
 function removeEventListeners()
@@ -3006,6 +3007,16 @@ function highlightSpecificNodesContaining()
 	}
 }
 
+function highlightAllTableCellsInRow(tr)
+{
+	var e = tr.querySelectorAll("td");
+	var i = e.length;
+	while(i--)
+	{
+		e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
+	}
+}
+
 function highlightNodesContaining(selector, str)
 {
 	if(!arguments.length)
@@ -3024,7 +3035,10 @@ function highlightNodesContaining(selector, str)
 		if(e[i].textContent.indexOf(str) !== -1)
 		{
 			e[i].classList.add("hl");
-			e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
+			if(e[i].tagName.toLowerCase() === "tr")
+				highlightAllTableCellsInRow(e[i]);
+			else
+				e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
 		}
 		if(selector.toLowerCase() === "a")
 		{
@@ -3801,6 +3815,7 @@ function showMutations(mutations)
 	for(var i = 0, ii = mutations.length; i < ii; i++)
 	{
 		mutation = mutations[i];
+		console.log(mutation);
 		if (mutation.addedNodes.length)
 		{
 			for(var j = 0, jj = mutation.addedNodes.length; j < jj; j++)
@@ -3815,6 +3830,7 @@ function observeAddedNodes()
 {
 	var observer = new MutationObserver(showMutations);
 	observer.observe(getOne("body"),{ childList: true });
+	showMessage("Observing added nodes", "messagebig");
 }
 
 function inject()
@@ -3911,6 +3927,7 @@ function handleKeyDown(e)
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.G: deleteElementsContainingText(); break;
+			case KEYCODES.K: observeAddedNodes(); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: highlightNodesContaining(); break;
 			case KEYCODES.O: highlightSelectionOrText(); break;
