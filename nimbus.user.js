@@ -926,7 +926,7 @@ function highlightElementsWithAttribute(s)
 			}
 		}
 	}
-	insertStyle(".hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }", "styleHighlightElementsWithAttribute", true);
+	insertStyleHighlight();
 }
 
 function highlightElementsWithSetWidths()
@@ -948,7 +948,8 @@ function highlightElementsWithSetWidths()
 			}
 		}
 	}
-	insertStyle("x { background: #000; color: #FFF; padding: 2px 4px; display: block; font: 12px verdana;  } .xlog { clear: both; } .hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }", "styleHighlightElementsWithSetWidths", true);
+	insertStyle("x { background: #000; color: #FFF; padding: 2px 4px; display: block; font: 12px verdana;  } .xlog { clear: both; }", "styleHighlightElementsWithSetWidths", true);
+	insertStyleHighlight();
 }
 
 function wrapNodeInTag()
@@ -1466,7 +1467,7 @@ function insertStyleHighlight()
 	// 	'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
 	// 	'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
 	var s = '.hl { filter: brightness(1.7); }';
-	insertStyle(s, styleHighlight, true);
+	insertStyle(s, "styleHighlight", true);
 }
 
 function insertStyleFonts()
