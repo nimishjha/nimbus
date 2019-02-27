@@ -113,9 +113,11 @@ var KEYCODES = {
 
 function get(s)
 {
-	if(s.indexOf("#") === 0 && s.indexOf(" ") === -1 && s.indexOf(".") === -1) return document.querySelector(s);
+	if(s.indexOf("#") === 0 && !~s.indexOf(" ") && !~s.indexOf("."))
+		return document.querySelector(s);
 	var nodes = document.querySelectorAll(s);
-	if(nodes.length) return Array.from(nodes);
+	if(nodes.length)
+		return Array.from(nodes);
 	return false;
 }
 
@@ -142,13 +144,52 @@ function del(arg)
 			del(arg[i]);
 }
 
-function listProperties(o)
+function parseObject(o, indentLevel, parent)
 {
-	var s = "";
+	var indentLevel = indentLevel || 0;
+	var s = "", type;
+	var indentString = "<dd>";
+	var indentStringParent = "<dd>";
+	var indentStringClose = "";
+	var indentStringParentClose = "";
+	for(var i = 0; i < indentLevel; i++)
+	{
+		indentString += "<blockquote>";
+		indentStringClose += "</blockquote>";
+	}
+	for(var i = 0; i < (indentLevel-1); i++)
+	{
+		indentStringParent += "<blockquote>";
+		indentStringParentClose += "</blockquote>";
+	}
+	indentStringClose += "</dd>";
+	indentStringParentClose += "</dd>";
+	if(parent)
+		s = indentStringParent + "<h2>" + parent + "</h2>" + indentStringParentClose;
+
 	for(var prop in o)
+	{
 		if(o.hasOwnProperty(prop))
-			s += prop + ": " + o[prop] + ", ";
-	s = s.substring(0, s.length-2);
+		{
+			type = Object.prototype.toString.call(o[prop]);
+			switch(type)
+			{
+				case "[object Object]":
+					if(indentLevel < 2)
+						s += parseObject(o[prop], indentLevel + 1, prop);
+					else
+						s += indentString + "<em>[object Object],</em><i>too many levels</i>" + indentStringClose;
+					break;
+				case "[object Array]":
+					s += indentString + "<em>" + prop + "</em><i>" + "[Array]: " + o[prop].length + "</i>" + indentStringClose;
+					break;
+				default:
+					s += indentString + "<em>" + prop + "</em><i>" + o[prop] + "</i>" + indentStringClose;
+					break;
+			}
+
+		}
+	}
 	return s;
 }
 
@@ -3703,24 +3744,13 @@ function getTimestamp()
 	return d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
 }
 
-function exposeFunctions()
-{
-	var scriptText = 'function get(s) { if(s.indexOf("#") === 0 && s.indexOf(" ") === -1 && s.indexOf(".") === -1) return document.querySelector(s); var nodes = document.querySelectorAll(s); if(nodes.length) return Array.from(nodes); return false; } function del(arg) { var i, ii, j, jj; if(Object.prototype.toString.call(arg) === "[object HTMLElement]") { arg.parentNode.removeChild(arg); return; } else if(Object.prototype.toString.call(arg) === "[object Array]") { for(i = 0, ii = arg.length; i < ii; i++) del(arg[i]); } else { var f = get(arg); if(!f) return; if(f.length) { for(j = 0, jj = f.length; j < jj; j++) f[j].parentNode.removeChild(f[j]); } else if(f.parentNode) { f.parentNode.removeChild(f); } } } function forAll(selector, callback) { var e = get(selector); var i = e.length; while (i--) callback(e[i]); }';
-	var scriptElement = createElement("script", { type: "text/javascript", textContent: scriptText });
-	document.body.appendChild(scriptElement);
-}
-
 function hasClassesContaining(element, arrStr)
 {
 	var classes = element.className;
-	for (var i = 0, ii = arrStr.length; i < ii; i++)
-	{
-		var str = arrStr[i];
-		if (classes.indexOf(str) !== -1)
-		{
+	var i = arrStr.length;
+	while(i--)
+		if(~classes.indexOf(arrStr[i]))
 			return true;
-		}
-	}
 	return false;
 }
 
@@ -3834,6 +3864,31 @@ function observeAddedNodes()
 	showMessage("Observing added nodes", "messagebig");
 }
 
+function handleTextareaKeyUp(evt)
+{
+	var inputText = getOne("#userInput").value;
+	if (!inputText) return;
+	if (evt.keyCode === 13 && evt.shiftKey) eval(inputText);
+}
+
+function toggleConsole()
+{
+	if (get("#userInputWrapper"))
+	{
+		del("#userInputWrapper");
+		del("#styleUserInputWrapper");
+		return;
+	}
+	var style = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; } #userInput { background: #000; color: #FFF; font-size: 18px; width: 100%; height: 100%; padding: 10px; }';
+	insertStyle(style, "styleUserInputWrapper", true);
+	var inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
+	var inputTextarea = createElement("textarea", { id: "userInput" });
+	inputTextarea.addEventListener("keyup", handleTextareaKeyUp);
+	inputTextareaWrapper.appendChild(inputTextarea);
+	document.body.appendChild(inputTextareaWrapper);
+	inputTextarea.focus();
+}
+
 function inject()
 {
 	deleteUselessIframes();
@@ -3846,7 +3901,6 @@ function inject()
 	var pageLoadTime = getTimestamp();
 	xlog("Page loaded at " + pageLoadTime);
 	doStackOverflow();
-	exposeFunctions();
 }
 
 function initialize()
@@ -3928,7 +3982,7 @@ function handleKeyDown(e)
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.G: deleteElementsContainingText(); break;
-			case KEYCODES.K: observeAddedNodes(); break;
+			case KEYCODES.K: toggleConsole(); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: highlightNodesContaining(); break;
 			case KEYCODES.O: highlightSelectionOrText(); break;
