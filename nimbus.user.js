@@ -137,11 +137,12 @@ function del(arg)
 		return;
 	if(arg.nodeType)
 		arg.parentNode.removeChild(arg);
-	else if(arg.length && typeof(arg) === "string")
-		del(get(arg));
-	else
-		for(var i = 0, ii = arg.length; i < ii; i++)
-			del(arg[i]);
+	else if(arg.length)
+		if(typeof(arg) === "string")
+			del(get(arg));
+		else
+			for(var i = 0, ii = arg.length; i < ii; i++)
+				del(arg[i]);
 }
 
 function parseObject(o, indentLevel, parent)
@@ -1398,37 +1399,6 @@ function replaceIframes()
 	}
 }
 
-function handleMouseUp(e)
-{
-	var db = document.body;
-	e.stopPropagation();
-	var targ;
-	if(!e) e = window.event;
-	if(e.target) targ = e.target;
-	if(e.shiftKey)
-	{
-		if(targ.tagName.toLowerCase() === "a")
-		{
-			var str = targ.href;
-			db.innerHTML += '<iframe src="' + str + '" width="100%" height="100px" />';
-			return false;
-		}
-	}
-}
-
-function count(s)
-{
-	s = s.toString();
-	var e, t = s.substr(1, s.length - 1);
-	if(s.indexOf("#") === 0) e = document.getElementById(t);
-	else if(s.indexOf(".") === 0) e = document.getElementsByClassName(t);
-	else if(document.getElementsByTagName(s).length) e = document.getElementsByTagName(s);
-	if(e.length)
-		return e.length;
-	else
-		return 0;
-}
-
 function replaceElementsBySelector(selector, tagName)
 {
 	if(!(selector && tagName))
@@ -1472,9 +1442,11 @@ function forceReloadCss()
 	showMessage("Force-reloading CSS", "messagebig");
 	var i, styleLinks, styleSheet;
 	styleLinks = document.getElementsByTagName('link');
-	for (i = 0; i < styleLinks.length; i++) {
+	for (i = 0; i < styleLinks.length; i++)
+	{
 		styleSheet = styleLinks[i];
-		if (styleSheet.rel.toLowerCase().indexOf('stylesheet') >= 0 && styleSheet.href) {
+		if (styleSheet.rel.toLowerCase().indexOf('stylesheet') >= 0 && styleSheet.href)
+		{
 			var h = styleSheet.href.replace(/(&|%5C?)forceReload=\d+/, '');
 			styleSheet.href = h + (h.indexOf('?') >= 0 ? '&' : '?') + 'forceReload=' + (new Date().valueOf());
 		}
@@ -1483,12 +1455,8 @@ function forceReloadCss()
 
 function insertStyle(str, identifier, important)
 {
-	if(identifier !== undefined && identifier.length)
-	{
-		identifier_hash = "#" + identifier;
-		if(get(identifier_hash))
-			del(identifier_hash);
-	}
+	if(identifier && identifier.length && get("#" + identifier))
+		del("#" + identifier);
 	if(important)
 		str = str.replace(/;/g, " !important;");
 	var head = getOne("head"), style = document.createElement("style"), rules = document.createTextNode(str);
