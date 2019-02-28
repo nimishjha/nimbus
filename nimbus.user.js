@@ -105,6 +105,7 @@ var KEYCODES = {
 	DOWNARROW: 40,
 	LEFTARROW: 37,
 	RIGHTARROW: 39,
+	TAB: 9,
 	ENTER: 13,
 	ESCAPE: 27,
 	SQUARE_BRACKET_OPEN: 219,
@@ -138,7 +139,7 @@ function del(arg)
 	if(arg.nodeType)
 		arg.parentNode.removeChild(arg);
 	else if(arg.length)
-		if(typeof(arg) === "string")
+		if(typeof arg === "string")
 			del(get(arg));
 		else
 			for(var i = 0, ii = arg.length; i < ii; i++)
@@ -147,18 +148,20 @@ function del(arg)
 
 function parseObject(o, indentLevel, parent)
 {
-	var indentLevel = indentLevel || 0;
+	if(typeof indentLevel === "undefined")
+		indentLevel = 0;
+	var i;
 	var s = "", type;
 	var indentString = "<dd>";
 	var indentStringParent = "<dd>";
 	var indentStringClose = "";
 	var indentStringParentClose = "";
-	for(var i = 0; i < indentLevel; i++)
+	for(i = 0; i < indentLevel; i++)
 	{
 		indentString += "<blockquote>";
 		indentStringClose += "</blockquote>";
 	}
-	for(var i = 0; i < (indentLevel-1); i++)
+	for(i = 0; i < (indentLevel-1); i++)
 	{
 		indentStringParent += "<blockquote>";
 		indentStringParentClose += "</blockquote>";
@@ -188,7 +191,6 @@ function parseObject(o, indentLevel, parent)
 					s += indentString + "<em>" + prop + "</em><i>" + o[prop] + "</i>" + indentStringClose;
 					break;
 			}
-
 		}
 	}
 	return s;
@@ -232,7 +234,7 @@ function getStyles(e)
 	{
 		bgColor = styles.getPropertyValue("background-color");
 		bgImage = styles.getPropertyValue("background-image");
-		elemWidth = styles.getPropertyValue("width");
+		var elemWidth = styles.getPropertyValue("width");
 		if(bgColor !== "transparent")
 		{
 			s = createElement("x", { textContent: bgColor });
@@ -251,9 +253,7 @@ function highlightWithinPreformattedBlocks(str)
 	var pres = get("pre");
 	var i = pres.length;
 	while(i--)
-	{
 		pres[i].innerHTML = pres[i].innerHTML.replace(reg, "<mark>$1</mark>");
-	}
 }
 
 function highlightElementsWithInlineWidthOrHeight()
@@ -263,7 +263,8 @@ function highlightElementsWithInlineWidthOrHeight()
 	var s;
 	while(i--)
 	{
-		if(s = e[i].getAttribute("style"))
+		s = e[i].getAttribute("style");
+		if(s)
 		{
 			if(s.indexOf("width") !== -1) e[i].classList.add("hl");
 			else if(s.indexOf("height") !== -1) e[i].classList.add("hl2");
@@ -321,7 +322,7 @@ function markTableRowsAndColumns()
 //
 function containsAnyOfTheStrings(s, arrStrings)
 {
-	if(!s || typeof(s) !== "string") return false;
+	if(!s || typeof s !== "string") return false;
 	var i = arrStrings.length;
 	var found = false;
 	while(i--)
@@ -372,7 +373,7 @@ function createUUID()
 {
 	return 'nimbus-xxxx-xxxx-xxxx-xxxx-xxxx'.replace(/x/g, function (c)
 	{
-		var r, v, c;
+		var r, v;
 		r = Math.random() * 16 | 0;
 		v = (c === 'x') ? r : r & 0x3 | 0x8;
 		return v.toString(16);
@@ -395,19 +396,23 @@ function printArray(arr)
 function createElement(tag, props)
 {
 	var elem = document.createElement(tag);
-	var keys = Object.keys(props);
-	var i = keys.length;
-	var settableProperties = ["id", "className", "textContent", "innerHTML", "value"];
-	while(i--)
+	if(props && typeof props === "object")
 	{
-		key = keys[i];
-		if(settableProperties.includes(key))
-			elem[key] = props[key];
-		else
-			elem.setAttribute(key, props[key]);
+		var key, keys = Object.keys(props);
+		var i = keys.length;
+		var settableProperties = ["id", "className", "textContent", "innerHTML", "value"];
+		while(i--)
+		{
+			key = keys[i];
+			if(settableProperties.includes(key))
+				elem[key] = props[key];
+			else
+				elem.setAttribute(key, props[key]);
+		}
+		return elem;
 	}
 	return elem;
-};
+}
 
 function showResource(str, uuid)
 {
@@ -464,7 +469,7 @@ function showResources()
 	count = 0;
 	while(i--)
 	{
-		if( (e[i].href && e[i].href.indexOf("css") !== -1) || ( e[i].type && e[i].type === "text/css" ) )
+		if( e[i].href && e[i].href.indexOf("css") !== -1 || e[i].type && e[i].type === "text/css" )
 		{
 			uuid = createUUID();
 			e[i].id = uuid;
@@ -481,23 +486,23 @@ function showResources()
 	window.scrollTo(0, 0);
 }
 
-function makeDocumentClickable()
+function toggleBlockEditMode()
 {
 	var db = document.body;
-	if(get("#view-document-structure"))
+	if(get("#styleToggleBlockEditMode"))
 	{
-		del("#view-document-structure");
-		db.removeEventListener('mouseup', clickHandler, false);
+		del("#styleToggleBlockEditMode");
+		db.removeEventListener('mouseup', handleBlockEditClick, false);
 		db.classList.remove("debug");
+		showMessage("Block edit mode off", "messagebig");
 	}
 	else
 	{
-		db.addEventListener('mouseup', clickHandler, false);
+		db.addEventListener('mouseup', handleBlockEditClick, false);
 		db.classList.add("debug");
-		var s = 'header, footer, article, aside, section, div { border: 2px solid #666; margin: 5px; padding: 5px; }' +
-		'header:hover, footer:hover, article:hover, aside:hover, section:hover, div:hover { border-color: #F00; }' +
-		'body>header, body>footer, body>article, body>aside, body>section, body>div { border-width: 10px 10px 10px 20px; }';
-		insertStyle(s, "view-document-structure", true);
+		var s = 'html body.debug header, html body.debug footer, html body.debug article, html body.debug aside, html body.debug section, html body.debug div { border: 2px solid #666; margin: 5px; padding: 5px; } html body.debug header:hover, html body.debug footer:hover, html body.debug article:hover, html body.debug aside:hover, html body.debug section:hover, html body.debug div:hover { border-color: #F00; } html body.debug>header, html body.debug>footer, html body.debug>article, html body.debug>aside, html body.debug>section, html body.debug>div { border-width: 10px 10px 10px 20px; }';
+		insertStyle(s, "styleToggleBlockEditMode", true);
+		showMessage("Block edit mode on", "messagebig");
 	}
 }
 
@@ -744,7 +749,7 @@ function deleteMessage()
 
 function openDialog(s)
 {
-	var dialog, dialogInput, s = s || "";
+	var dialog, dialogInput;
 	if(!get("#xxdialog"))
 	{
 		dialog = createElement("div", { id: "xxdialog" });
@@ -1211,11 +1216,12 @@ function deleteSmallImages()
 {
 	var f = document.getElementsByTagName('img');
 	var dimensions = [20, 50, 100, 200, 300, 400];
-	for (var i = f.length - 1; i >= 0; i--)
+	var i, ii, j, jj;
+	for (i = f.length - 1; i >= 0; i--)
 	{
-               	if(!(f[i].naturalWidth && f[i].naturalHeight))
-                       	continue;
-                   	for(j = 0, jj = dimensions.length; j < jj; j++)
+		if(!(f[i].naturalWidth && f[i].naturalHeight))
+			continue;
+		for(j = 0, jj = dimensions.length; j < jj; j++)
 		{
 			if(f[i].naturalWidth < dimensions[j] || f[i].naturalHeight < dimensions[j])
 			{
@@ -1332,7 +1338,7 @@ function cleanupGeneral()
 	replaceIframes();
 	deleteNonContentImages();
 	addLinksToLargerImages();
-	replaceWrongHeading();
+	replaceIncorrectHeading();
 	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet"]);
 	deleteElementsContainingText("h6", "Deleting iframe");
 	replaceElementsBySelector("center", "div");
@@ -1448,7 +1454,7 @@ function forceReloadCss()
 		if (styleSheet.rel.toLowerCase().indexOf('stylesheet') >= 0 && styleSheet.href)
 		{
 			var h = styleSheet.href.replace(/(&|%5C?)forceReload=\d+/, '');
-			styleSheet.href = h + (h.indexOf('?') >= 0 ? '&' : '?') + 'forceReload=' + (new Date().valueOf());
+			styleSheet.href = h + (h.indexOf('?') >= 0 ? '&' : '?') + 'forceReload=' + new Date().valueOf();
 		}
 	}
 }
@@ -1671,7 +1677,7 @@ function removeEventListeners()
 
 function chooseDocumentHeading()
 {
-	var candidateTags = ['h1', 'h2', 'h3'], s = '', i, ii, j, jj, found = false;
+	var e, candidateTags = ['h1', 'h2', 'h3'], s = '', i, ii, j, jj, found = false;
 	for(i = 0, ii = candidateTags.length; i < ii; i++)
 	{
 		e = document.getElementsByTagName(candidateTags[i]);
@@ -1706,7 +1712,6 @@ function chooseDocumentHeading()
 
 function replaceDiacritics(s)
 {
-	var s;
 	var diacritics =[
 		/[\300-\306]/g, /[\340-\346]/g,  // A, a
 		/[\310-\313]/g, /[\350-\353]/g,  // E, e
@@ -1726,6 +1731,7 @@ function sanitizeTitle(str)
 {
 	if(str === undefined || str === null)
 		return;
+	var s;
 	s = str.toString();
 	s = replaceDiacritics(s);
 
@@ -1790,6 +1796,7 @@ function setDocTitle(s)
 function setDocTitleFromSelection()
 {
 	var selection = window.getSelection();
+	var s;
 	if(selection.toString().length) s = selection;
 	else s = prompt("Document title");
 	setDocTitle(s);
@@ -2241,7 +2248,7 @@ function showPrintLink()
 	}
 }
 
-function clickHandler(e)
+function handleBlockEditClick(e)
 {
 	e.stopPropagation();
 	var targ;
@@ -2258,8 +2265,8 @@ function clickHandler(e)
 	if(e[ctrlOrMeta] && e.shiftKey)
 	{
 		document.body.innerHTML = targ.innerHTML;
-		document.body.removeEventListener('mouseup', clickHandler, false);
-		document.body.classList.remove("debug");
+		toggleBlockEditMode();
+		return;
 	}
 	// delete clicked element
 	else if(e[ctrlOrMeta] && !e.shiftKey)
@@ -2292,6 +2299,7 @@ function parseCode(s)
 {
 	var t = "";
 	var cur, prev, next;
+	var phpVarRegex;
 	for(var i = 0, ii = s.length; i < ii;  i++)
 	{
 		cur = s[i];
@@ -2520,10 +2528,10 @@ function getElementsWithClass(strClass)
 	if(strClass.indexOf(".") !== 0)
 		strClass = "." + strClass;
 	f = get(strClass);
-	tempNode = createElement("div", { id: "replacerDiv" });
+	var tempNode = createElement("div", { id: "replacerDiv" });
 	if(f && f.length)
 	{
-		for(i = 0; i < f.length; i++)
+		for(var i = 0; i < f.length; i++)
 			tempNode.appendChild(f[i].cloneNode(true));
 		document.body.innerHTML = tempNode.innerHTML;
 	}
@@ -2563,7 +2571,7 @@ function getElementsContainingText()
 	else
 		showMessage("Not found", "messagebig");
 	var t2 = new Date();
-	console.log((t2 - t1) + "ms: getElementsContainingText");
+	xlog((t2 - t1) + "ms: getElementsContainingText");
 }
 
 function deleteNonContentDivs()
@@ -2575,7 +2583,7 @@ function deleteNonContentDivs()
 		document.body.className = "pad100 xwrap";
 		return;
 	}
-	var sClass = "toget", e, f, i, j, tag;
+	var sClass = "toget", e, f, i, ii, j, tag;
 
 	replaceElementsBySelector("article", "div");
 	deleteNonContentElements();
@@ -2759,16 +2767,16 @@ function removeLineBreaks(s)
 
 function highlightSelection()
 {
-	var selection, selectionBegin, selectionEnd, node, nodeHTML, i, j, k, index1, index2, index3, index4;
-	var textBeforeSelection, textOfSelection, textAfterSelection, words;
+	var selection, selectionBegin, selectionEnd, node, nodeHTML, j, index1, index2, index3, index4;
+	var textBeforeSelection, textOfSelection, textAfterSelection;
 	if(!window.getSelection().toString().length) return;
 	selection = window.getSelection();
 	node = selection.anchorNode;
-	while (node.nodeType != 1 && node.parentNode)
+	while (node.nodeType !== 1 && node.parentNode)
 		node = node.parentNode;
 	if(node.tagName === undefined)
 	{
-		ylog("Couldn't get anchorNode", "h1");
+		showMessage("Couldn't get anchorNode", "messagebig");
 		return;
 	}
 	if(!node) return;
@@ -2778,7 +2786,8 @@ function highlightSelection()
 	if(selection.length)
 	{
 		// Simplest case - it's all plain text
-		if( ( index1 = nodeHTML.indexOf(selection) ) >= 0 )
+		index1 = nodeHTML.indexOf(selection);
+		if(index1 !== -1)
 		{
 			index2 = index1 + selection.length;
 			// expand to word boundaries
@@ -2807,9 +2816,9 @@ function highlightSelection()
 		else
 		// we have HTML in the selection
 		{
-			xlog("HTML in selection");
+			xlog("HTML in selection", "h3");
 			selectionBegin = selection;
-			while(nodeHTML.indexOf(selectionBegin) < 0 && selectionBegin.length > 0 )
+			while(nodeHTML.indexOf(selectionBegin) === -1 && selectionBegin.length > 0 )
 			{
 				selectionBegin = selectionBegin.substr(0, selectionBegin.length-1);
 			}
@@ -2869,7 +2878,7 @@ function fixHeadings()
 function fixPres()
 {
 	replaceElementsBySelector('font', 'span');
-	var e, i, ii, s, temp;
+	var e, i, s, temp;
 	e = get("code");
 	i = e.length;
 	while(i--)
@@ -3115,8 +3124,8 @@ function xlog(str, logTag)
 
 function ylog(str, tag, prepend)
 {
-	var tag = tag || "h6";
-	var d = createElement(tag, { className: "xlog", innerHTML: str });
+	var tagName = tag || "h6";
+	var d = createElement(tagName, { className: "xlog", innerHTML: str });
 	if(prepend)
 		document.body.insertBefore(d, document.body.firstChild);
 	else
@@ -3126,29 +3135,6 @@ function ylog(str, tag, prepend)
 function log2(str)
 {
 	document.body.appendChild(createElement("h2", { className: "xlog", innerHTML: str }));
-}
-
-function getPager(div)
-{
-	var e = document.getElementsByTagName("td");
-	var elen = e.length;
-	for (var j = 0; j < elen; j++)
-	{
-		if(e[j] && e[j].textContent && removeWhitespace(e[j].textContent).indexOf("Page") === 0)
-		{
-			if(e[j].parentNode)
-			{
-				var node = e[j].parentNode;
-				while (node.tagName !== "TABLE")
-					node = node.parentNode;
-				var h = document.createElement("h1");
-				h.appendChild(document.createTextNode("pager"));
-				div.appendChild(h);
-				div.appendChild(node);
-				return;
-			}
-		}
-	}
 }
 
 function deleteImagesBySrcContaining(str)
@@ -3192,7 +3178,7 @@ function create(selector, html)
 function cleanupWikipedia()
 {
 	cleanupHead();
-	firstHeading = getOne("h1");
+	var firstHeading = getOne("h1");
 	document.title = firstHeading.textContent;
 	del([
 		"iframe",
@@ -3223,14 +3209,6 @@ function cleanupWikipedia()
 	document.body.className = "pad100";
 }
 
-function insertLink(linktext, linkhref)
-{
-	var e = document.createElement("a");
-	e.href = linkhref;
-	e.innerHTML = "<h6>" + linktext + "</h6>";
-	document.body.appendChild(e);
-}
-
 function getKeys(obj)
 {
 	var keys = [], key;
@@ -3246,7 +3224,7 @@ function getKeys(obj)
 
 function getAttributes(targ)
 {
-	var d = document, divText = document.createElement('div');
+	var divText = document.createElement('div');
 	if(targ.tagName)
 		divText.innerHTML = "\r\n<b>" + targ.tagName.toLowerCase() + "</b>";
 	if(targ.attributes)
@@ -3280,10 +3258,12 @@ function getAttributes(targ)
 	}
 }
 
-function analyze_removeOldHover()
+function removeClassFromAll(className)
 {
-	var e = document.querySelectorAll(".hovered");
-	for (var i = 0; i < e.length; i++) e[i].classList.remove("hovered");
+	var e = document.querySelectorAll("." + className);
+	var i = e.length;
+	while(i--)
+		e[i].classList.remove(className);
 }
 
 function analyze_mouseoverHandler(e)
@@ -3297,7 +3277,7 @@ function analyze_mouseoverHandler(e)
 	if(e.target)
 	{
 		targ = e.target;
-		analyze_removeOldHover();
+		removeClassFromAll("hovered");
 		targ.classList.add("hovered");
 		while (targ)
 		{
@@ -3368,18 +3348,13 @@ function analyze(onTop)
 		del('#analyzer');
 		del('#analyzer-style');
 		document.body.classList.remove("analyzer");
-		analyze_removeOldHover();
+		removeClassFromAll("hovered");
 	}
 }
 
 function analyze_clickHandler(e)
 {
 	e.stopPropagation();
-	var targ;
-	if(!e)
-		e = window.event;
-	if(e.target)
-		targ = e.target;
 	if(e.shiftKey && get("#analyzer"))
 		prompt("", get("#analyzer").textContent);
 }
@@ -3391,38 +3366,45 @@ function wrapElement(node, tag)
 	node.outerHTML = s;
 }
 
-function replaceWrongHeading()
+function isCurrentDomainLink(s)
 {
-	var heading1, heading2, heading1link, temp;
+	var urlSegments = s.split("/");
+	if(urlSegments[2] === location.hostname)
+	{
+		if(urlSegments.length === 3)
+			return true;
+		if(urlSegments.length === 4 && urlSegments[urlSegments.length - 1].length === 0)
+			return true;
+	}
+	return false;
+}
+
+function replaceIncorrectHeading()
+{
+	var heading1, heading1link, temp;
 	if(get("h1"))
 	{
 		heading1 = getOne("h1");
 		heading1link = heading1.querySelector("a");
 		if(heading1link)
 		{
-			if((heading1link.href === "http://" + location.hostname + "/") || (heading1link.href === "https://" + location.hostname + "/"))
+			if(isCurrentDomainLink(heading1link.href))
 			{
-				temp = document.createElement("h3");
-				temp.innerHTML = heading1.innerHTML;
+				temp = createElement("h3", { innerHTML: heading1.innerHTML });
 				heading1.parentNode.replaceChild(temp, heading1);
 			}
 		}
-		// blogs will often have the blog title as the first h1, which is useless
-		if(get("h1").length > 1)
-		{
-			heading1 = get("h1")[0];
-			heading2 = get("h1")[1];
-			if(heading1.textContent && heading2.textContent)
-			{
-				if(trim(normalizeString(heading2.textContent)).length > trim(normalizeString(heading1.textContent)).length)
-				{
-					temp = document.createElement("h3");
-					temp.innerHTML = heading1.innerHTML;
-					heading1.parentNode.replaceChild(temp, heading1);
-				}
-			}
-		}
 	}
+}
+
+function focusField(elem)
+{
+	if(!elem)
+		return;
+	removeClassFromAll("focused");
+	elem.focus();
+	elem.classList.add("focused");
+	showMessage(elem.name || elem.id || elem.className, "messagebig");
 }
 
 function focusFormElement()
@@ -3432,7 +3414,7 @@ function focusFormElement()
 	len = inputs.length;
 	if(len === 1)
 	{
-		inputs[0].focus();
+		focusField(inputs[0]);
 		return;
 	}
 	for (i = 0; i < len; i++)
@@ -3444,85 +3426,74 @@ function focusFormElement()
 		}
 		if(inputs[i].type)
 		{
-			if( ["hidden", "submit", "reset", "button", "radio", "checkbox", "image"].indexOf(inputs[i].type) === -1 )
+			if(["hidden", "submit", "reset", "button", "radio", "checkbox", "image"].indexOf(inputs[i].type) === -1)
 				e.push(inputs[i]);
 		}
 		else
-		{
 			e.push(inputs[i]);
-		}
 	}
+	inputs = get("textarea");
+	len = inputs.length;
+	for (i = 0; i < len; i++)
+		e.push(inputs[i]);
 	found = false;
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
-		if(/*e[i] === document.activeElement || */e[i].className.indexOf("focused") !== -1)
+		if(e[i].classList.contains("focused"))
 		{
-			e[i].classList.remove("focused");
 			found = true;
 			if(i < ii-1)
-			{
-				e[i+1].focus();
-				e[i+1].classList.add("focused");
-				showMessage(e[i].name);
-			}
+				focusField(e[i + 1]);
 			else
-			{
-				e[0].focus();
-				e[0].classList.add("focused");
-				showMessage(e[i].name);
-			}
+				focusField(e[0]);
 			break;
 		}
 	}
 	if(!found)
-	{
-		e[0].focus();
-		e[0].classList.add("focused");
-		showMessage("did not find active field, focusing " + inputs[i].name);
-	}
+		focusField(e[0]);
+	console.log("document.activeElement is " + document.activeElement.name);
 }
 
 function focusButton()
 {
-	var inputs, len, i, ii, found, inputfields = [];
+	var inputs, len, i, ii, found, inputFields = [];
 	inputs = get("input");
 	len = inputs.length;
 	if(len === 1)
 	{
-		inputs[0].focus();
-		inputs[0].clear();
+		focusField(inputs[0]);
 		return;
 	}
 	for (i = 0; i < len; i++)
 	{
 		if(inputs[i].type && (inputs[i].type === "button" || inputs[i].type === "submit"))
-		{
-			inputfields.push(inputs[i]);
-		}
+			inputFields.push(inputs[i]);
 	}
+	var buttons = get("button");
+	len = buttons.length;
+	for (i = 0; i < len; i++)
+		inputFields.push(buttons[i]);
 	found = false;
-	for(i = 0, ii = inputfields.length; i < ii; i++)
+	for(i = 0, ii = inputFields.length; i < ii; i++)
 	{
-		if(inputfields[i] === document.activeElement)
+		if(inputFields[i].classList.contains("focused"))
 		{
 			found = true;
 			if(i < ii-1)
-				inputfields[i+1].focus();
+				focusField(inputFields[i+1]);
 			else
-				inputfields[0].focus();
+				focusField(inputFields[0]);
 			break;
 		}
 	}
 	if(!found)
-		inputfields[0].focus();
+		focusField(inputFields[0]);
 }
 
 function highlightText(s)
 {
 	if(!s)
-	{
 		s = prompt("Text to highlight");
-	}
 	var ss = "\\b" + escapeForRegExp(s) + "\\b";
 	var tempHTML = document.body.innerHTML;
 	var r = new RegExp("(>[^<>]*)" + ss + "([^<>]*<)", "gi");
@@ -3544,9 +3515,7 @@ function showLog(prepend)
 		Nimbus.logString = "";
 	}
 	else
-	{
 		ylog("No logs");
-	}
 }
 
 function highlightLinksInPres()
@@ -3565,7 +3534,7 @@ function highlightLinksInPres()
 
 function fillForms()
 {
-	var i, e;
+	var i, e, inputType, inputName;
 	//
 	//	Inputs
 	//
@@ -3649,14 +3618,6 @@ function createElementWithChild(tag, obj)
 	return e;
 }
 
-function appendIframes()
-{
-	var e = get("iframe"), i, s = '';
-	for(i = 0, ii = e.length; i < ii; i++)
-		s += e[i].contentDocument.getElementsByTagName("body")[0].innerHTML;
-	document.body.innerHTML += s;
-}
-
 function showTextToHTMLRatio()
 {
 	var e, i, t, h;
@@ -3686,12 +3647,12 @@ function removeAccesskeys()
 
 function showPassword()
 {
-	var e, i, s;
+	var e, i;
 	e = get("input");
 	i = e.length;
 	while(i--)
 	{
-		if(e[i].type && e[i].type === "password" && !(e[i].classList.contains("showPassword")))
+		if(e[i].type && e[i].type === "password" && !e[i].classList.contains("showPassword"))
 		{
 			e[i].addEventListener("keyup", echoPassword, false);
 			e[i].classList.add("showPassword");
@@ -3701,9 +3662,7 @@ function showPassword()
 
 function echoPassword(e)
 {
-	var e;
-	e = e.target;
-	showMessage(e.value, "none", true);
+	showMessage(e.target.value, "none", true);
 }
 
 function getTimestamp()
@@ -3731,21 +3690,21 @@ function replaceSingleElement(e, tag)
 
 function createTagsByClassName()
 {
-	var e = document.querySelectorAll("div, p");
+	var element, e = document.querySelectorAll("div, p");
 	var i = e.length;
 	while (i--)
 	{
-		var element = e[i];
+		element = e[i];
 		if (hasClassesContaining(element, ["cn", "ct", "heading", "chapternumber", "chaptertitle"])) replaceSingleElement(element, "h2");
 		else if (hasClassesContaining(element, ["h1"])) replaceSingleElement(element, "h1");
 		else if (hasClassesContaining(element, ["h2"])) replaceSingleElement(element, "h2");
 		else if (hasClassesContaining(element, ["quote", "extract"])) replaceSingleElement(element, "blockquote");
 	}
 	e = get("span");
-	var i = e.length;
+	i = e.length;
 	while (i--)
 	{
-		var element = e[i];
+		element = e[i];
 		if (hasClassesContaining(element, ["bold"])) replaceSingleElement(element, "b");
 		else if (hasClassesContaining(element, ["italic"])) replaceSingleElement(element, "b");
 	}
@@ -3766,7 +3725,7 @@ function makeHeadingsByTextLength()
 		}
 	}
 
-	for(className in classes)
+	for(var className in classes)
 	{
 		var selector = "." + className;
 		if(selector.length < 2) continue;
@@ -3792,7 +3751,7 @@ function makeHeadingsByTextLength()
 		if(a.averageTextLength > b.averageTextLength) return 1;
 		else if(a.averageTextLength < b.averageTextLength) return -1;
 		else return 0;
-	})
+	});
 	// headingClasses = headingClasses.slice(0, 6);
 	// var headingLevel = 1;
 	for(i = 0, ii = headingClasses.length; i < ii; i++)
@@ -3811,13 +3770,13 @@ function formatEbook()
 function showMutations(mutations)
 {
 	var i, ii, j, jj, mutation;
-	for(var i = 0, ii = mutations.length; i < ii; i++)
+	for(i = 0, ii = mutations.length; i < ii; i++)
 	{
 		mutation = mutations[i];
 		console.log(mutation);
 		if (mutation.addedNodes.length)
 		{
-			for(var j = 0, jj = mutation.addedNodes.length; j < jj; j++)
+			for(j = 0, jj = mutation.addedNodes.length; j < jj; j++)
 			{
 				console.log(mutation.addedNodes[j].outerHTML);
 			}
@@ -3857,6 +3816,83 @@ function toggleConsole()
 	inputTextarea.focus();
 }
 
+function isEntirelyNumeric(s)
+{
+	s = removeWhitespace(s);
+	if(!s.length)
+		return false;
+	if(!s.replace(/[0-9]+/g, "").length)
+		return true;
+	return false;
+}
+
+function getPagerLinks()
+{
+	var e = get("a");
+	var i, ii;
+	var newLink;
+	var pagerWrapper = createElement("h1");
+	var count = 0;
+	for(i = 0, ii = e.length; i < ii; i++)
+	{
+		if(isEntirelyNumeric(e[i].textContent))
+		{
+			count++;
+			newLink = createElement("a", { href: e[i].href, textContent: e[i].textContent || "[no text]" });
+			pagerWrapper.appendChild(newLink);
+		}
+	}
+	document.body.appendChild(pagerWrapper);
+	if(count)
+		pagerWrapper.querySelector("a").focus();
+	else
+		showMessage("No pager links found", "messagebig");
+	createPagerFromSelect();
+}
+
+function createPagerFromSelect()
+{
+	var select, selects = get("select");
+	var j = selects.length;
+	var i, ii;
+	var newLink, newLinkWrapper;
+	while (j--)
+	{
+		select = selects[j];
+		console.log(j);
+		newLinkWrapper = createElement("h1");;
+		for (i = 0, ii = select.length; i < ii; i++)
+		{
+			newLinkWrapper.appendChild(createElement("a", { href: select[i].value, textContent: i }));
+			newLinkWrapper.appendChild(document.createTextNode(" "));
+		}
+		document.body.appendChild(newLinkWrapper);
+	}
+}
+
+function getAllClasses(selector)
+{
+	var sel = "*";
+	if(selector && selector.length)
+		sel = selector;
+	var e = document.getElementsByTagName(sel);
+	var i = e.length;
+	var classes = {};
+	var s = "";
+	var j;
+	while(i--)
+	{
+		j = e[i].classList.length;
+		while(j--)
+		{
+			classes[e[i].classList[j]] = true;
+		}
+	}
+	for(var prop in classes)
+		s += prop + "\r\n";
+	console.log(s);
+}
+
 function inject()
 {
 	deleteUselessIframes();
@@ -3871,7 +3907,7 @@ function inject()
 	doStackOverflow();
 }
 
-function initialize()
+function main()
 {
 	var load = true;
 	if(location.hostname)
@@ -3889,13 +3925,9 @@ function initialize()
 		}
 	}
 	if(load)
-	{
 		setTimeout(inject, 200);
-	}
 	else
-	{
-		ylog("not injected");
-	}
+		showMessage("Not injected", "messagebig");
 }
 
 //
@@ -3905,6 +3937,7 @@ function initialize()
 //
 function handleKeyDown(e)
 {
+	var shouldPreventDefault = true;
 	var ctrlOrMeta = "ctrlKey";
 	if(navigator.userAgent.indexOf("Macintosh") !== -1)
 		ctrlOrMeta = "metaKey";
@@ -3912,14 +3945,9 @@ function handleKeyDown(e)
 	{
 		return;
 	}
-	var db = document.body;
 	var s;
+	var db = document.body;
 	var k = e.keyCode;
-	if(!k)
-	{
-		xlog("couldn't get key");
-		return;
-	}
 	//
 	//	Alt
 	//
@@ -3942,7 +3970,7 @@ function handleKeyDown(e)
 			case KEYCODES.FIVE: getImages(); break;
 			case KEYCODES.SIX: deleteIframes(); break;
 			case KEYCODES.SEVEN: replaceCommentsWithPres(); break;
-			case KEYCODES.EIGHT: makeDocumentClickable(); break;
+			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
 			case KEYCODES.NINE: toggleShowClasses(); break;
 			case KEYCODES.I: deleteSignatures(); break;
 			case KEYCODES.P: fixParagraphs(); break;
@@ -3962,7 +3990,10 @@ function handleKeyDown(e)
 			case KEYCODES.Z: cleanupUnicode(); break;
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); focusFormElement(); break;
+			default: shouldPreventDefault = false;
 		}
+		if(shouldPreventDefault)
+			e.preventDefault();
 	}
 	//
 	//	Alt-Shift
@@ -3981,7 +4012,7 @@ function handleKeyDown(e)
 			case KEYCODES.A: annotate(); break;
 			case KEYCODES.C: deleteNonContentDivs(); break;
 			case KEYCODES.D: del("log"); break;
-			case KEYCODES.P: highlightLinksInPres(); break;
+			case KEYCODES.P: getPagerLinks(); break;
 			case KEYCODES.R: highlightNode("blockquote"); break;
 			case KEYCODES.K: showPrintLink(); break;
 			case KEYCODES.L: logout(); break;
@@ -3994,7 +4025,7 @@ function handleKeyDown(e)
 	//
 	else if(e.altKey && e[ctrlOrMeta] && !e.shiftKey)
 	{
-		var shouldPreventDefault = true;
+		shouldPreventDefault = true;
 		switch (k)
 		{
 			case KEYCODES.SQUARE_BRACKET_OPEN: changeGalleryImage("prev"); break;
@@ -4044,7 +4075,4 @@ function handleKeyDown(e)
 	window.focus();
 }
 
-//
-//	Program entry point
-//
-initialize();
+main();
