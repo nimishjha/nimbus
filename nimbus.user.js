@@ -859,22 +859,18 @@ function highlightPagination()
 	}
 }
 
-// http://stackoverflow.com/questions/2952667/find-all-css-rules-that-apply-to-an-element
-// http://stackoverflow.com/a/22638396
 function css(elem)
 {
-	var sheets = document.styleSheets, rulesArray = [];
-	elem.matches = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector || elem.oMatchesSelector;
-	for(var i in sheets)
+	var sheets = document.styleSheets;
+	var rulesArray = [];
+	var i = sheets.length, j;
+	while(i--)
 	{
 		var rules = sheets[i].cssRules;
-		for(var r in rules)
-		{
-			if(elem.matches(rules[r].selectorText))
-			{
-				rulesArray.push(rules[r].cssText);
-			}
-		}
+		j = rules.length;
+		while(j--)
+			if(elem.matches(rules[j].selectorText))
+				rulesArray.push(rules[j].cssText);
 	}
 	return rulesArray;
 }
