@@ -3832,6 +3832,25 @@ function insertTab(evt)
 	}
 }
 
+function markDivDepth()
+{
+	var divs = get("div");
+	var i = divs.length;
+	var node, level;
+	while(i--)
+	{
+		node= divs[i];
+		level = 0;
+		while(node.parentNode)
+		{
+			node = node.parentNode;
+			level++;
+		}
+		divs[i].className = "level" + level;
+	}
+	showDocumentStructureWithNames();
+}
+
 function isEntirelyNumeric(s)
 {
 	s = removeWhitespace(s);
@@ -3847,15 +3866,15 @@ function getPagerLinks()
 	var e = get("a");
 	var i, ii;
 	var newLink;
-	var pagerWrapper = createElement("h1");
+	var pagerWrapper = createElement("h1", { textContent: "Pages: " });
 	var count = 0;
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
 		if(isEntirelyNumeric(e[i].textContent))
 		{
 			count++;
-			newLink = createElement("a", { href: e[i].href, textContent: e[i].textContent || "[no text]" });
-			pagerWrapper.appendChild(newLink);
+			pagerWrapper.appendChild(createElement("a", { href: e[i].href, textContent: e[i].textContent || "[no text]" }));
+			newLinkWrapper.appendChild(document.createTextNode(" "));
 		}
 	}
 	document.body.appendChild(pagerWrapper);
@@ -3871,18 +3890,19 @@ function createPagerFromSelect()
 	var select, selects = get("select");
 	var j = selects.length;
 	var i, ii;
-	var newLink, newLinkWrapper;
+	var newLink;
+	var pagerWrapper;
 	while (j--)
 	{
 		select = selects[j];
 		console.log(j);
-		newLinkWrapper = createElement("h1");;
+		pagerWrapper = createElement("h1", { textContent: "Pages: " });
 		for (i = 0, ii = select.length; i < ii; i++)
 		{
-			newLinkWrapper.appendChild(createElement("a", { href: select[i].value, textContent: i }));
-			newLinkWrapper.appendChild(document.createTextNode(" "));
+			pagerWrapper.appendChild(createElement("a", { href: select[i].value, textContent: i }));
+			pagerWrapper.appendChild(document.createTextNode(" "));
 		}
-		document.body.appendChild(newLinkWrapper);
+		document.body.appendChild(pagerWrapper);
 	}
 }
 
