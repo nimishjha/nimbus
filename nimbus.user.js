@@ -3806,14 +3806,30 @@ function toggleConsole()
 		del("#styleUserInputWrapper");
 		return;
 	}
-	var style = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; } #userInput { background: #000; color: #FFF; font-size: 18px; width: 100%; height: 100%; padding: 10px; }';
+	var style = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; } #userInput { background: #000; color: #FFF; font: bold 18px Consolas, monospace; width: 100%; height: 100%; padding: 10px; }';
 	insertStyle(style, "styleUserInputWrapper", true);
 	var inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
 	var inputTextarea = createElement("textarea", { id: "userInput" });
 	inputTextarea.addEventListener("keyup", handleTextareaKeyUp);
+	inputTextarea.addEventListener("keydown", insertTab);
 	inputTextareaWrapper.appendChild(inputTextarea);
 	document.body.appendChild(inputTextareaWrapper);
 	inputTextarea.focus();
+}
+
+function insertTab(evt)
+{
+	var targ = evt.target;
+	if (evt.keyCode == 9)
+	{
+		evt.preventDefault();
+		evt.stopPropagation();
+		var iStart = targ.selectionStart;
+		var iEnd = targ.selectionEnd;
+		targ.value = targ.value.substr(0, iStart) + '\t' + targ.value.substr(iEnd, this.value.length);
+		targ.setSelectionRange(iStart + 1, iEnd + 1);
+		return false;
+	}
 }
 
 function isEntirelyNumeric(s)
