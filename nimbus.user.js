@@ -875,6 +875,22 @@ function css(elem)
 	return rulesArray;
 }
 
+function getAllCssRulesMatching(s)
+{
+	var sheets = document.styleSheets;
+	var rules, rulesText = "";
+	var i = sheets.length, j;
+	var regex = new RegExp(s);
+	while(i--)
+	{
+		rules = sheets[i].cssRules;
+		j = rules.length;
+		while(j--)
+			if(~rules[j].cssText.indexOf(s))
+			 	ylog(rules[j].cssText.replace(regex, "<mark>" + s + "</mark>"));
+	}
+}
+
 function getContentById(id)
 {
 	var toGet = getOne(id);
