@@ -220,7 +220,7 @@ function getSelectorsWithLightBackgrounds()
 			str += e[i].tagName;
 			if(e[i].id) str += "#" + e[i].id;
 			if(e[i].className) str += "." + e[i].className;
-			 str +=  ": " + bgColor + "\r\n";
+			str +=  ": " + bgColor + "\r\n";
 		}
 	}
 	console.log(str);
@@ -228,13 +228,12 @@ function getSelectorsWithLightBackgrounds()
 
 function getStyles(e)
 {
-	var styles, bgImage, bgColor, s, w;
+	var styles, bgImage, bgColor, s;
 	styles = getComputedStyle(e, null);
 	if(styles)
 	{
 		bgColor = styles.getPropertyValue("background-color");
 		bgImage = styles.getPropertyValue("background-image");
-		var elemWidth = styles.getPropertyValue("width");
 		if(bgColor !== "transparent")
 		{
 			s = createElement("x", { textContent: bgColor });
@@ -275,7 +274,7 @@ function highlightElementsWithInlineWidthOrHeight()
 
 function highlightElementsWithCssRule()
 {
-	var styles, prop, val, cssRule, e, i, s;
+	var styles, prop, val, e, i, s;
 	prop = prompt("Highlight elements where CSS Property");
 	val = prompt("has the value");
 	e = document.getElementsByTagName("*");
@@ -418,7 +417,7 @@ function showResource(str, uuid)
 {
 	var resourceLink, resourceLinkWrapper, resourceDelete, strSanitized = str;
 	if(str.indexOf("?") !== -1)
-	 	strSanitized = str.substr(0, str.indexOf("?"));
+		strSanitized = str.substr(0, str.indexOf("?"));
 	resourceLink = createElement("a", { textContent: strSanitized, href: str });
 	resourceLinkWrapper = createElement("h6", { className: "xlog", id: "link" + uuid });
 	resourceDelete = createElement("span", { innerHTML: "[Delete]" });
@@ -640,7 +639,7 @@ function deleteUselessIframes()
 
 function deleteUselessScripts()
 {
-	var e, i, ii, domains = ["google.com", "googletagmanager.com"];
+	var e, i, domains = ["google.com", "googletagmanager.com"];
 	e = get("script");
 	i = e.length;
 	var elem;
@@ -797,7 +796,8 @@ function changePage(direction)
 	else if(direction === "next") matchStrings = ["next", "nextpage"];
 	while(i--)
 	{
-		if(s = links[i].textContent)
+		s = links[i].textContent;
+		if(s)
 		{
 			s = removeNonAlpha(s).toLowerCase();
 			if(containsAnyOfTheStrings(s, matchStrings))
@@ -817,7 +817,7 @@ function pager(prev)
 	var pageString, curPage, links, i, ii;
 	if(document.body.innerHTML.match(/Page [0-9]+ of [0-9]+/))
 	{
-		pageString = document.body.innerHTML.match(/Page [0-9]+ of [0-9]+/)
+		pageString = document.body.innerHTML.match(/Page [0-9]+ of [0-9]+/);
 		curPage = parseInt(pageString[0].match(/[0-9]+/)[0], 10);
 		links = get("a");
 		if(prev)
@@ -878,7 +878,7 @@ function css(elem)
 function getAllCssRulesMatching(s)
 {
 	var sheets = document.styleSheets;
-	var rules, rulesText = "";
+	var rules;
 	var i = sheets.length, j;
 	var regex = new RegExp(s);
 	while(i--)
@@ -887,7 +887,7 @@ function getAllCssRulesMatching(s)
 		j = rules.length;
 		while(j--)
 			if(~rules[j].cssText.indexOf(s))
-			 	ylog(rules[j].cssText.replace(regex, "<mark>" + s + "</mark>"));
+				ylog(rules[j].cssText.replace(regex, "<mark>" + s + "</mark>"));
 	}
 }
 
@@ -925,7 +925,7 @@ function doStackOverflow()
 					del("script");
 				}
 			});
-		})
+		});
 		observer.observe(getOne("head"), { childList: true });
 	}
 }
@@ -992,7 +992,7 @@ function highlightElementsWithSetWidths()
 {
 	showMessage("Finding divs with pixel widths...", "messagebig");
 	var e = get("div");
-	var i = e.length, s, w, j, cssRules;
+	var i = e.length, j, cssRules;
 	while(i--)
 	{
 		cssRules = css(e[i]);
@@ -1076,7 +1076,7 @@ function getImages(slideshow)
 		return;
 	}
 	deleteSmallImages();
-	var f = get("img"), db = document.body, i, ii, j, jj, e = [], w, h;
+	var f = get("img"), db = document.body, i, ii, j, w, h;
 	var tempNode = createElement("slideshow", { id: "nimbusGallery" });
 	if(f && f.length)
 	{
@@ -1134,7 +1134,7 @@ function getImages(slideshow)
 
 function buildSlideshow()
 {
-	var e, gallery, images, s;
+	var gallery, images, s;
 	if(!(gallery = get("#nimbusGallery")))
 		return;
 	images = gallery.querySelectorAll("img");
@@ -1228,7 +1228,7 @@ function deleteSmallImages()
 {
 	var f = document.getElementsByTagName('img');
 	var dimensions = [20, 50, 100, 200, 300, 400];
-	var i, ii, j, jj;
+	var i, j, jj;
 	for (i = f.length - 1; i >= 0; i--)
 	{
 		if(!(f[i].naturalWidth && f[i].naturalHeight))
@@ -1263,10 +1263,10 @@ function replaceSpans()
 
 function replaceCommentsWithPres()
 {
-	var s = db.innerHTML;
+	var s = document.body.innerHTML;
 	s = s.replace(/<!--/g, '<pre>');
 	s = s.replace(/-->/g, '</pre>');
-	db.innerHTML = s;
+	document.body.innerHTML = s;
 }
 
 function replaceImagesWithTextLinks()
@@ -1779,7 +1779,7 @@ function setDocTitle(s)
 
 	if(!(getOne("h1") && getOne("h1").innerHTML === s))
 	{
-		h = createElement("h1", { textContent: s })
+		h = createElement("h1", { textContent: s });
 		document.body.insertBefore(h, document.body.firstChild);
 	}
 	// Append domain name to title for easy searching
@@ -2006,7 +2006,7 @@ function ltrim(str1)
 
 function normalizeWhitespace(s)
 {
-	s = s.replace(/\s+/g, " ");
+	return(s.replace(/\s+/g, " "));
 }
 
 function cleanupHeadings()
@@ -2168,9 +2168,8 @@ function logout()
 		case 'accounts.google.com':
 			location.href = 'https://accounts.google.com/Logout';
 			return;
-			break;
 	}
-	var e, i, ii, newlink, found = false, s;
+	var e, i, ii, found = false, s;
 	e = get("a");
 	i = e.length;
 	for(i = 0, ii = e.length; i < ii; i++)
@@ -2534,23 +2533,23 @@ function delClassOrIdContaining(classes, beginningOnly)
 
 function getElementsWithClass(strClass)
 {
-	var s = "", found = 0, f;
+	var e;
 	if(!strClass || strClass.length === 0)
 		return;
 	if(strClass.indexOf(".") !== 0)
 		strClass = "." + strClass;
-	f = get(strClass);
+	e = get(strClass);
 	var tempNode = createElement("div", { id: "replacerDiv" });
-	if(f && f.length)
+	if(e && e.length)
 	{
-		for(var i = 0; i < f.length; i++)
-			tempNode.appendChild(f[i].cloneNode(true));
+		for(var i = 0; i < e.length; i++)
+			tempNode.appendChild(e[i].cloneNode(true));
 		document.body.innerHTML = tempNode.innerHTML;
 	}
-	else if(f)
+	else if(e)
 	{
 		document.body.innerHTML = "";
-		document.body.appendChild(f.cloneNode(true), document.body.firstChild);
+		document.body.appendChild(e.cloneNode(true), document.body.firstChild);
 	}
 	else
 	{
@@ -2595,7 +2594,7 @@ function deleteNonContentDivs()
 		document.body.className = "pad100 xwrap";
 		return;
 	}
-	var sClass = "toget", e, f, i, ii, j, tag;
+	var sClass = "toget", e, i, ii, j, tag;
 
 	replaceElementsBySelector("article", "div");
 	deleteNonContentElements();
@@ -2637,7 +2636,7 @@ function getContentByParagraphCount()
 		return;
 	}
 	insertStyleHighlight();
-	var f, numParas;
+	var numParas;
 	var e = document.querySelectorAll("div, article, main, section");
 	var i = e.length;
 	var highestNumParas = 0;
@@ -2917,14 +2916,14 @@ function fixPres()
 		s = s.replace(/<br \/>/g, "\r\n");
 		s = s.replace(/<[^<>]+>/g, "");
 		// Calculate spaces per tab
-		 if(s.match("\n  [^ ]")) {
-			s = s.replace(/  /g, "GYZYtab");
+		if(s.match("\n  [^ ]")) {
+			s = s.replace(/ {2}/g, "GYZYtab");
 		} else if(s.match("\n   [^ ]")) {
-			s = s.replace(/   /g, "GYZYtab");
+			s = s.replace(/ {3}/g, "GYZYtab");
 		} else if(s.match("\n    [^ ]")) {
-			s = s.replace(/    /g, "GYZYtab");
+			s = s.replace(/ {4}/g, "GYZYtab");
 		} else {
-			s = s.replace(/    /g, "GYZYtab");
+			s = s.replace(/ {4}/g, "GYZYtab");
 		}
 		s = s.replace(/\t/g, "GYZYtab");
 		s = s.replace(/\r\n/g, "GYZYnl");
@@ -3084,7 +3083,6 @@ function highlightNodesContaining(selector, str)
 
 function highlightLinksWithHrefContaining(str)
 {
-	var wrapper;
 	if(!arguments.length)
 	{
 		str = prompt("Containing text");
@@ -3250,7 +3248,7 @@ function getAttributes(targ)
 				str += "<em>" + ta[i].name + "</em> ";
 				if(removeWhitespace(ta[i].value) != "hovered")
 				{
-					str += '=\"' + ta[i].value + '\" ';
+					str += '="' + ta[i].value + '" ';
 					str = str.replace(/hovered/g, '');
 				}
 			}
@@ -3877,7 +3875,6 @@ function getPagerLinks()
 {
 	var e = get("a");
 	var i, ii;
-	var newLink;
 	var pagerWrapper = createElement("h1", { textContent: "Pages: " });
 	var count = 0;
 	for(i = 0, ii = e.length; i < ii; i++)
@@ -3886,7 +3883,7 @@ function getPagerLinks()
 		{
 			count++;
 			pagerWrapper.appendChild(createElement("a", { href: e[i].href, textContent: e[i].textContent || "[no text]" }));
-			newLinkWrapper.appendChild(document.createTextNode(" "));
+			pagerWrapper.appendChild(document.createTextNode(" "));
 		}
 	}
 	document.body.appendChild(pagerWrapper);
@@ -3902,7 +3899,6 @@ function createPagerFromSelect()
 	var select, selects = get("select");
 	var j = selects.length;
 	var i, ii;
-	var newLink;
 	var pagerWrapper;
 	while (j--)
 	{
@@ -3993,7 +3989,6 @@ function handleKeyDown(e)
 	{
 		return;
 	}
-	var s;
 	var db = document.body;
 	var k = e.keyCode;
 	//
