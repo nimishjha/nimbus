@@ -2485,50 +2485,17 @@ function htmlToText(e)
 	e.innerHTML = e.textContent;
 }
 
-function delClassOrIdContaining(classes, beginningOnly)
+function delClassContaining(classes)
 {
 	var todel = [];
-	var x = document.getElementsByTagName("div"), i, j;
+	var x = get("div"), i, j;
 	i = x.length;
 	while (i--)
-	{
-		for (j = 0; j < classes.length; j++)
-		{
-			if(beginningOnly)
-			{
-				if(x[i].className && x[i].className.toLowerCase().indexOf(classes[j]) === 0)
-				{
-					todel.push(x[i]);
-					xlog(x[i].className);
-					break;
-				}
-				else if(x[i].id && x[i].id.toString().toLowerCase().indexOf(classes[j]) === 0)
-				{
-					todel.push(x[i]);
-					xlog(x[i].id);
-					break;
-				}
-			}
-			else
-			{
-				if(x[i].className && x[i].className.toLowerCase().indexOf(classes[j]) >= 0)
-				{
-					todel.push(x[i]);
-					xlog(x[i].className);
-					break;
-				}
-				else if(x[i].id && x[i].id.toString().toLowerCase().indexOf(classes[j]) >= 0)
-				{
-					todel.push(x[i]);
-					xlog(x[i].id);
-					break;
-				}
-			}
-		}
-	}
+		if(x[i].className &&  x[i].className.length && containsAnyOfTheStrings(x[i].className, classes))
+			todel.push(x[i]);
 	i = todel.length;
 	while(i--)
-		todel[i].classList.add("hl");
+		del(todel[i]);
 }
 
 function getElementsWithClass(strClass)
@@ -3935,6 +3902,14 @@ function getAllClasses(selector)
 	for(var prop in classes)
 		s += prop + "\r\n";
 	console.log(s);
+}
+
+function revealLinkHrefs()
+{
+	var e = get("a");
+	var i = e.length;
+	while(i--)
+		e[i].textContent = e[i].getAttribute("href");
 }
 
 function inject()
