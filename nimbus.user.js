@@ -220,7 +220,7 @@ function getSelectorsWithLightBackgrounds()
 			str += e[i].tagName;
 			if(e[i].id) str += "#" + e[i].id;
 			if(e[i].className) str += "." + e[i].className;
-			str +=  ": " + bgColor + "\r\n";
+			str += ": " + bgColor + "\r\n";
 		}
 	}
 	console.log(str);
@@ -297,6 +297,11 @@ function highlightElementsWithCssRule()
 
 function markTableRowsAndColumns()
 {
+	if(get("#styleShowTables"))
+	{
+		del("#styleShowTables");
+		return;
+	}
 	var tr = get("tr"), td, i, ii, j, jj;
 	for(i = 0, ii = tr.length; i < ii; i++)
 	{
@@ -312,7 +317,7 @@ function markTableRowsAndColumns()
 			td[j].className = "col" + j;
 		}
 	}
-	insertStyle("table, tr, td { box-shadow: inset 1px 1px #444, inset -1px -1px #444 !important; }", "styleShowTables");
+	insertStyle("table, tr, td { box-shadow: inset 1px 1px #444, inset -1px -1px #444; }", "styleShowTables", true);
 }
 
 //
@@ -1405,7 +1410,7 @@ function replaceIframes()
 			segments = s.split('?');
 			iframelink.href = segments[0] + '?' + segments[1];
 			if(s.indexOf(".") > 0)
-				s = s.match(/:\/\/(.[^\/]+)/)[1];
+				s = s.match(/:\/\/(.[^/]+)/)[1];
 			iframelink.textContent = iframelink.href;
 		}
 		else
@@ -1725,13 +1730,13 @@ function chooseDocumentHeading()
 function replaceDiacritics(s)
 {
 	var diacritics =[
-		/[\300-\306]/g, /[\340-\346]/g,  // A, a
-		/[\310-\313]/g, /[\350-\353]/g,  // E, e
-		/[\314-\317]/g, /[\354-\357]/g,  // I, i
-		/[\322-\330]/g, /[\362-\370]/g,  // O, o
-		/[\331-\334]/g, /[\371-\374]/g,  // U, u
-		/[\321]/g, /[\361]/g, // N, n
-		/[\307]/g, /[\347]/g, // C, c
+		/[\300-\306]/g, /[\340-\346]/g,	// A, a
+		/[\310-\313]/g, /[\350-\353]/g,	// E, e
+		/[\314-\317]/g, /[\354-\357]/g,	// I, i
+		/[\322-\330]/g, /[\362-\370]/g,	// O, o
+		/[\331-\334]/g, /[\371-\374]/g,	// U, u
+		/[\321]/g, /[\361]/g,		// N,
+		/[\307]/g, /[\347]/g,		// C, c
 	];
 	var chars = ['A','a','E','e','I','i','O','o','U','u','N','n','C','c'];
 	for (var i = 0; i < diacritics.length; i++)
@@ -1812,26 +1817,6 @@ function setDocTitleFromSelection()
 	if(selection.toString().length) s = selection;
 	else s = prompt("Document title");
 	setDocTitle(s);
-}
-
-function delClassContaining(s)
-{
-	if(s.length <= 0) return;
-	var e = document.getElementsByTagName('div');
-	var i = e.length;
-	while(i--)
-	{
-		if(e[i].className && e[i].className.indexOf(s) >= 0)
-		{
-			//e[i].innerHTML = '';
-			e[i].innerHTML = "<h2><mark>deleted: ." + e[i].className + "</mark></h2>";
-		}
-		else if(e[i].id && e[i].id.indexOf(s) >= 0)
-		{
-			//e[i].innerHTML = '';
-			e[i].innerHTML = "<h2><mark>deleted: #" + e[i].id + "</mark></h2>";
-		}
-	}
 }
 
 function zeroPad(n)
@@ -2311,7 +2296,7 @@ function parseCode(s)
 	var t = "";
 	var cur, prev, next;
 	var phpVarRegex;
-	for(var i = 0, ii = s.length; i < ii;  i++)
+	for(var i = 0, ii = s.length; i < ii; i++)
 	{
 		cur = s[i];
 		prev = (i > 0) ? s[i-1] : null;
@@ -2488,10 +2473,10 @@ function htmlToText(e)
 function delClassContaining(classes)
 {
 	var todel = [];
-	var x = get("div"), i, j;
-	i = x.length;
+	var x = get("div");
+	var i = x.length;
 	while (i--)
-		if(x[i].className &&  x[i].className.length && containsAnyOfTheStrings(x[i].className, classes))
+		if(x[i].className && x[i].className.length && containsAnyOfTheStrings(x[i].className, classes))
 			todel.push(x[i]);
 	i = todel.length;
 	while(i--)
