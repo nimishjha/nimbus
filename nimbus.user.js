@@ -3842,9 +3842,11 @@ function getPagerLinks()
 			pagerWrapper.appendChild(document.createTextNode(" "));
 		}
 	}
-	document.body.appendChild(pagerWrapper);
 	if(count)
+	{
+		document.body.appendChild(pagerWrapper);
 		pagerWrapper.querySelector("a").focus();
+	}
 	else
 		showMessage("No pager links found", "messagebig");
 	createPagerFromSelect();
@@ -3852,22 +3854,21 @@ function getPagerLinks()
 
 function createPagerFromSelect()
 {
-	var select, selects = get("select");
-	var j = selects.length;
-	var i, ii;
-	var pagerWrapper;
+	let select, selects = get("select");
+	let j = selects.length;
+	let i, ii;
+	let pagerWrapper;
 	while (j--)
 	{
 		select = selects[j];
-		console.log(j);
-		pagerWrapper = createElement("h1", { textContent: "Pages: " });
 		for (i = 0, ii = select.length; i < ii; i++)
 		{
-			pagerWrapper.appendChild(createElement("a", { href: select[i].value, textContent: i }));
-			pagerWrapper.appendChild(document.createTextNode(" "));
+			pagerWrapper = createElement("h1");
+			pagerWrapper.appendChild(createElement("a", { href: select[i].value, textContent: select[i].textContent || i + 1 }));
+			document.body.appendChild(pagerWrapper);
 		}
-		document.body.appendChild(pagerWrapper);
 	}
+	document.body.appendChild(createElement("hr"));
 }
 
 function getAllClasses(selector)
@@ -3899,6 +3900,26 @@ function revealLinkHrefs()
 	var i = e.length;
 	while(i--)
 		e[i].textContent = e[i].getAttribute("href");
+}
+
+function humanizeUrl(s)
+{
+	const matches = s.match(/[A-Za-z]+/g);
+	let i = matches.length;
+	let longestMatch = matches[i - 1];
+	while(i--)
+		if(matches[i].length > longestMatch.length)
+			longestMatch = matches[i];
+	return longestMatch;
+}
+
+function revealEmptyLinks()
+{
+	var e = get("a");
+	var i = e.length;
+	while(i--)
+		if(!e[i].textContent.length)
+			e[i].textContent = humanizeUrl(e[i].href);
 }
 
 function inject()
