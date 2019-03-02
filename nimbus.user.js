@@ -29,6 +29,8 @@
 //	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+"use strict";
+
 var Nimbus = {
 	logString: "",
 	messageTimeout: null
@@ -243,7 +245,7 @@ function getStyles(e)
 			e.classList.add("hl");
 		}
 	}
-	insertStyle("x {background:#000;color:#FF0;}", "temp", true);
+	insertStyle("x { background: #000; color: #FF0; }", "styleGetStyles", true);
 }
 
 function highlightWithinPreformattedBlocks(str)
@@ -1495,10 +1497,10 @@ function insertStyle(str, identifier, important)
 
 function insertStyleHighlight()
 {
-	// var s = '.hl, .focused { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }' +
-	// 	'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
-	// 	'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
-	var s = '.hl { filter: brightness(1.7); }';
+	const s = '.hl, .focused { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }' +
+		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
+		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
+	// var s = '.hl { filter: brightness(1.7); }';
 	insertStyle(s, "styleHighlight", true);
 }
 
@@ -3753,11 +3755,26 @@ function observeAddedNodes()
 	showMessage("Observing added nodes", "messagebig");
 }
 
-function handleTextareaKeyUp(evt)
+function handleConsoleInput(evt)
 {
-	var inputText = getOne("#userInput").value;
+	let inputText = getOne("#userInput").value;
 	if (!inputText) return;
-	if (evt.keyCode === 13 && evt.shiftKey) eval(inputText);
+	const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
+	if (evt.keyCode === 13 && evt[ctrlOrMeta])
+	{
+		eval(inputText);
+	}
+	else if (evt.keyCode === 9)
+	{
+		let targ = evt.target;
+		evt.preventDefault();
+		evt.stopPropagation();
+		let iStart = targ.selectionStart;
+		let iEnd = targ.selectionEnd;
+		targ.value = targ.value.substr(0, iStart) + '\t' + targ.value.substr(iEnd, this.value.length);
+		targ.setSelectionRange(iStart + 1, iEnd + 1);
+		return false;
+	}
 }
 
 function toggleConsole()
@@ -3768,30 +3785,14 @@ function toggleConsole()
 		del("#styleUserInputWrapper");
 		return;
 	}
-	var style = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; } #userInput { background: #000; color: #FFF; font: bold 18px Consolas, monospace; width: 100%; height: 100%; padding: 10px; }';
+	const style = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; } #userInput { background: #000; color: #FFF; font: bold 18px Consolas, monospace; width: 100%; height: 100%; padding: 10px; }';
 	insertStyle(style, "styleUserInputWrapper", true);
-	var inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
-	var inputTextarea = createElement("textarea", { id: "userInput" });
-	inputTextarea.addEventListener("keyup", handleTextareaKeyUp);
-	inputTextarea.addEventListener("keydown", insertTab);
+	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
+	const inputTextarea = createElement("textarea", { id: "userInput" });
+	inputTextarea.addEventListener("keydown", handleConsoleInput);
 	inputTextareaWrapper.appendChild(inputTextarea);
 	document.body.appendChild(inputTextareaWrapper);
 	inputTextarea.focus();
-}
-
-function insertTab(evt)
-{
-	var targ = evt.target;
-	if (evt.keyCode == 9)
-	{
-		evt.preventDefault();
-		evt.stopPropagation();
-		var iStart = targ.selectionStart;
-		var iEnd = targ.selectionEnd;
-		targ.value = targ.value.substr(0, iStart) + '\t' + targ.value.substr(iEnd, this.value.length);
-		targ.setSelectionRange(iStart + 1, iEnd + 1);
-		return false;
-	}
 }
 
 function markDivDepth()
