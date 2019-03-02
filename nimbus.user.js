@@ -1668,14 +1668,17 @@ function insertStyleWhite()
 
 function toggleShowClasses()
 {
-	del("script");
-	del("link");
+	if(get("#styleShowClasses"))
+	{
+		del("#styleShowClasses");
+		return;
+	}
 	var s = 'body { background: #333; color: #888; }' +
 	'div::before, span::before, p::before { content:attr(class); color:#FF0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
 	'div::after, span::after, p::after { content:attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
 	'select, textarea, input { background: #444; border: 1px solid red; }' +
 	'button { background: #222; color: #AAA; }';
-	insertStyle(s, "styleDebug", true);
+	insertStyle(s, "styleShowClasses", true);
 }
 
 function removeEventListeners()
