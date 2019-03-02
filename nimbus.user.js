@@ -2987,7 +2987,7 @@ function highlightSpecificNodesContaining()
 	var s = prompt("Find text");
 	if(!(s && s.length))
 		return;
-	var tagNames = ["p", "h1", "h2", "h3", "td", "li"];
+	var tagNames = ["p", "h1", "h2", "h3", "tr", "li"];
 	for(var i = 0, ii = tagNames.length; i < ii; i++)
 	{
 		highlightNodesContaining(tagNames[i], s);
