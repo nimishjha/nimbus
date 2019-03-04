@@ -1668,10 +1668,10 @@ function removeEventListeners()
 	let i = elems.length;
 	while (i--)
 	{
-		if(elems[i].hasAttribute("onmousedown")) elems[i].removeAttribute("onmousedown");
-		if(elems[i].hasAttribute("onmouseup")) elems[i].removeAttribute("onmouseup");
-		if(elems[i].hasAttribute("onmouseover")) elems[i].removeAttribute("onmouseover");
-		if(elems[i].hasAttribute("onclick")) elems[i].removeAttribute("onclick");
+		elems[i].removeAttribute("onmousedown");
+		elems[i].removeAttribute("onmouseup");
+		elems[i].removeAttribute("onmouseover");
+		elems[i].removeAttribute("onclick");
 	}
 }
 
@@ -3557,8 +3557,7 @@ function removeAccesskeys()
 	const e = get("a");
 	let i = e.length;
 	while(i--)
-		if(e[i].hasAttribute("accesskey"))
-			e[i].removeAttribute("accesskey");
+		e[i].removeAttribute("accesskey");
 }
 
 function showPassword()
