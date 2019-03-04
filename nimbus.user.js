@@ -1221,21 +1221,31 @@ function deleteImagesSmallerThan(x, y)
 
 function deleteSmallImages()
 {
-	const f = document.getElementsByTagName('img');
+	const images = get("img");
 	const dimensions = [20, 50, 100, 200, 300, 400];
-	let i, j, jj;
-	for (i = f.length - 1; i >= 0; i--)
+	let index = 0;
+	let indexElement = get("#imagedimensionindex");
+	if (indexElement)
 	{
-		if(!(f[i].naturalWidth && f[i].naturalHeight))
-			continue;
-		for(j = 0, jj = dimensions.length; j < jj; j++)
-		{
-			if(f[i].naturalWidth < dimensions[j] || f[i].naturalHeight < dimensions[j])
-			{
-				deleteImagesSmallerThan(dimensions[j], dimensions[j]);
-				return;
-			}
-		}
+		index = indexElement.textContent || 0;
+		index++;
+		if (index > dimensions.length - 1) return;
+	}
+	else
+	{
+		index = 0;
+	}
+	del("#imagedimensionindex");
+	indexElement = createElement("h6", { textContent: index, id: "imagedimensionindex" });
+	document.body.appendChild(indexElement);
+	const dimension = dimensions[index];
+	showMessage("Deleting images smaller than " + dimension + " pixels", "messagebig");
+	let i;
+	for(i = images.length - 1; i >= 0; i--)
+	{
+		if (!(images[i].naturalWidth && images[i].naturalHeight)) continue;
+		if (images[i].naturalWidth < dimension || images[i].naturalHeight < dimension)
+			del(images[i]);
 	}
 }
 
