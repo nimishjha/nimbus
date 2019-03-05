@@ -754,6 +754,48 @@ function deleteMessage()
 	del("#styleMessage");
 }
 
+function runCommand(s)
+{
+	if(typeof s === "undefined" || !s.length)
+		return;
+	const commandSegments = s.split(" ");
+	if (!commandSegments.length)
+		return;
+	const funcName = commandSegments[0];
+	const availableFunctions = {
+		forAll: forAll,
+		formatEbook: formatEbook,
+		getAllClasses: getAllClasses,
+		getAllCssRulesMatching: getAllCssRulesMatching,
+		highlightElementsWithAttribute: highlightElementsWithAttribute,
+		highlightElementsWithCssRule: highlightElementsWithCssRule,
+		highlightElementsWithInlineWidthOrHeight: highlightElementsWithInlineWidthOrHeight,
+		highlightElementsWithSetWidths: highlightElementsWithSetWidths,
+		highlightLinksInPres: highlightLinksInPres,
+		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
+		makeHeadingsByTextLength: makeHeadingsByTextLength,
+		markDivDepth: markDivDepth,
+		removeAttributesOf: removeAttributesOf,
+		removeClassFromAll: removeClassFromAll,
+		revealEmptyLinks: revealEmptyLinks,
+		revealLinkHrefs: revealLinkHrefs,
+	};
+	if(availableFunctions[funcName])
+	{
+		const args = [];
+		let n;
+		let i, ii;
+		for (i = 1, ii = commandSegments.length; i < ii; i++)
+		{
+			n = parseInt(commandSegments[i], 10);
+			if (isNaN(n))
+				args.push(commandSegments[i]);
+			else args.push(n);
+		}
+		availableFunctions[funcName].apply(this, args);
+	}
+}
+
 function openDialog(s)
 {
 	let dialog, dialogInput;
@@ -785,6 +827,7 @@ function handleDialogInput(e)
 	switch(keyCode)
 	{
 		case KEYCODES.ESCAPE: closeDialog(); break;
+		case KEYCODES.ENTER: runCommand(get("#xxdialoginput").value); break;
 		default: showMessage(c, "messagebig"); break;
 	}
 }
@@ -1973,9 +2016,9 @@ function delNewlines()
 	}
 }
 
-function trim(str1)
+function trim(s)
 {
-	return str1.replace(/^\s+/, '').replace(/\s+$/, '');
+	return s.replace(/^\s+/, '').replace(/\s+$/, '');
 }
 
 function ltrim(str1)
