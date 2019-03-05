@@ -763,6 +763,7 @@ function runCommand(s)
 		return;
 	const funcName = commandSegments[0];
 	const availableFunctions = {
+		del: del,
 		forAll: forAll,
 		formatEbook: formatEbook,
 		getAllClasses: getAllClasses,
@@ -775,6 +776,8 @@ function runCommand(s)
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
 		markDivDepth: markDivDepth,
+		numberDivs: numberDivs,
+		delRange: delRange,
 		removeAttributesOf: removeAttributesOf,
 		removeClassFromAll: removeClassFromAll,
 		revealEmptyLinks: revealEmptyLinks,
@@ -792,6 +795,7 @@ function runCommand(s)
 				args.push(commandSegments[i]);
 			else args.push(n);
 		}
+		console.log(funcName + "(" + printArray(args) + ")");
 		availableFunctions[funcName].apply(this, args);
 	}
 }
@@ -805,8 +809,8 @@ function openDialog(s)
 		dialogInput = createElement("textarea", { id: "xxdialoginput" });
 		dialog.appendChild(dialogInput);
 		document.body.insertBefore(dialog, document.body.firstChild);
-		s = '#xxdialog { position: absolute; margin: auto; z-index: 10000; height: 400px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
-		'#xxdialoginput { font: 32px "swis721 cn bt", verdana; background: #000; color: #FFF; padding: 0; border: 0; width: 100%; height: 100%; }';
+		s = '#xxdialog { position: absolute; margin: auto; z-index: 10000; height: 52px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
+		'#xxdialoginput { font: 32px "swis721 cn bt", verdana; background: #000; color: #FFF; padding: 0; border: 0; width: 100%; height: 100%; overflow: hidden; }';
 		insertStyle(s, "style-xxdialog", true);
 		dialogInput.focus();
 		dialogInput.addEventListener("keydown", handleDialogInput, false);
@@ -815,8 +819,10 @@ function openDialog(s)
 
 function closeDialog()
 {
+	const command = get("#xxdialoginput").value;
 	del("#xxdialog");
 	del("#style-xxdialog");
+	return command;
 }
 
 function handleDialogInput(e)
@@ -827,7 +833,7 @@ function handleDialogInput(e)
 	switch(keyCode)
 	{
 		case KEYCODES.ESCAPE: closeDialog(); break;
-		case KEYCODES.ENTER: runCommand(get("#xxdialoginput").value); break;
+		case KEYCODES.ENTER: runCommand(closeDialog()); break;
 		default: showMessage(c, "messagebig"); break;
 	}
 }
@@ -3817,6 +3823,23 @@ function markDivDepth()
 		divs[i].className = "level" + level;
 	}
 	showDocumentStructureWithNames();
+}
+
+function numberDivs()
+{
+	const e = get("div");
+	let i = e.length;
+	while(i--)
+		e[i].id = "i" + i;
+	showDocumentStructureWithNames();
+}
+
+function delRange(m, n)
+{
+	if(m >= n)
+		return;
+	for(let i = m; i < n; i++)
+		del("#i" + i);
 }
 
 function isEntirelyNumeric(s)
