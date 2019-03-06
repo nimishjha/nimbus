@@ -343,10 +343,13 @@ function containsAnyOfTheStrings(s, arrStrings)
 	return found;
 }
 
-function toggleClass(element, sClass)
+function toggleClass(element, className)
 {
-	if(element.classList.contains(sClass)) element.classList.remove(sClass);
-	else element.classList.add(sClass);
+	const classList = element.classList;
+	if(classList.contains(className))
+		classList.remove(className);
+	else
+		classList.add(className);
 }
 
 function cycleClass(elem, arrClasses)
@@ -763,25 +766,125 @@ function runCommand(s)
 		return;
 	const funcName = commandSegments[0];
 	const availableFunctions = {
+		addLinksToLargerImages: addLinksToLargerImages,
+		addParagraphs: addParagraphs,
+		annotate: annotate,
+		appendInfo: appendInfo,
+		buildSlideshow: buildSlideshow,
+		chooseDocumentHeading: chooseDocumentHeading,
+		cleanupBlogs: cleanupBlogs,
+		cleanupGeneral: cleanupGeneral,
+		cleanupGeneral_light: cleanupGeneral_light,
+		cleanupHead: cleanupHead,
+		cleanupHeadings: cleanupHeadings,
+		cleanupUnicode: cleanupUnicode,
+		cleanupWikipedia: cleanupWikipedia,
+		createPagerFromSelect: createPagerFromSelect,
+		createTagsByClassName: createTagsByClassName,
 		del: del,
+		delClassContaining: delClassContaining,
+		deleteElementsContainingText: deleteElementsContainingText,
+		deleteEmptyElements: deleteEmptyElements,
+		deleteEmptyHeadings: deleteEmptyHeadings,
+		deleteIframes: deleteIframes,
+		deleteImages: deleteImages,
+		deleteImagesBySrcContaining: deleteImagesBySrcContaining,
+		deleteImagesSmallerThan: deleteImagesSmallerThan,
+		deleteNonContentDivs: deleteNonContentDivs,
+		deleteNonContentElements: deleteNonContentElements,
+		deleteNonContentImages: deleteNonContentImages,
+		deletePlainSpanTags: deletePlainSpanTags,
+		deleteSmallImages: deleteSmallImages,
+		deleteSpecificEmptyElements: deleteSpecificEmptyElements,
+		deleteUselessIframes: deleteUselessIframes,
+		deleteUselessScripts: deleteUselessScripts,
+		delNewlines: delNewlines,
+		delRange: delRange,
+		fillForms: fillForms,
+		fixHeadings: fixHeadings,
+		fixParagraphs: fixParagraphs,
+		fixPres: fixPres,
+		focusButton: focusButton,
+		focusFormElement: focusFormElement,
 		forAll: forAll,
+		forceReloadCss: forceReloadCss,
 		formatEbook: formatEbook,
 		getAllClasses: getAllClasses,
 		getAllCssRulesMatching: getAllCssRulesMatching,
+		getBestImageSrc: getBestImageSrc,
+		getContentById: getContentById,
+		getContentByParagraphCount: getContentByParagraphCount,
+		getElementsContainingText: getElementsContainingText,
+		getElementsWithClass: getElementsWithClass,
+		getImages: getImages,
+		getLinksWithHrefContaining: getLinksWithHrefContaining,
+		getPagerLinks: getPagerLinks,
+		getSelectorsWithLightBackgrounds: getSelectorsWithLightBackgrounds,
+		handleBlockEditClick: handleBlockEditClick,
+		hasClassesContaining: hasClassesContaining,
+		highlightAllTableCellsInRow: highlightAllTableCellsInRow,
+		highlightCode: highlightCode,
+		highlightElementsBySelector: highlightElementsBySelector,
 		highlightElementsWithAttribute: highlightElementsWithAttribute,
 		highlightElementsWithCssRule: highlightElementsWithCssRule,
 		highlightElementsWithInlineWidthOrHeight: highlightElementsWithInlineWidthOrHeight,
 		highlightElementsWithSetWidths: highlightElementsWithSetWidths,
 		highlightLinksInPres: highlightLinksInPres,
+		highlightLinksWithHrefContaining: highlightLinksWithHrefContaining,
+		highlightNode: highlightNode,
+		highlightNodesContaining: highlightNodesContaining,
+		highlightSelection: highlightSelection,
+		highlightSelectionOrText: highlightSelectionOrText,
+		highlightSpecificNodesContaining: highlightSpecificNodesContaining,
+		highlightText: highlightText,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
+		insertStyle: insertStyle,
+		insertStyleFonts: insertStyleFonts,
+		insertStyleGrey: insertStyleGrey,
+		insertStyleHighlight: insertStyleHighlight,
+		insertStyleNegative: insertStyleNegative,
+		insertStyleShowClass: insertStyleShowClass,
+		insertStyleWhite: insertStyleWhite,
+		makeHeadingFromSelection: makeHeadingFromSelection,
+		makeHeadings: makeHeadings,
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
 		markDivDepth: markDivDepth,
+		markTableRowsAndColumns: markTableRowsAndColumns,
 		numberDivs: numberDivs,
-		delRange: delRange,
+		observeAddedNodes: observeAddedNodes,
+		parseCode: parseCode,
+		removeAccesskeys: removeAccesskeys,
+		removeAttributes: removeAttributes,
 		removeAttributesOf: removeAttributesOf,
+		removeAttributes_regex: removeAttributes_regex,
 		removeClassFromAll: removeClassFromAll,
+		removeEventListeners: removeEventListeners,
+		replaceAudio: replaceAudio,
+		replaceCommentsWithPres: replaceCommentsWithPres,
+		replaceDiacritics: replaceDiacritics,
+		replaceElementsBySelector: replaceElementsBySelector,
+		replaceFontTags: replaceFontTags,
+		replaceIframes: replaceIframes,
+		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
+		replaceSpans: replaceSpans,
+		restorePres: restorePres,
 		revealEmptyLinks: revealEmptyLinks,
 		revealLinkHrefs: revealLinkHrefs,
+		sanitizeTitle: sanitizeTitle,
+		setDocTitle: setDocTitle,
+		setDocTitleFromSelection: setDocTitleFromSelection,
+		showDocumentStructure2: showDocumentStructure2,
+		showDocumentStructure: showDocumentStructure,
+		showDocumentStructureWithNames: showDocumentStructureWithNames,
+		showPrintLink: showPrintLink,
+		showResources: showResources,
+		showTextToHTMLRatio: showTextToHTMLRatio,
+		toggleBlockEditMode: toggleBlockEditMode,
+		toggleShowClasses: toggleShowClasses,
+		unhighlightAll: unhighlightAll,
+		wrapNodeInTag: wrapNodeInTag,
+		xlog: xlog,
+		ylog: ylog,
 	};
 	if(availableFunctions[funcName])
 	{
@@ -809,8 +912,8 @@ function openDialog(s)
 		dialogInput = createElement("textarea", { id: "xxdialoginput" });
 		dialog.appendChild(dialogInput);
 		document.body.insertBefore(dialog, document.body.firstChild);
-		s = '#xxdialog { position: absolute; margin: auto; z-index: 10000; height: 52px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
-		'#xxdialoginput { font: 32px "swis721 cn bt", verdana; background: #000; color: #FFF; padding: 0; border: 0; width: 100%; height: 100%; overflow: hidden; }';
+		s = '#xxdialog { position: fixed; margin: auto; z-index: 10000; height: 60px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
+		'#xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0; border: 0; width: 100%; height: 100%; overflow: hidden; }';
 		insertStyle(s, "style-xxdialog", true);
 		dialogInput.focus();
 		dialogInput.addEventListener("keydown", handleDialogInput, false);
@@ -1011,7 +1114,7 @@ function unhighlightElement(elem)
 	elem.classList.remove("hl");
 }
 
-function unhighlightAllHighlightedElements()
+function unhighlightAll()
 {
 	get(".hl").forEach(unhighlightElement);
 }
@@ -1071,18 +1174,14 @@ function highlightElementsWithSetWidths()
 
 function wrapNodeInTag()
 {
-	const s = prompt("Enter tag to wrap selected node in");
+	const s = prompt("Enter tag to wrap selected node's innerHTML in");
 	if(s && s.length)
 		highlightNode(s);
 }
 
 function highlightNode(tag)
 {
-	let t;
-	if(tag && tag.length)
-		t = tag;
-	else
-		t = "mark";
+	const t = tag? tag : "mark";
 	const selection = window.getSelection();
 	if(!selection)
 		return;
@@ -1256,15 +1355,12 @@ function deleteImages()
 
 function deleteImagesSmallerThan(x, y)
 {
-	const f = document.getElementsByTagName('img');
-	let i = f.length;
+	const images = document.getElementsByTagName('img');
+	let i = images.length;
 	while(i--)
 	{
-		if(f[i].naturalWidth < x || f[i].naturalHeight < y)
-		{
-			const altText = document.createTextNode("");
-			f[i].parentNode.replaceChild(altText, f[i]);
-		}
+		if(images[i].naturalWidth < x || images[i].naturalHeight < y)
+			del(images[i]);
 	}
 }
 
@@ -1289,13 +1385,10 @@ function deleteSmallImages()
 	document.body.appendChild(indexElement);
 	const dimension = dimensions[index];
 	showMessage("Deleting images smaller than " + dimension + " pixels", "messagebig");
-	let i;
-	for(i = images.length - 1; i >= 0; i--)
-	{
-		if (!(images[i].naturalWidth && images[i].naturalHeight)) continue;
+	let i = images.length;
+	while(i--)
 		if (images[i].naturalWidth < dimension || images[i].naturalHeight < dimension)
 			del(images[i]);
-	}
 }
 
 function deletePlainSpanTags()
@@ -1408,7 +1501,7 @@ function cleanupGeneral()
 	replaceAudio();
 	appendInfo();
 	getBestImageSrc();
-	document.body.className = "pad100";
+	document.body.className = "pad100 xwrap";
 	insertStyleNegative();
 	const t2 = performance.now();
 	xlog(Math.round(t2 - t1) + " ms: cleanupGeneral");
@@ -1986,9 +2079,10 @@ function removeAttributes()
 
 function removeAttributesOf(selector, attribute)
 {
-	const x = document.querySelectorAll(selector);
-	for (let i = 0; i < x.length; i++)
-		x[i].removeAttribute(attribute);
+	const e = get(selector);
+	var i = e.length;
+	while(i--)
+		e[i].removeAttribute(attribute);
 }
 
 function removeAttributes_regex()
@@ -2509,9 +2603,9 @@ function highlightCode(highlightKeywords)
 	xlog(t2 - t1 + "ms: highlightCode");
 }
 
-function htmlToText(e)
+function htmlToText(elem)
 {
-	e.innerHTML = e.textContent;
+	elem.innerHTML = elem.textContent;
 }
 
 function delClassContaining(classes)
@@ -4026,13 +4120,14 @@ function handleKeyDown(e)
 			case KEYCODES.NINE: toggleShowClasses(); break;
 			case KEYCODES.I: deleteSignatures(); break;
 			case KEYCODES.P: fixParagraphs(); break;
-			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", "irrelevantString"]); cycleClass(getOne("html"), ["xDontShowLinks", "xHE", "irrelevantString"]); break;
+			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", ""]); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.G: deleteElementsContainingText(); break;
 			case KEYCODES.K: toggleConsole(); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: highlightNodesContaining(); break;
+			case KEYCODES.N: numberDivs(); break;
 			case KEYCODES.O: highlightSelectionOrText(); break;
 			case KEYCODES.L: showLog(); break;
 			case KEYCODES.Q: fixHeadings(); break;
@@ -4119,7 +4214,7 @@ function handleKeyDown(e)
 		switch(k)
 		{
 			case KEYCODES.F: formatEbook(); break;
-			case KEYCODES.H: unhighlightAllHighlightedElements(); break;
+			case KEYCODES.H: unhighlightAll(); break;
 			case KEYCODES.S: forceReloadCss(); break;
 			case KEYCODES.F12: analyze(true); break;
 		}
