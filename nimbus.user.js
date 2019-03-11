@@ -903,20 +903,23 @@ function runCommand(s)
 	}
 }
 
-function openDialog(s)
+function openDialog(inputHandler)
 {
-	let dialog, dialogInput;
 	if(!get("#xxdialog"))
 	{
-		dialog = createElement("div", { id: "xxdialog" });
-		dialogInput = createElement("textarea", { id: "xxdialoginput" });
+		del("#style-xxdialog");
+		const dialog = createElement("div", { id: "xxdialog" });
+		const dialogInput = createElement("textarea", { id: "xxdialoginput" });
 		dialog.appendChild(dialogInput);
 		document.body.insertBefore(dialog, document.body.firstChild);
-		s = '#xxdialog { position: fixed; margin: auto; z-index: 10000; height: 60px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
+		const s = '#xxdialog { position: fixed; margin: auto; z-index: 10000; height: 60px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
 		'#xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0; border: 0; width: 100%; height: 100%; overflow: hidden; }';
 		insertStyle(s, "style-xxdialog", true);
 		dialogInput.focus();
-		dialogInput.addEventListener("keydown", handleDialogInput, false);
+		if(inputHandler)
+			dialogInput.addEventListener("keydown", inputHandler, false);
+		else
+			dialogInput.addEventListener("keydown", defaultDialogInputHandler, false);
 	}
 }
 
@@ -928,16 +931,22 @@ function closeDialog()
 	return command;
 }
 
-function handleDialogInput(e)
+function defaultDialogInputHandler(evt)
 {
-	e.stopPropagation();
-	const keyCode = e.keyCode;
-	const c = String.fromCharCode(keyCode).toLowerCase();
-	switch(keyCode)
+	evt.stopPropagation();
+	switch(evt.keyCode)
+	{
+		case KEYCODES.ESCAPE: closeDialog(); break;
+	}
+}
+
+function handleCommandInput(evt)
+{
+	evt.stopPropagation();
+	switch(evt.keyCode)
 	{
 		case KEYCODES.ESCAPE: closeDialog(); break;
 		case KEYCODES.ENTER: runCommand(closeDialog()); break;
-		default: showMessage(c, "messagebig"); break;
 	}
 }
 
@@ -1227,7 +1236,6 @@ function getImages(slideshow)
 		del("#nimbusGallery");
 		return;
 	}
-	deleteSmallImages();
 	const f = get("img");
 	const db = document.body;
 	let i, ii, j, w, h;
@@ -1266,7 +1274,7 @@ function getImages(slideshow)
 		{
 			del("img");
 			cleanupHead();
-			insertStyle("img { display: block; float: left; height: 300px; }", "styleGallery", true);
+			insertStyle("img { display: block; float: left; max-height: 300px; }", "styleGallery", true);
 		}
 		db.insertBefore(galleryElement, db.firstChild);
 	}
@@ -2669,8 +2677,11 @@ function getElementsContainingText()
 	}
 	else
 	{
-		for(i = 0, ii = e.length; i < ii; i++)
-			tempNode.appendChild(e[i]);
+		if(e.length)
+			for(i = 0, ii = e.length; i < ii; i++)
+				tempNode.appendChild(e[i]);
+		else
+			tempNode.appendChild(e);
 	}
 	if(tempNode.innerHTML.length)
 		document.body.innerHTML = tempNode.innerHTML;
@@ -4023,7 +4034,7 @@ function revealLinkHrefs()
 
 function humanizeUrl(s)
 {
-	const matches = s.match(/[A-Za-z]+/g);
+	const matches = s.match(/[0-9A-Za-z_\-\+]+/g);
 	let i = matches.length;
 	let longestMatch = matches[i - 1];
 	while(i--)
@@ -4192,7 +4203,7 @@ function handleKeyDown(e)
 			case KEYCODES.V: showDocumentStructure(); break;
 			case KEYCODES.B: showDocumentStructureWithNames(); break;
 			case KEYCODES.N: showDocumentStructure2(); break;
-			case KEYCODES.M: openDialog("Test dialog"); break;
+			case KEYCODES.M: openDialog(handleCommandInput); break;
 			case KEYCODES.O: highlightSpecificNodesContaining(); break;
 			case KEYCODES.R: wrapNodeInTag(); break;
 			case KEYCODES.S: highlightElementsWithAttribute("style"); break;
