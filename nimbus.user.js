@@ -329,18 +329,13 @@ function markTableRowsAndColumns()
 //
 function containsAnyOfTheStrings(s, arrStrings)
 {
-	if(!s || typeof s !== "string") return false;
+	if(!s || typeof s !== "string")
+		return false;
 	let i = arrStrings.length;
-	let found = false;
 	while(i--)
-	{
-		if(s.indexOf(arrStrings[i]) !== -1)
-		{
-			found = true;
-			break;
-		}
-	}
-	return found;
+		if(~s.indexOf(arrStrings[i]))
+			return true;
+	return false;
 }
 
 function toggleClass(element, className)
