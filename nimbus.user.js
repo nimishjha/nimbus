@@ -838,7 +838,7 @@ function runCommand(s)
 		insertStyleGrey: insertStyleGrey,
 		insertStyleHighlight: insertStyleHighlight,
 		insertStyleNegative: insertStyleNegative,
-		insertStyleShowClass: insertStyleShowClass,
+		toggleStyleShowClass: toggleStyleShowClass,
 		insertStyleWhite: insertStyleWhite,
 		makeHeadingFromSelection: makeHeadingFromSelection,
 		makeHeadings: makeHeadings,
@@ -1630,6 +1630,7 @@ function insertStyle(str, identifier, important)
 
 function insertStyleHighlight()
 {
+	del("#styleHighlight");
 	const s = '.hl, .focused { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }' +
 		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
 		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
@@ -1639,6 +1640,7 @@ function insertStyleHighlight()
 
 function insertStyleFonts()
 {
+	del("#styleFonts");
 	const s = 'a, p, li, td, div, input, select, textarea { font: bold 15px arial; }' +
 	'h1 { font: 40px "swis721 cn bt"; }' +
 	'h2 { font: 32px "swis721 cn bt"; }' +
@@ -1654,8 +1656,13 @@ function insertStyleFonts()
 	insertStyle(s, 'styleFonts', true);
 }
 
-function insertStyleShowClass()
+function toggleStyleShowClass()
 {
+	if(get("#styleShowClass"))
+	{
+		del("#styleShowClass");
+		return;
+	}
 	const s = '* { display: block; padding: 5px; border: 1px solid #111; }' +
 	'*::before { content: attr(class); color: #FF0; }' +
 	'head { display: none; }';
@@ -1664,6 +1671,7 @@ function insertStyleShowClass()
 
 function insertStyleGrey()
 {
+	del("#styleGrey");
 	const s = 'body { background: #203040; color: #ABC; font: 24px "swis721 cn bt"; }' +
 	'h1, h2, h3, h4, h5, h6 { background: #123; padding: 0.35em 10px; font-weight: normal; }' +
 	'body.pad100 { padding: 100px; }' +
@@ -1787,9 +1795,9 @@ function insertStyleNegative(important)
 	'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
 
 	if(important)
-		insertStyle(s, "styleNegativeV2", true);
+		insertStyle(s, "styleNegative", true);
 	else
-		insertStyle(s, "styleNegativeV2");
+		insertStyle(s, "styleNegative");
 }
 
 function insertStyleWhite()
@@ -4189,7 +4197,7 @@ function handleKeyDown(e)
 			case KEYCODES.TWO: insertStyleWhite(); break;
 			case KEYCODES.THREE: insertStyleFonts(); break;
 			case KEYCODES.FOUR: insertStyleGrey(); break;
-			case KEYCODES.FIVE: insertStyleShowClass(); break;
+			case KEYCODES.FIVE: toggleStyleShowClass(); break;
 			case KEYCODES.E: replaceElementsBySelector(); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
 			case KEYCODES.G: highlightElementsWithInlineWidthOrHeight(); break;
