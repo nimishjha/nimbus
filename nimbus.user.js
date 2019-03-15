@@ -1370,7 +1370,7 @@ function deleteImagesSmallerThan(x, y)
 function deleteSmallImages()
 {
 	const images = get("img");
-	const dimensions = [20, 50, 100, 200, 300, 400];
+	const dimensions = [100, 200, 300, 400];
 	let index = 0;
 	let indexElement = get("#imagedimensionindex");
 	if (indexElement)
@@ -3872,7 +3872,18 @@ function observeAddedNodes()
 	showMessage("Observing added nodes", "messagebig");
 }
 
-function handleConsoleInput(evt)
+function insertTab(evt)
+{
+	const targ = evt.target;
+	evt.preventDefault();
+	evt.stopPropagation();
+	const iStart = targ.selectionStart;
+	const iEnd = targ.selectionEnd;
+	targ.value = targ.value.substr(0, iStart) + '\t' + targ.value.substr(iEnd, this.value.length);
+	targ.setSelectionRange(iStart + 1, iEnd + 1);
+}
+
+function handleJSConsoleInput(evt)
 {
 	const inputText = getOne("#userInput").value;
 	if (!inputText) return;
@@ -3883,18 +3894,28 @@ function handleConsoleInput(evt)
 	}
 	else if (evt.keyCode === 9)
 	{
-		const targ = evt.target;
-		evt.preventDefault();
-		evt.stopPropagation();
-		const iStart = targ.selectionStart;
-		const iEnd = targ.selectionEnd;
-		targ.value = targ.value.substr(0, iStart) + '\t' + targ.value.substr(iEnd, this.value.length);
-		targ.setSelectionRange(iStart + 1, iEnd + 1);
+		insertTab(evt);
 		return false;
 	}
 }
 
-function toggleConsole()
+function handleCSSConsoleInput(evt)
+{
+	const inputText = getOne("#userInput").value;
+	if (!inputText) return;
+	const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
+	if (evt.keyCode === 13 && evt[ctrlOrMeta])
+	{
+		insertStyle(inputText, "userStyle", true);
+	}
+	else if (evt.keyCode === 9)
+	{
+		insertTab(evt);
+		return false;
+	}
+}
+
+function toggleConsole(inputHandler)
 {
 	if (get("#userInputWrapper"))
 	{
@@ -3907,7 +3928,8 @@ function toggleConsole()
 	insertStyle(style, "styleUserInputWrapper", true);
 	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
 	const inputTextarea = createElement("textarea", { id: "userInput" });
-	inputTextarea.addEventListener("keydown", handleConsoleInput);
+	if(inputHandler)
+		inputTextarea.addEventListener("keydown", inputHandler);
 	inputTextareaWrapper.appendChild(inputTextarea);
 	document.body.appendChild(inputTextareaWrapper);
 	inputTextarea.focus();
@@ -3934,7 +3956,7 @@ function markDivDepth()
 
 function numberDivs()
 {
-	const e = get("div");
+	const e = get("section, div");
 	let i = e.length;
 	while(i--)
 		e[i].id = "i" + i;
@@ -4131,13 +4153,13 @@ function handleKeyDown(e)
 			case KEYCODES.SEVEN: replaceCommentsWithPres(); break;
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
 			case KEYCODES.NINE: toggleShowClasses(); break;
-			case KEYCODES.I: deleteSignatures(); break;
+			case KEYCODES.I: toggleConsole(handleCSSConsoleInput); break;
 			case KEYCODES.P: fixParagraphs(); break;
 			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", ""]); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.G: deleteElementsContainingText(); break;
-			case KEYCODES.K: toggleConsole(); break;
+			case KEYCODES.K: toggleConsole(handleJSConsoleInput); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: highlightNodesContaining(); break;
 			case KEYCODES.N: numberDivs(); break;
