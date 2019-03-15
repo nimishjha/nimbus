@@ -2788,7 +2788,6 @@ function getContentByParagraphCount()
 
 function deleteSpecificEmptyElements()
 {
-	deleteEmptyElements("a");
 	deleteEmptyElements("p");
 	deleteEmptyElements("tr");
 	deleteEmptyElements("li");
@@ -3777,7 +3776,7 @@ function createTagsByClassName()
 		if (hasClassesContaining(element, ["cn", "ct", "heading", "chapternumber", "chaptertitle"])) replaceSingleElement(element, "h2");
 		else if (hasClassesContaining(element, ["h1"])) replaceSingleElement(element, "h1");
 		else if (hasClassesContaining(element, ["h2"])) replaceSingleElement(element, "h2");
-		else if (hasClassesContaining(element, ["quote", "extract"])) replaceSingleElement(element, "blockquote");
+		else if (hasClassesContaining(element, ["block", "quote", "extract"])) replaceSingleElement(element, "blockquote");
 	}
 	e = get("span");
 	i = e.length;
