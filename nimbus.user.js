@@ -4059,6 +4059,8 @@ function revealLinkHrefs()
 function humanizeUrl(s)
 {
 	const matches = s.match(/[0-9A-Za-z_\-\+]+/g);
+	if(!matches)
+		return s;
 	let i = matches.length;
 	let longestMatch = matches[i - 1];
 	while(i--)
@@ -4072,7 +4074,7 @@ function revealEmptyLinks()
 	const e = get("a");
 	let i = e.length;
 	while(i--)
-		if(!e[i].textContent.length)
+		if(!e[i].textContent.length && e[i].href.length)
 			e[i].textContent = humanizeUrl(e[i].href);
 }
 
