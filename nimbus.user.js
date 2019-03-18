@@ -619,6 +619,69 @@ function highlightSelectionOrText()
 	}
 }
 
+function highlightTextAcrossTags(searchString)
+{
+	var searchRegEx = new RegExp(escapeForRegExp(searchString), "gi");
+	var nodes = document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li, blockquote, td");
+	for(let i = 0, ii = nodes.length; i < ii; i++)
+	{
+		var node = nodes[i];
+		if(~node.innerHTML.indexOf(searchString))
+		{
+			node.innerHTML = node.innerHTML.replace(searchRegEx, "<mark>" + searchString + "</mark>");
+			if(node.innerHTML.match(searchRegEx).length === node.textContent.match(searchRegEx).length)
+				continue;
+		}
+		let index1 = node.textContent.indexOf(searchString);
+		if(index1 === -1)
+			continue;
+		let index2 = index1 + searchString.length;
+		const childNodes = node.childNodes;
+		let childNodeEnd = 0;
+		const splitMatches = [];
+		for(let j = 0, jj = childNodes.length; j < jj; j++)
+		{
+			const childNode = childNodes[j];
+			const childNodeStart = childNodeEnd;
+			childNodeEnd += childNode.textContent.length;
+			let partialSearchString;
+			let isMatch = false;
+			if(index1 >= childNodeStart && index1 < childNodeEnd)
+			{
+				isMatch = true;
+				partialSearchString = childNode.textContent.substring(index1 - childNodeStart, (index1 - childNodeStart) + searchString.length);
+			}
+			else if(index1 < childNodeStart && index2 > childNodeEnd)
+			{
+				isMatch = true;
+				partialSearchString = childNode.textContent;
+			}
+			else if(index2 > childNodeStart && index2 <= childNodeEnd)
+			{
+				isMatch = true;
+				partialSearchString = childNode.textContent.substring(0, index2 - childNodeStart);
+			}
+			if(isMatch)
+			{
+				if(childNode.nodeType === 1)
+					childNode.innerHTML = "<mark>" + childNode.innerHTML + "</mark>";
+				else
+					splitMatches.push(partialSearchString);
+			}
+		}
+		highlightAllMatchesInNode(node, splitMatches, searchString);
+	}
+}
+
+function highlightAllMatchesInNode(node, splitMatches, searchString)
+{
+	let nodeHTML = node.innerHTML;
+	let i = splitMatches.length;
+	while(i--)
+		nodeHTML = nodeHTML.replace(new RegExp(splitMatches[i]), "<mark>" + splitMatches[i] + "</mark>");
+	node.innerHTML = nodeHTML;
+}
+
 function deleteUselessIframes()
 {
 	const domainsRequiringIframes = ["google.com", "jsperf.com", "measurethat"];
@@ -812,6 +875,7 @@ function runCommand(s)
 		getElementsContainingText: getElementsContainingText,
 		getElementsWithClass: getElementsWithClass,
 		getImages: getImages,
+		getLargeImages: getLargeImages,
 		getLinksWithHrefContaining: getLinksWithHrefContaining,
 		getPagerLinks: getPagerLinks,
 		getSelectorsWithLightBackgrounds: getSelectorsWithLightBackgrounds,
@@ -832,6 +896,7 @@ function runCommand(s)
 		highlightSelectionOrText: highlightSelectionOrText,
 		highlightSpecificNodesContaining: highlightSpecificNodesContaining,
 		highlightText: highlightText,
+		highlightTextAcrossTags: highlightTextAcrossTags,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		insertStyle: insertStyle,
 		insertStyleFonts: insertStyleFonts,
@@ -1469,6 +1534,23 @@ function replaceAudio()
 		}
 	}
 	replaceElementsBySelector("audio", "div");
+}
+
+function getLargeImages()
+{
+	const links = get("a");
+	let i = links.length;
+	while(i--)
+	{
+		var sitelink = links[i].href;
+		var sitelinklower = sitelink.toLowerCase();
+		if (sitelink.toLowerCase().indexOf(".png") > 0 || sitelink.toLowerCase().indexOf(".jpg") > 0 || sitelink.toLowerCase().indexOf(".gif") > 0 || sitelink.toLowerCase().indexOf(".jpeg") > 0)
+		{
+			var largeImage = document.createElement("img");
+			largeImage.src = sitelink;
+			links[i].parentNode.replaceChild(largeImage, links[i]);
+		}
+	}
 }
 
 function addLinksToLargerImages()
