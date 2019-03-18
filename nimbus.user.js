@@ -669,11 +669,11 @@ function highlightTextAcrossTags(searchString)
 					splitMatches.push(partialSearchString);
 			}
 		}
-		highlightAllMatchesInNode(node, splitMatches, searchString);
+		highlightAllMatchesInNode(node, splitMatches);
 	}
 }
 
-function highlightAllMatchesInNode(node, splitMatches, searchString)
+function highlightAllMatchesInNode(node, splitMatches)
 {
 	let nodeHTML = node.innerHTML;
 	let i = splitMatches.length;
