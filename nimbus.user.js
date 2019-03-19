@@ -188,7 +188,7 @@ function parseObject(o, indentLevel, parent)
 						s += indentString + "<em>[object Object],</em><i>too many levels</i>" + indentStringClose;
 					break;
 				case "[object Array]":
-					s += indentString + "<em>" + prop + "</em><i>" + "[Array]: " + o[prop].length + "</i>" + indentStringClose;
+					s += indentString + "<em>" + prop + "</em><i>" + "[" + printArray(o[prop]) + "]</i>" + indentStringClose;
 					break;
 				default:
 					s += indentString + "<em>" + prop + "</em><i>" + o[prop] + "</i>" + indentStringClose;
@@ -391,9 +391,9 @@ function printArray(arr)
 	for(i = 0, ii = arr.length; i < ii; i++)
 	{
 		if(i === ii-1)
-			s = s + arr[i];
+			s += arr[i];
 		else
-			s = s + arr[i] + ", ";
+			s += arr[i] + ", ";
 	}
 	return s;
 }
@@ -1185,7 +1185,10 @@ function unhighlightElement(elem)
 
 function unhighlightAll()
 {
-	get(".hl").forEach(unhighlightElement);
+	const e = get(".hl");
+	let i = e.length;
+	while (i--)
+		e[i].classList.remove("hl");
 }
 
 function getIdAndClass(e)
