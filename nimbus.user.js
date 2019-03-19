@@ -815,11 +815,36 @@ function deleteMessage()
 	del("#styleMessage");
 }
 
+function parseCommand(s)
+{
+	let args = [];
+	let arg = '';
+	for(let i = 0, ii = s.length; i < ii; i++)
+	{
+		switch(s[i])
+		{
+			case '"':
+				i++;
+				while(s[i] !== '"')
+					arg += s[i++];
+				break;
+			case ' ':
+				args.push(arg);
+				arg = '';
+				break;
+			default:
+				arg += s[i];
+		}
+	}
+	args.push(arg);
+	return args;
+}
+
 function runCommand(s)
 {
 	if(typeof s === "undefined" || !s.length)
 		return;
-	const commandSegments = s.split(" ");
+	const commandSegments = parseCommand(s);
 	if (!commandSegments.length)
 		return;
 	const funcName = commandSegments[0];
@@ -928,6 +953,7 @@ function runCommand(s)
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
 		replaceSpans: replaceSpans,
 		restorePres: restorePres,
+		retrieve: retrieve,
 		revealEmptyLinks: revealEmptyLinks,
 		revealLinkHrefs: revealLinkHrefs,
 		sanitizeTitle: sanitizeTitle,
@@ -958,7 +984,7 @@ function runCommand(s)
 				args.push(commandSegments[i]);
 			else args.push(n);
 		}
-		console.log(funcName + "(" + printArray(args) + ")");
+		showMessage(funcName + "(" + printArray(args) + ")", "messagebig");
 		availableFunctions[funcName].apply(this, args);
 	}
 }
@@ -2774,6 +2800,26 @@ function getElementsContainingText()
 		showMessage("Not found", "messagebig");
 	const t2 = performance.now();
 	xlog((t2 - t1) + "ms: getElementsContainingText");
+}
+
+function retrieve(selector)
+{
+	let i, ii;
+	const e = get(selector);
+	const tempNode = document.createElement("div");
+	if(e.length)
+	{
+		for(i = 0, ii = e.length; i < ii; i++)
+			tempNode.appendChild(e[i]);
+	}
+	else
+	{
+		tempNode.appendChild(e);
+	}
+	if(tempNode.innerHTML.length)
+		document.body.innerHTML = tempNode.innerHTML;
+	else
+		showMessage("Not found", "messagebig");
 }
 
 function deleteNonContentDivs()
