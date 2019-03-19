@@ -1545,13 +1545,10 @@ function getLargeImages()
 	let i = links.length;
 	while(i--)
 	{
-		var sitelink = links[i].href;
-		var sitelinklower = sitelink.toLowerCase();
-		if (sitelink.toLowerCase().indexOf(".png") > 0 || sitelink.toLowerCase().indexOf(".jpg") > 0 || sitelink.toLowerCase().indexOf(".gif") > 0 || sitelink.toLowerCase().indexOf(".jpeg") > 0)
+		const linkHref = links[i].href;
+		if(containsAnyOfTheStrings(linkHref.toLowerCase(), [".png", ".jpg", ".gif", ".jpeg", ".jpe"]))
 		{
-			var largeImage = document.createElement("img");
-			largeImage.src = sitelink;
-			links[i].parentNode.replaceChild(largeImage, links[i]);
+			links[i].parentNode.replaceChild(createElement("img", { src: linkHref }), links[i]);
 		}
 	}
 }
