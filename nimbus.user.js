@@ -387,15 +387,9 @@ function createUUID()
 function printArray(arr)
 {
 	let s = "";
-	let i, ii;
-	for(i = 0, ii = arr.length; i < ii; i++)
-	{
-		if(i === ii-1)
-			s += arr[i];
-		else
-			s += arr[i] + ", ";
-	}
-	return s;
+	for(let i = 0, ii = arr.length; i < ii; i++)
+		s += arr[i] + ", ";
+	return s.substring(0, s.length - 2);
 }
 
 function createElement(tag, props)
@@ -626,6 +620,7 @@ function highlightTextAcrossTags(searchString)
 	for(let i = 0, ii = nodes.length; i < ii; i++)
 	{
 		var node = nodes[i];
+		node.innerHTML = node.innerHTML.replace(/\s+/g, " ");
 		if(~node.innerHTML.indexOf(searchString))
 		{
 			node.innerHTML = node.innerHTML.replace(searchRegEx, "<mark>" + searchString + "</mark>");
@@ -825,7 +820,7 @@ function parseCommand(s)
 		{
 			case '"':
 				i++;
-				while(s[i] !== '"')
+				while(s[i] !== '"' && i < ii)
 					arg += s[i++];
 				break;
 			case ' ':
@@ -1644,7 +1639,7 @@ function replaceIframes()
 	{
 		const iframereplacement = document.createElement("rp");
 		const iframelink = document.createElement("a");
-		const s = e[i].src;
+		let s = e[i].src;
 		if(containsAnyOfTheStrings(s, ["facebook", "twitter"]))
 		{
 			e[i].parentNode.removeChild(e[i]);
@@ -1653,7 +1648,7 @@ function replaceIframes()
 		iframelink.href = s;
 		if(e[i].src.indexOf("youtube") !== -1)
 		{
-			let s = s.replace(/\/embed\//, '/watch?v=');
+			s = s.replace(/\/embed\//, '/watch?v=');
 			const segments = s.split('?');
 			iframelink.href = segments[0] + '?' + segments[1];
 			if(s.indexOf(".") > 0)
@@ -4007,7 +4002,7 @@ function insertTab(evt)
 	evt.stopPropagation();
 	const iStart = targ.selectionStart;
 	const iEnd = targ.selectionEnd;
-	targ.value = targ.value.substr(0, iStart) + '\t' + targ.value.substr(iEnd, this.value.length);
+	targ.value = targ.value.substr(0, iStart) + '\t' + targ.value.substr(iEnd, targ.value.length);
 	targ.setSelectionRange(iStart + 1, iEnd + 1);
 }
 
@@ -4208,7 +4203,7 @@ function revealEmptyLinks()
 
 function inject()
 {
-	deleteUselessIframes();
+	// deleteUselessIframes();
 	document.body.classList.add("nimbusDark");
 	document.addEventListener("keydown", handleKeyDown, false);
 	showPassword();
