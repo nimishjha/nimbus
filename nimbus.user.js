@@ -164,7 +164,7 @@ function parseObject(o, indentLevel, parent)
 		indentString += "<blockquote>";
 		indentStringClose += "</blockquote>";
 	}
-	for(i = 0; i < (indentLevel-1); i++)
+	for(i = 0; i < indentLevel - 1; i++)
 	{
 		indentStringParent += "<blockquote>";
 		indentStringParentClose += "</blockquote>";
@@ -379,7 +379,7 @@ function createUUID()
 	return 'nimbus-xxxx-xxxx-xxxx-xxxx-xxxx'.replace(/x/g, function (c)
 	{
 		const r = Math.random() * 16 | 0;
-		const v = (c === 'x') ? r : r & 0x3 | 0x8;
+		const v = c === 'x' ? r : r & 0x3 | 0x8;
 		return v.toString(16);
 	});
 }
@@ -644,7 +644,7 @@ function highlightTextAcrossTags(searchString)
 			if(index1 >= childNodeStart && index1 < childNodeEnd)
 			{
 				isMatch = true;
-				partialSearchString = childNode.textContent.substring(index1 - childNodeStart, (index1 - childNodeStart) + searchString.length);
+				partialSearchString = childNode.textContent.substring(index1 - childNodeStart, index1 - childNodeStart + searchString.length);
 			}
 			else if(index1 < childNodeStart && index2 > childNodeEnd)
 			{
