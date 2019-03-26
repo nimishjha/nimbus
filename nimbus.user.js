@@ -836,7 +836,7 @@ function deleteUselessScripts()
 		const elem = e[i];
 		if(elem.hasAttribute("src"))
 		{
-			if(containsAnyOfTheStrings(elem.src, domains) && !(containsAnyOfTheStrings(location.hostname, domains)))
+			if(containsAnyOfTheStrings(elem.src, domains) && !containsAnyOfTheStrings(location.hostname, domains))
 			{
 				log2("Deleting " + elem.src);
 				elem.parentNode.removeChild(elem);
@@ -851,9 +851,12 @@ function getBestImageSrc()
 	let i = e.length;
 	while(i--)
 	{
-		if(e[i].currentSrc)
-			e[i].src = e[i].currentSrc;
-		e[i].removeAttribute("srcset");
+		if(e[i].srcset)
+		{
+			let sources = e[i].srcset.split(',');
+			let bestSource = trim(sources[sources.length - 1]).split(' ')[0];
+			e[i].src = bestSource;
+		}
 	}
 }
 
@@ -1076,7 +1079,7 @@ function pager(prev)
 			++curPage;
 		for(i = 0, ii = links.length; i < ii; i++)
 		{
-			if(links[i].textContent && links[i].textContent === (curPage).toString())
+			if(links[i].textContent && links[i].textContent === curPage.toString())
 			{
 				links[i].classList.add("hl");
 				links[i].focus();
@@ -1253,7 +1256,7 @@ function highlightElementsWithSetWidths()
 		j = cssRules.length;
 		while(j--)
 		{
-			if( (cssRules[j].match(/width:[^;]*px/) !== null))
+			if(cssRules[j].match(/width:[^;]*px/) !== null)
 			{
 				e[i].classList.add("hl");
 				e[i].innerHTML = "<x>#" + e[i].id + " ." + e[i].className + " " + getComputedStyle(e[i], null).getPropertyValue("width") + "</x>" + e[i].innerHTML;
@@ -1343,7 +1346,7 @@ function getImages(slideshow)
 				h = f[i].naturalHeight;
 				if(w && h && (w > window.innerWidth || h > window.innerHeight))
 				{
-					if((w/h) > (16/9))
+					if( w / h > 16 / 9 )
 						f[i].className = "wide ratio" + w + "x" + h;
 					else
 						f[i].className = "tall ratio" + w + "x" + h;
@@ -2205,7 +2208,7 @@ function removeAttributes_regex()
 	document.body.removeAttribute("background");
 	document.body.innerHTML = document.body.innerHTML.replace(/(<[^ai][a-z0-9]*) [^>]+/gi, '$1');
 	const t2 = performance.now();
-	xlog((t2-t1) + "ms: removeAttributes_regex");
+	xlog(t2 - t1 + "ms: removeAttributes_regex");
 }
 
 function forAll(selector, callback)
@@ -2242,7 +2245,7 @@ function ltrim(str1)
 
 function normalizeWhitespace(s)
 {
-	return(s.replace(/\s+/g, " "));
+	return s.replace(/\s+/g, " ");
 }
 
 function cleanupHeadings()
@@ -2414,7 +2417,7 @@ function logout()
 		if(e[i].href)
 		{
 			s = normalizeString(e[i].href);
-			if( (s.indexOf("logout") >= 0 && s.indexOf("logout_gear") === -1) || s.indexOf("signout") >= 0)
+			if( s.indexOf("logout") >= 0 && s.indexOf("logout_gear") === -1 || s.indexOf("signout") >= 0)
 			{
 				found = true;
 				showMessage(e[i].href, "messagebig");
@@ -2552,8 +2555,8 @@ function parseCode(s)
 	for(i = 0, ii = s.length; i < ii; i++)
 	{
 		cur = s[i];
-		prev = (i > 0) ? s[i-1] : null;
-		next = (i < ii-1) ? s[i+1] : null;
+		prev = i > 0 ? s[i-1] : null;
+		next = i < ii-1 ? s[i+1] : null;
 		switch(cur)
 		{
 			// double quote strings
@@ -2794,7 +2797,7 @@ function getElementsContainingText()
 	else
 		showMessage("Not found", "messagebig");
 	const t2 = performance.now();
-	xlog((t2 - t1) + "ms: getElementsContainingText");
+	xlog( t2 - t1 + "ms: getElementsContainingText");
 }
 
 function retrieve(selector)
@@ -3341,7 +3344,7 @@ function getLinksWithHrefContaining(str)
 	const container = document.createElement("div");
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
-		if(e[i].href.indexOf(str) >= 0 || (e[i].title && e[i].title.indexOf(str) >= 0))
+		if(e[i].href.indexOf(str) >= 0 || e[i].title && e[i].title.indexOf(str) >= 0)
 		{
 			newLink = createElement("a", { href: e[i].href, textContent: e[i].href});
 			newLinkWrapper = createElementWithChild("h6", newLink);
@@ -4096,12 +4099,7 @@ function delRange(m, n)
 
 function isEntirelyNumeric(s)
 {
-	s = removeWhitespace(s);
-	if(!s.length)
-		return false;
-	if(!s.replace(/[0-9]+/g, "").length)
-		return true;
-	return false;
+	return !isNaN(Number(s));
 }
 
 function getPagerLinks()
@@ -4112,7 +4110,7 @@ function getPagerLinks()
 	let count = 0;
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
-		if(isEntirelyNumeric(e[i].textContent))
+		if(e[i].textContent.length && isEntirelyNumeric(e[i].textContent))
 		{
 			count++;
 			pagerWrapper.appendChild(createElement("a", { href: e[i].href, textContent: e[i].textContent || "[no text]" }));
