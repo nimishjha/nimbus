@@ -4097,11 +4097,6 @@ function delRange(m, n)
 		del("#i" + i);
 }
 
-function isEntirelyNumeric(s)
-{
-	return !isNaN(Number(s));
-}
-
 function getPagerLinks()
 {
 	const e = get("a");
@@ -4110,7 +4105,8 @@ function getPagerLinks()
 	let count = 0;
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
-		if(e[i].textContent.length && isEntirelyNumeric(e[i].textContent))
+		let s = e[i].textContent;
+		if(trim(s).length && !isNaN(Number(s)))
 		{
 			count++;
 			pagerWrapper.appendChild(createElement("a", { href: e[i].href, textContent: e[i].textContent || "[no text]" }));
