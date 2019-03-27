@@ -708,14 +708,17 @@ function showDocumentStructureWithNames()
 function highlightSelectionOrText()
 {
 	showMessage("Highlight selection or text", "messagebig");
-	let s, i, ii;
-	let node, nodes, regex;
-	let links, linkHrefs;
+	let s;
+	// let i, ii;
+	// let node, nodes, regex;
+	// let links, linkHrefs;
 
 	if(window.getSelection().toString().length)
 		s = window.getSelection().toString();
 	else
 		s = prompt("Text to highlight");
+
+	highlightTextAcrossTags(s);
 
 	// if(s && s.length)
 	// {
@@ -726,28 +729,28 @@ function highlightSelectionOrText()
 	// 	document.body.innerHTML = tempHTML;
 	// }
 
-	if (s && s.length)
-	{
-		linkHrefs = [];
-		links = get("a");
-		for(i = 0, ii = links.length; i < ii; i++)
-			linkHrefs.push(links[i].href);
+	// if (s && s.length)
+	// {
+	// 	linkHrefs = [];
+	// 	links = get("a");
+	// 	for(i = 0, ii = links.length; i < ii; i++)
+	// 		linkHrefs.push(links[i].href);
 
-		regex = new RegExp(escapeForRegExp(s), "gi");
-		nodes = document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li, blockquote, td");
-		for (i = 0, ii = nodes.length; i < ii; i++)
-		{
-			node = nodes[i];
-			if (~node.innerHTML.indexOf(s))
-				node.innerHTML = node.innerHTML.replace(regex, "<mark>" + s + "</mark>");
-			else if(~node.textContent.indexOf(s))
-				node.innerHTML = "<mark>" + node.innerHTML + "</mark>";
-		}
+	// 	regex = new RegExp(escapeForRegExp(s), "gi");
+	// 	nodes = document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li, blockquote, td");
+	// 	for (i = 0, ii = nodes.length; i < ii; i++)
+	// 	{
+	// 		node = nodes[i];
+	// 		if (~node.innerHTML.indexOf(s))
+	// 			node.innerHTML = node.innerHTML.replace(regex, "<mark>" + s + "</mark>");
+	// 		else if(~node.textContent.indexOf(s))
+	// 			node.innerHTML = "<mark>" + node.innerHTML + "</mark>";
+	// 	}
 
-		links = get("a");
-		for(i = 0, ii = links.length; i < ii; i++)
-			links[i].href = linkHrefs[i];
-	}
+	// 	links = get("a");
+	// 	for(i = 0, ii = links.length; i < ii; i++)
+	// 		links[i].href = linkHrefs[i];
+	// }
 }
 
 function highlightTextAcrossTags(searchString)
@@ -997,7 +1000,6 @@ function runCommand(s)
 			else args.push(n);
 		}
 		showMessage(funcName + "(" + printArrayTyped(args) + ")", "messagebig");
-		console.log(args);
 		Nimbus.availableFunctions[funcName].apply(this, args);
 	}
 }
@@ -2980,99 +2982,73 @@ function removeLineBreaks(s)
 
 function highlightSelection()
 {
-	let selection, selectionBegin, selectionEnd, node, nodeHTML, j, index1, index2, index3, index4;
+	let selection, selectionBegin, selectionEnd, node, nodeHTML, index1, index2;
 	let textBeforeSelection, textOfSelection, textAfterSelection;
 	if(!window.getSelection().toString().length) return;
 	selection = window.getSelection();
 	node = selection.anchorNode;
-	while (node.nodeType !== 1 && node.parentNode)
+	selection = trim(removeLineBreaks(selection.toString()));
+	while (node.parentNode && (node.textContent.length < selection.length || node.nodeType !== 1))
+	{
 		node = node.parentNode;
+	}
 	if(node.tagName === undefined)
 	{
 		showMessage("Couldn't get anchorNode", "messagebig");
 		return;
 	}
 	if(!node) return;
-	selection = removeLineBreaks(selection.toString());
 	nodeHTML = node.innerHTML;
 	nodeHTML = removeLineBreaks(nodeHTML);
 	if(selection.length)
 	{
-		// Simplest case - it's all plain text
 		index1 = nodeHTML.indexOf(selection);
-		if(index1 !== -1)
+		if(~index1)
 		{
 			index2 = index1 + selection.length;
-			// expand to word boundaries
 			while(nodeHTML[index1].match(/[^ <>]/) && index1 > 0)
 				index1--;
-			if(index1 > 0) index1++;
+			if(index1 < 10)
+				index1 = 0;
 			while(nodeHTML[index2] && nodeHTML[index2].match(/[^ <>]/) && index2 < nodeHTML.length )
 				index2++;
 			if(nodeHTML.length - index2 < 10)
-				index2 = nodeHTML.length;
+				index2 = nodeHTML.length - 1;
 			if(index1 > 0)
 				textBeforeSelection = nodeHTML.substr(0, index1);
 			else
 				textBeforeSelection = "";
 			textOfSelection = nodeHTML.substr(index1, index2 - index1);
 			textAfterSelection = nodeHTML.substr(index2);
-
-			xlog("before: " + textBeforeSelection);
-			xlog("of: " + textOfSelection);
-			xlog("after: " + textAfterSelection);
-
 			nodeHTML = textBeforeSelection + "<mark>" + textOfSelection + "</mark>" + textAfterSelection;
 			node.innerHTML = nodeHTML;
 			return;
 		}
 		else
-		// we have HTML in the selection
 		{
-			xlog("HTML in selection", "h3");
-			selectionBegin = selection;
-			while(nodeHTML.indexOf(selectionBegin) === -1 && selectionBegin.length > 0 )
-			{
+			selectionBegin = selectionEnd = selection;
+			while(nodeHTML.indexOf(selectionBegin) === -1 && selectionBegin.length > 1)
 				selectionBegin = selectionBegin.substr(0, selectionBegin.length-1);
-			}
-			j = selection.length-1;
-			selectionEnd = selection.substr(-1*j);
-			while(nodeHTML.indexOf(selectionEnd) < 0 && selectionEnd.length > 0 )
+			while(nodeHTML.indexOf(selectionEnd) < 0 && selectionEnd.length > 1)
+				selectionEnd = selectionEnd.substr(-(selectionEnd.length - 1));
+			index1 = nodeHTML.indexOf(selectionBegin);
+			index2 = nodeHTML.indexOf(selectionEnd) + selectionEnd.length;
+			if(~index1 && ~index2)
 			{
-				j--;
-				selectionEnd = selectionEnd.substr(-1*j);
-			}
-			xlog("begin: " + selectionBegin);
-			xlog("end: " + selectionEnd);
-			index3 = nodeHTML.indexOf(selectionBegin);
-			index4 = nodeHTML.indexOf(selectionEnd) + selectionEnd.length;
-			if(index3 && index3 >= 0 && index4 && index4 >= 0)
-			{
-				while(nodeHTML[index3].match(/[^<> ]/) && index3 > 0)
-				{
-					xlog(nodeHTML.substr(index3));
-					index3--;
-				}
-				while(nodeHTML[index4] && nodeHTML[index4].match(/[^<> ]/) && index4 < nodeHTML.length )
-				{
-					xlog(nodeHTML.substr(index4));
-					index4++;
-				}
-				index3++;
-				index4--;
-				if(nodeHTML.length - index4 < 10)
-					index4 = nodeHTML.length;
-				if(index3 > 0)
-					textBeforeSelection = nodeHTML.substr(0, index3);
+				while(nodeHTML[index1].match(/[^<> ]/) && index1 > 0)
+					index1--;
+				while(nodeHTML[index2] && nodeHTML[index2].match(/[^<> ]/) && index2 < nodeHTML.length )
+					index2++;
+				if(index1 < 10)
+					index1 = 0;
+				if(nodeHTML.length - index2 < 10)
+					index2 = nodeHTML.length;
+				if(index1 > 0)
+					textBeforeSelection = nodeHTML.substr(0, index1);
 				else
 					textBeforeSelection = "";
-				textOfSelection = nodeHTML.substr(index3, index4 - index3);
-				textAfterSelection = nodeHTML.substr(index4);
-
-				xlog("before: " + textBeforeSelection);
-				xlog("of: " + textOfSelection);
-				xlog("after: " + textAfterSelection);
-
+				textOfSelection = nodeHTML.substr(index1, index2 - index1);
+				textAfterSelection = nodeHTML.substr(index2);
 				nodeHTML = textBeforeSelection + "<mark>" + textOfSelection + "</mark>" + textAfterSelection;
 				node.innerHTML = nodeHTML;
 				return;
