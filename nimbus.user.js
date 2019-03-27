@@ -516,6 +516,19 @@ function printArray(arr)
 	return s.substring(0, s.length - 2);
 }
 
+function printArrayTyped(arr)
+{
+	let s = "";
+	for(let i = 0, ii = arr.length; i < ii; i++)
+	{
+		if(typeof arr[i] === "string")
+			s += '"' + arr[i] + '", ';
+		else
+			s += arr[i] + ", ";
+	}
+	return s.substring(0, s.length - 2);
+}
+
 function createElement(tag, props)
 {
 	const elem = document.createElement(tag);
@@ -941,6 +954,7 @@ function parseCommand(s)
 {
 	let args = [];
 	let arg = '';
+	s = s.replace(/\s+/g, ' ');
 	for(let i = 0, ii = s.length; i < ii; i++)
 	{
 		switch(s[i])
@@ -982,7 +996,8 @@ function runCommand(s)
 				args.push(commandSegments[i]);
 			else args.push(n);
 		}
-		showMessage(funcName + "(" + printArray(args) + ")", "messagebig");
+		showMessage(funcName + "(" + printArrayTyped(args) + ")", "messagebig");
+		console.log(args);
 		Nimbus.availableFunctions[funcName].apply(this, args);
 	}
 }
@@ -4093,7 +4108,7 @@ function delRange(m, n)
 {
 	if(m >= n)
 		return;
-	for(let i = m; i < n; i++)
+	for(let i = m; i <= n; i++)
 		del("#i" + i);
 }
 
