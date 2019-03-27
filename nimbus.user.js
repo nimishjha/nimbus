@@ -1056,7 +1056,6 @@ function removeNonAlpha(s)
 
 function changePage(direction)
 {
-	let found = false;
 	const links = get("a");
 	let i = links.length;
 	let matchStrings = [];
@@ -1070,58 +1069,8 @@ function changePage(direction)
 			s = removeNonAlpha(s).toLowerCase();
 			if(containsAnyOfTheStrings(s, matchStrings))
 			{
-				found = true;
 				links[i].click();
 				return;
-			}
-		}
-	}
-	if(!found)
-		pager(true);
-}
-
-function pager(prev)
-{
-	let pageString, curPage, links, i, ii;
-	if(document.body.innerHTML.match(/Page [0-9]+ of [0-9]+/))
-	{
-		pageString = document.body.innerHTML.match(/Page [0-9]+ of [0-9]+/);
-		curPage = parseInt(pageString[0].match(/[0-9]+/)[0], 10);
-		links = get("a");
-		if(prev)
-			--curPage;
-		else
-			++curPage;
-		for(i = 0, ii = links.length; i < ii; i++)
-		{
-			if(links[i].textContent && links[i].textContent === curPage.toString())
-			{
-				links[i].classList.add("hl");
-				links[i].focus();
-				break;
-			}
-		}
-	}
-	else
-	{
-		highlightPagination();
-	}
-}
-
-function highlightPagination()
-{
-	let i, ii;
-	const e = get("a");
-	for(i = 0, ii = e.length; i < ii; i++)
-	{
-		if(e[i].textContent && e[i].textContent.length)
-		{
-			const s = removeWhitespace(e[i].textContent);
-			if(parseInt(s, 10) && s.match(/[^0-9]+/) === null)
-			{
-				e[i].focus();
-				e[i].className = "hl";
-				break;
 			}
 		}
 	}
@@ -4148,7 +4097,7 @@ function createPagerFromSelect()
 		const select = selects[j];
 		for (i = 0, ii = select.length; i < ii; i++)
 		{
-			const pagerWrapper = createElement("h1");
+			const pagerWrapper = createElement("h3");
 			pagerWrapper.appendChild(createElement("a", { href: select[i].value, textContent: select[i].textContent || i + 1 }));
 			document.body.appendChild(pagerWrapper);
 		}
