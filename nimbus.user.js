@@ -106,7 +106,6 @@ const Nimbus = {
 		highlightSelection: highlightSelection,
 		highlightSelectionOrText: highlightSelectionOrText,
 		highlightSpecificNodesContaining: highlightSpecificNodesContaining,
-		highlightText: highlightText,
 		highlightTextAcrossTags: highlightTextAcrossTags,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		insertStyle: insertStyle,
@@ -1538,6 +1537,7 @@ function getLargeImages()
 		const linkHref = links[i].href;
 		if(containsAnyOfTheStrings(linkHref.toLowerCase(), [".png", ".jpg", ".gif", ".jpeg", ".jpe"]))
 		{
+			document.body.appendChild(createElement("img", { src: linkHref }));
 			links[i].parentNode.replaceChild(createElement("img", { src: linkHref }), links[i]);
 		}
 	}
@@ -3365,6 +3365,7 @@ function cleanupWikipedia()
 		".mw-editsection"
 	]);
 	document.body.className = "pad100";
+	getBestImageSrc();
 }
 
 function getKeys(obj)
@@ -3643,17 +3644,6 @@ function focusButton()
 	}
 	if(!found)
 		focusField(inputFields[0]);
-}
-
-function highlightText(s)
-{
-	if(!s)
-		s = prompt("Text to highlight");
-	const ss = "\\b" + escapeForRegExp(s) + "\\b";
-	let tempHTML = document.body.innerHTML;
-	const r = new RegExp("(>[^<>]*)" + ss + "([^<>]*<)", "gi");
-	tempHTML = tempHTML.replace(r, "$1<samp>" + s + "</samp>$2");
-	document.body.innerHTML = tempHTML;
 }
 
 function showLog(prepend)
