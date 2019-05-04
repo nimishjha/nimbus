@@ -871,6 +871,7 @@ function getBestImageSrc()
 			let sources = e[i].srcset.split(',');
 			let bestSource = trim(sources[sources.length - 1]).split(' ')[0];
 			e[i].src = bestSource;
+			e[i].removeAttribute("srcset");
 		}
 	}
 }
@@ -1037,6 +1038,65 @@ function defaultDialogInputHandler(evt)
 	switch(evt.keyCode)
 	{
 		case KEYCODES.ESCAPE: closeDialog(); break;
+	}
+}
+
+function customPrompt(message)
+{
+	if(!get("#xxdialog"))
+	{
+		del("#style-xxdialog");
+		const dialog = createElement("div", { id: "xxdialog" });
+		const dialogHeading = createElement("heading", { textContent: message });
+		const dialogInput = createElement("textarea", { id: "xxdialoginput" });
+		dialog.appendChild(dialogHeading);
+		dialog.appendChild(dialogInput);
+		document.body.insertBefore(dialog, document.body.firstChild);
+		const s = '#xxdialog { position: fixed; margin: auto; z-index: 10000; height: 90px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
+		'#xxdialog heading { line-height: 30px; padding: 0 10px; }' +
+		'#xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0 0; border-width: 0 10px; border-color: #000; width: 100%; height: 60px; overflow: hidden; box-sizing: border-box; }';
+		insertStyle(s, "style-xxdialog", true);
+		dialogInput.focus();
+		return new Promise(function(resolve, reject){
+			dialogInput.addEventListener("keydown", function handleCustomPromptInput(evt){
+				evt.stopPropagation();
+				switch(evt.keyCode)
+				{
+					case KEYCODES.ESCAPE: reject(closeCustomPrompt()); break;
+					case KEYCODES.ENTER: resolve(closeCustomPrompt()); break;
+				}
+			}, false);
+		});
+	}
+}
+
+function closeCustomPrompt()
+{
+	const command = get("#xxdialoginput").value;
+	del("#xxdialog");
+	del("#style-xxdialog");
+	return command;
+}
+
+function runUserSpecifiedFunction()
+{
+	customPrompt("Enter command").then(function(command){ runCommand(command); });
+}
+
+function annotate()
+{
+	const selection = window.getSelection();
+	if(!selection) return;
+	let node = selection.anchorNode;
+	if(node.tagName === undefined) node = node.parentNode;
+	if(node && node.parentNode)
+	{
+		const d = createElement("ruby");
+		customPrompt("Enter annotation text").then(function(result){
+			d.textContent = result;
+			if(d.textContent.length)
+				node.parentNode.insertBefore(d, node);
+		});
 	}
 }
 
@@ -1264,20 +1324,6 @@ function makeHeadingFromSelection(tagname)
 		node.parentNode.replaceChild(createElement(tagname, { innerHTML: node.innerHTML }), node);
 	else
 		xlog("Could not make heading");
-}
-
-function annotate()
-{
-	const selection = window.getSelection();
-	if(!selection) return;
-	let node = selection.anchorNode;
-	if(node.tagName === undefined) node = node.parentNode;
-	if(node && node.parentNode)
-	{
-		const d = createElement("ruby");
-		d.textContent = prompt("______________________________________________ Annotate ___________________________________________________________________");
-		if(d.textContent.length) node.parentNode.insertBefore(d, node);
-	}
 }
 
 function getImages(slideshow)
@@ -3833,6 +3879,7 @@ function createTagsByClassName()
 		else if (hasClassesContaining(element, ["h1"])) replaceSingleElement(element, "h1");
 		else if (hasClassesContaining(element, ["h2"])) replaceSingleElement(element, "h2");
 		else if (hasClassesContaining(element, ["block", "quote", "extract"])) replaceSingleElement(element, "blockquote");
+		else if (hasClassesContaining(element, ["fmtx"])) replaceSingleElement(element, "p");
 	}
 	e = get("span");
 	i = e.length;
@@ -4276,7 +4323,7 @@ function handleKeyDown(e)
 			case KEYCODES.V: showDocumentStructure(); break;
 			case KEYCODES.B: showDocumentStructureWithNames(); break;
 			case KEYCODES.N: showDocumentStructure2(); break;
-			case KEYCODES.M: openDialog(handleCommandInput); break;
+			case KEYCODES.M: runUserSpecifiedFunction(); break;
 			case KEYCODES.O: highlightSpecificNodesContaining(); break;
 			case KEYCODES.R: wrapNodeInTag(); break;
 			case KEYCODES.S: highlightElementsWithAttribute("style"); break;
