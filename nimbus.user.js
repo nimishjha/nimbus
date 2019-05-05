@@ -4000,6 +4000,10 @@ function handleJSConsoleInput(evt)
 		insertTab(evt);
 		return false;
 	}
+	else if(evt.keyCode === KEYCODES.ESCAPE)
+	{
+		toggleConsole();
+	}
 }
 
 function handleCSSConsoleInput(evt)
@@ -4015,6 +4019,10 @@ function handleCSSConsoleInput(evt)
 	{
 		insertTab(evt);
 		return false;
+	}
+	else if(evt.keyCode === KEYCODES.ESCAPE)
+	{
+		toggleConsole();
 	}
 }
 
