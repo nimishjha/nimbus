@@ -1694,6 +1694,7 @@ function replaceElementsBySelector(selector, tagName)
 		const toReplace = [];
 		for (i = 0, ii = e.length; i < ii; i++)
 			toReplace.push(e[i]);
+		showMessage("Replacing " + toReplace.length + " elements", "messagebig");
 		for (i = toReplace.length - 1; i >= 0; i--)
 			toReplace[i].parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace[i].innerHTML }), toReplace[i]);
 	}
@@ -1718,6 +1719,7 @@ function replaceElementsByClassesContaining(str, tagName)
 		for (i = 0, ii = e.length; i < ii; i++)
 			if(~e[i].className.indexOf(str))
 				toReplace.push(e[i]);
+		showMessage("Replacing " + toReplace.length + " elements", "messagebig");
 		for (i = toReplace.length - 1; i >= 0; i--)
 			toReplace[i].parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace[i].innerHTML }), toReplace[i]);
 	}
