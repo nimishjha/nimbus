@@ -1003,6 +1003,10 @@ function runCommand(s)
 		showMessage(funcName + "(" + printArrayTyped(args) + ")", "messagebig");
 		Nimbus.availableFunctions[funcName].apply(this, args);
 	}
+	else
+	{
+		showMessage(funcName + ": not found");
+	}
 }
 
 function openDialog(inputHandler)
@@ -3886,6 +3890,39 @@ function hasClassesContaining(element, arrStr)
 	return false;
 }
 
+function hasClassesStartingWith(element, strings)
+{
+	const classes = Array.from(element.classList);
+	let i = classes.length;
+	let j = strings.length;
+	//	When n is small, O(n^2) isn't so bad
+	while(i--)
+	{
+		while(j--)
+		{
+			if(classes[i].indexOf(strings[j]) === 0)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+function looksLikeHeading(element)
+{
+	if(element.innerHTML.length > 80) return false;
+	if(hasClassesStartingWith(element, ["chap", "cn", "ct", "fmh", "title", "h1", "h2"])) return true;
+	if(hasClassesContaining(element, ["heading", "chapternumber", "chaptertitle", "h1", "h2"])) return true;
+}
+
+function looksLikeExtract(element)
+{
+	if(element.querySelectorAll("div, p").length > 5) return false;
+	if(hasClassesStartingWith(element, ["block", "quote", "extract"])) return true;
+	if(hasClassesContaining(element, ["quote", "extract"])) return true;
+}
+
 function replaceSingleElement(e, tag)
 {
 	e.parentNode.replaceChild(createElement(tag, { innerHTML: e.innerHTML }), e);
@@ -3898,10 +3935,8 @@ function createTagsByClassName()
 	while (i--)
 	{
 		element = e[i];
-		if (hasClassesContaining(element, ["cn", "ct", "heading", "chapternumber", "chaptertitle"])) replaceSingleElement(element, "h2");
-		else if (hasClassesContaining(element, ["h1"])) replaceSingleElement(element, "h1");
-		else if (hasClassesContaining(element, ["h2"])) replaceSingleElement(element, "h2");
-		else if (hasClassesContaining(element, ["block", "quote", "extract"])) replaceSingleElement(element, "blockquote");
+		if(looksLikeHeading(element)) replaceSingleElement(element, "h2");
+		else if (looksLikeExtract(element)) replaceSingleElement(element, "blockquote");
 		else if (hasClassesContaining(element, ["fmtx"])) replaceSingleElement(element, "p");
 	}
 	e = get("span");
