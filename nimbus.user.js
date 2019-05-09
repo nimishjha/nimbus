@@ -133,6 +133,7 @@ const Nimbus = {
 		replaceCommentsWithPres: replaceCommentsWithPres,
 		replaceDiacritics: replaceDiacritics,
 		replaceElementsBySelector: replaceElementsBySelector,
+		replaceElementsByClassesContaining: replaceElementsByClassesContaining,
 		replaceFontTags: replaceFontTags,
 		replaceIframes: replaceIframes,
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
@@ -1690,15 +1691,35 @@ function replaceElementsBySelector(selector, tagName)
 	let i, ii;
 	if(e.length)
 	{
-		const toreplace = [];
+		const toReplace = [];
 		for (i = 0, ii = e.length; i < ii; i++)
-			toreplace.push(e[i]);
-		for (i = toreplace.length - 1; i >= 0; i--)
-			toreplace[i].parentNode.replaceChild(createElement(tagName, { innerHTML: toreplace[i].innerHTML }), toreplace[i]);
+			toReplace.push(e[i]);
+		for (i = toReplace.length - 1; i >= 0; i--)
+			toReplace[i].parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace[i].innerHTML }), toReplace[i]);
 	}
 	else if(e && e.parentNode)
 	{
 		e.parentNode.replaceChild(createElement(tagName, { innerHTML: e.innerHTML }), e);
+	}
+}
+
+function replaceElementsByClassesContaining(str, tagName)
+{
+	if(!(str && tagName))
+	{
+		str = prompt("Substring to search for in classNames");
+		tagName = prompt("Tag to replace with");
+	}
+	const e = get("div, p");
+	let i, ii;
+	if(e.length)
+	{
+		const toReplace = [];
+		for (i = 0, ii = e.length; i < ii; i++)
+			if(~e[i].className.indexOf(str))
+				toReplace.push(e[i]);
+		for (i = toReplace.length - 1; i >= 0; i--)
+			toReplace[i].parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace[i].innerHTML }), toReplace[i]);
 	}
 }
 
@@ -4353,6 +4374,7 @@ function handleKeyDown(e)
 		e.preventDefault();
 		switch(k)
 		{
+			case KEYCODES.E: replaceElementsByClassesContaining(); break;
 			case KEYCODES.F: formatEbook(); break;
 			case KEYCODES.H: unhighlightAll(); break;
 			case KEYCODES.S: forceReloadCss(); break;
