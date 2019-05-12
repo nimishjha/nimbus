@@ -3435,10 +3435,15 @@ function cleanupWikipedia()
 		"#mw-articlefeedback",
 		"form",
 		"#mw-navigation",
-		".mw-editsection"
+		".mw-editsection",
+		"input",
 	]);
-	document.body.className = "pad100";
+	replaceElementsBySelector(".thumb", "figure");
+	replaceElementsBySelector(".thumbcaption", "figcaption");
 	getBestImageSrc();
+	removeAttributes();
+	document.body.className = "pad100 xwrap";
+	insertStyle("img { width: 100%; }", "styleWikipedia", true);
 }
 
 function getKeys(obj)
@@ -4266,6 +4271,9 @@ function main()
 			case "en.wikipedia.org":
 			case "secure.wikimedia.org":
 				cleanupWikipedia();
+				break;
+			case "en.m.wikipedia.org":
+				location.href = location.href.replace(/en\.m\./, "en.");
 				break;
 		}
 	}
