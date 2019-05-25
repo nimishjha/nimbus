@@ -958,7 +958,7 @@ function parseCommand(s)
 {
 	let args = [];
 	let arg = '';
-	s = s.replace(/\s+/g, ' ');
+	s = trim(s.replace(/\s+/g, ' '));
 	for(let i = 0, ii = s.length; i < ii; i++)
 	{
 		switch(s[i])
@@ -3086,7 +3086,7 @@ function highlightSelection()
 			while(nodeHTML[index2] && nodeHTML[index2].match(/[^ <>]/) && index2 < nodeHTML.length )
 				index2++;
 			if(nodeHTML.length - index2 < 10)
-				index2 = nodeHTML.length - 1;
+				index2 = nodeHTML.length;
 			if(index1 > 0)
 				textBeforeSelection = nodeHTML.substr(0, index1);
 			else
