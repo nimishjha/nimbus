@@ -1005,7 +1005,7 @@ function runCommand(s)
 	}
 	else
 	{
-		showMessage(funcName + ": not found");
+		showMessage(funcName + ": not found", "messagebig");
 	}
 }
 
@@ -3055,11 +3055,11 @@ function removeLineBreaks(s)
 
 function highlightSelection()
 {
-	let selection, selectionBegin, selectionEnd, node, nodeHTML, index1, index2;
+	let index1, index2;
 	let textBeforeSelection, textOfSelection, textAfterSelection;
 	if(!window.getSelection().toString().length) return;
-	selection = window.getSelection();
-	node = selection.anchorNode;
+	let selection = window.getSelection();
+	let node = selection.anchorNode;
 	selection = trim(removeLineBreaks(selection.toString()));
 	while (node.parentNode && (node.textContent.length < selection.length || node.nodeType !== 1))
 	{
@@ -3071,8 +3071,9 @@ function highlightSelection()
 		return;
 	}
 	if(!node) return;
-	nodeHTML = node.innerHTML;
+	let nodeHTML = node.innerHTML;
 	nodeHTML = removeLineBreaks(nodeHTML);
+	node.innerHTML = nodeHTML;
 	if(selection.length)
 	{
 		index1 = nodeHTML.indexOf(selection);
@@ -3099,11 +3100,13 @@ function highlightSelection()
 		}
 		else
 		{
-			selectionBegin = selectionEnd = selection;
+			let selectionBegin = selection.substr(0, selection.length / 2);
+			let selectionEnd = selection.substr(-selection.length / 2);
+			const step = Math.max(1, Math.round(selection.length / 20));
 			while(nodeHTML.indexOf(selectionBegin) === -1 && selectionBegin.length > 1)
-				selectionBegin = selectionBegin.substr(0, selectionBegin.length-1);
+				selectionBegin = selectionBegin.substr(0, selectionBegin.length - step);
 			while(nodeHTML.indexOf(selectionEnd) < 0 && selectionEnd.length > 1)
-				selectionEnd = selectionEnd.substr(-(selectionEnd.length - 1));
+				selectionEnd = selectionEnd.substr(-(selectionEnd.length - step));
 			index1 = nodeHTML.indexOf(selectionBegin);
 			index2 = nodeHTML.indexOf(selectionEnd) + selectionEnd.length;
 			if(~index1 && ~index2)
@@ -3123,7 +3126,11 @@ function highlightSelection()
 				textOfSelection = nodeHTML.substr(index1, index2 - index1);
 				textAfterSelection = nodeHTML.substr(index2);
 				nodeHTML = textBeforeSelection + "<mark>" + textOfSelection + "</mark>" + textAfterSelection;
-				node.innerHTML = nodeHTML;
+				const testNode = createElement("div", { innerHTML: nodeHTML });
+				if(testNode.textContent.length === node.textContent.length)
+					node.innerHTML = nodeHTML;
+				else
+					showMessage("highlightSelection failed", "messagebig messageerror");
 				return;
 			}
 		}
