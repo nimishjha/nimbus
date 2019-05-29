@@ -718,39 +718,31 @@ function highlightSelectionOrText()
 	else
 		s = prompt("Text to highlight");
 
-	highlightTextAcrossTags(s);
+	// highlightTextAcrossTags(s);
 
-	// if(s && s.length)
-	// {
-	// 	let ss = escapeForRegExp(s);
-	// 	let tempHTML = document.body.innerHTML;
-	// 	let r = new RegExp(ss, "gi");
-	// 	tempHTML = tempHTML.replace(r, "<samp>" + s + "</samp>");
-	// 	document.body.innerHTML = tempHTML;
-	// }
+	if(s && s.length)
+	{
+		const linkHrefs = [];
+		const links = get("a");
+		for(let i = 0, ii = links.length; i < ii; i++)
+			linkHrefs.push(links[i].href);
+		const imageSources = [];
+		const images = get("img");
+		for(let i = 0, ii = images.length; i < ii; i++)
+			imageSources.push(images[i].src);
 
-	// if (s && s.length)
-	// {
-	// 	linkHrefs = [];
-	// 	links = get("a");
-	// 	for(i = 0, ii = links.length; i < ii; i++)
-	// 		linkHrefs.push(links[i].href);
+		let ss = escapeForRegExp(s);
+		let tempHTML = document.body.innerHTML;
+		let r = new RegExp(ss, "gi");
+		tempHTML = tempHTML.replace(r, "<mark>" + s + "</mark>");
+		document.body.innerHTML = tempHTML;
 
-	// 	regex = new RegExp(escapeForRegExp(s), "gi");
-	// 	nodes = document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li, blockquote, td");
-	// 	for (i = 0, ii = nodes.length; i < ii; i++)
-	// 	{
-	// 		node = nodes[i];
-	// 		if (~node.innerHTML.indexOf(s))
-	// 			node.innerHTML = node.innerHTML.replace(regex, "<mark>" + s + "</mark>");
-	// 		else if(~node.textContent.indexOf(s))
-	// 			node.innerHTML = "<mark>" + node.innerHTML + "</mark>";
-	// 	}
+		for(let i = 0, ii = links.length; i < ii; i++)
+			links[i].href = linkHrefs[i];
+		for(let i = 0, ii = images.length; i < ii; i++)
+			images[i].src = imageSources[i];
+	}
 
-	// 	links = get("a");
-	// 	for(i = 0, ii = links.length; i < ii; i++)
-	// 		links[i].href = linkHrefs[i];
-	// }
 }
 
 function highlightTextAcrossTags(searchString)
@@ -861,18 +853,40 @@ function deleteUselessScripts()
 	}
 }
 
+function sortSources(a, b)
+{
+	if(a.size > b.size) return 1;
+	if(a.size < b.size) return -1;
+	return 0;
+}
+
 function getBestImageSrc()
 {
 	const e = get("img");
 	let i = e.length;
+	console.log(i + " images");
 	while(i--)
 	{
 		if(e[i].srcset)
 		{
+			let bestSource;
 			let sources = e[i].srcset.split(',');
-			let bestSource = trim(sources[sources.length - 1]).split(' ')[0];
-			e[i].src = bestSource;
-			e[i].removeAttribute("srcset");
+			let sourcesArray = [];
+			for(let j = 0, jj = sources.length; j < jj; j++)
+			{
+				const splitted = trim(sources[j]).split(' ');
+				const src = splitted[0];
+				const size = parseInt(splitted[1], 10);
+				if(!isNaN(size))
+					sourcesArray.push({ size: size, src: src });
+			}
+			if(sourcesArray.length > 1)
+			{
+				sourcesArray = sourcesArray.sort(sortSources);
+				bestSource = sourcesArray[sourcesArray.length - 1].src;
+				e[i].src = bestSource;
+				e[i].removeAttribute("srcset");
+			}
 		}
 	}
 }
