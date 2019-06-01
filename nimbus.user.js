@@ -1642,7 +1642,7 @@ function cleanupGeneral()
 	appendInfo();
 	getBestImageSrc();
 	document.body.className = "pad100 xwrap";
-	insertStyleNegative();
+	// insertStyleNegative();
 	const t2 = performance.now();
 	xlog(Math.round(t2 - t1) + " ms: cleanupGeneral");
 }
@@ -2879,7 +2879,6 @@ function deleteNonContentDivs()
 	{
 		del(".hl");
 		cleanupGeneral();
-		document.body.className = "pad100 xwrap";
 		return;
 	}
 	const sClass = "toget";
@@ -2904,8 +2903,7 @@ function deleteNonContentDivs()
 				e[i].parentNode.className = sClass;
 		}
 	}
-	// if the <body> has a .toget class, it will be appended to the existing <body>
-	document.body.classList.remove("toget");
+	document.body.classList.remove(sClass);
 	const e = get("div");
 	i = e.length;
 	while(i--)
@@ -2915,7 +2913,7 @@ function deleteNonContentDivs()
 	}
 }
 
-function getContentByParagraphCount()
+function getContentByParagraphCount_old()
 {
 	if(get(".hl").length)
 	{
@@ -2938,11 +2936,13 @@ function getContentByParagraphCount()
 	}
 	if(highestNumParas === 0)
 	{
-		showMessage("No paragraphs found", "h2", true);
+		showMessage("No paragraphs found", "messagebig");
 		return;
 	}
 	else
-		showMessage("Highest paragraph count is " + highestNumParas);
+	{
+		showMessage("Highest paragraph count is " + highestNumParas, "messagebig");
+	}
 	i = e.length;
 	while(i--)
 	{
@@ -2953,17 +2953,55 @@ function getContentByParagraphCount()
 			break;
 		}
 	}
-	e = get("h1, h2, h3, h4, h5, h6");
-	i = e.length;
-	while(i--)
-	{
-		e[i].className = "hl";
-	}
-	e = get(".hl h1, .hl h2");
-	i = e.length;
-	while(i--)
-		e[i].className = "";
 }
+
+function getContentByParagraphCount()
+{
+	if(get(".hl").length)
+	{
+		getElementsWithClass("hl");
+		cleanupGeneral();
+		document.body.className = "pad100";
+		return;
+	}
+	insertStyleHighlight();
+	const paras = get("p");
+	let i = -1;
+	let length = paras.length;
+	let container;
+	while(++i < length)
+	{
+		container = paras[i].closest("div");
+		container.className = "hl";
+	}
+	const e = get(".hl");
+	unhighlightAll();
+	i = -1;
+	length = e.length;
+	let numParas = 0;
+	let highestNumParas = 0;
+	while(++i < length)
+	{
+		numParas = e[i].getElementsByTagName("p").length;
+		e[i].setAttribute("data-pcount", numParas);
+		if(numParas > highestNumParas)
+			highestNumParas = numParas;
+	}
+	i = -1;
+	while(++i < length)
+	{
+		numParas = parseInt(e[i].getAttribute("data-pcount"), 10);
+		if(numParas === highestNumParas)
+		{
+			if(e[i].parentNode)
+				e[i].parentNode.className = "hl";
+			else
+				e[i].className = "hl";
+			break;
+		}
+	}
+}
+
 
 function deleteSpecificEmptyElements()
 {
@@ -3921,11 +3959,12 @@ function hasClassesStartingWith(element, strings)
 	const classes = Array.from(element.classList);
 	let i = classes.length;
 	let j = strings.length;
-	//	When n is small, O(n^2) isn't so bad
-	while(i--)
+	let count = 0;
+	while(i-- && count < 2000)
 	{
-		while(j--)
+		while(j-- && count < 2000)
 		{
+			count++;
 			if(classes[i].indexOf(strings[j]) === 0)
 			{
 				return true;
