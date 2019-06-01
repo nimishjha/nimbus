@@ -2913,48 +2913,6 @@ function deleteNonContentDivs()
 	}
 }
 
-function getContentByParagraphCount_old()
-{
-	if(get(".hl").length)
-	{
-		getElementsWithClass("hl");
-		cleanupGeneral();
-		document.body.className = "pad100";
-		return;
-	}
-	insertStyleHighlight();
-	let numParas;
-	let e = document.querySelectorAll("div, article, main, section");
-	let i = e.length;
-	let highestNumParas = 0;
-	while(i--)
-	{
-		numParas = e[i].getElementsByTagName("p").length;
-		e[i].setAttribute("data-pcount", numParas);
-		if(numParas > highestNumParas)
-			highestNumParas = numParas;
-	}
-	if(highestNumParas === 0)
-	{
-		showMessage("No paragraphs found", "messagebig");
-		return;
-	}
-	else
-	{
-		showMessage("Highest paragraph count is " + highestNumParas, "messagebig");
-	}
-	i = e.length;
-	while(i--)
-	{
-		numParas = parseInt(e[i].getAttribute("data-pcount"), 10);
-		if(numParas === highestNumParas)
-		{
-			e[i].className = "hl";
-			break;
-		}
-	}
-}
-
 function getContentByParagraphCount()
 {
 	if(get(".hl").length)
