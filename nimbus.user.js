@@ -119,6 +119,7 @@ const Nimbus = {
 		makeHeadings: makeHeadings,
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
 		markDivDepth: markDivDepth,
+		markUppercaseParagraphs: markUppercaseParagraphs,
 		markTableRowsAndColumns: markTableRowsAndColumns,
 		numberDivs: numberDivs,
 		observeAddedNodes: observeAddedNodes,
@@ -1791,7 +1792,7 @@ function insertStyleHighlight()
 {
 	del("#styleHighlight");
 	const s = '.hl, .focused { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }' +
-		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
+		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }' +
 		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
 	// let s = '.hl { filter: brightness(1.7); }';
 	insertStyle(s, "styleHighlight", true);
@@ -2917,23 +2918,25 @@ function getContentByParagraphCount()
 {
 	if(get(".hl").length)
 	{
-		getElementsWithClass("hl");
+		const title = document.title;
+		retrieve(".hl");
+		setDocTitle(title);
 		cleanupGeneral();
 		document.body.className = "pad100";
 		return;
 	}
 	insertStyleHighlight();
 	const paras = get("p");
+	let container;
 	let i = -1;
 	let length = paras.length;
-	let container;
 	while(++i < length)
 	{
 		container = paras[i].closest("div");
-		container.className = "hl";
+		container.className = "hl2";
 	}
-	const e = get(".hl");
-	unhighlightAll();
+	const e = get(".hl2");
+	// unhighlightAll();
 	i = -1;
 	length = e.length;
 	let numParas = 0;
@@ -4125,6 +4128,22 @@ function toggleConsole(inputHandler)
 	inputTextareaWrapper.appendChild(inputTextarea);
 	document.body.appendChild(inputTextareaWrapper);
 	inputTextarea.focus();
+}
+
+function markUppercaseParagraphs()
+{
+	const e = get("p");
+	let i = e.length;
+	while(i--)
+	{
+		var s = e[i].textContent;
+		var cUpper = 0,
+			cLower = 0;
+		cUpper = s.match(/[A-Z]/g);
+		cLower = s.match(/[a-z]/g);
+		if (cUpper && (!cLower || cUpper.length > cLower.length))
+			e[i].className = "hl";
+	}
 }
 
 function markDivDepth()
