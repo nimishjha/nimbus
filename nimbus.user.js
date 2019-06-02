@@ -94,17 +94,17 @@ const Nimbus = {
 		hasClassesContaining: hasClassesContaining,
 		highlightAllTableCellsInRow: highlightAllTableCellsInRow,
 		highlightCode: highlightCode,
-		highlightElementsBySelector: highlightElementsBySelector,
-		highlightElementsWithAttribute: highlightElementsWithAttribute,
-		highlightElementsWithCssRule: highlightElementsWithCssRule,
-		highlightElementsWithInlineWidthOrHeight: highlightElementsWithInlineWidthOrHeight,
-		highlightElementsWithSetWidths: highlightElementsWithSetWidths,
+		markElementsBySelector: markElementsBySelector,
+		markElementsWithAttribute: markElementsWithAttribute,
+		markElementsWithCssRule: markElementsWithCssRule,
+		markElementsWithInlineWidthOrHeight: markElementsWithInlineWidthOrHeight,
+		markElementsWithSetWidths: markElementsWithSetWidths,
 		highlightLinksInPres: highlightLinksInPres,
 		highlightLinksWithHrefContaining: highlightLinksWithHrefContaining,
 		highlightNode: highlightNode,
 		highlightNodesContaining: highlightNodesContaining,
 		highlightSelection: highlightSelection,
-		highlightSelectionOrText: highlightSelectionOrText,
+		highlightAllMatches: highlightAllMatches,
 		highlightSpecificNodesContaining: highlightSpecificNodesContaining,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		insertStyle: insertStyle,
@@ -379,7 +379,7 @@ function highlightWithinPreformattedBlocks(str)
 		pres[i].innerHTML = pres[i].innerHTML.replace(reg, "<mark>$1</mark>");
 }
 
-function highlightElementsWithInlineWidthOrHeight()
+function markElementsWithInlineWidthOrHeight()
 {
 	const e = get("div, aside, article, section, table, tr, td");
 	let i = e.length;
@@ -396,7 +396,7 @@ function highlightElementsWithInlineWidthOrHeight()
 	insertStyleHighlight();
 }
 
-function highlightElementsWithCssRule()
+function markElementsWithCssRule()
 {
 	let styles, i, s;
 	const prop = prompt("Highlight elements where CSS Property");
@@ -703,13 +703,10 @@ function showDocumentStructureWithNames()
 	insertStyle(s, 'showDivs', true);
 }
 
-function highlightSelectionOrText()
+function highlightAllMatches()
 {
 	showMessage("Highlight selection or text", "messagebig");
 	let s;
-	// let i, ii;
-	// let node, nodes, regex;
-	// let links, linkHrefs;
 
 	if(window.getSelection().toString().length)
 		s = window.getSelection().toString();
@@ -1160,7 +1157,7 @@ function doStackOverflow()
 	}
 }
 
-function highlightElementsBySelector()
+function markElementsBySelector()
 {
 	const s = prompt("Enter selector for elements to highlight");
 	if(!(s && s.length)) return;
@@ -1201,7 +1198,7 @@ function getIdAndClass(e)
 	return s;
 }
 
-function highlightElementsWithAttribute(s)
+function markElementsWithAttribute(s)
 {
 	showMessage("Highlighting elements with attribute \"" + s + '"', "messagebig");
 	ylog("Highlighting elements with attribute " + s, "h2");
@@ -1221,7 +1218,7 @@ function highlightElementsWithAttribute(s)
 	insertStyleHighlight();
 }
 
-function highlightElementsWithSetWidths()
+function markElementsWithSetWidths()
 {
 	showMessage("Finding divs with pixel widths...", "messagebig");
 	const e = get("div");
@@ -1240,7 +1237,7 @@ function highlightElementsWithSetWidths()
 			}
 		}
 	}
-	insertStyle("x { background: #000; color: #FFF; padding: 2px 4px; display: block; font: 12px verdana;  } .xlog { clear: both; }", "styleHighlightElementsWithSetWidths", true);
+	insertStyle("x { background: #000; color: #FFF; padding: 2px 4px; display: block; font: 12px verdana;  } .xlog { clear: both; }", "stylemarkElementsWithSetWidths", true);
 	insertStyleHighlight();
 }
 
@@ -4389,7 +4386,7 @@ function handleKeyDown(e)
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: highlightNodesContaining(); break;
 			case KEYCODES.N: numberDivs(); break;
-			case KEYCODES.O: highlightSelectionOrText(); break;
+			case KEYCODES.O: highlightAllMatches(); break;
 			case KEYCODES.L: showLog(); break;
 			case KEYCODES.Q: fixHeadings(); break;
 			case KEYCODES.R: highlightNode(); break;
@@ -4446,19 +4443,19 @@ function handleKeyDown(e)
 			case KEYCODES.FOUR: insertStyleWhite(); break;
 			case KEYCODES.E: replaceElementsBySelector(); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
-			case KEYCODES.G: highlightElementsWithInlineWidthOrHeight(); break;
-			case KEYCODES.H: highlightElementsBySelector(); break;
-			case KEYCODES.L: highlightElementsWithCssRule(); break;
+			case KEYCODES.G: markElementsWithInlineWidthOrHeight(); break;
+			case KEYCODES.H: markElementsBySelector(); break;
+			case KEYCODES.L: markElementsWithCssRule(); break;
 			case KEYCODES.V: showDocumentStructure(); break;
 			case KEYCODES.B: showDocumentStructureWithNames(); break;
 			case KEYCODES.N: showDocumentStructure2(); break;
 			case KEYCODES.M: runUserSpecifiedFunction(); break;
 			case KEYCODES.O: highlightSpecificNodesContaining(); break;
 			case KEYCODES.R: wrapNodeInTag(); break;
-			case KEYCODES.S: highlightElementsWithAttribute("style"); break;
+			case KEYCODES.S: markElementsWithAttribute("style"); break;
 			case KEYCODES.T: markTableRowsAndColumns(); break;
-			case KEYCODES.W: highlightElementsWithSetWidths(); break;
-			case KEYCODES.Y: highlightElementsWithCssRule(); break;
+			case KEYCODES.W: markElementsWithSetWidths(); break;
+			case KEYCODES.Y: markElementsWithCssRule(); break;
 			case KEYCODES.F12: analyze(); break;
 			default: shouldPreventDefault = false; break;
 		}
