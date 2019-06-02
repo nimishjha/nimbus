@@ -101,7 +101,6 @@ const Nimbus = {
 		markElementsWithSetWidths: markElementsWithSetWidths,
 		highlightLinksInPres: highlightLinksInPres,
 		highlightLinksWithHrefContaining: highlightLinksWithHrefContaining,
-		highlightNode: highlightNode,
 		highlightNodesContaining: highlightNodesContaining,
 		highlightSelection: highlightSelection,
 		highlightAllMatches: highlightAllMatches,
@@ -152,7 +151,7 @@ const Nimbus = {
 		toggleBlockEditMode: toggleBlockEditMode,
 		toggleStyleShowClasses: toggleStyleShowClasses,
 		unhighlightAll: unhighlightAll,
-		wrapNodeInTag: wrapNodeInTag,
+		wrapAnchorNodeInTag: wrapAnchorNodeInTag,
 		xlog: xlog,
 		ylog: ylog,
 	},
@@ -711,7 +710,7 @@ function getSelectionOrUserInput(promptMessage, callback)
 		callback(s);
 		return;
 	}
-	customPrompt(promptMessage).then(function(command){ callback(command); });
+	customPrompt(promptMessage).then(callback);
 }
 
 function highlightAllMatches(s)
@@ -794,8 +793,9 @@ function sortSources(a, b)
 function getBestImageSrc()
 {
 	const e = get("img");
+	if(!e)
+		return;
 	let i = e.length;
-	console.log(i + " images");
 	while(i--)
 	{
 		if(e[i].srcset)
@@ -1002,7 +1002,7 @@ function customPrompt(message)
 		dialog.appendChild(dialogHeading);
 		dialog.appendChild(dialogInput);
 		document.body.insertBefore(dialog, document.body.firstChild);
-		const s = '#xxdialog { position: fixed; margin: auto; z-index: 10000; height: 90px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
+		const s = '#xxdialog { position: fixed; margin: auto; z-index: 10000; height: 90px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 60vw; }' +
 		'#xxdialog heading { height: 30px; line-height: 30px; padding: 0 10px; background: #111; display: block; margin: 0; }' +
 		'#xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0 0; margin: 0; border-width: 0 10px; border-color: #000; width: 100%; height: 60px; overflow: hidden; box-sizing: border-box; }';
 		insertStyle(s, "style-xxdialog", true);
@@ -1030,7 +1030,7 @@ function closeCustomPrompt()
 
 function runUserSpecifiedFunction()
 {
-	customPrompt("Enter command").then(function(command){ runCommand(command); });
+	customPrompt("Enter command").then(runCommand);
 }
 
 function annotate()
@@ -1159,9 +1159,8 @@ function doStackOverflow()
 	}
 }
 
-function markElementsBySelector()
+function markElementsBySelector(s)
 {
-	const s = prompt("Enter selector for elements to highlight");
 	if(!(s && s.length)) return;
 	const e = get(s);
 	if(e.length)
@@ -1239,18 +1238,17 @@ function markElementsWithSetWidths()
 			}
 		}
 	}
-	insertStyle("x { background: #000; color: #FFF; padding: 2px 4px; display: block; font: 12px verdana;  } .xlog { clear: both; }", "stylemarkElementsWithSetWidths", true);
+	insertStyle("x { background: #000; color: #FFF; padding: 2px 4px; display: block; font: 12px verdana;  } .xlog { clear: both; }", "styleMarkElementsWithSetWidths", true);
 	insertStyleHighlight();
 }
 
-function wrapNodeInTag()
+function wrapAnchorNodeInTag(tagName)
 {
-	const s = prompt("Enter tag to wrap selected node's innerHTML in");
-	if(s && s.length)
-		highlightNode(s);
+	if(tagName && tagName.length)
+		highlightAnchorNode(tagName);
 }
 
-function highlightNode(tag)
+function highlightAnchorNode(tag)
 {
 	const t = tag? tag : "mark";
 	const selection = window.getSelection();
@@ -2994,7 +2992,7 @@ function highlightTextAcrossTags(node, searchString)
 	let index1 = node.textContent.indexOf(searchString);
 	if(index1 === -1)
 	{
-		console.log(searchString + " not found in " + node.textContent);
+		showMessage(searchString + " not found in " + node.textContent, "messagebig");
 		return;
 	}
 	let index2 = index1 + searchString.length;
@@ -3046,7 +3044,6 @@ function highlightAllMatchesInNode(node, splitMatches)
 function expandToWordBoundaries(node, selection)
 {
 	const text = node.textContent;
-	console.log(text);
 	let index1 = text.indexOf(selection);
 	if(index1 === -1)
 		return;
@@ -4388,10 +4385,10 @@ function handleKeyDown(e)
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: highlightNodesContaining(); break;
 			case KEYCODES.N: numberDivs(); break;
-			case KEYCODES.O: getSelectionOrUserInput("Highlight all matches of string", highlightAllMatches); break;
+			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatches); break;
 			case KEYCODES.L: showLog(); break;
 			case KEYCODES.Q: fixHeadings(); break;
-			case KEYCODES.R: highlightNode(); break;
+			case KEYCODES.R: highlightAnchorNode(); break;
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
 			case KEYCODES.Z: cleanupUnicode(); break;
@@ -4420,7 +4417,7 @@ function handleKeyDown(e)
 			case KEYCODES.C: deleteNonContentDivs(); break;
 			case KEYCODES.D: del("log"); break;
 			case KEYCODES.P: getPagerLinks(); break;
-			case KEYCODES.R: highlightNode("blockquote"); break;
+			case KEYCODES.R: highlightAnchorNode("blockquote"); break;
 			case KEYCODES.K: showPrintLink(); break;
 			case KEYCODES.L: logout(); break;
 			case KEYCODES.W: removeAttributes(); break;
@@ -4446,14 +4443,14 @@ function handleKeyDown(e)
 			case KEYCODES.E: replaceElementsBySelector(); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
 			case KEYCODES.G: markElementsWithInlineWidthOrHeight(); break;
-			case KEYCODES.H: markElementsBySelector(); break;
+			case KEYCODES.H: getSelectionOrUserInput("Mark elements by selector", markElementsBySelector); break;
 			case KEYCODES.L: markElementsWithCssRule(); break;
 			case KEYCODES.V: showDocumentStructure(); break;
 			case KEYCODES.B: showDocumentStructureWithNames(); break;
 			case KEYCODES.N: showDocumentStructure2(); break;
 			case KEYCODES.M: runUserSpecifiedFunction(); break;
 			case KEYCODES.O: highlightSpecificNodesContaining(); break;
-			case KEYCODES.R: wrapNodeInTag(); break;
+			case KEYCODES.R: getSelectionOrUserInput("Wrap anchor node in tag", wrapAnchorNodeInTag); break;
 			case KEYCODES.S: markElementsWithAttribute("style"); break;
 			case KEYCODES.T: markTableRowsAndColumns(); break;
 			case KEYCODES.W: markElementsWithSetWidths(); break;
