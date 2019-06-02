@@ -106,7 +106,6 @@ const Nimbus = {
 		highlightSelection: highlightSelection,
 		highlightSelectionOrText: highlightSelectionOrText,
 		highlightSpecificNodesContaining: highlightSpecificNodesContaining,
-		highlightTextAcrossTags: highlightTextAcrossTags,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		insertStyle: insertStyle,
 		insertStyleFonts: insertStyleFonts,
@@ -719,8 +718,6 @@ function highlightSelectionOrText()
 	else
 		s = prompt("Text to highlight");
 
-	// highlightTextAcrossTags(s);
-
 	if(s && s.length)
 	{
 		const linkHrefs = [];
@@ -744,70 +741,6 @@ function highlightSelectionOrText()
 			images[i].src = imageSources[i];
 	}
 
-}
-
-function highlightTextAcrossTags(searchString)
-{
-	var searchRegEx = new RegExp(escapeForRegExp(searchString), "gi");
-	var nodes = document.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li, blockquote, td");
-	for(let i = 0, ii = nodes.length; i < ii; i++)
-	{
-		var node = nodes[i];
-		node.innerHTML = node.innerHTML.replace(/\s+/g, " ");
-		if(~node.innerHTML.indexOf(searchString))
-		{
-			node.innerHTML = node.innerHTML.replace(searchRegEx, "<mark>" + searchString + "</mark>");
-			if(node.innerHTML.match(searchRegEx).length === node.textContent.match(searchRegEx).length)
-				continue;
-		}
-		let index1 = node.textContent.indexOf(searchString);
-		if(index1 === -1)
-			continue;
-		let index2 = index1 + searchString.length;
-		const childNodes = node.childNodes;
-		let childNodeEnd = 0;
-		const splitMatches = [];
-		for(let j = 0, jj = childNodes.length; j < jj; j++)
-		{
-			const childNode = childNodes[j];
-			const childNodeStart = childNodeEnd;
-			childNodeEnd += childNode.textContent.length;
-			let partialSearchString;
-			let isMatch = false;
-			if(index1 >= childNodeStart && index1 < childNodeEnd)
-			{
-				isMatch = true;
-				partialSearchString = childNode.textContent.substring(index1 - childNodeStart, index1 - childNodeStart + searchString.length);
-			}
-			else if(index1 < childNodeStart && index2 > childNodeEnd)
-			{
-				isMatch = true;
-				partialSearchString = childNode.textContent;
-			}
-			else if(index2 > childNodeStart && index2 <= childNodeEnd)
-			{
-				isMatch = true;
-				partialSearchString = childNode.textContent.substring(0, index2 - childNodeStart);
-			}
-			if(isMatch)
-			{
-				if(childNode.nodeType === 1)
-					childNode.innerHTML = "<mark>" + childNode.innerHTML + "</mark>";
-				else
-					splitMatches.push(partialSearchString);
-			}
-		}
-		highlightAllMatchesInNode(node, splitMatches);
-	}
-}
-
-function highlightAllMatchesInNode(node, splitMatches)
-{
-	let nodeHTML = node.innerHTML;
-	let i = splitMatches.length;
-	while(i--)
-		nodeHTML = nodeHTML.replace(new RegExp(splitMatches[i]), "<mark>" + splitMatches[i] + "</mark>");
-	node.innerHTML = nodeHTML;
 }
 
 function deleteUselessIframes()
@@ -3066,7 +2999,108 @@ function removeLineBreaks(s)
 	return s;
 }
 
+function highlightTextAcrossTags(node, searchString)
+{
+	var searchRegEx = new RegExp(escapeForRegExp(searchString), "gi");
+	node.innerHTML = node.innerHTML.replace(/\s+/g, " ");
+	if(~node.innerHTML.indexOf(searchString))
+	{
+		node.innerHTML = node.innerHTML.replace(searchRegEx, "<mark>" + searchString + "</mark>");
+		return;
+	}
+	let index1 = node.textContent.indexOf(searchString);
+	if(index1 === -1)
+	{
+		console.log(searchString + " not found in " + node.textContent);
+		return;
+	}
+	let index2 = index1 + searchString.length;
+	const childNodes = node.childNodes;
+	let childNodeEnd = 0;
+	const splitMatches = [];
+	for(let j = 0, jj = childNodes.length; j < jj; j++)
+	{
+		const childNode = childNodes[j];
+		const childNodeStart = childNodeEnd;
+		childNodeEnd += childNode.textContent.length;
+		let partialSearchString;
+		let isMatch = false;
+		if(index1 >= childNodeStart && index1 < childNodeEnd)
+		{
+			isMatch = true;
+			partialSearchString = childNode.textContent.substring(index1 - childNodeStart, index1 - childNodeStart + searchString.length);
+		}
+		else if(index1 < childNodeStart && index2 > childNodeEnd)
+		{
+			isMatch = true;
+			partialSearchString = childNode.textContent;
+		}
+		else if(index2 > childNodeStart && index2 <= childNodeEnd)
+		{
+			isMatch = true;
+			partialSearchString = childNode.textContent.substring(0, index2 - childNodeStart);
+		}
+		if(isMatch && partialSearchString.length > 5)
+		{
+			if(childNode.nodeType === 1)
+				childNode.innerHTML = "<mark>" + childNode.innerHTML + "</mark>";
+			else
+				splitMatches.push(partialSearchString);
+		}
+	}
+	highlightAllMatchesInNode(node, splitMatches);
+}
+
+function highlightAllMatchesInNode(node, splitMatches)
+{
+	let nodeHTML = node.innerHTML;
+	let i = splitMatches.length;
+	while(i--)
+		nodeHTML = nodeHTML.replace(new RegExp(splitMatches[i]), "<mark>" + splitMatches[i] + "</mark>");
+	node.innerHTML = nodeHTML;
+}
+
+function expandToWordBoundaries(node, selection)
+{
+	const text = node.textContent;
+	console.log(text);
+	let index1 = text.indexOf(selection);
+	if(index1 === -1)
+		return;
+	let index2 = index1 + selection.length;
+	while(text[index1].match(/\w/) && index1 > 0)
+		index1--;
+	while(text[index2].match(/\w/) && index2 < text.length)
+		index2++;
+	selection = text.substring(index1, index2);
+	return selection;
+}
+
 function highlightSelection()
+{
+	if(!window.getSelection().toString().length)
+		return;
+	let selection = window.getSelection();
+	let node = selection.anchorNode;
+	selection = trim(removeLineBreaks(selection.toString()));
+	while (node.parentNode && (node.textContent.length < selection.length || node.nodeType !== 1))
+		node = node.parentNode;
+	let nodeHTML = node.innerHTML;
+	nodeHTML = removeLineBreaks(nodeHTML);
+	node.innerHTML = nodeHTML;
+	if(!node || node.tagName === undefined)
+	{
+		showMessage("Couldn't get anchorNode", "messagebig");
+		return;
+	}
+	if(selection.length)
+	{
+		selection = expandToWordBoundaries(node, selection);
+		highlightTextAcrossTags(node, selection);
+	}
+}
+
+function highlightSelection_old()
 {
 	let index1, index2;
 	let textBeforeSelection, textOfSelection, textAfterSelection;
@@ -3075,15 +3109,12 @@ function highlightSelection()
 	let node = selection.anchorNode;
 	selection = trim(removeLineBreaks(selection.toString()));
 	while (node.parentNode && (node.textContent.length < selection.length || node.nodeType !== 1))
-	{
 		node = node.parentNode;
-	}
-	if(node.tagName === undefined)
+	if(!node || node.tagName === undefined)
 	{
 		showMessage("Couldn't get anchorNode", "messagebig");
 		return;
 	}
-	if(!node) return;
 	let nodeHTML = node.innerHTML;
 	nodeHTML = removeLineBreaks(nodeHTML);
 	node.innerHTML = nodeHTML;
@@ -3113,9 +3144,10 @@ function highlightSelection()
 		}
 		else
 		{
-			let selectionBegin = selection.substr(0, selection.length / 2);
-			let selectionEnd = selection.substr(-selection.length / 2);
-			const step = Math.max(1, Math.round(selection.length / 20));
+			let selectionBegin = selection.substr(0, selection.length -1);
+			let selectionEnd = selection.substr(-selection.length -1);
+			// const step = Math.max(1, Math.round(selection.length / 20));
+			const step = 1;
 			while(nodeHTML.indexOf(selectionBegin) === -1 && selectionBegin.length > 1)
 				selectionBegin = selectionBegin.substr(0, selectionBegin.length - step);
 			while(nodeHTML.indexOf(selectionEnd) < 0 && selectionEnd.length > 1)
@@ -3130,7 +3162,7 @@ function highlightSelection()
 					index2++;
 				if(index1 < 10)
 					index1 = 0;
-				if(nodeHTML.length - index2 < 10)
+				if(index2 > nodeHTML.length * 0.9)
 					index2 = nodeHTML.length;
 				if(index1 > 0)
 					textBeforeSelection = nodeHTML.substr(0, index1);
