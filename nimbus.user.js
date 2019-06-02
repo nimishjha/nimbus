@@ -1030,6 +1030,14 @@ function closeCustomPrompt()
 	return command;
 }
 
+function callFunctionWithArgs(promptMessage, callback)
+{
+	customPrompt(promptMessage).then(function(userInput){
+		const args = parseCommand(userInput);
+		callback.apply(this, args);
+	});
+}
+
 function annotate()
 {
 	const selection = window.getSelection();
@@ -3247,43 +3255,51 @@ function fixParagraphs()
 	cleanupHeadings();
 }
 
+function deleteLinksContainingText(str)
+{
+	const e = get("a");
+	let i = e.length;
+	while(i--)
+	{
+		if(~e[i].textContent.indexOf(str) || ~e[i].href.indexOf(str))
+			del(e[i]);
+	}
+}
+
 function deleteElementsContainingText(selector, str)
 {
-	let sel, text;
-	if (! (selector && str))
+	if(!(typeof selector === "string" && selector.length))
+		return;
+	if(!(typeof str === "string" && str.length))
 	{
-		sel = prompt("Delete elements containing text");
-		text = prompt("Containing text");
-		if (sel.length)
-		{
-			if(text.length)
-			{
-				if (sel === "img") deleteImagesBySrcContaining(text);
-				else deleteElementsContainingText(sel, text);
-			}
-			else
-			{
-				del(sel);
-			}
-		}
+		del(selector);
 		return;
 	}
+
+	switch(selector)
+	{
+		case "img": deleteImagesBySrcContaining(str); return;
+		case "a": deleteLinksContainingText(str); return;
+	}
+
 	const e = get(selector);
-	if (!e) return;
 	if (e.length)
 	{
 		let i = e.length;
 		while (i--)
 		{
-			if (e[i].querySelector(selector)) continue;
+			if (e[i].querySelector(selector))
+				continue;
 			if (e[i].textContent.indexOf(str) >= 0)
 				e[i].parentNode.removeChild(e[i]);
 		}
 	}
 	else if (e.parentNode)
 	{
-		e.parentNode.removeChild(e);
+		if (e.textContent.indexOf(str) >= 0)
+			e.parentNode.removeChild(e);
 	}
+
 }
 
 function highlightSpecificNodesContaining(searchString)
@@ -4357,7 +4373,7 @@ function handleKeyDown(e)
 			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", ""]); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
-			case KEYCODES.G: deleteElementsContainingText(); break;
+			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteElementsContainingText); break;
 			case KEYCODES.K: toggleConsole(handleJSConsoleInput); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: highlightNodesContaining(); break;
