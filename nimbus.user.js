@@ -141,7 +141,6 @@ const Nimbus = {
 		revealLinkHrefs: revealLinkHrefs,
 		sanitizeTitle: sanitizeTitle,
 		setDocTitle: setDocTitle,
-		setDocTitleFromSelection: setDocTitleFromSelection,
 		showDocumentStructure2: showDocumentStructure2,
 		showDocumentStructure: showDocumentStructure,
 		showDocumentStructureWithNames: showDocumentStructureWithNames,
@@ -1994,8 +1993,6 @@ function sanitizeTitle(str)
 
 function setDocTitle(s)
 {
-	if(s)
-		xlog("setDocTitle(" + s + ")", "h6");
 	let i, labels, longestlabel, h;
 	deleteEmptyElements("h1");
 	deleteEmptyElements("h2");
@@ -2035,15 +2032,6 @@ function setDocTitle(s)
 			s += " [" + longestlabel + "]";
 	}
 	document.title = s;
-}
-
-function setDocTitleFromSelection()
-{
-	const selection = window.getSelection();
-	let s;
-	if(selection.toString().length) s = selection;
-	else s = prompt("Document title");
-	setDocTitle(s);
 }
 
 function zeroPad(n)
@@ -4353,7 +4341,7 @@ function handleKeyDown(e)
 			case KEYCODES.F1: makeHeadingFromSelection("h1"); break;
 			case KEYCODES.F2: makeHeadingFromSelection("h2"); break;
 			case KEYCODES.F3: makeHeadingFromSelection("h3"); break;
-			case KEYCODES.ZERO: setDocTitleFromSelection(); break;
+			case KEYCODES.ZERO: getSelectionOrUserInput("Enter document title", setDocTitle); break;
 			case KEYCODES.ONE: cleanupGeneral(); break;
 			case KEYCODES.TWO: deleteImages(); break;
 			case KEYCODES.THREE: toggleClass(db, "xwrap"); break;
