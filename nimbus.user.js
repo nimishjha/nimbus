@@ -703,39 +703,41 @@ function showDocumentStructureWithNames()
 	insertStyle(s, 'showDivs', true);
 }
 
-function highlightAllMatches()
+function getSelectionOrUserInput(promptMessage, callback)
 {
-	showMessage("Highlight selection or text", "messagebig");
-	let s;
-
 	if(window.getSelection().toString().length)
-		s = window.getSelection().toString();
-	else
-		s = prompt("Text to highlight");
-
-	if(s && s.length)
 	{
-		const linkHrefs = [];
-		const links = get("a");
-		for(let i = 0, ii = links.length; i < ii; i++)
-			linkHrefs.push(links[i].href);
-		const imageSources = [];
-		const images = get("img");
-		for(let i = 0, ii = images.length; i < ii; i++)
-			imageSources.push(images[i].src);
-
-		let ss = escapeForRegExp(s);
-		let tempHTML = document.body.innerHTML;
-		let r = new RegExp(ss, "gi");
-		tempHTML = tempHTML.replace(r, "<mark>" + s + "</mark>");
-		document.body.innerHTML = tempHTML;
-
-		for(let i = 0, ii = links.length; i < ii; i++)
-			links[i].href = linkHrefs[i];
-		for(let i = 0, ii = images.length; i < ii; i++)
-			images[i].src = imageSources[i];
+		const s = window.getSelection().toString();
+		callback(s);
+		return;
 	}
+	customPrompt(promptMessage).then(function(command){ callback(command); });
+}
 
+function highlightAllMatches(s)
+{
+	if(!(s && s.length))
+		return;
+
+	const linkHrefs = [];
+	const links = get("a");
+	for(let i = 0, ii = links.length; i < ii; i++)
+		linkHrefs.push(links[i].href);
+	const imageSources = [];
+	const images = get("img");
+	for(let i = 0, ii = images.length; i < ii; i++)
+		imageSources.push(images[i].src);
+
+	let ss = escapeForRegExp(s);
+	let tempHTML = document.body.innerHTML;
+	let r = new RegExp(ss, "gi");
+	tempHTML = tempHTML.replace(r, "<mark>" + s + "</mark>");
+	document.body.innerHTML = tempHTML;
+
+	for(let i = 0, ii = links.length; i < ii; i++)
+		links[i].href = linkHrefs[i];
+	for(let i = 0, ii = images.length; i < ii; i++)
+		images[i].src = imageSources[i];
 }
 
 function deleteUselessIframes()
@@ -4386,7 +4388,7 @@ function handleKeyDown(e)
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: highlightNodesContaining(); break;
 			case KEYCODES.N: numberDivs(); break;
-			case KEYCODES.O: highlightAllMatches(); break;
+			case KEYCODES.O: getSelectionOrUserInput("Highlight all matches of string", highlightAllMatches); break;
 			case KEYCODES.L: showLog(); break;
 			case KEYCODES.Q: fixHeadings(); break;
 			case KEYCODES.R: highlightNode(); break;
