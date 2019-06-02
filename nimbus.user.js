@@ -1741,7 +1741,10 @@ function insertStyleHighlight()
 
 function toggleStyleSimpleNegative()
 {
-	toggleStyle("*[class] { background-color: #000; color: #aaa; border-color: transparent; } a, a *[class] {color: #09F; }", "styleSimpleNegative", true);
+	const s = 'body, body[class] {background-color: black; }' +
+	'*, *[class] { background-color: transparent; color: #AAA; border-color: transparent; }' +
+	'a, a *[class] {color: #09F; }';
+	toggleStyle(s, "styleSimpleNegative", true);
 }
 
 function insertStyleGrey()
@@ -2825,6 +2828,7 @@ function deleteNonContentDivs()
 		if(e[i].className.indexOf(sClass) === -1 && !e[i].getElementsByClassName(sClass).length)
 			e[i].className = "hl";
 	}
+	document.body.className = "xwrap pad100";
 }
 
 function getContentByParagraphCount()
