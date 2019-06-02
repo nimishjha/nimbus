@@ -108,11 +108,9 @@ const Nimbus = {
 		highlightSpecificNodesContaining: highlightSpecificNodesContaining,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		insertStyle: insertStyle,
-		insertStyleFonts: insertStyleFonts,
 		insertStyleGrey: insertStyleGrey,
 		insertStyleHighlight: insertStyleHighlight,
-		insertStyleNegative: insertStyleNegative,
-		toggleStyleShowClass: toggleStyleShowClass,
+		toggleStyleNegative: toggleStyleNegative,
 		insertStyleWhite: insertStyleWhite,
 		makeHeadingFromSelection: makeHeadingFromSelection,
 		makeHeadings: makeHeadings,
@@ -152,7 +150,7 @@ const Nimbus = {
 		showResources: showResources,
 		showTextToHTMLRatio: showTextToHTMLRatio,
 		toggleBlockEditMode: toggleBlockEditMode,
-		toggleShowClasses: toggleShowClasses,
+		toggleStyleShowClasses: toggleStyleShowClasses,
 		unhighlightAll: unhighlightAll,
 		wrapNodeInTag: wrapNodeInTag,
 		xlog: xlog,
@@ -1576,7 +1574,7 @@ function cleanupGeneral()
 	appendInfo();
 	getBestImageSrc();
 	document.body.className = "pad100 xwrap";
-	// insertStyleNegative();
+	// toggleStyleNegative();
 	const t2 = performance.now();
 	xlog(Math.round(t2 - t1) + " ms: cleanupGeneral");
 }
@@ -1721,6 +1719,16 @@ function insertStyle(str, identifier, important)
 	head.appendChild(style);
 }
 
+function toggleStyle(str, identifier, important)
+{
+	if(identifier && identifier.length && get("#" + identifier))
+	{
+		del("#" + identifier);
+		return;
+	}
+	insertStyle(str, identifier, important);
+}
+
 function insertStyleHighlight()
 {
 	del("#styleHighlight");
@@ -1731,35 +1739,9 @@ function insertStyleHighlight()
 	insertStyle(s, "styleHighlight", true);
 }
 
-function insertStyleFonts()
+function toggleStyleSimpleNegative()
 {
-	del("#styleFonts");
-	const s = 'a, p, li, td, div, input, select, textarea { font: bold 15px arial; }' +
-	'h1 { font: 40px "swis721 cn bt"; }' +
-	'h2 { font: 32px "swis721 cn bt"; }' +
-	'h3 { font: 28px "swis721 cn bt"; }' +
-	'h4 { font: 24px "swis721 cn bt"; }' +
-	'h5 { font: 18px "swis721 cn bt"; }' +
-	'h6 { font: 16px "swis721 cn bt"; }' +
-	'span, b, em, strong, i { font: inherit; }' +
-	'body { background: #FFF; color: #000; }' +
-	'p, li { line-height: 150%; }' +
-	'p { margin: 0; padding: 5px 0; }' +
-	'pre, code { font: 12px verdcode; }';
-	insertStyle(s, 'styleFonts', true);
-}
-
-function toggleStyleShowClass()
-{
-	if(get("#styleShowClass"))
-	{
-		del("#styleShowClass");
-		return;
-	}
-	const s = '* { display: block; padding: 5px; border: 1px solid #111; }' +
-	'*::before { content: attr(class); color: #FF0; }' +
-	'head { display: none; }';
-	insertStyle(s, "styleShowClass", true);
+	toggleStyle("*[class] { background-color: #000; color: #aaa; border-color: transparent; } a, a *[class] {color: #09F; }", "styleSimpleNegative", true);
 }
 
 function insertStyleGrey()
@@ -1789,7 +1771,7 @@ function insertStyleGrey()
 	insertStyle(s, "styleGrey", true);
 }
 
-function insertStyleNegative(important)
+function toggleStyleNegative()
 {
 	const s = 'html { background: #181818; }' +
 	'html body { margin: 0; }' +
@@ -1887,10 +1869,7 @@ function insertStyleNegative(important)
 	'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
 	'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
 
-	if(important)
-		insertStyle(s, "styleNegative", true);
-	else
-		insertStyle(s, "styleNegative");
+	toggleStyle(s, "styleNegative");
 }
 
 function insertStyleWhite()
@@ -1900,7 +1879,7 @@ function insertStyleWhite()
 	insertStyle(s, "styleWhite", true);
 }
 
-function toggleShowClasses()
+function toggleStyleShowClasses()
 {
 	if(get("#styleShowClasses"))
 	{
@@ -1908,8 +1887,9 @@ function toggleShowClasses()
 		return;
 	}
 	const s = 'body { background: #333; color: #888; }' +
-	'div::before, span::before, p::before { content:attr(class); color:#FF0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
-	'div::after, span::after, p::after { content:attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
+	'div::before, p::before { content:attr(class); color:#FF0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
+	'div::after, p::after { content:attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
+	'span::before { content:attr(class); color:#0F0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
 	'select, textarea, input { background: #444; border: 1px solid red; }' +
 	'button { background: #222; color: #AAA; }';
 	insertStyle(s, "styleShowClasses", true);
@@ -3953,9 +3933,9 @@ function hasClassesStartingWith(element, strings)
 	let i = classes.length;
 	let j = strings.length;
 	let count = 0;
-	while(i-- && count < 2000)
+	while(i-- && count < 1000)
 	{
-		while(j-- && count < 2000)
+		while(j-- && count < 1000)
 		{
 			count++;
 			if(classes[i].indexOf(strings[j]) === 0)
@@ -4004,13 +3984,17 @@ function createTagsByClassName()
 		element = e[i];
 		if (hasClassesContaining(element, ["bold"])) replaceSingleElement(element, "b");
 		else if (hasClassesContaining(element, ["italic"])) replaceSingleElement(element, "b");
+		else if (hasClassesContaining(element, ["small"])) replaceSingleElement(element, "small");
+		else if (hasClassesContaining(element, ["image"])) replaceSingleElement(element, "figure");
+		else if (hasClassesContaining(element, ["caption"])) replaceSingleElement(element, "figcaption");
+		else if (hasClassesContaining(element, ["note"])) replaceSingleElement(element, "dt");
 	}
 }
 
 function makeHeadingsByTextLength()
 {
 	let e = get("div, p");
-	let i = e.length, ii;
+	let i = e.length;
 	const classes = {};
 	let headingClasses = [];
 	let strClass;
@@ -4052,13 +4036,11 @@ function makeHeadingsByTextLength()
 		else if(a.averageTextLength < b.averageTextLength) return -1;
 		else return 0;
 	});
-	// headingClasses = headingClasses.slice(0, 6);
-	// let headingLevel = 1;
-	for(i = 0, ii = headingClasses.length; i < ii; i++)
-	{
-		// replaceElementsBySelector("." + headingClasses[i].className, "h" + headingLevel++);
+	let headingLevel = 1;
+	for(let i = 0, ii = 6; i < ii; i++)
+		replaceElementsBySelector("." + headingClasses[i].className, "h" + headingLevel++);
+	for(let i = 6, ii = headingClasses.length; i < ii; i++)
 		replaceElementsBySelector("." + headingClasses[i].className, "h3");
-	}
 }
 
 function formatEbook()
@@ -4392,7 +4374,7 @@ function handleKeyDown(e)
 			case KEYCODES.SIX: deleteIframes(); break;
 			case KEYCODES.SEVEN: replaceCommentsWithPres(); break;
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
-			case KEYCODES.NINE: toggleShowClasses(); break;
+			case KEYCODES.NINE: toggleStyleShowClasses(); break;
 			case KEYCODES.I: toggleConsole(handleCSSConsoleInput); break;
 			case KEYCODES.P: fixParagraphs(); break;
 			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", ""]); break;
@@ -4454,11 +4436,10 @@ function handleKeyDown(e)
 			case KEYCODES.SQUARE_BRACKET_CLOSE: changeGalleryImage("next"); break;
 			case KEYCODES.LEFTARROW: changePage("prev"); break;
 			case KEYCODES.RIGHTARROW: changePage("next"); break;
-			case KEYCODES.ONE: insertStyleNegative(true); break;
-			case KEYCODES.TWO: insertStyleWhite(); break;
-			case KEYCODES.THREE: insertStyleFonts(); break;
-			case KEYCODES.FOUR: insertStyleGrey(); break;
-			case KEYCODES.FIVE: toggleStyleShowClass(); break;
+			case KEYCODES.ONE: toggleStyleNegative(); break;
+			case KEYCODES.TWO: toggleStyleSimpleNegative(); break;
+			case KEYCODES.THREE: insertStyleGrey(); break;
+			case KEYCODES.FOUR: insertStyleWhite(); break;
 			case KEYCODES.E: replaceElementsBySelector(); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
 			case KEYCODES.G: highlightElementsWithInlineWidthOrHeight(); break;
@@ -4489,7 +4470,7 @@ function handleKeyDown(e)
 		switch(k)
 		{
 			case KEYCODES.E: replaceElementsByClassesContaining(); break;
-			case KEYCODES.F: formatEbook(); break;
+			case KEYCODES.F: createTagsByClassName(); break;
 			case KEYCODES.H: unhighlightAll(); break;
 			case KEYCODES.S: forceReloadCss(); break;
 			case KEYCODES.F12: analyze(true); break;
