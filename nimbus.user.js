@@ -719,11 +719,11 @@ function highlightAllMatches(s)
 		return;
 
 	const linkHrefs = [];
-	const links = get("a");
+	let links = get("a");
 	for(let i = 0, ii = links.length; i < ii; i++)
 		linkHrefs.push(links[i].href);
 	const imageSources = [];
-	const images = get("img");
+	let images = get("img");
 	for(let i = 0, ii = images.length; i < ii; i++)
 		imageSources.push(images[i].src);
 
@@ -733,8 +733,10 @@ function highlightAllMatches(s)
 	tempHTML = tempHTML.replace(r, "<mark>" + s + "</mark>");
 	document.body.innerHTML = tempHTML;
 
+	links = get("a");
 	for(let i = 0, ii = links.length; i < ii; i++)
 		links[i].href = linkHrefs[i];
+	images = get("img");
 	for(let i = 0, ii = images.length; i < ii; i++)
 		images[i].src = imageSources[i];
 }
@@ -1026,11 +1028,6 @@ function closeCustomPrompt()
 	del("#xxdialog");
 	del("#style-xxdialog");
 	return command;
-}
-
-function runUserSpecifiedFunction()
-{
-	customPrompt("Enter command").then(runCommand);
 }
 
 function annotate()
@@ -3307,16 +3304,14 @@ function deleteElementsContainingText(selector, str)
 	}
 }
 
-function highlightSpecificNodesContaining()
+function highlightSpecificNodesContaining(searchString)
 {
 	showMessage("Highlight specific nodes containing text", "messagebig");
-	const s = prompt("Find text");
-	if(!(s && s.length))
+	if(!(searchString && searchString.length))
 		return;
 	const tagNames = ["p", "h1", "h2", "h3", "tr", "li"];
-	let i, ii;
-	for(i = 0, ii = tagNames.length; i < ii; i++)
-		highlightNodesContaining(tagNames[i], s);
+	for(let i = 0, ii = tagNames.length; i < ii; i++)
+		highlightNodesContaining(tagNames[i], searchString);
 }
 
 function highlightAllTableCellsInRow(tr)
@@ -4448,8 +4443,8 @@ function handleKeyDown(e)
 			case KEYCODES.V: showDocumentStructure(); break;
 			case KEYCODES.B: showDocumentStructureWithNames(); break;
 			case KEYCODES.N: showDocumentStructure2(); break;
-			case KEYCODES.M: runUserSpecifiedFunction(); break;
-			case KEYCODES.O: highlightSpecificNodesContaining(); break;
+			case KEYCODES.M: customPrompt("Enter command").then(runCommand); break;
+			case KEYCODES.O: customPrompt("Highlight block elements containing").then(highlightSpecificNodesContaining); break;
 			case KEYCODES.R: getSelectionOrUserInput("Wrap anchor node in tag", wrapAnchorNodeInTag); break;
 			case KEYCODES.S: markElementsWithAttribute("style"); break;
 			case KEYCODES.T: markTableRowsAndColumns(); break;
