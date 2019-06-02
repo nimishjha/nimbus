@@ -3247,24 +3247,6 @@ function fixParagraphs()
 	cleanupHeadings();
 }
 
-function deleteSignatures()
-{
-	const tags = ["div", "td"];
-	let j = tags.length;
-	while(j--)
-	{
-		const e = get(tags[j]);
-		let i = e.length;
-		while(i--)
-		{
-			if(e[i].innerHTML.indexOf("________") >= 0 && !e[i].getElementsByTagName(tags[j]).length)
-			{
-				e[i].innerHTML = e[i].innerHTML.substr(0, e[i].innerHTML.indexOf("________")-1);
-			}
-		}
-	}
-}
-
 function deleteElementsContainingText(selector, str)
 {
 	let sel, text;
