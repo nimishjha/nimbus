@@ -1029,10 +1029,16 @@ function closeCustomPrompt()
 	return command;
 }
 
-function callFunctionWithArgs(promptMessage, callback)
+function callFunctionWithArgs(promptMessage, callback, numArgs)
 {
 	customPrompt(promptMessage).then(function(userInput){
 		const args = parseCommand(userInput);
+		if(numArgs && args.length < numArgs)
+		{
+			showMessage(numArgs + " arguments are required", "messagebig");
+			callFunctionWithArgs(promptMessage, callback, numArgs);
+			return;
+		}
 		callback.apply(this, args);
 	});
 }
@@ -1633,20 +1639,14 @@ function replaceIframes()
 
 function replaceElementsBySelector(selector, tagName)
 {
-	if(!(selector && tagName))
-	{
-		selector = prompt("Element to replace (querySelectorAll)");
-		tagName = prompt("Tag to replace with");
-	}
 	const e = get(selector);
-	let i, ii;
 	if(e.length)
 	{
 		const toReplace = [];
-		for (i = 0, ii = e.length; i < ii; i++)
+		for (let i = 0, ii = e.length; i < ii; i++)
 			toReplace.push(e[i]);
 		showMessage("Replacing " + toReplace.length + " elements", "messagebig");
-		for (i = toReplace.length - 1; i >= 0; i--)
+		for (let i = toReplace.length - 1; i >= 0; i--)
 			toReplace[i].parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace[i].innerHTML }), toReplace[i]);
 	}
 	else if(e && e.parentNode)
@@ -1657,11 +1657,6 @@ function replaceElementsBySelector(selector, tagName)
 
 function replaceElementsByClassesContaining(str, tagName)
 {
-	if(!(str && tagName))
-	{
-		str = prompt("Substring to search for in classNames");
-		tagName = prompt("Tag to replace with");
-	}
 	const e = get("div, p");
 	let i, ii;
 	if(e.length)
@@ -4386,7 +4381,6 @@ function handleKeyDown(e)
 			case KEYCODES.ONE: showResources(); break;
 			case KEYCODES.TWO: replaceImagesWithTextLinks(); break;
 			case KEYCODES.FIVE: getImages(true); break;
-			case KEYCODES.E: replaceElementsBySelector(); break;
 			case KEYCODES.G: getElementsContainingText(); break;
 			case KEYCODES.F12: highlightCode(true); break;
 			case KEYCODES.A: annotate(); break;
@@ -4416,7 +4410,7 @@ function handleKeyDown(e)
 			case KEYCODES.TWO: toggleStyleSimpleNegative(); break;
 			case KEYCODES.THREE: insertStyleGrey(); break;
 			case KEYCODES.FOUR: insertStyleWhite(); break;
-			case KEYCODES.E: replaceElementsBySelector(); break;
+			case KEYCODES.E: callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
 			case KEYCODES.G: markElementsWithInlineWidthOrHeight(); break;
 			case KEYCODES.H: getSelectionOrUserInput("Mark elements by selector", markElementsBySelector); break;
@@ -4445,7 +4439,7 @@ function handleKeyDown(e)
 		e.preventDefault();
 		switch(k)
 		{
-			case KEYCODES.E: replaceElementsByClassesContaining(); break;
+			case KEYCODES.E: callFunctionWithArgs("Replace elements by classes containing", replaceElementsByClassesContaining, 2); break;
 			case KEYCODES.F: createTagsByClassName(); break;
 			case KEYCODES.H: unhighlightAll(); break;
 			case KEYCODES.S: forceReloadCss(); break;
