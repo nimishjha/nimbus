@@ -3322,20 +3322,15 @@ function highlightAllTableCellsInRow(tr)
 
 function highlightNodesContaining(selector, str)
 {
-	if(!arguments.length)
-	{
-		selector = prompt("highlightNodesContaining\nEnter selector");
-		if(!selector.length) return;
-		str = prompt("Containing text");
-		if(!str.length) return;
-	}
-	const e = document.querySelectorAll(selector);
+	if(!(selector && str && selector.length && str.length))
+		return;
+	const e = get(selector);
 	let i = e.length;
 	while (i--)
 	{
 		if(e[i].querySelectorAll(selector).length)
 			continue;
-		if(e[i].textContent.indexOf(str) !== -1)
+		if(~e[i].textContent.indexOf(str))
 		{
 			e[i].classList.add("hl");
 			if(e[i].tagName.toLowerCase() === "tr")
@@ -4376,7 +4371,7 @@ function handleKeyDown(e)
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteElementsContainingText); break;
 			case KEYCODES.K: toggleConsole(handleJSConsoleInput); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
-			case KEYCODES.Y: highlightNodesContaining(); break;
+			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining); break;
 			case KEYCODES.N: numberDivs(); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatches); break;
 			case KEYCODES.L: showLog(); break;
