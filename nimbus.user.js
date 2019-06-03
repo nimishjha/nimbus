@@ -3036,9 +3036,9 @@ function expandToWordBoundaries(node, selection)
 	if(index1 === -1)
 		return;
 	let index2 = index1 + selection.length;
-	while(text[index1].match(/\w/) && index1 > 0)
+	while(text[index1].match(/[\w\.\?!]/) && index1 > 0)
 		index1--;
-	while(text[index2] && text[index2].match(/\w/) && index2 < text.length)
+	while(text[index2] && text[index2].match(/[\w\.\?!]/) && index2 < text.length)
 		index2++;
 	const expanded = trim(text.substring(index1, index2));
 	return expanded;
