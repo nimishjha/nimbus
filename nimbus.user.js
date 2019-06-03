@@ -81,13 +81,11 @@ const Nimbus = {
 		getAllClasses: getAllClasses,
 		getAllCssRulesMatching: getAllCssRulesMatching,
 		getBestImageSrc: getBestImageSrc,
-		getContentById: getContentById,
 		getContentByParagraphCount: getContentByParagraphCount,
 		getElementsContainingText: getElementsContainingText,
 		getElementsWithClass: getElementsWithClass,
 		getImages: getImages,
 		getLargeImages: getLargeImages,
-		getLinksWithHrefContaining: getLinksWithHrefContaining,
 		getPagerLinks: getPagerLinks,
 		getSelectorsWithLightBackgrounds: getSelectorsWithLightBackgrounds,
 		handleBlockEditClick: handleBlockEditClick,
@@ -394,11 +392,9 @@ function markElementsWithInlineWidthOrHeight()
 	insertStyleHighlight();
 }
 
-function markElementsWithCssRule()
+function markElementsWithCssRule(prop, val)
 {
 	let styles, i, s;
-	const prop = prompt("Highlight elements where CSS Property");
-	const val = prompt("has the value");
 	const e = document.getElementsByTagName("*");
 	i = e.length;
 	while(i--)
@@ -699,17 +695,6 @@ function showDocumentStructureWithNames()
 	'div::after { content: " "; display: block; clear: both; }' +
 	'x { color: #FC0; background: #000; font: 12px Verdana; padding: 5px 10px; letter-spacing: 0; display: block; margin : 0 -10px 10px -10px; }';
 	insertStyle(s, 'showDivs', true);
-}
-
-function getSelectionOrUserInput(promptMessage, callback)
-{
-	if(window.getSelection().toString().length)
-	{
-		const s = window.getSelection().toString();
-		callback(s);
-		return;
-	}
-	customPrompt(promptMessage).then(callback);
 }
 
 function highlightAllMatches(s)
@@ -1029,9 +1014,20 @@ function closeCustomPrompt()
 	return command;
 }
 
+function getSelectionOrUserInput(promptMessage, callback)
+{
+	if(window.getSelection().toString().length)
+	{
+		const s = window.getSelection().toString();
+		callback(s);
+		return;
+	}
+	customPrompt(promptMessage).then(callback);
+}
+
 function callFunctionWithArgs(promptMessage, callback, numArgs)
 {
-	customPrompt(promptMessage).then(function(userInput){
+	customPrompt(promptMessage).then(function(userInput) {
 		const args = parseCommand(userInput);
 		if(numArgs && args.length < numArgs)
 		{
@@ -1128,13 +1124,6 @@ function getAllCssRulesMatching(s)
 	}
 }
 
-function getContentById(id)
-{
-	const toGet = getOne(id);
-	if(toGet)
-		document.body.innerHTML = toGet.innerHTML;
-}
-
 function doStackOverflow()
 {
 	const sites = ["stackexchange", "stackoverflow", "superuser", "serverfault"];
@@ -1146,7 +1135,7 @@ function doStackOverflow()
 	{
 		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form"]);
 		deleteElementsContainingText("h2", "Not the answer");
-		getContentById("#content");
+		retrieve("#content");
 		cleanupGeneral();
 		highlightCode(true);
 		forAll("td", function f(x) {
@@ -1199,13 +1188,13 @@ function unhighlightAll()
 		e[i].classList.remove("hl");
 }
 
-function getIdAndClass(e)
+function getIdAndClass(elem)
 {
 	let s = "";
-	if(e.id)
-		s += "#" + e.id + " ";
-	if(e.className)
-		s += "." + e.className;
+	if(elem.id)
+		s += "#" + elem.id + " ";
+	if(elem.className)
+		s += "." + elem.className;
 	return s;
 }
 
@@ -1539,7 +1528,7 @@ function getLargeImages()
 	while(i--)
 	{
 		const linkHref = links[i].href;
-		if(containsAnyOfTheStrings(linkHref.toLowerCase(), [".png", ".jpg", ".gif", ".jpeg", ".jpe"]))
+		if(containsAnyOfTheStrings(linkHref.toLowerCase(), [".png", ".jpg", ".gif", ".jpe"]))
 		{
 			document.body.appendChild(createElement("img", { src: linkHref }));
 			links[i].parentNode.replaceChild(createElement("img", { src: linkHref }), links[i]);
@@ -1619,7 +1608,7 @@ function replaceIframes()
 			continue;
 		}
 		iframelink.href = s;
-		if(e[i].src.indexOf("youtube") !== -1)
+		if(s.indexOf("youtube") !== -1)
 		{
 			s = s.replace(/\/embed\//, '/watch?v=');
 			const segments = s.split('?');
@@ -2719,18 +2708,11 @@ function getElementsWithClass(strClass)
 	}
 }
 
-function getElementsContainingText()
+function getElementsContainingText(selector, text)
 {
-	const selector = prompt("Get elements containing text by selector: ");
-	let text;
-	if(selector !== "img")
-	{
-		text = prompt("And containing text");
-	}
 	if(!selector.length)
 		return;
 	let i, ii;
-	const t1 = performance.now();
 	const e = get(selector);
 	const tempNode = document.createElement("div");
 	if(text && text.length)
@@ -2751,8 +2733,6 @@ function getElementsContainingText()
 		document.body.innerHTML = tempNode.innerHTML;
 	else
 		showMessage("Not found", "messagebig");
-	const t2 = performance.now();
-	xlog( t2 - t1 + "ms: getElementsContainingText");
 }
 
 function retrieve(selector)
@@ -2857,9 +2837,16 @@ function getContentByParagraphCount()
 		if(numParas === highestNumParas)
 		{
 			if(e[i].parentNode)
-				e[i].parentNode.className = "hl";
+			{
+				if(e[i].parentNode.tagName !== 'BODY')
+					e[i].parentNode.className = "hl";
+				else
+					e[i].className = "hl";
+			}
 			else
+			{
 				e[i].className = "hl";
+			}
 			break;
 		}
 	}
@@ -3334,11 +3321,6 @@ function highlightNodesContaining(selector, str)
 
 function highlightLinksWithHrefContaining(str)
 {
-	if(!arguments.length)
-	{
-		str = prompt("Containing text");
-		if( !str.length ) return;
-	}
 	const e = document.getElementsByTagName("a");
 	let i = e.length;
 	while (i--)
@@ -3346,28 +3328,17 @@ function highlightLinksWithHrefContaining(str)
 			e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
 }
 
-function getLinksWithHrefContaining(str)
+function markElementsByAttributeValueContaining(tag, attribute, value)
 {
-	if(!arguments.length)
+	const e = get(tag);
+	let i = -1;
+	let len = e.length;
+	while(++i < len)
 	{
-		str = prompt("Containing text");
-		if( !str.length ) return;
+		const elem = e[i];
+		if(elem.hasAttribute(attribute) && ~elem.getAttribute(attribute).indexOf(value))
+			elem.classList.add("hl");
 	}
-	highlightLinksWithHrefContaining(str);
-	let newLink, newLinkWrapper;
-	const e = get("a");
-	let i, ii;
-	const container = document.createElement("div");
-	for(i = 0, ii = e.length; i < ii; i++)
-	{
-		if(e[i].href.indexOf(str) >= 0 || e[i].title && e[i].title.indexOf(str) >= 0)
-		{
-			newLink = createElement("a", { href: e[i].href, textContent: e[i].href});
-			newLinkWrapper = createElementWithChild("h6", newLink);
-			container.appendChild(newLinkWrapper);
-		}
-	}
-	document.body.insertBefore(container, document.body.firstChild);
 }
 
 function xlog(str, logTag)
@@ -4331,7 +4302,7 @@ function handleKeyDown(e)
 		{
 			case KEYCODES.TILDE: highlightSelection(); break;
 			case KEYCODES.NUMPAD1: fillForms(); break;
-			case KEYCODES.NUMPAD2: getLinksWithHrefContaining(); break;
+			case KEYCODES.NUMPAD2: callFunctionWithArgs("Mark elements by attribute value containing (tag, attribute, value)", markElementsByAttributeValueContaining, 3); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.F1: makeHeadingFromSelection("h1"); break;
 			case KEYCODES.F2: makeHeadingFromSelection("h2"); break;
@@ -4381,7 +4352,7 @@ function handleKeyDown(e)
 			case KEYCODES.ONE: showResources(); break;
 			case KEYCODES.TWO: replaceImagesWithTextLinks(); break;
 			case KEYCODES.FIVE: getImages(true); break;
-			case KEYCODES.G: getElementsContainingText(); break;
+			case KEYCODES.G: callFunctionWithArgs("Retrieve elements (optionally containing text)", getElementsContainingText); break;
 			case KEYCODES.F12: highlightCode(true); break;
 			case KEYCODES.A: annotate(); break;
 			case KEYCODES.C: deleteNonContentDivs(); break;
@@ -4414,7 +4385,7 @@ function handleKeyDown(e)
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
 			case KEYCODES.G: markElementsWithInlineWidthOrHeight(); break;
 			case KEYCODES.H: getSelectionOrUserInput("Mark elements by selector", markElementsBySelector); break;
-			case KEYCODES.L: markElementsWithCssRule(); break;
+			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markElementsWithCssRule, 2); break;
 			case KEYCODES.V: showDocumentStructure(); break;
 			case KEYCODES.B: showDocumentStructureWithNames(); break;
 			case KEYCODES.N: showDocumentStructure2(); break;
