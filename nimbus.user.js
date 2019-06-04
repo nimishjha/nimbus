@@ -1165,13 +1165,14 @@ function markElementsBySelector(s)
 	if(e.length)
 	{
 		let i = e.length;
-		while(i--) e[i].classList.add("hl");
+		while(i--)
+			e[i].classList.add("hl");
 		showMessage("Highlighted " + e.length + " elements", "messagebig");
 	}
+	else if(e)
+		e.classList.add("hl");
 	else
-	{
 		showMessage("No elements found for selector " + s, "messagebig messageerror");
-	}
 	insertStyleHighlight();
 }
 
