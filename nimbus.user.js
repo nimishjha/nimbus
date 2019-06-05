@@ -2818,7 +2818,7 @@ function getContentByParagraphCount()
 		const tempContainer = paras[i].closest("div");
 		if(tempContainer)
 		{
-			container = paras[i].closest("div");
+			container = tempContainer;
 			container.className = "hl2";
 		}
 	}
