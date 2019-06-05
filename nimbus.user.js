@@ -2815,11 +2815,14 @@ function getContentByParagraphCount()
 	let length = paras.length;
 	while(++i < length)
 	{
-		container = paras[i].closest("div");
-		container.className = "hl2";
+		const tempContainer = paras[i].closest("div");
+		if(tempContainer)
+		{
+			container = paras[i].closest("div");
+			container.className = "hl2";
+		}
 	}
 	const e = get(".hl2");
-	// unhighlightAll();
 	i = -1;
 	length = e.length;
 	let numParas = 0;
@@ -4324,6 +4327,7 @@ function handleKeyDown(e)
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteElementsContainingText); break;
+			case KEYCODES.J: cleanupHead(); break;
 			case KEYCODES.K: toggleConsole(handleJSConsoleInput); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining); break;
