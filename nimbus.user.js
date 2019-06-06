@@ -3037,12 +3037,12 @@ function expandToWordBoundaries(node, selection)
 
 function highlightSelection()
 {
-	if(!window.getSelection().toString().length)
+	const selection = window.getSelection();
+	if(!selection.toString().length)
 		return;
-	let selection = window.getSelection();
 	let node = selection.anchorNode;
-	selection = trim(removeLineBreaks(selection.toString()));
-	while (node.parentNode && (node.textContent.length < selection.length || node.nodeType !== 1))
+	let selectionText = trim(removeLineBreaks(selection.toString()));
+	while (node.parentNode && (node.textContent.length < selectionText.length || node.nodeType !== 1))
 		node = node.parentNode;
 	let nodeHTML = node.innerHTML;
 	nodeHTML = removeLineBreaks(nodeHTML);
@@ -3052,10 +3052,10 @@ function highlightSelection()
 		showMessage("Couldn't get anchorNode", "messagebig");
 		return;
 	}
-	if(selection.length)
+	if(selectionText.length)
 	{
-		selection = expandToWordBoundaries(node, selection);
-		highlightTextAcrossTags(node, selection);
+		selectionText = expandToWordBoundaries(node, selectionText);
+		highlightTextAcrossTags(node, selectionText);
 	}
 }
 
