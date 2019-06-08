@@ -2856,6 +2856,19 @@ function getContentByParagraphCount()
 	}
 }
 
+function expandMark()
+{
+	const e = getOne(".hl");
+	if(e)
+	{
+		const ep = e.parentNode;
+		if(ep.parentNode && ep.tagName !== 'BODY')
+		{
+			e.classList.remove("hl");
+			ep.classList.add("hl");
+		}
+	}
+}
 
 function deleteSpecificEmptyElements()
 {
@@ -4382,6 +4395,7 @@ function handleKeyDown(e)
 			case KEYCODES.SQUARE_BRACKET_CLOSE: changeGalleryImage("next"); break;
 			case KEYCODES.LEFTARROW: changePage("prev"); break;
 			case KEYCODES.RIGHTARROW: changePage("next"); break;
+			case KEYCODES.UPARROW: expandMark(); break;
 			case KEYCODES.ONE: toggleStyleNegative(); break;
 			case KEYCODES.TWO: toggleStyleSimpleNegative(); break;
 			case KEYCODES.THREE: insertStyleGrey(); break;
