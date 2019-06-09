@@ -3935,6 +3935,9 @@ function createTagsByClassName()
 		if(looksLikeHeading(element)) replaceSingleElement(element, "h2");
 		else if (looksLikeExtract(element)) replaceSingleElement(element, "blockquote");
 		else if (hasClassesContaining(element, ["fmtx"])) replaceSingleElement(element, "p");
+		else if (hasClassesContaining(element, ["image"])) replaceSingleElement(element, "figure");
+		else if (hasClassesContaining(element, ["caption"])) replaceSingleElement(element, "figcaption");
+		else if (hasClassesContaining(element, ["note"])) replaceSingleElement(element, "dt");
 	}
 	e = get("span");
 	i = e.length;
@@ -3944,9 +3947,6 @@ function createTagsByClassName()
 		if (hasClassesContaining(element, ["bold"])) replaceSingleElement(element, "b");
 		else if (hasClassesContaining(element, ["italic"])) replaceSingleElement(element, "b");
 		else if (hasClassesContaining(element, ["small"])) replaceSingleElement(element, "small");
-		else if (hasClassesContaining(element, ["image"])) replaceSingleElement(element, "figure");
-		else if (hasClassesContaining(element, ["caption"])) replaceSingleElement(element, "figcaption");
-		else if (hasClassesContaining(element, ["note"])) replaceSingleElement(element, "dt");
 	}
 }
 
