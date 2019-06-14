@@ -1242,10 +1242,24 @@ function markElementsWithSetWidths()
 	insertStyleHighlight();
 }
 
-function wrapAnchorNodeInTag(tagName)
+function wrapAnchorNodeInTagHelper(tagName)
 {
 	if(tagName && tagName.length)
-		highlightAnchorNode(tagName);
+		wrapElementInner(Nimbus.currentNode, tagName);
+}
+
+function wrapAnchorNodeInTag()
+{
+	const selection = window.getSelection();
+	if(!selection)
+		return;
+	let node = selection.anchorNode;
+	if(node.tagName === undefined)
+		node = node.parentNode;
+	if(!node)
+		return;
+	Nimbus.currentNode = node;
+	customPrompt("Enter tagName to wrap this node in").then(wrapAnchorNodeInTagHelper);
 }
 
 function highlightAnchorNode(tag)
@@ -3589,6 +3603,13 @@ function wrapElement(node, tag)
 	node.outerHTML = s;
 }
 
+function wrapElementInner(node, tag)
+{
+	let s = node.innerHTML;
+	s = "<" + tag + ">" + s + "</" + tag + ">";
+	node.innerHTML = s;
+}
+
 function isCurrentDomainLink(s)
 {
 	const urlSegments = s.split("/");
@@ -4410,7 +4431,7 @@ function handleKeyDown(e)
 			case KEYCODES.N: showDocumentStructure2(); break;
 			case KEYCODES.M: customPrompt("Enter command").then(runCommand); break;
 			case KEYCODES.O: customPrompt("Highlight block elements containing").then(highlightSpecificNodesContaining); break;
-			case KEYCODES.R: getSelectionOrUserInput("Wrap anchor node in tag", wrapAnchorNodeInTag); break;
+			case KEYCODES.R: wrapAnchorNodeInTag(); break;
 			case KEYCODES.S: markElementsWithAttribute("style"); break;
 			case KEYCODES.T: markTableRowsAndColumns(); break;
 			case KEYCODES.W: markElementsWithSetWidths(); break;
