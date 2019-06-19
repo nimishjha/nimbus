@@ -97,6 +97,7 @@ const Nimbus = {
 		markElementsWithCssRule: markElementsWithCssRule,
 		markElementsWithInlineWidthOrHeight: markElementsWithInlineWidthOrHeight,
 		markElementsWithSetWidths: markElementsWithSetWidths,
+		markElementsByAttributeValueContaining: markElementsByAttributeValueContaining,
 		highlightLinksInPres: highlightLinksInPres,
 		highlightLinksWithHrefContaining: highlightLinksWithHrefContaining,
 		highlightNodesContaining: highlightNodesContaining,
@@ -1907,10 +1908,11 @@ function removeEventListeners()
 	let i = elems.length;
 	while (i--)
 	{
-		elems[i].removeAttribute("onmousedown");
-		elems[i].removeAttribute("onmouseup");
-		elems[i].removeAttribute("onmouseover");
-		elems[i].removeAttribute("onclick");
+		const elem = elems[i];
+		elem.removeAttribute("onmousedown");
+		elem.removeAttribute("onmouseup");
+		elem.removeAttribute("onmouseover");
+		elem.removeAttribute("onclick");
 	}
 }
 
@@ -2184,10 +2186,11 @@ function delNewlines()
 	let i = paragraphs.length;
 	while (i--)
 	{
-		const s = paragraphs[i].textContent.replace(/\s/g, '');
-		if(s.length === 0 && !paragraphs[i].getElementsByTagName("img").length)
+		const paragraph = paragraphs[i];
+		const s = paragraph.textContent.replace(/\s/g, '');
+		if(s.length === 0 && !paragraph.getElementsByTagName("img").length)
 		{
-			paragraphs[i].parentNode.removeChild(paragraphs[i]);
+			paragraph.parentNode.removeChild(paragraph);
 		}
 	}
 }
@@ -2257,38 +2260,41 @@ function makeHeadings()
 	i = e.length;
 	while(i--)
 	{
-		s = e[i].textContent;
+		const elem = e[i];
+		s = elem.textContent;
 		s = s.replace(/\s*/g, '');
 		len = s.length;
 		if(len === 0)
 		{
-			if(!e[i].getElementsByTagName("img").length)
+			if(!elem.getElementsByTagName("img").length)
 			{
-				e[i].className = "deleteme";
+				elem.className = "deleteme";
 				continue;
 			}
 		}
 		else if( s.match(/[IVX\.]+/g) && s.match(/[IVX\.]+/g)[0] === s )
 		{
-			e[i].className = "parah2";
+			elem.className = "parah2";
 			continue;
 		}
 		else if( len < 120 && s[len-1].match(/[0-9A-Za-z]/) )
 		{
 			if( !(e[i+1] && e[i+1].length < 120) )
 			{
-				e[i].className = "parah3";
+				elem.className = "parah3";
 			}
 		}
 		// If the original page has headings as bold e, fix those
 		tags = ["b", "strong", "em"];
 		for (j = tags.length - 1; j >= 0; j--)
 		{
-			if(e[i].getElementsByTagName(tags[j]).length === 1)
+			const tag = tags[j];
+			const elem = elem;
+			if(elem.getElementsByTagName(tag).length === 1)
 			{
-				if(e[i].querySelector(tags[j]).textContent && removeWhitespace(e[i].querySelector(tags[j]).textContent) === s)
+				if(elem.querySelector(tag).textContent && removeWhitespace(elem.querySelector(tag).textContent) === s)
 				{
-					e[i].className = "parah2";
+					elem.className = "parah2";
 				}
 			}
 		}
@@ -2298,9 +2304,10 @@ function makeHeadings()
 	i = e.length;
 	while(i--)
 	{
-		if(e[i].href && ( e[i].href.indexOf("profile") >= 0 || e[i].href.indexOf("member") >= 0 || e[i].href.indexOf("user") >= 0 ) )
+		const elem = e[i];
+		if(elem.href && ( elem.href.indexOf("profile") >= 0 || elem.href.indexOf("member") >= 0 || elem.href.indexOf("user") >= 0 ) )
 		{
-			e[i].className = "highlightthis";
+			elem.className = "highlightthis";
 		}
 	}
 	replaceElementsBySelector(".parah2", "h2");
@@ -2819,7 +2826,6 @@ function getContentByParagraphCount()
 		retrieve(".hl");
 		setDocTitle(title);
 		cleanupGeneral();
-		document.body.className = "pad100";
 		return;
 	}
 	insertStyleHighlight();
@@ -3242,7 +3248,7 @@ function fixParagraphs()
 	s = s.replace(/<br>([a-z])/g, " $1");
 	s = s.replace(/\s*<p>\s*/g, "<p>");
 	s = s.replace(/\s*<\/p>\s*/g, "</p>");
-	s = s.replace(/([a-z\-0-9])<\/p>\s*<p>([A-Za-z])/g, "$1 $2");
+	s = s.replace(/([a-z\-0-9,])<\/p>\s*<p>([A-Za-z0-9])/g, "$1 $2");
 	s = s.replace(/<br>/g, "</p><p>");
 	s = s.replace(/&nbsp;/g, " ");
 	s = s.replace(/\s+/g, " ");
