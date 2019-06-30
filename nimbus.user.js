@@ -2262,7 +2262,7 @@ function makeHeadings()
 	{
 		const elem = e[i];
 		s = elem.textContent;
-		s = s.replace(/\s*/g, '');
+		s = s.replace(/\s+/g, '');
 		len = s.length;
 		if(len === 0)
 		{
@@ -2289,7 +2289,6 @@ function makeHeadings()
 		for (j = tags.length - 1; j >= 0; j--)
 		{
 			const tag = tags[j];
-			const elem = elem;
 			if(elem.getElementsByTagName(tag).length === 1)
 			{
 				if(elem.querySelector(tag).textContent && removeWhitespace(elem.querySelector(tag).textContent) === s)
