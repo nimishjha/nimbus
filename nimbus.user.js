@@ -140,6 +140,7 @@ const Nimbus = {
 		revealLinkHrefs: revealLinkHrefs,
 		sanitizeTitle: sanitizeTitle,
 		setDocTitle: setDocTitle,
+		showAriaAttributes: showAriaAttributes,
 		showDocumentStructure2: showDocumentStructure2,
 		showDocumentStructure: showDocumentStructure,
 		showDocumentStructureWithNames: showDocumentStructureWithNames,
@@ -1134,7 +1135,7 @@ function doStackOverflow()
 	// we only want to run this code on the individual question pages
 	if(found && location.href.match(/questions\/[0-9]+/) !== null)
 	{
-		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form"]);
+		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none"]);
 		deleteElementsContainingText("h2", "Not the answer");
 		retrieve("#content");
 		cleanupGeneral();
@@ -1188,6 +1189,10 @@ function unhighlightAll()
 	let i = e.length;
 	while (i--)
 		e[i].classList.remove("hl");
+	const f = get(".hl2");
+	i = f.length;
+	while (i--)
+		f[i].classList.remove("hl2");
 }
 
 function getIdAndClass(elem)
@@ -1890,13 +1895,59 @@ function toggleStyleShowClasses()
 		del("#styleShowClasses");
 		return;
 	}
-	const s = 'body { background: #333; color: #888; }' +
+	const s = 'body { background: #333; color: #BBB; }' +
+	'a { color: #09F; text-decoration: none; }' +
+	'div { padding: 10px; margin: 10px; border: 2px solid #000; }' +
 	'div::before, p::before { content:attr(class); color:#FF0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
 	'div::after, p::after { content:attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
 	'span::before { content:attr(class); color:#0F0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
 	'select, textarea, input { background: #444; border: 1px solid red; }' +
-	'button { background: #222; color: #AAA; }';
+	'button { background: #222; color: #AAA; }' +
+	'nav { border: 6px solid #09F; padding: 20px; margin: 10px; background: #400; }' +
+	'section { border: 6px solid #09F; padding: 20px; margin: 10px; background: #040; }' +
+	'main { border: 6px solid #09F; padding: 20px; margin: 10px; background: #555; }' +
+	'footer { border: 6px solid #09F; padding: 20px; margin: 10px; background: #008; }' +
+	'h1, h2, h3, h4, h5, h6 { position: relative; padding: 10px 10px 10px 5rem; background: #300; color: #FFF; }' +
+	'h1::before { content: "h1"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }' +
+	'h2::before { content: "h2"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }' +
+	'h3::before { content: "h3"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }' +
+	'h4::before { content: "h4"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }' +
+	'h5::before { content: "h5"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }' +
+	'h6::before { content: "h6"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }';
 	insertStyle(s, "styleShowClasses", true);
+}
+
+function showAriaAttributes()
+{
+	if(get("#styleShowAriaAttributes"))
+	{
+		del("#styleShowAriaAttributes");
+		del("code");
+		del("kbd");
+		unhighlightAll();
+		return;
+	}
+	const e = Array.from( document.querySelectorAll("main, nav, section, footer, aside, div, form") );
+	let i = e.length;
+	while(i--)
+	{
+		const elem = e[i];
+		if( elem.hasAttribute("role"))
+		{
+			elem.classList.add("hl2");
+			elem.insertBefore(createElement("code", { textContent: elem.getAttribute("role") }), elem.firstChild);
+		}
+
+		if(elem.attributes)
+		{
+			const attrs = elem.attributes;
+			let j = attrs.length;
+			while(j--)
+				if(attrs[j].name.indexOf("aria-") === 0)
+					elem.insertBefore(createElement("kbd", { textContent: attrs[j].name }), elem.firstChild);
+		}
+	}
+	insertStyle("code { font: 12px helvetica; background: #000; padding: 2px 5px; color: #0F0; border-radius: 0; } kbd { font: 12px helvetica, background: #000; padding: 2px 5px; color: #F90; border-radius: 0; }", "styleShowAriaAttributes", true);
 }
 
 function removeEventListeners()
@@ -3091,6 +3142,18 @@ function highlightSelection()
 	}
 }
 
+function markSelectionAnchorNode()
+{
+	const selection = window.getSelection();
+	if(!selection.toString().length)
+		return;
+	let node = selection.anchorNode;
+	while (node.parentNode && (node.textContent.length < selection.length || node.nodeType !== 1))
+		node = node.parentNode;
+	node.classList.add("hl");
+	insertStyleHighlight();
+}
+
 function highlightSelection_old()
 {
 	let index1, index2;
@@ -3454,6 +3517,7 @@ function cleanupWikipedia()
 	removeAttributes();
 	document.body.className = "pad100 xwrap";
 	insertStyle("img { width: 100%; }", "styleWikipedia", true);
+	deleteImagesSmallerThan(50, 50);
 }
 
 function getKeys(obj)
@@ -4426,6 +4490,7 @@ function handleKeyDown(e)
 			case KEYCODES.TWO: toggleStyleSimpleNegative(); break;
 			case KEYCODES.THREE: insertStyleGrey(); break;
 			case KEYCODES.FOUR: insertStyleWhite(); break;
+			case KEYCODES.A: showAriaAttributes(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
 			case KEYCODES.G: markElementsWithInlineWidthOrHeight(); break;
@@ -4441,6 +4506,7 @@ function handleKeyDown(e)
 			case KEYCODES.T: markTableRowsAndColumns(); break;
 			case KEYCODES.W: markElementsWithSetWidths(); break;
 			case KEYCODES.Y: markElementsWithCssRule(); break;
+			case KEYCODES.Z: markSelectionAnchorNode(); break;
 			case KEYCODES.F12: analyze(); break;
 			default: shouldPreventDefault = false; break;
 		}
