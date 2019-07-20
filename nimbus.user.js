@@ -3922,14 +3922,14 @@ function createElementWithChild(tag, childElement)
 function showTextToHTMLRatio()
 {
 	let text, html;
-	const e = get("div");
+	const e = get("body > div, body > main, body > section");
 	let i = e.length;
 	while(i--)
 	{
 		text = e[i].textContent;
 		html= e[i].innerHTML;
 		if(text && html)
-			e[i].innerHTML = "<mark>" + Math.floor(text.length / html.length) + "</mark>" + e[i].innerHTML;
+			e[i].innerHTML = "<mark>" + Math.floor( text.length / html.length * 100 ) + "</mark>" + e[i].innerHTML;
 	}
 }
 
