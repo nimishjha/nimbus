@@ -4035,7 +4035,7 @@ function createTagsByClassName()
 	{
 		element = e[i];
 		if (hasClassesContaining(element, ["bold"])) replaceSingleElement(element, "b");
-		else if (hasClassesContaining(element, ["italic"])) replaceSingleElement(element, "b");
+		else if (hasClassesContaining(element, ["italic", "txit"])) replaceSingleElement(element, "b");
 		else if (hasClassesContaining(element, ["small"])) replaceSingleElement(element, "small");
 	}
 }
