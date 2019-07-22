@@ -120,6 +120,7 @@ const Nimbus = {
 		observeAddedNodes: observeAddedNodes,
 		parseCode: parseCode,
 		removeAccesskeys: removeAccesskeys,
+		removeAllResources: removeAllResources,
 		removeAttributes: removeAttributes,
 		removeAttributesOf: removeAttributesOf,
 		removeAttributes_regex: removeAttributes_regex,
@@ -133,6 +134,7 @@ const Nimbus = {
 		replaceFontTags: replaceFontTags,
 		replaceIframes: replaceIframes,
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
+		replaceMarkedElements: replaceMarkedElements,
 		replaceSpans: replaceSpans,
 		restorePres: restorePres,
 		retrieve: retrieve,
@@ -141,6 +143,7 @@ const Nimbus = {
 		sanitizeTitle: sanitizeTitle,
 		setDocTitle: setDocTitle,
 		showAriaAttributes: showAriaAttributes,
+		showAriaProblems: showAriaProblems,
 		showDocumentStructure2: showDocumentStructure2,
 		showDocumentStructure: showDocumentStructure,
 		showDocumentStructureWithNames: showDocumentStructureWithNames,
@@ -236,6 +239,15 @@ const KEYCODES = {
 
 function get(s)
 {
+	try
+	{
+		const isValid = document.querySelector(s);
+	}
+	catch(error)
+	{
+		console.log("Invalid selector: " + s);
+		return -1;
+	}
 	if(s.indexOf("#") === 0 && !~s.indexOf(" ") && !~s.indexOf("."))
 		return document.querySelector(s);
 	const nodes = document.querySelectorAll(s);
@@ -1164,6 +1176,11 @@ function markElementsBySelector(s)
 {
 	if(!(s && s.length)) return;
 	const e = get(s);
+	if(!e)
+	{
+		showMessage("No elements found for selector " + s, "messagebig messageerror");
+		return;
+	}
 	if(e.length)
 	{
 		let i = e.length;
@@ -1665,6 +1682,18 @@ function replaceElementsBySelector(selector, tagName)
 	}
 }
 
+function replaceMarkedElements(tag)
+{
+	const e = get(".hl");
+	let i = e.length;
+	while(i--)
+	{
+		const regex = new RegExp(e[i].tagName, "i");
+		e[i].outerHTML = e[i].outerHTML.replace(regex, tag);
+	}
+	unhighlightAll();
+}
+
 function replaceElementsByClassesContaining(str, tagName)
 {
 	const e = get("div, p");
@@ -1689,6 +1718,12 @@ function cleanupHead()
 	const tempTitle = document.title;
 	h.innerHTML = '';
 	document.title = tempTitle;
+}
+
+function removeAllResources()
+{
+	cleanupHead();
+	del(["link", "style", "script"]);
 }
 
 function forceReloadCss()
@@ -1743,6 +1778,12 @@ function insertStyleHighlight()
 		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
 	// let s = '.hl { filter: brightness(1.7); }';
 	insertStyle(s, "styleHighlight", true);
+}
+
+function insertStyleShowErrors()
+{
+	const s = ".error { box-shadow: inset 2000px 2000px rgba(255, 0, 0, 1);";
+	insertStyle(s, "styleShowErrors", true);
 }
 
 function toggleStyleSimpleNegative()
@@ -1947,7 +1988,107 @@ function showAriaAttributes()
 					elem.insertBefore(createElement("kbd", { textContent: attrs[j].name }), elem.firstChild);
 		}
 	}
-	insertStyle("code { font: 12px helvetica; background: #000; padding: 2px 5px; color: #0F0; border-radius: 0; } kbd { font: 12px helvetica, background: #000; padding: 2px 5px; color: #F90; border-radius: 0; }", "styleShowAriaAttributes", true);
+
+	insertStyle("code { font: 14px helvetica; background: #000; padding: 2px 5px; color: #0F0; border-radius: 0; } kbd { font: 14px helvetica; background: #000; padding: 2px 5px; color: #F90; border-radius: 0; }", "styleShowAriaAttributes", true);
+	insertStyleHighlight();
+}
+
+function annotateElement(elem, message)
+{
+	const annotation = createElement("code", { textContent: message });
+	elem.insertBefore(annotation, elem.firstChild);
+	insertStyle("code { font: 12px helvetica; background: #000; padding: 2px 5px; color: #0F0; border-radius: 0; } }", "styleAnnotateElement", true);
+}
+
+function checkAriaAttributes()
+{
+	const elems = Array.from( document.getElementsByTagName("*") );
+	let i = elems.length;
+	while(i--)
+	{
+		const elem = elems[i];
+		if(elem.hasAttribute("aria-labelledby"))
+		{
+			const labelledById = "#" + elem.getAttribute("aria-labelledby");
+			const labelElement = get(labelledById);
+			if(labelElement === false)
+			{
+				elem.classList.add("hl", "error");
+				annotateElement(elem, "aria-labelledby refers to missing ID");
+				console.log("aria-labelledby refers to missing id: " + labelledById + "#" + elem.id + " ." + elem.className);
+				return;
+			}
+		}
+
+		if(elem.hasAttribute("aria-expanded"))
+		{
+			if(elem.getAttribute("aria-expanded") === "")
+			{
+				elem.classList.add("hl", "error");
+				annotateElement(elem, "aria-expanded needs to be either true or false");
+				console.log("aria-expanded needs to be either true or false: " + "#" + elem.id + " ." + elem.className);
+			}
+		}
+
+		if(elem.hasAttribute("aria-selected"))
+		{
+			if(elem.getAttribute("aria-selected") === "")
+			{
+				elem.classList.add("hl", "error");
+				annotateElement(elem, "aria-selected needs to be either true or false");
+				console.log("aria-selected needs to be either true or false: " + "#" + elem.id + " ." + elem.className);
+			}
+		}
+
+	}
+}
+
+function ariaHasNoText(button)
+{
+	if(button.textContent) return false;
+	if(button.getAttribute("aria-label") && button.getAttribute("aria-label").length) return false;
+	return true;
+}
+
+function showAriaButtonsWithNoText()
+{
+	const e = get("button");
+	let i = e.length;
+	while(i--)
+	{
+		const button = e[i];
+		if(ariaHasNoText(button))
+		{
+			button.classList.add("hl", "error");
+			button.textContent = "Button needs label";
+			console.log("Button needs label");
+		}
+	}
+}
+
+function showAriaImagesWithMissingAltText()
+{
+	const e = get("img");
+	let i = e.length;
+	while(i--)
+	{
+		const image = e[i];
+		if(!(image.hasAttribute("alt") && image.getAttribute("alt").length))
+		{
+			image.classList.add("hl", "error");
+			image.setAttribute("title", "Image needs alt text");
+			console.log("Image has no alt text: " + image.src);
+		}
+	}
+}
+
+function showAriaProblems()
+{
+	checkAriaAttributes();
+	showAriaButtonsWithNoText();
+	showAriaImagesWithMissingAltText();
+	insertStyleHighlight();
+	insertStyleShowErrors();
 }
 
 function removeEventListeners()
@@ -4430,7 +4571,7 @@ function handleKeyDown(e)
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteElementsContainingText); break;
-			case KEYCODES.J: cleanupHead(); break;
+			case KEYCODES.J: removeAllResources(); break;
 			case KEYCODES.K: toggleConsole(handleJSConsoleInput); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining); break;
@@ -4521,6 +4662,7 @@ function handleKeyDown(e)
 		e.preventDefault();
 		switch(k)
 		{
+			case KEYCODES.A : showAriaProblems(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by classes containing", replaceElementsByClassesContaining, 2); break;
 			case KEYCODES.F: createTagsByClassName(); break;
 			case KEYCODES.H: unhighlightAll(); break;
