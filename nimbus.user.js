@@ -1724,6 +1724,12 @@ function removeAllResources()
 {
 	cleanupHead();
 	del(["link", "style", "script"]);
+	const e = document.getElementsByTagName("*");
+	let i = e.length;
+	while(i--)
+	{
+		e[i].removeAttribute("style");
+	}
 }
 
 function forceReloadCss()
@@ -1782,6 +1788,7 @@ function insertStyleHighlight()
 
 function insertStyleShowErrors()
 {
+	del("#styleShowErrors");
 	const s = ".error { box-shadow: inset 2000px 2000px rgba(255, 0, 0, 1);";
 	insertStyle(s, "styleShowErrors", true);
 }
@@ -2022,7 +2029,7 @@ function checkAriaAttributes()
 
 		if(elem.hasAttribute("aria-expanded"))
 		{
-			if(elem.getAttribute("aria-expanded") === "")
+			if(elem.getAttribute("aria-expanded") !== "true" && elem.getAttribute("aria-expanded") !== "false")
 			{
 				elem.classList.add("hl", "error");
 				annotateElement(elem, "aria-expanded needs to be either true or false");
@@ -2032,7 +2039,7 @@ function checkAriaAttributes()
 
 		if(elem.hasAttribute("aria-selected"))
 		{
-			if(elem.getAttribute("aria-selected") === "")
+			if(elem.getAttribute("aria-selected") !== "true" && elem.getAttribute("aria-selected") !== "false")
 			{
 				elem.classList.add("hl", "error");
 				annotateElement(elem, "aria-selected needs to be either true or false");
@@ -2073,7 +2080,7 @@ function showAriaImagesWithMissingAltText()
 	while(i--)
 	{
 		const image = e[i];
-		if(!(image.hasAttribute("alt") && image.getAttribute("alt").length))
+		if(!image.hasAttribute("alt"))
 		{
 			image.classList.add("hl", "error");
 			image.setAttribute("title", "Image needs alt text");
