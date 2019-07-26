@@ -92,6 +92,7 @@ const Nimbus = {
 		hasClassesContaining: hasClassesContaining,
 		highlightAllTableCellsInRow: highlightAllTableCellsInRow,
 		highlightCode: highlightCode,
+		mark: mark,
 		markElementsBySelector: markElementsBySelector,
 		markElementsWithAttribute: markElementsWithAttribute,
 		markElementsWithCssRule: markElementsWithCssRule,
@@ -254,6 +255,88 @@ function get(s)
 	if(nodes.length)
 		return Array.from(nodes);
 	return false;
+}
+
+function filterNodesByAttributeEqualTo(nodes, attribute, value)
+{
+	let i = nodes.length;
+	let result = [];
+	while(i--)
+	{
+		const node = nodes[i];
+		if(node[attribute] && node[attribute] === value)
+			result.push(node);
+	}
+	return result;
+}
+
+function filterNodesByAttributeNotEqualTo(nodes, attribute, value)
+{
+	let i = nodes.length;
+	let result = [];
+	while(i--)
+	{
+		const node = nodes[i];
+		if(!node[attribute] || node[attribute] !== value)
+			result.push(node);
+	}
+	return result;
+}
+
+function filterNodesByAttributeContaining(nodes, attribute, value)
+{
+	let i = nodes.length;
+	let result = [];
+	while(i--)
+	{
+		const node = nodes[i];
+		if(node[attribute] && node[attribute].indexOf(value) !== -1)
+			result.push(node);
+	}
+	return result;
+}
+
+function filterNodesByAttributeNotContaining(nodes, attribute, value)
+{
+	let i = nodes.length;
+	let result = [];
+	while(i--)
+	{
+		const node = nodes[i];
+		if(node[attribute] && node[attribute].indexOf(value) !== -1)
+			result.push(node);
+	}
+	return result;
+}
+
+function select(selector, attribute, operator, value)
+{
+	console.log({ selector, attribute, operator, value });
+	const e = document.querySelectorAll(selector);
+	if(e && e.length)
+	{
+		if(!(attribute && operator && value))
+		{
+			return e;
+		}
+		switch(operator)
+		{
+			case "equals": return filterNodesByAttributeEqualTo(e, attribute, value);
+			case "doesNotEqual": return filterNodesByAttributeNotEqualTo(e, attribute, value);
+			case "contains": return filterNodesByAttributeContaining(e, attribute, value);
+			case "doesNotContain": return filterNodesByAttributeNotContaining(e, attribute, value);
+			default: return false;
+		}
+	}
+}
+
+function mark(selector, attribute, operator, value)
+{
+	const e = select(selector, attribute, operator, value);
+	let i = e.length;
+	while(i--)
+		e[i].classList.add("hl");
+	insertStyleHighlight();
 }
 
 function getOne(s)
