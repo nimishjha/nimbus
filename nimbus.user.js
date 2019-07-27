@@ -3744,6 +3744,7 @@ function cleanupWikipedia()
 	]);
 	replaceElementsBySelector(".thumb", "figure");
 	replaceElementsBySelector(".thumbcaption", "figcaption");
+	replaceElementsBySelector("sup", "small");
 	getBestImageSrc();
 	removeAttributes();
 	document.body.className = "pad100 xwrap";
