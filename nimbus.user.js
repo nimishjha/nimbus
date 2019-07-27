@@ -311,7 +311,6 @@ function filterNodesByAttributeNotContaining(nodes, attribute, value)
 
 function select(selector, attribute, operator, value)
 {
-	console.log({ selector, attribute, operator, value });
 	const e = document.querySelectorAll(selector);
 	if(e && e.length)
 	{
