@@ -94,9 +94,7 @@ const Nimbus = {
 		highlightCode: highlightCode,
 		mark: mark,
 		markElementsBySelector: markElementsBySelector,
-		markElementsWithAttribute: markElementsWithAttribute,
 		markElementsWithCssRule: markElementsWithCssRule,
-		markElementsWithInlineWidthOrHeight: markElementsWithInlineWidthOrHeight,
 		markElementsWithSetWidths: markElementsWithSetWidths,
 		markElementsByAttributeValueContaining: markElementsByAttributeValueContaining,
 		highlightLinksInPres: highlightLinksInPres,
@@ -310,21 +308,31 @@ function filterNodesByAttributeNotContaining(nodes, attribute, value)
 	return result;
 }
 
+function filterNodesByAttributeExistence(nodes, attribute)
+{
+	let i = nodes.length;
+	let result = [];
+	while(i--)
+	{
+		const node = nodes[i];
+		if(node[attribute])
+			result.push(node);
+	}
+	return result;
+}
+
 function select(selector, attribute, operator, value)
 {
 	const e = document.querySelectorAll(selector);
 	if(e && e.length)
 	{
-		if(!(attribute && operator && value))
-		{
-			return e;
-		}
 		switch(operator)
 		{
 			case "equals": return filterNodesByAttributeEqualTo(e, attribute, value);
 			case "doesNotEqual": return filterNodesByAttributeNotEqualTo(e, attribute, value);
 			case "contains": return filterNodesByAttributeContaining(e, attribute, value);
 			case "doesNotContain": return filterNodesByAttributeNotContaining(e, attribute, value);
+			case "exists": return filterNodesByAttributeExistence(e, attribute, value);
 			default: return false;
 		}
 	}
@@ -472,39 +480,21 @@ function highlightWithinPreformattedBlocks(str)
 		pres[i].innerHTML = pres[i].innerHTML.replace(reg, "<mark>$1</mark>");
 }
 
-function markElementsWithInlineWidthOrHeight()
-{
-	const e = get("div, aside, article, section, table, tr, td");
-	let i = e.length;
-	let s;
-	while(i--)
-	{
-		s = e[i].getAttribute("style");
-		if(s)
-		{
-			if(s.indexOf("width") !== -1) e[i].classList.add("hl");
-			else if(s.indexOf("height") !== -1) e[i].classList.add("hl2");
-		}
-	}
-	insertStyleHighlight();
-}
-
 function markElementsWithCssRule(prop, val)
 {
-	let styles, i, s;
 	const e = document.getElementsByTagName("*");
-	i = e.length;
+	let i = e.length;
 	while(i--)
 	{
-		styles = getComputedStyle(e[i], null);
-		if(styles)
+		const computedStyle = getComputedStyle(e[i], null);
+		if(computedStyle)
 		{
-			s = styles.getPropertyValue(prop);
+			const s = computedStyle.getPropertyValue(prop);
 			if(val && val === s) e[i].classList.add("hl");
 		}
 		else
 		{
-			ylog("Styles is " + styles);
+			ylog("computedStyle is " + computedStyle);
 		}
 	}
 	insertStyleHighlight();
@@ -1307,26 +1297,6 @@ function getIdAndClass(elem)
 	if(elem.className)
 		s += "." + elem.className;
 	return s;
-}
-
-function markElementsWithAttribute(s)
-{
-	showMessage("Highlighting elements with attribute \"" + s + '"', "messagebig");
-	ylog("Highlighting elements with attribute " + s, "h2");
-	const e = get("*");
-	if(e.length)
-	{
-		let i = e.length;
-		while(i--)
-		{
-			if(e[i].hasAttribute("style"))
-			{
-				e[i].classList.add("hl");
-				ylog(getIdAndClass(e[i]) + ": " + e[i].style.cssText);
-			}
-		}
-	}
-	insertStyleHighlight();
 }
 
 function markElementsWithSetWidths()
@@ -4741,7 +4711,6 @@ function handleKeyDown(e)
 			case KEYCODES.A: showAriaAttributes(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
-			case KEYCODES.G: markElementsWithInlineWidthOrHeight(); break;
 			case KEYCODES.H: getSelectionOrUserInput("Mark elements by selector", markElementsBySelector); break;
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markElementsWithCssRule, 2); break;
 			case KEYCODES.V: showDocumentStructure(); break;
@@ -4750,10 +4719,8 @@ function handleKeyDown(e)
 			case KEYCODES.M: customPrompt("Enter command").then(runCommand); break;
 			case KEYCODES.O: customPrompt("Highlight block elements containing").then(highlightSpecificNodesContaining); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
-			case KEYCODES.S: markElementsWithAttribute("style"); break;
 			case KEYCODES.T: markTableRowsAndColumns(); break;
 			case KEYCODES.W: markElementsWithSetWidths(); break;
-			case KEYCODES.Y: markElementsWithCssRule(); break;
 			case KEYCODES.Z: markSelectionAnchorNode(); break;
 			case KEYCODES.F12: analyze(); break;
 			default: shouldPreventDefault = false; break;
