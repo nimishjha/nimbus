@@ -3748,7 +3748,7 @@ function cleanupWikipedia()
 	removeAttributes();
 	document.body.className = "pad100 xwrap";
 	insertStyle("img { width: 100%; }", "styleWikipedia", true);
-	deleteImagesSmallerThan(50, 50);
+	setTimeout(function(){deleteImagesSmallerThan(50, 50)}, 5000);
 }
 
 function getKeys(obj)
