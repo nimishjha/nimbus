@@ -107,10 +107,8 @@ const Nimbus = {
 		highlightSpecificNodesContaining: highlightSpecificNodesContaining,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		insertStyle: insertStyle,
-		insertStyleGrey: insertStyleGrey,
+		toggleStyleGrey: toggleStyleGrey,
 		insertStyleHighlight: insertStyleHighlight,
-		toggleStyleNegative: toggleStyleNegative,
-		insertStyleWhite: insertStyleWhite,
 		makeHeadingFromSelection: makeHeadingFromSelection,
 		makeHeadings: makeHeadings,
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
@@ -127,6 +125,7 @@ const Nimbus = {
 		removeAttributes_regex: removeAttributes_regex,
 		removeClassFromAll: removeClassFromAll,
 		removeEventListeners: removeEventListeners,
+		removeInlineStyles: removeInlineStyles,
 		replaceAudio: replaceAudio,
 		replaceCommentsWithPres: replaceCommentsWithPres,
 		replaceDiacritics: replaceDiacritics,
@@ -144,7 +143,6 @@ const Nimbus = {
 		sanitizeTitle: sanitizeTitle,
 		setDocTitle: setDocTitle,
 		showAriaAttributes: showAriaAttributes,
-		showAriaProblems: showAriaProblems,
 		showDocumentStructure2: showDocumentStructure2,
 		showDocumentStructure: showDocumentStructure,
 		showDocumentStructureWithNames: showDocumentStructureWithNames,
@@ -152,7 +150,10 @@ const Nimbus = {
 		showResources: showResources,
 		showTextToHTMLRatio: showTextToHTMLRatio,
 		toggleBlockEditMode: toggleBlockEditMode,
+		toggleShowAriaProblems: toggleShowAriaProblems,
+		toggleStyleNegative: toggleStyleNegative,
 		toggleStyleShowClasses: toggleStyleShowClasses,
+		toggleStyleWhite: toggleStyleWhite,
 		unhighlightAll: unhighlightAll,
 		wrapAnchorNodeInTag: wrapAnchorNodeInTag,
 		xlog: xlog,
@@ -1292,6 +1293,10 @@ function unhighlightAll()
 	i = f.length;
 	while (i--)
 		f[i].classList.remove("hl2");
+	const g = get(".error");
+	i = g.length;
+	while (i--)
+		g[i].classList.remove("error");
 }
 
 function getIdAndClass(elem)
@@ -1806,6 +1811,11 @@ function removeAllResources()
 {
 	cleanupHead();
 	del(["link", "style", "script"]);
+	removeInlineStyles();
+}
+
+function removeInlineStyles()
+{
 	const e = document.getElementsByTagName("*");
 	let i = e.length;
 	while(i--)
@@ -1879,13 +1889,12 @@ function toggleStyleSimpleNegative()
 {
 	const s = 'body, body[class] {background-color: black; }' +
 	'*, *[class] { background-color: transparent; color: #AAA; border-color: transparent; }' +
-	'a, a *[class] {color: #09F; }';
+	'a, a[class] *, * a[class] {color: #09F; }';
 	toggleStyle(s, "styleSimpleNegative", true);
 }
 
-function insertStyleGrey()
+function toggleStyleGrey()
 {
-	del("#styleGrey");
 	const s = 'body { background: #203040; color: #ABC; font: 24px "swis721 cn bt"; }' +
 	'h1, h2, h3, h4, h5, h6 { background: #123; padding: 0.35em 10px; font-weight: normal; }' +
 	'body.pad100 { padding: 100px; }' +
@@ -1907,7 +1916,7 @@ function insertStyleGrey()
 	'pre xk { color: #29F; }' +
 	'pre xh { color: #57F; }' +
 	'pre xv { color: #F47; }';
-	insertStyle(s, "styleGrey", true);
+	toggleStyle(s, "styleGrey", true);
 }
 
 function toggleStyleNegative()
@@ -2011,11 +2020,11 @@ function toggleStyleNegative()
 	toggleStyle(s, "styleNegative");
 }
 
-function insertStyleWhite()
+function toggleStyleWhite()
 {
 	const s = 'body, input, select, textarea { background: #FFF; color: #000; }' +
 	'input, select, textarea { font: 12px verdana; }';
-	insertStyle(s, "styleWhite", true);
+	toggleStyle(s, "styleWhite", true);
 }
 
 function toggleStyleShowClasses()
@@ -2132,7 +2141,7 @@ function checkAriaAttributes()
 	}
 }
 
-function ariaHasNoText(button)
+function hasNoAriaText(button)
 {
 	if(button.textContent) return false;
 	if(button.getAttribute("aria-label") && button.getAttribute("aria-label").length) return false;
@@ -2146,7 +2155,7 @@ function showAriaButtonsWithNoText()
 	while(i--)
 	{
 		const button = e[i];
-		if(ariaHasNoText(button))
+		if(hasNoAriaText(button))
 		{
 			button.classList.add("hl", "error");
 			button.textContent = "Button needs label";
@@ -2171,13 +2180,21 @@ function showAriaImagesWithMissingAltText()
 	}
 }
 
-function showAriaProblems()
+function toggleShowAriaProblems()
 {
+	if(document.body.classList.contains("showingAriaProblems"))
+	{
+		document.body.classList.remove("showingAriaProblems");
+		unhighlightAll();
+		del(["code", "kbd"]);
+		return;
+	}
 	checkAriaAttributes();
 	showAriaButtonsWithNoText();
 	showAriaImagesWithMissingAltText();
 	insertStyleHighlight();
 	insertStyleShowErrors();
+	document.body.classList.add("showingAriaProblems");
 }
 
 function removeEventListeners()
@@ -4719,8 +4736,8 @@ function handleKeyDown(e)
 			case KEYCODES.UPARROW: expandMark(); break;
 			case KEYCODES.ONE: toggleStyleNegative(); break;
 			case KEYCODES.TWO: toggleStyleSimpleNegative(); break;
-			case KEYCODES.THREE: insertStyleGrey(); break;
-			case KEYCODES.FOUR: insertStyleWhite(); break;
+			case KEYCODES.THREE: toggleStyleGrey(); break;
+			case KEYCODES.FOUR: toggleStyleWhite(); break;
 			case KEYCODES.A: showAriaAttributes(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
@@ -4752,7 +4769,7 @@ function handleKeyDown(e)
 		e.preventDefault();
 		switch(k)
 		{
-			case KEYCODES.A : showAriaProblems(); break;
+			case KEYCODES.A : toggleShowAriaProblems(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by classes containing", replaceElementsByClassesContaining, 2); break;
 			case KEYCODES.F: createTagsByClassName(); break;
 			case KEYCODES.H: unhighlightAll(); break;
