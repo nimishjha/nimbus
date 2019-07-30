@@ -263,7 +263,7 @@ function filterNodesByAttributeEqualTo(nodes, attribute, value)
 	while(i--)
 	{
 		const node = nodes[i];
-		if(node[attribute] && node[attribute] === value)
+		if(node.hasAttribute(attribute) && node.getAttribute(attribute) === value)
 			result.push(node);
 	}
 	return result;
@@ -276,7 +276,7 @@ function filterNodesByAttributeNotEqualTo(nodes, attribute, value)
 	while(i--)
 	{
 		const node = nodes[i];
-		if(!node[attribute] || node[attribute] !== value)
+		if(!node.hasAttribute(attribute) || node.getAttribute(attribute) !== value)
 			result.push(node);
 	}
 	return result;
@@ -289,7 +289,7 @@ function filterNodesByAttributeContaining(nodes, attribute, value)
 	while(i--)
 	{
 		const node = nodes[i];
-		if(node[attribute] && node[attribute].indexOf(value) !== -1)
+		if(node.hasAttribute(attribute) && node.getAttribute(attribute).indexOf(value) !== -1)
 			result.push(node);
 	}
 	return result;
@@ -302,7 +302,7 @@ function filterNodesByAttributeNotContaining(nodes, attribute, value)
 	while(i--)
 	{
 		const node = nodes[i];
-		if(node[attribute] && node[attribute].indexOf(value) !== -1)
+		if(node.hasAttribute(attribute) && node.getAttribute(attribute).indexOf(value) === -1)
 			result.push(node);
 	}
 	return result;
@@ -315,7 +315,20 @@ function filterNodesByAttributeExistence(nodes, attribute)
 	while(i--)
 	{
 		const node = nodes[i];
-		if(node[attribute])
+		if(node.hasAttribute(attribute))
+			result.push(node);
+	}
+	return result;
+}
+
+function filterNodesByAttributeNonExistence(nodes, attribute)
+{
+	let i = nodes.length;
+	let result = [];
+	while(i--)
+	{
+		const node = nodes[i];
+		if(!node.hasAttribute(attribute))
 			result.push(node);
 	}
 	return result;
@@ -333,6 +346,7 @@ function select(selector, attribute, operator, value)
 			case "contains": return filterNodesByAttributeContaining(e, attribute, value);
 			case "doesNotContain": return filterNodesByAttributeNotContaining(e, attribute, value);
 			case "exists": return filterNodesByAttributeExistence(e, attribute, value);
+			case "doesNotExist": return filterNodesByAttributeNonExistence(e, attribute, value);
 			default: return false;
 		}
 	}
@@ -342,6 +356,7 @@ function mark(selector, attribute, operator, value)
 {
 	const e = select(selector, attribute, operator, value);
 	let i = e.length;
+	showMessageBig("Found " + i + " elements");
 	while(i--)
 		e[i].classList.add("hl");
 	insertStyleHighlight();
@@ -708,7 +723,7 @@ function toggleBlockEditMode()
 		del("#styleToggleBlockEditMode");
 		db.removeEventListener('mouseup', handleBlockEditClick, false);
 		db.classList.remove("debug");
-		showMessage("Block edit mode off", "messagebig");
+		showMessageBig("Block edit mode off");
 	}
 	else
 	{
@@ -718,7 +733,7 @@ function toggleBlockEditMode()
 			'html body.debug header:hover, html body.debug footer:hover, html body.debug article:hover, html body.debug aside:hover, html body.debug section:hover, html body.debug div:hover { border-color: #F00; } ' +
 			'html body.debug>header, html body.debug>footer, html body.debug>article, html body.debug>aside, html body.debug>section, html body.debug>div { border-width: 10px 10px 10px 20px; }';
 		insertStyle(s, "styleToggleBlockEditMode", true);
-		showMessage("Block edit mode on", "messagebig");
+		showMessageBig("Block edit mode on");
 	}
 }
 
@@ -965,6 +980,16 @@ function showMessage(s, msgClass, persist)
 		Nimbus.messageTimeout = setTimeout(deleteMessage, 2000);
 }
 
+function showMessageBig(s)
+{
+	showMessage(s, "messagebig");
+}
+
+function showMessageError(s)
+{
+	showMessage(s, "messagebig messageerror");
+}
+
 function deleteMessage()
 {
 	del("message");
@@ -1018,12 +1043,12 @@ function runCommand(s)
 				args.push(commandSegments[i]);
 			else args.push(n);
 		}
-		showMessage(funcName + "(" + printArrayTyped(args) + ")", "messagebig");
+		showMessageBig(funcName + "(" + printArrayTyped(args) + ")");
 		Nimbus.availableFunctions[funcName].apply(this, args);
 	}
 	else
 	{
-		showMessage(funcName + ": not found", "messagebig");
+		showMessageBig(funcName + ": not found");
 	}
 }
 
@@ -1118,7 +1143,7 @@ function callFunctionWithArgs(promptMessage, callback, numArgs)
 		const args = parseCommand(userInput);
 		if(numArgs && args.length < numArgs)
 		{
-			showMessage(numArgs + " arguments are required", "messagebig");
+			showMessageBig(numArgs + " arguments are required");
 			callFunctionWithArgs(promptMessage, callback, numArgs);
 			return;
 		}
@@ -1251,7 +1276,7 @@ function markElementsBySelector(s)
 	const e = get(s);
 	if(!e)
 	{
-		showMessage("No elements found for selector " + s, "messagebig messageerror");
+		showMessageError("No elements found for selector " + s);
 		return;
 	}
 	if(e.length)
@@ -1259,12 +1284,12 @@ function markElementsBySelector(s)
 		let i = e.length;
 		while(i--)
 			e[i].classList.add("hl");
-		showMessage("Highlighted " + e.length + " elements", "messagebig");
+		showMessageBig("Highlighted " + e.length + " elements");
 	}
 	else if(e)
 		e.classList.add("hl");
 	else
-		showMessage("No elements found for selector " + s, "messagebig messageerror");
+		showMessageError("No elements found for selector " + s);
 	insertStyleHighlight();
 }
 
@@ -1301,7 +1326,7 @@ function getIdAndClass(elem)
 
 function markElementsWithSetWidths()
 {
-	showMessage("Finding divs with pixel widths...", "messagebig");
+	showMessageBig("Finding divs with pixel widths...");
 	const e = get("div");
 	let i = e.length, j, cssRules;
 	while(i--)
@@ -1420,7 +1445,7 @@ function getImages(slideshow)
 	}
 	else
 	{
-		showMessage("No images found", "messagebig");
+		showMessageBig("No images found");
 	}
 	if(slideshow)
 		buildSlideshow();
@@ -1480,11 +1505,11 @@ function deleteIframes()
 	if(numIframes !== undefined)
 	{
 		del("iframe");
-		showMessage(numIframes + " iframes deleted", "messagebig");
+		showMessageBig(numIframes + " iframes deleted");
 	}
 	else
 	{
-		showMessage("No iframes found", "messagebig");
+		showMessageBig("No iframes found");
 	}
 	deleteElementsContainingText("rp", "iframe:");
 }
@@ -1493,12 +1518,21 @@ function deleteImages()
 {
 	del("svg");
 	const images = get("img");
-	if(images && images.length)
+	const imagePlaceholders = get("rt");
+	if(images.length)
 	{
 		del("img");
-		showMessage("Deleted " + images.length + " images", "messagebig");
+		showMessageBig("Deleted " + images.length + " images");
 	}
-	else del("rt");
+	else if(imagePlaceholders.length)
+	{
+		del("rt");
+		showMessageBig("Deleted " + imagePlaceholders.length + " image placeholders");
+	}
+	else
+	{
+		showMessageBig("No images found");
+	}
 }
 
 function deleteImagesSmallerThan(x, y)
@@ -1532,7 +1566,7 @@ function deleteSmallImages()
 	indexElement = createElement("h6", { textContent: index, id: "imagedimensionindex" });
 	document.body.appendChild(indexElement);
 	const dimension = dimensions[index];
-	showMessage("Deleting images smaller than " + dimension + " pixels", "messagebig");
+	showMessageBig("Deleting images smaller than " + dimension + " pixels");
 	let i = images.length;
 	while(i--)
 		if (images[i].naturalWidth < dimension || images[i].naturalHeight < dimension)
@@ -1729,7 +1763,7 @@ function replaceElementsBySelector(selector, tagName)
 		const toReplace = [];
 		for (let i = 0, ii = e.length; i < ii; i++)
 			toReplace.push(e[i]);
-		showMessage("Replacing " + toReplace.length + " elements", "messagebig");
+		showMessageBig("Replacing " + toReplace.length + " elements");
 		for (let i = toReplace.length - 1; i >= 0; i--)
 			toReplace[i].parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace[i].innerHTML }), toReplace[i]);
 	}
@@ -1761,7 +1795,7 @@ function replaceElementsByClassesContaining(str, tagName)
 		for (i = 0, ii = e.length; i < ii; i++)
 			if(~e[i].className.indexOf(str))
 				toReplace.push(e[i]);
-		showMessage("Replacing " + toReplace.length + " elements", "messagebig");
+		showMessageBig("Replacing " + toReplace.length + " elements");
 		for (i = toReplace.length - 1; i >= 0; i--)
 			toReplace[i].parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace[i].innerHTML }), toReplace[i]);
 	}
@@ -1796,7 +1830,7 @@ function removeInlineStyles()
 
 function forceReloadCss()
 {
-	showMessage("Force-reloading CSS", "messagebig");
+	showMessageBig("Force-reloading CSS");
 	const styleLinks = document.getElementsByTagName('link');
 	for (let i = 0; i < styleLinks.length; i++)
 	{
@@ -2628,7 +2662,7 @@ function removeWhitespace(s)
 	return s.replace(/\s/g, '');
 }
 
-function normalizeString(s) // normalize string
+function normalizeString(s)
 {
 	return removeWhitespace(s.toLowerCase());
 }
@@ -2653,7 +2687,7 @@ function logout()
 			if( s.indexOf("logout") >= 0 && s.indexOf("logout_gear") === -1 || s.indexOf("signout") >= 0)
 			{
 				found = true;
-				showMessage(e[i].href, "messagebig");
+				showMessageBig(e[i].href);
 				e[i].classList.add("hl");
 				e[i].click();
 				break;
@@ -2665,7 +2699,7 @@ function logout()
 			if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 			{
 				found = true;
-				showMessage(e[i].href, "messagebig");
+				showMessageBig(e[i].href);
 				e[i].classList.add("hl");
 				e[i].click();
 				break;
@@ -2683,7 +2717,7 @@ function logout()
 				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 				{
 					found = true;
-					showMessage("Logging out...", "messagebig");
+					showMessageBig("Logging out...");
 					e[i].classList.add("hl");
 					e[i].click();
 					break;
@@ -2695,7 +2729,7 @@ function logout()
 				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 				{
 					found = true;
-					showMessage("Logging out...", "messagebig");
+					showMessageBig("Logging out...");
 					e[i].classList.add("hl");
 					e[i].click();
 					break;
@@ -2706,7 +2740,7 @@ function logout()
 	}
 	if(!found)
 	{
-		showMessage("Logout link not found", "messagebig");
+		showMessageBig("Logout link not found");
 	}
 }
 
@@ -2728,7 +2762,7 @@ function showPrintLink()
 	}
 	if(!found)
 	{
-		showMessage("Print link not found", "messagebig");
+		showMessageBig("Print link not found");
 	}
 }
 
@@ -2993,7 +3027,7 @@ function getElementsWithClass(strClass)
 	}
 	else
 	{
-		showMessage(strClass + " not found", "messagebig");
+		showMessageBig(strClass + " not found");
 	}
 }
 
@@ -3021,7 +3055,7 @@ function getElementsContainingText(selector, text)
 	if(tempNode.innerHTML.length)
 		document.body.innerHTML = tempNode.innerHTML;
 	else
-		showMessage("Not found", "messagebig");
+		showMessageBig("Not found");
 }
 
 function retrieve(selector)
@@ -3041,7 +3075,7 @@ function retrieve(selector)
 	if(tempNode.innerHTML.length)
 		document.body.innerHTML = tempNode.innerHTML;
 	else
-		showMessage("Not found", "messagebig");
+		showMessageBig("Not found");
 }
 
 function deleteNonContentDivs()
@@ -3271,7 +3305,7 @@ function highlightTextAcrossTags(node, searchString)
 	let index1 = node.textContent.indexOf(searchString);
 	if(index1 === -1)
 	{
-		showMessage(searchString + " not found in " + node.textContent, "messagebig");
+		showMessageBig(searchString + " not found in " + node.textContent);
 		return;
 	}
 	let index2 = index1 + searchString.length;
@@ -3349,7 +3383,7 @@ function highlightSelection()
 	node.innerHTML = nodeHTML;
 	if(!node || node.tagName === undefined)
 	{
-		showMessage("Couldn't get anchorNode", "messagebig");
+		showMessageBig("Couldn't get anchorNode");
 		return;
 	}
 	if(selectionText.length)
@@ -3383,7 +3417,7 @@ function highlightSelection_old()
 		node = node.parentNode;
 	if(!node || node.tagName === undefined)
 	{
-		showMessage("Couldn't get anchorNode", "messagebig");
+		showMessageBig("Couldn't get anchorNode");
 		return;
 	}
 	let nodeHTML = node.innerHTML;
@@ -3446,7 +3480,7 @@ function highlightSelection_old()
 				if(testNode.textContent.length === node.textContent.length)
 					node.innerHTML = nodeHTML;
 				else
-					showMessage("highlightSelection failed", "messagebig messageerror");
+					showMessageError("highlightSelection failed");
 				return;
 			}
 		}
@@ -3590,7 +3624,7 @@ function deleteElementsContainingText(selector, str)
 
 function highlightSpecificNodesContaining(searchString)
 {
-	showMessage("Highlight specific nodes containing text", "messagebig");
+	showMessageBig("Highlight specific nodes containing text");
 	if(!(searchString && searchString.length))
 		return;
 	const tagNames = ["p", "h1", "h2", "h3", "tr", "li"];
@@ -3935,7 +3969,7 @@ function focusField(elem)
 	removeClassFromAll("focused");
 	elem.focus();
 	elem.classList.add("focused");
-	showMessage(elem.name || elem.id || elem.className, "messagebig");
+	showMessageBig(elem.name || elem.id || elem.className);
 }
 
 function focusFormElement()
@@ -4066,7 +4100,8 @@ function fillForms()
 			inputType = e[i].type;
 			if(inputType !== "button" && inputType !== "submit" && inputType !== "image" && inputType !== "hidden" && inputType !== "checkbox" && inputType !== "radio")
 			{
-				inputName = e[i].getAttribute("name");
+				inputName = e[i].getAttribute("name") || e[i].getAttribute("id");
+				inputName = inputName.toLowerCase();
 				if(inputName)
 				{
 					if(inputName === "companyname") e[i].value = "";
@@ -4074,6 +4109,8 @@ function fillForms()
 					else if(inputName.indexOf("last") >= 0) e[i].value = "Doe";
 					else if(inputName.indexOf("name") >= 0) e[i].value = "John Doe";
 					else if(inputName.indexOf("email") >= 0) e[i].value = "test@test.com";
+					else if(inputName.indexOf("day") >= 0) e[i].value = Math.floor(Math.random() * 28);
+					else if(inputName.indexOf("year") >= 0) e[i].value = 1980 + Math.floor(Math.random() * 20);
 					else if(inputName.indexOf("phone") >= 0) e[i].value = "(00) 0000 0000";
 					else if(inputName.indexOf("mobile") >= 0) e[i].value = "0400222333";
 					else if(inputName.indexOf("date") >= 0) e[i].value = "23/08/1991";
@@ -4337,7 +4374,7 @@ function observeAddedNodes()
 {
 	const observer = new MutationObserver(showMutations);
 	observer.observe(getOne("body"),{ childList: true });
-	showMessage("Observing added nodes", "messagebig");
+	showMessageBig("Observing added nodes");
 }
 
 function insertTab(evt)
@@ -4485,7 +4522,7 @@ function getPagerLinks()
 		pagerWrapper.querySelector("a").focus();
 	}
 	else
-		showMessage("No pager links found", "messagebig");
+		showMessageBig("No pager links found");
 	createPagerFromSelect();
 }
 
@@ -4598,7 +4635,7 @@ function main()
 	if(load)
 		setTimeout(inject, 200);
 	else
-		showMessage("Not injected", "messagebig");
+		showMessageBig("Not injected");
 }
 
 //
