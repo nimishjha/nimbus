@@ -69,6 +69,7 @@ const Nimbus = {
 		deleteUselessScripts: deleteUselessScripts,
 		delNewlines: delNewlines,
 		delRange: delRange,
+		deselect: deselect,
 		fillForms: fillForms,
 		fixHeadings: fixHeadings,
 		fixParagraphs: fixParagraphs,
@@ -116,6 +117,7 @@ const Nimbus = {
 		numberDivs: numberDivs,
 		observeAddedNodes: observeAddedNodes,
 		parseCode: parseCode,
+		remove: remove,
 		removeAccesskeys: removeAccesskeys,
 		removeAllResources: removeAllResources,
 		removeAttributes: removeAttributes,
@@ -260,11 +262,23 @@ function filterNodesByAttributeEqualTo(nodes, attribute, value)
 {
 	let i = nodes.length;
 	let result = [];
-	while(i--)
+	if(attribute === "text" || attribute === "textContent")
 	{
-		const node = nodes[i];
-		if(node.hasAttribute(attribute) && node.getAttribute(attribute) === value)
-			result.push(node);
+		while(i--)
+		{
+			const node = nodes[i];
+			if(node.textContent === value)
+				result.push(node);
+		}
+	}
+	else
+	{
+		while(i--)
+		{
+			const node = nodes[i];
+			if(node.hasAttribute(attribute) && node.getAttribute(attribute) === value)
+				result.push(node);
+		}
 	}
 	return result;
 }
@@ -273,11 +287,23 @@ function filterNodesByAttributeNotEqualTo(nodes, attribute, value)
 {
 	let i = nodes.length;
 	let result = [];
-	while(i--)
+	if(attribute === "text" || attribute === "textContent")
 	{
-		const node = nodes[i];
-		if(!node.hasAttribute(attribute) || node.getAttribute(attribute) !== value)
-			result.push(node);
+		while(i--)
+		{
+			const node = nodes[i];
+			if(node.textContent !== value)
+				result.push(node);
+		}
+	}
+	else
+	{
+		while(i--)
+		{
+			const node = nodes[i];
+			if(node.hasAttribute(attribute) && node.getAttribute(attribute) !== value)
+				result.push(node);
+		}
 	}
 	return result;
 }
@@ -286,11 +312,23 @@ function filterNodesByAttributeContaining(nodes, attribute, value)
 {
 	let i = nodes.length;
 	let result = [];
-	while(i--)
+	if(attribute === "text" || attribute === "textContent")
 	{
-		const node = nodes[i];
-		if(node.hasAttribute(attribute) && node.getAttribute(attribute).indexOf(value) !== -1)
-			result.push(node);
+		while(i--)
+		{
+			const node = nodes[i];
+			if(node.textContent.indexOf(value) !== -1)
+				result.push(node);
+		}
+	}
+	else
+	{
+		while(i--)
+		{
+			const node = nodes[i];
+			if(node.hasAttribute(attribute) && node.getAttribute(attribute).indexOf(value) !== -1)
+				result.push(node);
+		}
 	}
 	return result;
 }
@@ -299,11 +337,49 @@ function filterNodesByAttributeNotContaining(nodes, attribute, value)
 {
 	let i = nodes.length;
 	let result = [];
-	while(i--)
+	if(attribute === "text" || attribute === "textContent")
 	{
-		const node = nodes[i];
-		if(node.hasAttribute(attribute) && node.getAttribute(attribute).indexOf(value) === -1)
-			result.push(node);
+		while(i--)
+		{
+			const node = nodes[i];
+			if(node.textContent.indexOf(value) === -1)
+				result.push(node);
+		}
+	}
+	else
+	{
+		while(i--)
+		{
+			const node = nodes[i];
+			if(node.hasAttribute(attribute) && node.getAttribute(attribute).indexOf(value) === -1)
+				result.push(node);
+		}
+	}
+	return result;
+}
+
+function filterNodesByAttributeMatching(nodes, attribute, value)
+{
+	let i = nodes.length;
+	let result = [];
+	let regex = new RegExp(value);
+	if(attribute === "text" || attribute === "textContent")
+	{
+		while(i--)
+		{
+			const node = nodes[i];
+			if(node.textContent.match(value))
+				result.push(node);
+		}
+	}
+	else
+	{
+		while(i--)
+		{
+			const node = nodes[i];
+			if(node.hasAttribute(attribute) && node.getAttribute(attribute).match(value))
+				result.push(node);
+		}
 	}
 	return result;
 }
@@ -341,12 +417,17 @@ function select(selector, attribute, operator, value)
 	{
 		switch(operator)
 		{
-			case "equals": return filterNodesByAttributeEqualTo(e, attribute, value);
-			case "doesNotEqual": return filterNodesByAttributeNotEqualTo(e, attribute, value);
+			case "equals":
+			case "=":
+				return filterNodesByAttributeEqualTo(e, attribute, value);
+			case "doesNotEqual":
+			case "!=":
+				return filterNodesByAttributeNotEqualTo(e, attribute, value);
 			case "contains": return filterNodesByAttributeContaining(e, attribute, value);
 			case "doesNotContain": return filterNodesByAttributeNotContaining(e, attribute, value);
 			case "exists": return filterNodesByAttributeExistence(e, attribute, value);
 			case "doesNotExist": return filterNodesByAttributeNonExistence(e, attribute, value);
+			case "matches": return filterNodesByAttributeMatching(e, attribute, value);
 			default: return false;
 		}
 	}
@@ -360,6 +441,13 @@ function mark(selector, attribute, operator, value)
 	while(i--)
 		e[i].classList.add("hl");
 	insertStyleHighlight();
+}
+
+function remove(selector, attribute, operator, value)
+{
+	const e = select(selector, attribute, operator, value);
+	showMessageBig("Removing " + e.length + " elements");
+	del(e);
 }
 
 function getOne(s)
@@ -1692,6 +1780,7 @@ function cleanupGeneral()
 	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet"]);
 	deleteElementsContainingText("h6", "Deleting iframe");
 	replaceElementsBySelector("center", "div");
+	remove("a", "textContent", "equals", "Section");
 	setDocTitle();
 	removeAttributes();
 	deletePlainSpanTags();
@@ -1699,7 +1788,6 @@ function cleanupGeneral()
 	appendInfo();
 	getBestImageSrc();
 	document.body.className = "pad100 xwrap";
-	// toggleStyleNegative();
 	const t2 = performance.now();
 	xlog(Math.round(t2 - t1) + " ms: cleanupGeneral");
 }
@@ -1892,8 +1980,12 @@ function insertStyleShowErrors()
 function toggleStyleSimpleNegative()
 {
 	const s = 'body, body[class] {background-color: black; }' +
-	'*, *[class] { background-color: transparent; color: #AAA; border-color: transparent; }' +
-	'a, a[class] *, * a[class] {color: #09F; }';
+	'*, *[class] { background-color: transparent; color: #CCC; border-color: transparent; }' +
+	'b, strong, em, i {color: #FFF; }' +
+	'mark {color: #FF0; }' +
+	'a, a[class] *, * a[class] {color: #09F; }' +
+	'a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #FFF; }' +
+	'a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #048; }';
 	toggleStyle(s, "styleSimpleNegative", true);
 }
 
@@ -2113,12 +2205,23 @@ function checkAriaAttributes()
 		{
 			const labelledById = "#" + elem.getAttribute("aria-labelledby");
 			const labelElement = get(labelledById);
-			if(labelElement === false)
+			if(!labelElement || labelElement === -1)
 			{
 				elem.classList.add("hl", "error");
 				annotateElement(elem, "aria-labelledby refers to missing ID");
 				console.log("aria-labelledby refers to missing id: " + labelledById + "#" + elem.id + " ." + elem.className);
-				return;
+			}
+		}
+
+		if(elem.hasAttribute("aria-describedby"))
+		{
+			const describedById = "#" + elem.getAttribute("aria-describedby");
+			const labelElement = get(describedById);
+			if(!labelElement || labelElement === -1)
+			{
+				elem.classList.add("hl", "error");
+				annotateElement(elem, "aria-describedby refers to missing ID");
+				console.log("aria-describedby refers to missing id: " + describedById + "#" + elem.id + " ." + elem.className);
 			}
 		}
 
@@ -2292,6 +2395,11 @@ function sanitizeTitle(str)
 	s = s.replace(/\s+/g, " ");
 
 	return s;
+}
+
+function setDocTitleSimple(s)
+{
+	document.title = s;
 }
 
 function setDocTitle(s)
@@ -3125,7 +3233,7 @@ function getContentByParagraphCount()
 	{
 		const title = document.title;
 		retrieve(".hl");
-		setDocTitle(title);
+		setDocTitleSimple(title);
 		cleanupGeneral();
 		return;
 	}
@@ -3367,6 +3475,11 @@ function expandToWordBoundaries(node, selection)
 		index2++;
 	const expanded = trim(text.substring(index1, index2));
 	return expanded;
+}
+
+function deselect()
+{
+	window.getSelection().removeAllRanges();
 }
 
 function highlightSelection()
@@ -4669,7 +4782,7 @@ function handleKeyDown(e)
 			case KEYCODES.F1: makeHeadingFromSelection("h1"); break;
 			case KEYCODES.F2: makeHeadingFromSelection("h2"); break;
 			case KEYCODES.F3: makeHeadingFromSelection("h3"); break;
-			case KEYCODES.ZERO: getSelectionOrUserInput("Enter document title", setDocTitle); break;
+			case KEYCODES.ZERO: getSelectionOrUserInput("Enter document title", setDocTitleSimple); break;
 			case KEYCODES.ONE: cleanupGeneral(); break;
 			case KEYCODES.TWO: deleteImages(); break;
 			case KEYCODES.THREE: toggleClass(db, "xwrap"); break;
