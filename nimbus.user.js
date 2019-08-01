@@ -111,6 +111,7 @@ const Nimbus = {
 		makeHeadingFromSelection: makeHeadingFromSelection,
 		makeHeadings: makeHeadings,
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
+		makeLinkTextPlain: makeLinkTextPlain,
 		markDivDepth: markDivDepth,
 		markUppercaseParagraphs: markUppercaseParagraphs,
 		markTableRowsAndColumns: markTableRowsAndColumns,
@@ -4709,6 +4710,18 @@ function revealEmptyLinks()
 	while(i--)
 		if(!e[i].textContent.length && e[i].href.length)
 			e[i].textContent = humanizeUrl(e[i].href);
+}
+
+function makeLinkTextPlain()
+{
+	const links = get("a");
+	let i = links.length;
+	while(i--)
+	{
+		const link = links[i];
+		if(!link.getElementsByTagName("img").length && link.innerHTML !== link.textContent)
+			link.innerHTML = link.textContent;
+	}
 }
 
 function inject()
