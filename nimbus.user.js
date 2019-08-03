@@ -53,6 +53,7 @@ const Nimbus = {
 		del: del,
 		delClassContaining: delClassContaining,
 		deleteElementsContainingText: deleteElementsContainingText,
+		deleteElementsNotContainingTag: deleteElementsNotContainingTag,
 		deleteEmptyElements: deleteEmptyElements,
 		deleteEmptyHeadings: deleteEmptyHeadings,
 		deleteIframes: deleteIframes,
@@ -630,10 +631,6 @@ function markTableRowsAndColumns()
 	insertStyle("table, tr, td { box-shadow: inset 1px 1px #444, inset -1px -1px #444; }", "styleShowTables", true);
 }
 
-//
-//	checks if a given string contains any of an array of strings
-//	much better than using s.indexOf('a') || s.indexOf('b')...
-//
 function containsAnyOfTheStrings(s, arrStrings)
 {
 	if(!s || typeof s !== "string")
@@ -2401,6 +2398,11 @@ function sanitizeTitle(str)
 function setDocTitleSimple(s)
 {
 	document.title = s;
+	if(!(getOne("h1") && getOne("h1").innerHTML === s))
+	{
+		h = createElement("h1", { textContent: s });
+		document.body.insertBefore(h, document.body.firstChild);
+	}
 }
 
 function setDocTitle(s)
@@ -3734,6 +3736,15 @@ function deleteElementsContainingText(selector, str)
 			e.parentNode.removeChild(e);
 	}
 
+}
+
+function deleteElementsNotContainingTag(selector, tagName)
+{
+	const e = get(selector);
+	let i = e.length;
+	while(i--)
+		if(!e[i].getElementsByTagName(tagName).length)
+			del(e[i]);
 }
 
 function highlightSpecificNodesContaining(searchString)
