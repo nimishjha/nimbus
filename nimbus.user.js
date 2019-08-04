@@ -1786,6 +1786,10 @@ function cleanupGeneral()
 	appendInfo();
 	getBestImageSrc();
 	document.body.className = "pad100 xwrap";
+	if(navigator.userAgent.indexOf("Chrome") !== -1)
+	{
+		toggleStyleNegative();
+	}
 	const t2 = performance.now();
 	xlog(Math.round(t2 - t1) + " ms: cleanupGeneral");
 }
@@ -2398,9 +2402,10 @@ function sanitizeTitle(str)
 function setDocTitleSimple(s)
 {
 	document.title = s;
-	if(!(getOne("h1") && getOne("h1").innerHTML === s))
+	const heading = getOne("h1");
+	if(!(heading && heading.innerHTML === s))
 	{
-		h = createElement("h1", { textContent: s });
+		const h = createElement("h1", { textContent: s });
 		document.body.insertBefore(h, document.body.firstChild);
 	}
 }
