@@ -268,7 +268,7 @@ function filterNodesByAttributeEqualTo(nodes, attribute, value)
 		while(i--)
 		{
 			const node = nodes[i];
-			if(node.textContent === value)
+			if(trim(node.textContent) === value)
 				result.push(node);
 		}
 	}
@@ -293,7 +293,7 @@ function filterNodesByAttributeNotEqualTo(nodes, attribute, value)
 		while(i--)
 		{
 			const node = nodes[i];
-			if(node.textContent !== value)
+			if(trim(node.textContent) !== value)
 				result.push(node);
 		}
 	}
