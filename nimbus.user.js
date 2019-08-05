@@ -53,7 +53,6 @@ const Nimbus = {
 		del: del,
 		delClassContaining: delClassContaining,
 		deleteElementsContainingText: deleteElementsContainingText,
-		deleteElementsNotContainingTag: deleteElementsNotContainingTag,
 		deleteEmptyElements: deleteEmptyElements,
 		deleteEmptyHeadings: deleteEmptyHeadings,
 		deleteIframes: deleteIframes,
@@ -412,32 +411,130 @@ function filterNodesByAttributeNonExistence(nodes, attribute)
 	return result;
 }
 
-function select(selector, attribute, operator, value)
+function filterNodesWithChildrenOfType(nodes, tagName)
 {
+	let result = [];
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		if(node.getElementsByTagName(tagName).length)
+			result.push(node);
+	}
+	return result;
+}
+
+function filterNodesWithoutChildrenOfType(nodes, tagName)
+{
+	let result = [];
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		if(!node.getElementsByTagName(tagName).length)
+			result.push(node);
+	}
+	return result;
+}
+
+function filterNodesWithParentOfType(nodes, tagName)
+{
+	let result = [];
+	const tagNameUpper = tagName.toUpperCase();
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		let count = 0;
+		let currentNode = node;
+		while(currentNode.parentNode && count < 20)
+		{
+			count++;
+			currentNode = currentNode.parentNode;
+			if(currentNode.tagName && currentNode.tagName.toUpperCase() === tagNameUpper)
+			{
+				result.push(node);
+				break;
+			}
+		}
+	}
+	return result;
+}
+
+function filterNodesWithoutParentOfType(nodes, tagName)
+{
+	let result = [];
+	const tagNameUpper = tagName.toUpperCase();
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		let hasParentOfType = false;
+		let count = 0;
+		let currentNode = node;
+		while(currentNode.parentNode && count < 20)
+		{
+			count++;
+			currentNode = currentNode.parentNode;
+			if(currentNode.tagName && currentNode.tagName.toUpperCase() === tagNameUpper)
+			{
+				hasParentOfType = true;
+				break;
+			}
+		}
+		if(!hasParentOfType)
+			result.push(node);
+	}
+	return result;
+}
+
+function select(...args)
+{
+	const selector = args[0];
 	const e = document.querySelectorAll(selector);
 	if(e && e.length)
 	{
-		switch(operator)
+		if(args.length === 4)
 		{
-			case "equals":
-			case "=":
-				return filterNodesByAttributeEqualTo(e, attribute, value);
-			case "doesNotEqual":
-			case "!=":
-				return filterNodesByAttributeNotEqualTo(e, attribute, value);
-			case "contains": return filterNodesByAttributeContaining(e, attribute, value);
-			case "doesNotContain": return filterNodesByAttributeNotContaining(e, attribute, value);
-			case "exists": return filterNodesByAttributeExistence(e, attribute, value);
-			case "doesNotExist": return filterNodesByAttributeNonExistence(e, attribute, value);
-			case "matches": return filterNodesByAttributeMatching(e, attribute, value);
-			default: return false;
+
+			const attribute = args[1];
+			const operator = args[2];
+			const value = args[3];
+			switch(operator)
+			{
+				case "equals":
+				case "=":
+					return filterNodesByAttributeEqualTo(e, attribute, value);
+				case "doesNotEqual":
+				case "!=":
+					return filterNodesByAttributeNotEqualTo(e, attribute, value);
+				case "contains": return filterNodesByAttributeContaining(e, attribute, value);
+				case "doesNotContain": return filterNodesByAttributeNotContaining(e, attribute, value);
+				case "exists": return filterNodesByAttributeExistence(e, attribute, value);
+				case "doesNotExist": return filterNodesByAttributeNonExistence(e, attribute, value);
+				case "matches": return filterNodesByAttributeMatching(e, attribute, value);
+				default: return false;
+			}
+		}
+		else if(args.length === 3)
+		{
+			const operator = args[1];
+			const value = args[2];
+			switch(operator)
+			{
+				case "hasChildrenOfType": return filterNodesWithChildrenOfType(e, value);
+				case "doesNotHaveChildrenOfType": return filterNodesWithoutChildrenOfType(e, value);
+				case "hasParentOfType": return filterNodesWithParentOfType(e, value);
+				case "doesNotHaveParentOfType": return filterNodesWithoutParentOfType(e, value);
+				default: return false;
+			}
 		}
 	}
 }
 
-function mark(selector, attribute, operator, value)
+function mark(...args)
 {
-	const e = select(selector, attribute, operator, value);
+	const e = select(...args);
 	let i = e.length;
 	showMessageBig("Found " + i + " elements");
 	while(i--)
@@ -445,9 +542,9 @@ function mark(selector, attribute, operator, value)
 	insertStyleHighlight();
 }
 
-function remove(selector, attribute, operator, value)
+function remove(...args)
 {
-	const e = select(selector, attribute, operator, value);
+	const e = select(...args);
 	showMessageBig("Removing " + e.length + " elements");
 	del(e);
 }
@@ -1981,7 +2078,7 @@ function insertStyleShowErrors()
 
 function toggleStyleSimpleNegative()
 {
-	const s = 'body, body[class] {background-color: black; }' +
+	const s = 'body, body[class] {background-color: black; font: 14px verdana; }' +
 	'*, *[class] { background-color: transparent; color: #CCC; border-color: transparent; }' +
 	'b, strong, em, i {color: #FFF; }' +
 	'mark {color: #FF0; }' +
@@ -2134,7 +2231,7 @@ function toggleStyleShowClasses()
 	}
 	const s = 'body { background: #333; color: #BBB; }' +
 	'a { color: #09F; text-decoration: none; }' +
-	'div { padding: 10px; margin: 10px; border: 2px solid #000; }' +
+	'div { padding: 0 0 0 10px; margin: 1px 1px 1px 10px; border: 2px solid #000; }' +
 	'div::before, p::before { content:attr(class); color:#FF0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
 	'div::after, p::after { content:attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
 	'span::before { content:attr(class); color:#0F0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
@@ -3741,15 +3838,6 @@ function deleteElementsContainingText(selector, str)
 			e.parentNode.removeChild(e);
 	}
 
-}
-
-function deleteElementsNotContainingTag(selector, tagName)
-{
-	const e = get(selector);
-	let i = e.length;
-	while(i--)
-		if(!e[i].getElementsByTagName(tagName).length)
-			del(e[i]);
 }
 
 function highlightSpecificNodesContaining(searchString)
