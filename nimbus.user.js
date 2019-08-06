@@ -2078,9 +2078,9 @@ function insertStyleShowErrors()
 
 function toggleStyleSimpleNegative()
 {
-	const s = 'body, body[class] {background-color: black; font: 14px verdana; }' +
+	const s = 'body, body[class] {background-color: black; }' +
 	'*, *[class] { background-color: transparent; color: #CCC; border-color: transparent; }' +
-	'b, strong, em, i {color: #FFF; }' +
+	'h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #FFF; }' +
 	'mark {color: #FF0; }' +
 	'a, a[class] *, * a[class] {color: #09F; }' +
 	'a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #FFF; }' +
@@ -4646,8 +4646,22 @@ function handleCSSConsoleInput(evt)
 	}
 }
 
-function toggleConsole(inputHandler)
+function toggleConsole(inputHandler, type)
 {
+	let styleText = "";
+	if(type === "css")
+	{
+		const userStyle = get("#userStyle");
+		if(userStyle)
+		{
+			const rules = userStyle.sheet.cssRules;
+			for(let i = 0, ii = rules.length; i < ii; i++)
+			{
+				styleText += rules[i].cssText + "\n";
+			}
+			styleText = styleText.replace(/!important/g, "");
+		}
+	}
 	if (get("#userInputWrapper"))
 	{
 		del("#userInputWrapper");
@@ -4659,6 +4673,8 @@ function toggleConsole(inputHandler)
 	insertStyle(style, "styleUserInputWrapper", true);
 	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
 	const inputTextarea = createElement("textarea", { id: "userInput" });
+	if(type === "css" && styleText.length)
+		inputTextarea.value = styleText;
 	if(inputHandler)
 		inputTextarea.addEventListener("keydown", inputHandler);
 	inputTextareaWrapper.appendChild(inputTextarea);
@@ -4909,14 +4925,14 @@ function handleKeyDown(e)
 			case KEYCODES.SEVEN: replaceCommentsWithPres(); break;
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
 			case KEYCODES.NINE: toggleStyleShowClasses(); break;
-			case KEYCODES.I: toggleConsole(handleCSSConsoleInput); break;
+			case KEYCODES.I: toggleConsole(handleCSSConsoleInput, "css"); break;
 			case KEYCODES.P: fixParagraphs(); break;
 			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", ""]); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteElementsContainingText); break;
 			case KEYCODES.J: removeAllResources(); break;
-			case KEYCODES.K: toggleConsole(handleJSConsoleInput); break;
+			case KEYCODES.K: toggleConsole(handleJSConsoleInput, "js"); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining); break;
 			case KEYCODES.N: numberDivs(); break;
