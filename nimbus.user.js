@@ -259,6 +259,26 @@ function get(s)
 	return false;
 }
 
+function getOne(s)
+{
+	return document.querySelector(s);
+}
+
+function del(arg)
+{
+	if(!arg)
+		return;
+	let i, ii;
+	if(arg.nodeType)
+		arg.parentNode.removeChild(arg);
+	else if(arg.length)
+		if(typeof arg === "string")
+			del(get(arg));
+		else
+			for(i = 0, ii = arg.length; i < ii; i++)
+				del(arg[i]);
+}
+
 function filterNodesByAttributeEqualTo(nodes, attribute, value)
 {
 	let i = nodes.length;
@@ -549,29 +569,9 @@ function remove(...args)
 	del(e);
 }
 
-function getOne(s)
-{
-	return document.querySelector(s);
-}
-
 function isArray(o)
 {
 	return Object.prototype.toString.call(o) === '[object Array]';
-}
-
-function del(arg)
-{
-	if(!arg)
-		return;
-	let i, ii;
-	if(arg.nodeType)
-		arg.parentNode.removeChild(arg);
-	else if(arg.length)
-		if(typeof arg === "string")
-			del(get(arg));
-		else
-			for(i = 0, ii = arg.length; i < ii; i++)
-				del(arg[i]);
 }
 
 function parseObject(o, indentLevel, parent)
