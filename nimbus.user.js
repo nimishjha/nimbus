@@ -524,7 +524,7 @@ function select(...args)
 			{
 				case "hasChildrenOfType": return filterNodesWithChildrenOfType(e, value);
 				case "doesNotHaveChildrenOfType": return filterNodesWithoutChildrenOfType(e, value);
-				case "hasParentOfType": return filterNodesWithParentOfType(e, value);
+				case "hasParentOfType": return get(value + " " + selector);
 				case "doesNotHaveParentOfType": return filterNodesWithoutParentOfType(e, value);
 				default: return false;
 			}
