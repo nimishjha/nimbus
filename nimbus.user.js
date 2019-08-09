@@ -3864,6 +3864,8 @@ function highlightNodesContaining(selector, str)
 	if(!(selector && str && selector.length && str.length))
 		return;
 	const e = get(selector);
+	const markerTagOpen = "<mark>";
+	const markerTagClose = "</mark>";
 	let i = e.length;
 	while (i--)
 	{
@@ -3875,14 +3877,14 @@ function highlightNodesContaining(selector, str)
 			if(e[i].tagName.toLowerCase() === "tr")
 				highlightAllTableCellsInRow(e[i]);
 			else
-				e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
+				e[i].innerHTML = markerTagOpen + e[i].innerHTML + markerTagClose;
 		}
 		if(selector.toLowerCase() === "a")
 		{
 			if(e[i].href && e[i].href.indexOf(str) >= 0)
 			{
 				e[i].classList.add("hl");
-				e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
+				e[i].innerHTML =markerTagOpen + e[i].innerHTML + markerTagClose;
 			}
 		}
 	}
@@ -4368,7 +4370,9 @@ function fillForms()
 		{
 			f[j].removeAttribute("selected");
 		}
-		f[j-1].setAttribute("selected", "selected");
+		const optionIndex = 1 + Math.floor(Math.random() * (j-1));
+		if(f[optionIndex])
+			f[optionIndex].setAttribute("selected", "selected");
 	}
 
 	//
@@ -4660,7 +4664,7 @@ function toggleConsole(inputHandler, type)
 			{
 				styleText += rules[i].cssText + "\n";
 			}
-			styleText = styleText.replace(/!important/g, "");
+			styleText = styleText.replace(/ !important/g, "");
 		}
 	}
 	if (get("#userInputWrapper"))
