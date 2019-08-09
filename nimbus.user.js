@@ -242,18 +242,18 @@ const KEYCODES = {
 
 function get(s)
 {
+	let nodes;
 	try
 	{
-		const isValid = document.querySelector(s);
+		nodes = document.querySelectorAll(s);
 	}
 	catch(error)
 	{
-		console.log("Invalid selector: " + s);
+		showMessageBig("Invalid selector: " + s);
 		return -1;
 	}
 	if(s.indexOf("#") === 0 && !~s.indexOf(" ") && !~s.indexOf("."))
 		return document.querySelector(s);
-	const nodes = document.querySelectorAll(s);
 	if(nodes.length)
 		return Array.from(nodes);
 	return false;
