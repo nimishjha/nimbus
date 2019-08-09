@@ -1317,7 +1317,10 @@ function getSelectionOrUserInput(promptMessage, callback)
 		callback(s);
 		return;
 	}
-	customPrompt(promptMessage).then(callback);
+	customPrompt(promptMessage).then(function(userInput) {
+		const args = parseCommand(userInput);
+		callback.apply(null, args);
+	});
 }
 
 function callFunctionWithArgs(promptMessage, callback, numArgs)
