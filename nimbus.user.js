@@ -2425,39 +2425,36 @@ function removeEventListeners()
 
 function chooseDocumentHeading()
 {
-	let e, s = '', i, ii, j, jj;
-	let found = false;
-	const candidateTags = ['h1', 'h2', 'h3'];
-	for(i = 0, ii = candidateTags.length; i < ii; i++)
+	let documentHeading = '';
+	deleteEmptyElements("h1");
+	let candidateTags = get("h1").concat(get("h2"));
+	if(!Nimbus.candidateHeadingElements)
+		Nimbus.candidateHeadingElements = [];
+	for(let i = 0, ii = Math.min(10, candidateTags.length); i < ii; i++)
 	{
-		e = document.getElementsByTagName(candidateTags[i]);
-		for(j = 0, jj = e.length; j < jj; j++)
-		{
-			if(e[j].textContent && e[j].textContent.indexOf("iframe:") === -1 && normalizeString(e[j].textContent).length > 3)
-			{
-				s = e[j].textContent;
-				found = true;
-				break;
-			}
-		}
-		if(found)
-			break;
+		Nimbus.candidateHeadingElements.push(candidateTags[i]);
 	}
-	if(s.length < 3)
+	Nimbus.candidateHeadingIndex = Nimbus.candidateHeadingIndex || 0;
+	documentHeading = Nimbus.candidateHeadingElements[Nimbus.candidateHeadingIndex].textContent;
+	Nimbus.candidateHeadingIndex++;
+	if(Nimbus.candidateHeadingIndex >= Nimbus.candidateHeadingElements.length)
+		Nimbus.candidateHeadingIndex = 0;
+
+	if(documentHeading.length < 3)
 	{
 		if(document.title)
-			s = document.title;
+			documentHeading = document.title;
 		else
-			s = window.location.hostname;
+			documentHeading = window.location.hostname;
 	}
 	if(document.body.textContent.match(/Page [0-9]+ of [0-9]+/))
 	{
-		if(!s.match(/Page [0-9]+/i))
+		if(!documentHeading.match(/Page [0-9]+/i))
 		{
-			s = s + " - " + document.body.textContent.match(/Page [0-9]+ of [0-9]+/)[0];
+			documentHeading = documentHeading+ " - " + document.body.textContent.match(/Page [0-9]+ of [0-9]+/)[0];
 		}
 	}
-	return s;
+	return documentHeading;
 }
 
 function replaceDiacritics(s)
@@ -2525,9 +2522,10 @@ function setDocTitle(s)
 	if(s.indexOf("Thread - ") !== -1)
 		s = s.substr(s.indexOf("Thread - ") + 9);
 
+	del(".candidateHeading");
 	if(!(getOne("h1") && getOne("h1").innerHTML === s))
 	{
-		h = createElement("h1", { textContent: s });
+		h = createElement("h1", { className: "candidateHeading", textContent: s });
 		document.body.insertBefore(h, document.body.firstChild);
 	}
 	// Append domain name to title for easy searching
@@ -4918,7 +4916,7 @@ function handleKeyDown(e)
 			case KEYCODES.F1: makeHeadingFromSelection("h1"); break;
 			case KEYCODES.F2: makeHeadingFromSelection("h2"); break;
 			case KEYCODES.F3: makeHeadingFromSelection("h3"); break;
-			case KEYCODES.ZERO: getSelectionOrUserInput("Enter document title", setDocTitleSimple); break;
+			case KEYCODES.ZERO: setDocTitle(); break;
 			case KEYCODES.ONE: cleanupGeneral(); break;
 			case KEYCODES.TWO: deleteImages(); break;
 			case KEYCODES.THREE: toggleClass(db, "xwrap"); break;
@@ -4961,6 +4959,7 @@ function handleKeyDown(e)
 		e.preventDefault();
 		switch (k)
 		{
+			case KEYCODES.ZERO: getSelectionOrUserInput("Enter document title", setDocTitle); break;
 			case KEYCODES.ONE: showResources(); break;
 			case KEYCODES.TWO: replaceImagesWithTextLinks(); break;
 			case KEYCODES.FIVE: getImages(true); break;
