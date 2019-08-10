@@ -1318,8 +1318,15 @@ function getSelectionOrUserInput(promptMessage, callback)
 		return;
 	}
 	customPrompt(promptMessage).then(function(userInput) {
-		const args = parseCommand(userInput);
-		callback.apply(null, args);
+		if(~userInput.indexOf(" ") || ~userInput.indexOf('"'))
+		{
+			const args = parseCommand(userInput);
+			callback.apply(null, args);
+		}
+		else
+		{
+			callback.apply(null, userInput);
+		}
 	});
 }
 
@@ -2427,18 +2434,27 @@ function chooseDocumentHeading()
 {
 	let documentHeading = '';
 	deleteEmptyElements("h1");
-	let candidateTags = get("h1").concat(get("h2"));
+	const headings1 = get("h1");
+	const headings2 = get("h2");
+	let candidateTags = [];
+	if(headings1)
+		candidateTags = candidateTags.concat(headings1);
+	if(headings2)
+		candidateTags = candidateTags.concat(headings2);
 	if(!Nimbus.candidateHeadingElements)
 		Nimbus.candidateHeadingElements = [];
 	for(let i = 0, ii = Math.min(10, candidateTags.length); i < ii; i++)
 	{
 		Nimbus.candidateHeadingElements.push(candidateTags[i]);
 	}
-	Nimbus.candidateHeadingIndex = Nimbus.candidateHeadingIndex || 0;
-	documentHeading = Nimbus.candidateHeadingElements[Nimbus.candidateHeadingIndex].textContent;
-	Nimbus.candidateHeadingIndex++;
-	if(Nimbus.candidateHeadingIndex >= Nimbus.candidateHeadingElements.length)
-		Nimbus.candidateHeadingIndex = 0;
+	if(Nimbus.candidateHeadingElements.length)
+	{
+		Nimbus.candidateHeadingIndex = Nimbus.candidateHeadingIndex || 0;
+		documentHeading = Nimbus.candidateHeadingElements[Nimbus.candidateHeadingIndex].textContent;
+		Nimbus.candidateHeadingIndex++;
+		if(Nimbus.candidateHeadingIndex >= Nimbus.candidateHeadingElements.length)
+			Nimbus.candidateHeadingIndex = 0;
+	}
 
 	if(documentHeading.length < 3)
 	{
