@@ -530,10 +530,18 @@ function select(...args)
 					return filterNodesByAttributeNotEqualTo(e, attribute, value);
 				case "contains": return filterNodesByAttributeContaining(e, attribute, value);
 				case "doesNotContain": return filterNodesByAttributeNotContaining(e, attribute, value);
-				case "exists": return filterNodesByAttributeExistence(e, attribute, value);
-				case "doesNotExist": return filterNodesByAttributeNonExistence(e, attribute, value);
 				case "matches": return filterNodesByAttributeMatching(e, attribute, value);
 				default: return false;
+			}
+		}
+		else if(args.length === 3 && ["exists", "doesNotExist"].includes(args[2]))
+		{
+			const attribute = args[1];
+			const operator = args[2];
+			switch(operator)
+			{
+				case "exists": return filterNodesByAttributeExistence(e, attribute);
+				case "doesNotExist": return filterNodesByAttributeNonExistence(e, attribute);
 			}
 		}
 		else if(args.length === 3)
