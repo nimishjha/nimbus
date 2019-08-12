@@ -1342,7 +1342,7 @@ function callFunctionWithArgs(promptMessage, callback, numArgs)
 {
 	customPrompt(promptMessage).then(function(userInput) {
 		const args = parseCommand(userInput);
-		if(numArgs && args.length < numArgs)
+		if(numArgs && args.length !== numArgs)
 		{
 			showMessageBig(numArgs + " arguments are required");
 			callFunctionWithArgs(promptMessage, callback, numArgs);
