@@ -383,13 +383,13 @@ function filterNodesByAttributeMatching(nodes, attribute, value)
 {
 	let i = nodes.length;
 	let result = [];
-	let regex = new RegExp(value);
+	let regex = new RegExp(escapeForRegExp(value));
 	if(attribute === "text" || attribute === "textContent")
 	{
 		while(i--)
 		{
 			const node = nodes[i];
-			if(node.textContent.match(value))
+			if(node.textContent.match(regex))
 				result.push(node);
 		}
 	}
@@ -398,7 +398,7 @@ function filterNodesByAttributeMatching(nodes, attribute, value)
 		while(i--)
 		{
 			const node = nodes[i];
-			if(node.hasAttribute(attribute) && node.getAttribute(attribute).match(value))
+			if(node.hasAttribute(attribute) && node.getAttribute(attribute).match(regex))
 				result.push(node);
 		}
 	}
