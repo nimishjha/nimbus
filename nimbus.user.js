@@ -116,7 +116,7 @@ const Nimbus = {
 		markUppercaseParagraphs: markUppercaseParagraphs,
 		markTableRowsAndColumns: markTableRowsAndColumns,
 		numberDivs: numberDivs,
-		observeAddedNodes: observeAddedNodes,
+		observeMutations: observeMutations,
 		parseCode: parseCode,
 		remove: remove,
 		removeAccesskeys: removeAccesskeys,
@@ -4598,22 +4598,24 @@ function showMutations(mutations)
 	for(i = 0, ii = mutations.length; i < ii; i++)
 	{
 		mutation = mutations[i];
-		console.log(mutation);
-		if (mutation.addedNodes.length)
+		if(mutation.addedNodes.length)
 		{
 			for(j = 0, jj = mutation.addedNodes.length; j < jj; j++)
-			{
-				console.log(mutation.addedNodes[j].outerHTML);
-			}
+				console.log("Mutation: added   >>>          " + getIdAndClass(mutation.addedNodes[j]));
+		}
+		if(mutation.removedNodes.length)
+		{
+			for(j = 0, jj = mutation.removedNodes.length; j < jj; j++)
+				console.log("Mutation: removed <<<          " + getIdAndClass(mutation.removedNodes[j]));
 		}
 	}
 }
 
-function observeAddedNodes()
+function observeMutations()
 {
 	const observer = new MutationObserver(showMutations);
 	observer.observe(getOne("body"),{ childList: true });
-	showMessageBig("Observing added nodes");
+	showMessageBig("Observing mutations");
 }
 
 function insertTab(evt)
