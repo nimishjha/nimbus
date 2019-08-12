@@ -1333,7 +1333,7 @@ function getSelectionOrUserInput(promptMessage, callback)
 		}
 		else
 		{
-			callback.apply(null, userInput);
+			callback.call(null, userInput);
 		}
 	});
 }
@@ -4041,7 +4041,7 @@ function getAttributes(targ)
 			if(ta[i])
 			{
 				str += "<em>" + ta[i].name + "</em> ";
-				if(removeWhitespace(ta[i].value) != "hovered")
+				if(removeWhitespace(ta[i].value) !== "hovered")
 				{
 					str += '="' + ta[i].value + '" ';
 					str = str.replace(/hovered/g, '');
@@ -4557,11 +4557,11 @@ function makeHeadingsByTextLength()
 			classes[strClass] = null;
 		}
 	}
-	let className;
 	let selector;
 	let averageTextLength;
-	for(className in classes)
+	for(let j = 0, jj = classes.length; j < jj; j++)
 	{
+		const className = classes[j];
 		selector = "." + className;
 		if(selector.length < 2) continue;
 		e = get(selector);
