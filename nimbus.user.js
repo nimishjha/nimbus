@@ -2287,7 +2287,7 @@ function showAriaAttributes()
 		if( elem.hasAttribute("role"))
 		{
 			elem.classList.add("hl2");
-			elem.insertBefore(createElement("code", { textContent: elem.getAttribute("role") }), elem.firstChild);
+			elem.insertBefore(createElement("code", { textContent: "role: " + elem.getAttribute("role") }), elem.firstChild);
 		}
 
 		if(elem.attributes)
@@ -2296,7 +2296,7 @@ function showAriaAttributes()
 			let j = attrs.length;
 			while(j--)
 				if(attrs[j].name.indexOf("aria-") === 0)
-					elem.insertBefore(createElement("kbd", { textContent: attrs[j].name }), elem.firstChild);
+					elem.insertBefore(createElement("kbd", { textContent: attrs[j].name + ": " + attrs[j].value }), elem.firstChild);
 		}
 	}
 
@@ -4622,7 +4622,7 @@ function showMutations(mutations)
 function observeMutations()
 {
 	const observer = new MutationObserver(showMutations);
-	observer.observe(getOne("body"),{ childList: true });
+	observer.observe(getOne("body"), { childList: true });
 	showMessageBig("Observing mutations");
 }
 
