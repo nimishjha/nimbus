@@ -4653,77 +4653,78 @@ function insertTab(evt)
 	targ.setSelectionRange(iStart + 1, iEnd + 1);
 }
 
-function handleJSConsoleInput(evt)
+function handleConsoleInput(evt, consoleType)
 {
-	const inputText = getOne("#userInput").value;
-	if (!inputText) return;
+	const userInputElement = getOne("#userInput");
+	if(!userInputElement) return;
+	const inputText = userInputElement.value;
+	if (!inputText || !inputText.length)
+		return;
+	if(consoleType === "js")
+		Nimbus.jsConsoleText = inputText;
+	else if(consoleType === "css")
+		Nimbus.cssConsoleText = inputText;
 	const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
-	if (evt.keyCode === 13 && evt[ctrlOrMeta])
+	switch(evt.keyCode)
 	{
-		eval(inputText);
-	}
-	else if (evt.keyCode === 9)
-	{
-		insertTab(evt);
-		return false;
-	}
-	else if(evt.keyCode === KEYCODES.ESCAPE)
-	{
-		toggleConsole();
-	}
-}
-
-function handleCSSConsoleInput(evt)
-{
-	const inputText = getOne("#userInput").value;
-	if (!inputText) return;
-	const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
-	if (evt.keyCode === 13 && evt[ctrlOrMeta])
-	{
-		insertStyle(inputText, "userStyle", true);
-	}
-	else if (evt.keyCode === 9)
-	{
-		insertTab(evt);
-		return false;
-	}
-	else if(evt.keyCode === KEYCODES.ESCAPE)
-	{
-		toggleConsole();
-	}
-}
-
-function toggleConsole(inputHandler, type)
-{
-	let styleText = "";
-	if(type === "css")
-	{
-		const userStyle = get("#userStyle");
-		if(userStyle)
-		{
-			const rules = userStyle.sheet.cssRules;
-			for(let i = 0, ii = rules.length; i < ii; i++)
+		case KEYCODES.ENTER:
+			if(evt[ctrlOrMeta])
 			{
-				styleText += rules[i].cssText + "\n";
+				if(consoleType === "js")
+					eval(inputText);
+				else if(consoleType === "css")
+					insertStyle(inputText, "userStyle", true);
 			}
-			styleText = styleText.replace(/ !important/g, "");
-		}
+			break;
+		case KEYCODES.TAB:
+			insertTab(evt);
+			return false;
+			break;
+		case KEYCODES.ESCAPE:
+			toggleConsole();
+			break;
 	}
-	if (get("#userInputWrapper"))
+}
+
+function getConsoleHistory(consoleType)
+{
+	switch(consoleType)
+	{
+		case "css":
+			if(Nimbus.cssConsoleText)
+				return Nimbus.cssConsoleText;
+			break;
+		case "js":
+			if(Nimbus.jsConsoleText)
+				return Nimbus.jsConsoleText;
+			break;
+	}
+	return "";
+}
+
+function toggleConsole(consoleType)
+{
+	if(get("#userInputWrapper"))
 	{
 		del("#userInputWrapper");
 		del("#styleUserInputWrapper");
 		return;
 	}
-	const style = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; }' +
-		'#userInput { background: #000; color: #FFF; font: bold 18px Consolas, monospace; width: 100%; height: 100%; padding: 10px; }';
-	insertStyle(style, "styleUserInputWrapper", true);
+	if(!consoleType || !["css", "js"].includes(consoleType))
+	{
+		showMessageError("toggleConsole needs a consoleType");
+		return;
+	}
+	let dialogStyle;
+	const consoleBackgroundColor = consoleType === "css" ? "#036" : "#000";
+	dialogStyle = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; }' +
+		'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: bold 18px Consolas, monospace; width: 100%; height: 100%; padding: 10px; border: 0; outline: 0; }';
+	insertStyle(dialogStyle, "styleUserInputWrapper", true);
+
 	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
-	const inputTextarea = createElement("textarea", { id: "userInput" });
-	if(type === "css" && styleText.length)
-		inputTextarea.value = styleText;
-	if(inputHandler)
-		inputTextarea.addEventListener("keydown", inputHandler);
+	const inputTextarea = createElement("textarea", { id: "userInput", value: getConsoleHistory(consoleType) });
+	const handleKeyDown = function(event){ handleConsoleInput(event, consoleType); };
+	inputTextarea.addEventListener("keydown", handleKeyDown);
 	inputTextareaWrapper.appendChild(inputTextarea);
 	document.body.appendChild(inputTextareaWrapper);
 	inputTextarea.focus();
@@ -4893,7 +4894,6 @@ function makeLinkTextPlain()
 
 function inject()
 {
-	// deleteUselessIframes();
 	document.body.classList.add("nimbusDark");
 	document.addEventListener("keydown", handleKeyDown, false);
 	showPassword();
