@@ -163,6 +163,7 @@ const Nimbus = {
 };
 
 const KEYCODES = {
+	DELETE: 46,
 	ZERO: 48,
 	ONE: 49,
 	TWO: 50,
@@ -1795,6 +1796,11 @@ function deletePlainSpanTags()
 	let s = document.body.innerHTML;
 	s = s.replace(/<span>/g, "").replace(/<\/span>/g, "");
 	document.body.innerHTML = s;
+}
+
+function deleteMarkedElements()
+{
+	del(".hl");
 }
 
 function replaceSpans()
@@ -4992,6 +4998,7 @@ function handleKeyDown(e)
 			case KEYCODES.Z: cleanupUnicode(); break;
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); focusFormElement(); break;
+			case KEYCODES.DELETE: deleteMarkedElements(); break;
 			default: shouldPreventDefault = false;
 		}
 		if(shouldPreventDefault)
