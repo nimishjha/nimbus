@@ -1406,7 +1406,23 @@ function changePage(direction)
 	}
 }
 
-function css(elem)
+function getAllInlineStyles()
+{
+	let styleText = "";
+	const styleElements = get("style");
+	if(!styleElements)
+		return;
+	for(let j = 0, jj = styleElements.length; j < jj; j++)
+	{
+		const styleElement = styleElements[j];
+		const rules = styleElement.sheet.cssRules;
+		for(let i = 0, ii = rules.length; i < ii; i++)
+			styleText += rules[i].cssText + "\n";
+	}
+	return styleText;
+}
+
+function getAllCssRulesForElement(elem)
 {
 	const sheets = document.styleSheets;
 	const rulesArray = [];
@@ -1532,7 +1548,7 @@ function markElementsWithSetWidths()
 	let i = e.length, j, cssRules;
 	while(i--)
 	{
-		cssRules = css(e[i]);
+		cssRules = getAllCssRulesForElement(e[i]);
 		j = cssRules.length;
 		while(j--)
 		{
@@ -4956,14 +4972,14 @@ function handleKeyDown(e)
 			case KEYCODES.SEVEN: replaceCommentsWithPres(); break;
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
 			case KEYCODES.NINE: toggleStyleShowClasses(); break;
-			case KEYCODES.I: toggleConsole(handleCSSConsoleInput, "css"); break;
+			case KEYCODES.I: toggleConsole("css"); break;
 			case KEYCODES.P: fixParagraphs(); break;
 			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", ""]); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteElementsContainingText); break;
 			case KEYCODES.J: removeAllResources(); break;
-			case KEYCODES.K: toggleConsole(handleJSConsoleInput, "js"); break;
+			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining); break;
 			case KEYCODES.N: numberDivs(); break;
