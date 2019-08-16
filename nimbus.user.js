@@ -1318,12 +1318,17 @@ function closeCustomPrompt()
 	return command;
 }
 
-function getSelectionOrUserInput(promptMessage, callback)
+function getSelectionOrUserInput(promptMessage, callback, isUnary)
 {
 	if(window.getSelection().toString().length)
 	{
 		const s = window.getSelection().toString();
 		callback(s);
+		return;
+	}
+	if(isUnary)
+	{
+		customPrompt(promptMessage).then(callback);
 		return;
 	}
 	customPrompt(promptMessage).then(function(userInput) {
@@ -5009,7 +5014,7 @@ function handleKeyDown(e)
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining); break;
 			case KEYCODES.N: numberDivs(); break;
-			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatches); break;
+			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatches, true); break;
 			case KEYCODES.L: showLog(); break;
 			case KEYCODES.Q: fixHeadings(); break;
 			case KEYCODES.R: highlightAnchorNode(); break;
@@ -5032,7 +5037,7 @@ function handleKeyDown(e)
 		e.preventDefault();
 		switch (k)
 		{
-			case KEYCODES.ZERO: getSelectionOrUserInput("Enter document title", setDocTitle); break;
+			case KEYCODES.ZERO: getSelectionOrUserInput("Enter document title", setDocTitle, true); break;
 			case KEYCODES.ONE: showResources(); break;
 			case KEYCODES.TWO: replaceImagesWithTextLinks(); break;
 			case KEYCODES.FIVE: getImages(true); break;
@@ -5069,7 +5074,7 @@ function handleKeyDown(e)
 			case KEYCODES.A: showAriaAttributes(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
-			case KEYCODES.H: getSelectionOrUserInput("Mark elements by selector", markElementsBySelector); break;
+			case KEYCODES.H: getSelectionOrUserInput("Mark elements by selector", markElementsBySelector, true); break;
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markElementsWithCssRule, 2); break;
 			case KEYCODES.V: showDocumentStructure(); break;
 			case KEYCODES.B: showDocumentStructureWithNames(); break;
