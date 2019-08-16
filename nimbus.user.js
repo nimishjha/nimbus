@@ -3553,13 +3553,27 @@ function removeLineBreaks(s)
 	return s;
 }
 
+function escapeHTML(html)
+{
+	const escapeElem = createElement("textarea");
+	escapeElem.textContent = html;
+	return escapeElem.innerHTML;
+}
+
+function unescapeHTML(html)
+{
+	const escapeElem = createElement("textarea");
+	escapeElem.innerHTML = html;
+	return escapeElem.textContent;
+}
+
 function highlightTextAcrossTags(node, searchString)
 {
-	var searchRegEx = new RegExp(escapeForRegExp(searchString), "gi");
+	searchString = escapeHTML(searchString.replace(/\s+/g, " "));
 	node.innerHTML = node.innerHTML.replace(/\s+/g, " ");
 	if(~node.innerHTML.indexOf(searchString))
 	{
-		node.innerHTML = node.innerHTML.replace(searchRegEx, "<mark>" + searchString + "</mark>");
+		node.innerHTML = node.innerHTML.replace(searchString, "<mark>" + searchString + "</mark>");
 		return;
 	}
 	let index1 = node.textContent.indexOf(searchString);
@@ -3610,7 +3624,13 @@ function highlightAllMatchesInNode(node, splitMatches)
 	let nodeHTML = node.innerHTML;
 	let i = splitMatches.length;
 	while(i--)
-		nodeHTML = nodeHTML.replace(new RegExp(splitMatches[i]), "<mark>" + splitMatches[i] + "</mark>");
+	{
+		const regex = new RegExp(splitMatches[i]);
+		if(nodeHTML.match(regex))
+			nodeHTML = nodeHTML.replace(regex, "<mark>" + splitMatches[i] + "</mark>");
+		else
+			nodeHTML = "<mark>" + nodeHTML + "</mark>";
+	}
 	node.innerHTML = nodeHTML;
 }
 
