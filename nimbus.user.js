@@ -2167,7 +2167,7 @@ function toggleStyleNegative()
 	'body.pad100 { padding: 100px 100px; }' +
 	'body.pad100 table { width: 100%; }' +
 	'body.pad100 td, body.pad100 th { padding: 3px 10px; }' +
-	'body.pad100 image { display: block; }' +
+	'body.pad100 img { display: block; max-width: 100%; height: auto; }' +
 	'nav { background: #111; }' +
 	'body.xdark { background: #111; }' +
 	'body.xblack { background: #000; }' +
@@ -2226,7 +2226,6 @@ function toggleStyleNegative()
 	'pre xh { color: #57F; }' +
 	'pre xv { color: #F47; }' +
 
-	'img { display: block; max-width: 100vh; }' +
 	'a img { border: none; }' +
 	'button img, input img { display: none; }' +
 	'table { border-collapse: collapse; background: #141414; border: 0; }' +
