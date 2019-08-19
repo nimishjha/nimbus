@@ -2282,9 +2282,9 @@ function toggleStyleShowClasses()
 	'select, textarea, input { background: #444; border: 1px solid red; }' +
 	'button { background: #222; color: #AAA; }' +
 	'nav { border: 6px solid #09F; padding: 20px; margin: 10px; background: #400; }' +
-	'section { border: 6px solid #09F; padding: 20px; margin: 10px; background: #040; }' +
-	'main { border: 6px solid #09F; padding: 20px; margin: 10px; background: #555; }' +
-	'footer { border: 6px solid #09F; padding: 20px; margin: 10px; background: #008; }' +
+	'section { border: 6px solid #999; padding: 20px; margin: 10px; background: #040; }' +
+	'main { border: 6px solid #DDD; padding: 20px; margin: 10px; background: #555; }' +
+	'footer { border: 6px solid #555; padding: 20px; margin: 10px; background: #008; }' +
 	'h1, h2, h3, h4, h5, h6 { position: relative; padding: 10px 10px 10px 5rem; background: #300; color: #FFF; }' +
 	'h1::before { content: "h1"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }' +
 	'h2::before { content: "h2"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }' +
