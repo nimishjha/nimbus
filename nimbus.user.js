@@ -251,7 +251,7 @@ function get(s)
 	catch(error)
 	{
 		showMessageBig("Invalid selector: " + s);
-		return -1;
+		return null;
 	}
 	if(s.indexOf("#") === 0 && !~s.indexOf(" ") && !~s.indexOf("."))
 		return document.querySelector(s);
