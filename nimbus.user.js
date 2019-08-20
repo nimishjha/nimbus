@@ -128,6 +128,7 @@ const Nimbus = {
 		removeEventListeners: removeEventListeners,
 		removeInlineStyles: removeInlineStyles,
 		replaceAudio: replaceAudio,
+		replaceClass: replaceClass,
 		replaceCommentsWithPres: replaceCommentsWithPres,
 		replaceDiacritics: replaceDiacritics,
 		replaceElementsBySelector: replaceElementsBySelector,
@@ -695,20 +696,29 @@ function markElementsWithCssRule(prop, val)
 {
 	const e = document.getElementsByTagName("*");
 	let i = e.length;
+	let count = 0;
 	while(i--)
 	{
 		const computedStyle = getComputedStyle(e[i], null);
 		if(computedStyle)
 		{
 			const s = computedStyle.getPropertyValue(prop);
-			if(val && val === s) e[i].classList.add("hl");
+			if(val && val === s)
+			{
+				e[i].classList.add("hl");
+				count++;
+			}
 		}
 		else
 		{
 			ylog("computedStyle is " + computedStyle);
 		}
 	}
-	insertStyleHighlight();
+	if(count)
+	{
+		showMessageBig("Found " + count + " elements with " + prop + ": " + val);
+		insertStyleHighlight();
+	}
 }
 
 function markTableRowsAndColumns()
@@ -1516,7 +1526,7 @@ function markElementsBySelector(s)
 	insertStyleHighlight();
 }
 
-function unhighlightElement(elem)
+function unmarkElement(elem)
 {
 	elem.classList.remove("hl");
 }
@@ -1539,7 +1549,7 @@ function unhighlightAll()
 
 function getIdAndClass(elem)
 {
-	let s = "";
+	let s = elem.tagName ? elem.tagName.toLowerCase() : "";
 	if(elem.id)
 		s += "#" + elem.id + " ";
 	if(elem.className)
@@ -2769,6 +2779,22 @@ function trim(s)
 function ltrim(str1)
 {
 	return str1.replace(/^\s+/, '');
+}
+
+function padLeft(str, width)
+{
+	let spaces = "";
+	for(let i = 0, ii = width - str.length; i < ii; i++)
+		spaces += " ";
+	return spaces + str;
+}
+
+function padRight(str, width)
+{
+	let spaces = "";
+	for(let i = 0, ii = width - str.length; i < ii; i++)
+		spaces += " ";
+	return str + spaces;
 }
 
 function normalizeWhitespace(s)
@@ -4111,8 +4137,21 @@ function removeClassFromAll(className)
 {
 	const e = document.querySelectorAll("." + className);
 	let i = e.length;
+	showMessageBig("Removing class " + className + " from " + i + " elements");
 	while(i--)
 		e[i].classList.remove(className);
+}
+
+function replaceClass(class1, class2)
+{
+	const e = document.querySelectorAll("." + class1);
+	let i = e.length;
+	showMessageBig("Replacing " + class1 + " with " + class2 + " on " + i + "elements");
+	while(i--)
+	{
+		e[i].classList.remove(class1);
+		e[i].classList.add(class2);
+	}
 }
 
 function analyze_mouseoverHandler(e)
@@ -4720,16 +4759,10 @@ function getConsoleHistory(consoleType)
 {
 	switch(consoleType)
 	{
-		case "css":
-			if(Nimbus.cssConsoleText)
-				return Nimbus.cssConsoleText;
-			break;
-		case "js":
-			if(Nimbus.jsConsoleText)
-				return Nimbus.jsConsoleText;
-			break;
+		case "css": return Nimbus.cssConsoleText || "";
+		case "js": return Nimbus.jsConsoleText || "";
+		default: return "";
 	}
-	return "";
 }
 
 function toggleConsole(consoleType)
@@ -5098,7 +5131,8 @@ function handleKeyDown(e)
 		e.preventDefault();
 		switch(k)
 		{
-			case KEYCODES.A : toggleShowAriaProblems(); break;
+			case KEYCODES.A: toggleShowAriaProblems(); break;
+			case KEYCODES.D: deselect(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by classes containing", replaceElementsByClassesContaining, 2); break;
 			case KEYCODES.F: createTagsByClassName(); break;
 			case KEYCODES.H: unhighlightAll(); break;
