@@ -4685,30 +4685,55 @@ function formatEbook()
 	makeHeadingsByTextLength();
 }
 
-function showMutations(mutations)
+function getMutatedAttributeValue(mutation)
 {
-	let i, ii, j, jj, mutation;
+	const target = mutation.target;
+	switch(mutation.attributeName)
+	{
+		case 'class': return target.className;
+		default: return target.getAttribute(mutation.attributeName) || "[getAttribute failed]";
+	}
+}
+
+function logMutations(mutations)
+{
+	let i, ii;
 	for(i = 0, ii = mutations.length; i < ii; i++)
 	{
-		mutation = mutations[i];
-		if(mutation.addedNodes.length)
+		const mutation = mutations[i];
+		if(mutation.type === "childList")
 		{
-			for(j = 0, jj = mutation.addedNodes.length; j < jj; j++)
-				console.log("Mutation: added   >>>          " + getIdAndClass(mutation.addedNodes[j]));
+			if(mutation.addedNodes.length)
+			{
+				for(let j = 0, jj = mutation.addedNodes.length; j < jj; j++)
+					console.log(padRight("Mutation: added", 25) + getIdAndClass(mutation.addedNodes[j]));
+			}
+			if(mutation.removedNodes.length)
+			{
+				for(let j = 0, jj = mutation.removedNodes.length; j < jj; j++)
+					console.log(padRight("Mutation: removed", 25) + getIdAndClass(mutation.removedNodes[j]));
+			}
 		}
-		if(mutation.removedNodes.length)
+		else if(mutation.type === "attributes")
 		{
-			for(j = 0, jj = mutation.removedNodes.length; j < jj; j++)
-				console.log("Mutation: removed <<<          " + getIdAndClass(mutation.removedNodes[j]));
+			console.log(padRight("Mutation: attribute", 25) + padRight(getIdAndClass(mutation.target), 50) + "'" + mutation.attributeName + "' changed to '" + getMutatedAttributeValue(mutation) + "'");
 		}
 	}
 }
 
-function observeMutations()
+function observeMutations(watchAttributes)
 {
-	const observer = new MutationObserver(showMutations);
-	observer.observe(getOne("body"), { childList: true });
-	showMessageBig("Observing mutations");
+	const observer = new MutationObserver(logMutations);
+	let config = { childList: true };
+	let message = "Observing mutations";
+	if(watchAttributes)
+	{
+		config.attributes = true;
+		config.subtree = true;
+		message += " with attributes";
+	}
+	observer.observe(getOne("body"), config);
+	showMessageBig(message);
 }
 
 function insertTab(evt)
