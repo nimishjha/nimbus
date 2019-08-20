@@ -144,6 +144,8 @@ const Nimbus = {
 		revealLinkHrefs: revealLinkHrefs,
 		sanitizeTitle: sanitizeTitle,
 		setDocTitle: setDocTitle,
+		iw: setImageWidth,
+		setImageWidth: setImageWidth,
 		showAriaAttributes: showAriaAttributes,
 		showDocumentStructure2: showDocumentStructure2,
 		showDocumentStructure: showDocumentStructure,
@@ -2112,6 +2114,12 @@ function toggleStyle(str, identifier, important)
 		return;
 	}
 	insertStyle(str, identifier, important);
+}
+
+function setImageWidth(width)
+{
+	const s = "img { width: " + width + "px; height: auto; }";
+	insertStyle(s, "styleImageWidth", true);
 }
 
 function insertStyleHighlight()
