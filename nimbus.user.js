@@ -116,6 +116,7 @@ const Nimbus = {
 		markUppercaseParagraphs: markUppercaseParagraphs,
 		markTableRowsAndColumns: markTableRowsAndColumns,
 		numberDivs: numberDivs,
+		om: observeMutations,
 		observeMutations: observeMutations,
 		parseCode: parseCode,
 		remove: remove,
@@ -2759,8 +2760,9 @@ function removeAttributes_regex()
 function forAll(selector, callback)
 {
 	const e = get(selector);
-	let i = e.length;
-	while (i--)
+	let i = -1;
+	const len = e.length;
+	while (++i < len)
 		callback(e[i]);
 }
 
@@ -5077,7 +5079,6 @@ function handleKeyDown(e)
 			case KEYCODES.J: removeAllResources(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
-			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining); break;
 			case KEYCODES.N: numberDivs(); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatches, true); break;
 			case KEYCODES.L: showLog(); break;
@@ -5085,6 +5086,7 @@ function handleKeyDown(e)
 			case KEYCODES.R: highlightAnchorNode(); break;
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
+			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining); break;
 			case KEYCODES.Z: cleanupUnicode(); break;
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); focusFormElement(); break;
@@ -5107,7 +5109,6 @@ function handleKeyDown(e)
 			case KEYCODES.TWO: replaceImagesWithTextLinks(); break;
 			case KEYCODES.FIVE: getImages(true); break;
 			case KEYCODES.G: callFunctionWithArgs("Retrieve elements (optionally containing text)", getElementsContainingText); break;
-			case KEYCODES.F12: highlightCode(true); break;
 			case KEYCODES.A: annotate(); break;
 			case KEYCODES.C: deleteNonContentDivs(); break;
 			case KEYCODES.D: del("log"); break;
@@ -5117,6 +5118,7 @@ function handleKeyDown(e)
 			case KEYCODES.L: logout(); break;
 			case KEYCODES.W: removeAttributes(); break;
 			case KEYCODES.FORWARD_SLASH: focusButton(); break;
+			case KEYCODES.F12: highlightCode(true); break;
 		}
 	}
 	//
