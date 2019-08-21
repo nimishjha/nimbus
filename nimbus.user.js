@@ -521,7 +521,6 @@ function select(...args)
 	{
 		if(args.length === 4)
 		{
-
 			const attribute = args[1];
 			const operator = args[2];
 			const value = args[3];
@@ -4936,10 +4935,11 @@ function getAllClasses(selector)
 	let j;
 	while(i--)
 	{
-		j = e[i].classList.length;
+		const classList = e[i].classList;
+		j = classList.length;
 		while(j--)
 		{
-			classes[e[i].classList[j]] = true;
+			classes[classList[j]] = true;
 		}
 	}
 	let prop;
