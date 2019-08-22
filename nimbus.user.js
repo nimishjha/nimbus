@@ -65,8 +65,6 @@ const Nimbus = {
 		deletePlainSpanTags: deletePlainSpanTags,
 		deleteSmallImages: deleteSmallImages,
 		deleteSpecificEmptyElements: deleteSpecificEmptyElements,
-		deleteUselessIframes: deleteUselessIframes,
-		deleteUselessScripts: deleteUselessScripts,
 		delNewlines: delNewlines,
 		delRange: delRange,
 		deselect: deselect,
@@ -1031,50 +1029,6 @@ function highlightAllMatches(s)
 		images[i].src = imageSources[i];
 }
 
-function deleteUselessIframes()
-{
-	const domainsRequiringIframes = ["google.com", "jsperf.com", "measurethat"];
-	const safeIframes = ["google.com"];
-	if(containsAnyOfTheStrings(location.hostname, domainsRequiringIframes))
-	{
-		return;
-	}
-	const iframes = Array.prototype.slice.call(document.getElementsByTagName("iframe"));
-	let i = iframes.length;
-	while(i--)
-	{
-		if(containsAnyOfTheStrings(iframes[i].src, safeIframes))
-		{
-			ylog("Not deleting iframe " + iframes[i].src);
-			continue;
-		}
-		else
-		{
-			ylog("Deleting iframe " + iframes[i].src);
-			iframes[i].parentNode.removeChild(iframes[i]);
-		}
-	}
-}
-
-function deleteUselessScripts()
-{
-	const domains = ["google.com", "googletagmanager.com"];
-	const e = get("script");
-	let i = e.length;
-	while(i--)
-	{
-		const elem = e[i];
-		if(elem.hasAttribute("src"))
-		{
-			if(containsAnyOfTheStrings(elem.src, domains) && !containsAnyOfTheStrings(location.hostname, domains))
-			{
-				log2("Deleting " + elem.src);
-				elem.parentNode.removeChild(elem);
-			}
-		}
-	}
-}
-
 function sortSources(a, b)
 {
 	if(a.size > b.size) return 1;
@@ -1933,7 +1887,6 @@ function cleanupGeneral()
 	addLinksToLargerImages();
 	replaceIncorrectHeading();
 	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet"]);
-	deleteElementsContainingText("h6", "Deleting iframe");
 	replaceElementsBySelector("center", "div");
 	remove("a", "textContent", "equals", "Section");
 	setDocTitle();
@@ -2369,7 +2322,7 @@ function checkAriaAttributes()
 		{
 			const labelledById = "#" + elem.getAttribute("aria-labelledby");
 			const labelElement = get(labelledById);
-			if(!labelElement || labelElement === -1)
+			if(!labelElement)
 			{
 				elem.classList.add("hl", "error");
 				annotateElement(elem, "aria-labelledby refers to missing ID");
@@ -2381,7 +2334,7 @@ function checkAriaAttributes()
 		{
 			const describedById = "#" + elem.getAttribute("aria-describedby");
 			const labelElement = get(describedById);
-			if(!labelElement || labelElement === -1)
+			if(!labelElement)
 			{
 				elem.classList.add("hl", "error");
 				annotateElement(elem, "aria-describedby refers to missing ID");
@@ -3489,6 +3442,7 @@ function expandMark()
 		{
 			e.classList.remove("hl");
 			ep.classList.add("hl");
+			showMessageBig("Marked node is " + getIdAndClass(ep));
 		}
 	}
 }
@@ -3730,6 +3684,7 @@ function markSelectionAnchorNode()
 		node = node.parentNode;
 	node.classList.add("hl");
 	insertStyleHighlight();
+	showMessageBig("Marked node is " + getIdAndClass(node));
 }
 
 function highlightSelection_old()
@@ -4876,6 +4831,8 @@ function numberDivs()
 
 function delRange(m, n)
 {
+	if(typeof n === "undefined")
+		n = m + 100;
 	if(m >= n)
 		return;
 	for(let i = m; i <= n; i++)
