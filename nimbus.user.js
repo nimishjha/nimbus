@@ -252,7 +252,7 @@ function get(s)
 	}
 	catch(error)
 	{
-		showMessageBig("Invalid selector: " + s);
+		showMessageError("Invalid selector: " + s);
 		return null;
 	}
 	if(s.indexOf("#") === 0 && !~s.indexOf(" ") && !~s.indexOf("."))
@@ -1117,7 +1117,7 @@ function showMessage(s, msgClass, persist)
 	msgClass = msgClass || "";
 	const strStyle = 'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; text-align: left; }' +
 	'message.messagebig { font: 32px "Swis721 cn bt"; color: #FFF; height: 60px; line-height: 60px; font-weight: 500; }' +
-	'message.messageerror { color: #FFF; background: #A00; }';
+	'message.messageerror { color: #F00; background: #500; }';
 
 	if(!get("message"))
 	{
