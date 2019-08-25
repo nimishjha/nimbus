@@ -545,6 +545,7 @@ function select(...args)
 			{
 				case "exists": return filterNodesByAttributeExistence(e, attribute);
 				case "doesNotExist": return filterNodesByAttributeNonExistence(e, attribute);
+				default: return false;
 			}
 		}
 		else if(args.length === 3)
@@ -576,8 +577,11 @@ function mark(...args)
 function remove(...args)
 {
 	const e = select(...args);
-	showMessageBig("Removing " + e.length + " elements");
-	del(e);
+	if(e)
+	{
+		showMessageBig("Removing " + e.length + " elements");
+		del(e);
+	}
 }
 
 function isArray(o)
