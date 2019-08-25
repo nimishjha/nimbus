@@ -153,6 +153,7 @@ const Nimbus = {
 		showResources: showResources,
 		showTextToHTMLRatio: showTextToHTMLRatio,
 		toggleBlockEditMode: toggleBlockEditMode,
+		toggleContentEditable: toggleContentEditable,
 		toggleShowAriaProblems: toggleShowAriaProblems,
 		toggleStyleNegative: toggleStyleNegative,
 		toggleStyleShowClasses: toggleStyleShowClasses,
@@ -2267,6 +2268,15 @@ function toggleStyleShowClasses()
 	'h5::before { content: "h5"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }' +
 	'h6::before { content: "h6"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }';
 	insertStyle(s, "styleShowClasses", true);
+}
+
+function toggleContentEditable()
+{
+	const e = getOne(".hl");
+	if(!e)
+		return;
+	const isEditable = e.getAttribute("contenteditable") === "true";
+	e.setAttribute("contenteditable", isEditable ? "false" : "true");
 }
 
 function showAriaAttributes()
