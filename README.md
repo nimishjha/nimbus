@@ -44,7 +44,7 @@ Then, if you want to highlight the table rows containing the brand name "OCP", y
 - 1: Delete all styles and scripts, remove all attributes from all elements excluding **link** and **img** src, append URL and time to document, replace embedded videos and iframes with links to their src. Useful for saving web pages for reference.
 - 2: Delete all images
 - 3: Insert margin
-- 4: Delete small images, and unnecessary images like social media icons, avatars, etc.
+- 4: Delete images smaller than 100px (first run), 200px, 300px, and 400px (on subsequent runs). Useful for clearing cruft like avatars, logos, etc. from a page.
 - 5: Retrieve all images on the current page and display them as a gallery at the top of the page
 - 6: Delete iframes
 - 7: Show HTML comments.
@@ -70,12 +70,13 @@ Then, if you want to highlight the table rows containing the brand name "OCP", y
 ### With Alt-Shift
 
 - 0: If available, use the currently selected text, or ask the user to enter text to use as the document heading and title.
-- 1: Create links to all **link** and **script** elements at the top of the webpage. Useful if you want to quickly insoect CSS or JS files used on a page, and much faster than mucking around with browser developer tools. All links have a [delete] button, to remove the relevant script/stylesheet, for the purpose of deleting unnecessary scripts and styles before saving the page.
+- 1: Create links to all **link** and **script** elements at the top of the webpage. Useful if you want to quickly inspect CSS or JS files used on a page, and much faster than mucking around with browser developer tools. All links have a [delete] button, to remove the relevant script/stylesheet, for the purpose of deleting unnecessary scripts and styles before saving the page.
 - 2: Replace all images with links. Useful if you want to save a document without the images, but want to save the image links for future reference.
 - W: Remove all attributes except the essential ones (`href` for links, `src` for images, etc.) from all elements.
 - A: add an annotation to the currently selected element. Note: must be used with a custom stylesheet to style the annotations properly.
 - C: Highlight divs that seem to be non-content-related, e.g. sharing links, sidebars, related links, etc. Pressing Alt-Shift-C again will delete the highlighted divs.
 - D: Delete log
+- G: Retrieve elements by selector. Replaces the current content of a page with elements that match the selector. For instance, you could `mark` the div that contains the content you want, then retrieve `.hl`.
 - P: Scan **pre** elements for plaintext links, and convert them to actual clickable links
 - R: Wrap the currently selected element in a **blockquote**
 - K: If the page has a "Print" link, prepend it to the top of the page
@@ -96,7 +97,7 @@ Then, if you want to highlight the table rows containing the brand name "OCP", y
 - N: Show page grid structure, alternate view
 - O: Prompt the user for a string, then mark common block elements containing that string.
 - V: Show page grid structure
-- Z: Mark the parent node of the currently selected text.
+- Z: Mark the parent node of the currently selected text. Typical use: select a few words of content, then mark the selection's parent node. Expand the mark until all content is inside the marked element. Then run the command `retrieve .hl`, or `Alt-shift-G` then enter `.hl` .
 
 ### With Ctrl-Alt-Shift
 
