@@ -154,6 +154,7 @@ const Nimbus = {
 		showTextToHTMLRatio: showTextToHTMLRatio,
 		toggleBlockEditMode: toggleBlockEditMode,
 		toggleContentEditable: toggleContentEditable,
+		edit: toggleContentEditable,
 		toggleShowAriaProblems: toggleShowAriaProblems,
 		toggleStyleNegative: toggleStyleNegative,
 		toggleStyleShowClasses: toggleStyleShowClasses,
@@ -567,6 +568,8 @@ function select(...args)
 function mark(...args)
 {
 	const e = select(...args);
+	if(!(e && e.length))
+		return;
 	let i = e.length;
 	showMessageBig("Found " + i + " elements");
 	while(i--)
@@ -577,11 +580,10 @@ function mark(...args)
 function remove(...args)
 {
 	const e = select(...args);
-	if(e)
-	{
-		showMessageBig("Removing " + e.length + " elements");
-		del(e);
-	}
+	if(!(e && e.length))
+		return;
+	showMessageBig("Removing " + e.length + " elements");
+	del(e);
 }
 
 function isArray(o)
@@ -1347,6 +1349,13 @@ function annotate()
 				node.parentNode.insertBefore(d, node);
 		});
 	}
+}
+
+function annotateElement(elem, message)
+{
+	const annotation = createElement("code", { textContent: message });
+	elem.insertBefore(annotation, elem.firstChild);
+	insertStyle("code { font: 12px helvetica; background: #000; padding: 2px 5px; color: #0F0; border-radius: 0; } }", "styleAnnotateElement", true);
 }
 
 function handleCommandInput(evt)
@@ -2279,8 +2288,13 @@ function toggleContentEditable()
 	const e = getOne(".hl");
 	if(!e)
 		return;
-	const isEditable = e.getAttribute("contenteditable") === "true";
-	e.setAttribute("contenteditable", isEditable ? "false" : "true");
+	const isEditable = !(e.getAttribute("contenteditable") === "true");
+	e.setAttribute("contenteditable", isEditable ? "true" : "false");
+	if(isEditable)
+	{
+		unhighlightAll();
+		e.focus();
+	}
 }
 
 function showAriaAttributes()
@@ -2316,13 +2330,6 @@ function showAriaAttributes()
 
 	insertStyle("code { font: 14px helvetica; background: #000; padding: 2px 5px; color: #0F0; border-radius: 0; } kbd { font: 14px helvetica; background: #000; padding: 2px 5px; color: #F90; border-radius: 0; }", "styleShowAriaAttributes", true);
 	insertStyleHighlight();
-}
-
-function annotateElement(elem, message)
-{
-	const annotation = createElement("code", { textContent: message });
-	elem.insertBefore(annotation, elem.firstChild);
-	insertStyle("code { font: 12px helvetica; background: #000; padding: 2px 5px; color: #0F0; border-radius: 0; } }", "styleAnnotateElement", true);
 }
 
 function checkAriaAttributes()
@@ -4123,6 +4130,14 @@ function removeClassFromAll(className)
 		e[i].classList.remove(className);
 }
 
+function removeClassFromAllQuiet(className)
+{
+	const e = document.querySelectorAll("." + className);
+	let i = e.length;
+	while(i--)
+		e[i].classList.remove(className);
+}
+
 function replaceClass(class1, class2)
 {
 	const e = document.querySelectorAll("." + class1);
@@ -4146,7 +4161,7 @@ function analyze_mouseoverHandler(e)
 	if(e.target)
 	{
 		targ = e.target;
-		removeClassFromAll("hovered");
+		removeClassFromAllQuiet("hovered");
 		targ.classList.add("hovered");
 		while (targ)
 		{
@@ -4217,7 +4232,7 @@ function analyze(onTop)
 		del('#analyzer');
 		del('#analyzer-style');
 		document.body.classList.remove("analyzer");
-		removeClassFromAll("hovered");
+		removeClassFromAllQuiet("hovered");
 	}
 }
 
@@ -4277,7 +4292,7 @@ function focusField(elem)
 {
 	if(!elem)
 		return;
-	removeClassFromAll("focused");
+	removeClassFromAllQuiet("focused");
 	elem.focus();
 	elem.classList.add("focused");
 	showMessageBig(elem.name || elem.id || elem.className);
