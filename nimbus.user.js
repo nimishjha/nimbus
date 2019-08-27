@@ -1436,7 +1436,11 @@ function getAllCssRulesForElement(elem)
 	let i = sheets.length;
 	while(i--)
 	{
+		const sheet = sheets[i];
+		if(sheet.href && sheet.href.indexOf(location.hostname) === -1)
+			continue;
 		const rules = sheets[i].cssRules;
+		if(!rules) continue;
 		let j = rules.length;
 		while(j--)
 			if(elem.matches(rules[j].selectorText))
