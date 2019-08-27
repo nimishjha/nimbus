@@ -832,6 +832,24 @@ function printArrayTyped(arr)
 	return s.substring(0, s.length - 2);
 }
 
+function getPropValueSafe(obj, propName)
+{
+	const propValue = obj[propName];
+	if(propValue)
+		return propValue;
+	return null;
+}
+
+function printPropOfObjectArray(arr, propName)
+{
+	let i = -1;
+	const len = arr.length;
+	let s = "";
+	while(++i < len)
+		s += getPropValueSafe(arr[i], propName) + "\n";
+	console.log(s);
+}
+
 function createElement(tag, props)
 {
 	const elem = document.createElement(tag);
