@@ -145,7 +145,7 @@ const Nimbus = {
 		setDocTitle: setDocTitle,
 		iw: setImageWidth,
 		setImageWidth: setImageWidth,
-		showAriaAttributes: showAriaAttributes,
+		toggleShowAriaAttributes: toggleShowAriaAttributes,
 		showDocumentStructure2: showDocumentStructure2,
 		showDocumentStructure: showDocumentStructure,
 		showDocumentStructureWithNames: showDocumentStructureWithNames,
@@ -1371,7 +1371,19 @@ function annotate()
 
 function annotateElement(elem, message)
 {
-	const annotation = createElement("anno1", { textContent: message });
+	const annotation = createElement("annotationInfo", { textContent: message });
+	elem.insertBefore(annotation, elem.firstChild);
+}
+
+function annotateElementWarning(elem, message)
+{
+	const annotation = createElement("annotationWarning", { textContent: message });
+	elem.insertBefore(annotation, elem.firstChild);
+}
+
+function annotateElementError(elem, message)
+{
+	const annotation = createElement("annotationError", { textContent: message });
 	elem.insertBefore(annotation, elem.firstChild);
 }
 
@@ -1539,6 +1551,7 @@ function unhighlightAll()
 	i = g.length;
 	while (i--)
 		g[i].classList.remove("error");
+	del(["annotationInfo", "annotationWarning", "annotationError"]);
 }
 
 function getIdAndClass(elem)
@@ -2125,8 +2138,10 @@ function insertStyleHighlight()
 
 function insertStyleAnnotations()
 {
-	const s = "anno1 { display: inline-block; font: 14px helvetica; background: #000; padding: 2px 5px; color: #0F0; border-radius: 0; }" +
-			"anno2 { display: inline-block; font: 14px helvetica; background: #000; padding: 2px 5px; color: #F90; border-radius: 0; }";
+	const s = "annotationInfo, annotationWarning, annotationError { display: inline-block; font: 14px helvetica; padding: 2px 5px; border-radius: 0; }" +
+			"annotationInfo { background: #000; color: #0F0; }" +
+			"annotationWarning { background: #000; color: #F90; }" +
+			"annotationError { background: #A00; color: #FFF; }";
 	insertStyle(s, "styleAnnotations", true);
 }
 
@@ -2327,43 +2342,45 @@ function toggleContentEditable()
 
 function showInaccessibleLinks()
 {
+	let countBadLinks = 0;
 	const links = get("a");
 	let i = links.length;
 	while(i--)
 	{
 		const link = links[i];
+		let needsAriaLabel = false;
+		if(link.textContent)
+		{
+			switch(link.textContent.toLowerCase())
+			{
+				case "read more": needsAriaLabel = true; break;
+				case "click here": needsAriaLabel = true; break;
+				case "learn more": needsAriaLabel = true; break;
+				default: break;
+			}
+		}
+		if(!needsAriaLabel) continue;
 		if(link.hasAttribute("aria-label"))
 		{
 			const ariaLabel = link.getAttribute("aria-label");
 			if(ariaLabel && ariaLabel.length && link.textContent && ariaLabel !== link.textContent)
 				continue;
 		}
-		if(!link.hasAttribute("title"))
+		if(!link.hasAttribute("title") || !link.getAttribute("title").length || link.getAttribute("title") === link.textContent)
 		{
-			annotateElement(link, "No title attribute");
-			continue;
-		}
-		if(!link.getAttribute("title").length)
-		{
-			annotateElement(link, "Title attribute is empty");
-			continue;
-		}
-		const linkTitle = link.getAttribute("title");
-		if(linkTitle === link.textContent)
-		{
-			annotateElement(link, "Title is the same as link text");
+			countBadLinks++;
+			annotateElementError(link, "Needs descriptive title");
 			continue;
 		}
 	}
+	showMessageBig(countBadLinks + " inaccessible links found");
 }
 
-function showAriaAttributes()
+function toggleShowAriaAttributes()
 {
-	if(get("#styleShowAriaAttributes"))
+	if(document.body.classList.contains("showingAriaAttributes"))
 	{
-		del("#styleShowAriaAttributes");
-		del("code");
-		del("kbd");
+		document.body.classList.remove("showingAriaAttributes");
 		unhighlightAll();
 		return;
 	}
@@ -2375,7 +2392,7 @@ function showAriaAttributes()
 		if( elem.hasAttribute("role"))
 		{
 			elem.classList.add("hl2");
-			elem.insertBefore(createElement("code", { textContent: "role: " + elem.getAttribute("role") }), elem.firstChild);
+			elem.insertBefore(createElement("annotationInfo", { textContent: "role: " + elem.getAttribute("role") }), elem.firstChild);
 		}
 
 		if(elem.attributes)
@@ -2384,12 +2401,13 @@ function showAriaAttributes()
 			let j = attrs.length;
 			while(j--)
 				if(attrs[j].name.indexOf("aria-") === 0)
-					elem.insertBefore(createElement("kbd", { textContent: attrs[j].name + ": " + attrs[j].value }), elem.firstChild);
+					elem.insertBefore(createElement("annotationWarning", { textContent: attrs[j].name + ": " + attrs[j].value }), elem.firstChild);
 		}
 	}
 
 	insertStyleHighlight();
 	insertStyleAnnotations();
+	document.body.classList.add("showingAriaAttributes");
 }
 
 function checkAriaAttributes()
@@ -2406,7 +2424,7 @@ function checkAriaAttributes()
 			if(!labelElement)
 			{
 				elem.classList.add("hl", "error");
-				annotateElement(elem, "aria-labelledby refers to missing ID");
+				annotateElementError(elem, "aria-labelledby refers to missing ID");
 				console.log("aria-labelledby refers to missing id: " + labelledById + "#" + elem.id + " ." + elem.className);
 			}
 		}
@@ -2418,7 +2436,7 @@ function checkAriaAttributes()
 			if(!labelElement)
 			{
 				elem.classList.add("hl", "error");
-				annotateElement(elem, "aria-describedby refers to missing ID");
+				annotateElementError(elem, "aria-describedby refers to missing ID");
 				console.log("aria-describedby refers to missing id: " + describedById + "#" + elem.id + " ." + elem.className);
 			}
 		}
@@ -2428,7 +2446,7 @@ function checkAriaAttributes()
 			if(elem.getAttribute("aria-expanded") !== "true" && elem.getAttribute("aria-expanded") !== "false")
 			{
 				elem.classList.add("hl", "error");
-				annotateElement(elem, "aria-expanded needs to be either true or false");
+				annotateElementError(elem, "aria-expanded needs to be either true or false");
 				console.log("aria-expanded needs to be either true or false: " + "#" + elem.id + " ." + elem.className);
 			}
 		}
@@ -2438,7 +2456,7 @@ function checkAriaAttributes()
 			if(elem.getAttribute("aria-selected") !== "true" && elem.getAttribute("aria-selected") !== "false")
 			{
 				elem.classList.add("hl", "error");
-				annotateElement(elem, "aria-selected needs to be either true or false");
+				annotateElementError(elem, "aria-selected needs to be either true or false");
 				console.log("aria-selected needs to be either true or false: " + "#" + elem.id + " ." + elem.className);
 			}
 		}
@@ -2491,7 +2509,6 @@ function toggleShowAriaProblems()
 	{
 		document.body.classList.remove("showingAriaProblems");
 		unhighlightAll();
-		del(["anno1", "anno2"]);
 		return;
 	}
 	checkAriaAttributes();
@@ -5239,7 +5256,7 @@ function handleKeyDown(e)
 			case KEYCODES.TWO: toggleStyleSimpleNegative(); break;
 			case KEYCODES.THREE: toggleStyleGrey(); break;
 			case KEYCODES.FOUR: toggleStyleWhite(); break;
-			case KEYCODES.A: showAriaAttributes(); break;
+			case KEYCODES.A: toggleShowAriaAttributes(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
 			case KEYCODES.H: getSelectionOrUserInput("Mark elements by selector", markElementsBySelector, true); break;
