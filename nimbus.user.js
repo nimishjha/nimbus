@@ -3529,6 +3529,54 @@ function expandMark()
 	}
 }
 
+function cycleThroughTopLevelElements(boolReverse)
+{
+	const hl = get(".hl");
+	if(hl.length && hl.length > 1)
+	{
+		showMessageError("More than one element is marked");
+		return;
+	}
+	const candidateElements = get("body > *");
+	let found = false;
+	if(boolReverse)
+	{
+		for(let i = 0, ii = candidateElements.length; i < ii; i++)
+		{
+			const e = candidateElements[i];
+			if(e.classList.contains("hl"))
+			{
+				found = true;
+				e.classList.remove("hl");
+				if(i > 0)
+					candidateElements[i - 1].classList.add("hl");
+				else
+					candidateElements[ii - 1].classList.add("hl");
+				break;
+			}
+		}
+	}
+	else
+	{
+		for(let i = 0, ii = candidateElements.length; i < ii; i++)
+		{
+			const e = candidateElements[i];
+			if(e.classList.contains("hl"))
+			{
+				found = true;
+				e.classList.remove("hl");
+				if(i < ii - 1)
+					candidateElements[i + 1].classList.add("hl");
+				else
+					candidateElements[0].classList.add("hl");
+				break;
+			}
+		}
+	}
+	if(!found)
+		candidateElements[0].classList.add("hl");
+}
+
 function deleteSpecificEmptyElements()
 {
 	deleteEmptyElements("p");
@@ -5142,6 +5190,8 @@ function handleKeyDown(e)
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); focusFormElement(); break;
 			case KEYCODES.DELETE: deleteMarkedElements(); break;
+			case KEYCODES.SQUARE_BRACKET_CLOSE: cycleThroughTopLevelElements(); break;
+			case KEYCODES.SQUARE_BRACKET_OPEN: cycleThroughTopLevelElements(true); break;
 			default: shouldPreventDefault = false;
 		}
 		if(shouldPreventDefault)
