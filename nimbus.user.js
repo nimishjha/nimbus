@@ -1408,13 +1408,13 @@ function changePage(direction)
 	let i = links.length;
 	let matchStrings = [];
 	if(direction === "prev") matchStrings = ["prev", "previous"];
-	else if(direction === "next") matchStrings = ["next", "nextpage"];
+	else if(direction === "next") matchStrings = ["next", "nextpage", "»"];
 	while(i--)
 	{
 		let s = links[i].textContent;
 		if(s)
 		{
-			s = removeNonAlpha(s).toLowerCase();
+			s = removeWhitespace(s).toLowerCase();
 			if(containsAnyOfTheStrings(s, matchStrings))
 			{
 				links[i].click();
@@ -3013,7 +3013,7 @@ function deleteNonContentElements()
 
 function removeWhitespace(s)
 {
-	return s.replace(/\s/g, '');
+	return s.replace(/\s+/g, '');
 }
 
 function normalizeString(s)
