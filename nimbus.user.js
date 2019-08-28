@@ -1371,9 +1371,8 @@ function annotate()
 
 function annotateElement(elem, message)
 {
-	const annotation = createElement("code", { textContent: message });
+	const annotation = createElement("anno1", { textContent: message });
 	elem.insertBefore(annotation, elem.firstChild);
-	insertStyle("code { font: 12px helvetica; background: #000; padding: 2px 5px; color: #0F0; border-radius: 0; } }", "styleAnnotateElement", true);
 }
 
 function handleCommandInput(evt)
@@ -2124,6 +2123,13 @@ function insertStyleHighlight()
 	insertStyle(s, "styleHighlight", true);
 }
 
+function insertStyleAnnotations()
+{
+	const s = "anno1 { display: inline-block; font: 14px helvetica; background: #000; padding: 2px 5px; color: #0F0; border-radius: 0; }" +
+			"anno2 { display: inline-block; font: 14px helvetica; background: #000; padding: 2px 5px; color: #F90; border-radius: 0; }";
+	insertStyle(s, "styleAnnotations", true);
+}
+
 function insertStyleShowErrors()
 {
 	del("#styleShowErrors");
@@ -2319,6 +2325,38 @@ function toggleContentEditable()
 	}
 }
 
+function showInaccessibleLinks()
+{
+	const links = get("a");
+	let i = links.length;
+	while(i--)
+	{
+		const link = links[i];
+		if(link.hasAttribute("aria-label"))
+		{
+			const ariaLabel = link.getAttribute("aria-label");
+			if(ariaLabel && ariaLabel.length && link.textContent && ariaLabel !== link.textContent)
+				continue;
+		}
+		if(!link.hasAttribute("title"))
+		{
+			annotateElement(link, "No title attribute");
+			continue;
+		}
+		if(!link.getAttribute("title").length)
+		{
+			annotateElement(link, "Title attribute is empty");
+			continue;
+		}
+		const linkTitle = link.getAttribute("title");
+		if(linkTitle === link.textContent)
+		{
+			annotateElement(link, "Title is the same as link text");
+			continue;
+		}
+	}
+}
+
 function showAriaAttributes()
 {
 	if(get("#styleShowAriaAttributes"))
@@ -2350,8 +2388,8 @@ function showAriaAttributes()
 		}
 	}
 
-	insertStyle("code { font: 14px helvetica; background: #000; padding: 2px 5px; color: #0F0; border-radius: 0; } kbd { font: 14px helvetica; background: #000; padding: 2px 5px; color: #F90; border-radius: 0; }", "styleShowAriaAttributes", true);
 	insertStyleHighlight();
+	insertStyleAnnotations();
 }
 
 function checkAriaAttributes()
@@ -2453,12 +2491,13 @@ function toggleShowAriaProblems()
 	{
 		document.body.classList.remove("showingAriaProblems");
 		unhighlightAll();
-		del(["code", "kbd"]);
+		del(["anno1", "anno2"]);
 		return;
 	}
 	checkAriaAttributes();
 	showAriaButtonsWithNoText();
 	showAriaImagesWithMissingAltText();
+	showInaccessibleLinks();
 	insertStyleHighlight();
 	insertStyleShowErrors();
 	document.body.classList.add("showingAriaProblems");
@@ -5008,6 +5047,7 @@ function inject()
 	showPassword();
 	removeAccesskeys();
 	insertStyleHighlight();
+	insertStyleAnnotations();
 	xlog("Referrer: " + document.referrer);
 	xlog("Page loaded at " + getTimestamp());
 	doStackOverflow();
@@ -5179,6 +5219,7 @@ function handleKeyDown(e)
 		{
 			case KEYCODES.A: toggleShowAriaProblems(); break;
 			case KEYCODES.D: deselect(); break;
+			case KEYCODES.Z: deselect(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by classes containing", replaceElementsByClassesContaining, 2); break;
 			case KEYCODES.F: createTagsByClassName(); break;
 			case KEYCODES.H: unhighlightAll(); break;
