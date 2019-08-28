@@ -3466,52 +3466,38 @@ function getContentByParagraphCount()
 		cleanupGeneral();
 		return;
 	}
+	del(["nav", "footer"]);
 	insertStyleHighlight();
 	const paras = get("p");
-	let container;
+	const totalNumParas = paras.length;
 	let i = -1;
 	let length = paras.length;
+	let candidateDivs = [];
 	while(++i < length)
 	{
 		const tempContainer = paras[i].closest("div");
 		if(tempContainer)
-		{
-			container = tempContainer;
-			container.className = "hl2";
-		}
+			candidateDivs.push(tempContainer);
 	}
-	const e = get(".hl2");
 	i = -1;
-	length = e.length;
+	length = candidateDivs.length;
 	let numParas = 0;
 	let highestNumParas = 0;
+	let contentContainer;
 	while(++i < length)
 	{
-		numParas = e[i].getElementsByTagName("p").length;
-		e[i].setAttribute("data-pcount", numParas);
+		const div = candidateDivs[i];
+		numParas = div.getElementsByTagName("p").length;
+		div.setAttribute("data-pcount", numParas);
 		if(numParas > highestNumParas)
-			highestNumParas = numParas;
-	}
-	i = -1;
-	while(++i < length)
-	{
-		numParas = parseInt(e[i].getAttribute("data-pcount"), 10);
-		if(numParas === highestNumParas)
 		{
-			if(e[i].parentNode)
-			{
-				if(e[i].parentNode.tagName !== 'BODY')
-					e[i].parentNode.className = "hl";
-				else
-					e[i].className = "hl";
-			}
-			else
-			{
-				e[i].className = "hl";
-			}
-			break;
+			highestNumParas = numParas;
+			contentContainer = div;
 		}
 	}
+	while(contentContainer.getElementsByTagName("p").length < totalNumParas * 0.8 && contentContainer.parentNode)
+		contentContainer = contentContainer.parentNode;
+	contentContainer.classList.add("hl");
 }
 
 function expandMark()
@@ -4237,6 +4223,20 @@ function removeClassFromAll(className)
 	showMessageBig("Removing class " + className + " from " + i + " elements");
 	while(i--)
 		e[i].classList.remove(className);
+}
+
+function removeId(id)
+{
+	let idWithHash = id;
+	if(idWithHash.indexOf("#") === -1)
+		idWithHash = "#" + id;
+	const elem = getOne(idWithHash);
+	if(!elem)
+	{
+		showMessageBig(idWithHash + " not found");
+		return;
+	}
+	elem.id = "";
 }
 
 function removeClassFromAllQuiet(className)
