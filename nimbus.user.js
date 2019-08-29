@@ -1283,8 +1283,6 @@ function customPrompt(message)
 		const dialogInput = createElement("textarea", { id: "xxdialoginput" });
 		dialog.appendChild(dialogHeading);
 		dialog.appendChild(dialogInput);
-		if(Nimbus.lastCommand)
-			dialogInput.value = Nimbus.lastCommand;
 		document.body.insertBefore(dialog, document.body.firstChild);
 		const s = '#xxdialog { position: fixed; margin: auto; z-index: 10000; height: 90px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 60vw; }' +
 		'#xxdialog heading { height: 30px; line-height: 30px; padding: 0 10px; background: #111; display: block; margin: 0; }' +
@@ -1298,10 +1296,18 @@ function customPrompt(message)
 				{
 					case KEYCODES.ESCAPE: reject(closeCustomPrompt()); break;
 					case KEYCODES.ENTER: resolve(closeCustomPrompt()); break;
+					case KEYCODES.UPARROW: restoreCustomPromptHistory(evt.target); break;
 				}
 			}, false);
 		});
 	}
+}
+
+function restoreCustomPromptHistory(inputElement)
+{
+	inputElement.focus();
+	if(Nimbus.lastCommand)
+		setTimeout(function(){ inputElement.value = Nimbus.lastCommand; }, 0);
 }
 
 function closeCustomPrompt()
