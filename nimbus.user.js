@@ -1949,6 +1949,8 @@ function cleanupGeneral()
 	replaceAudio();
 	appendInfo();
 	getBestImageSrc();
+	Nimbus.candidateHeadingElements = [];
+	Nimbus.candidateHeadingIndex = null;
 	document.body.className = "pad100 xwrap";
 	if(navigator.userAgent.indexOf("Chrome") !== -1)
 	{
@@ -3541,12 +3543,15 @@ function expandMark()
 function cycleThroughTopLevelElements(boolReverse)
 {
 	const hl = get(".hl");
+	console.log(hl);
 	if(hl.length && hl.length > 1)
 	{
 		showMessageError("More than one element is marked");
 		return;
 	}
-	const candidateElements = get("body > *");
+	insertStyleHighlight();
+	const candidateElements = get("body > div, body > section, body > main, body > nav, body > h1, body > h2");
+	printPropOfObjectArray(candidateElements, "tagName");
 	let found = false;
 	if(boolReverse)
 	{
@@ -5193,21 +5198,22 @@ function handleKeyDown(e)
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
 			case KEYCODES.NINE: toggleStyleShowClasses(); break;
 			case KEYCODES.I: toggleConsole("css"); break;
-			case KEYCODES.P: fixParagraphs(); break;
 			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", ""]); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteElementsContainingText); break;
 			case KEYCODES.J: removeAllResources(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
-			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
+			case KEYCODES.L: showLog(); break;
+			case KEYCODES.M: markSelectionAnchorNode(); break;
 			case KEYCODES.N: numberDivs(); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatches, true); break;
-			case KEYCODES.L: showLog(); break;
+			case KEYCODES.P: fixParagraphs(); break;
 			case KEYCODES.Q: fixHeadings(); break;
 			case KEYCODES.R: highlightAnchorNode(); break;
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
+			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining); break;
 			case KEYCODES.Z: cleanupUnicode(); break;
 			case KEYCODES.F12: highlightCode(); break;
