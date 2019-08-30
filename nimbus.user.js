@@ -59,8 +59,8 @@ const Nimbus = {
 		deleteImages: deleteImages,
 		deleteImagesBySrcContaining: deleteImagesBySrcContaining,
 		deleteImagesSmallerThan: deleteImagesSmallerThan,
-		deleteNonContentDivs: deleteNonContentDivs,
 		deleteNonContentElements: deleteNonContentElements,
+		markNavigationalLists: markNavigationalLists,
 		deleteNonContentImages: deleteNonContentImages,
 		deletePlainSpanTags: deletePlainSpanTags,
 		deleteSmallImages: deleteSmallImages,
@@ -145,7 +145,6 @@ const Nimbus = {
 		setDocTitle: setDocTitle,
 		iw: setImageWidth,
 		setImageWidth: setImageWidth,
-		toggleShowAriaAttributes: toggleShowAriaAttributes,
 		showDocumentStructure2: showDocumentStructure2,
 		showDocumentStructure: showDocumentStructure,
 		showDocumentStructureWithNames: showDocumentStructureWithNames,
@@ -155,6 +154,7 @@ const Nimbus = {
 		toggleBlockEditMode: toggleBlockEditMode,
 		toggleContentEditable: toggleContentEditable,
 		edit: toggleContentEditable,
+		toggleShowAriaAttributes: toggleShowAriaAttributes,
 		toggleShowAriaProblems: toggleShowAriaProblems,
 		toggleStyleNegative: toggleStyleNegative,
 		toggleStyleShowClasses: toggleStyleShowClasses,
@@ -2979,43 +2979,33 @@ function makeHeadings()
 	e = get(".highlightthis");
 	i = e.length;
 	while(i--)
-	{
 		wrapElement(e[i], "cite");
-	}
 }
 
-// deletes elements that are either empty, or contain only links
-function deleteNonContentElements()
+function markNavigationalLists()
 {
-	const tags = ["ul", "ol"];
-	let i, j, k, kk;
-	for(k = 0, kk = tags.length; k < kk; ++k)
+	const lists = get("ul, ol");
+	let len = lists.length;
+	let i = -1;
+	while(++i < len)
 	{
-		const e = get(tags[k]);
-		i = e.length;
-		while (i--)
+		const list = lists[i];
+		if(removeWhitespace(list.textContent).length === 0 && list.getElementsByTagName("img").length === 0)
 		{
-			if(removeWhitespace(e[i].textContent).length === 0 && e[i].getElementsByTagName("img").length === 0)
-			{
-				e[i].parentNode.removeChild(e[i]);
-				break;
-			}
-			const f = e[i].querySelector("a");
-			j = f.length;
-			while (j--)
-			{
-				// if a list contains only links, it's likely not content
-				if(f[j].textContent.length && f[j].getElementsByTagName("a").length === 1)
-				{
-					const g = f[j].querySelector("a");
-					if(removeWhitespace(f[j].textContent).length === removeWhitespace(g.textContent).length)
-					{
-						e[i].parentNode.removeChild(e[i]);
-						break;
-					}
-				}
-			}
+			list.parentNode.removeChild(list);
+			continue;
 		}
+		const links = list.querySelectorAll("a");
+		let j = links.length;
+		console.log("list has " + j + "links");
+		let linkText = "";
+		while (j--)
+		{
+			linkText += links[j].textContent.replace(/[^A-Za-z]+/g, "");
+		}
+		const listTextLength = list.textContent.replace(/[^A-Za-z]+/g, "").length;
+		if(listTextLength === linkText.length)
+			list.classList.add("hl");
 	}
 }
 
@@ -3440,7 +3430,7 @@ function retrieve(selector)
 		showMessageBig("Not found");
 }
 
-function deleteNonContentDivs()
+function deleteNonContentElements()
 {
 	if(get(".hl").length)
 	{
@@ -3451,10 +3441,11 @@ function deleteNonContentDivs()
 	const sClass = "toget";
 
 	replaceElementsBySelector("article", "div");
-	deleteNonContentElements();
+	markNavigationalLists();
 	deleteNonContentImages();
 	deleteEmptyElements("p");
 	deleteEmptyElements("div");
+	return;
 
 	// tags which are used to mark content divs
 	// if a div contains any of these tags, we want to retain it
@@ -5240,7 +5231,7 @@ function handleKeyDown(e)
 			case KEYCODES.FIVE: getImages(true); break;
 			case KEYCODES.G: callFunctionWithArgs("Retrieve elements (optionally containing text)", getElementsContainingText); break;
 			case KEYCODES.A: annotate(); break;
-			case KEYCODES.C: deleteNonContentDivs(); break;
+			case KEYCODES.C: deleteNonContentElements(); break;
 			case KEYCODES.D: del("log"); break;
 			case KEYCODES.P: getPagerLinks(); break;
 			case KEYCODES.R: highlightAnchorNode("blockquote"); break;
