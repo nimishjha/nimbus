@@ -111,6 +111,7 @@ const Nimbus = {
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
 		makeLinkTextPlain: makeLinkTextPlain,
 		markDivDepth: markDivDepth,
+		markOverlays: markOverlays,
 		markUppercaseParagraphs: markUppercaseParagraphs,
 		markTableRowsAndColumns: markTableRowsAndColumns,
 		numberDivs: numberDivs,
@@ -1546,6 +1547,12 @@ function markElementsBySelector(s)
 function unmarkElement(elem)
 {
 	elem.classList.remove("hl");
+}
+
+function markOverlays()
+{
+	mark("div", "style", "contains", "z-index");
+	mark("div", "class", "contains", "modal");
 }
 
 function unhighlightAll()
@@ -5310,6 +5317,7 @@ function handleKeyDown(e)
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by classes containing", replaceElementsByClassesContaining, 2); break;
 			case KEYCODES.F: createTagsByClassName(); break;
 			case KEYCODES.H: unhighlightAll(); break;
+			case KEYCODES.M: markOverlays(); break;
 			case KEYCODES.S: forceReloadCss(); break;
 			case KEYCODES.F12: analyze(true); break;
 		}
