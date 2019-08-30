@@ -655,15 +655,16 @@ function getSelectorsWithLightBackgrounds()
 	let str = "";
 	for (i = 0, count = 0; i < e.length, count < 4000; i++, count++)
 	{
-		if(!e[i]) continue;
+		const elem = e[i];
+		if(!elem) continue;
 		count++;
-		const s = getComputedStyle(e[i]);
+		const s = getComputedStyle(elem);
 		const bgColor = s.getPropertyValue("background-color");
 		if (bgColor.match(/2[0-9][0-9]/))
 		{
-			str += e[i].tagName;
-			if(e[i].id) str += "#" + e[i].id;
-			if(e[i].className) str += "." + e[i].className;
+			str += elem.tagName;
+			if(elem.id) str += "#" + elem.id;
+			if(elem.className) str += "." + elem.className;
 			str += ": " + bgColor + "\r\n";
 		}
 	}
@@ -888,7 +889,7 @@ function showResource(str, uuid)
 
 function deleteResource(evt)
 {
-	if(!(evt.target.parentNode.tagName.toLowerCase() === "h6" && evt.target.tagName.toLowerCase() === "span"))
+	if(!["h6", "span"].includes(evt.target.parentNode.tagName.toLowerCase()))
 		return;
 	evt.stopPropagation();
 	evt.preventDefault();
@@ -911,11 +912,12 @@ function showResources()
 	count = 0;
 	while(i--)
 	{
-		if(e[i].src)
+		const elem = e[i];
+		if(elem.src)
 		{
 			uuid = createUUID();
-			e[i].id = uuid;
-			showResource(e[i].src, uuid);
+			elem.id = uuid;
+			showResource(elem.src, uuid);
 			count++;
 		}
 	}
@@ -925,11 +927,12 @@ function showResources()
 	count = 0;
 	while(i--)
 	{
-		if( e[i].href && e[i].href.indexOf("css") !== -1 || e[i].type && e[i].type === "text/css" )
+		const elem = e[i];
+		if( elem.href && elem.href.indexOf("css") !== -1 || elem.type && elem.type === "text/css" )
 		{
 			uuid = createUUID();
-			e[i].id = uuid;
-			showResource(e[i].href, uuid);
+			elem.id = uuid;
+			showResource(elem.href, uuid);
 			count++;
 		}
 	}
@@ -1011,11 +1014,12 @@ function showDocumentStructureWithNames()
 		let i = e.length;
 		while(i--)
 		{
+			const elem = e[i];
 			let idsAndClasses = "";
-			if(e[i].hasAttribute("id")) idsAndClasses += "#" + e[i].id;
-			if(e[i].hasAttribute("class")) idsAndClasses += " ." + e[i].className;
-			if(e[i].firstChild !== null) e[i].insertBefore(createElement("x", { textContent: idsAndClasses }), e[i].firstChild);
-			else e[i].appendChild(createElement("x", { textContent: idsAndClasses }));
+			if(elem.hasAttribute("id")) idsAndClasses += "#" + elem.id;
+			if(elem.hasAttribute("class")) idsAndClasses += " ." + elem.className;
+			if(elem.firstChild !== null) elem.insertBefore(createElement("x", { textContent: idsAndClasses }), elem.firstChild);
+			else elem.appendChild(createElement("x", { textContent: idsAndClasses }));
 		}
 	}
 	document.body.classList.add("showdivs");
@@ -1069,10 +1073,11 @@ function getBestImageSrc()
 	let i = e.length;
 	while(i--)
 	{
-		if(e[i].srcset)
+		const elem = e[i];
+		if(elem.srcset)
 		{
 			let bestSource;
-			let sources = e[i].srcset.split(',');
+			let sources = elem.srcset.split(',');
 			let sourcesArray = [];
 			for(let j = 0, jj = sources.length; j < jj; j++)
 			{
@@ -1086,8 +1091,8 @@ function getBestImageSrc()
 			{
 				sourcesArray = sourcesArray.sort(sortSources);
 				bestSource = sourcesArray[sourcesArray.length - 1].src;
-				e[i].src = bestSource;
-				e[i].removeAttribute("srcset");
+				elem.src = bestSource;
+				elem.removeAttribute("srcset");
 			}
 		}
 	}
@@ -1577,14 +1582,15 @@ function markElementsWithSetWidths()
 	let i = e.length, j, cssRules;
 	while(i--)
 	{
-		cssRules = getAllCssRulesForElement(e[i]);
+		const elem = e[i];
+		cssRules = getAllCssRulesForElement(elem);
 		j = cssRules.length;
 		while(j--)
 		{
 			if(cssRules[j].match(/width:[^;]*px/) !== null)
 			{
-				e[i].classList.add("hl");
-				e[i].innerHTML = "<x>#" + e[i].id + " ." + e[i].className + " " + getComputedStyle(e[i], null).getPropertyValue("width") + "</x>" + e[i].innerHTML;
+				elem.classList.add("hl");
+				elem.innerHTML = "<x>#" + elem.id + " ." + elem.className + " " + getComputedStyle(elem, null).getPropertyValue("width") + "</x>" + elem.innerHTML;
 				ylog(cssRules[j]);
 			}
 		}
@@ -1856,8 +1862,9 @@ function replaceImagesWithTextLinks()
 		i = e.length;
 		while(i--)
 		{
-			imageLink = createElement("img", { src: e[i].querySelector("a").href });
-			e[i].parentNode.replaceChild(imageLink, e[i]);
+			const elem = e[i];
+			imageLink = createElement("img", { src: elem.querySelector("a").href });
+			elem.parentNode.replaceChild(imageLink, elem);
 		}
 		del('#styleReplaceImages');
 		return;
@@ -1867,14 +1874,15 @@ function replaceImagesWithTextLinks()
 		e = get("img");
 		for(i = 0; i < e.length; i++)
 		{
-			if(e[i].src)
+			const elem = e[i];
+			if(elem.src)
 			{
-				imageLink = createElement("a", { href: e[i].src, textContent: e[i].src });
+				imageLink = createElement("a", { href: elem.src, textContent: elem.src });
 				imageReplacement = createElementWithChild("rt", imageLink);
-				if(e[i].parentNode.tagName.toLowerCase() === "a")
-					e[i].parentNode.parentNode.replaceChild(imageReplacement, e[i].parentNode);
+				if(elem.parentNode.tagName.toLowerCase() === "a")
+					elem.parentNode.parentNode.replaceChild(imageReplacement, elem.parentNode);
 				else
-					e[i].parentNode.insertBefore(imageReplacement, e[i]);
+					elem.parentNode.insertBefore(imageReplacement, elem);
 			}
 		}
 		del("img");
@@ -1891,11 +1899,12 @@ function replaceAudio()
 	e = get("source"), i = e.length;
 	while(i--)
 	{
-		if(e[i].src)
+		const elem = e[i];
+		if(elem.src)
 		{
-			f = createElement("a", { href: e[i].src, textContent: e[i].src });
+			f = createElement("a", { href: elem.src, textContent: elem.src });
 			g = createElementWithChild("h2", f);
-			e[i].parentNode.replaceChild(g, e[i]);
+			elem.parentNode.replaceChild(g, elem);
 		}
 	}
 	replaceElementsBySelector("audio", "div");
@@ -1907,11 +1916,12 @@ function getLargeImages()
 	let i = links.length;
 	while(i--)
 	{
-		const linkHref = links[i].href;
+		const link = links[i];
+		const linkHref = link.href;
 		if(containsAnyOfTheStrings(linkHref.toLowerCase(), [".png", ".jpg", ".gif", ".jpe"]))
 		{
 			document.body.appendChild(createElement("img", { src: linkHref }));
-			links[i].parentNode.replaceChild(createElement("img", { src: linkHref }), links[i]);
+			link.parentNode.replaceChild(createElement("img", { src: linkHref }), link);
 		}
 	}
 }
@@ -1921,13 +1931,13 @@ function addLinksToLargerImages()
 	if(get("rt"))
 		return;
 	const links = get("a");
-	let link;
 	let i = links.length;
 	while(i--)
 	{
-		link = links[i].href;
-		if(containsAnyOfTheStrings(link.toLowerCase(), [".png", ".jpg", ".jpeg", ".gif"]))
-			links[i].parentNode.insertBefore(createElementWithChild("rt", createElement("a", { href: link, textContent: link})), links[i]);
+		const link = links[i];
+		const linkHref = link.href;
+		if(containsAnyOfTheStrings(linkHref.toLowerCase(), [".png", ".jpg", ".jpeg", ".gif"]))
+			link.parentNode.insertBefore(createElementWithChild("rt", createElement("a", { href: linkHref, textContent: linkHref})), link);
 	}
 }
 
@@ -1984,12 +1994,13 @@ function replaceIframes()
 	let i = e.length;
 	while(i--)
 	{
+		const elem = e[i];
 		const iframereplacement = document.createElement("rp");
 		const iframelink = document.createElement("a");
-		let s = e[i].src;
+		let s = elem.src;
 		if(containsAnyOfTheStrings(s, ["facebook", "twitter"]))
 		{
-			e[i].parentNode.removeChild(e[i]);
+			elem.parentNode.removeChild(elem);
 			continue;
 		}
 		iframelink.href = s;
@@ -2007,7 +2018,7 @@ function replaceIframes()
 			iframelink.textContent = "iframe: " + iframelink.href;
 		}
 		iframereplacement.appendChild(iframelink);
-		e[i].parentNode.replaceChild(iframereplacement, e[i]);
+		elem.parentNode.replaceChild(iframereplacement, elem);
 	}
 }
 
@@ -2035,8 +2046,9 @@ function replaceMarkedElements(tag)
 	let i = e.length;
 	while(i--)
 	{
-		const regex = new RegExp(e[i].tagName, "i");
-		e[i].outerHTML = e[i].outerHTML.replace(regex, tag);
+		const elem = e[i];
+		const regex = new RegExp(elem.tagName, "i");
+		elem.outerHTML = elem.outerHTML.replace(regex, tag);
 	}
 	unhighlightAll();
 }
@@ -2730,9 +2742,10 @@ function replaceFontTags()
 	let h;
 	for (let i = 0, ii = f.length; i < ii; i++)
 	{
-		if(f[i].getAttribute("size"))
+		const fontElem = f[i];
+		if(fontElem.getAttribute("size"))
 		{
-			let hl = f[i].getAttribute("size");
+			let hl = fontElem.getAttribute("size");
 			if(hl.indexOf("+") >= 0)
 			{
 				hl = hl[1];
@@ -2748,35 +2761,37 @@ function replaceFontTags()
 				case '1': h = document.createElement("p"); break;
 				default: h = document.createElement("p"); break;
 			}
-			h.innerHTML = f[i].innerHTML;
+			h.innerHTML = fontElem.innerHTML;
 			replacements.push(h);
 		}
 		else
 		{
 			h = document.createElement("p");
-			h.innerHTML = f[i].innerHTML;
+			h.innerHTML = fontElem.innerHTML;
 			replacements.push(h);
 		}
 	}
 	for (let i = f.length - 1; i >= 0; i--)
 	{
-		f[i].parentNode.replaceChild(replacements[i], f[i]);
+		fontElem.parentNode.replaceChild(replacements[i], fontElem);
 	}
 }
 
 function removeAttributes()
 {
 	const t1 = performance.now();
-	const x = document.getElementsByTagName('*');
+	const elems = document.getElementsByTagName('*');
 	document.body.removeAttribute("background");
-	for (let i = 0; i < x.length; i++)
+	for (let i = 0; i < elems.length; i++)
 	{
-		if(x[i].attributes)
+		const elem = elems[i];
+		if(elem.attributes)
 		{
-			const attrs = x[i].attributes;
+			const attrs = elem.attributes;
 			for (let j = attrs.length - 1; j >= 0; j--)
 			{
-				switch(attrs[j].name)
+				const attr = attrs[j];
+				switch(attr.name)
 				{
 					case "href":
 					case "src":
@@ -2786,13 +2801,13 @@ function removeAttributes()
 					case "rowspan":
 						break;
 					case "id":
-						if(x[i].tagName.toLowerCase() === 'a' || x[i].tagName.toLowerCase() === 'li')
+						if(elem.tagName.toLowerCase() === 'a' || elem.tagName.toLowerCase() === 'li')
 							break;
 						else
-							x[i].removeAttribute("id");
+							elem.removeAttribute("id");
 						break;
 					default:
-						x[i].removeAttribute(attrs[j].name);
+						elem.removeAttribute(attr.name);
 						break;
 				}
 			}
@@ -2876,21 +2891,22 @@ function normalizeWhitespace(s)
 
 function cleanupHeadings()
 {
-	const headings = ["h1", "h2", "h3", "h4", "h5", "h6"];
-	let i = headings.length;
+	const headingTags = ["h1", "h2", "h3", "h4", "h5", "h6"];
+	let i = headingTags.length;
 	while (i--)
 	{
-		const h = get(headings[i]);
-		let j = h.length;
+		const headingElements = get(headingTags[i]);
+		let j = headingElements.length;
 		while (j--)
 		{
-			let s = h[j].innerHTML;
+			const heading = headingElements[j];
+			let s = heading.innerHTML;
 			s = s.replace(/<[^as\/][a-z0-9]*>/g, " ");
 			s = s.replace(/<\/[^as][a-z0-9]*>/g, " ");
-			h[j].innerHTML = s.trim();
-			if(trim(h[j].textContent).length === 0)
+			heading.innerHTML = s.trim();
+			if(trim(heading.textContent).length === 0)
 			{
-				h[j].parentNode.removeChild(h[j]);
+				heading.parentNode.removeChild(heading);
 			}
 		}
 	}
@@ -2902,17 +2918,18 @@ function addParagraphs()
 	let i = divs.length;
 	while (i--)
 	{
-		if(divs[i].getElementsByTagName("div").length) continue;
-		let s = divs[i].innerHTML;
+		const div = divs[i];
+		if(div.getElementsByTagName("div").length) continue;
+		let s = div.innerHTML;
 		s = s.replace(/&nbsp;/g, ' ');
 		s = s.replace(/\s+/g, '');
 		if(s.length)
 		{
-			if(! (s[0] === '<' && s[1].toLowerCase() === "p")) divs[i].innerHTML = '<p>' + divs[i].innerHTML + '</p>';
+			if(! (s[0] === '<' && s[1].toLowerCase() === "p")) div.innerHTML = '<p>' + div.innerHTML + '</p>';
 		}
 		else
 		{
-			divs[i].parentNode.removeChild(divs[i]);
+			div.parentNode.removeChild(divs[i]);
 		}
 	}
 }
@@ -4487,7 +4504,7 @@ function focusButton()
 	}
 	for (i = 0; i < len; i++)
 	{
-		if(inputs[i].type && (inputs[i].type === "button" || inputs[i].type === "submit"))
+		if(inputs[i].type && ["button", "submit"].includes(inputs[i].type))
 			inputFields.push(inputs[i]);
 	}
 	const buttons = get("button");
