@@ -1957,7 +1957,7 @@ function cleanupGeneral()
 	deleteNonContentImages();
 	addLinksToLargerImages();
 	replaceIncorrectHeading();
-	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet"]);
+	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet", "message"]);
 	replaceElementsBySelector("center", "div");
 	remove("a", "textContent", "equals", "Section");
 	setDocTitle();
