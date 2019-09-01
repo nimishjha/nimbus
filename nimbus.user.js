@@ -41,6 +41,8 @@ const Nimbus = {
 		appendInfo: appendInfo,
 		buildSlideshow: buildSlideshow,
 		chooseDocumentHeading: chooseDocumentHeading,
+		cleanupAttributes: cleanupAttributes,
+		cleanupAttributes_regex: cleanupAttributes_regex,
 		cleanupBlogs: cleanupBlogs,
 		cleanupGeneral: cleanupGeneral,
 		cleanupGeneral_light: cleanupGeneral_light,
@@ -121,9 +123,7 @@ const Nimbus = {
 		remove: remove,
 		removeAccesskeys: removeAccesskeys,
 		removeAllResources: removeAllResources,
-		removeAttributes: removeAttributes,
-		removeAttributesOf: removeAttributesOf,
-		removeAttributes_regex: removeAttributes_regex,
+		removeAttribute: removeAttribute,
 		removeClassFromAll: removeClassFromAll,
 		removeEventListeners: removeEventListeners,
 		removeInlineStyles: removeInlineStyles,
@@ -143,6 +143,7 @@ const Nimbus = {
 		revealEmptyLinks: revealEmptyLinks,
 		revealLinkHrefs: revealLinkHrefs,
 		sanitizeTitle: sanitizeTitle,
+		setAttribute: setAttribute,
 		setDocTitle: setDocTitle,
 		iw: setImageWidth,
 		setImageWidth: setImageWidth,
@@ -1961,7 +1962,7 @@ function cleanupGeneral()
 	replaceElementsBySelector("center", "div");
 	remove("a", "textContent", "equals", "Section");
 	setDocTitle();
-	removeAttributes();
+	cleanupAttributes();
 	deletePlainSpanTags();
 	replaceAudio();
 	appendInfo();
@@ -1988,7 +1989,7 @@ function cleanupGeneral_light()
 	replaceElementsBySelector("center", "div");
 	setDocTitle();
 	del("x");
-	removeAttributes_regex();
+	cleanupAttributes_regex();
 	appendInfo();
 	document.body.className = "pad100 xShowImages";
 	const t2 = performance.now();
@@ -2780,11 +2781,12 @@ function replaceFontTags()
 	}
 	for (let i = f.length - 1; i >= 0; i--)
 	{
+		const fontElem = f[i];
 		fontElem.parentNode.replaceChild(replacements[i], fontElem);
 	}
 }
 
-function removeAttributes()
+function cleanupAttributes()
 {
 	const t1 = performance.now();
 	const elems = document.getElementsByTagName('*');
@@ -2824,7 +2826,15 @@ function removeAttributes()
 	xlog(t2 - t1 + "ms: removeAttributes");
 }
 
-function removeAttributesOf(selector, attribute)
+function setAttribute(selector, attribute, value)
+{
+	const e = get(selector);
+	let i = e.length;
+	while(i--)
+		e[i].setAttribute(attribute, value);
+}
+
+function removeAttribute(selector, attribute)
 {
 	const e = get(selector);
 	var i = e.length;
@@ -2832,13 +2842,13 @@ function removeAttributesOf(selector, attribute)
 		e[i].removeAttribute(attribute);
 }
 
-function removeAttributes_regex()
+function cleanupAttributes_regex()
 {
 	const t1 = performance.now();
 	document.body.removeAttribute("background");
 	document.body.innerHTML = document.body.innerHTML.replace(/(<[^ai][a-z0-9]*) [^>]+/gi, '$1');
 	const t2 = performance.now();
-	xlog(t2 - t1 + "ms: removeAttributes_regex");
+	xlog(t2 - t1 + "ms: cleanupAttributes_regex");
 }
 
 function forAll(selector, callback)
@@ -4209,7 +4219,7 @@ function cleanupWikipedia()
 	replaceElementsBySelector(".thumbcaption", "figcaption");
 	replaceElementsBySelector("sup", "small");
 	getBestImageSrc();
-	removeAttributes();
+	cleanupAttributes();
 	document.body.className = "pad100 xwrap";
 	insertStyle("img { width: 100%; }", "styleWikipedia", true);
 	setTimeout(function(){deleteImagesSmallerThan(50, 50)}, 5000);
@@ -5261,7 +5271,7 @@ function handleKeyDown(e)
 			case KEYCODES.R: highlightAnchorNode("blockquote"); break;
 			case KEYCODES.K: showPrintLink(); break;
 			case KEYCODES.L: logout(); break;
-			case KEYCODES.W: removeAttributes(); break;
+			case KEYCODES.W: cleanupAttributes(); break;
 			case KEYCODES.FORWARD_SLASH: focusButton(); break;
 			case KEYCODES.F12: highlightCode(true); break;
 		}
