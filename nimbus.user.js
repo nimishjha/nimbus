@@ -2188,7 +2188,9 @@ function toggleStyleSimpleNegative()
 	'mark {color: #FF0; }' +
 	'a, a[class] *, * a[class] {color: #09F; }' +
 	'a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #FFF; }' +
-	'a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #048; }';
+	'a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #048; }' +
+	'button[class], input[class], textarea[class] { border: 2px solid #09F; }' +
+	'button[class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 2px solid #FFF; }';
 	toggleStyle(s, "styleSimpleNegative", true);
 }
 
@@ -5152,7 +5154,8 @@ function inject()
 	xlog("Referrer: " + document.referrer);
 	xlog("Page loaded at " + getTimestamp());
 	doStackOverflow();
-	console.log("Nimbus active");
+	console.log("Nimbus loaded");
+	showMessageBig("Nimbus loaded");
 }
 
 function main()
