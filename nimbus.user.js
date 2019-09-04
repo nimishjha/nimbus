@@ -5106,7 +5106,11 @@ function revealLinkHrefs()
 	const e = get("a");
 	let i = e.length;
 	while(i--)
+	{
+		if(e[i].getElementsByTagName("img").length)
+			continue;
 		e[i].textContent = e[i].getAttribute("href");
+	}
 }
 
 function humanizeUrl(s)
