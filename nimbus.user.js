@@ -54,6 +54,8 @@ const Nimbus = {
 		createTagsByClassName: createTagsByClassName,
 		del: del,
 		delClassContaining: delClassContaining,
+		delNewlines: delNewlines,
+		delRange: delRange,
 		deleteElementsContainingText: deleteElementsContainingText,
 		deleteEmptyElements: deleteEmptyElements,
 		deleteEmptyHeadings: deleteEmptyHeadings,
@@ -62,14 +64,12 @@ const Nimbus = {
 		deleteImagesBySrcContaining: deleteImagesBySrcContaining,
 		deleteImagesSmallerThan: deleteImagesSmallerThan,
 		deleteNonContentElements: deleteNonContentElements,
-		markNavigationalLists: markNavigationalLists,
 		deleteNonContentImages: deleteNonContentImages,
 		deletePlainSpanTags: deletePlainSpanTags,
 		deleteSmallImages: deleteSmallImages,
 		deleteSpecificEmptyElements: deleteSpecificEmptyElements,
-		delNewlines: delNewlines,
-		delRange: delRange,
 		deselect: deselect,
+		edit: toggleContentEditable,
 		fillForms: fillForms,
 		fixHeadings: fixHeadings,
 		fixParagraphs: fixParagraphs,
@@ -91,34 +91,35 @@ const Nimbus = {
 		getSelectorsWithLightBackgrounds: getSelectorsWithLightBackgrounds,
 		handleBlockEditClick: handleBlockEditClick,
 		hasClassesContaining: hasClassesContaining,
+		highlightAllMatches: highlightAllMatches,
 		highlightAllTableCellsInRow: highlightAllTableCellsInRow,
 		highlightCode: highlightCode,
-		mark: mark,
-		markElementsBySelector: markElementsBySelector,
-		markElementsWithCssRule: markElementsWithCssRule,
-		markElementsWithSetWidths: markElementsWithSetWidths,
-		markElementsByAttributeValueContaining: markElementsByAttributeValueContaining,
 		highlightLinksInPres: highlightLinksInPres,
 		highlightLinksWithHrefContaining: highlightLinksWithHrefContaining,
 		highlightNodesContaining: highlightNodesContaining,
 		highlightSelection: highlightSelection,
-		highlightAllMatches: highlightAllMatches,
 		highlightSpecificNodesContaining: highlightSpecificNodesContaining,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		insertStyle: insertStyle,
-		toggleStyleGrey: toggleStyleGrey,
 		insertStyleHighlight: insertStyleHighlight,
+		iw: setImageWidth,
 		makeHeadingFromSelection: makeHeadingFromSelection,
 		makeHeadings: makeHeadings,
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
 		makeLinkTextPlain: makeLinkTextPlain,
+		mark: mark,
 		markDivDepth: markDivDepth,
+		markElementsByAttributeValueContaining: markElementsByAttributeValueContaining,
+		markElementsBySelector: markElementsBySelector,
+		markElementsWithCssRule: markElementsWithCssRule,
+		markElementsWithSetWidths: markElementsWithSetWidths,
+		markNavigationalLists: markNavigationalLists,
 		markOverlays: markOverlays,
-		markUppercaseParagraphs: markUppercaseParagraphs,
 		markTableRowsAndColumns: markTableRowsAndColumns,
+		markUppercaseParagraphs: markUppercaseParagraphs,
 		numberDivs: numberDivs,
-		om: observeMutations,
 		observeMutations: observeMutations,
+		om: observeMutations,
 		parseCode: parseCode,
 		remove: remove,
 		removeAccesskeys: removeAccesskeys,
@@ -131,8 +132,8 @@ const Nimbus = {
 		replaceClass: replaceClass,
 		replaceCommentsWithPres: replaceCommentsWithPres,
 		replaceDiacritics: replaceDiacritics,
-		replaceElementsBySelector: replaceElementsBySelector,
 		replaceElementsByClassesContaining: replaceElementsByClassesContaining,
+		replaceElementsBySelector: replaceElementsBySelector,
 		replaceFontTags: replaceFontTags,
 		replaceIframes: replaceIframes,
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
@@ -145,7 +146,6 @@ const Nimbus = {
 		sanitizeTitle: sanitizeTitle,
 		setAttribute: setAttribute,
 		setDocTitle: setDocTitle,
-		iw: setImageWidth,
 		setImageWidth: setImageWidth,
 		showDocumentStructure2: showDocumentStructure2,
 		showDocumentStructure: showDocumentStructure,
@@ -155,9 +155,9 @@ const Nimbus = {
 		showTextToHTMLRatio: showTextToHTMLRatio,
 		toggleBlockEditMode: toggleBlockEditMode,
 		toggleContentEditable: toggleContentEditable,
-		edit: toggleContentEditable,
 		toggleShowAriaAttributes: toggleShowAriaAttributes,
 		toggleShowAriaProblems: toggleShowAriaProblems,
+		toggleStyleGrey: toggleStyleGrey,
 		toggleStyleNegative: toggleStyleNegative,
 		toggleStyleShowClasses: toggleStyleShowClasses,
 		toggleStyleWhite: toggleStyleWhite,
@@ -275,14 +275,13 @@ function del(arg)
 {
 	if(!arg)
 		return;
-	let i, ii;
 	if(arg.nodeType)
 		arg.parentNode.removeChild(arg);
 	else if(arg.length)
 		if(typeof arg === "string")
 			del(get(arg));
 		else
-			for(i = 0, ii = arg.length; i < ii; i++)
+			for(let i = 0, ii = arg.length; i < ii; i++)
 				del(arg[i]);
 }
 
@@ -2825,7 +2824,7 @@ function cleanupAttributes()
 		}
 	}
 	const t2 = performance.now();
-	xlog(t2 - t1 + "ms: removeAttributes");
+	xlog(t2 - t1 + "ms: cleanupAttributes");
 }
 
 function setAttribute(selector, attribute, value)
