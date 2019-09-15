@@ -4223,7 +4223,6 @@ function cleanupWikipedia()
 	cleanupAttributes();
 	document.body.className = "pad100 xwrap";
 	insertStyle("img { width: 100%; }", "styleWikipedia", true);
-	setTimeout(function(){deleteImagesSmallerThan(50, 50)}, 5000);
 }
 
 function getKeys(obj)
