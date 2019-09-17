@@ -4102,24 +4102,27 @@ function highlightNodesContaining(selector, str)
 	let i = e.length;
 	while (i--)
 	{
-		if(e[i].querySelectorAll(selector).length)
+		const node = e[i];
+		if(node.querySelectorAll(selector).length)
 			continue;
-		if(~e[i].textContent.indexOf(str))
+		if(~node.textContent.indexOf(str))
 		{
-			e[i].classList.add("hl");
-			if(e[i].tagName.toLowerCase() === "tr")
-				highlightAllTableCellsInRow(e[i]);
-			else
-				e[i].innerHTML = markerTagOpen + e[i].innerHTML + markerTagClose;
-		}
-		if(selector.toLowerCase() === "a")
-		{
-			if(e[i].href && e[i].href.indexOf(str) >= 0)
+			switch(node.tagName.toLowerCase())
 			{
-				e[i].classList.add("hl");
-				e[i].innerHTML =markerTagOpen + e[i].innerHTML + markerTagClose;
+				case "a":
+					node.innerHTML = markerTagOpen + node.innerHTML + markerTagClose;
+					break;
+				case "tr":
+					highlightAllTableCellsInRow(node);
+					break;
+				default:
+					node.classList.add("hl");
+					node.innerHTML = markerTagOpen + node.innerHTML + markerTagClose;
+					break;
 			}
 		}
+		if(node.tagName.toLowerCase() === "a" && node.href && ~node.href.indexOf(str))
+			node.innerHTML = markerTagOpen + node.innerHTML + markerTagClose;
 	}
 }
 
