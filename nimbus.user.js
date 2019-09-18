@@ -36,7 +36,7 @@ const Nimbus = {
 	messageTimeout: null,
 	availableFunctions: {
 		addLinksToLargerImages: addLinksToLargerImages,
-		addParagraphs: addParagraphs,
+		convertDivsToParagraphs: convertDivsToParagraphs,
 		annotate: annotate,
 		appendInfo: appendInfo,
 		buildSlideshow: buildSlideshow,
@@ -53,7 +53,6 @@ const Nimbus = {
 		createPagerFromSelect: createPagerFromSelect,
 		createTagsByClassName: createTagsByClassName,
 		del: del,
-		delClassContaining: delClassContaining,
 		delNewlines: delNewlines,
 		delRange: delRange,
 		deleteElementsContainingText: deleteElementsContainingText,
@@ -84,7 +83,6 @@ const Nimbus = {
 		getBestImageSrc: getBestImageSrc,
 		getContentByParagraphCount: getContentByParagraphCount,
 		getElementsContainingText: getElementsContainingText,
-		getElementsWithClass: getElementsWithClass,
 		getImages: getImages,
 		getLargeImages: getLargeImages,
 		getPagerLinks: getPagerLinks,
@@ -123,11 +121,12 @@ const Nimbus = {
 		parseCode: parseCode,
 		remove: remove,
 		removeAccesskeys: removeAccesskeys,
-		removeAllResources: removeAllResources,
+		regressivelyUnenhance: regressivelyUnenhance,
 		removeAttribute: removeAttribute,
 		removeClassFromAll: removeClassFromAll,
 		removeEventListeners: removeEventListeners,
 		removeInlineStyles: removeInlineStyles,
+		removeLinkEventListeners: removeLinkEventListeners,
 		replaceAudio: replaceAudio,
 		replaceClass: replaceClass,
 		replaceCommentsWithPres: replaceCommentsWithPres,
@@ -2086,11 +2085,12 @@ function cleanupHead()
 	document.title = tempTitle;
 }
 
-function removeAllResources()
+function regressivelyUnenhance()
 {
 	cleanupHead();
 	del(["link", "style", "script"]);
 	removeInlineStyles();
+	removeLinkEventListeners();
 }
 
 function removeInlineStyles()
@@ -2909,28 +2909,23 @@ function normalizeWhitespace(s)
 
 function cleanupHeadings()
 {
-	const headingTags = ["h1", "h2", "h3", "h4", "h5", "h6"];
-	let i = headingTags.length;
-	while (i--)
+	const headingElements = get("h1, h2, h3, h4, h5, h6");
+	let i = headingElements.length;
+	while(i--)
 	{
-		const headingElements = get(headingTags[i]);
-		let j = headingElements.length;
-		while (j--)
+		const heading = headingElements[i];
+		let s = heading.innerHTML;
+		s = s.replace(/<[^as\/][a-z0-9]*>/g, " ");
+		s = s.replace(/<\/[^as][a-z0-9]*>/g, " ");
+		heading.innerHTML = s.trim();
+		if(trim(heading.textContent).length === 0)
 		{
-			const heading = headingElements[j];
-			let s = heading.innerHTML;
-			s = s.replace(/<[^as\/][a-z0-9]*>/g, " ");
-			s = s.replace(/<\/[^as][a-z0-9]*>/g, " ");
-			heading.innerHTML = s.trim();
-			if(trim(heading.textContent).length === 0)
-			{
-				heading.parentNode.removeChild(heading);
-			}
+			heading.parentNode.removeChild(heading);
 		}
 	}
 }
 
-function addParagraphs()
+function convertDivsToParagraphs()
 {
 	const divs = get("div");
 	let i = divs.length;
@@ -2983,7 +2978,6 @@ function makeHeadings()
 				elem.className = "parah3";
 			}
 		}
-		// If the original page has headings as bold e, fix those
 		tags = ["b", "strong", "em"];
 		for (j = tags.length - 1; j >= 0; j--)
 		{
@@ -3003,10 +2997,8 @@ function makeHeadings()
 	while(i--)
 	{
 		const elem = e[i];
-		if(elem.href && ( elem.href.indexOf("profile") >= 0 || elem.href.indexOf("member") >= 0 || elem.href.indexOf("user") >= 0 ) )
-		{
+		if(elem.href && containsAnyOfTheStrings(elem.href, ["profile", "member", "user", "/u/"]))
 			elem.className = "highlightthis";
-		}
 	}
 	replaceElementsBySelector(".parah2", "h2");
 	replaceElementsBySelector(".parah3", "h3");
@@ -3014,7 +3006,7 @@ function makeHeadings()
 	e = get(".highlightthis");
 	i = e.length;
 	while(i--)
-		wrapElement(e[i], "cite");
+		wrapElement(e[i], "h4");
 }
 
 function markNavigationalLists()
@@ -3068,27 +3060,28 @@ function logout()
 	i = e.length;
 	for(i = 0, ii = e.length; i < ii; i++)
 	{
-		if(e[i].href)
+		const node = e[i];
+		if(node.href)
 		{
-			s = normalizeString(e[i].href);
+			s = normalizeString(node.href);
 			if( s.indexOf("logout") >= 0 && s.indexOf("logout_gear") === -1 || s.indexOf("signout") >= 0)
 			{
 				found = true;
-				showMessageBig(e[i].href);
-				e[i].classList.add("hl");
-				e[i].click();
+				showMessageBig(node.href);
+				node.classList.add("hl");
+				node.click();
 				break;
 			}
 		}
-		if(e[i].textContent)
+		if(node.textContent)
 		{
-			s = normalizeString(e[i].textContent);
+			s = normalizeString(node.textContent);
 			if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 			{
 				found = true;
-				showMessageBig(e[i].href);
-				e[i].classList.add("hl");
-				e[i].click();
+				showMessageBig(node.href);
+				node.classList.add("hl");
+				node.click();
 				break;
 			}
 		}
@@ -3098,27 +3091,28 @@ function logout()
 		e = document.querySelectorAll("input", "button");
 		for(i = 0, ii = e.length; i < ii; i++)
 		{
-			if(e[i].value)
+			const node = e[i];
+			if(node.value)
 			{
-				s = normalizeString(e[i].value);
+				s = normalizeString(node.value);
 				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 				{
 					found = true;
 					showMessageBig("Logging out...");
-					e[i].classList.add("hl");
-					e[i].click();
+					node.classList.add("hl");
+					node.click();
 					break;
 				}
 			}
-			else if(e[i].textContent)
+			else if(node.textContent)
 			{
-				s = normalizeString(e[i].textContent);
+				s = normalizeString(node.textContent);
 				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 				{
 					found = true;
 					showMessageBig("Logging out...");
-					e[i].classList.add("hl");
-					e[i].click();
+					node.classList.add("hl");
+					node.click();
 					break;
 				}
 			}
@@ -3138,10 +3132,11 @@ function showPrintLink()
 	i = e.length;
 	while(i--)
 	{
-		if(e[i].href && removeWhitespace(e[i].href).toLowerCase().indexOf("print") >= 0)
+		const href = e[i].href;
+		if(href && href.toLowerCase().indexOf("print") >= 0)
 		{
 			found = true;
-			const printLink = createElement("a", { href: e[i].href, textContent: "Print" });
+			const printLink = createElement("a", { href: href, textContent: "Print" });
 			document.body.insertBefore(createElementWithChild("h2", printLink), document.body.firstChild);
 			printLink.focus();
 			break;
@@ -3328,14 +3323,15 @@ function highlightCode(highlightKeywords)
 	let i = preBlocks.length;
 	while (i--)
 	{
+		const node = preBlocks[i];
 		// delete the <pre>s that only contain line numbers
-		if(preBlocks[i].textContent && preBlocks[i].textContent.match(/[a-z]/) === null)
+		if(node.textContent && node.textContent.match(/[a-z]/) === null)
 		{
-			preBlocks[i].parentNode.removeChild(preBlocks[i]);
+			node.parentNode.removeChild(node);
 			continue;
 		}
 
-		let s = preBlocks[i].innerHTML, r;
+		let s = node.innerHTML, r;
 		s = s.replace(/<span[^>]*>/g, "");
 		s = s.replace(/<\/span>/g, "");
 
@@ -3365,7 +3361,7 @@ function highlightCode(highlightKeywords)
 				s = s.replace(r, "<xk>" + keywords[j] + "</xk>");
 			}
 		}
-		preBlocks[i].innerHTML = s;
+		node.innerHTML = s;
 	}
 	// un-highlight elements in comments
 	forAll("c1", htmlToText);
@@ -3377,45 +3373,6 @@ function highlightCode(highlightKeywords)
 function htmlToText(elem)
 {
 	elem.innerHTML = elem.textContent;
-}
-
-function delClassContaining(classes)
-{
-	const todel = [];
-	const x = get("div");
-	let i = x.length;
-	while (i--)
-		if(x[i].className && x[i].className.length && containsAnyOfTheStrings(x[i].className, classes))
-			todel.push(x[i]);
-	i = todel.length;
-	while(i--)
-		del(todel[i]);
-}
-
-function getElementsWithClass(strClass)
-{
-	if(!strClass || strClass.length === 0)
-		return;
-	if(strClass.indexOf(".") !== 0)
-		strClass = "." + strClass;
-	const e = get(strClass);
-	const tempNode = createElement("div", { id: "replacerDiv" });
-	let i;
-	if(e && e.length)
-	{
-		for(i = 0; i < e.length; i++)
-			tempNode.appendChild(e[i].cloneNode(true));
-		document.body.innerHTML = tempNode.innerHTML;
-	}
-	else if(e)
-	{
-		document.body.innerHTML = "";
-		document.body.appendChild(e.cloneNode(true), document.body.firstChild);
-	}
-	else
-	{
-		showMessageBig(strClass + " not found");
-	}
 }
 
 function getElementsContainingText(selector, text)
@@ -3733,13 +3690,18 @@ function unescapeHTML(html)
 	return escapeElem.textContent;
 }
 
+function normalizeHTML(html)
+{
+	return html.replace(/&nbsp;/g, " ").replace(/\s+/g, " ");
+}
+
 function highlightTextAcrossTags(node, searchString)
 {
 	searchString = escapeHTML(searchString.replace(/\s+/g, " "));
-	node.innerHTML = node.innerHTML.replace(/\s+/g, " ");
-	if(~node.innerHTML.indexOf(searchString))
+	let nodeHTML = node.innerHTML;
+	if(~nodeHTML.indexOf(searchString))
 	{
-		node.innerHTML = node.innerHTML.replace(searchString, "<mark>" + searchString + "</mark>");
+		node.innerHTML = nodeHTML.replace(searchString, "<mark>" + searchString + "</mark>");
 		return;
 	}
 	let index1 = node.textContent.indexOf(searchString);
@@ -3782,6 +3744,7 @@ function highlightTextAcrossTags(node, searchString)
 				splitMatches.push(partialSearchString);
 		}
 	}
+	console.log(printArray(splitMatches));
 	highlightAllMatchesInNode(node, splitMatches);
 }
 
@@ -3805,7 +3768,7 @@ function expandToWordBoundaries(node, selection)
 	const text = node.textContent;
 	let index1 = text.indexOf(selection);
 	if(index1 === -1)
-		return;
+		return selection;
 	let index2 = index1 + selection.length;
 	while(text[index1].match(/[\w\.\?!]/) && index1 > 0)
 		index1--;
@@ -3829,9 +3792,7 @@ function highlightSelection()
 	let selectionText = trim(removeLineBreaks(selection.toString()));
 	while (node.parentNode && (node.textContent.length < selectionText.length || node.nodeType !== 1))
 		node = node.parentNode;
-	let nodeHTML = node.innerHTML;
-	nodeHTML = removeLineBreaks(nodeHTML);
-	node.innerHTML = nodeHTML;
+	node.innerHTML = normalizeHTML(node.innerHTML);
 	if(!node || node.tagName === undefined)
 	{
 		showMessageBig("Couldn't get anchorNode");
@@ -4007,7 +3968,7 @@ function restorePres()
 function fixParagraphs()
 {
 	fixPres();
-	addParagraphs();
+	convertDivsToParagraphs();
 	let s = document.body.innerHTML;
 	s = s.replace(/\s*<br>\s*/g, "<br>");
 	s = s.replace(/<br>([a-z])/g, " $1");
@@ -4301,6 +4262,18 @@ function removeClassFromAllQuiet(className)
 	let i = e.length;
 	while(i--)
 		e[i].classList.remove(className);
+}
+
+function removeLinkEventListeners()
+{
+	const links = get("a");
+	let i = links.length;
+	while(i--)
+	{
+		const link = links[i];
+		const newLink = createElement("a", { innerHTML: link.innerHTML, href: link.href });
+		link.parentNode.replaceChild(newLink, link);
+	}
 }
 
 function replaceClass(class1, class2)
@@ -5235,7 +5208,7 @@ function handleKeyDown(e)
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteElementsContainingText); break;
-			case KEYCODES.J: removeAllResources(); break;
+			case KEYCODES.J: regressivelyUnenhance(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.L: showLog(); break;
 			case KEYCODES.M: markSelectionAnchorNode(); break;
