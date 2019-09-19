@@ -4819,16 +4819,6 @@ function formatEbook()
 	makeHeadingsByTextLength();
 }
 
-function getMutatedAttributeValue(mutation)
-{
-	const target = mutation.target;
-	switch(mutation.attributeName)
-	{
-		case 'class': return target.className;
-		default: return target.getAttribute(mutation.attributeName) || "[getAttribute failed]";
-	}
-}
-
 function logMutations(mutations)
 {
 	let i, ii;
@@ -4850,7 +4840,7 @@ function logMutations(mutations)
 		}
 		else if(mutation.type === "attributes")
 		{
-			console.log(padRight("Mutation: attribute", 25) + padRight(getIdAndClass(mutation.target), 50) + "'" + mutation.attributeName + "' changed to '" + getMutatedAttributeValue(mutation) + "'");
+			console.log(padRight("Mutation: attribute", 25) + padRight(getIdAndClass(mutation.target), 50) + "'" + mutation.attributeName + "' changed to '" + mutation.target.getAttribute(mutation.attributeName) + "'");
 		}
 	}
 }
