@@ -78,7 +78,6 @@ const Nimbus = {
 		forAll: forAll,
 		forceReloadCss: forceReloadCss,
 		formatEbook: formatEbook,
-		getAllClasses: getAllClasses,
 		getAllCssRulesMatching: getAllCssRulesMatching,
 		getBestImageSrc: getBestImageSrc,
 		getContentByParagraphCount: getContentByParagraphCount,
@@ -101,6 +100,7 @@ const Nimbus = {
 		insertStyle: insertStyle,
 		insertStyleHighlight: insertStyleHighlight,
 		iw: setImageWidth,
+		logAllClasses: logAllClasses,
 		makeHeadingFromSelection: makeHeadingFromSelection,
 		makeHeadings: makeHeadings,
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
@@ -115,9 +115,10 @@ const Nimbus = {
 		markOverlays: markOverlays,
 		markTableRowsAndColumns: markTableRowsAndColumns,
 		markUppercaseParagraphs: markUppercaseParagraphs,
+		markNumericParagraphs: markNumericParagraphs,
 		numberDivs: numberDivs,
-		observeMutations: observeMutations,
-		om: observeMutations,
+		toggleMutationObserver: toggleMutationObserver,
+		om: toggleMutationObserver,
 		parseCode: parseCode,
 		remove: remove,
 		removeAccesskeys: removeAccesskeys,
@@ -1007,20 +1008,18 @@ function showDocumentStructureWithNames()
 		document.body.classList.remove("showdivs");
 		return;
 	}
-	const tags = ['table', 'tr', 'td', 'div', 'ul', 'aside', 'header', 'footer', 'article', 'section'];
-	for (let j = 0, jj = tags.length; j < jj; j++)
+	const e = get("table, tr, td, div, ul, aside, header, footer, article, section");
+	let i = e.length;
+	while(i--)
 	{
-		const e = get(tags[j]);
-		let i = e.length;
-		while(i--)
-		{
-			const elem = e[i];
-			let idsAndClasses = "";
-			if(elem.hasAttribute("id")) idsAndClasses += "#" + elem.id;
-			if(elem.hasAttribute("class")) idsAndClasses += " ." + elem.className;
-			if(elem.firstChild !== null) elem.insertBefore(createElement("x", { textContent: idsAndClasses }), elem.firstChild);
-			else elem.appendChild(createElement("x", { textContent: idsAndClasses }));
-		}
+		const elem = e[i];
+		let idsAndClasses = "";
+		if(elem.hasAttribute("id")) idsAndClasses += "#" + elem.id;
+		if(elem.hasAttribute("class")) idsAndClasses += " ." + elem.className;
+		if(elem.firstChild !== null)
+			elem.insertBefore(createElement("x", { textContent: idsAndClasses }), elem.firstChild);
+		else
+			elem.appendChild(createElement("x", { textContent: idsAndClasses }));
 	}
 	document.body.classList.add("showdivs");
 	const s = 'body { padding: 100px; }' +
@@ -1382,19 +1381,19 @@ function annotate()
 
 function annotateElement(elem, message)
 {
-	const annotation = createElement("annotationInfo", { textContent: message });
+	const annotation = createElement("annotationinfo", { textContent: message });
 	elem.insertBefore(annotation, elem.firstChild);
 }
 
 function annotateElementWarning(elem, message)
 {
-	const annotation = createElement("annotationWarning", { textContent: message });
+	const annotation = createElement("annotationwarning", { textContent: message });
 	elem.insertBefore(annotation, elem.firstChild);
 }
 
 function annotateElementError(elem, message)
 {
-	const annotation = createElement("annotationError", { textContent: message });
+	const annotation = createElement("annotationerror", { textContent: message });
 	elem.insertBefore(annotation, elem.firstChild);
 }
 
@@ -1568,7 +1567,7 @@ function unhighlightAll()
 	i = g.length;
 	while (i--)
 		g[i].classList.remove("error");
-	del(["annotationInfo", "annotationWarning", "annotationError"]);
+	del(["annotationinfo", "annotationwarning", "annotationerror"]);
 }
 
 function getIdAndClass(elem)
@@ -1674,23 +1673,21 @@ function getImages(slideshow)
 		}
 		for(i = 0, ii = f.length; i < ii; i++)
 		{
-			if(f[i].hasAttribute("src")) // if it's not a duplicate
+			const image = f[i];
+			if(image.hasAttribute("src")) // if it's not a duplicate
 			{
-				f[i].removeAttribute("width");
-				f[i].removeAttribute("height");
-				w = f[i].naturalWidth;
-				h = f[i].naturalHeight;
+				image.removeAttribute("width");
+				image.removeAttribute("height");
+				w = image.naturalWidth;
+				h = image.naturalHeight;
 				if(w && h && (w > window.innerWidth || h > window.innerHeight))
 				{
 					if( w / h > 16 / 9 )
-						f[i].className = "wide ratio" + w + "x" + h;
+						image.className = "wide ratio" + w + "x" + h;
 					else
-						f[i].className = "tall ratio" + w + "x" + h;
+						image.className = "tall ratio" + w + "x" + h;
 				}
-				//if(f[i].parentNode && f[i].parentNode.tagName && f[i].parentNode.tagName.toLowerCase() === "a")
-				//	galleryElement.appendChild(f[i].parentNode.cloneNode(true));
-				//else
-				galleryElement.appendChild(f[i].cloneNode(true));
+				galleryElement.appendChild(image.cloneNode(true));
 			}
 		}
 		if(!slideshow)
@@ -1901,16 +1898,16 @@ function replaceImagesWithTextLinks()
 
 function replaceAudio()
 {
-	let e, i, f, g;
-	e = get("source"), i = e.length;
+	let sources = get("source");
+	let i = sources.length;
 	while(i--)
 	{
-		const elem = e[i];
-		if(elem.src)
+		const source = sources[i];
+		if(source.src)
 		{
-			f = createElement("a", { href: elem.src, textContent: elem.src });
-			g = createElementWithChild("h2", f);
-			elem.parentNode.replaceChild(g, elem);
+			const audioLink = createElement("a", { href: source.src, textContent: source.src });
+			const audioLinkWrapper = createElementWithChild("h2", audioLink);
+			source.parentNode.replaceChild(audioLinkWrapper, source);
 		}
 	}
 	replaceElementsBySelector("audio", "div");
@@ -2165,10 +2162,10 @@ function insertStyleHighlight()
 
 function insertStyleAnnotations()
 {
-	const s = "annotationInfo, annotationWarning, annotationError { display: inline-block; font: 14px helvetica; padding: 2px 5px; border-radius: 0; }" +
-			"annotationInfo { background: #000; color: #0F0; }" +
-			"annotationWarning { background: #000; color: #F90; }" +
-			"annotationError { background: #A00; color: #FFF; }";
+	const s = "annotationinfo, annotationwarning, annotationerror { display: inline-block; font: 14px helvetica; padding: 2px 5px; border-radius: 0; }" +
+			"annotationinfo { background: #000; color: #0F0; }" +
+			"annotationwarning { background: #000; color: #F90; }" +
+			"annotationerror { background: #A00; color: #FFF; }";
 	insertStyle(s, "styleAnnotations", true);
 }
 
@@ -2421,7 +2418,7 @@ function toggleShowAriaAttributes()
 		if( elem.hasAttribute("role"))
 		{
 			elem.classList.add("hl2");
-			elem.insertBefore(createElement("annotationInfo", { textContent: "role: " + elem.getAttribute("role") }), elem.firstChild);
+			elem.insertBefore(createElement("annotationinfo", { textContent: "role: " + elem.getAttribute("role") }), elem.firstChild);
 		}
 
 		if(elem.attributes)
@@ -2430,7 +2427,7 @@ function toggleShowAriaAttributes()
 			let j = attrs.length;
 			while(j--)
 				if(attrs[j].name.indexOf("aria-") === 0)
-					elem.insertBefore(createElement("annotationWarning", { textContent: attrs[j].name + ": " + attrs[j].value }), elem.firstChild);
+					elem.insertBefore(createElement("annotationwarning", { textContent: attrs[j].name + ": " + attrs[j].value }), elem.firstChild);
 		}
 	}
 
@@ -2579,6 +2576,7 @@ function chooseDocumentHeading()
 		candidateTags = candidateTags.concat(headings2);
 	if(!Nimbus.candidateHeadingElements)
 		Nimbus.candidateHeadingElements = [];
+	console.log({ candidateTags, candidateHeadingElements: Nimbus.candidateHeadingElements });
 	for(let i = 0, ii = Math.min(10, candidateTags.length); i < ii; i++)
 	{
 		Nimbus.candidateHeadingElements.push(candidateTags[i]);
@@ -2697,7 +2695,7 @@ function setDocTitle(s)
 		{
 			if(longestlabel.length < labels[i].length) longestlabel = labels[i];
 		}
-		if(!(s.indexOf(longestlabel) > 0))
+		if(s.indexOf(longestlabel) === -1)
 			s += " [" + longestlabel + "]";
 	}
 	document.title = s;
@@ -3439,29 +3437,20 @@ function deleteNonContentElements()
 	deleteEmptyElements("div");
 	return;
 
-	// tags which are used to mark content divs
-	// if a div contains any of these tags, we want to retain it
-	const tags = ["p", "img", "h1", "h2", "pre", "ol", "cite"];
-	let j = tags.length;
-	let i, ii;
-	while(j--)
-	{
-		const e = get(tags[j]);
-		for(i = 0, ii = e.length; i < ii; i++)
-		{
-			if(e[i].parentNode)
-				e[i].parentNode.className = sClass;
-		}
-	}
-	document.body.classList.remove(sClass);
-	const e = get("div");
-	i = e.length;
-	while(i--)
-	{
-		if(e[i].className.indexOf(sClass) === -1 && !e[i].getElementsByClassName(sClass).length)
-			e[i].className = "hl";
-	}
-	document.body.className = "xwrap pad100";
+	// const e = get("p, img, h1, h2, pre, ol, cite");
+	// for(let i = 0, ii = e.length; i < ii; i++)
+	// 	if(e[i].parentNode)
+	// 		e[i].parentNode.className = sClass;
+	// document.body.classList.remove(sClass);
+	// const divs = get("div");
+	// let i = divs.length;
+	// while(i--)
+	// {
+	// 	const div = divs[i];
+	// 	if(div.className.indexOf(sClass) === -1 && !div.getElementsByClassName(sClass).length)
+	// 		div.className = "hl";
+	// }
+	// document.body.className = "xwrap pad100";
 }
 
 function getContentByParagraphCount()
@@ -3605,23 +3594,18 @@ function deleteEmptyElements(tag)
 
 function deleteEmptyHeadings()
 {
-	const tags = ["h1", "h2", "h3", "h4", "h5", "h6"];
-	let i, j;
-	for (j = tags.length - 1; j >= 0; j--)
+	const e = get("h1, h2, h3, h4, h5, h6");
+	let i = e.length;
+	while (i--)
 	{
-		const e = document.getElementsByTagName(tags[j]);
-		i = e.length;
-		while (i--)
+		if(e[i].textContent)
 		{
-			if(e[i].textContent)
-			{
-				if(removeWhitespace(e[i].textContent).length === 0)
-					e[i].parentNode.removeChild(e[i]);
-			}
-			else
-			{
+			if(removeWhitespace(e[i].textContent).length === 0)
 				e[i].parentNode.removeChild(e[i]);
-			}
+		}
+		else
+		{
+			e[i].parentNode.removeChild(e[i]);
 		}
 	}
 }
@@ -3630,41 +3614,6 @@ function escapeForRegExp(str)
 {
 	const specials = new RegExp("[.*+?|()\\[\\]{}\\\\]", "g");
 	return str.replace(specials, "\\$&");
-}
-
-function getSelectionHTML()
-{
-	let range;
-	let userSelection;
-	if(window.getSelection)
-	{
-		userSelection = window.getSelection();
-		if(userSelection.getRangeAt)
-		{
-			range = userSelection.getRangeAt(0);
-		}
-		else
-		{
-			range = document.createRange();
-			range.setStart(userSelection.anchorNode, userSelection.anchorOffset);
-			range.setEnd(userSelection.focusNode, userSelection.focusOffset);
-		}
-		// And the HTML:
-		const clonedSelection = range.cloneContents();
-		const div = document.createElement('div');
-		div.appendChild(clonedSelection);
-		return div.innerHTML;
-	}
-	else if(document.selection)
-	{
-		// Explorer selection, return the HTML
-		userSelection = document.selection.createRange();
-		return userSelection.htmlText;
-	}
-	else
-	{
-		return '';
-	}
 }
 
 function removeLineBreaks(s)
@@ -4764,18 +4713,9 @@ function createTagsByClassName()
 function makeHeadingsByTextLength()
 {
 	let e = get("div, p");
-	let i = e.length;
-	const classes = {};
+	const classes = getAllClasses("div, p");
 	let headingClasses = [];
 	let strClass;
-	while(i--)
-	{
-		strClass = e[i].className.replace(/\s+/, "");
-		if(strClass.length && !classes[strClass])
-		{
-			classes[strClass] = null;
-		}
-	}
 	let selector;
 	let averageTextLength;
 	for(let j = 0, jj = classes.length; j < jj; j++)
@@ -4783,9 +4723,9 @@ function makeHeadingsByTextLength()
 		const className = classes[j];
 		selector = "." + className;
 		if(selector.length < 2) continue;
-		e = get(selector);
-		i = e.length;
 		let textLength = 0;
+		e = get(selector);
+		let i = e.length;
 		while(i--)
 		{
 			if(e[i].textContent.length)
@@ -4845,9 +4785,16 @@ function logMutations(mutations)
 	}
 }
 
-function observeMutations(watchAttributes)
+function toggleMutationObserver(watchAttributes)
 {
-	const observer = new MutationObserver(logMutations);
+	if(Nimbus.isObservingMutations)
+	{
+		Nimbus.observer.disconnect();
+		Nimbus.isObservingMutations = false;
+		showMessageBig("Stopped observing mutations");
+		return;
+	}
+	Nimbus.observer = new MutationObserver(logMutations);
 	let config = { childList: true };
 	let message = "Observing mutations";
 	if(watchAttributes)
@@ -4856,8 +4803,9 @@ function observeMutations(watchAttributes)
 		config.subtree = true;
 		message += " with attributes";
 	}
-	observer.observe(getOne("body"), config);
+	Nimbus.observer.observe(getOne("body"), config);
 	showMessageBig(message);
+	Nimbus.isObservingMutations = true;
 }
 
 function insertTab(evt)
@@ -4874,7 +4822,8 @@ function insertTab(evt)
 function handleConsoleInput(evt, consoleType)
 {
 	const userInputElement = getOne("#userInput");
-	if(!userInputElement) return;
+	if(!userInputElement)
+		return;
 	const inputText = userInputElement.value;
 	if (!inputText || !inputText.length)
 		return;
@@ -4897,7 +4846,6 @@ function handleConsoleInput(evt, consoleType)
 		case KEYCODES.TAB:
 			insertTab(evt);
 			return false;
-			break;
 		case KEYCODES.ESCAPE:
 			toggleConsole();
 			break;
@@ -4954,6 +4902,18 @@ function markUppercaseParagraphs()
 		cUpper = s.match(/[A-Z]/g);
 		cLower = s.match(/[a-z]/g);
 		if (cUpper && (!cLower || cUpper.length > cLower.length))
+			e[i].className = "hl";
+	}
+}
+
+function markNumericParagraphs()
+{
+	const e = get("p");
+	let i = e.length;
+	while(i--)
+	{
+		var s = e[i].textContent;
+		if(s && !isNaN(Number(s)))
 			e[i].className = "hl";
 	}
 }
@@ -5040,29 +5000,40 @@ function createPagerFromSelect()
 	document.body.appendChild(createElement("hr"));
 }
 
+function logAllClasses(selector)
+{
+	console.log(getAllClasses(selector).join("\n"));
+}
+
 function getAllClasses(selector)
 {
+	const t1 = performance.now();
 	let sel = "*";
 	if(selector && selector.length)
 		sel = selector;
-	const e = document.getElementsByTagName(sel);
-	let i = e.length;
+	const nodes = get(sel);
 	const classes = {};
-	let s = "";
-	let j;
+	let i = nodes.length;
 	while(i--)
 	{
-		const classList = e[i].classList;
-		j = classList.length;
-		while(j--)
+		const classList = Array.from(nodes[i].classList);
+		if(!classList.length)
 		{
-			classes[classList[j]] = true;
+			continue;
 		}
+		const elementClasses = classList.join('.');
+		const elementClassesSanitized = elementClasses.replace(/[^a-zA-Z0-9]+/g, '');
+		classes[elementClassesSanitized] = elementClasses;
 	}
-	let prop;
-	for(prop in classes)
-		s += prop + "\r\n";
-	console.log(s);
+	const keys = Object.keys(classes);
+	let result = [];
+	for(let j = 0, jj = keys.length; j < jj; j++)
+	{
+		result.push(classes[keys[j]]);
+	}
+	const t2 = performance.now();
+	console.log(t2 - t1 + " ms: getAllClasses");
+	return result;
 }
 
 function revealLinkHrefs()
@@ -5071,9 +5042,10 @@ function revealLinkHrefs()
 	let i = e.length;
 	while(i--)
 	{
-		if(e[i].getElementsByTagName("img").length)
+		const link = e[i];
+		if(link.getElementsByTagName("img").length)
 			continue;
-		e[i].textContent = e[i].getAttribute("href");
+		link.textContent = link.getAttribute("href");
 	}
 }
 
@@ -5095,8 +5067,11 @@ function revealEmptyLinks()
 	const e = get("a");
 	let i = e.length;
 	while(i--)
-		if(!e[i].textContent.length && e[i].href.length)
-			e[i].textContent = humanizeUrl(e[i].href);
+	{
+		const link = e[i];
+		if(!link.textContent.length && link.href.length)
+			link.textContent = humanizeUrl(link.href);
+	}
 }
 
 function makeLinkTextPlain()
@@ -5183,7 +5158,6 @@ function handleKeyDown(e)
 			case KEYCODES.F1: makeHeadingFromSelection("h1"); break;
 			case KEYCODES.F2: makeHeadingFromSelection("h2"); break;
 			case KEYCODES.F3: makeHeadingFromSelection("h3"); break;
-			case KEYCODES.ZERO: setDocTitle(); break;
 			case KEYCODES.ONE: cleanupGeneral(); break;
 			case KEYCODES.TWO: deleteImages(); break;
 			case KEYCODES.THREE: toggleClass(db, "xwrap"); break;
@@ -5193,6 +5167,7 @@ function handleKeyDown(e)
 			case KEYCODES.SEVEN: replaceCommentsWithPres(); break;
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
 			case KEYCODES.NINE: toggleStyleShowClasses(); break;
+			case KEYCODES.ZERO: setDocTitle(); break;
 			case KEYCODES.I: toggleConsole("css"); break;
 			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", ""]); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
