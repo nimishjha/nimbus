@@ -2549,8 +2549,9 @@ function toggleShowAriaProblems()
 function removeEventListeners()
 {
 	let db = document.body;
-	const tempbody = db.cloneNode(true);
-	db = tempbody;
+	const tempBody = db.cloneNode(true);
+	db.parentNode.replaceChild(tempBody, db);
+
 	const elems = document.getElementsByTagName("*");
 	let i = elems.length;
 	while (i--)
