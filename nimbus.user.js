@@ -2361,8 +2361,13 @@ function toggleContentEditable()
 	e.setAttribute("contenteditable", isEditable ? "true" : "false");
 	if(isEditable)
 	{
-		unhighlightAll();
+		showMessageBig("contentEditable ON");
 		e.focus();
+	}
+	else
+	{
+		showMessageBig("contentEditable OFF");
+		unhighlightAll();
 	}
 }
 
@@ -4695,6 +4700,7 @@ function createTagsByClassName()
 		element = e[i];
 		if(looksLikeHeading(element)) replaceSingleElement(element, "h2");
 		else if (looksLikeExtract(element)) replaceSingleElement(element, "blockquote");
+		else if (hasClassesContaining(element, ["index"])) replaceSingleElement(element, "dt");
 		else if (hasClassesContaining(element, ["fmtx"])) replaceSingleElement(element, "p");
 		else if (hasClassesContaining(element, ["image"])) replaceSingleElement(element, "figure");
 		else if (hasClassesContaining(element, ["caption"])) replaceSingleElement(element, "figcaption");
