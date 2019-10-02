@@ -665,7 +665,7 @@ function getSelectorsWithLightBackgrounds()
 		{
 			str += elem.tagName;
 			if(elem.id) str += "#" + elem.id;
-			if(elem.className) str += "." + elem.className;
+			if(elem.className) str += "." + Array.from(elem.classList).join('.');
 			str += ": " + bgColor + "\r\n";
 		}
 	}
