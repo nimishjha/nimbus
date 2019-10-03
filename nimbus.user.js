@@ -64,7 +64,7 @@ const Nimbus = {
 		deleteImagesSmallerThan: deleteImagesSmallerThan,
 		deleteNonContentElements: deleteNonContentElements,
 		deleteNonContentImages: deleteNonContentImages,
-		deletePlainSpanTags: deletePlainSpanTags,
+		replaceSpansWithTextNodes: replaceSpansWithTextNodes,
 		deleteSmallImages: deleteSmallImages,
 		deleteSpecificEmptyElements: deleteSpecificEmptyElements,
 		deselect: deselect,
@@ -1831,11 +1831,15 @@ function deleteSmallImages()
 			del(images[i]);
 }
 
-function deletePlainSpanTags()
+function replaceSpansWithTextNodes()
 {
-	let s = document.body.innerHTML;
-	s = s.replace(/<span>/g, "").replace(/<\/span>/g, "");
-	document.body.innerHTML = s;
+	const spans = get("span");
+	let i = spans.length;
+	while(i--)
+	{
+		const span = spans[i];
+		span.parentNode.replaceChild(document.createTextNode(span.textContent || ""), span);
+	}
 }
 
 function deleteMarkedElements()
@@ -1961,7 +1965,7 @@ function cleanupGeneral()
 	remove("a", "textContent", "equals", "Section");
 	setDocTitle();
 	cleanupAttributes();
-	deletePlainSpanTags();
+	replaceSpansWithTextNodes();
 	replaceAudio();
 	appendInfo();
 	getBestImageSrc();
