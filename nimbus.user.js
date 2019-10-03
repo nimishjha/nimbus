@@ -1485,6 +1485,20 @@ function getAllCssRulesMatching(s)
 	}
 }
 
+function handleStackOverflowMutations(mutations)
+{
+	let i = mutations.length;
+	while(i--)
+	{
+		const mutation = mutations[i];
+		if(mutation.addedNodes.length)
+		{
+			del("link");
+			del("script");
+		}
+	}
+}
+
 function doStackOverflow()
 {
 	const sites = ["stackexchange", "stackoverflow", "superuser", "serverfault"];
@@ -1503,18 +1517,7 @@ function doStackOverflow()
 			if(x.textContent && x.textContent.indexOf("up vote") !== -1)
 				x.setAttribute("style", "width: 200px");
 		});
-		const observer = new MutationObserver(function(mutations)
-		{
-			mutations.forEach(function(mutation)
-			{
-				if(mutation.addedNodes.length)
-				{
-					ylog("Deleting styles and scripts");
-					del("link");
-					del("script");
-				}
-			});
-		});
+		const observer = new MutationObserver(handleStackOverflowMutations);
 		observer.observe(getOne("head"), { childList: true });
 	}
 }
