@@ -3498,7 +3498,7 @@ function getContentByParagraphCount()
 			contentContainer = div;
 		}
 	}
-	while(contentContainer.getElementsByTagName("p").length < totalNumParas * 0.8 && contentContainer.parentNode)
+	while(contentContainer.getElementsByTagName("p").length < totalNumParas * 0.8 && contentContainer.parentNode && contentContainer.parentNode.tagName !== "BODY")
 		contentContainer = contentContainer.parentNode;
 	contentContainer.classList.add("hl");
 }
