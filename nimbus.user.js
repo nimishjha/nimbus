@@ -4388,7 +4388,7 @@ function focusField(elem)
 	removeClassFromAllQuiet("focused");
 	elem.focus();
 	elem.classList.add("focused");
-	showMessageBig(elem.name || elem.id || elem.className);
+	showMessageBig(elem.tagName.toLowerCase() + " " + (elem.name || elem.id || elem.className));
 }
 
 function focusFormElement()
@@ -4444,12 +4444,6 @@ function focusButton()
 	let len, i, ii, found;
 	const inputFields = [];
 	const inputs = get("input");
-	len = inputs.length;
-	if(len === 1)
-	{
-		focusField(inputs[0]);
-		return;
-	}
 	for (i = 0; i < len; i++)
 	{
 		if(inputs[i].type && ["button", "submit"].includes(inputs[i].type))
@@ -4460,6 +4454,11 @@ function focusButton()
 	for (i = 0; i < len; i++)
 		inputFields.push(buttons[i]);
 	found = false;
+	if(inputFields.length === 1)
+	{
+		focusField(inputFields[0]);
+		return;
+	}
 	for(i = 0, ii = inputFields.length; i < ii; i++)
 	{
 		if(inputFields[i].classList.contains("focused"))
