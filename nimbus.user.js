@@ -64,7 +64,6 @@ const Nimbus = {
 		deleteImagesSmallerThan: deleteImagesSmallerThan,
 		deleteNonContentElements: deleteNonContentElements,
 		deleteNonContentImages: deleteNonContentImages,
-		replaceSpansWithTextNodes: replaceSpansWithTextNodes,
 		deleteSmallImages: deleteSmallImages,
 		deleteSpecificEmptyElements: deleteSpecificEmptyElements,
 		deselect: deselect,
@@ -138,7 +137,7 @@ const Nimbus = {
 		replaceIframes: replaceIframes,
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
 		replaceMarkedElements: replaceMarkedElements,
-		replaceSpans: replaceSpans,
+		replaceSpansWithTextNodes: replaceSpansWithTextNodes,
 		restorePres: restorePres,
 		retrieve: retrieve,
 		revealEmptyLinks: revealEmptyLinks,
@@ -1845,14 +1844,6 @@ function replaceSpansWithTextNodes()
 function deleteMarkedElements()
 {
 	del(".hl");
-}
-
-function replaceSpans()
-{
-	const e = get("span");
-	let i = e.length;
-	while(i--)
-		e[i].parentNode.replaceChild(document.createTextNode(e[i].textContent), e[i]);
 }
 
 function replaceCommentsWithPres()
