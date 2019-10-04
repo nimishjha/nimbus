@@ -2025,19 +2025,21 @@ function replaceIframes()
 
 function replaceElementsBySelector(selector, tagName)
 {
-	const e = get(selector);
-	if(e.length)
+	const toReplace = get(selector);
+	if(toReplace.length)
 	{
-		const toReplace = [];
-		for (let i = 0, ii = e.length; i < ii; i++)
-			toReplace.push(e[i]);
-		showMessageBig("Replacing " + toReplace.length + " elements");
-		for (let i = toReplace.length - 1; i >= 0; i--)
-			toReplace[i].parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace[i].innerHTML }), toReplace[i]);
+		showMessageBig("Replacing " + toReplace.length + " " + selector);
+		let i = toReplace.length;
+		while(i--)
+		{
+			const elem = toReplace[i];
+			elem.parentNode.replaceChild(createElement(tagName, { innerHTML: elem.innerHTML }), elem);
+		}
 	}
-	else if(e && e.parentNode)
+	else if(toReplace && toReplace.parentNode)
 	{
-		e.parentNode.replaceChild(createElement(tagName, { innerHTML: e.innerHTML }), e);
+		showMessageBig("Replacing one " + selector);
+		toReplace.parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace.innerHTML }), toReplace);
 	}
 }
 
