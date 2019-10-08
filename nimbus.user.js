@@ -102,6 +102,7 @@ const Nimbus = {
 		logAllClasses: logAllClasses,
 		makeHeadingFromSelection: makeHeadingFromSelection,
 		makeHeadings: makeHeadings,
+		makeHeadingsPlainText: makeHeadingsPlainText,
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
 		makeLinkTextPlain: makeLinkTextPlain,
 		mark: mark,
@@ -126,7 +127,7 @@ const Nimbus = {
 		removeClassFromAll: removeClassFromAll,
 		removeEventListeners: removeEventListeners,
 		removeInlineStyles: removeInlineStyles,
-		removeLinkEventListeners: removeLinkEventListeners,
+		cleanupLinks: cleanupLinks,
 		replaceAudio: replaceAudio,
 		replaceClass: replaceClass,
 		replaceCommentsWithPres: replaceCommentsWithPres,
@@ -1578,7 +1579,7 @@ function getIdAndClass(elem)
 	if(elem.id)
 		s += "#" + elem.id + " ";
 	if(elem.className)
-		s += "." + elem.className;
+		s += "." + Array.from(elem.classList).join('.');
 	return s;
 }
 
@@ -2087,7 +2088,7 @@ function regressivelyUnenhance()
 	cleanupHead();
 	del(["link", "style", "script"]);
 	removeInlineStyles();
-	removeLinkEventListeners();
+	cleanupLinks();
 }
 
 function removeInlineStyles()
@@ -4219,7 +4220,7 @@ function removeClassFromAllQuiet(className)
 		e[i].classList.remove(className);
 }
 
-function removeLinkEventListeners()
+function cleanupLinks()
 {
 	const links = get("a");
 	let i = links.length;
@@ -4336,17 +4337,33 @@ function analyze_clickHandler(e)
 		prompt("", get("#analyzer").textContent);
 }
 
-function wrapElement(node, tag)
+function wrapElement(node, tag, config)
 {
 	let s = node.outerHTML;
-	s = "<" + tag + ">" + s + "</" + tag + ">";
+	let tagOpen = tag;
+	if(config)
+	{
+		if(config.id)
+			tagOpen += ' id="' + config.id + '" ';
+		if(config.className)
+			tagOpen += ' class="' + config.className + '" ';
+	}
+	s = "<" + tagOpen + ">" + s + "</" + tag + ">";
 	node.outerHTML = s;
 }
 
-function wrapElementInner(node, tag)
+function wrapElementInner(node, tag, config)
 {
 	let s = node.innerHTML;
-	s = "<" + tag + ">" + s + "</" + tag + ">";
+	let tagOpen = tag;
+	if(config)
+	{
+		if(config.id)
+			tagOpen += ' id="' + config.id + '" ';
+		if(config.className)
+			tagOpen += ' class="' + config.className + '" ';
+	}
+	s = "<" + tagOpen + ">" + s + "</" + tag + ">";
 	node.innerHTML = s;
 }
 
@@ -4389,6 +4406,7 @@ function focusField(elem)
 	elem.focus();
 	elem.classList.add("focused");
 	showMessageBig(elem.tagName.toLowerCase() + " " + (elem.name || elem.id || elem.className));
+	console.log(getIdAndClass(document.activeElement));
 }
 
 function focusFormElement()
@@ -4441,38 +4459,37 @@ function focusFormElement()
 
 function focusButton()
 {
-	let len, i, ii, found;
-	const inputFields = [];
-	const inputs = get("input");
-	for (i = 0; i < len; i++)
+	let candidateButtons = [];
+	const inputElements = get("input");
+	let len = inputElements.length;
+	for(let i = 0; i < len; i++)
 	{
-		if(inputs[i].type && ["button", "submit"].includes(inputs[i].type))
-			inputFields.push(inputs[i]);
+		const inputElement = inputElements[i];
+		if(inputElement.type && ["button", "submit"].includes(inputElement.type))
+			candidateButtons.push(inputElement);
 	}
-	const buttons = get("button");
-	len = buttons.length;
-	for (i = 0; i < len; i++)
-		inputFields.push(buttons[i]);
-	found = false;
-	if(inputFields.length === 1)
+	const buttonElements = get("button");
+	candidateButtons = candidateButtons.concat(buttonElements);
+	if(candidateButtons.length === 1)
 	{
-		focusField(inputFields[0]);
+		focusField(candidateButtons[0]);
 		return;
 	}
-	for(i = 0, ii = inputFields.length; i < ii; i++)
+	let found = false;
+	for(let i = 0, ii = candidateButtons.length; i < ii; i++)
 	{
-		if(inputFields[i].classList.contains("focused"))
+		if(candidateButtons[i].classList.contains("focused"))
 		{
 			found = true;
 			if(i < ii-1)
-				focusField(inputFields[i+1]);
+				focusField(candidateButtons[i+1]);
 			else
-				focusField(inputFields[0]);
+				focusField(candidateButtons[0]);
 			break;
 		}
 	}
 	if(!found)
-		focusField(inputFields[0]);
+		focusField(candidateButtons[0]);
 }
 
 function showLog(prepend)
@@ -5090,6 +5107,11 @@ function makeLinkTextPlain()
 		if(!link.getElementsByTagName("img").length && link.innerHTML !== link.textContent)
 			link.innerHTML = link.textContent;
 	}
+}
+
+function makeHeadingsPlainText()
+{
+	forAll("h1, h2, h3, h4, h5, h6", function(x){ x.innerHTML = x.textContent; });
 }
 
 function inject()
