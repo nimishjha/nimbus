@@ -1508,7 +1508,8 @@ function doStackOverflow()
 	// we only want to run this code on the individual question pages
 	if(found && location.href.match(/questions\/[0-9]+/) !== null)
 	{
-		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none"]);
+		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair"]);
+		replaceElementsBySelector(".user-details", "h2");
 		deleteElementsContainingText("h2", "Not the answer");
 		retrieve("#content");
 		cleanupGeneral();
