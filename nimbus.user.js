@@ -4979,6 +4979,14 @@ function delRange(m, n)
 		del("#i" + i);
 }
 
+function toNumber(s)
+{
+	if(!(typeof s === "string" && s.length))
+		return false;
+	const n = Number(trim(s));
+	return !isNaN(n) ? n : false;
+}
+
 function getPagerLinks()
 {
 	const e = get("a");
