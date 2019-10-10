@@ -2417,15 +2417,23 @@ function toggleShowAriaAttributes()
 		unhighlightAll();
 		return;
 	}
-	const e = Array.from( document.querySelectorAll("main, nav, section, footer, aside, div, form") );
+	const e = get("main, nav, section, footer, aside, div, form");
 	let i = e.length;
 	while(i--)
 	{
 		const elem = e[i];
 		if( elem.hasAttribute("role"))
 		{
-			elem.classList.add("hl2");
-			elem.insertBefore(createElement("annotationinfo", { textContent: "role: " + elem.getAttribute("role") }), elem.firstChild);
+			if(["banner", "complementary", "contentinfo", "form", "main", "navigation", "region", "search"].includes(elem.getAttribute("role")))
+			{
+				elem.classList.add("hl");
+				elem.insertBefore(createElement("annotationerror", { textContent: "role: " + elem.getAttribute("role") }), elem.firstChild);
+			}
+			else
+			{
+				elem.classList.add("hl2");
+				elem.insertBefore(createElement("annotationinfo", { textContent: "role: " + elem.getAttribute("role") }), elem.firstChild);
+			}
 		}
 
 		if(elem.attributes)
