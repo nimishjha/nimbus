@@ -4972,10 +4972,9 @@ function numberDivs()
 
 function delRange(m, n)
 {
+	const numDivs = get("div").length || 0;
 	if(typeof n === "undefined")
-		n = m + 100;
-	if(m >= n)
-		return;
+		n = numDivs - 1;
 	for(let i = m; i <= n; i++)
 		del("#i" + i);
 }
