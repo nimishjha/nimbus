@@ -5006,7 +5006,8 @@ function toNumber(s)
 {
 	if(!(typeof s === "string" && s.length))
 		return false;
-	const n = Number(trim(s));
+	const noCommas = s.replace(/,/g, "");
+	const n = Number(trim(noCommas));
 	return !isNaN(n) ? n : false;
 }
 
