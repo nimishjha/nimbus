@@ -3391,6 +3391,11 @@ function htmlToText(elem)
 	elem.innerHTML = elem.textContent;
 }
 
+function makeHeadingsPlainText()
+{
+	forAll("h1, h2, h3, h4, h5, h6", htmlToText);
+}
+
 function getElementsContainingText(selector, text)
 {
 	if(!selector.length)
@@ -5133,11 +5138,6 @@ function makeLinkTextPlain()
 		if(!link.getElementsByTagName("img").length && link.innerHTML !== link.textContent)
 			link.innerHTML = link.textContent;
 	}
-}
-
-function makeHeadingsPlainText()
-{
-	forAll("h1, h2, h3, h4, h5, h6", function(x){ x.innerHTML = x.textContent; });
 }
 
 function inject()
