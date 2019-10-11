@@ -1960,6 +1960,7 @@ function cleanupGeneral()
 	cleanupAttributes();
 	replaceSpansWithTextNodes();
 	replaceAudio();
+	forAll("a", markUserLink);
 	appendInfo();
 	getBestImageSrc();
 	Nimbus.candidateHeadingElements = [];
@@ -2313,7 +2314,8 @@ function toggleStyleNegative()
 	'body.xDontShowLinks a:hover *, body.xDontShowLinks a:focus *, body.xDontShowLinks a:hover, body.xDontShowLinks a:focus { color: #FFF; text-decoration: none; }' +
 	'.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }' +
 	'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
-	'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
+	'.hl::after, .hl2::after { content: " "; display: block; clear: both; }' +
+	'user { background: #000; padding: 2px 10px; border-left: 10px solid #09F; margin: 0; }';
 
 	toggleStyle(s, "styleNegative");
 }
@@ -4920,6 +4922,14 @@ function toggleConsole(consoleType)
 	inputTextareaWrapper.appendChild(inputTextarea);
 	document.body.appendChild(inputTextareaWrapper);
 	inputTextarea.focus();
+}
+
+function markUserLink(link)
+{
+	if(link.href && containsAnyOfTheStrings(link.href, ["/u/", "/user"]))
+	{
+		wrapElement(link, "user");
+	}
 }
 
 function markUppercaseParagraphs()
