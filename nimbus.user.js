@@ -2427,12 +2427,12 @@ function toggleShowAriaAttributes()
 			if(["banner", "complementary", "contentinfo", "form", "main", "navigation", "region", "search"].includes(elem.getAttribute("role")))
 			{
 				elem.classList.add("hl");
-				elem.insertBefore(createElement("annotationerror", { textContent: "role: " + elem.getAttribute("role") }), elem.firstChild);
+				annotateElementError(elem, "role: " + elem.getAttribute("role"))
 			}
 			else
 			{
 				elem.classList.add("hl2");
-				elem.insertBefore(createElement("annotationinfo", { textContent: "role: " + elem.getAttribute("role") }), elem.firstChild);
+				annotateElement(elem, "role: " + elem.getAttribute("role"))
 			}
 		}
 
