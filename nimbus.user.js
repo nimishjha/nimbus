@@ -1960,7 +1960,7 @@ function cleanupGeneral()
 	cleanupAttributes();
 	replaceSpansWithTextNodes();
 	replaceAudio();
-	forAll("a", markUserLink);
+	markUserLinks();
 	appendInfo();
 	getBestImageSrc();
 	Nimbus.candidateHeadingElements = [];
@@ -4929,13 +4929,13 @@ function toggleConsole(consoleType)
 	inputTextarea.focus();
 }
 
-function markUserLink(link)
-{
-	if(link.href && containsAnyOfTheStrings(link.href, ["/u/", "/user"]))
-	{
-		wrapElement(link, "user");
-	}
-}
+function markUserLinks()
+ {
+	forAll("a", function(link){
+		if(link.href && containsAnyOfTheStrings(link.href, ["/u/", "/user"]))
+			wrapElement(link, "user");
+	});
+ }
 
 function markUppercaseParagraphs()
 {
