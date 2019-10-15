@@ -107,7 +107,6 @@ const Nimbus = {
 		makeLinkTextPlain: makeLinkTextPlain,
 		mark: mark,
 		markDivDepth: markDivDepth,
-		markElementsByAttributeValueContaining: markElementsByAttributeValueContaining,
 		markElementsBySelector: markElementsBySelector,
 		markElementsWithCssRule: markElementsWithCssRule,
 		markElementsWithSetWidths: markElementsWithSetWidths,
@@ -4057,6 +4056,7 @@ function highlightNodesContaining(selector, str)
 		if(node.tagName.toLowerCase() === "a" && node.href && ~node.href.indexOf(str))
 			node.innerHTML = markerTagOpen + node.innerHTML + markerTagClose;
 	}
+	insertStyleHighlight();
 }
 
 function highlightLinksWithHrefContaining(str)
@@ -4066,19 +4066,6 @@ function highlightLinksWithHrefContaining(str)
 	while (i--)
 		if(e[i].href.indexOf(str) >= 0)
 			e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
-}
-
-function markElementsByAttributeValueContaining(tag, attribute, value)
-{
-	const e = get(tag);
-	let i = -1;
-	let len = e.length;
-	while(++i < len)
-	{
-		const elem = e[i];
-		if(elem.hasAttribute(attribute) && ~elem.getAttribute(attribute).indexOf(value))
-			elem.classList.add("hl");
-	}
 }
 
 function xlog(str, logTag)
@@ -4951,6 +4938,7 @@ function markUppercaseParagraphs()
 		if (cUpper && (!cLower || cUpper.length > cLower.length))
 			e[i].className = "hl";
 	}
+	insertStyleHighlight();
 }
 
 function markNumericParagraphs()
@@ -4963,6 +4951,7 @@ function markNumericParagraphs()
 		if(s && !isNaN(Number(s)))
 			e[i].className = "hl";
 	}
+	insertStyleHighlight();
 }
 
 function markDivDepth()
@@ -5208,7 +5197,6 @@ function handleKeyDown(e)
 		{
 			case KEYCODES.TILDE: highlightSelection(); break;
 			case KEYCODES.NUMPAD1: fillForms(); break;
-			case KEYCODES.NUMPAD2: callFunctionWithArgs("Mark elements by attribute value containing (tag, attribute, value)", markElementsByAttributeValueContaining, 3); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.F1: makeHeadingFromSelection("h1"); break;
 			case KEYCODES.F2: makeHeadingFromSelection("h2"); break;
