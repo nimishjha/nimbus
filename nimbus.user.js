@@ -1554,6 +1554,7 @@ function markOverlays()
 {
 	mark("div", "style", "contains", "z-index");
 	mark("div", "class", "contains", "modal");
+	mark("div", "aria-modal", "exists");
 }
 
 function unhighlightAll()
