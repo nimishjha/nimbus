@@ -4003,7 +4003,18 @@ function deleteElementsContainingText(selector, str)
 		if (e.textContent.indexOf(str) >= 0)
 			e.parentNode.removeChild(e);
 	}
+}
 
+function deleteElementsWithClassContaining(str)
+{
+	const e = get("*");
+	let i = e.length;
+	while(i--)
+	{
+		const node = e[i];
+		if(~node.className.indexOf(str))
+			del(node);
+	}
 }
 
 function highlightSpecificNodesContaining(searchString)
@@ -5285,6 +5296,7 @@ function handleKeyDown(e)
 			case KEYCODES.A: toggleShowAriaAttributes(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
+			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteElementsWithClassContaining); break;
 			case KEYCODES.H: getSelectionOrUserInput("Mark elements by selector", markElementsBySelector, true); break;
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markElementsWithCssRule, 2); break;
 			case KEYCODES.V: showDocumentStructure(); break;
