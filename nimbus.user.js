@@ -1573,7 +1573,7 @@ function unhighlightAll()
 	del(["annotationinfo", "annotationwarning", "annotationerror"]);
 }
 
-function getIdAndClass(elem)
+function createSelector(elem)
 {
 	let s = elem.tagName ? elem.tagName.toLowerCase() : "";
 	if(elem.id)
@@ -3529,7 +3529,7 @@ function expandMark()
 		{
 			e.classList.remove("hl");
 			ep.classList.add("hl");
-			showMessageBig("Marked node is " + getIdAndClass(ep));
+			showMessageBig("Marked node is " + createSelector(ep));
 		}
 	}
 }
@@ -3786,7 +3786,7 @@ function markSelectionAnchorNode()
 		node = node.parentNode;
 	node.classList.add("hl");
 	insertStyleHighlight();
-	showMessageBig("Marked node is " + getIdAndClass(node));
+	showMessageBig("Marked node is " + createSelector(node));
 }
 
 function highlightSelection_old()
@@ -4420,7 +4420,7 @@ function focusField(elem)
 	elem.focus();
 	elem.classList.add("focused");
 	showMessageBig(elem.tagName.toLowerCase() + " " + (elem.name || elem.id || elem.className));
-	console.log(getIdAndClass(document.activeElement));
+	console.log(createSelector(document.activeElement));
 }
 
 function focusFormElement()
@@ -4807,17 +4807,17 @@ function logMutations(mutations)
 			if(mutation.addedNodes.length)
 			{
 				for(let j = 0, jj = mutation.addedNodes.length; j < jj; j++)
-					console.log(padRight("Mutation: added", 25) + getIdAndClass(mutation.addedNodes[j]));
+					console.log(padRight("Mutation: added", 25) + createSelector(mutation.addedNodes[j]));
 			}
 			if(mutation.removedNodes.length)
 			{
 				for(let j = 0, jj = mutation.removedNodes.length; j < jj; j++)
-					console.log(padRight("Mutation: removed", 25) + getIdAndClass(mutation.removedNodes[j]));
+					console.log(padRight("Mutation: removed", 25) + createSelector(mutation.removedNodes[j]));
 			}
 		}
 		else if(mutation.type === "attributes")
 		{
-			console.log(padRight("Mutation: attribute", 25) + padRight(getIdAndClass(mutation.target), 50) + "'" + mutation.attributeName + "' changed to '" + mutation.target.getAttribute(mutation.attributeName) + "'");
+			console.log(padRight("Mutation: attribute", 25) + padRight(createSelector(mutation.target), 50) + "'" + mutation.attributeName + "' changed to '" + mutation.target.getAttribute(mutation.attributeName) + "'");
 		}
 	}
 }
