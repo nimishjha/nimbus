@@ -249,6 +249,8 @@ const KEYCODES = {
 function get(s)
 {
 	let nodes;
+	if(!isNaN(s))
+		s = "#i" + s;
 	try
 	{
 		nodes = document.querySelectorAll(s);
