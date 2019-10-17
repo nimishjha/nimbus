@@ -2363,8 +2363,9 @@ function toggleContentEditable()
 	const e = getOne(".hl");
 	if(!e)
 		return;
-	const isEditable = !(e.getAttribute("contenteditable") === "true");
-	e.setAttribute("contenteditable", isEditable ? "true" : "false");
+	let isEditable = e.getAttribute("contenteditable") === "true";
+	e.setAttribute("contenteditable", isEditable ? "false" : "true");
+	isEditable = !isEditable;
 	if(isEditable)
 	{
 		showMessageBig("contentEditable ON");
