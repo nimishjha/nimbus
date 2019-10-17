@@ -1299,9 +1299,18 @@ function customPrompt(message)
 				evt.stopPropagation();
 				switch(evt.keyCode)
 				{
-					case KEYCODES.ESCAPE: reject(closeCustomPrompt()); break;
-					case KEYCODES.ENTER: resolve(closeCustomPrompt()); break;
-					case KEYCODES.UPARROW: restoreCustomPromptHistory(evt.target); break;
+					case KEYCODES.ESCAPE:
+						evt.preventDefault();
+						reject(closeCustomPrompt());
+						break;
+					case KEYCODES.ENTER:
+						evt.preventDefault();
+						resolve(closeCustomPrompt());
+						break;
+					case KEYCODES.UPARROW:
+						evt.preventDefault();
+						restoreCustomPromptHistory(evt.target);
+						break;
 				}
 			}, false);
 		});
