@@ -2413,6 +2413,15 @@ function toggleContentEditable()
 	}
 }
 
+function getLinkAccessibleText(link)
+{
+	if(link.hasAttribute("aria-label"))
+		return link.getAttribute("aria-label");
+	if(link.hasAttribute("title"))
+		return link.getAttribute("title");
+	return null;
+}
+
 function showInaccessibleLinks()
 {
 	let countBadLinks = 0;
@@ -2421,10 +2430,11 @@ function showInaccessibleLinks()
 	while(i--)
 	{
 		const link = links[i];
+		const linkText = link.textContent;
 		let needsAriaLabel = false;
 		if(link.textContent)
 		{
-			switch(link.textContent.toLowerCase())
+			switch(trim(linkText.toLowerCase()))
 			{
 				case "read more": needsAriaLabel = true; break;
 				case "click here": needsAriaLabel = true; break;
@@ -2432,18 +2442,10 @@ function showInaccessibleLinks()
 				default: break;
 			}
 		}
-		if(!needsAriaLabel) continue;
-		if(link.hasAttribute("aria-label"))
-		{
-			const ariaLabel = link.getAttribute("aria-label");
-			if(ariaLabel && ariaLabel.length && link.textContent && ariaLabel !== link.textContent)
-				continue;
-		}
-		if(!link.hasAttribute("title") || !link.getAttribute("title").length || link.getAttribute("title") === link.textContent)
+		if(needsAriaLabel && getLinkAccessibleText(link) === linkText)
 		{
 			countBadLinks++;
 			annotateElementError(link, "Needs descriptive title");
-			continue;
 		}
 	}
 	showMessageBig(countBadLinks + " inaccessible links found");
@@ -4475,18 +4477,21 @@ function focusFormElement()
 	}
 	for (i = 0; i < len; i++)
 	{
-		if(inputs[i].name && inputs[i].name === "q")
+		const input = inputs[i];
+		if(input.name && input.name === "q")
 		{
-			inputs[i].focus();
+			input.focus();
 			return;
 		}
-		if(inputs[i].type)
+		if(input.type)
 		{
-			if(["hidden", "submit", "reset", "button", "radio", "checkbox", "image"].indexOf(inputs[i].type) === -1)
-				e.push(inputs[i]);
+			if(["hidden", "submit", "reset", "button", "radio", "checkbox", "image"].indexOf(input.type) === -1)
+				e.push(input);
 		}
 		else
-			e.push(inputs[i]);
+		{
+			e.push(input);
+		}
 	}
 	inputs = get("textarea");
 	len = inputs.length;
