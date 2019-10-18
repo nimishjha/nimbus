@@ -2768,36 +2768,33 @@ function zeroPad(n)
 
 function appendInfo()
 {
-	let url, h, a;
 	if(window.location.href.indexOf("file:///") >= 0) return;
 	if(document.getElementsByTagName("h4").length)
 	{
-		const hh = document.getElementsByTagName("h4");
-		if(hh[hh.length - 1].textContent.indexOf("URL:") === 0) return;
+		const headings = document.getElementsByTagName("h4");
+		if(headings[headings.length - 1].textContent.indexOf("URL:") === 0) return;
 	}
 
-	h = document.createElement("h4");
-	a = document.createElement("a");
-	const s = window.location.toString().split("/");
-	a.href = a.textContent = s[0] + "//" + s[2];
-	a.textContent = "Domain: " + a.textContent;
-	h.appendChild(a);
-	document.body.appendChild(h);
+	const documentUrl = window.location.href.toString();
+	const domainLinkWrapper = createElement("h4", { textContent: "Domain: " });
+	const domainLink = document.createElement("a");
+	const documentUrlSegments = documentUrl.split("/");
+	domainLink.textContent = domainLink.href = documentUrlSegments[0] + "//" + documentUrlSegments[2];
+	domainLinkWrapper.appendChild(domainLink);
+	document.body.appendChild(domainLinkWrapper);
 
-	const saveTime = getTimestamp();
-	h = document.createElement("h4");
-	h.appendChild(document.createTextNode("URL: "));
-	a = document.createElement("a");
-	url = window.location.href;
-	if(url.indexOf("?utm_source") > 0)
-	{
+	const documentSaveUrl = createElement("h4", { textContent: "URL: " });
+	const documentLink = document.createElement("a");
+	let url = documentUrl;
+	if(documentUrl.indexOf("?utm_source") > 0)
 		url = url.substr(0, url.indexOf("?utm_source"));
-	}
-	a.textContent = a.href = url;
-	h.appendChild(a);
-	h.appendChild(document.createTextNode(" | "));
-	h.appendChild(document.createTextNode(saveTime));
-	document.body.appendChild(h);
+	documentLink.textContent = documentLink.href = url;
+	documentSaveUrl.appendChild(documentLink);
+	document.body.appendChild(documentSaveUrl);
+
+	const timestamp = getTimestamp();
+	const saveTime = createElement("h4", { textContent: "Saved at " + timestamp });
+	document.body.appendChild(saveTime);
 }
 
 function replaceFontTags()
