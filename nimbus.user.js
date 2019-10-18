@@ -1715,7 +1715,7 @@ function buildGallery()
 				image.removeAttribute("height");
 				w = image.naturalWidth;
 				h = image.naturalHeight;
-				if(w && h && (w > window.innerWidth || h > window.innerHeight))
+				if(w && h)
 				{
 					if( w / h > 16 / 9 )
 						image.className = "aspectRatioLandscape";
@@ -1745,6 +1745,7 @@ function buildSlideshow()
 	}
 	if(!get("#nimbusGallery"))
 		buildGallery();
+	del("#styleGallery");
 	const gallery = get("#nimbusGallery");
 	const images = gallery.querySelectorAll("img");
 	if(!(gallery && images))
@@ -1753,8 +1754,8 @@ function buildSlideshow()
 	'#nimbusGallery { width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; z-index: 1999999999; }' +
 	'#nimbusGallery img { position: absolute; top: -1000em; left: -1000em; z-index: 2000000000; }' +
 	'#nimbusGallery img.currentImage { margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; }' +
-	'#nimbusGallery img.currentImage.tall { height: 100%; width: auto; }' +
-	'#nimbusGallery img.currentImage.wide { width: 100%; height: auto; }' +
+	'#nimbusGallery img.currentImage.aspectRatioPortrait { height: 100vh; width: auto; }' +
+	'#nimbusGallery img.currentImage.aspectRatioLandscape { width: 100vw; height: auto; }' +
 	'#nimbusGallery a { color: #000; }';
 	insertStyle(s, 'styleSlideshow', true);
 	images[0].classList.add("currentImage");
