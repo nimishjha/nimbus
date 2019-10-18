@@ -81,7 +81,7 @@ const Nimbus = {
 		getBestImageSrc: getBestImageSrc,
 		getContentByParagraphCount: getContentByParagraphCount,
 		getElementsContainingText: getElementsContainingText,
-		getImages: getImages,
+		buildGallery: buildGallery,
 		getLargeImages: getLargeImages,
 		getPagerLinks: getPagerLinks,
 		getSelectorsWithLightBackgrounds: getSelectorsWithLightBackgrounds,
@@ -1691,30 +1691,24 @@ function makeHeadingFromSelection(tagname)
 		xlog("Could not make heading");
 }
 
-function getImages(slideshow)
+function buildGallery()
 {
-	if(get("#styleNimbusGallery"))
-	{
-		del("#styleNimbusGallery");
-		del("#nimbusGallery");
-		return;
-	}
-	const f = get("img");
+	const images = get("img");
 	const db = document.body;
 	let i, ii, j, w, h;
 	const galleryElement = createElement("slideshow", { id: "nimbusGallery" });
-	if(f && f.length)
+	if(images && images.length)
 	{
 		//mark duplicates by removing the src
-		for(i = 0; i < f.length; i++)
+		for(i = 0; i < images.length; i++)
 		{
-			for(j = i+1; j < f.length; j++)
-				if(f[j].src === f[i].src)
-					f[j].removeAttribute("src");
+			for(j = i + 1; j < images.length; j++)
+				if(images[j].src === images[i].src)
+					images[j].removeAttribute("src");
 		}
-		for(i = 0, ii = f.length; i < ii; i++)
+		for(i = 0, ii = images.length; i < ii; i++)
 		{
-			const image = f[i];
+			const image = images[i];
 			if(image.hasAttribute("src")) // if it's not a duplicate
 			{
 				image.removeAttribute("width");
@@ -1724,50 +1718,52 @@ function getImages(slideshow)
 				if(w && h && (w > window.innerWidth || h > window.innerHeight))
 				{
 					if( w / h > 16 / 9 )
-						image.className = "wide ratio" + w + "x" + h;
+						image.className = "aspectRatioLandscape";
 					else
-						image.className = "tall ratio" + w + "x" + h;
+						image.className = "aspectRatioPortrait";
 				}
 				galleryElement.appendChild(image.cloneNode(true));
 			}
 		}
-		if(!slideshow)
-		{
-			del("img");
-			cleanupHead();
-			insertStyle("img { display: block; float: left; max-height: 300px; }", "styleGallery", true);
-		}
+		del("img");
+		cleanupHead();
+		insertStyle("img { display: block; float: left; max-height: 300px; }", "styleGallery", true);
 		db.insertBefore(galleryElement, db.firstChild);
 	}
 	else
 	{
 		showMessageBig("No images found");
 	}
-	if(slideshow)
-		buildSlideshow();
 }
 
 function buildSlideshow()
 {
+	if(get("#styleSlideshow"))
+	{
+		del("#styleSlideshow");
+		return;
+	}
+	if(!get("#nimbusGallery"))
+		buildGallery();
 	const gallery = get("#nimbusGallery");
 	const images = gallery.querySelectorAll("img");
 	if(!(gallery && images))
 		return;
 	const s = 'body { margin: 0; padding: 0; }' +
-	'#nimbusGallery { width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; z-index: 2000000000; }' +
-	'#nimbusGallery img { position: absolute; top: -1000em; left: -1000em; }' +
+	'#nimbusGallery { width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; z-index: 1999999999; }' +
+	'#nimbusGallery img { position: absolute; top: -1000em; left: -1000em; z-index: 2000000000; }' +
 	'#nimbusGallery img.currentImage { margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; }' +
 	'#nimbusGallery img.currentImage.tall { height: 100%; width: auto; }' +
 	'#nimbusGallery img.currentImage.wide { width: 100%; height: auto; }' +
 	'#nimbusGallery a { color: #000; }';
-	insertStyle(s, 'styleNimbusGallery', true);
+	insertStyle(s, 'styleSlideshow', true);
 	images[0].classList.add("currentImage");
 	window.scrollTo(0, 0);
 }
 
 function changeGalleryImage(direction)
 {
-	if(!get("#styleNimbusGallery"))
+	if(!get("#styleSlideshow"))
 		return;
 	const gallery = get("#nimbusGallery");
 	if(!gallery)
@@ -5261,7 +5257,7 @@ function handleKeyDown(e)
 			case KEYCODES.TWO: deleteImages(); break;
 			case KEYCODES.THREE: toggleClass(db, "xwrap"); break;
 			case KEYCODES.FOUR: deleteSmallImages(); break;
-			case KEYCODES.FIVE: getImages(); break;
+			case KEYCODES.FIVE: buildGallery(); break;
 			case KEYCODES.SIX: deleteIframes(); break;
 			case KEYCODES.SEVEN: replaceCommentsWithPres(); break;
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
@@ -5307,7 +5303,7 @@ function handleKeyDown(e)
 			case KEYCODES.ZERO: getSelectionOrUserInput("Enter document title", setDocTitle, true); break;
 			case KEYCODES.ONE: showResources(); break;
 			case KEYCODES.TWO: replaceImagesWithTextLinks(); break;
-			case KEYCODES.FIVE: getImages(true); break;
+			case KEYCODES.FIVE: buildSlideshow(); break;
 			case KEYCODES.G: callFunctionWithArgs("Retrieve elements (optionally containing text)", getElementsContainingText); break;
 			case KEYCODES.A: annotate(); break;
 			case KEYCODES.C: deleteNonContentElements(); break;
