@@ -874,6 +874,32 @@ function createElement(tag, props)
 	return elem;
 }
 
+function createElementWithChildren(tagName, ...children)
+{
+	const elem = document.createElement(tagName);
+	for(let i = 0, ii = children.length; i < ii; i++)
+		elem.appendChild(children[i]);
+	return elem;
+}
+
+function createReplacementElement(tagName, sourceElement, propertyMapping)
+{
+	const settableProperties = ["id", "className", "textContent", "innerHTML", "value"];
+	const elem = document.createElement(tagName);
+	const keys = Object.keys(propertyMapping);
+	let i = keys.length;
+	while(i--)
+	{
+		const prop = keys[i];
+		const value = propertyMapping[prop];
+		if(settableProperties.includes(prop))
+			elem[prop] = sourceElement[value];
+		else
+			elem.setAttribute(prop, sourceElement.getAttribute(value));
+	}
+	return elem;
+}
+
 function showResource(str, uuid)
 {
 	let strSanitized = str;
@@ -1892,7 +1918,7 @@ function replaceImagesWithTextLinks()
 			if(elem.src)
 			{
 				imageLink = createElement("a", { href: elem.src, textContent: elem.src });
-				imageReplacement = createElementWithChild("rt", imageLink);
+				imageReplacement = createElementWithChildren("rt", imageLink);
 				if(elem.parentNode.tagName.toLowerCase() === "a")
 					elem.parentNode.parentNode.replaceChild(imageReplacement, elem.parentNode);
 				else
@@ -1917,7 +1943,7 @@ function replaceAudio()
 		if(source.src)
 		{
 			const audioLink = createElement("a", { href: source.src, textContent: source.src });
-			const audioLinkWrapper = createElementWithChild("h2", audioLink);
+			const audioLinkWrapper = createElementWithChildren("h2", audioLink);
 			source.parentNode.replaceChild(audioLinkWrapper, source);
 		}
 	}
@@ -1951,7 +1977,7 @@ function addLinksToLargerImages()
 		const link = links[i];
 		const linkHref = link.href;
 		if(containsAnyOfTheStrings(linkHref.toLowerCase(), [".png", ".jpg", ".jpeg", ".gif"]))
-			link.parentNode.insertBefore(createElementWithChild("rt", createElement("a", { href: linkHref, textContent: linkHref})), link);
+			link.parentNode.insertBefore(createElementWithChildren("rt", createElement("a", { href: linkHref, textContent: linkHref})), link);
 	}
 }
 
@@ -3165,7 +3191,7 @@ function showPrintLink()
 		{
 			found = true;
 			const printLink = createElement("a", { href: href, textContent: "Print" });
-			document.body.insertBefore(createElementWithChild("h2", printLink), document.body.firstChild);
+			document.body.insertBefore(createElementWithChildren("h2", printLink), document.body.firstChild);
 			printLink.focus();
 			break;
 		}
@@ -4631,11 +4657,15 @@ function fillForms()
 	}
 }
 
-function createElementWithChild(tag, childElement)
+function getElemPropSafe(elem, prop)
 {
-	const e = document.createElement(tag);
-	e.appendChild(childElement);
-	return e;
+	if(!elem)
+		return null;
+	if(elem[prop])
+		return elem[prop];
+	if(elem.hasAttribute(prop))
+		return elem.getAttribute(prop);
+	return null;
 }
 
 function showTextToHTMLRatio()
