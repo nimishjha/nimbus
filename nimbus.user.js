@@ -2769,7 +2769,7 @@ function appendInfo()
 	if(document.getElementsByTagName("h4").length)
 	{
 		const headings = document.getElementsByTagName("h4");
-		if(headings[headings.length - 1].textContent.indexOf("URL:") === 0) return;
+		if(headings[headings.length - 2].textContent.indexOf("URL:") === 0) return;
 	}
 
 	const documentUrl = window.location.href.toString();
