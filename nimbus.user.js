@@ -4386,6 +4386,19 @@ function analyze_clickHandler(e)
 		prompt("", get("#analyzer").textContent);
 }
 
+function indentByDepth(node, depth)
+{
+	let indentOpen = "";
+	let indentClose = "";
+	let i = -1;
+	while(++i < depth)
+	{
+		indentOpen += "<blockquote>";
+		indentClose += "</blockquote>";
+	}
+	node.innerHTML = indentOpen + node.innerHTML + indentClose;
+}
+
 function wrapElement(node, tag, config)
 {
 	let s = node.outerHTML;
