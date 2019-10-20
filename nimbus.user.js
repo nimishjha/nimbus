@@ -4972,7 +4972,7 @@ function toggleConsole(consoleType)
 function markUserLinks()
  {
 	forAll("a", function(link){
-		if(link.href && containsAnyOfTheStrings(link.href, ["/u/", "/user"]))
+		if(link.href && containsAnyOfTheStrings(link.href, ["/u/", "/user"]) && link.parentNode && link.parentNode.tagName !== "USER")
 			wrapElement(link, "user");
 	});
  }
