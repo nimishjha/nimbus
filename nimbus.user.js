@@ -2766,15 +2766,13 @@ function zeroPad(n)
 function appendInfo()
 {
 	if(window.location.href.indexOf("file:///") >= 0) return;
-	if(document.getElementsByTagName("h4").length)
-	{
-		const headings = document.getElementsByTagName("h4");
-		if(headings[headings.length - 2].textContent.indexOf("URL:") === 0) return;
-	}
+	const headings4 = get("h4");
+	if(headings4.length && headings4.length > 2 && headings4[headings4.length - 2].textContent.indexOf("URL:") === 0)
+		return;
 
-	const documentUrl = window.location.href.toString();
 	const domainLinkWrapper = createElement("h4", { textContent: "Domain: " });
 	const domainLink = document.createElement("a");
+	const documentUrl = window.location.href.toString();
 	const documentUrlSegments = documentUrl.split("/");
 	domainLink.textContent = domainLink.href = documentUrlSegments[0] + "//" + documentUrlSegments[2];
 	domainLinkWrapper.appendChild(domainLink);
