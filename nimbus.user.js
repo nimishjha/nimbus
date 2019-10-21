@@ -167,6 +167,10 @@ const Nimbus = {
 		xlog: xlog,
 		ylog: ylog,
 	},
+	autoCompleteInputComponent: {
+		matches: [],
+		currentIndex: -1,
+	},
 };
 
 const KEYCODES = {
@@ -272,6 +276,21 @@ function get(s)
 function getOne(s)
 {
 	return document.querySelector(s);
+}
+
+function getOrCreate(tagName, id)
+{
+	const elem = getOne("#" + id);
+	if (elem)
+	{
+		return elem;
+	}
+	else
+	{
+		const newElem = createElement(tagName, { id: id });
+		document.body.appendChild(newElem);
+		return newElem;
+	}
 }
 
 function del(arg)
@@ -1167,6 +1186,11 @@ function cleanupBlogs()
 	deleteElementsContainingText("table", "Users Say Thank You to");
 	deleteElementsContainingText("table", "View Public Profile");
 	del(["#share", "#comments_posting"]);
+}
+
+function showStatus(id, str)
+{
+	getOrCreate("h3", id).textContent = id + ": " + str;
 }
 
 function showMessage(s, msgClass, persist)
@@ -5239,6 +5263,140 @@ function inject()
 	showMessageBig("Nimbus loaded");
 }
 
+const autoCompleteInputBox = (function(){
+
+	const inputComponent = Nimbus.autoCompleteInputComponent;
+
+	const updateInputField = function()
+	{
+		if (inputComponent.currentIndex !== -1)
+		{
+			if(inputComponent.matches[inputComponent.currentIndex])
+				getOne("#autoCompleteInput").value = inputComponent.matches[inputComponent.currentIndex];
+		}
+	};
+
+	const highlightPrevMatch = function()
+	{
+		if (inputComponent.currentIndex > 0)
+		{
+			inputComponent.currentIndex--;
+		}
+		renderMatches();
+	};
+
+	const highlightNextMatch = function()
+	{
+		if (inputComponent.currentIndex < inputComponent.matches.length - 1)
+		{
+			inputComponent.currentIndex++;
+		}
+		renderMatches();
+	};
+
+	const onAutoCompleteInputKeyUp = function(evt)
+	{
+		var inputText = getOne("#autoCompleteInput").value;
+		if (!inputText)
+		{
+			clearMatches();
+			return;
+		}
+		showMatches(inputText);
+		switch (evt.keyCode)
+		{
+			case 9: highlightNextMatch(); updateInputField(); break;
+			case 13: updateInputField(); executeFunction(); break;
+		}
+	};
+
+	const onAutoCompleteInputKeyDown = function(evt)
+	{
+		switch (evt.keyCode)
+		{
+			case 9: evt.preventDefault(); break;
+			case 27: close(); break;
+			case 38: highlightPrevMatch(); break;
+			case 40: highlightNextMatch(); break;
+		}
+	};
+
+	const showMatches = function(str)
+	{
+		if (!str || !str.length || str.length < 2)
+		{
+			get("#autoCompleteMatches").innerHTML = "";
+			inputComponent.currentIndex = -1;
+			return;
+		}
+		str = str.toLowerCase();
+
+		inputComponent.matches = [];
+		const commands = Object.keys(Nimbus.availableFunctions);
+		for (var i = 0, ii = commands.length; i < ii; i++)
+		if (~commands[i].toLowerCase().indexOf(str))
+			inputComponent.matches.push(commands[i]);
+		renderMatches();
+	};
+
+	const renderMatches = function()
+	{
+		let s = "";
+		for (let i = 0, ii = inputComponent.matches.length; i < ii; i++)
+		{
+			if (inputComponent.currentIndex === i) s += '<match class="current">' + inputComponent.matches[i] + "</match>";
+			else s += '<match>' + inputComponent.matches[i] + "</match>";
+		}
+		get("#autoCompleteMatches").innerHTML = s;
+	};
+
+	const clearMatches = function()
+	{
+		inputComponent.matches = [],
+		inputComponent.currentIndex = -1,
+		renderMatches();
+	};
+
+	const open = function()
+	{
+		const style = 'autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; }' +
+			'autocompleteinputwrapper input { width: 100%; height: 2rem; font-size: 32px; background: #000; color: #FFF; border: 0; outline: 0; }' +
+			'autocompleteinputwrapper matches { display: block; background: #222; color: #CCC; }' +
+			'autocompleteinputwrapper match { display: block; padding: 2px 10px; font-size: 24px; }' +
+			'autocompleteinputwrapper match.current { background: #303030; color: #FFF; }' +
+			'autocompleteinputwrapper em { display: inline-block; width: 200px; }';
+		insertStyle(style, "styleAutoCompleteInputBox", true);
+		const dialogWrapper = createElement("autocompleteinputwrapper", { id: "autoCompleteInputWrapper" });
+		const inputElement = createElement("input", { id: "autoCompleteInput" });
+		const optionsList = createElement("matches", { id: "autoCompleteMatches" });
+		inputElement.addEventListener("keyup", onAutoCompleteInputKeyUp);
+		inputElement.addEventListener("keydown", onAutoCompleteInputKeyDown);
+		dialogWrapper.appendChild(inputElement);
+		dialogWrapper.appendChild(optionsList);
+		document.body.appendChild(dialogWrapper);
+		inputElement.focus();
+	};
+
+	const close = function()
+	{
+		del("#autoCompleteInputWrapper");
+	};
+
+	const executeFunction = function()
+	{
+		const command = getOne("#autoCompleteInput").value;
+		clearMatches();
+		runCommand(command);
+		close();
+	};
+
+	return {
+		open: open,
+		close: close,
+	};
+
+}()); //	End autoCompleteInputBox
+
 function main()
 {
 	let load = true;
@@ -5291,6 +5449,7 @@ function handleKeyDown(e)
 		{
 			case KEYCODES.TILDE: highlightSelection(); break;
 			case KEYCODES.NUMPAD1: fillForms(); break;
+			case KEYCODES.NUMPAD2: autoCompleteInputBox.open(); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.F1: makeHeadingFromSelection("h1"); break;
 			case KEYCODES.F2: makeHeadingFromSelection("h2"); break;
@@ -5313,7 +5472,7 @@ function handleKeyDown(e)
 			case KEYCODES.J: regressivelyUnenhance(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.L: showLog(); break;
-			case KEYCODES.M: markSelectionAnchorNode(); break;
+			case KEYCODES.M: autoCompleteInputBox.open(); break;
 			case KEYCODES.N: numberDivs(); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatches, true); break;
 			case KEYCODES.P: fixParagraphs(); break;
