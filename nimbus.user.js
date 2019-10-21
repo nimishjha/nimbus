@@ -651,23 +651,24 @@ function selectRandom(arr)
 
 function getSelectorsWithLightBackgrounds()
 {
-	const e = Array.prototype.slice.call(document.getElementsByTagName("*"));
+	const THRESHOLD = 200;
+	const e = Array.from(document.getElementsByTagName("*"));
 	let i = e.length;
 	let count = 0;
 	let str = "";
 	for (i = 0, count = 0; i < e.length, count < 4000; i++, count++)
 	{
 		const elem = e[i];
-		if(!elem) continue;
+		if(!elem)
+			continue;
 		count++;
-		const s = getComputedStyle(elem);
-		const bgColor = s.getPropertyValue("background-color");
-		if (bgColor.match(/2[0-9][0-9]/))
+		const bgColor = getComputedStyle(elem).getPropertyValue("background-color");
+		const rgbValues = bgColor.match(/[0-9]+/g);
+		if(rgbValues)
 		{
-			str += elem.tagName;
-			if(elem.id) str += "#" + elem.id;
-			if(elem.className) str += "." + Array.from(elem.classList).join('.');
-			str += ": " + bgColor + "\r\n";
+			let average = (Number(rgbValues[0]) + Number(rgbValues[1]) + Number(rgbValues[2])) / 3;
+			if(average > THRESHOLD)
+				str += padRight(createSelector(elem), 100) + bgColor + "\r\n";
 		}
 	}
 	console.log(str);
