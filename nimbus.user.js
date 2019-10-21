@@ -4984,7 +4984,7 @@ function toggleConsole(consoleType)
 function markUserLinks()
  {
 	forAll("a", function(link){
-		if(link.href && containsAnyOfTheStrings(link.href, ["/u/", "/user"]) && link.parentNode && link.parentNode.tagName !== "USER")
+		if(link.href && containsAnyOfTheStrings(link.href, ["/u/", "/user", "/member"]) && link.parentNode && link.parentNode.tagName !== "USER")
 			wrapElement(link, "user");
 	});
  }
@@ -5206,7 +5206,6 @@ function inject()
 	xlog("Referrer: " + document.referrer);
 	xlog("Page loaded at " + getTimestamp());
 	doStackOverflow();
-	console.log("Nimbus loaded");
 	showMessageBig("Nimbus loaded");
 }
 
