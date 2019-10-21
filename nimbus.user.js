@@ -126,6 +126,7 @@ const Nimbus = {
 		removeClassFromAll: removeClassFromAll,
 		removeEventListeners: removeEventListeners,
 		removeInlineStyles: removeInlineStyles,
+		removeSpanTags: removeSpanTags,
 		cleanupLinks: cleanupLinks,
 		replaceAudio: replaceAudio,
 		replaceClass: replaceClass,
@@ -133,6 +134,7 @@ const Nimbus = {
 		replaceDiacritics: replaceDiacritics,
 		replaceElementsByClassesContaining: replaceElementsByClassesContaining,
 		replaceElementsBySelector: replaceElementsBySelector,
+		replaceEmptyParagraphsWithHr: replaceEmptyParagraphsWithHr,
 		replaceFontTags: replaceFontTags,
 		replaceIframes: replaceIframes,
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
@@ -1867,6 +1869,25 @@ function deleteSmallImages()
 			del(images[i]);
 }
 
+function replaceEmptyParagraphsWithHr()
+{
+	const paras = get("p");
+	let i = paras.length;
+	while(i--)
+	{
+		const para = paras[i];
+		if(para.textContent.length === 0)
+		{
+			let nextPara = paras[i - 1];
+			while(nextPara && nextPara.textContent.length === 0 && i > 0)
+			{
+				nextPara = paras[--i];
+			}
+			para.parentNode.replaceChild(document.createElement("hr"), para);
+		}
+	}
+}
+
 function replaceSpansWithTextNodes()
 {
 	const spans = get("span");
@@ -1874,8 +1895,16 @@ function replaceSpansWithTextNodes()
 	while(i--)
 	{
 		const span = spans[i];
-		span.parentNode.replaceChild(document.createTextNode(span.textContent || ""), span);
+		if(span.innerHTML.indexOf("<") === -1)
+			span.parentNode.replaceChild(document.createTextNode(span.textContent || ""), span);
 	}
+}
+
+function removeSpanTags()
+{
+       let s = document.body.innerHTML;
+       s = s.replace(/<\/{0,}span[^>]*>/g, "");
+       document.body.innerHTML = s;
 }
 
 function deleteMarkedElements()
@@ -4847,6 +4876,7 @@ function makeHeadingsByTextLength()
 function formatEbook()
 {
 	createTagsByClassName();
+	replaceEmptyParagraphsWithHr();
 	makeHeadingsByTextLength();
 }
 
