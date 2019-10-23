@@ -5538,7 +5538,7 @@ function handleKeyDown(e)
 			case KEYCODES.A: toggleShowAriaAttributes(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
-			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteElementsWithClassContaining); break;
+			case KEYCODES.G: callFunctionWithArgs("Delete elements with class containing the string", deleteElementsWithClassContaining); break;
 			case KEYCODES.H: getSelectionOrUserInput("Mark elements by selector", markElementsBySelector, true); break;
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markElementsWithCssRule, 2); break;
 			case KEYCODES.V: showDocumentStructure(); break;
