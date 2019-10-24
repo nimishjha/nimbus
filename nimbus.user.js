@@ -282,15 +282,10 @@ function getOrCreate(tagName, id)
 {
 	const elem = getOne("#" + id);
 	if (elem)
-	{
 		return elem;
-	}
-	else
-	{
-		const newElem = createElement(tagName, { id: id });
-		document.body.appendChild(newElem);
-		return newElem;
-	}
+	const newElem = createElement(tagName, { id: id });
+	document.body.appendChild(newElem);
+	return newElem;
 }
 
 function del(arg)
@@ -305,6 +300,12 @@ function del(arg)
 		else
 			for(let i = 0, ii = arg.length; i < ii; i++)
 				del(arg[i]);
+}
+
+function emptyElement(elem)
+{
+	if(elem)
+		elem.innerHTML = '';
 }
 
 function filterNodesByAttributeEqualTo(nodes, attribute, value)
@@ -693,26 +694,6 @@ function getSelectorsWithLightBackgrounds()
 		}
 	}
 	console.log(str);
-}
-
-function getStyles(e)
-{
-	let bgImage, bgColor, s;
-	const styles = getComputedStyle(e, null);
-	if(styles)
-	{
-		bgColor = styles.getPropertyValue("background-color");
-		bgImage = styles.getPropertyValue("background-image");
-		if(bgColor !== "transparent")
-		{
-			s = createElement("x", { textContent: bgColor });
-			if(bgImage !== "none")
-				s.textContent += " " + bgImage;
-			e.appendChild(s);
-			e.classList.add("hl");
-		}
-	}
-	insertStyle("x { background: #000; color: #FF0; }", "styleGetStyles", true);
 }
 
 function highlightWithinPreformattedBlocks(str)
@@ -2165,11 +2146,11 @@ function replaceElementsByClassesContaining(str, tagName)
 
 function cleanupHead()
 {
-	const h = getOne("head");
-	if(!h)
+	const head = getOne("head");
+	if(!head)
 		return;
 	const tempTitle = document.title;
-	h.innerHTML = '';
+	emptyElement(head);
 	document.title = tempTitle;
 }
 
@@ -4345,28 +4326,19 @@ function replaceClass(class1, class2)
 	}
 }
 
-function analyze_mouseoverHandler(e)
+function analyze_mouseoverHandler(evt)
 {
-	const b = document.getElementById("analyzer");
-	b.innerHTML = '';
-	b.appendChild(document.createTextNode(''));
-	e.stopPropagation();
-	let targ;
-	// if(!e) e = window.event;
-	if(e.target)
+	const analyzerElem = document.getElementById("analyzer");
+	emptyElement(analyzerElem);
+	analyzerElem.appendChild(document.createTextNode(''));
+	evt.stopPropagation();
+	const target = evt.target;
+	removeClassFromAllQuiet("hovered");
+	target.classList.add("hovered");
+	while(target)
 	{
-		targ = e.target;
-		removeClassFromAllQuiet("hovered");
-		targ.classList.add("hovered");
-		while (targ)
-		{
-			getAttributes(targ);
-			targ = targ.parentNode;
-		}
-	}
-	else
-	{
-		ylog("couldn't get e.target");
+		getAttributes(target);
+		target = target.parentNode;
 	}
 }
 
@@ -5325,7 +5297,7 @@ const autoCompleteInputBox = (function(){
 	{
 		if (!str || !str.length || str.length < 2)
 		{
-			get("#autoCompleteMatches").innerHTML = "";
+			emptyElement(get("#autoCompleteMatches"));
 			inputComponent.currentIndex = -1;
 			return;
 		}
