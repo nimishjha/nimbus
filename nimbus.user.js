@@ -4114,7 +4114,7 @@ function highlightNodesContaining(selector, str)
 	while (i--)
 	{
 		const node = e[i];
-		if(node.querySelectorAll(selector).length)
+		if(node.querySelector(selector))
 			continue;
 		if(~node.textContent.indexOf(str))
 		{
@@ -4332,8 +4332,8 @@ function analyze_mouseoverHandler(evt)
 	emptyElement(analyzerElem);
 	analyzerElem.appendChild(document.createTextNode(''));
 	evt.stopPropagation();
-	const target = evt.target;
 	removeClassFromAllQuiet("hovered");
+	let target = evt.target;
 	target.classList.add("hovered");
 	while(target)
 	{
