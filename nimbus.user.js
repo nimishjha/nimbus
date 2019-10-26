@@ -1043,13 +1043,11 @@ function showDocumentStructureWithNames()
 	while(i--)
 	{
 		const elem = e[i];
-		let idsAndClasses = "";
-		if(elem.hasAttribute("id")) idsAndClasses += "#" + elem.id;
-		if(elem.hasAttribute("class")) idsAndClasses += " ." + elem.className;
-		if(elem.firstChild !== null)
-			elem.insertBefore(createElement("x", { textContent: idsAndClasses }), elem.firstChild);
+		const elemName = createSelector(elem);
+		if(elem.firstChild)
+			elem.insertBefore(createElement("x", { textContent: elemName }), elem.firstChild);
 		else
-			elem.appendChild(createElement("x", { textContent: idsAndClasses }));
+			elem.appendChild(createElement("x", { textContent: elemName }));
 	}
 	document.body.classList.add("showdivs");
 	const s = 'body { padding: 100px; }' +
