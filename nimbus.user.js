@@ -3653,11 +3653,7 @@ function cycleThroughTopLevelElements(boolReverse)
 
 function deleteSpecificEmptyElements()
 {
-	deleteEmptyElements("p");
-	deleteEmptyElements("tr");
-	deleteEmptyElements("li");
-	deleteEmptyElements("div");
-	deleteEmptyElements("figure");
+	deleteEmptyElements("p, tr, li, div, figure");
 	deleteEmptyHeadings();
 }
 
@@ -3669,12 +3665,12 @@ function deleteEmptyElements(tag)
 	{
 		if( e[i].textContent )
 		{
-			if( removeWhitespace(e[i].textContent).length === 0 && !e[i].getElementsByTagName("img").length )
+			if(removeWhitespace(e[i].textContent).length === 0 && !e[i].getElementsByTagName("img").length)
 				e[i].parentNode.removeChild(e[i]);
 		}
 		else
 		{
-			if( !e[i].getElementsByTagName("img").length)
+			if(!e[i].getElementsByTagName("img").length)
 				e[i].parentNode.removeChild(e[i]);
 		}
 	}
