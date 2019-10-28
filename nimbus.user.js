@@ -5271,7 +5271,7 @@ const autoCompleteInputBox = (function(){
 		showMatches(inputText);
 		switch (evt.keyCode)
 		{
-			case 9: highlightNextMatch(); updateInputField(); break;
+			case 9: updateInputField(); break;
 			case 13: updateInputField(); executeFunction(); break;
 		}
 	};
