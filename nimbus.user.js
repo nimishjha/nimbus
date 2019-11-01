@@ -1701,34 +1701,27 @@ function buildGallery()
 {
 	const images = get("img");
 	const db = document.body;
-	let i, ii, j, w, h;
 	const galleryElement = createElement("slideshow", { id: "nimbusGallery" });
 	if(images && images.length)
 	{
 		//mark duplicates by removing the src
-		for(i = 0; i < images.length; i++)
+		for(let i = 0, ii = images.length; i < ii; i++)
 		{
-			for(j = i + 1; j < images.length; j++)
+			for(let j = i + 1; j < ii; j++)
 				if(images[j].src === images[i].src)
 					images[j].removeAttribute("src");
 		}
-		for(i = 0, ii = images.length; i < ii; i++)
+		for(let i = 0, ii = images.length; i < ii; i++)
 		{
 			const image = images[i];
 			if(image.hasAttribute("src")) // if it's not a duplicate
 			{
-				image.removeAttribute("width");
-				image.removeAttribute("height");
-				w = image.naturalWidth;
-				h = image.naturalHeight;
+				let w = image.naturalWidth;
+				let h = image.naturalHeight;
+				let aspectRatioClass;
 				if(w && h)
-				{
-					if( w / h > 16 / 9 )
-						image.className = "aspectRatioLandscape";
-					else
-						image.className = "aspectRatioPortrait";
-				}
-				galleryElement.appendChild(image.cloneNode(true));
+					aspectRatioClass = w / h > 16 / 9 ? "aspectRatioLandscape" : "aspectRatioPortrait";
+				galleryElement.appendChild(createElement("img", { src: image.src, className: aspectRatioClass }));
 			}
 		}
 		del("img");
@@ -1879,10 +1872,10 @@ function replaceEmptyParagraphsWithHr()
 	while(i--)
 	{
 		const para = paras[i];
-		if(para.textContent.length === 0)
+		if(trim(para.textContent).length === 0)
 		{
 			let nextPara = paras[i - 1];
-			while(nextPara && nextPara.textContent.length === 0 && i > 0)
+			while(nextPara && trim(nextPara.textContent).length === 0 && i > 0)
 			{
 				nextPara = paras[--i];
 			}
@@ -2538,7 +2531,7 @@ function checkAriaAttributes()
 			{
 				elem.classList.add("hl", "error");
 				annotateElementError(elem, "aria-labelledby refers to missing ID");
-				console.log("aria-labelledby refers to missing id: " + labelledById + "#" + elem.id + " ." + elem.className);
+				console.log("aria-labelledby refers to missing id: " + labelledById + " " + createSelector(elem));
 			}
 		}
 
@@ -2550,7 +2543,7 @@ function checkAriaAttributes()
 			{
 				elem.classList.add("hl", "error");
 				annotateElementError(elem, "aria-describedby refers to missing ID");
-				console.log("aria-describedby refers to missing id: " + describedById + "#" + elem.id + " ." + elem.className);
+				console.log("aria-describedby refers to missing id: " + describedById + " " + createSelector(elem));
 			}
 		}
 
@@ -2560,7 +2553,7 @@ function checkAriaAttributes()
 			{
 				elem.classList.add("hl", "error");
 				annotateElementError(elem, "aria-expanded needs to be either true or false");
-				console.log("aria-expanded needs to be either true or false: " + "#" + elem.id + " ." + elem.className);
+				console.log("aria-expanded needs to be either true or false: " + createSelector(elem));
 			}
 		}
 
@@ -2570,7 +2563,7 @@ function checkAriaAttributes()
 			{
 				elem.classList.add("hl", "error");
 				annotateElementError(elem, "aria-selected needs to be either true or false");
-				console.log("aria-selected needs to be either true or false: " + "#" + elem.id + " ." + elem.className);
+				console.log("aria-selected needs to be either true or false: " + createSelector(elem));
 			}
 		}
 
@@ -5305,34 +5298,34 @@ const autoCompleteInputBox = (function(){
 
 	const inputComponent = Nimbus.autoCompleteInputComponent;
 
-	const updateInputField = function()
+	function updateInputField()
 	{
 		if (inputComponent.currentIndex !== -1)
 		{
 			if(inputComponent.matches[inputComponent.currentIndex])
 				getOne("#autoCompleteInput").value = inputComponent.matches[inputComponent.currentIndex];
 		}
-	};
+	}
 
-	const highlightPrevMatch = function()
+	function highlightPrevMatch()
 	{
 		if (inputComponent.currentIndex > 0)
 		{
 			inputComponent.currentIndex--;
 		}
 		renderMatches();
-	};
+	}
 
-	const highlightNextMatch = function()
+	function highlightNextMatch()
 	{
 		if (inputComponent.currentIndex < inputComponent.matches.length - 1)
 		{
 			inputComponent.currentIndex++;
 		}
 		renderMatches();
-	};
+	}
 
-	const onAutoCompleteInputKeyUp = function(evt)
+	function onAutoCompleteInputKeyUp(evt)
 	{
 		var inputText = getOne("#autoCompleteInput").value;
 		if (!inputText)
@@ -5346,9 +5339,9 @@ const autoCompleteInputBox = (function(){
 			case 9: updateInputField(); break;
 			case 13: updateInputField(); executeFunction(); break;
 		}
-	};
+	}
 
-	const onAutoCompleteInputKeyDown = function(evt)
+	function onAutoCompleteInputKeyDown(evt)
 	{
 		switch (evt.keyCode)
 		{
@@ -5357,9 +5350,20 @@ const autoCompleteInputBox = (function(){
 			case 38: highlightPrevMatch(); break;
 			case 40: highlightNextMatch(); break;
 		}
-	};
+	}
 
-	const showMatches = function(str)
+	function renderMatches()
+	{
+		let s = "";
+		for (let i = 0, ii = inputComponent.matches.length; i < ii; i++)
+		{
+			if (inputComponent.currentIndex === i) s += '<match class="current">' + inputComponent.matches[i] + "</match>";
+			else s += '<match>' + inputComponent.matches[i] + "</match>";
+		}
+		get("#autoCompleteMatches").innerHTML = s;
+	}
+
+	function showMatches(str)
 	{
 		if (!str || !str.length || str.length < 2)
 		{
@@ -5372,30 +5376,21 @@ const autoCompleteInputBox = (function(){
 		inputComponent.matches = [];
 		const commands = Object.keys(Nimbus.availableFunctions);
 		for (var i = 0, ii = commands.length; i < ii; i++)
-		if (~commands[i].toLowerCase().indexOf(str))
-			inputComponent.matches.push(commands[i]);
-		renderMatches();
-	};
-
-	const renderMatches = function()
-	{
-		let s = "";
-		for (let i = 0, ii = inputComponent.matches.length; i < ii; i++)
 		{
-			if (inputComponent.currentIndex === i) s += '<match class="current">' + inputComponent.matches[i] + "</match>";
-			else s += '<match>' + inputComponent.matches[i] + "</match>";
+			if (~commands[i].toLowerCase().indexOf(str))
+				inputComponent.matches.push(commands[i]);
 		}
-		get("#autoCompleteMatches").innerHTML = s;
-	};
-
-	const clearMatches = function()
-	{
-		inputComponent.matches = [],
-		inputComponent.currentIndex = -1,
 		renderMatches();
-	};
+	}
 
-	const open = function()
+	function clearMatches()
+	{
+		inputComponent.matches = [];
+		inputComponent.currentIndex = -1;
+		renderMatches();
+	}
+
+	function open()
 	{
 		const style = 'autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; }' +
 			'autocompleteinputwrapper input { width: 100%; height: 2rem; font-size: 32px; background: #000; color: #FFF; border: 0; outline: 0; }' +
@@ -5413,20 +5408,20 @@ const autoCompleteInputBox = (function(){
 		dialogWrapper.appendChild(optionsList);
 		document.body.appendChild(dialogWrapper);
 		inputElement.focus();
-	};
+	}
 
-	const close = function()
+	function close()
 	{
 		del("#autoCompleteInputWrapper");
-	};
+	}
 
-	const executeFunction = function()
+	function executeFunction()
 	{
 		const command = getOne("#autoCompleteInput").value;
 		clearMatches();
 		runCommand(command);
 		close();
-	};
+	}
 
 	return {
 		open: open,
