@@ -5229,6 +5229,78 @@ function inject()
 	showMessageBig("Nimbus loaded");
 }
 
+function isIncorrectType(x, type)
+{
+	if(typeof x === type)
+		return false;
+	console.warn("Expected " + x + " to be " + type + "; got " + typeof x);
+	return true;
+}
+
+function timer(identifier, durationSeconds)
+{
+	let errorLog = '';
+	if(isIncorrectType(identifier, "string") || identifier.match(/[^a-zA-Z0-9]/)) errorLog += 'Invalid argument: identifier\r\n';
+	if(isIncorrectType(durationSeconds, "number")) errorLog += 'Invalid argument: durationSeconds\r\n';
+	if(getOne("#" + identifier + "Wrapper") || getOne("#" + identifier + "Element")) errorLog += 'Error: element with that id already exists\r\n';
+	if(errorLog.length)
+	{
+		console.warn(errorLog);
+		return;
+	}
+
+	const id = identifier;
+	let timeCreated = new Date().getTime();
+	let durationMs = durationSeconds * 1000;
+	let timerInterval;
+
+	const timerWrapper = createElement("progressbar", { id: id + "Wrapper", className: "progressBarContainer" });
+	const timerElement = createElement("progressbar", { id: id + "Element", className: "progressBar" });
+	timerWrapper.appendChild(timerElement);
+	document.body.appendChild(timerWrapper);
+	const style = 'progressbar { display: block; height: 20px; }' +
+		'.progressBarContainer { border: 2px solid #AAA; background: #000; width: 200px; }' +
+		'.progressBar { background: #AAA; width: 0; }';
+	insertStyle(style, "styleTimerProgressBar", false);
+
+	function start()
+	{
+		timeCreated = new Date().getTime();
+		timerInterval = setInterval(update, 1000);
+	}
+
+	function stop()
+	{
+		clearInterval(timerInterval);
+	}
+
+	function update()
+	{
+		const timeElapsedMs = new Date() - new Date(timeCreated);
+		const percentage = Math.min(100, 100 * timeElapsedMs / durationMs);
+		getOne("#" + id + "Element").setAttribute("style", "width: " + percentage + "%");
+		if(percentage >= 100)
+		{
+			stop();
+		}
+	}
+
+	function reset(durationSeconds)
+	{
+		if(typeof durationSeconds === "number")
+			durationMs = durationSeconds * 1000;
+		timeCreated = new Date().getTime();
+	}
+
+	function destroy()
+	{
+		stop();
+		del("#" + id + "Wrapper");
+	}
+
+	return { start, stop, update, reset, destroy };
+}
+
 const autoCompleteInputBox = (function(){
 
 	const inputComponent = Nimbus.autoCompleteInputComponent;
