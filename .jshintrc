@@ -11,7 +11,7 @@
   // useful when your codebase is shared with a big number of developers
   // with different skill levels.
 
-  "bitwise"       : true,     // Prohibit bitwise operators (&, |, ^, etc.).
+  "bitwise"       : false,     // Prohibit bitwise operators (&, |, ^, etc.).
   "curly"         : false,     // Require {} for every new block or scope.
   "eqeqeq"        : true,     // Require triple equals i.e. `===`.
   "forin"         : false,     // Tolerate `for in` loops without `hasOwnPrototype`.
@@ -27,7 +27,7 @@
   "undef"         : true,     // Require all non-global variables be declared before they are used.
   "strict"        : true,     // Require `use strict` pragma in every file.
   "trailing"      : true,     // Prohibit trailing whitespaces.
-  "unused"        : true,     // Warn when you define and never use your variables
+  "unused"        : false,     // Warn when you define and never use your variables
 
 
   // == Relaxing Options ================================================
