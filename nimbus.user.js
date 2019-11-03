@@ -81,6 +81,7 @@ const Nimbus = {
 		getBestImageSrc: getBestImageSrc,
 		getContentByParagraphCount: getContentByParagraphCount,
 		getElementsContainingText: getElementsContainingText,
+		getStreamingImages: getStreamingImages,
 		buildGallery: buildGallery,
 		getLargeImages: getLargeImages,
 		getPagerLinks: getPagerLinks,
@@ -1987,6 +1988,36 @@ function getLargeImages()
 			link.parentNode.replaceChild(createElement("img", { src: linkHref }), link);
 		}
 	}
+}
+
+function getStreamingImages()
+{
+	let imageContainer = getOne("#nimbusStreamingImageContainer");
+	if(!imageContainer)
+	{
+		imageContainer = createElement("div", { id: "nimbusStreamingImageContainer" });
+		document.body.appendChild(imageContainer);
+		const style = "#nimbusStreamingImageContainer { position: fixed; top: 0; left: 0; width: 30vw; height: 100vh; overflow: hidden; }" +
+			" #nimbusStreamingImageContainer img { height: 40px; width: auto; float: left; }";
+		insertStyle(style, "styleGetStreamingImages", true);
+	}
+	if(!Nimbus.streamingImages)
+		Nimbus.streamingImages = [];
+	let images = Nimbus.streamingImages;
+	var e = document.querySelectorAll("img:not(.alreadySaved)");
+	for(var i = 0; i < e.length; i++)
+	{
+		const imgSrc = e[i].src;
+		if(images.includes(imgSrc))
+			continue;
+		images.push(imgSrc);
+		const newImg = document.createElement("img");
+		newImg.src = imgSrc;
+		newImg.className = "alreadySaved";
+		imageContainer.appendChild(newImg);
+	}
+	setTimeout(getStreamingImages, 5000);
+	showMessageBig(images.length + " unique images so far");
 }
 
 function addLinksToLargerImages()
