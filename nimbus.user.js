@@ -1102,10 +1102,11 @@ function getBestImageSrc()
 	while(i--)
 	{
 		const elem = e[i];
-		if(elem.srcset)
+		const srcset = elem.srcset || elem.getAttribute("data-srcset");
+		if(srcset)
 		{
 			let bestSource;
-			let sources = elem.srcset.split(',');
+			let sources = srcset.split(',');
 			let sourcesArray = [];
 			for(let j = 0, jj = sources.length; j < jj; j++)
 			{
@@ -1121,6 +1122,7 @@ function getBestImageSrc()
 				bestSource = sourcesArray[sourcesArray.length - 1].src;
 				elem.src = bestSource;
 				elem.removeAttribute("srcset");
+				elem.removeAttribute("data-srcset");
 			}
 		}
 	}
