@@ -1701,39 +1701,28 @@ function makeHeadingFromSelection(tagname)
 function buildGallery()
 {
 	const images = get("img");
-	const db = document.body;
-	const galleryElement = createElement("slideshow", { id: "nimbusGallery" });
-	if(images && images.length)
-	{
-		//mark duplicates by removing the src
-		for(let i = 0, ii = images.length; i < ii; i++)
-		{
-			for(let j = i + 1; j < ii; j++)
-				if(images[j].src === images[i].src)
-					images[j].removeAttribute("src");
-		}
-		for(let i = 0, ii = images.length; i < ii; i++)
-		{
-			const image = images[i];
-			if(image.hasAttribute("src")) // if it's not a duplicate
-			{
-				let w = image.naturalWidth;
-				let h = image.naturalHeight;
-				let aspectRatioClass;
-				if(w && h)
-					aspectRatioClass = w / h > 16 / 9 ? "aspectRatioLandscape" : "aspectRatioPortrait";
-				galleryElement.appendChild(createElement("img", { src: image.src, className: aspectRatioClass }));
-			}
-		}
-		del("img");
-		cleanupHead();
-		insertStyle("img { display: block; float: left; max-height: 300px; }", "styleGallery", true);
-		db.insertBefore(galleryElement, db.firstChild);
-	}
-	else
+	if(!(images && images.length))
 	{
 		showMessageBig("No images found");
+		return;
 	}
+	const db = document.body;
+	const galleryElement = createElement("slideshow", { id: "nimbusGallery" });
+	const uniques = [...new Set(images)];
+	for(let i = 0, ii = uniques.length; i < ii; i++)
+	{
+		const image = images[i];
+		let w = image.naturalWidth;
+		let h = image.naturalHeight;
+		let aspectRatioClass;
+		if(w && h)
+			aspectRatioClass = w / h > 16 / 9 ? "aspectRatioLandscape" : "aspectRatioPortrait";
+		galleryElement.appendChild(createElement("img", { src: image.src, className: aspectRatioClass }));
+	}
+	del("img");
+	cleanupHead();
+	insertStyle("img { display: block; float: left; max-height: 300px; }", "styleGallery", true);
+	db.insertBefore(galleryElement, db.firstChild);
 }
 
 function buildSlideshow()
@@ -2011,10 +2000,7 @@ function getStreamingImages()
 		if(images.includes(imgSrc))
 			continue;
 		images.push(imgSrc);
-		const newImg = document.createElement("img");
-		newImg.src = imgSrc;
-		newImg.className = "alreadySaved";
-		imageContainer.appendChild(newImg);
+		imageContainer.appendChild(createElement("img", { src: imgSrc, className: "alreadySaved" }));
 	}
 	setTimeout(getStreamingImages, 5000);
 	showMessageBig(images.length + " unique images so far");
@@ -2071,8 +2057,7 @@ function cleanupGeneral_light()
 	deleteEmptyHeadings();
 	cleanupHead();
 	replaceIframes();
-	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "noscript"]);
-	//replaceFontTags();
+	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet", "message"]);
 	replaceElementsBySelector("center", "div");
 	setDocTitle();
 	del("x");
