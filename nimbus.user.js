@@ -97,6 +97,7 @@ const Nimbus = {
 		highlightSelection: highlightSelection,
 		highlightSpecificNodesContaining: highlightSpecificNodesContaining,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
+		insertElementBeforeSelectedNode: insertElementBeforeSelectedNode,
 		insertStyle: insertStyle,
 		insertStyleHighlight: insertStyleHighlight,
 		iw: setImageWidth,
@@ -240,6 +241,7 @@ const KEYCODES = {
 	NUMPAD_DECIMAL_POINT: 110,
 	NUMPAD_DIVIDE: 111,
 	FORWARD_SLASH: 191,
+	MINUS: 173,
 	TILDE: 192,
 	SPACE: 32,
 	UPARROW: 38,
@@ -1407,12 +1409,27 @@ function callFunctionWithArgs(promptMessage, callback, numArgs)
 	});
 }
 
+function insertElementBeforeSelectedNode(elem)
+{
+	const element = elem || "hr";
+	const selection = window.getSelection();
+	if(!selection)
+		return;
+	let node = selection.anchorNode;
+	if(node.tagName === undefined)
+		node = node.parentNode;
+	if(node && node.parentNode)
+		node.parentNode.insertBefore(createElement("hr"), node);
+}
+
 function annotate()
 {
 	const selection = window.getSelection();
-	if(!selection) return;
+	if(!selection)
+		return;
 	let node = selection.anchorNode;
-	if(node.tagName === undefined) node = node.parentNode;
+	if(node.tagName === undefined)
+		node = node.parentNode;
 	if(node && node.parentNode)
 	{
 		const d = createElement("ruby");
@@ -5543,6 +5560,7 @@ function handleKeyDown(e)
 			case KEYCODES.DELETE: deleteMarkedElements(); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: cycleThroughTopLevelElements(); break;
 			case KEYCODES.SQUARE_BRACKET_OPEN: cycleThroughTopLevelElements(true); break;
+			case KEYCODES.MINUS: insertElementBeforeSelectedNode(); break;
 			default: shouldPreventDefault = false;
 		}
 		if(shouldPreventDefault)
