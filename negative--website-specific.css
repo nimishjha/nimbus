@@ -294,7 +294,15 @@
 
 @-moz-document domain("github.com")
 {
+	clipboard-copy, summary, button, html input[type="submit"], html input[type="button"] { box-shadow: none !important; background: #111 !important; }
+	clipboard-copy:hover, clipboard-copy:focus, summary:hover, summary:focus, button:hover, button:focus, html input[type="submit"]:hover, input[type="submit"]:focus, html input[type="button"]:hover, html input[type="button"]:focus { background: #000 !important; color: #FFF !important; }
+
 	.svg-tip { background: #000 !important; box-shadow: inset 100px 100px #000 !important; }
+
+/*	.blob-code-deletion { filter: brightness(0.75); }
+	.blob-code-addition { filter: brightness(1.5); }*/
+
+
 	.blob-code-deletion { box-shadow: inset 100px 100px 0 #800; }
 	.blob-code-addition { box-shadow: inset 100px 100px 0 #060; }
 	.file-header { box-shadow: inset 100px 100px 0 #000; }
@@ -321,4 +329,19 @@
 	rect[data-count='18'] { fill: #FFF !important; }
 	rect[data-count='19'] { fill: #FFF !important; }
 	rect[data-count='20'] { fill: #FFF !important; }
+
+
+/*	html span.pl-c { color: #FFF !important; }
+	html span.pl-c1 { color: #F90 !important; }
+	html span.pl-e { color: #77F !important; }
+	html span.pl-en { color: #FC0 !important; }
+	html span.pl-ent { color: #09F !important; }
+	html span.pl-k { color: #09F !important; }
+	html span.pl-pds { color: #FFF !important; }
+	html span.pl-pse { color: #AF0 !important; }
+	html span.pl-s { color: #777 !important; }
+	html span.pl-smi { color: #09F !important; }
+	html span.pl-sr { color: #F77 !important; }
+	html span.pl-v { color: #77F !important; }
+*/
 }
