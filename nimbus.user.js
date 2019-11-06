@@ -2668,7 +2668,11 @@ function chooseDocumentHeading()
 	deleteEmptyElements("h1");
 	const headings1 = get("h1");
 	const headings2 = get("h2");
+	let currentTitle = '';
+	if(document.title.length)
+		currentTitle = createElement("h1", { textContent: document.title });
 	let candidateTags = [];
+	candidateTags.push(currentTitle);
 	if(headings1)
 		candidateTags = candidateTags.concat(headings1);
 	if(headings2)
@@ -2772,7 +2776,7 @@ function setDocTitle(s)
 		s = s.substr(s.indexOf("Thread - ") + 9);
 
 	del(".candidateHeading");
-	if(!(getOne("h1") && getOne("h1").innerHTML === s))
+	if(!(getOne("h1") && getOne("h1").textContent === s))
 	{
 		h = createElement("h1", { className: "candidateHeading", textContent: s });
 		document.body.insertBefore(h, document.body.firstChild);
@@ -2814,25 +2818,25 @@ function appendInfo()
 	if(headings4.length && headings4.length > 2 && headings4[headings4.length - 2].textContent.indexOf("URL:") === 0)
 		return;
 
+	const documentUrl = window.location.href.toString();
+
 	const domainLinkWrapper = createElement("h4", { textContent: "Domain: " });
 	const domainLink = document.createElement("a");
-	const documentUrl = window.location.href.toString();
 	const documentUrlSegments = documentUrl.split("/");
 	domainLink.textContent = domainLink.href = documentUrlSegments[0] + "//" + documentUrlSegments[2];
 	domainLinkWrapper.appendChild(domainLink);
 	document.body.appendChild(domainLinkWrapper);
 
-	const documentSaveUrl = createElement("h4", { textContent: "URL: " });
+	const documentLinkWrapper = createElement("h4", { textContent: "URL: " });
 	const documentLink = document.createElement("a");
 	let url = documentUrl;
 	if(documentUrl.indexOf("?utm_source") > 0)
 		url = url.substr(0, url.indexOf("?utm_source"));
 	documentLink.textContent = documentLink.href = url;
-	documentSaveUrl.appendChild(documentLink);
-	document.body.appendChild(documentSaveUrl);
+	documentLinkWrapper.appendChild(documentLink);
+	document.body.appendChild(documentLinkWrapper);
 
-	const timestamp = getTimestamp();
-	const saveTime = createElement("h4", { textContent: "Saved at " + timestamp });
+	const saveTime = createElement("h4", { textContent: "Saved at " + getTimestamp() });
 	document.body.appendChild(saveTime);
 }
 
@@ -3456,8 +3460,8 @@ function highlightCode(highlightKeywords)
 		node.innerHTML = s;
 	}
 	// un-highlight elements in comments
-	forAll("c1", htmlToText);
-	forAll("c2", htmlToText);
+	// forAll("c1", htmlToText);
+	// forAll("c2", htmlToText);
 	const t2 = performance.now();
 	xlog(t2 - t1 + "ms: highlightCode");
 }
@@ -4085,7 +4089,7 @@ function deleteElementsWithClassContaining(str)
 	while(i--)
 	{
 		const node = e[i];
-		if(~node.className.indexOf(str))
+		if(~node.className.toString().indexOf(str))
 			del(node);
 	}
 }
@@ -5364,9 +5368,9 @@ const autoCompleteInputBox = (function(){
 		switch (evt.keyCode)
 		{
 			case 9: evt.preventDefault(); break;
-			case 27: close(); break;
-			case 38: highlightPrevMatch(); break;
-			case 40: highlightNextMatch(); break;
+			case 27: evt.preventDefault(); close(); break;
+			case 38: evt.preventDefault(); highlightPrevMatch(); break;
+			case 40: evt.preventDefault(); highlightNextMatch(); break;
 		}
 	}
 
