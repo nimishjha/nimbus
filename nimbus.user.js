@@ -284,7 +284,7 @@ function getOne(s)
 function getOrCreate(tagName, id)
 {
 	const elem = getOne("#" + id);
-	if (elem)
+	if(elem)
 		return elem;
 	const newElem = createElement(tagName, { id: id });
 	document.body.appendChild(newElem);
@@ -681,7 +681,7 @@ function getSelectorsWithLightBackgrounds()
 	let i = e.length;
 	let count = 0;
 	let str = "";
-	for (i = 0, count = 0; i < e.length, count < 4000; i++, count++)
+	for(i = 0, count = 0; i < e.length, count < 4000; i++, count++)
 	{
 		const elem = e[i];
 		if(!elem)
@@ -812,7 +812,7 @@ function cycleClass(elem, arrClasses)
 
 function createUUID()
 {
-	return 'nimbus-xxxx-xxxx-xxxx-xxxx-xxxx'.replace(/x/g, function (c)
+	return 'nimbus-xxxx-xxxx-xxxx-xxxx-xxxx'.replace(/x/g, function(c)
 	{
 		const r = Math.random() * 16 | 0;
 		const v = c === 'x' ? r : r & 0x3 | 0x8;
@@ -1254,7 +1254,7 @@ function runCommand(s)
 		return;
 	Nimbus.lastCommand = s;
 	const commandSegments = parseCommand(s);
-	if (!commandSegments.length)
+	if(!commandSegments.length)
 		return;
 	const funcName = commandSegments[0];
 	if(Nimbus.availableFunctions[funcName])
@@ -1262,10 +1262,10 @@ function runCommand(s)
 		const args = [];
 		let n;
 		let i, ii;
-		for (i = 1, ii = commandSegments.length; i < ii; i++)
+		for(i = 1, ii = commandSegments.length; i < ii; i++)
 		{
 			n = parseInt(commandSegments[i], 10);
-			if (isNaN(n))
+			if(isNaN(n))
 				args.push(commandSegments[i]);
 			else args.push(n);
 		}
@@ -1288,13 +1288,11 @@ function openDialog(inputHandler)
 		dialog.appendChild(dialogInput);
 		document.body.insertBefore(dialog, document.body.firstChild);
 		const s = '#xxdialog { position: fixed; margin: auto; z-index: 10000; height: 60px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
-		'#xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0; border: 0; width: 100%; height: 100%; overflow: hidden; }';
+			'#xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0; border: 0; width: 100%; height: 100%; overflow: hidden; }';
 		insertStyle(s, "style-xxdialog", true);
+		const handler = inputHandler || defaultDialogInputHandler;
+		dialogInput.addEventListener("keydown", handler, false);
 		dialogInput.focus();
-		if(inputHandler)
-			dialogInput.addEventListener("keydown", inputHandler, false);
-		else
-			dialogInput.addEventListener("keydown", defaultDialogInputHandler, false);
 	}
 }
 
@@ -1327,8 +1325,8 @@ function customPrompt(message)
 		dialog.appendChild(dialogInput);
 		document.body.insertBefore(dialog, document.body.firstChild);
 		const s = '#xxdialog { position: fixed; margin: auto; z-index: 10000; height: 90px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 60vw; }' +
-		'#xxdialog heading { height: 30px; line-height: 30px; padding: 0 10px; background: #111; display: block; margin: 0; }' +
-		'#xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0 0; margin: 0; border-width: 0 10px; border-color: #000; width: 100%; height: 60px; overflow: hidden; box-sizing: border-box; }';
+			'#xxdialog heading { height: 30px; line-height: 30px; padding: 0 10px; background: #111; display: block; margin: 0; }' +
+			'#xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0 0; margin: 0; border-width: 0 10px; border-color: #000; width: 100%; height: 60px; overflow: hidden; box-sizing: border-box; }';
 		insertStyle(s, "style-xxdialog", true);
 		dialogInput.focus();
 		return new Promise(function(resolve, reject){
@@ -1409,9 +1407,9 @@ function callFunctionWithArgs(promptMessage, callback, numArgs)
 	});
 }
 
-function insertElementBeforeSelectedNode(elem)
+function insertElementBeforeSelectedNode(tagName)
 {
-	const element = elem || "hr";
+	const tag = tagName || "hr";
 	const selection = window.getSelection();
 	if(!selection)
 		return;
@@ -1419,7 +1417,7 @@ function insertElementBeforeSelectedNode(elem)
 	if(node.tagName === undefined)
 		node = node.parentNode;
 	if(node && node.parentNode)
-		node.parentNode.insertBefore(createElement("hr"), node);
+		node.parentNode.insertBefore(createElement(tag), node);
 }
 
 function annotate()
@@ -1624,15 +1622,15 @@ function unhighlightAll()
 {
 	const e = get(".hl");
 	let i = e.length;
-	while (i--)
+	while(i--)
 		e[i].classList.remove("hl");
 	const f = get(".hl2");
 	i = f.length;
-	while (i--)
+	while(i--)
 		f[i].classList.remove("hl2");
 	const g = get(".error");
 	i = g.length;
-	while (i--)
+	while(i--)
 		g[i].classList.remove("error");
 	del(["annotationinfo", "annotationwarning", "annotationerror"]);
 }
@@ -1727,10 +1725,10 @@ function buildGallery()
 	}
 	const db = document.body;
 	const galleryElement = createElement("slideshow", { id: "nimbusGallery" });
-	const uniques = [...new Set(images)];
-	for(let i = 0, ii = uniques.length; i < ii; i++)
+	const uniqueImages = [...new Set(images)];
+	for(let i = 0, ii = uniqueImages.length; i < ii; i++)
 	{
-		const image = images[i];
+		const image = uniqueImages[i];
 		let w = image.naturalWidth;
 		let h = image.naturalHeight;
 		let aspectRatioClass;
@@ -1853,11 +1851,11 @@ function deleteSmallImages()
 	const dimensions = [100, 200, 300, 400];
 	let index = 0;
 	let indexElement = get("#imagedimensionindex");
-	if (indexElement)
+	if(indexElement)
 	{
 		index = indexElement.textContent || 0;
 		index++;
-		if (index > dimensions.length - 1) return;
+		if(index > dimensions.length - 1) return;
 	}
 	else
 	{
@@ -1870,7 +1868,7 @@ function deleteSmallImages()
 	showMessageBig("Deleting images smaller than " + dimension + " pixels");
 	let i = images.length;
 	while(i--)
-		if (images[i].naturalWidth < dimension || images[i].naturalHeight < dimension)
+		if(images[i].naturalWidth < dimension || images[i].naturalHeight < dimension)
 			del(images[i]);
 }
 
@@ -1992,8 +1990,8 @@ function getLargeImages()
 		const linkHref = link.href;
 		if(containsAnyOfTheStrings(linkHref.toLowerCase(), [".png", ".jpg", ".gif", ".jpe"]))
 		{
-			document.body.appendChild(createElement("img", { src: linkHref }));
-			link.parentNode.replaceChild(createElement("img", { src: linkHref }), link);
+			if(link.parentNode)
+				link.parentNode.replaceChild(createElement("img", { src: linkHref }), link);
 		}
 	}
 }
@@ -2161,11 +2159,11 @@ function replaceElementsByClassesContaining(str, tagName)
 	if(e.length)
 	{
 		const toReplace = [];
-		for (i = 0, ii = e.length; i < ii; i++)
+		for(i = 0, ii = e.length; i < ii; i++)
 			if(~e[i].className.indexOf(str))
 				toReplace.push(e[i]);
 		showMessageBig("Replacing " + toReplace.length + " elements");
-		for (i = toReplace.length - 1; i >= 0; i--)
+		for(i = toReplace.length - 1; i >= 0; i--)
 			toReplace[i].parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace[i].innerHTML }), toReplace[i]);
 	}
 }
@@ -2202,10 +2200,10 @@ function forceReloadCss()
 {
 	showMessageBig("Force-reloading CSS");
 	const styleLinks = document.getElementsByTagName('link');
-	for (let i = 0; i < styleLinks.length; i++)
+	for(let i = 0; i < styleLinks.length; i++)
 	{
 		const styleSheet = styleLinks[i];
-		if (styleSheet.rel.toLowerCase().indexOf('stylesheet') >= 0 && styleSheet.href)
+		if(styleSheet.rel.toLowerCase().indexOf('stylesheet') >= 0 && styleSheet.href)
 		{
 			const h = styleSheet.href.replace(/(&|%5C?)forceReload=\d+/, '');
 			styleSheet.href = h + (h.indexOf('?') >= 0 ? '&' : '?') + 'forceReload=' + new Date().valueOf();
@@ -2669,7 +2667,7 @@ function removeEventListeners()
 
 	const elems = document.getElementsByTagName("*");
 	let i = elems.length;
-	while (i--)
+	while(i--)
 	{
 		const elem = elems[i];
 		elem.removeAttribute("onmousedown");
@@ -2740,7 +2738,7 @@ function replaceDiacritics(s)
 	];
 	const chars = ['A','a','E','e','I','i','O','o','U','u','N','n','C','c'];
 	let i;
-	for (i = 0; i < diacritics.length; i++)
+	for(i = 0; i < diacritics.length; i++)
 		s = s.replace(diacritics[i],chars[i]);
 	return s;
 }
@@ -2811,7 +2809,7 @@ function setDocTitle(s)
 		labels = hn.split(".");
 		i = labels.length;
 		longestlabel = '';
-		while (i--)
+		while(i--)
 		{
 			if(longestlabel.length < labels[i].length) longestlabel = labels[i];
 		}
@@ -2862,7 +2860,7 @@ function replaceFontTags()
 	const f = document.getElementsByTagName("font");
 	const replacements = [];
 	let h;
-	for (let i = 0, ii = f.length; i < ii; i++)
+	for(let i = 0, ii = f.length; i < ii; i++)
 	{
 		const fontElem = f[i];
 		if(fontElem.getAttribute("size"))
@@ -2872,7 +2870,7 @@ function replaceFontTags()
 			{
 				hl = hl[1];
 			}
-			switch (hl)
+			switch(hl)
 			{
 				case '7': h = document.createElement("h1"); break;
 				case '6': h = document.createElement("h2"); break;
@@ -2893,7 +2891,7 @@ function replaceFontTags()
 			replacements.push(h);
 		}
 	}
-	for (let i = f.length - 1; i >= 0; i--)
+	for(let i = f.length - 1; i >= 0; i--)
 	{
 		const fontElem = f[i];
 		fontElem.parentNode.replaceChild(replacements[i], fontElem);
@@ -2905,13 +2903,13 @@ function cleanupAttributes()
 	const t1 = performance.now();
 	const elems = document.getElementsByTagName('*');
 	document.body.removeAttribute("background");
-	for (let i = 0; i < elems.length; i++)
+	for(let i = 0; i < elems.length; i++)
 	{
 		const elem = elems[i];
 		if(elem.attributes)
 		{
 			const attrs = elem.attributes;
-			for (let j = attrs.length - 1; j >= 0; j--)
+			for(let j = attrs.length - 1; j >= 0; j--)
 			{
 				const attr = attrs[j];
 				switch(attr.name)
@@ -2970,7 +2968,7 @@ function forAll(selector, callback)
 	const e = get(selector);
 	let i = -1;
 	const len = e.length;
-	while (++i < len)
+	while(++i < len)
 		callback(e[i]);
 }
 
@@ -2978,7 +2976,7 @@ function delNewlines()
 {
 	const paragraphs = document.getElementsByTagName("p");
 	let i = paragraphs.length;
-	while (i--)
+	while(i--)
 	{
 		const paragraph = paragraphs[i];
 		const s = paragraph.textContent.replace(/\s/g, '');
@@ -3042,7 +3040,7 @@ function convertDivsToParagraphs()
 {
 	const divs = get("div");
 	let i = divs.length;
-	while (i--)
+	while(i--)
 	{
 		const div = divs[i];
 		if(div.getElementsByTagName("div").length) continue;
@@ -3092,7 +3090,7 @@ function makeHeadings()
 			}
 		}
 		tags = ["b", "strong", "em"];
-		for (j = tags.length - 1; j >= 0; j--)
+		for(j = tags.length - 1; j >= 0; j--)
 		{
 			const tag = tags[j];
 			if(elem.getElementsByTagName(tag).length === 1)
@@ -3139,7 +3137,7 @@ function markNavigationalLists()
 		let j = links.length;
 		console.log("list has " + j + "links");
 		let linkText = "";
-		while (j--)
+		while(j--)
 		{
 			linkText += links[j].textContent.replace(/[^A-Za-z]+/g, "");
 		}
@@ -3161,7 +3159,7 @@ function normalizeString(s)
 
 function logout()
 {
-	switch (location.hostname)
+	switch(location.hostname)
 	{
 		case 'mail.google.com':
 		case 'accounts.google.com':
@@ -3434,7 +3432,7 @@ function highlightCode(highlightKeywords)
 
 	const preBlocks = get("pre");
 	let i = preBlocks.length;
-	while (i--)
+	while(i--)
 	{
 		const node = preBlocks[i];
 		// delete the <pre>s that only contain line numbers
@@ -3468,7 +3466,7 @@ function highlightCode(highlightKeywords)
 				"let", "void", "volatile", "while", "with", "window", "script", "javascript", "document", "createElement", "createTextNode", "getElementsByTagName"
 			];
 			let j = keywords.length;
-			while (j--)
+			while(j--)
 			{
 				r = new RegExp("\\b" + keywords[j] + "\\b", "g");
 				s = s.replace(r, "<xk>" + keywords[j] + "</xk>");
@@ -3712,7 +3710,7 @@ function deleteEmptyHeadings()
 {
 	const e = get("h1, h2, h3, h4, h5, h6");
 	let i = e.length;
-	while (i--)
+	while(i--)
 	{
 		if(e[i].textContent)
 		{
@@ -3855,7 +3853,7 @@ function highlightSelection()
 		return;
 	let node = selection.anchorNode;
 	let selectionText = trim(removeLineBreaks(selection.toString()));
-	while (node.parentNode && (node.textContent.length < selectionText.length || node.nodeType !== 1))
+	while(node.parentNode && (node.textContent.length < selectionText.length || node.nodeType !== 1))
 		node = node.parentNode;
 	node.innerHTML = normalizeHTML(node.innerHTML);
 	if(!node || node.tagName === undefined)
@@ -3876,7 +3874,7 @@ function markSelectionAnchorNode()
 	if(!selection.toString().length)
 		return;
 	let node = selection.anchorNode;
-	while (node.parentNode && (node.textContent.length < selection.length || node.nodeType !== 1))
+	while(node.parentNode && (node.textContent.length < selection.length || node.nodeType !== 1))
 		node = node.parentNode;
 	node.classList.add("hl");
 	insertStyleHighlight();
@@ -3891,7 +3889,7 @@ function highlightSelection_old()
 	let selection = window.getSelection();
 	let node = selection.anchorNode;
 	selection = trim(removeLineBreaks(selection.toString()));
-	while (node.parentNode && (node.textContent.length < selection.length || node.nodeType !== 1))
+	while(node.parentNode && (node.textContent.length < selection.length || node.nodeType !== 1))
 		node = node.parentNode;
 	if(!node || node.tagName === undefined)
 	{
@@ -4081,20 +4079,20 @@ function deleteElementsContainingText(selector, str)
 	}
 
 	const e = get(selector);
-	if (e.length)
+	if(e.length)
 	{
 		let i = e.length;
-		while (i--)
+		while(i--)
 		{
-			if (e[i].querySelector(selector))
+			if(e[i].querySelector(selector))
 				continue;
-			if (e[i].textContent.indexOf(str) >= 0)
+			if(e[i].textContent.indexOf(str) >= 0)
 				e[i].parentNode.removeChild(e[i]);
 		}
 	}
-	else if (e.parentNode)
+	else if(e.parentNode)
 	{
-		if (e.textContent.indexOf(str) >= 0)
+		if(e.textContent.indexOf(str) >= 0)
 			e.parentNode.removeChild(e);
 	}
 }
@@ -4137,7 +4135,7 @@ function highlightNodesContaining(selector, str)
 	const markerTagOpen = "<mark>";
 	const markerTagClose = "</mark>";
 	let i = e.length;
-	while (i--)
+	while(i--)
 	{
 		const node = e[i];
 		if(node.querySelector(selector))
@@ -4168,7 +4166,7 @@ function highlightLinksWithHrefContaining(str)
 {
 	const e = document.getElementsByTagName("a");
 	let i = e.length;
-	while (i--)
+	while(i--)
 		if(e[i].href.indexOf(str) >= 0)
 			e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
 }
@@ -4202,7 +4200,7 @@ function deleteImagesBySrcContaining(str)
 {
 	const elems = document.getElementsByTagName("img");
 	let i = elems.length;
-	while (i--)
+	while(i--)
 	{
 		if(elems[i].src.indexOf(str) >= 0)
 		{
@@ -4272,7 +4270,7 @@ function getAttributes(targ)
 	{
 		const ta = targ.attributes;
 		let str = ' ';
-		for (let i = 0; i < ta.length; i++)
+		for(let i = 0; i < ta.length; i++)
 		{
 			if(ta[i])
 			{
@@ -4287,7 +4285,7 @@ function getAttributes(targ)
 		divText.innerHTML += str;
 		str = '';
 		const k = getKeys(targ);
-		for (let i = 0; i < k.length; i++)
+		for(let i = 0; i < k.length; i++)
 			if(k[i] !== 'addEventListener') str += k[i] + ' ';
 		const events = document.createElement('em');
 		events.appendChild(document.createTextNode(str));
@@ -4532,7 +4530,7 @@ function focusFormElement()
 		focusField(inputs[0]);
 		return;
 	}
-	for (i = 0; i < len; i++)
+	for(i = 0; i < len; i++)
 	{
 		const input = inputs[i];
 		if(input.name && input.name === "q")
@@ -4552,7 +4550,7 @@ function focusFormElement()
 	}
 	inputs = get("textarea");
 	len = inputs.length;
-	for (i = 0; i < len; i++)
+	for(i = 0; i < len; i++)
 		e.push(inputs[i]);
 	found = false;
 	for(i = 0, ii = e.length; i < ii; i++)
@@ -4630,7 +4628,7 @@ function highlightLinksInPres()
 	restorePres();
 	const e = get("pre");
 	let i, ii;
-	for ( i = 0, ii = e.length; i < ii; i++ )
+	for( i = 0, ii = e.length; i < ii; i++ )
 		if( e[i].textContent.match(/http[s]*:\/\/[^\s\r\n]+/g) )
 			e[i].innerHTML = e[i].innerHTML.replace(/(http[s]*:\/\/[^\s\r\n]+)/g, '<a href="' + "$1" + '">' + "$1" + '</a>');
 }
@@ -4699,7 +4697,7 @@ function fillForms()
 		{
 			f[j].removeAttribute("selected");
 		}
-		const optionIndex = 1 + Math.floor(Math.random() * (j-1));
+		const optionIndex = 1 + Math.floor(Math.random() * (j - 1));
 		if(f[optionIndex])
 			f[optionIndex].setAttribute("selected", "selected");
 	}
@@ -4738,7 +4736,7 @@ function showTextToHTMLRatio()
 	while(i--)
 	{
 		text = e[i].textContent;
-		html= e[i].innerHTML;
+		html = e[i].innerHTML;
 		if(text && html)
 			e[i].innerHTML = "<mark>" + Math.floor( text.length / html.length * 100 ) + "</mark>" + e[i].innerHTML;
 	}
@@ -4830,25 +4828,25 @@ function createTagsByClassName()
 {
 	let element, e = document.querySelectorAll("div, p");
 	let i = e.length;
-	while (i--)
+	while(i--)
 	{
 		element = e[i];
 		if(looksLikeHeading(element)) replaceSingleElement(element, "h2");
-		else if (looksLikeExtract(element)) replaceSingleElement(element, "blockquote");
-		else if (hasClassesContaining(element, ["index"])) replaceSingleElement(element, "dt");
-		else if (hasClassesContaining(element, ["fmtx"])) replaceSingleElement(element, "p");
-		else if (hasClassesContaining(element, ["image"])) replaceSingleElement(element, "figure");
-		else if (hasClassesContaining(element, ["caption"])) replaceSingleElement(element, "figcaption");
-		else if (hasClassesContaining(element, ["note"])) replaceSingleElement(element, "dt");
+		else if(looksLikeExtract(element)) replaceSingleElement(element, "blockquote");
+		else if(hasClassesContaining(element, ["index"])) replaceSingleElement(element, "dt");
+		else if(hasClassesContaining(element, ["fmtx"])) replaceSingleElement(element, "p");
+		else if(hasClassesContaining(element, ["image"])) replaceSingleElement(element, "figure");
+		else if(hasClassesContaining(element, ["caption"])) replaceSingleElement(element, "figcaption");
+		else if(hasClassesContaining(element, ["note"])) replaceSingleElement(element, "dt");
 	}
 	e = get("span");
 	i = e.length;
-	while (i--)
+	while(i--)
 	{
 		element = e[i];
-		if (hasClassesContaining(element, ["bold"])) replaceSingleElement(element, "b");
-		else if (hasClassesContaining(element, ["italic", "txit"])) replaceSingleElement(element, "b");
-		else if (hasClassesContaining(element, ["small"])) replaceSingleElement(element, "small");
+		if(hasClassesContaining(element, ["bold"])) replaceSingleElement(element, "b");
+		else if(hasClassesContaining(element, ["italic", "txit"])) replaceSingleElement(element, "b");
+		else if(hasClassesContaining(element, ["small"])) replaceSingleElement(element, "small");
 	}
 }
 
@@ -4968,7 +4966,7 @@ function handleConsoleInput(evt, consoleType)
 	if(!userInputElement)
 		return;
 	const inputText = userInputElement.value;
-	if (!inputText || !inputText.length)
+	if(!inputText || !inputText.length)
 		return;
 	if(consoleType === "js")
 		Nimbus.jsConsoleText = inputText;
@@ -5052,7 +5050,7 @@ function markUppercaseParagraphs()
 			cLower = 0;
 		cUpper = s.match(/[A-Z]/g);
 		cLower = s.match(/[a-z]/g);
-		if (cUpper && (!cLower || cUpper.length > cLower.length))
+		if(cUpper && (!cLower || cUpper.length > cLower.length))
 			e[i].className = "hl";
 	}
 	insertStyleHighlight();
@@ -5148,10 +5146,10 @@ function createPagerFromSelect()
 	const selects = get("select");
 	let j = selects.length;
 	let i, ii;
-	while (j--)
+	while(j--)
 	{
 		const select = selects[j];
-		for (i = 0, ii = select.length; i < ii; i++)
+		for(i = 0, ii = select.length; i < ii; i++)
 		{
 			const pagerWrapper = createElement("h3");
 			pagerWrapper.appendChild(createElement("a", { href: select[i].value, textContent: select[i].textContent || i + 1 }));
@@ -5339,7 +5337,7 @@ const autoCompleteInputBox = (function(){
 
 	function updateInputField()
 	{
-		if (inputComponent.currentIndex !== -1)
+		if(inputComponent.currentIndex !== -1)
 		{
 			if(inputComponent.matches[inputComponent.currentIndex])
 				getOne("#autoCompleteInput").value = inputComponent.matches[inputComponent.currentIndex];
@@ -5348,7 +5346,7 @@ const autoCompleteInputBox = (function(){
 
 	function highlightPrevMatch()
 	{
-		if (inputComponent.currentIndex > 0)
+		if(inputComponent.currentIndex > 0)
 		{
 			inputComponent.currentIndex--;
 		}
@@ -5357,7 +5355,7 @@ const autoCompleteInputBox = (function(){
 
 	function highlightNextMatch()
 	{
-		if (inputComponent.currentIndex < inputComponent.matches.length - 1)
+		if(inputComponent.currentIndex < inputComponent.matches.length - 1)
 		{
 			inputComponent.currentIndex++;
 		}
@@ -5367,13 +5365,13 @@ const autoCompleteInputBox = (function(){
 	function onAutoCompleteInputKeyUp(evt)
 	{
 		var inputText = getOne("#autoCompleteInput").value;
-		if (!inputText)
+		if(!inputText)
 		{
 			clearMatches();
 			return;
 		}
 		showMatches(inputText);
-		switch (evt.keyCode)
+		switch(evt.keyCode)
 		{
 			case 9: updateInputField(); break;
 			case 13: updateInputField(); executeFunction(); break;
@@ -5382,7 +5380,7 @@ const autoCompleteInputBox = (function(){
 
 	function onAutoCompleteInputKeyDown(evt)
 	{
-		switch (evt.keyCode)
+		switch(evt.keyCode)
 		{
 			case 9: evt.preventDefault(); break;
 			case 27: evt.preventDefault(); close(); break;
@@ -5394,9 +5392,9 @@ const autoCompleteInputBox = (function(){
 	function renderMatches()
 	{
 		let s = "";
-		for (let i = 0, ii = inputComponent.matches.length; i < ii; i++)
+		for(let i = 0, ii = inputComponent.matches.length; i < ii; i++)
 		{
-			if (inputComponent.currentIndex === i) s += '<match class="current">' + inputComponent.matches[i] + "</match>";
+			if(inputComponent.currentIndex === i) s += '<match class="current">' + inputComponent.matches[i] + "</match>";
 			else s += '<match>' + inputComponent.matches[i] + "</match>";
 		}
 		get("#autoCompleteMatches").innerHTML = s;
@@ -5404,7 +5402,7 @@ const autoCompleteInputBox = (function(){
 
 	function showMatches(str)
 	{
-		if (!str || !str.length || str.length < 2)
+		if(!str || !str.length || str.length < 2)
 		{
 			emptyElement(get("#autoCompleteMatches"));
 			inputComponent.currentIndex = -1;
@@ -5414,9 +5412,9 @@ const autoCompleteInputBox = (function(){
 
 		inputComponent.matches = [];
 		const commands = Object.keys(Nimbus.availableFunctions);
-		for (var i = 0, ii = commands.length; i < ii; i++)
+		for(var i = 0, ii = commands.length; i < ii; i++)
 		{
-			if (~commands[i].toLowerCase().indexOf(str))
+			if(~commands[i].toLowerCase().indexOf(str))
 				inputComponent.matches.push(commands[i]);
 		}
 		renderMatches();
@@ -5474,7 +5472,7 @@ function main()
 	let load = true;
 	if(location.hostname)
 	{
-		switch (location.hostname)
+		switch(location.hostname)
 		{
 			case "maps.google.com.au":
 			case "maps.google.com":
@@ -5517,7 +5515,7 @@ function handleKeyDown(e)
 	//
 	if(e.altKey && !e.shiftKey && !e[ctrlOrMeta])
 	{
-		switch (k)
+		switch(k)
 		{
 			case KEYCODES.TILDE: highlightSelection(); break;
 			case KEYCODES.NUMPAD1: fillForms(); break;
@@ -5572,7 +5570,7 @@ function handleKeyDown(e)
 	else if(e.altKey && e.shiftKey && !e[ctrlOrMeta])
 	{
 		e.preventDefault();
-		switch (k)
+		switch(k)
 		{
 			case KEYCODES.ZERO: getSelectionOrUserInput("Enter document title", setDocTitle, true); break;
 			case KEYCODES.ONE: showResources(); break;
@@ -5597,7 +5595,7 @@ function handleKeyDown(e)
 	else if(e.altKey && e[ctrlOrMeta] && !e.shiftKey)
 	{
 		shouldPreventDefault = true;
-		switch (k)
+		switch(k)
 		{
 			case KEYCODES.SQUARE_BRACKET_OPEN: changeGalleryImage("prev"); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: changeGalleryImage("next"); break;
