@@ -693,7 +693,10 @@ function getSelectorsWithLightBackgrounds()
 		{
 			let average = (Number(rgbValues[0]) + Number(rgbValues[1]) + Number(rgbValues[2])) / 3;
 			if(average > THRESHOLD)
-				str += padRight(createSelector(elem), 100) + bgColor + "\r\n";
+			{
+				str += createSelector(elem) + "\r\n";
+				// str += padRight(createSelector(elem), 100) + bgColor + "\r\n";
+			}
 		}
 	}
 	console.log(str);
