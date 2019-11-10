@@ -3690,21 +3690,22 @@ function deleteSpecificEmptyElements()
 	deleteEmptyHeadings();
 }
 
-function deleteEmptyElements(tag)
+function deleteEmptyElements(selector)
 {
-	const e = get(tag);
+	const e = get(selector);
 	let i = e.length;
 	while(i--)
 	{
-		if( e[i].textContent )
+		const elem = e[i];
+		if(elem.textContent)
 		{
-			if(removeWhitespace(e[i].textContent).length === 0 && !e[i].getElementsByTagName("img").length)
-				e[i].parentNode.removeChild(e[i]);
+			if(removeWhitespace(elem.textContent).length === 0 && !elem.getElementsByTagName("img").length)
+				elem.remove();
 		}
 		else
 		{
-			if(!e[i].getElementsByTagName("img").length)
-				e[i].parentNode.removeChild(e[i]);
+			if(!elem.getElementsByTagName("img").length)
+				elem.remove();
 		}
 	}
 }
@@ -3715,14 +3716,15 @@ function deleteEmptyHeadings()
 	let i = e.length;
 	while(i--)
 	{
-		if(e[i].textContent)
+		const elem = e[i];
+		if(elem.textContent)
 		{
-			if(removeWhitespace(e[i].textContent).length === 0)
-				e[i].parentNode.removeChild(e[i]);
+			if(removeWhitespace(elem.textContent).length === 0)
+				elem.remove();
 		}
 		else
 		{
-			e[i].parentNode.removeChild(e[i]);
+			elem.remove();
 		}
 	}
 }
@@ -4518,7 +4520,7 @@ function focusField(elem)
 	removeClassFromAllQuiet("focused");
 	elem.focus();
 	elem.classList.add("focused");
-	showMessageBig(elem.tagName.toLowerCase() + " " + (elem.name || elem.id || elem.className));
+	showMessageBig("Focused " + createSelector(elem));
 	console.log(createSelector(document.activeElement));
 }
 
