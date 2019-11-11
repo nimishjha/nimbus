@@ -296,7 +296,7 @@ function del(arg)
 	if(!arg)
 		return;
 	if(arg.nodeType)
-		arg.parentNode.removeChild(arg);
+		arg.remove();
 	else if(arg.length)
 		if(typeof arg === "string")
 			del(get(arg));
@@ -1565,11 +1565,7 @@ function handleStackOverflowMutations(mutations)
 function doStackOverflow()
 {
 	const sites = ["stackexchange", "stackoverflow", "superuser", "serverfault"];
-	let found = false;
-	if(containsAnyOfTheStrings(location.hostname, sites))
-		found = true;
-	// we only want to run this code on the individual question pages
-	if(found && location.href.match(/questions\/[0-9]+/) !== null)
+	if(containsAnyOfTheStrings(location.hostname, sites) && location.href.match(/questions\/[0-9]+/) !== null)
 	{
 		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair"]);
 		replaceElementsBySelector(".user-details", "h2");
@@ -1619,23 +1615,6 @@ function markOverlays()
 	mark("div", "style", "contains", "z-index");
 	mark("div", "class", "contains", "modal");
 	mark("div", "aria-modal", "exists");
-}
-
-function unhighlightAll()
-{
-	const e = get(".hl");
-	let i = e.length;
-	while(i--)
-		e[i].classList.remove("hl");
-	const f = get(".hl2");
-	i = f.length;
-	while(i--)
-		f[i].classList.remove("hl2");
-	const g = get(".error");
-	i = g.length;
-	while(i--)
-		g[i].classList.remove("error");
-	del(["annotationinfo", "annotationwarning", "annotationerror"]);
 }
 
 function createSelector(elem)
@@ -1843,8 +1822,9 @@ function deleteImagesSmallerThan(x, y)
 	let i = images.length;
 	while(i--)
 	{
-		if(images[i].naturalWidth < x || images[i].naturalHeight < y)
-			del(images[i]);
+		const image = images[i];
+		if(image.naturalWidth < x || image.naturalHeight < y)
+			image.remove();
 	}
 }
 
@@ -1869,10 +1849,7 @@ function deleteSmallImages()
 	document.body.appendChild(indexElement);
 	const dimension = dimensions[index];
 	showMessageBig("Deleting images smaller than " + dimension + " pixels");
-	let i = images.length;
-	while(i--)
-		if(images[i].naturalWidth < dimension || images[i].naturalHeight < dimension)
-			del(images[i]);
+	deleteImagesSmallerThan(dimension, dimension);
 }
 
 function replaceEmptyParagraphsWithHr()
@@ -2100,7 +2077,7 @@ function replaceIframes()
 		let s = elem.src;
 		if(containsAnyOfTheStrings(s, ["facebook", "twitter"]))
 		{
-			elem.parentNode.removeChild(elem);
+			elem.remove();
 			continue;
 		}
 		iframelink.href = s;
@@ -2985,7 +2962,7 @@ function delNewlines()
 		const s = paragraph.textContent.replace(/\s/g, '');
 		if(s.length === 0 && !paragraph.getElementsByTagName("img").length)
 		{
-			paragraph.parentNode.removeChild(paragraph);
+			paragraph.remove();
 		}
 	}
 }
@@ -3034,7 +3011,7 @@ function cleanupHeadings()
 		heading.innerHTML = s.trim();
 		if(trim(heading.textContent).length === 0)
 		{
-			heading.parentNode.removeChild(heading);
+			heading.remove();
 		}
 	}
 }
@@ -3048,15 +3025,14 @@ function convertDivsToParagraphs()
 		const div = divs[i];
 		if(div.getElementsByTagName("div").length) continue;
 		let s = div.innerHTML;
-		s = s.replace(/&nbsp;/g, ' ');
-		s = s.replace(/\s+/g, '');
+		s = s.replace(/&nbsp;/g, ' ').replace(/\s+/g, '');
 		if(s.length)
 		{
 			if(! (s[0] === '<' && s[1].toLowerCase() === "p")) div.innerHTML = '<p>' + div.innerHTML + '</p>';
 		}
 		else
 		{
-			div.parentNode.removeChild(divs[i]);
+			div.remove();
 		}
 	}
 }
@@ -3133,7 +3109,7 @@ function markNavigationalLists()
 		const list = lists[i];
 		if(removeWhitespace(list.textContent).length === 0 && list.getElementsByTagName("img").length === 0)
 		{
-			list.parentNode.removeChild(list);
+			list.remove();
 			continue;
 		}
 		const links = list.querySelectorAll("a");
@@ -3285,12 +3261,11 @@ function handleBlockEditClick(e)
 	// delete clicked element
 	else if(e[ctrlOrMeta] && !e.shiftKey)
 	{
-		if(targ.tagName.toLowerCase() === 'body') return;
+		if(tn === 'body')
+			return;
 		if(tn === "li" || tn === "p")
-		{
 			targ = targ.parentNode;
-		}
-		targ.parentNode.replaceChild(document.createTextNode(""), targ);
+		targ.remove();
 		return false;
 	}
 	// append clicked element to a div
@@ -3441,7 +3416,7 @@ function highlightCode(highlightKeywords)
 		// delete the <pre>s that only contain line numbers
 		if(node.textContent && node.textContent.match(/[a-z]/) === null)
 		{
-			node.parentNode.removeChild(node);
+			node.remove();
 			continue;
 		}
 
@@ -4089,16 +4064,17 @@ function deleteElementsContainingText(selector, str)
 		let i = e.length;
 		while(i--)
 		{
-			if(e[i].querySelector(selector))
+			const elem = e[i];
+			if(elem.querySelector(selector))
 				continue;
-			if(e[i].textContent.indexOf(str) >= 0)
-				e[i].parentNode.removeChild(e[i]);
+			if(~elem.textContent.indexOf(str))
+				elem.remove();
 		}
 	}
 	else if(e.parentNode)
 	{
-		if(e.textContent.indexOf(str) >= 0)
-			e.parentNode.removeChild(e);
+		if(~e.textContent.indexOf(str))
+			e.remove();
 	}
 }
 
@@ -4207,10 +4183,11 @@ function deleteImagesBySrcContaining(str)
 	let i = elems.length;
 	while(i--)
 	{
-		if(elems[i].src.indexOf(str) >= 0)
+		const elem = elems[i];
+		if(~elem.src.indexOf(str))
 		{
-			xlog("Deleting image with src " + elems[i].src);
-			elems[i].parentNode.removeChild(elems[i]);
+			xlog("Deleting image with src " + elem.src);
+			elem.remove();
 		}
 	}
 }
@@ -4329,6 +4306,14 @@ function removeClassFromAllQuiet(className)
 	let i = e.length;
 	while(i--)
 		e[i].classList.remove(className);
+}
+
+function unhighlightAll()
+{
+	removeClassFromAllQuiet("hl");
+	removeClassFromAllQuiet("hl2");
+	removeClassFromAllQuiet("error");
+	del(["annotationinfo", "annotationwarning", "annotationerror"]);
 }
 
 function cleanupLinks()
