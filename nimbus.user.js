@@ -791,18 +791,12 @@ function cycleClass(elem, arrClasses)
 	let i, ii, found = false;
 	for(i = 0, ii = arrClasses.length; i < ii; i++)
 	{
-		if(elem.classList.contains(arrClasses[i]))
+		const currClass = arrClasses[i];
+		if(elem.classList.contains(currClass))
 		{
-			if(i < ii-1)
-			{
-				elem.classList.remove(arrClasses[i]);
-				elem.classList.add(arrClasses[i + 1]);
-			}
-			else
-			{
-				elem.classList.remove(arrClasses[i]);
-				elem.classList.add(arrClasses[0]);
-			}
+			elem.classList.remove(currClass);
+			const nextIndex = i < ii-1 ? i + 1 : 0;
+			elem.classList.add(arrClasses[nextIndex]);
 			found = true;
 			break;
 		}
