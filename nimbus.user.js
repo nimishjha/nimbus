@@ -4777,21 +4777,11 @@ function hasClassesContaining(element, arrStr)
 
 function hasClassesStartingWith(element, strings)
 {
-	const classes = Array.from(element.classList);
-	let i = classes.length;
-	let j = strings.length;
-	let count = 0;
-	while(i-- && count < 1000)
-	{
-		while(j-- && count < 1000)
-		{
-			count++;
-			if(classes[i].indexOf(strings[j]) === 0)
-			{
-				return true;
-			}
-		}
-	}
+	const classes = element.className;
+	let i = arrStr.length;
+	while(i--)
+		if(classes.indexOf(arrStr[i]) === 0 || classes.indexOf(" " + arrStr[i]) === 0)
+			return true;
 	return false;
 }
 
