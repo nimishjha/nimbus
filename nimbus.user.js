@@ -56,6 +56,7 @@ const Nimbus = {
 		delNewlines: delNewlines,
 		delRange: delRange,
 		deleteElementsContainingText: deleteElementsContainingText,
+		deleteElementsWithClassContaining: deleteElementsWithClassContaining,
 		deleteEmptyElements: deleteEmptyElements,
 		deleteEmptyHeadings: deleteEmptyHeadings,
 		deleteIframes: deleteIframes,
@@ -87,7 +88,6 @@ const Nimbus = {
 		getPagerLinks: getPagerLinks,
 		getSelectorsWithLightBackgrounds: getSelectorsWithLightBackgrounds,
 		handleBlockEditClick: handleBlockEditClick,
-		hasClassesContaining: hasClassesContaining,
 		highlightAllMatches: highlightAllMatches,
 		highlightAllTableCellsInRow: highlightAllTableCellsInRow,
 		highlightCode: highlightCode,
@@ -150,9 +150,6 @@ const Nimbus = {
 		setAttribute: setAttribute,
 		setDocTitle: setDocTitle,
 		setImageWidth: setImageWidth,
-		showDocumentStructure2: showDocumentStructure2,
-		showDocumentStructure: showDocumentStructure,
-		showDocumentStructureWithNames: showDocumentStructureWithNames,
 		showPrintLink: showPrintLink,
 		showResources: showResources,
 		showTextToHTMLRatio: showTextToHTMLRatio,
@@ -160,6 +157,9 @@ const Nimbus = {
 		toggleContentEditable: toggleContentEditable,
 		toggleShowAriaAttributes: toggleShowAriaAttributes,
 		toggleShowAriaProblems: toggleShowAriaProblems,
+		toggleShowDocumentBlockStructure: toggleShowDocumentBlockStructure,
+		toggleShowDocumentStructure: toggleShowDocumentStructure,
+		toggleShowDocumentStructureWithNames: toggleShowDocumentStructureWithNames,
 		toggleStyleGrey: toggleStyleGrey,
 		toggleStyleNegative: toggleStyleNegative,
 		toggleStyleShowClasses: toggleStyleShowClasses,
@@ -910,7 +910,7 @@ function showResource(str, uuid)
 		strSanitized = str.substr(0, str.indexOf("?"));
 	const resourceLink = createElement("a", { textContent: strSanitized, href: str });
 	const resourceLinkWrapper = createElement("h6", { className: "xlog", id: "link" + uuid });
-	const resourceDelete = createElement("span", { innerHTML: "[Delete]" });
+	const resourceDelete = createElement("span", { textContent: "[Delete]" });
 	resourceDelete.setAttribute("data-delete", uuid);
 	document.body.addEventListener('mouseup', deleteResource, false);
 	resourceLinkWrapper.appendChild(resourceDelete);
@@ -998,38 +998,41 @@ function toggleBlockEditMode()
 	}
 }
 
-function showDocumentStructure()
+function toggleShowDocumentStructure()
 {
-	if(get("#view-document-structure"))
+	const styleId = "viewDocumentStructure";
+	if(get("#" + styleId))
 	{
-		del("#view-document-structure");
+		del("#" + styleId);
+		return;
 	}
-	else
-	{
-		const s = 'header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F; }' +
+	const style = 'header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F; }' +
 		'form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90; background: rgba(255, 150, 0, 0.2); }' +
 		'table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F; }' +
 		'ul, ol, li, span { box-shadow: inset 1px 1px #080, inset -1px -1px #080; }' +
 		'h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }' +
 		'a, a * { background: rgba(180, 255, 0, 0.25); }' +
 		'img { background: #800; padding: 2px; box-sizing: border-box; }';
-		insertStyle(s, "view-document-structure", true);
-	}
+	insertStyle(style, styleId, true);
 }
 
-function showDocumentStructure2()
+function toggleShowDocumentBlockStructure()
 {
-	if(get("#view-document-structure"))
+	const styleId = "viewDocumentStructure2";
+	if(get("#" + styleId))
 	{
-		del("#view-document-structure");
+		del("#" + styleId);
+		return;
 	}
-	else
-	{
-		insertStyle("div { background: linear-gradient(135deg, black, white); } h1, h2, h3, h4, h5, h6 { background: #F00; } p { background: #09F; } ol, ul { background: #00F; } table { background: #080; }", "view-document-structure", true);
-	}
+	const style = 'div { background: linear-gradient(135deg, black, white); }' +
+		'h1, h2, h3, h4, h5, h6 { background: #F00; }' +
+		'p { background: #09F; }' +
+		'ol, ul { background: #00F; }' +
+		'table { background: #080; }';
+	insertStyle(style, styleId, true);
 }
 
-function showDocumentStructureWithNames()
+function toggleShowDocumentStructureWithNames()
 {
 	if(document.body.classList.contains("showdivs"))
 	{
@@ -1681,7 +1684,8 @@ function highlightAnchorNode(tag)
 function makeHeadingFromSelection(tagname)
 {
 	const selection = window.getSelection();
-	if(!selection) return;
+	if(!selection)
+		return;
 	let node = selection.anchorNode;
 	if(node.tagName === undefined)
 		node = node.parentNode;
@@ -3148,7 +3152,7 @@ function logout()
 		if(node.href)
 		{
 			s = normalizeString(node.href);
-			if( s.indexOf("logout") >= 0 && s.indexOf("logout_gear") === -1 || s.indexOf("signout") >= 0)
+			if((~s.indexOf("logout") && s.indexOf("logout_gear") === -1) || ~s.indexOf("signout"))
 			{
 				found = true;
 				showMessageBig(node.href);
@@ -4769,7 +4773,7 @@ function hasClassesContaining(element, arrStr)
 	return false;
 }
 
-function hasClassesStartingWith(element, strings)
+function hasClassesStartingWith(element, arrStr)
 {
 	const classes = element.className;
 	let i = arrStr.length;
@@ -5059,7 +5063,7 @@ function markDivDepth()
 		}
 		divs[i].className = "level" + level;
 	}
-	showDocumentStructureWithNames();
+	toggleShowDocumentStructureWithNames();
 }
 
 function numberDivs()
@@ -5068,7 +5072,7 @@ function numberDivs()
 	let i = e.length;
 	while(i--)
 		e[i].id = "i" + i;
-	showDocumentStructureWithNames();
+	toggleShowDocumentStructureWithNames();
 }
 
 function delRange(m, n)
@@ -5347,8 +5351,8 @@ const autoCompleteInputBox = (function(){
 		showMatches(inputText);
 		switch(evt.keyCode)
 		{
-			case 9: updateInputField(); break;
-			case 13: updateInputField(); executeFunction(); break;
+			case KEYCODES.TAB: updateInputField(); break;
+			case KEYCODES.ENTER: updateInputField(); executeFunction(); break;
 		}
 	}
 
@@ -5356,10 +5360,10 @@ const autoCompleteInputBox = (function(){
 	{
 		switch(evt.keyCode)
 		{
-			case 9: evt.preventDefault(); break;
-			case 27: evt.preventDefault(); close(); break;
-			case 38: evt.preventDefault(); highlightPrevMatch(); break;
-			case 40: evt.preventDefault(); highlightNextMatch(); break;
+			case KEYCODES.TAB: evt.preventDefault(); break;
+			case KEYCODES.ESCAPE: evt.preventDefault(); close(); break;
+			case KEYCODES.UPARROW: evt.preventDefault(); highlightPrevMatch(); break;
+			case KEYCODES.DOWNARROW: evt.preventDefault(); highlightNextMatch(); break;
 		}
 	}
 
@@ -5368,8 +5372,10 @@ const autoCompleteInputBox = (function(){
 		let s = "";
 		for(let i = 0, ii = inputComponent.matches.length; i < ii; i++)
 		{
-			if(inputComponent.currentIndex === i) s += '<match class="current">' + inputComponent.matches[i] + "</match>";
-			else s += '<match>' + inputComponent.matches[i] + "</match>";
+			if(inputComponent.currentIndex === i)
+				s += '<match class="current">' + inputComponent.matches[i] + "</match>";
+			else
+				s += '<match>' + inputComponent.matches[i] + "</match>";
 		}
 		get("#autoCompleteMatches").innerHTML = s;
 	}
@@ -5403,7 +5409,7 @@ const autoCompleteInputBox = (function(){
 
 	function open()
 	{
-		const style = 'autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; }' +
+		const style = 'autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2000000000; }' +
 			'autocompleteinputwrapper input { width: 100%; height: 2rem; font-size: 32px; background: #000; color: #FFF; border: 0; outline: 0; }' +
 			'autocompleteinputwrapper matches { display: block; background: #222; color: #CCC; }' +
 			'autocompleteinputwrapper match { display: block; padding: 2px 10px; font-size: 24px; }' +
@@ -5434,10 +5440,7 @@ const autoCompleteInputBox = (function(){
 		close();
 	}
 
-	return {
-		open: open,
-		close: close,
-	};
+	return { open, close };
 
 }()); //	End autoCompleteInputBox
 
@@ -5586,9 +5589,9 @@ function handleKeyDown(e)
 			case KEYCODES.G: callFunctionWithArgs("Delete elements with class containing the string", deleteElementsWithClassContaining); break;
 			case KEYCODES.H: getSelectionOrUserInput("Mark elements by selector", markElementsBySelector, true); break;
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markElementsWithCssRule, 2); break;
-			case KEYCODES.V: showDocumentStructure(); break;
-			case KEYCODES.B: showDocumentStructureWithNames(); break;
-			case KEYCODES.N: showDocumentStructure2(); break;
+			case KEYCODES.V: toggleShowDocumentStructure(); break;
+			case KEYCODES.B: toggleShowDocumentStructureWithNames(); break;
+			case KEYCODES.N: toggleShowDocumentBlockStructure(); break;
 			case KEYCODES.M: customPrompt("Enter command").then(runCommand); break;
 			case KEYCODES.O: customPrompt("Highlight block elements containing").then(highlightSpecificNodesContaining); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
