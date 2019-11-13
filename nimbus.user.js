@@ -5315,28 +5315,21 @@ const autoCompleteInputBox = (function(){
 
 	function updateInputField()
 	{
-		if(inputComponent.currentIndex !== -1)
-		{
-			if(inputComponent.matches[inputComponent.currentIndex])
-				getOne("#autoCompleteInput").value = inputComponent.matches[inputComponent.currentIndex];
-		}
+		if(inputComponent.currentIndex !== -1 && inputComponent.matches[inputComponent.currentIndex])
+			getOne("#autoCompleteInput").value = inputComponent.matches[inputComponent.currentIndex];
 	}
 
 	function highlightPrevMatch()
 	{
 		if(inputComponent.currentIndex > 0)
-		{
 			inputComponent.currentIndex--;
-		}
 		renderMatches();
 	}
 
 	function highlightNextMatch()
 	{
 		if(inputComponent.currentIndex < inputComponent.matches.length - 1)
-		{
 			inputComponent.currentIndex++;
-		}
 		renderMatches();
 	}
 
@@ -5409,8 +5402,8 @@ const autoCompleteInputBox = (function(){
 
 	function open()
 	{
-		const style = 'autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2000000000; }' +
-			'autocompleteinputwrapper input { width: 100%; height: 2rem; font-size: 32px; background: #000; color: #FFF; border: 0; outline: 0; }' +
+		const style = 'autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2000000000; font-family: "Swis721 Cn BT"; }' +
+			'autocompleteinputwrapper input { width: 100%; height: 2rem; font-size: 32px; background: #000; color: #FFF; border: 0; outline: 0; display: block; font-family: inherit; }' +
 			'autocompleteinputwrapper matches { display: block; background: #222; color: #CCC; }' +
 			'autocompleteinputwrapper match { display: block; padding: 2px 10px; font-size: 24px; }' +
 			'autocompleteinputwrapper match.current { background: #303030; color: #FFF; }' +
