@@ -118,7 +118,6 @@ const Nimbus = {
 		markUppercaseParagraphs: markUppercaseParagraphs,
 		markNumericParagraphs: markNumericParagraphs,
 		numberDivs: numberDivs,
-		toggleMutationObserver: toggleMutationObserver,
 		om: toggleMutationObserver,
 		parseCode: parseCode,
 		remove: remove,
@@ -155,8 +154,10 @@ const Nimbus = {
 		showTextToHTMLRatio: showTextToHTMLRatio,
 		toggleBlockEditMode: toggleBlockEditMode,
 		toggleContentEditable: toggleContentEditable,
+		toggleMutationObserver: toggleMutationObserver,
 		toggleShowAriaAttributes: toggleShowAriaAttributes,
 		toggleShowAriaProblems: toggleShowAriaProblems,
+		toggleShowSelectorsFor: toggleShowSelectorsFor,
 		toggleShowDocumentBlockStructure: toggleShowDocumentBlockStructure,
 		toggleShowDocumentStructure: toggleShowDocumentStructure,
 		toggleShowDocumentStructureWithNames: toggleShowDocumentStructureWithNames,
@@ -2408,9 +2409,9 @@ function toggleStyleShowClasses()
 	const s = 'body { background: #333; color: #BBB; }' +
 	'a { color: #09F; text-decoration: none; }' +
 	'div { padding: 0 0 0 10px; margin: 1px 1px 1px 10px; border: 2px solid #000; }' +
-	'div::before, p::before { content:attr(class); color:#FF0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
-	'div::after, p::after { content:attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
-	'span::before { content:attr(class); color:#0F0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
+	'div::before, p::before { content: attr(class); color:#FF0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
+	'div::after, p::after { content: attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
+	'span::before { content: attr(class); color:#0F0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
 	'select, textarea, input { background: #444; border: 1px solid red; }' +
 	'button { background: #222; color: #AAA; }' +
 	'nav { border: 6px solid #09F; padding: 20px; margin: 10px; background: #400; }' +
