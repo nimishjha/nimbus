@@ -778,6 +778,11 @@ function containsAnyOfTheStrings(s, arrStrings)
 	return false;
 }
 
+function contains(elem, tagName)
+{
+	return elem.getElementsByTagName(tagName).length ? true : false;
+}
+
 function toggleClass(element, className)
 {
 	const classList = element.classList;
@@ -876,6 +881,16 @@ function createElement(tag, props)
 		return elem;
 	}
 	return elem;
+}
+
+function insertBefore(elem, elemToInsert)
+{
+	elem.insertAdjacentElement("beforebegin", elemToInsert);
+}
+
+function insertAfter(elem, elemToInsert)
+{
+	elem.insertAdjacentElement("afterend", elemToInsert);
 }
 
 function createElementWithChildren(tagName, ...children)
