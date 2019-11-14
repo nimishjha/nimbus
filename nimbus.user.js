@@ -157,7 +157,7 @@ const Nimbus = {
 		toggleMutationObserver: toggleMutationObserver,
 		toggleShowAriaAttributes: toggleShowAriaAttributes,
 		toggleShowAriaProblems: toggleShowAriaProblems,
-		toggleShowSelectorsFor: toggleShowSelectorsFor,
+		showSelectorsFor: showSelectorsFor,
 		toggleShowDocumentBlockStructure: toggleShowDocumentBlockStructure,
 		toggleShowDocumentStructure: toggleShowDocumentStructure,
 		toggleShowDocumentStructureWithNames: toggleShowDocumentStructureWithNames,
@@ -2441,6 +2441,16 @@ function toggleStyleShowClasses()
 	'h5::before { content: "h5"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }' +
 	'h6::before { content: "h6"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }';
 	insertStyle(s, "styleShowClasses", true);
+}
+
+function showSelectorsFor(tagName)
+{
+	const styleId = 'styleShowClassesBySelector';
+	del("#" + styleId);
+	let style = `${tagName}::before { content: attr(id); background: #000; color: #FF0; padding: 1px 2px; font: 14px verdana; }` +
+		`${tagName}::after { content: attr(class); background: #000; color: #F90; padding: 1px 2px; font: 14px verdana; }` +
+		`${tagName} { border: 2px solid #000; }`;
+	insertStyle(style, styleId, true);
 }
 
 function toggleContentEditable()
