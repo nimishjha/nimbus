@@ -862,6 +862,19 @@ function printPropOfObjectArray(arr, propName)
 	console.log(s);
 }
 
+function printPropsContaining(obj, arrStrings)
+{
+	const keys = Object.keys(obj);
+	let s = "";
+	for(let i = 0, ii = keys.length; i < ii; i++)
+	{
+		const key = keys[i];
+		if(containsAnyOfTheStrings(key, arrStrings))
+			s += key + ": " + obj[key] + "\n";
+	}
+	console.log(s);
+}
+
 function createElement(tag, props)
 {
 	const elem = document.createElement(tag);
@@ -4786,7 +4799,13 @@ function echoPassword(e)
 function getTimestamp()
 {
 	const d = new Date();
-	return d.getFullYear() + "/" + zeroPad(d.getMonth() + 1) + "/" + zeroPad(d.getDate()) + " " + zeroPad(d.getHours()) + ":" + zeroPad(d.getMinutes()) + ":" + zeroPad(d.getSeconds());
+	const YYYY = d.getFullYear();
+	const MO = zeroPad(d.getMonth() + 1);
+	const DD = zeroPad(d.getDate());
+	const HH = zeroPad(d.getHours());
+	const MM = zeroPad(d.getMinutes());
+	const SS = zeroPad(d.getSeconds());
+	return `${YYYY}/${MO}/${DD} ${HH}:${MM}:${SS}`;
 }
 
 function hasClassesContaining(element, arrStr)
