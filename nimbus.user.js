@@ -3014,6 +3014,20 @@ function ltrim(str1)
 	return str1.replace(/^\s+/, '');
 }
 
+function trimAt(str, sub)
+{
+	if(str.indexOf(sub) === -1)
+		return str;
+	return str.substring(0, str.indexOf(sub));
+}
+
+function trimAtInclusive(str, sub)
+{
+	if(str.indexOf(sub) === -1)
+		return str;
+	return str.substring(0, str.indexOf(sub) + sub.length);
+}
+
 function padLeft(str, width)
 {
 	let spaces = "";
