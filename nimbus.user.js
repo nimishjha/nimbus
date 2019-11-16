@@ -3583,21 +3583,6 @@ function deleteNonContentElements()
 	deleteEmptyElements("p");
 	deleteEmptyElements("div");
 	return;
-
-	// const e = get("p, img, h1, h2, pre, ol, cite");
-	// for(let i = 0, ii = e.length; i < ii; i++)
-	// 	if(e[i].parentNode)
-	// 		e[i].parentNode.className = sClass;
-	// document.body.classList.remove(sClass);
-	// const divs = get("div");
-	// let i = divs.length;
-	// while(i--)
-	// {
-	// 	const div = divs[i];
-	// 	if(div.className.indexOf(sClass) === -1 && !div.getElementsByClassName(sClass).length)
-	// 		div.className = "hl";
-	// }
-	// document.body.className = "xwrap pad100";
 }
 
 function getContentByParagraphCount()
