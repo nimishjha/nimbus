@@ -4383,7 +4383,11 @@ function cleanupLinks()
 	while(i--)
 	{
 		const link = links[i];
-		const newLink = createElement("a", { innerHTML: link.innerHTML, href: link.href });
+		let newLink;
+		if(link.id)
+			newLink = createElement("a", { innerHTML: link.innerHTML, href: link.href, id: link.id });
+		else
+			newLink = createElement("a", { innerHTML: link.innerHTML, href: link.href });
 		link.parentNode.replaceChild(newLink, link);
 	}
 }
