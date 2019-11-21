@@ -2161,7 +2161,7 @@ function replaceMarkedElements(tag)
 
 function replaceElementsByClassesContaining(str, tagName)
 {
-	const e = get("div, p");
+	const e = get("div, p, span");
 	let i, ii;
 	if(e.length)
 	{
