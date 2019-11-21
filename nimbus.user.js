@@ -35,6 +35,8 @@ const Nimbus = {
 	logString: "",
 	messageTimeout: null,
 	availableFunctions: {
+		enableConsoleLogs: enableConsoleLogs,
+		disableConsoleLogs: disableConsoleLogs,
 		addLinksToLargerImages: addLinksToLargerImages,
 		convertDivsToParagraphs: convertDivsToParagraphs,
 		annotate: annotate,
@@ -255,6 +257,24 @@ const KEYCODES = {
 	SQUARE_BRACKET_OPEN: 219,
 	SQUARE_BRACKET_CLOSE: 221
 };
+
+let consoleLog = function(){};
+let consoleWarn = function(){};
+let consoleError = function(){};
+
+function enableConsoleLogs()
+{
+	consoleLog = window.console.log;
+	consoleWarn = window.console.warn;
+	consoleError = window.console.error;
+}
+
+function disableConsoleLogs()
+{
+	consoleLog = function(){};
+	consoleWarn = function(){};
+	consoleError = function(){};
+}
 
 function get(s)
 {
@@ -2711,7 +2731,7 @@ function chooseDocumentHeading()
 		candidateTags = candidateTags.concat(headings2);
 	if(!Nimbus.candidateHeadingElements)
 		Nimbus.candidateHeadingElements = [];
-	console.log({ candidateTags, candidateHeadingElements: Nimbus.candidateHeadingElements });
+	consoleLog({ candidateTags, candidateHeadingElements: Nimbus.candidateHeadingElements });
 	for(let i = 0, ii = Math.min(10, candidateTags.length); i < ii; i++)
 	{
 		Nimbus.candidateHeadingElements.push(candidateTags[i]);
@@ -3165,7 +3185,6 @@ function markNavigationalLists()
 		}
 		const links = list.querySelectorAll("a");
 		let j = links.length;
-		console.log("list has " + j + "links");
 		let linkText = "";
 		while(j--)
 		{
@@ -3647,7 +3666,7 @@ function expandMark()
 function cycleThroughTopLevelElements(boolReverse)
 {
 	const hl = get(".hl");
-	console.log(hl);
+	consoleLog(hl);
 	if(hl.length && hl.length > 1)
 	{
 		showMessageError("More than one element is marked");
@@ -3826,7 +3845,7 @@ function highlightTextAcrossTags(node, searchString)
 				splitMatches.push(partialSearchString);
 		}
 	}
-	console.log(printArray(splitMatches));
+	consoleLog(printArray(splitMatches));
 	highlightAllMatchesInNode(node, splitMatches);
 }
 
@@ -3858,6 +3877,7 @@ function expandToWordBoundaries(node, selection)
 	while(text[index2] && text[index2].match(regex) && index2 < text.length)
 		index2++;
 	const expanded = trim(text.substring(index1, index2));
+	consoleLog("expanded: " + expanded);
 	return expanded;
 }
 
@@ -4546,7 +4566,7 @@ function focusField(elem)
 	elem.focus();
 	elem.classList.add("focused");
 	showMessageBig("Focused " + createSelector(elem));
-	console.log(createSelector(document.activeElement));
+	consoleLog(createSelector(document.activeElement));
 }
 
 function focusFormElement()
@@ -4597,7 +4617,7 @@ function focusFormElement()
 	}
 	if(!found)
 		focusField(e[0]);
-	console.log("document.activeElement is " + document.activeElement.name);
+	consoleLog("document.activeElement is " + document.activeElement.name);
 }
 
 function focusButton()
@@ -5217,7 +5237,7 @@ function getAllClasses(selector)
 		result.push(classes[keys[j]]);
 	}
 	const t2 = performance.now();
-	console.log(t2 - t1 + " ms: getAllClasses");
+	consoleLog(t2 - t1 + " ms: getAllClasses");
 	return result;
 }
 
