@@ -3807,8 +3807,11 @@ function highlightTextAcrossTags(node, searchString)
 		}
 		else if(index1 < childNodeStart && index2 > childNodeEnd)
 		{
-			isMatch = true;
-			partialSearchString = childNode.textContent;
+			if(!["I", "B", "EM", "STRONG"].includes(childNode.tagName))
+			{
+				isMatch = true;
+				partialSearchString = childNode.textContent;
+			}
 		}
 		else if(index2 > childNodeStart && index2 <= childNodeEnd)
 		{
