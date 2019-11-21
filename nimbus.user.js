@@ -678,7 +678,7 @@ function parseObject(o, indentLevel, parent)
 						s += indentString + "<em>[object Object],</em><i>too many levels</i>" + indentStringClose;
 					break;
 				case "[object Array]":
-					s += indentString + "<em>" + prop + "</em><i>" + "[" + printArray(o[prop]) + "]</i>" + indentStringClose;
+					s += indentString + "<em>" + prop + "</em><i>" + "[" + arrayToString(o[prop]) + "]</i>" + indentStringClose;
 					break;
 				default:
 					s += indentString + "<em>" + prop + "</em><i>" + o[prop] + "</i>" + indentStringClose;
@@ -843,15 +843,15 @@ function createUUID()
 	});
 }
 
-function printArray(arr)
+function arrayToString(arr)
 {
 	let s = "";
 	for(let i = 0, ii = arr.length; i < ii; i++)
-		s += arr[i] + ", ";
+		s += arr[i] + " | ";
 	return s.substring(0, s.length - 2);
 }
 
-function printArrayTyped(arr)
+function arrayToStringTyped(arr)
 {
 	let s = "";
 	for(let i = 0, ii = arr.length; i < ii; i++)
@@ -1318,7 +1318,7 @@ function runCommand(s)
 				args.push(commandSegments[i]);
 			else args.push(n);
 		}
-		showMessageBig(funcName + "(" + printArrayTyped(args) + ")");
+		showMessageBig(funcName + "(" + arrayToStringTyped(args) + ")");
 		Nimbus.availableFunctions[funcName].apply(this, args);
 	}
 	else
@@ -3845,7 +3845,7 @@ function highlightTextAcrossTags(node, searchString)
 				splitMatches.push(partialSearchString);
 		}
 	}
-	consoleLog(printArray(splitMatches));
+	consoleLog("splitMatches: " + arrayToString(splitMatches));
 	highlightAllMatchesInNode(node, splitMatches);
 }
 
@@ -3858,8 +3858,8 @@ function highlightAllMatchesInNode(node, splitMatches)
 		const regex = new RegExp(splitMatches[i]);
 		if(nodeHTML.match(regex))
 			nodeHTML = nodeHTML.replace(regex, "<mark>" + splitMatches[i] + "</mark>");
-		else
-			nodeHTML = "<mark>" + nodeHTML + "</mark>";
+		// else
+		// 	nodeHTML = "<mark>" + nodeHTML + "</mark>";
 	}
 	node.innerHTML = nodeHTML;
 }
