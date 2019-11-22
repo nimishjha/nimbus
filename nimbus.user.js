@@ -954,9 +954,7 @@ function createReplacementElement(tagName, sourceElement, propertyMapping)
 
 function showResource(str, uuid)
 {
-	let strSanitized = str;
-	if(str.indexOf("?") !== -1)
-		strSanitized = str.substr(0, str.indexOf("?"));
+	let strSanitized = trimAt(str, "?");
 	const resourceLink = createElement("a", { textContent: strSanitized, href: str });
 	const resourceLinkWrapper = createElement("h6", { className: "xlog", id: "link" + uuid });
 	const resourceDelete = createElement("span", { textContent: "[Delete]" });
