@@ -142,6 +142,7 @@ const Nimbus = {
 		replaceIframes: replaceIframes,
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
 		replaceMarkedElements: replaceMarkedElements,
+		replaceNbsp: replaceNbsp,
 		replaceSpansWithTextNodes: replaceSpansWithTextNodes,
 		restorePres: restorePres,
 		retrieve: retrieve,
@@ -4064,6 +4065,11 @@ function restorePres()
 		e[i].innerHTML = e[i].innerHTML.replace(/GYZYnl/g, "\n");
 		e[i].innerHTML = e[i].innerHTML.replace(/\n+/g, "\n");
 	}
+}
+
+function replaceNbsp()
+{
+	document.body.innerHTML = document.body.innerHTML.replace(/&nbsp;/g, " ");
 }
 
 function fixParagraphs()
