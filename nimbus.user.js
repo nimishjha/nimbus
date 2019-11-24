@@ -259,9 +259,11 @@ const KEYCODES = {
 	SQUARE_BRACKET_CLOSE: 221
 };
 
-let consoleLog = function(){};
-let consoleWarn = function(){};
-let consoleError = function(){};
+const noop = function(){};
+
+let consoleLog = noop;
+let consoleWarn = noop;
+let consoleError = noop;
 
 function enableConsoleLogs()
 {
@@ -272,9 +274,7 @@ function enableConsoleLogs()
 
 function disableConsoleLogs()
 {
-	consoleLog = function(){};
-	consoleWarn = function(){};
-	consoleError = function(){};
+	consoleLog = consoleWarn = consoleError = noop;
 }
 
 function get(s)
@@ -5003,19 +5003,19 @@ function toggleMutationObserver(watchAttributes)
 	Nimbus.isObservingMutations = true;
 }
 
-function insertTab(evt)
-{
-	const targ = evt.target;
-	evt.preventDefault();
-	evt.stopPropagation();
-	const iStart = targ.selectionStart;
-	const iEnd = targ.selectionEnd;
-	targ.value = targ.value.substr(0, iStart) + '\t' + targ.value.substr(iEnd, targ.value.length);
-	targ.setSelectionRange(iStart + 1, iEnd + 1);
-}
-
 function handleConsoleInput(evt, consoleType)
 {
+	function insertTab(evt)
+	{
+		const targ = evt.target;
+		evt.preventDefault();
+		evt.stopPropagation();
+		const iStart = targ.selectionStart;
+		const iEnd = targ.selectionEnd;
+		targ.value = targ.value.substr(0, iStart) + '\t' + targ.value.substr(iEnd, targ.value.length);
+		targ.setSelectionRange(iStart + 1, iEnd + 1);
+	}
+
 	const userInputElement = getOne("#userInput");
 	if(!userInputElement)
 		return;
