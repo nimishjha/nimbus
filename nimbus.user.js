@@ -5650,8 +5650,10 @@ function handleKeyDown(e)
 		shouldPreventDefault = true;
 		switch(k)
 		{
-			case KEYCODES.SQUARE_BRACKET_OPEN: changeGalleryImage("prev"); break;
-			case KEYCODES.SQUARE_BRACKET_CLOSE: changeGalleryImage("next"); break;
+			// case KEYCODES.SQUARE_BRACKET_OPEN: changeGalleryImage("prev"); break;
+			// case KEYCODES.SQUARE_BRACKET_CLOSE: changeGalleryImage("next"); break;
+			case KEYCODES.SQUARE_BRACKET_OPEN: changePage("prev"); break;
+			case KEYCODES.SQUARE_BRACKET_CLOSE: changePage("next"); break;
 			case KEYCODES.LEFTARROW: changePage("prev"); break;
 			case KEYCODES.RIGHTARROW: changePage("next"); break;
 			case KEYCODES.UPARROW: expandMark(); break;
