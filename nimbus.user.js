@@ -3864,8 +3864,6 @@ function highlightAllMatchesInNode(node, splitMatches)
 		const regex = new RegExp(splitMatches[i]);
 		if(nodeHTML.match(regex))
 			nodeHTML = nodeHTML.replace(regex, "<mark>" + splitMatches[i] + "</mark>");
-		// else
-		// 	nodeHTML = "<mark>" + nodeHTML + "</mark>";
 	}
 	node.innerHTML = nodeHTML;
 }
