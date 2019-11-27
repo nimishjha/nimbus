@@ -177,6 +177,8 @@ const Nimbus = {
 		matches: [],
 		currentIndex: -1,
 	},
+	highlightTagName: "mark",
+	highlightTagNameList: ["mark", "markred", "markgreen", "markblue", "markpurple", "markyellow"],
 };
 
 const KEYCODES = {
@@ -811,6 +813,18 @@ function toggleClass(element, className)
 		classList.remove(className);
 	else
 		classList.add(className);
+}
+
+function getNext(str, arrStrings)
+{
+	let nextString = arrStrings[0];
+	let index = arrStrings.indexOf(str);
+	if(index !== -1)
+	{
+		const nextIndex = index < arrStrings.length - 1 ? index + 1 : 0;
+		nextString = arrStrings[nextIndex];
+	}
+	return nextString;
 }
 
 function cycleClass(elem, arrClasses)
@@ -1716,9 +1730,16 @@ function wrapAnchorNodeInTag()
 	customPrompt("Enter tagName to wrap this node in").then(wrapAnchorNodeInTagHelper);
 }
 
+function cycleHighlightTags()
+{
+	const nextTag = getNext(Nimbus.highlightTagName, Nimbus.highlightTagNameList);
+	showMessageBig("Highlight tag is " + nextTag);
+	Nimbus.highlightTagName = nextTag;
+}
+
 function highlightAnchorNode(tag)
 {
-	const t = tag? tag : "mark";
+	const t = tag? tag : Nimbus.highlightTagName;
 	const selection = window.getSelection();
 	if(!selection)
 		return;
@@ -2404,6 +2425,12 @@ function toggleStyleNegative()
 	'pre xk { color: #29F; }' +
 	'pre xh { color: #57F; }' +
 	'pre xv { color: #F47; }' +
+
+	'markgreen { background: #040 !important; color: #0F0 !important; padding: 2px 0 !important; line-height: inherit !important; }' +
+	'markred { background: #400 !important; color: #F00 !important; padding: 2px 0 !important; line-height: inherit !important; }' +
+	'markblue { background: #036 !important; color: #09F !important; padding: 2px 0 !important; line-height: inherit !important; }' +
+	'markpurple { background: #404 !important; color: #F0F !important; padding: 2px 0 !important; line-height: inherit !important; }' +
+	'markyellow { background: #440 !important; color: #FF0 !important; padding: 2px 0 !important; line-height: inherit !important; }' +
 
 	'a img { border: none; }' +
 	'button img, input img { display: none; }' +
@@ -5605,6 +5632,7 @@ function handleKeyDown(e)
 			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", ""]); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
+			case KEYCODES.E: cycleHighlightTags(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteElementsContainingText); break;
 			case KEYCODES.J: regressivelyUnenhance(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
