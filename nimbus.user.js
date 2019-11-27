@@ -3799,6 +3799,51 @@ function normalizeHTML(html)
 	return html.replace(/&nbsp;/g, " ").replace(/\s+/g, " ");
 }
 
+function expandToWordBoundaries(node, selection)
+{
+	const text = node.textContent;
+	let index1 = text.indexOf(selection);
+	if(index1 === -1)
+		return selection;
+	let index2 = index1 + selection.length;
+	const regex = /[\w\.\?!,\u201C\u201D\u201E\u2018\u2019\u201A]/;
+	while(text[index1].match(regex) && index1 > 0)
+		index1--;
+	while(text[index2] && text[index2].match(regex) && index2 < text.length)
+		index2++;
+	const expanded = trim(text.substring(index1, index2));
+	consoleLog("expanded: " + expanded);
+	return expanded;
+}
+
+function highlightAllMatchesInNode(node, splitMatches)
+{
+	let nodeHTML = node.innerHTML;
+	let i = splitMatches.length;
+	let lastIndex = 0;
+	let htmlToSearch;
+	while(i--)
+	{
+		const textToReplace = splitMatches[i];
+		let index;
+		if(lastIndex)
+		{
+			htmlToSearch = nodeHTML.substring(lastIndex);
+			index = htmlToSearch.indexOf(textToReplace) + lastIndex;
+		}
+		else
+		{
+			index = nodeHTML.indexOf(textToReplace);
+		}
+		if(~index)
+		{
+			lastIndex = index;
+			nodeHTML = nodeHTML.replace(textToReplace, "<mark>" + textToReplace + "</mark>");
+		}
+	}
+	node.innerHTML = nodeHTML;
+}
+
 function highlightTextAcrossTags(node, searchString)
 {
 	searchString = escapeHTML(searchString.replace(/\s+/g, " "));
@@ -3853,36 +3898,6 @@ function highlightTextAcrossTags(node, searchString)
 	}
 	consoleLog("splitMatches: " + arrayToString(splitMatches));
 	highlightAllMatchesInNode(node, splitMatches);
-}
-
-function highlightAllMatchesInNode(node, splitMatches)
-{
-	let nodeHTML = node.innerHTML;
-	let i = splitMatches.length;
-	while(i--)
-	{
-		const regex = new RegExp(splitMatches[i]);
-		if(nodeHTML.match(regex))
-			nodeHTML = nodeHTML.replace(regex, "<mark>" + splitMatches[i] + "</mark>");
-	}
-	node.innerHTML = nodeHTML;
-}
-
-function expandToWordBoundaries(node, selection)
-{
-	const text = node.textContent;
-	let index1 = text.indexOf(selection);
-	if(index1 === -1)
-		return selection;
-	let index2 = index1 + selection.length;
-	const regex = /[\w\.\?!,\u201C\u201D\u201E\u2018\u2019\u201A]/;
-	while(text[index1].match(regex) && index1 > 0)
-		index1--;
-	while(text[index2] && text[index2].match(regex) && index2 < text.length)
-		index2++;
-	const expanded = trim(text.substring(index1, index2));
-	consoleLog("expanded: " + expanded);
-	return expanded;
 }
 
 function deselect()
