@@ -2036,8 +2036,8 @@ function getStreamingImages()
 	if(!Nimbus.streamingImages)
 		Nimbus.streamingImages = [];
 	let images = Nimbus.streamingImages;
-	var e = document.querySelectorAll("img:not(.alreadySaved)");
-	for(var i = 0; i < e.length; i++)
+	const e = document.querySelectorAll("img:not(.alreadySaved)");
+	for(let i = 0; i < e.length; i++)
 	{
 		const imgSrc = e[i].src;
 		if(images.includes(imgSrc))
@@ -2985,7 +2985,7 @@ function setAttribute(selector, attribute, value)
 function removeAttribute(selector, attribute)
 {
 	const e = get(selector);
-	var i = e.length;
+	let i = e.length;
 	while(i--)
 		e[i].removeAttribute(attribute);
 }
@@ -5099,8 +5099,8 @@ function markUppercaseParagraphs()
 	let i = e.length;
 	while(i--)
 	{
-		var s = e[i].textContent;
-		var cUpper = 0,
+		let s = e[i].textContent;
+		let cUpper = 0,
 			cLower = 0;
 		cUpper = s.match(/[A-Z]/g);
 		cLower = s.match(/[a-z]/g);
@@ -5116,7 +5116,7 @@ function markNumericParagraphs()
 	let i = e.length;
 	while(i--)
 	{
-		var s = e[i].textContent;
+		let s = e[i].textContent;
 		if(s && !isNaN(Number(s)))
 			e[i].className = "hl";
 	}
@@ -5411,7 +5411,7 @@ const autoCompleteInputBox = (function(){
 
 	function onAutoCompleteInputKeyUp(evt)
 	{
-		var inputText = getOne("#autoCompleteInput").value;
+		const inputText = getOne("#autoCompleteInput").value;
 		if(!inputText)
 		{
 			clearMatches();
@@ -5461,7 +5461,7 @@ const autoCompleteInputBox = (function(){
 
 		inputComponent.matches = [];
 		const commands = Object.keys(Nimbus.availableFunctions);
-		for(var i = 0, ii = commands.length; i < ii; i++)
+		for(let i = 0, ii = commands.length; i < ii; i++)
 		{
 			if(~commands[i].toLowerCase().indexOf(str))
 				inputComponent.matches.push(commands[i]);
