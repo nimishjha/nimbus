@@ -3047,6 +3047,13 @@ function trimAtInclusive(str, sub)
 	return str.substring(0, str.indexOf(sub) + sub.length);
 }
 
+function trimStartingAt(str, sub)
+{
+	if(str.indexOf(sub) === -1)
+		return str;
+	return str.substring(str.indexOf(sub));
+}
+
 function padLeft(str, width)
 {
 	let spaces = "";
