@@ -329,6 +329,27 @@ function del(arg)
 				del(arg[i]);
 }
 
+function createElement(tag, props)
+{
+	const elem = document.createElement(tag);
+	if(props && typeof props === "object")
+	{
+		const keys = Object.keys(props);
+		let i = keys.length;
+		const settableProperties = ["id", "className", "textContent", "innerHTML", "value"];
+		while(i--)
+		{
+			const key = keys[i];
+			if(settableProperties.includes(key))
+				elem[key] = props[key];
+			else
+				elem.setAttribute(key, props[key]);
+		}
+		return elem;
+	}
+	return elem;
+}
+
 function emptyElement(elem)
 {
 	if(elem)
@@ -818,7 +839,7 @@ function toggleClass(element, className)
 function getNext(str, arrStrings)
 {
 	let nextString = arrStrings[0];
-	let index = arrStrings.indexOf(str);
+	const index = arrStrings.indexOf(str);
 	if(index !== -1)
 	{
 		const nextIndex = index < arrStrings.length - 1 ? index + 1 : 0;
@@ -829,14 +850,13 @@ function getNext(str, arrStrings)
 
 function cycleClass(elem, arrClasses)
 {
-	let i, ii, found = false;
-	for(i = 0, ii = arrClasses.length; i < ii; i++)
+	for(let i = 0, ii = arrClasses.length, found = false; i < ii; i++)
 	{
 		const currClass = arrClasses[i];
 		if(elem.classList.contains(currClass))
 		{
 			elem.classList.remove(currClass);
-			const nextIndex = i < ii-1 ? i + 1 : 0;
+			const nextIndex = i < ii - 1 ? i + 1 : 0;
 			elem.classList.add(arrClasses[nextIndex]);
 			found = true;
 			break;
@@ -908,27 +928,6 @@ function printPropsContaining(obj, arrStrings)
 			s += key + ": " + obj[key] + "\n";
 	}
 	console.log(s);
-}
-
-function createElement(tag, props)
-{
-	const elem = document.createElement(tag);
-	if(props && typeof props === "object")
-	{
-		const keys = Object.keys(props);
-		let i = keys.length;
-		const settableProperties = ["id", "className", "textContent", "innerHTML", "value"];
-		while(i--)
-		{
-			const key = keys[i];
-			if(settableProperties.includes(key))
-				elem[key] = props[key];
-			else
-				elem.setAttribute(key, props[key]);
-		}
-		return elem;
-	}
-	return elem;
 }
 
 function insertBefore(elem, elemToInsert)
@@ -1239,10 +1238,10 @@ function showStatus(id, str)
 	getOrCreate("h3", id).textContent = id + ": " + str;
 }
 
-function showMessage(s, msgClass, persist)
+function showMessage(messageText, msgClass, persist)
 {
 	clearTimeout(Nimbus.messageTimeout);
-	let e;
+	let messageContainer;
 	msgClass = msgClass || "";
 	const strStyle = 'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; text-align: left; }' +
 	'message.messagebig { font: 32px "Swis721 cn bt"; color: #FFF; height: 60px; line-height: 60px; font-weight: 500; }' +
@@ -1250,19 +1249,17 @@ function showMessage(s, msgClass, persist)
 
 	if(!get("message"))
 	{
-		e = createElement("message", { className: msgClass });
-		document.body.insertBefore(e, document.body.firstChild);
+		messageContainer = createElement("message", { className: msgClass });
+		document.body.insertBefore(messageContainer, document.body.firstChild);
 		if(!getOne("#styleMessage"))
-		{
 			insertStyle(strStyle, "styleMessage", true);
-		}
 	}
 	else
 	{
-		e = getOne("message");
-		e.className = msgClass;
+		messageContainer = getOne("message");
+		messageContainer.className = msgClass;
 	}
-	e.textContent = s;
+	messageContainer.textContent = messageText;
 	if(!persist)
 		Nimbus.messageTimeout = setTimeout(deleteMessage, 2000);
 }
@@ -1322,11 +1319,9 @@ function runCommand(s)
 	if(Nimbus.availableFunctions[funcName])
 	{
 		const args = [];
-		let n;
-		let i, ii;
-		for(i = 1, ii = commandSegments.length; i < ii; i++)
+		for(let i = 1, ii = commandSegments.length; i < ii; i++)
 		{
-			n = parseInt(commandSegments[i], 10);
+			const n = parseInt(commandSegments[i], 10);
 			if(isNaN(n))
 				args.push(commandSegments[i]);
 			else args.push(n);
@@ -1825,8 +1820,7 @@ function changeGalleryImage(direction)
 	if(!gallery)
 		return;
 	const e = gallery.getElementsByTagName("img");
-	let i, ii;
-	for(i = 0, ii = e.length; i < ii; i++)
+	for(let i = 0, ii = e.length; i < ii; i++)
 	{
 		if(e[i].classList.contains("currentImage"))
 		{
@@ -2202,15 +2196,14 @@ function replaceMarkedElements(tag)
 function replaceElementsByClassesContaining(str, tagName)
 {
 	const e = get("div, p, span");
-	let i, ii;
 	if(e.length)
 	{
 		const toReplace = [];
-		for(i = 0, ii = e.length; i < ii; i++)
+		for(let i = 0, ii = e.length; i < ii; i++)
 			if(~e[i].className.indexOf(str))
 				toReplace.push(e[i]);
 		showMessageBig("Replacing " + toReplace.length + " elements");
-		for(i = toReplace.length - 1; i >= 0; i--)
+		for(let i = toReplace.length - 1; i >= 0; i--)
 			toReplace[i].parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace[i].innerHTML }), toReplace[i]);
 	}
 }
@@ -2235,12 +2228,10 @@ function regressivelyUnenhance()
 
 function removeInlineStyles()
 {
-	const e = document.getElementsByTagName("*");
+	const e = get("*");
 	let i = e.length;
 	while(i--)
-	{
 		e[i].removeAttribute("style");
-	}
 }
 
 function forceReloadCss()
@@ -5148,8 +5139,8 @@ function markUppercaseParagraphs()
 	while(i--)
 	{
 		let s = e[i].textContent;
-		let cUpper = 0,
-			cLower = 0;
+		let cUpper = 0;
+		let cLower = 0;
 		cUpper = s.match(/[A-Z]/g);
 		cLower = s.match(/[a-z]/g);
 		if(cUpper && (!cLower || cUpper.length > cLower.length))
@@ -5160,13 +5151,14 @@ function markUppercaseParagraphs()
 
 function markNumericParagraphs()
 {
-	const e = get("p");
-	let i = e.length;
+	const paragraphs = get("p");
+	let i = paragraphs.length;
 	while(i--)
 	{
-		let s = e[i].textContent;
+		const paragraph = paragraphs[i];
+		let s = paragraph.textContent;
 		if(s && !isNaN(Number(s)))
-			e[i].className = "hl";
+			paragraph.className = "hl";
 	}
 	insertStyleHighlight();
 }
@@ -5192,7 +5184,7 @@ function markDivDepth()
 
 function numberDivs()
 {
-	const e = get("section, div");
+	const e = get("header, footer, article, aside, section, div");
 	let i = e.length;
 	while(i--)
 		e[i].id = "i" + i;
@@ -5201,7 +5193,7 @@ function numberDivs()
 
 function delRange(m, n)
 {
-	const numDivs = get("div").length || 0;
+	const numDivs = get("header, footer, article, aside, section, div").length || 0;
 	if(typeof n === "undefined")
 		n = numDivs - 1;
 	for(let i = m; i <= n; i++)
@@ -5219,17 +5211,17 @@ function toNumber(s)
 
 function getPagerLinks()
 {
-	const e = get("a");
-	let i, ii;
+	const links = get("a");
 	const pagerWrapper = createElement("h1", { textContent: "Pages: " });
 	let count = 0;
-	for(i = 0, ii = e.length; i < ii; i++)
+	for(let i = 0, ii = links.length; i < ii; i++)
 	{
-		let s = e[i].textContent;
-		if(trim(s).length && !isNaN(Number(s)))
+		const link = links[i];
+		let linkText = link.textContent;
+		if(trim(linkText).length && !isNaN(Number(linkText)))
 		{
 			count++;
-			pagerWrapper.appendChild(createElement("a", { href: e[i].href, textContent: e[i].textContent || "[no text]" }));
+			pagerWrapper.appendChild(createElement("a", { href: link.href, textContent: link.textContent || "[no text]" }));
 			pagerWrapper.appendChild(document.createTextNode(" "));
 		}
 	}
@@ -5247,11 +5239,10 @@ function createPagerFromSelect()
 {
 	const selects = get("select");
 	let j = selects.length;
-	let i, ii;
 	while(j--)
 	{
 		const select = selects[j];
-		for(i = 0, ii = select.length; i < ii; i++)
+		for(let i = 0, ii = select.length; i < ii; i++)
 		{
 			const pagerWrapper = createElement("h3");
 			pagerWrapper.appendChild(createElement("a", { href: select[i].value, textContent: select[i].textContent || i + 1 }));
