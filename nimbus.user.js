@@ -1126,6 +1126,8 @@ function highlightAllMatches(s)
 	if(!(s && s.length))
 		return;
 
+	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
+	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
 	const linkHrefs = [];
 	let links = get("a");
 	for(let i = 0, ii = links.length; i < ii; i++)
@@ -1138,7 +1140,7 @@ function highlightAllMatches(s)
 	let ss = escapeForRegExp(s);
 	let tempHTML = document.body.innerHTML;
 	let r = new RegExp(ss, "gi");
-	tempHTML = tempHTML.replace(r, "<mark>" + s + "</mark>");
+	tempHTML = tempHTML.replace(r, highlightTagOpen + s + highlightTagClose);
 	document.body.innerHTML = tempHTML;
 
 	links = get("a");
@@ -3841,6 +3843,8 @@ function highlightAllMatchesInNode(node, splitMatches)
 	let i = splitMatches.length;
 	let lastIndex = 0;
 	let htmlToSearch;
+	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
+	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
 	while(i--)
 	{
 		const textToReplace = splitMatches[i];
@@ -3857,7 +3861,7 @@ function highlightAllMatchesInNode(node, splitMatches)
 		if(~index)
 		{
 			lastIndex = index;
-			nodeHTML = nodeHTML.replace(textToReplace, "<mark>" + textToReplace + "</mark>");
+			nodeHTML = nodeHTML.replace(textToReplace, highlightTagOpen + textToReplace + highlightTagClose);
 		}
 	}
 	node.innerHTML = nodeHTML;
@@ -3867,9 +3871,11 @@ function highlightTextAcrossTags(node, searchString)
 {
 	searchString = escapeHTML(searchString.replace(/\s+/g, " "));
 	let nodeHTML = node.innerHTML;
+	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
+	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
 	if(~nodeHTML.indexOf(searchString))
 	{
-		node.innerHTML = nodeHTML.replace(searchString, "<mark>" + searchString + "</mark>");
+		node.innerHTML = nodeHTML.replace(searchString, highlightTagOpen + searchString + highlightTagClose);
 		return;
 	}
 	let index1 = node.textContent.indexOf(searchString);
@@ -3910,7 +3916,7 @@ function highlightTextAcrossTags(node, searchString)
 		if(isMatch && partialSearchString.length > 5)
 		{
 			if(childNode.nodeType === 1)
-				childNode.innerHTML = "<mark>" + childNode.innerHTML + "</mark>";
+				childNode.innerHTML = highlightTagOpen + childNode.innerHTML + highlightTagClose;
 			else
 				splitMatches.push(partialSearchString);
 		}
@@ -4207,8 +4213,10 @@ function highlightAllTableCellsInRow(tr)
 {
 	const e = tr.querySelectorAll("td");
 	let i = e.length;
+	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
+	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
 	while(i--)
-		e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
+		e[i].innerHTML = highlightTagOpen + e[i].innerHTML + highlightTagClose;
 }
 
 function highlightNodesContaining(selector, str)
@@ -4216,8 +4224,8 @@ function highlightNodesContaining(selector, str)
 	if(!(selector && str && selector.length && str.length))
 		return;
 	const e = get(selector);
-	const markerTagOpen = "<mark>";
-	const markerTagClose = "</mark>";
+	const markerTagOpen = "<" + Nimbus.highlightTagName + ">";
+	const markerTagClose = "</" + Nimbus.highlightTagName + ">";
 	let i = e.length;
 	while(i--)
 	{
@@ -4250,9 +4258,11 @@ function highlightLinksWithHrefContaining(str)
 {
 	const e = document.getElementsByTagName("a");
 	let i = e.length;
+	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
+	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
 	while(i--)
 		if(e[i].href.indexOf(str) >= 0)
-			e[i].innerHTML = "<mark>" + e[i].innerHTML + "</mark>";
+			e[i].innerHTML = highlightTagOpen + e[i].innerHTML + highlightTagClose;
 }
 
 function xlog(str, logTag)
