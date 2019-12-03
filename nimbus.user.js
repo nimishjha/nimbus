@@ -3073,6 +3073,15 @@ function trimStartingAt(str, sub)
 	return str.substring(str.indexOf(sub));
 }
 
+function trimBetween(str, sub1, sub2)
+{
+	const index1 = str.indexOf(sub1);
+	const index2 = str.indexOf(sub2);
+	if(!(~index1 && ~index2))
+		return str;
+	return str.substring(index1 + 1, index2);
+}
+
 function padLeft(str, width)
 {
 	let spaces = "";
