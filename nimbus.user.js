@@ -851,7 +851,8 @@ function getNext(str, arrStrings)
 
 function cycleClass(elem, arrClasses)
 {
-	for(let i = 0, ii = arrClasses.length, found = false; i < ii; i++)
+	let found = false;
+	for(let i = 0, ii = arrClasses.length; i < ii; i++)
 	{
 		const currClass = arrClasses[i];
 		if(elem.classList.contains(currClass))
@@ -2289,7 +2290,6 @@ function setImageWidth(width)
 
 function insertStyleHighlight()
 {
-	del("#styleHighlight");
 	const s = '.nimbushl, .focused { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }' +
 		'.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }' +
 		'.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }';
@@ -2307,7 +2307,6 @@ function insertStyleAnnotations()
 
 function insertStyleShowErrors()
 {
-	del("#styleShowErrors");
 	const s = ".error { box-shadow: inset 2000px 2000px rgba(255, 0, 0, 1);";
 	insertStyle(s, "styleShowErrors", true);
 }
@@ -2576,7 +2575,7 @@ function toggleShowAriaAttributes()
 	while(i--)
 	{
 		const elem = e[i];
-		if( elem.hasAttribute("role"))
+		if(elem.hasAttribute("role"))
 		{
 			if(["banner", "complementary", "contentinfo", "form", "main", "navigation", "region", "search"].includes(elem.getAttribute("role")))
 			{
@@ -5361,6 +5360,7 @@ function inject()
 	xlog("Referrer: " + document.referrer);
 	xlog("Page loaded at " + getTimestamp());
 	doStackOverflow();
+	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
 	showMessageBig("Nimbus loaded");
 }
 
@@ -5436,8 +5436,8 @@ function timer(identifier, durationSeconds)
 	return { start, stop, update, reset, destroy };
 }
 
-const autoCompleteInputBox = (function(){
-
+function autoCompleteInputBox()
+{
 	const inputComponent = Nimbus.autoCompleteInputComponent;
 
 	function updateInputField()
@@ -5561,8 +5561,7 @@ const autoCompleteInputBox = (function(){
 	}
 
 	return { open, close };
-
-}()); //	End autoCompleteInputBox
+}
 
 function main()
 {
@@ -5616,7 +5615,6 @@ function handleKeyDown(e)
 		{
 			case KEYCODES.TILDE: highlightSelection(); break;
 			case KEYCODES.NUMPAD1: fillForms(); break;
-			case KEYCODES.NUMPAD2: autoCompleteInputBox.open(); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.F1: makeHeadingFromSelection("h1"); break;
 			case KEYCODES.F2: makeHeadingFromSelection("h2"); break;
@@ -5640,7 +5638,7 @@ function handleKeyDown(e)
 			case KEYCODES.J: regressivelyUnenhance(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.L: showLog(); break;
-			case KEYCODES.M: autoCompleteInputBox.open(); break;
+			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
 			case KEYCODES.N: numberDivs(); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatches, true); break;
 			case KEYCODES.P: fixParagraphs(); break;
@@ -5719,7 +5717,6 @@ function handleKeyDown(e)
 			case KEYCODES.O: customPrompt("Highlight block elements containing").then(highlightSpecificNodesContaining); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
 			case KEYCODES.T: markTableRowsAndColumns(); break;
-			case KEYCODES.W: markElementsWithSetWidths(); break;
 			case KEYCODES.Z: markSelectionAnchorNode(); break;
 			case KEYCODES.F12: analyze(); break;
 			default: shouldPreventDefault = false; break;
