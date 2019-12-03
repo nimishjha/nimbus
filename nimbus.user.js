@@ -179,6 +179,7 @@ const Nimbus = {
 	},
 	highlightTagName: "mark",
 	highlightTagNameList: ["mark", "markred", "markgreen", "markblue", "markpurple", "markyellow"],
+	markerClass: "nimbushl",
 };
 
 const KEYCODES = {
@@ -645,7 +646,7 @@ function mark(...args)
 	let i = e.length;
 	showMessageBig("Found " + i + " elements");
 	while(i--)
-		e[i].classList.add("hl");
+		e[i].classList.add(Nimbus.markerClass);
 	insertStyleHighlight();
 }
 
@@ -769,7 +770,7 @@ function markElementsWithCssRule(prop, val)
 			const s = computedStyle.getPropertyValue(prop);
 			if(val && val === s)
 			{
-				e[i].classList.add("hl");
+				e[i].classList.add(Nimbus.markerClass);
 				count++;
 			}
 		}
@@ -1651,11 +1652,11 @@ function markElementsBySelector(s)
 	{
 		let i = e.length;
 		while(i--)
-			e[i].classList.add("hl");
+			e[i].classList.add(Nimbus.markerClass);
 		showMessageBig("Highlighted " + e.length + " elements");
 	}
 	else if(e)
-		e.classList.add("hl");
+		e.classList.add(Nimbus.markerClass);
 	else
 		showMessageError("No elements found for selector " + s);
 	insertStyleHighlight();
@@ -1663,7 +1664,7 @@ function markElementsBySelector(s)
 
 function unmarkElement(elem)
 {
-	elem.classList.remove("hl");
+	elem.classList.remove(Nimbus.markerClass);
 }
 
 function markOverlays()
@@ -1697,7 +1698,7 @@ function markElementsWithSetWidths()
 		{
 			if(cssRules[j].match(/width:[^;]*px/) !== null)
 			{
-				elem.classList.add("hl");
+				elem.classList.add(Nimbus.markerClass);
 				elem.innerHTML = "<x>#" + elem.id + " ." + elem.className + " " + getComputedStyle(elem, null).getPropertyValue("width") + "</x>" + elem.innerHTML;
 				ylog(cssRules[j]);
 			}
@@ -1955,7 +1956,7 @@ function removeSpanTags()
 
 function deleteMarkedElements()
 {
-	del(".hl");
+	del("." + Nimbus.markerClass);
 }
 
 function replaceCommentsWithPres()
@@ -2184,7 +2185,7 @@ function replaceElementsBySelector(selector, tagName)
 
 function replaceMarkedElements(tag)
 {
-	const e = get(".hl");
+	const e = get("." + Nimbus.markerClass);
 	let i = e.length;
 	while(i--)
 	{
@@ -2289,10 +2290,9 @@ function setImageWidth(width)
 function insertStyleHighlight()
 {
 	del("#styleHighlight");
-	const s = '.hl, .focused { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }' +
-		'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }' +
-		'.hl::after, .hl2::after { content: " "; display: block; clear: both; }';
-	// let s = '.hl { filter: brightness(1.7); }';
+	const s = '.nimbushl, .focused { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }' +
+		'.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }' +
+		'.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }';
 	insertStyle(s, "styleHighlight", true);
 }
 
@@ -2507,7 +2507,7 @@ function showSelectorsFor(tagName)
 
 function toggleContentEditable()
 {
-	const e = getOne(".hl");
+	const e = getOne("." + Nimbus.markerClass);
 	if(!e)
 		return;
 	let isEditable = e.getAttribute("contenteditable") === "true";
@@ -2580,7 +2580,7 @@ function toggleShowAriaAttributes()
 		{
 			if(["banner", "complementary", "contentinfo", "form", "main", "navigation", "region", "search"].includes(elem.getAttribute("role")))
 			{
-				elem.classList.add("hl");
+				elem.classList.add(Nimbus.markerClass);
 				annotateElementError(elem, "role: " + elem.getAttribute("role"));
 			}
 			else
@@ -2618,7 +2618,7 @@ function checkAriaAttributes()
 			const labelElement = get(labelledById);
 			if(!labelElement)
 			{
-				elem.classList.add("hl", "error");
+				elem.classList.add(Nimbus.markerClass, "error");
 				annotateElementError(elem, "aria-labelledby refers to missing ID");
 				console.log("aria-labelledby refers to missing id: " + labelledById + " " + createSelector(elem));
 			}
@@ -2630,7 +2630,7 @@ function checkAriaAttributes()
 			const labelElement = get(describedById);
 			if(!labelElement)
 			{
-				elem.classList.add("hl", "error");
+				elem.classList.add(Nimbus.markerClass, "error");
 				annotateElementError(elem, "aria-describedby refers to missing ID");
 				console.log("aria-describedby refers to missing id: " + describedById + " " + createSelector(elem));
 			}
@@ -2640,7 +2640,7 @@ function checkAriaAttributes()
 		{
 			if(elem.getAttribute("aria-expanded") !== "true" && elem.getAttribute("aria-expanded") !== "false")
 			{
-				elem.classList.add("hl", "error");
+				elem.classList.add(Nimbus.markerClass, "error");
 				annotateElementError(elem, "aria-expanded needs to be either true or false");
 				console.log("aria-expanded needs to be either true or false: " + createSelector(elem));
 			}
@@ -2650,7 +2650,7 @@ function checkAriaAttributes()
 		{
 			if(elem.getAttribute("aria-selected") !== "true" && elem.getAttribute("aria-selected") !== "false")
 			{
-				elem.classList.add("hl", "error");
+				elem.classList.add(Nimbus.markerClass, "error");
 				annotateElementError(elem, "aria-selected needs to be either true or false");
 				console.log("aria-selected needs to be either true or false: " + createSelector(elem));
 			}
@@ -2675,7 +2675,7 @@ function showAriaButtonsWithNoText()
 		const button = e[i];
 		if(hasNoAriaText(button))
 		{
-			button.classList.add("hl", "error");
+			button.classList.add(Nimbus.markerClass, "error");
 			button.textContent = "Button needs label";
 			console.log("Button needs label");
 		}
@@ -2691,7 +2691,7 @@ function showAriaImagesWithMissingAltText()
 		const image = e[i];
 		if(!image.hasAttribute("alt"))
 		{
-			image.classList.add("hl", "error");
+			image.classList.add(Nimbus.markerClass, "error");
 			image.setAttribute("title", "Image needs alt text");
 			console.log("Image has no alt text: " + image.src);
 		}
@@ -3218,7 +3218,7 @@ function markNavigationalLists()
 		}
 		const listTextLength = list.textContent.replace(/[^A-Za-z]+/g, "").length;
 		if(listTextLength === linkText.length)
-			list.classList.add("hl");
+			list.classList.add(Nimbus.markerClass);
 	}
 }
 
@@ -3254,7 +3254,7 @@ function logout()
 			{
 				found = true;
 				showMessageBig(node.href);
-				node.classList.add("hl");
+				node.classList.add(Nimbus.markerClass);
 				node.click();
 				break;
 			}
@@ -3266,7 +3266,7 @@ function logout()
 			{
 				found = true;
 				showMessageBig(node.href);
-				node.classList.add("hl");
+				node.classList.add(Nimbus.markerClass);
 				node.click();
 				break;
 			}
@@ -3285,7 +3285,7 @@ function logout()
 				{
 					found = true;
 					showMessageBig("Logging out...");
-					node.classList.add("hl");
+					node.classList.add(Nimbus.markerClass);
 					node.click();
 					break;
 				}
@@ -3297,7 +3297,7 @@ function logout()
 				{
 					found = true;
 					showMessageBig("Logging out...");
-					node.classList.add("hl");
+					node.classList.add(Nimbus.markerClass);
 					node.click();
 					break;
 				}
@@ -3614,9 +3614,10 @@ function retrieve(selector)
 
 function deleteNonContentElements()
 {
-	if(get(".hl").length)
+	const markerClass = "." + Nimbus.markerClass;
+	if(get(markerClass).length)
 	{
-		del(".hl");
+		del(markerClass);
 		cleanupGeneral();
 		return;
 	}
@@ -3632,10 +3633,11 @@ function deleteNonContentElements()
 
 function getContentByParagraphCount()
 {
-	if(get(".hl").length)
+	const markerClass = "." + Nimbus.markerClass;
+	if(get(markerClass).length)
 	{
 		const title = document.title;
-		retrieve(".hl");
+		retrieve(markerClass);
 		setDocTitleSimple(title);
 		cleanupGeneral();
 		return;
@@ -3671,19 +3673,19 @@ function getContentByParagraphCount()
 	}
 	while(contentContainer.getElementsByTagName("p").length < totalNumParas * 0.8 && contentContainer.parentNode && contentContainer.parentNode.tagName !== "BODY")
 		contentContainer = contentContainer.parentNode;
-	contentContainer.classList.add("hl");
+	contentContainer.classList.add(Nimbus.markerClass);
 }
 
 function expandMark()
 {
-	const e = getOne(".hl");
+	const e = getOne("." + Nimbus.markerClass);
 	if(e)
 	{
 		const ep = e.parentNode;
 		if(ep.parentNode && ep.tagName !== 'BODY')
 		{
-			e.classList.remove("hl");
-			ep.classList.add("hl");
+			e.classList.remove(Nimbus.markerClass);
+			ep.classList.add(Nimbus.markerClass);
 			showMessageBig("Marked node is " + createSelector(ep));
 		}
 	}
@@ -3691,7 +3693,7 @@ function expandMark()
 
 function cycleThroughTopLevelElements(boolReverse)
 {
-	const hl = get(".hl");
+	const hl = get("." + Nimbus.markerClass);
 	consoleLog(hl);
 	if(hl.length && hl.length > 1)
 	{
@@ -3707,14 +3709,14 @@ function cycleThroughTopLevelElements(boolReverse)
 		for(let i = 0, ii = candidateElements.length; i < ii; i++)
 		{
 			const e = candidateElements[i];
-			if(e.classList.contains("hl"))
+			if(e.classList.contains(Nimbus.markerClass))
 			{
 				found = true;
-				e.classList.remove("hl");
+				e.classList.remove(Nimbus.markerClass);
 				if(i > 0)
-					candidateElements[i - 1].classList.add("hl");
+					candidateElements[i - 1].classList.add(Nimbus.markerClass);
 				else
-					candidateElements[ii - 1].classList.add("hl");
+					candidateElements[ii - 1].classList.add(Nimbus.markerClass);
 				break;
 			}
 		}
@@ -3724,20 +3726,20 @@ function cycleThroughTopLevelElements(boolReverse)
 		for(let i = 0, ii = candidateElements.length; i < ii; i++)
 		{
 			const e = candidateElements[i];
-			if(e.classList.contains("hl"))
+			if(e.classList.contains(Nimbus.markerClass))
 			{
 				found = true;
-				e.classList.remove("hl");
+				e.classList.remove(Nimbus.markerClass);
 				if(i < ii - 1)
-					candidateElements[i + 1].classList.add("hl");
+					candidateElements[i + 1].classList.add(Nimbus.markerClass);
 				else
-					candidateElements[0].classList.add("hl");
+					candidateElements[0].classList.add(Nimbus.markerClass);
 				break;
 			}
 		}
 	}
 	if(!found)
-		candidateElements[0].classList.add("hl");
+		candidateElements[0].classList.add(Nimbus.markerClass);
 }
 
 function deleteSpecificEmptyElements()
@@ -3960,7 +3962,7 @@ function markSelectionAnchorNode()
 	let node = selection.anchorNode;
 	while(node.parentNode && (node.textContent.length < selection.length || node.nodeType !== 1))
 		node = node.parentNode;
-	node.classList.add("hl");
+	node.classList.add(Nimbus.markerClass);
 	insertStyleHighlight();
 	showMessageBig("Marked node is " + createSelector(node));
 }
@@ -4243,7 +4245,7 @@ function highlightNodesContaining(selector, str)
 					highlightAllTableCellsInRow(node);
 					break;
 				default:
-					node.classList.add("hl");
+					node.classList.add(Nimbus.markerClass);
 					node.innerHTML = markerTagOpen + node.innerHTML + markerTagClose;
 					break;
 			}
@@ -4423,7 +4425,7 @@ function removeClassFromAllQuiet(className)
 
 function unhighlightAll()
 {
-	removeClassFromAllQuiet("hl");
+	removeClassFromAllQuiet(Nimbus.markerClass);
 	removeClassFromAllQuiet("hl2");
 	removeClassFromAllQuiet("error");
 	del(["annotationinfo", "annotationwarning", "annotationerror"]);
@@ -5154,7 +5156,7 @@ function markUppercaseParagraphs()
 		cUpper = s.match(/[A-Z]/g);
 		cLower = s.match(/[a-z]/g);
 		if(cUpper && (!cLower || cUpper.length > cLower.length))
-			e[i].className = "hl";
+			e[i].className = Nimbus.markerClass;
 	}
 	insertStyleHighlight();
 }
@@ -5168,7 +5170,7 @@ function markNumericParagraphs()
 		const paragraph = paragraphs[i];
 		let s = paragraph.textContent;
 		if(s && !isNaN(Number(s)))
-			paragraph.className = "hl";
+			paragraph.className = Nimbus.markerClass;
 	}
 	insertStyleHighlight();
 }
