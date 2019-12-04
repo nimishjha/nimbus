@@ -1627,6 +1627,8 @@ function doStackOverflow()
 	{
 		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair"]);
 		replaceElementsBySelector(".user-details", "h2");
+		replaceElementsBySelector(".answercell", "dt");
+		replaceElementsBySelector(".votecell", "h6");
 		deleteElementsContainingText("h2", "Not the answer");
 		retrieve("#content");
 		cleanupGeneral();
