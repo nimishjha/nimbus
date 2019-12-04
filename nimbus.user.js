@@ -3839,11 +3839,11 @@ function expandToWordBoundaries(node, selection)
 	if(index1 === -1)
 		return selection;
 	let index2 = index1 + selection.length;
-	// const regex = /[\w\.\?!,\u201C\u201D\u201E\u2018\u2019\u201A]/;
-	const regex = /[\w\.\?!,\(\)\u2012-\u201E]/;
-	while(text[index1].match(regex) && index1 > 0)
+	const regexLeft = /[\w\.\?!,'"\(\)\u2012-\u201E]/;
+	const regexRight = /[\w\.\?!,'"\(\)\u2019\u201D]/;
+	while(text[index1].match(regexLeft) && index1 > 0)
 		index1--;
-	while(text[index2] && text[index2].match(regex) && index2 < text.length)
+	while(text[index2] && text[index2].match(regexRight) && index2 < text.length)
 		index2++;
 	const expanded = trim(text.substring(index1, index2));
 	consoleLog("expanded: " + expanded);
