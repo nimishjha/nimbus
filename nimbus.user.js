@@ -2963,6 +2963,7 @@ function cleanupAttributes()
 	for(let i = 0; i < elems.length; i++)
 	{
 		const elem = elems[i];
+		const tagName = elem.tagName.toLowerCase();
 		if(elem.attributes)
 		{
 			const attrs = elem.attributes;
@@ -2979,7 +2980,7 @@ function cleanupAttributes()
 					case "rowspan":
 						break;
 					case "id":
-						if(elem.tagName.toLowerCase() === 'a' || elem.tagName.toLowerCase() === 'li')
+						if(["a", "li", "sup", "small"].includes(tagName))
 							break;
 						else
 							elem.removeAttribute("id");
@@ -4350,7 +4351,16 @@ function cleanupWikipedia()
 	]);
 	replaceElementsBySelector(".thumb", "figure");
 	replaceElementsBySelector(".thumbcaption", "figcaption");
-	replaceElementsBySelector("sup", "small");
+	const sups = get("sup");
+	let i = sups.length;
+	while(i--)
+	{
+		const sup = sups[i];
+		const small = createReplacementElement("small", sup, { id: "id", innerHTML: "innerHTML" });
+		console.log(small);
+		sup.parentNode.replaceChild(small, sup);
+	}
+	// replaceElementsBySelector("sup", "small");
 	getBestImageSrc();
 	cleanupAttributes();
 	document.body.className = "pad100 xwrap";
