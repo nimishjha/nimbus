@@ -1381,13 +1381,13 @@ function customPrompt(message)
 		del("#style-xxdialog");
 		const dialog = createElement("div", { id: "xxdialog" });
 		const dialogHeading = createElement("heading", { textContent: message });
-		const dialogInput = createElement("textarea", { id: "xxdialoginput" });
+		const dialogInput = createElement("input", { id: "xxdialoginput" });
 		dialog.appendChild(dialogHeading);
 		dialog.appendChild(dialogInput);
 		document.body.insertBefore(dialog, document.body.firstChild);
 		const s = '#xxdialog { position: fixed; margin: auto; z-index: 10000; height: 90px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 60vw; }' +
 			'#xxdialog heading { height: 30px; line-height: 30px; padding: 0 10px; background: #111; display: block; margin: 0; }' +
-			'#xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0 0; margin: 0; border-width: 0 10px; border-color: #000; width: 100%; height: 60px; overflow: hidden; box-sizing: border-box; }';
+			'#xxdialog #xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0 0; margin: 0; border-width: 0 10px; border-color: #000; width: 100%; height: 60px; overflow: hidden; box-sizing: border-box; }';
 		insertStyle(s, "style-xxdialog", true);
 		dialogInput.focus();
 		return new Promise(function(resolve, reject){
