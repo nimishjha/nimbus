@@ -3907,6 +3907,8 @@ function highlightTextAcrossTags(node, searchString)
 		childNodeEnd += childNode.textContent.length;
 		let partialSearchString;
 		let isMatch = false;
+		if(["I", "B", "EM", "STRONG"].includes(childNode.tagName))
+			continue;
 		if(index1 >= childNodeStart && index1 < childNodeEnd)
 		{
 			isMatch = true;
@@ -3914,11 +3916,8 @@ function highlightTextAcrossTags(node, searchString)
 		}
 		else if(index1 < childNodeStart && index2 > childNodeEnd)
 		{
-			if(!["I", "B", "EM", "STRONG"].includes(childNode.tagName))
-			{
-				isMatch = true;
-				partialSearchString = childNode.textContent;
-			}
+			isMatch = true;
+			partialSearchString = childNode.textContent;
 		}
 		else if(index2 > childNodeStart && index2 <= childNodeEnd)
 		{
