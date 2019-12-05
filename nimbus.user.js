@@ -4960,6 +4960,14 @@ function hasClassesStartingWith(element, arrStr)
 	return false;
 }
 
+function looksLikeUrl(str)
+{
+	if(str.indexOf("http") === 0)
+		return true;
+	if(~str.indexOf("/"))
+		return true;
+}
+
 function looksLikeHeading(element)
 {
 	if(element.innerHTML.length > 80) return false;
@@ -5300,15 +5308,18 @@ function getPagerLinks()
 function createPagerFromSelect()
 {
 	const selects = get("select");
-	let j = selects.length;
-	while(j--)
+	for(let j = 0, jj = selects.length; j < jj; j++)
 	{
 		const select = selects[j];
 		for(let i = 0, ii = select.length; i < ii; i++)
 		{
-			const pagerWrapper = createElement("h3");
-			pagerWrapper.appendChild(createElement("a", { href: select[i].value, textContent: select[i].textContent || i + 1 }));
-			document.body.appendChild(pagerWrapper);
+			const option = select[i];
+			if(looksLikeUrl(option.value))
+			{
+				const pagerWrapper = createElement("h3");
+				pagerWrapper.appendChild(createElement("a", { href: option.value, textContent: option.textContent || i + 1 }));
+				document.body.appendChild(pagerWrapper);
+			}
 		}
 	}
 	document.body.appendChild(createElement("hr"));
