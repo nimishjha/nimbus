@@ -103,7 +103,7 @@ const Nimbus = {
 		insertStyle: insertStyle,
 		insertStyleHighlight: insertStyleHighlight,
 		iw: setImageWidth,
-		logAllClasses: logAllClasses,
+		logAllClassesFor: logAllClassesFor,
 		makeHeadingFromSelection: makeHeadingFromSelection,
 		makeHeadings: makeHeadings,
 		makeHeadingsPlainText: makeHeadingsPlainText,
@@ -4999,7 +4999,7 @@ function createTagsByClassName()
 function makeHeadingsByTextLength()
 {
 	let e = get("div, p");
-	const classes = getAllClasses("div, p");
+	const classes = getAllClassesFor("div, p");
 	let headingClasses = [];
 	let strClass;
 	let selector;
@@ -5305,12 +5305,12 @@ function createPagerFromSelect()
 	document.body.appendChild(createElement("hr"));
 }
 
-function logAllClasses(selector)
+function logAllClassesFor(selector)
 {
-	console.log(getAllClasses(selector).join("\n"));
+	console.log(getAllClassesFor(selector).join("\n"));
 }
 
-function getAllClasses(selector)
+function getAllClassesFor(selector)
 {
 	const t1 = performance.now();
 	let sel = "*";
@@ -5337,7 +5337,7 @@ function getAllClasses(selector)
 		result.push(classes[keys[j]]);
 	}
 	const t2 = performance.now();
-	consoleLog(t2 - t1 + " ms: getAllClasses");
+	consoleLog(t2 - t1 + " ms: getAllClassesFor");
 	return result;
 }
 
