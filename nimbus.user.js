@@ -3875,15 +3875,14 @@ function expandToWordBoundaries(node, selection)
 function highlightAllMatchesInNode(node, splitMatches)
 {
 	let nodeHTML = node.innerHTML;
-	let i = splitMatches.length;
 	let lastIndex = 0;
-	let htmlToSearch;
 	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
 	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
-	while(i--)
+	for(let i = 0, ii = splitMatches.length; i < ii; i++)
 	{
-		const textToReplace = splitMatches[i];
+		let htmlToSearch = "";
 		let index;
+		const textToReplace = splitMatches[i];
 		if(lastIndex)
 		{
 			htmlToSearch = nodeHTML.substring(lastIndex);
@@ -3895,8 +3894,18 @@ function highlightAllMatchesInNode(node, splitMatches)
 		}
 		if(~index)
 		{
+			const replacementHtml = highlightTagOpen + textToReplace + highlightTagClose;
 			lastIndex = index;
-			nodeHTML = nodeHTML.replace(textToReplace, highlightTagOpen + textToReplace + highlightTagClose);
+			if(htmlToSearch.length)
+			{
+				let htmlToSkip = nodeHTML.substring(0, lastIndex);
+				let htmlToReplace = nodeHTML.substring(lastIndex).replace(textToReplace, replacementHtml);
+				nodeHTML = htmlToSkip + htmlToReplace;
+			}
+			else
+			{
+				nodeHTML = nodeHTML.replace(textToReplace, replacementHtml);
+			}
 		}
 	}
 	node.innerHTML = nodeHTML;
