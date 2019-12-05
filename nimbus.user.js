@@ -179,6 +179,7 @@ const Nimbus = {
 	},
 	highlightTagName: "mark",
 	highlightTagNameList: ["mark", "markred", "markgreen", "markblue", "markpurple", "markyellow"],
+	replacementTagName: "blockquote",
 	markerClass: "nimbushl",
 };
 
@@ -1738,9 +1739,14 @@ function cycleHighlightTags()
 	Nimbus.highlightTagName = nextTag;
 }
 
-function highlightAnchorNode(tag)
+function setReplacementTag(tagName)
 {
-	const t = tag? tag : Nimbus.highlightTagName;
+	Nimbus.replacementTagName = tagName;
+}
+
+function highlightSelectedElement(tag)
+{
+	const t = tag ? tag : Nimbus.highlightTagName;
 	const selection = window.getSelection();
 	if(!selection)
 		return;
@@ -1749,6 +1755,22 @@ function highlightAnchorNode(tag)
 		node = node.parentNode;
 	if(node && node.parentNode)
 		node.innerHTML = "<" + t + ">" + node.innerHTML + "</" + t + ">";
+}
+
+function replaceSelectedElement(tag)
+{
+	const replacementTag = tag ? tag : Nimbus.replacementTagName;
+	const selection = window.getSelection();
+	if(!selection)
+	{
+		showMessageBig("Nothing selected");
+		return;
+	}
+	let node = selection.anchorNode;
+	if(node.tagName === undefined)
+		node = node.parentNode;
+	if(node && node.parentNode)
+		replaceSingleElement(node, replacementTag);
 }
 
 function makeHeadingFromSelection(tagname)
@@ -4943,9 +4965,9 @@ function looksLikeExtract(element)
 	if(hasClassesContaining(element, ["quote", "extract"])) return true;
 }
 
-function replaceSingleElement(e, tag)
+function replaceSingleElement(elem, tagName)
 {
-	e.parentNode.replaceChild(createElement(tag, { innerHTML: e.innerHTML }), e);
+	elem.parentNode.replaceChild(createElement(tagName, { innerHTML: elem.innerHTML }), elem);
 }
 
 function createTagsByClassName()
@@ -5636,7 +5658,7 @@ function handleKeyDown(e)
 			case KEYCODES.TILDE: highlightSelection(); break;
 			case KEYCODES.NUMPAD1: fillForms(); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
-			case KEYCODES.F1: makeHeadingFromSelection("h1"); break;
+			case KEYCODES.F1: customPrompt("Enter replacement tag name").then(setReplacementTag); break;
 			case KEYCODES.F2: makeHeadingFromSelection("h2"); break;
 			case KEYCODES.F3: makeHeadingFromSelection("h3"); break;
 			case KEYCODES.ONE: cleanupGeneral(); break;
@@ -5663,7 +5685,7 @@ function handleKeyDown(e)
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatches, true); break;
 			case KEYCODES.P: fixParagraphs(); break;
 			case KEYCODES.Q: fixHeadings(); break;
-			case KEYCODES.R: highlightAnchorNode(); break;
+			case KEYCODES.R: highlightSelectedElement(); break;
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
@@ -5697,7 +5719,7 @@ function handleKeyDown(e)
 			case KEYCODES.C: deleteNonContentElements(); break;
 			case KEYCODES.D: del("log"); break;
 			case KEYCODES.P: getPagerLinks(); break;
-			case KEYCODES.R: highlightAnchorNode("blockquote"); break;
+			case KEYCODES.R: replaceSelectedElement(); break;
 			case KEYCODES.K: showPrintLink(); break;
 			case KEYCODES.L: logout(); break;
 			case KEYCODES.W: cleanupAttributes(); break;
