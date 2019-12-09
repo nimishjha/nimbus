@@ -3104,7 +3104,7 @@ function trimBetween(str, sub1, sub2)
 	const index2 = str.indexOf(sub2);
 	if(!(~index1 && ~index2))
 		return str;
-	return str.substring(index1 + 1, index2);
+	return str.substring(index1 + sub1.length, index2);
 }
 
 function padLeft(str, width)
@@ -3861,7 +3861,7 @@ function expandToWordBoundaries(node, selection)
 	if(index1 === -1)
 		return selection;
 	let index2 = index1 + selection.length;
-	const regexLeft = /[\w\.\?!,'"\(\)\u2012-\u201E]/;
+	const regexLeft = /[\w\.\?!,'"\(\)\u2018\u201C]/;
 	const regexRight = /[\w\.\?!,'"\(\)\u2019\u201D]/;
 	while(text[index1].match(regexLeft) && index1 > 0)
 		index1--;
@@ -5263,9 +5263,9 @@ function numberDivs()
 
 function delRange(m, n)
 {
-	const numDivs = get("header, footer, article, aside, section, div").length || 0;
+	const numBlockElements = get("header, footer, article, aside, section, div").length || 0;
 	if(typeof n === "undefined")
-		n = numDivs - 1;
+		n = numBlockElements - 1;
 	for(let i = m; i <= n; i++)
 		del("#i" + i);
 }
