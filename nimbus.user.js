@@ -1458,14 +1458,21 @@ function getSelectionOrUserInput(promptMessage, callback, isUnary)
 function callFunctionWithArgs(promptMessage, callback, numArgs)
 {
 	customPrompt(promptMessage).then(function(userInput) {
-		const args = parseCommand(userInput);
-		if(numArgs && args.length !== numArgs)
+		if(!numArgs || numArgs > 1)
 		{
-			showMessageBig(numArgs + " arguments are required");
-			callFunctionWithArgs(promptMessage, callback, numArgs);
-			return;
+			const args = parseCommand(userInput);
+			if(numArgs && args.length !== numArgs)
+			{
+				showMessageBig(numArgs + " arguments are required");
+				callFunctionWithArgs(promptMessage, callback, numArgs);
+				return;
+			}
+			callback.apply(null, args);
 		}
-		callback.apply(this, args);
+		else
+		{
+			callback.call(null, userInput);
+		}
 	});
 }
 
@@ -5718,7 +5725,7 @@ function handleKeyDown(e)
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
-			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining); break;
+			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining, 1); break;
 			case KEYCODES.Z: cleanupUnicode(); break;
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); focusFormElement(); break;
