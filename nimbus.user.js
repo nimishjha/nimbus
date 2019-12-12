@@ -35,12 +35,10 @@ const Nimbus = {
 	logString: "",
 	messageTimeout: null,
 	availableFunctions: {
-		enableConsoleLogs: enableConsoleLogs,
-		disableConsoleLogs: disableConsoleLogs,
 		addLinksToLargerImages: addLinksToLargerImages,
-		convertDivsToParagraphs: convertDivsToParagraphs,
 		annotate: annotate,
 		appendInfo: appendInfo,
+		buildGallery: buildGallery,
 		buildSlideshow: buildSlideshow,
 		chooseDocumentHeading: chooseDocumentHeading,
 		cleanupAttributes: cleanupAttributes,
@@ -50,13 +48,13 @@ const Nimbus = {
 		cleanupGeneral_light: cleanupGeneral_light,
 		cleanupHead: cleanupHead,
 		cleanupHeadings: cleanupHeadings,
+		cleanupLinks: cleanupLinks,
 		cleanupUnicode: cleanupUnicode,
 		cleanupWikipedia: cleanupWikipedia,
+		convertDivsToParagraphs: convertDivsToParagraphs,
 		createPagerFromSelect: createPagerFromSelect,
 		createTagsByClassName: createTagsByClassName,
 		del: del,
-		delNewlines: delNewlines,
-		delRange: delRange,
 		deleteElementsContainingText: deleteElementsContainingText,
 		deleteElementsWithClassContaining: deleteElementsWithClassContaining,
 		deleteEmptyElements: deleteEmptyElements,
@@ -69,8 +67,12 @@ const Nimbus = {
 		deleteNonContentImages: deleteNonContentImages,
 		deleteSmallImages: deleteSmallImages,
 		deleteSpecificEmptyElements: deleteSpecificEmptyElements,
+		delNewlines: delNewlines,
+		delRange: delRange,
 		deselect: deselect,
+		disableConsoleLogs: disableConsoleLogs,
 		edit: toggleContentEditable,
+		enableConsoleLogs: enableConsoleLogs,
 		fillForms: fillForms,
 		fixHeadings: fixHeadings,
 		fixParagraphs: fixParagraphs,
@@ -84,11 +86,10 @@ const Nimbus = {
 		getBestImageSrc: getBestImageSrc,
 		getContentByParagraphCount: getContentByParagraphCount,
 		getElementsContainingText: getElementsContainingText,
-		getStreamingImages: getStreamingImages,
-		buildGallery: buildGallery,
 		getLargeImages: getLargeImages,
 		getPagerLinks: getPagerLinks,
 		getSelectorsWithLightBackgrounds: getSelectorsWithLightBackgrounds,
+		getStreamingImages: getStreamingImages,
 		handleBlockEditClick: handleBlockEditClick,
 		highlightAllMatches: highlightAllMatches,
 		highlightAllTableCellsInRow: highlightAllTableCellsInRow,
@@ -106,8 +107,8 @@ const Nimbus = {
 		logAllClassesFor: logAllClassesFor,
 		makeHeadingFromSelection: makeHeadingFromSelection,
 		makeHeadings: makeHeadings,
-		makeHeadingsPlainText: makeHeadingsPlainText,
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
+		makeHeadingsPlainText: makeHeadingsPlainText,
 		makeLinkTextPlain: makeLinkTextPlain,
 		mark: mark,
 		markDivDepth: markDivDepth,
@@ -115,22 +116,21 @@ const Nimbus = {
 		markElementsWithCssRule: markElementsWithCssRule,
 		markElementsWithSetWidths: markElementsWithSetWidths,
 		markNavigationalLists: markNavigationalLists,
+		markNumericParagraphs: markNumericParagraphs,
 		markOverlays: markOverlays,
 		markTableRowsAndColumns: markTableRowsAndColumns,
 		markUppercaseParagraphs: markUppercaseParagraphs,
-		markNumericParagraphs: markNumericParagraphs,
 		numberDivs: numberDivs,
 		om: toggleMutationObserver,
 		parseCode: parseCode,
+		regressivelyUnenhance: regressivelyUnenhance,
 		remove: remove,
 		removeAccesskeys: removeAccesskeys,
-		regressivelyUnenhance: regressivelyUnenhance,
 		removeAttribute: removeAttribute,
 		removeClassFromAll: removeClassFromAll,
 		removeEventListeners: removeEventListeners,
 		removeInlineStyles: removeInlineStyles,
 		removeSpanTags: removeSpanTags,
-		cleanupLinks: cleanupLinks,
 		replaceAudio: replaceAudio,
 		replaceClass: replaceClass,
 		replaceCommentsWithPres: replaceCommentsWithPres,
@@ -154,13 +154,13 @@ const Nimbus = {
 		setImageWidth: setImageWidth,
 		showPrintLink: showPrintLink,
 		showResources: showResources,
+		showSelectorsFor: showSelectorsFor,
 		showTextToHTMLRatio: showTextToHTMLRatio,
 		toggleBlockEditMode: toggleBlockEditMode,
 		toggleContentEditable: toggleContentEditable,
 		toggleMutationObserver: toggleMutationObserver,
 		toggleShowAriaAttributes: toggleShowAriaAttributes,
 		toggleShowAriaProblems: toggleShowAriaProblems,
-		showSelectorsFor: showSelectorsFor,
 		toggleShowDocumentBlockStructure: toggleShowDocumentBlockStructure,
 		toggleShowDocumentStructure: toggleShowDocumentStructure,
 		toggleShowDocumentStructureWithNames: toggleShowDocumentStructureWithNames,
@@ -2195,10 +2195,21 @@ function replaceElementsBySelector(selector, tagName)
 	{
 		showMessageBig("Replacing " + toReplace.length + " " + selector);
 		let i = toReplace.length;
-		while(i--)
+		if(tagName === "hr")
 		{
-			const elem = toReplace[i];
-			elem.parentNode.replaceChild(createElement(tagName, { innerHTML: elem.innerHTML }), elem);
+			while(i--)
+			{
+				const elem = toReplace[i];
+				elem.parentNode.replaceChild(createElement(tagName), elem);
+			}
+		}
+		else
+		{
+			while(i--)
+			{
+				const elem = toReplace[i];
+				elem.parentNode.replaceChild(createElement(tagName, { innerHTML: elem.innerHTML }), elem);
+			}
 		}
 	}
 	else if(toReplace && toReplace.parentNode)
@@ -3191,12 +3202,9 @@ function makeHeadings()
 			elem.className = "parah2";
 			continue;
 		}
-		else if( len < 120 && s[len-1].match(/[0-9A-Za-z]/) )
+		else if(len < 120 && !s[len-1].match(/[.,!\?]/) )
 		{
-			if( !(e[i+1] && e[i+1].length < 120) )
-			{
-				elem.className = "parah3";
-			}
+			elem.className = "parah3";
 		}
 		tags = ["b", "strong", "em"];
 		for(j = tags.length - 1; j >= 0; j--)
@@ -3253,6 +3261,7 @@ function markNavigationalLists()
 		if(listTextLength === linkText.length)
 			list.classList.add(Nimbus.markerClass);
 	}
+	insertStyleHighlight();
 }
 
 function removeWhitespace(s)
@@ -5691,12 +5700,12 @@ function handleKeyDown(e)
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
 			case KEYCODES.NINE: toggleStyleShowClasses(); break;
 			case KEYCODES.ZERO: setDocTitle(); break;
-			case KEYCODES.I: toggleConsole("css"); break;
 			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", ""]); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.E: cycleHighlightTags(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteElementsContainingText); break;
+			case KEYCODES.I: toggleConsole("css"); break;
 			case KEYCODES.J: regressivelyUnenhance(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.L: showLog(); break;
@@ -5734,14 +5743,14 @@ function handleKeyDown(e)
 			case KEYCODES.ONE: showResources(); break;
 			case KEYCODES.TWO: replaceImagesWithTextLinks(); break;
 			case KEYCODES.FIVE: buildSlideshow(); break;
-			case KEYCODES.G: callFunctionWithArgs("Retrieve elements (optionally containing text)", getElementsContainingText); break;
 			case KEYCODES.A: annotate(); break;
 			case KEYCODES.C: deleteNonContentElements(); break;
 			case KEYCODES.D: del("log"); break;
-			case KEYCODES.P: getPagerLinks(); break;
-			case KEYCODES.R: replaceSelectedElement(); break;
+			case KEYCODES.G: callFunctionWithArgs("Retrieve elements (optionally containing text)", getElementsContainingText); break;
 			case KEYCODES.K: showPrintLink(); break;
 			case KEYCODES.L: logout(); break;
+			case KEYCODES.P: getPagerLinks(); break;
+			case KEYCODES.R: replaceSelectedElement(); break;
 			case KEYCODES.W: cleanupAttributes(); break;
 			case KEYCODES.FORWARD_SLASH: focusButton(); break;
 			case KEYCODES.F12: highlightCode(true); break;
