@@ -4163,11 +4163,12 @@ function restorePres()
 {
 	const e = get("pre");
 	let i, ii;
-	for( i = 0, ii = e.length; i < ii; i++ )
+	for(i = 0, ii = e.length; i < ii; i++)
 	{
-		e[i].innerHTML = e[i].innerHTML.replace(/GYZYtab/g, "\t");
-		e[i].innerHTML = e[i].innerHTML.replace(/GYZYnl/g, "\n");
-		e[i].innerHTML = e[i].innerHTML.replace(/\n+/g, "\n");
+		const pre = e[i];
+		pre.innerHTML = pre.innerHTML.replace(/GYZYtab/g, "\t");
+		pre.innerHTML = pre.innerHTML.replace(/GYZYnl/g, "\n");
+		pre.innerHTML = pre.innerHTML.replace(/\n+/g, "\n");
 	}
 }
 
@@ -4201,12 +4202,13 @@ function fixParagraphs()
 
 function deleteLinksContainingText(str)
 {
-	const e = get("a");
-	let i = e.length;
+	const links = get("a");
+	let i = links.length;
 	while(i--)
 	{
-		if(~e[i].textContent.indexOf(str) || ~e[i].href.indexOf(str))
-			del(e[i]);
+		const link = links[i];
+		if(~link.textContent.indexOf(str) || ~link.href.indexOf(str))
+			del(link);
 	}
 }
 
@@ -4275,7 +4277,10 @@ function highlightAllTableCellsInRow(tr)
 	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
 	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
 	while(i--)
-		e[i].innerHTML = highlightTagOpen + e[i].innerHTML + highlightTagClose;
+	{
+		const td = e[i];
+		td.innerHTML = highlightTagOpen + td.innerHTML + highlightTagClose;
+	}
 }
 
 function highlightNodesContaining(selector, str)
@@ -4315,13 +4320,16 @@ function highlightNodesContaining(selector, str)
 
 function highlightLinksWithHrefContaining(str)
 {
-	const e = document.getElementsByTagName("a");
-	let i = e.length;
 	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
 	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
+	const links = document.getElementsByTagName("a");
+	let i = links.length;
 	while(i--)
-		if(e[i].href.indexOf(str) >= 0)
-			e[i].innerHTML = highlightTagOpen + e[i].innerHTML + highlightTagClose;
+	{
+		const link = links[i];
+		if(link.href.indexOf(str) >= 0)
+			link.innerHTML = highlightTagOpen + link.innerHTML + highlightTagClose;
+	}
 }
 
 function xlog(str, logTag)
@@ -4818,33 +4826,34 @@ function fillForms()
 	i = e.length;
 	while(i--)
 	{
-		if(e[i].hasAttribute("type"))
+		const field = e[i];
+		if(field.hasAttribute("type"))
 		{
-			inputType = e[i].type;
+			inputType = field.type;
 			if(inputType !== "button" && inputType !== "submit" && inputType !== "image" && inputType !== "hidden" && inputType !== "checkbox" && inputType !== "radio")
 			{
-				inputName = e[i].getAttribute("name") || e[i].getAttribute("id");
+				inputName = field.getAttribute("name") || field.getAttribute("id");
 				inputName = inputName.toLowerCase();
 				if(inputName)
 				{
-					if(inputName === "companyname") e[i].value = "";
-					else if(inputName.indexOf("first") >= 0) e[i].value = "John";
-					else if(inputName.indexOf("last") >= 0) e[i].value = "Doe";
-					else if(inputName.indexOf("name") >= 0) e[i].value = "John Doe";
-					else if(inputName.indexOf("email") >= 0) e[i].value = "test@test.com";
-					else if(inputName.indexOf("day") >= 0) e[i].value = Math.floor(Math.random() * 28);
-					else if(inputName.indexOf("year") >= 0) e[i].value = 1980 + Math.floor(Math.random() * 20);
-					else if(inputName.indexOf("phone") >= 0) e[i].value = "(00) 0000 0000";
-					else if(inputName.indexOf("mobile") >= 0) e[i].value = "0400222333";
-					else if(inputName.indexOf("date") >= 0) e[i].value = "23/08/1991";
-					else if(inputName.indexOf("suburb") >= 0) e[i].value = "Melbourne";
-					else if(inputName.indexOf("postcode") >= 0) e[i].value = "3000";
-					else if(inputName.indexOf("state") >= 0) e[i].value = "VIC";
-					else if(inputType === "number") e[i].value = 42;
-					else if(inputType === "text") e[i].value = e[i].name.replace(/_/g, ' ');
-					else if(inputType === "checkbox") e[i].checked = true;
-					else if(inputType === "radio") e[i].checked = true;
-					else if(inputType !== 'file') e[i].value = inputName.replace(/_/g, ' ');
+					if(inputName === "companyname") field.value = "";
+					else if(inputName.indexOf("first") >= 0) field.value = "John";
+					else if(inputName.indexOf("last") >= 0) field.value = "Doe";
+					else if(inputName.indexOf("name") >= 0) field.value = "John Doe";
+					else if(inputName.indexOf("email") >= 0) field.value = "test@test.com";
+					else if(inputName.indexOf("day") >= 0) field.value = Math.floor(Math.random() * 28);
+					else if(inputName.indexOf("year") >= 0) field.value = 1980 + Math.floor(Math.random() * 20);
+					else if(inputName.indexOf("phone") >= 0) field.value = "(00) 0000 0000";
+					else if(inputName.indexOf("mobile") >= 0) field.value = "0400222333";
+					else if(inputName.indexOf("date") >= 0) field.value = "23/08/1991";
+					else if(inputName.indexOf("suburb") >= 0) field.value = "Melbourne";
+					else if(inputName.indexOf("postcode") >= 0) field.value = "3000";
+					else if(inputName.indexOf("state") >= 0) field.value = "VIC";
+					else if(inputType === "number") field.value = 42;
+					else if(inputType === "text") field.value = field.name.replace(/_/g, ' ');
+					else if(inputType === "checkbox") field.checked = true;
+					else if(inputType === "radio") field.checked = true;
+					else if(inputType !== 'file') field.value = inputName.replace(/_/g, ' ');
 				}
 			}
 		}
@@ -5783,18 +5792,18 @@ function handleKeyDown(e)
 			case KEYCODES.THREE: toggleStyleGrey(); break;
 			case KEYCODES.FOUR: toggleStyleWhite(); break;
 			case KEYCODES.A: toggleShowAriaAttributes(); break;
+			case KEYCODES.B: toggleShowDocumentStructureWithNames(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements with class containing the string", deleteElementsWithClassContaining); break;
 			case KEYCODES.H: getSelectionOrUserInput("Mark elements by selector", markElementsBySelector, true); break;
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markElementsWithCssRule, 2); break;
-			case KEYCODES.V: toggleShowDocumentStructure(); break;
-			case KEYCODES.B: toggleShowDocumentStructureWithNames(); break;
-			case KEYCODES.N: toggleShowDocumentBlockStructure(); break;
 			case KEYCODES.M: customPrompt("Enter command").then(runCommand); break;
+			case KEYCODES.N: toggleShowDocumentBlockStructure(); break;
 			case KEYCODES.O: customPrompt("Highlight block elements containing").then(highlightSpecificNodesContaining); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
 			case KEYCODES.T: markTableRowsAndColumns(); break;
+			case KEYCODES.V: toggleShowDocumentStructure(); break;
 			case KEYCODES.Z: markSelectionAnchorNode(); break;
 			case KEYCODES.F12: analyze(); break;
 			default: shouldPreventDefault = false; break;
