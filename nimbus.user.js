@@ -126,7 +126,7 @@ const Nimbus = {
 		regressivelyUnenhance: regressivelyUnenhance,
 		remove: remove,
 		removeAccesskeys: removeAccesskeys,
-		removeAttribute: removeAttribute,
+		removeAttributeOf: removeAttributeOf,
 		removeClassFromAll: removeClassFromAll,
 		removeEventListeners: removeEventListeners,
 		removeInlineStyles: removeInlineStyles,
@@ -149,7 +149,7 @@ const Nimbus = {
 		revealEmptyLinks: revealEmptyLinks,
 		revealLinkHrefs: revealLinkHrefs,
 		sanitizeTitle: sanitizeTitle,
-		setAttribute: setAttribute,
+		setAttributeOf: setAttributeOf,
 		setDocTitle: setDocTitle,
 		setImageWidth: setImageWidth,
 		showPrintLink: showPrintLink,
@@ -3036,7 +3036,7 @@ function cleanupAttributes()
 	xlog(t2 - t1 + "ms: cleanupAttributes");
 }
 
-function setAttribute(selector, attribute, value)
+function setAttributeOf(selector, attribute, value)
 {
 	const e = get(selector);
 	let i = e.length;
@@ -3044,7 +3044,7 @@ function setAttribute(selector, attribute, value)
 		e[i].setAttribute(attribute, value);
 }
 
-function removeAttribute(selector, attribute)
+function removeAttributeOf(selector, attribute)
 {
 	const e = get(selector);
 	let i = e.length;
@@ -3188,6 +3188,7 @@ function convertDivsToParagraphs()
 function makeHeadings()
 {
 	let e, i, j, tags, s, len;
+	const MAX_LENGTH = 120;
 	e = get("p");
 	i = e.length;
 	while(i--)
@@ -3209,7 +3210,7 @@ function makeHeadings()
 			elem.className = "parah2";
 			continue;
 		}
-		else if(len < 120 && !s[len-1].match(/[.,!\?]/) )
+		else if(len < MAX_LENGTH && !s[len-1].match(/[.,!\?'"\u2018\u201C\u2019\u201D]/) )
 		{
 			elem.className = "parah3";
 		}
