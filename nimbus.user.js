@@ -4467,15 +4467,6 @@ function getAttributes(targ)
 	}
 }
 
-function removeClassFromAll(className)
-{
-	const e = document.querySelectorAll("." + className);
-	let i = e.length;
-	showMessageBig("Removing class " + className + " from " + i + " elements");
-	while(i--)
-		e[i].classList.remove(className);
-}
-
 function removeId(id)
 {
 	let idWithHash = id;
@@ -4490,20 +4481,33 @@ function removeId(id)
 	elem.id = "";
 }
 
+function removeClassFromAll(className)
+{
+	const e = document.querySelectorAll("." + className);
+	let i = e.length;
+	showMessageBig("Removing class " + className + " from " + i + " elements");
+	while(i--)
+		e[i].classList.remove(className);
+	return e.length;
+}
+
 function removeClassFromAllQuiet(className)
 {
 	const e = document.querySelectorAll("." + className);
 	let i = e.length;
 	while(i--)
 		e[i].classList.remove(className);
+	return e.length;
 }
 
 function unhighlightAll()
 {
-	removeClassFromAllQuiet(Nimbus.markerClass);
-	removeClassFromAllQuiet("hl2");
-	removeClassFromAllQuiet("error");
+	let count = 0;
+	count += removeClassFromAllQuiet(Nimbus.markerClass);
+	count += removeClassFromAllQuiet("hl2");
+	count += removeClassFromAllQuiet("error");
 	del(["annotationinfo", "annotationwarning", "annotationerror"]);
+	showMessageBig(`Removed highlighting from ${count} elements`);
 }
 
 function cleanupLinks()
@@ -5015,28 +5019,44 @@ function replaceSingleElement(elem, tagName)
 
 function createTagsByClassName()
 {
-	let element, e = document.querySelectorAll("div, p");
+	const e = document.querySelectorAll("div, p");
 	let i = e.length;
+	let numReplaced = 0;
 	while(i--)
 	{
-		element = e[i];
-		if(looksLikeHeading(element)) replaceSingleElement(element, "h2");
-		else if(looksLikeExtract(element)) replaceSingleElement(element, "blockquote");
-		else if(hasClassesContaining(element, ["index"])) replaceSingleElement(element, "dt");
-		else if(hasClassesContaining(element, ["fmtx"])) replaceSingleElement(element, "p");
-		else if(hasClassesContaining(element, ["image"])) replaceSingleElement(element, "figure");
-		else if(hasClassesContaining(element, ["caption"])) replaceSingleElement(element, "figcaption");
-		else if(hasClassesContaining(element, ["note"])) replaceSingleElement(element, "dt");
+		const element = e[i];
+		let replacementTagName = null;
+		if(looksLikeHeading(element)) replacementTagName = "h2";
+		else if(looksLikeExtract(element)) replacementTagName = "blockquote";
+		else if(hasClassesContaining(element, ["index"])) replacementTagName = "dt";
+		else if(hasClassesContaining(element, ["fmtx"])) replacementTagName = "p";
+		else if(hasClassesContaining(element, ["image"])) replacementTagName = "figure";
+		else if(hasClassesContaining(element, ["caption"])) replacementTagName = "figcaption";
+		else if(hasClassesContaining(element, ["note"])) replacementTagName = "dt";
+		if(replacementTagName)
+		{
+			numReplaced++;
+			replaceSingleElement(element, replacementTagName);
+		}
 	}
-	e = get("span");
-	i = e.length;
+	const spans = get("span");
+	i = spans.length;
 	while(i--)
 	{
-		element = e[i];
-		if(hasClassesContaining(element, ["bold"])) replaceSingleElement(element, "b");
-		else if(hasClassesContaining(element, ["italic", "txit"])) replaceSingleElement(element, "b");
-		else if(hasClassesContaining(element, ["small"])) replaceSingleElement(element, "small");
+		const element = spans[i];
+		let replacementTagName = null;
+		if(hasClassesContaining(element, ["bold"])) replacementTagName = "b";
+		else if(hasClassesStartingWith(element, ["epub-b"])) replacementTagName = "b";
+		else if(hasClassesStartingWith(element, ["epub-i"])) replacementTagName = "i";
+		else if(hasClassesContaining(element, ["italic", "txit"])) replacementTagName = "i";
+		else if(hasClassesContaining(element, ["small"])) replacementTagName = "small";
+		if(replacementTagName)
+		{
+			numReplaced++;
+			replaceSingleElement(element, replacementTagName);
+		}
 	}
+	showMessageBig(`Replaced ${numReplaced} elements`);
 }
 
 function makeHeadingsByTextLength()
