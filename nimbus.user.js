@@ -961,10 +961,13 @@ function createReplacementElement(tagName, sourceElement, propertyMapping)
 	{
 		const prop = keys[i];
 		const value = propertyMapping[prop];
-		if(settableProperties.includes(prop))
-			elem[prop] = sourceElement[value];
-		else
-			elem.setAttribute(prop, sourceElement.getAttribute(value));
+		if(sourceElement[value])
+		{
+			if(settableProperties.includes(prop))
+				elem[prop] = sourceElement[value];
+			else
+				elem.setAttribute(prop, sourceElement.getAttribute(value));
+		}
 	}
 	return elem;
 }
@@ -2215,7 +2218,11 @@ function replaceElementsBySelector(selector, tagName)
 			while(i--)
 			{
 				const elem = toReplace[i];
-				elem.parentNode.replaceChild(createElement(tagName, { innerHTML: elem.innerHTML }), elem);
+				const elemId = elem.id;
+				if(elemId)
+					elem.parentNode.replaceChild(createElement(tagName, { id: elemId, innerHTML: elem.innerHTML }), elem);
+				else
+					elem.parentNode.replaceChild(createElement(tagName, { innerHTML: elem.innerHTML }), elem);
 			}
 		}
 	}
