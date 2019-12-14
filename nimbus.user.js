@@ -5033,13 +5033,16 @@ function createTagsByClassName()
 	{
 		const element = e[i];
 		let replacementTagName = null;
-		if(looksLikeHeading(element)) replacementTagName = "h2";
-		else if(looksLikeExtract(element)) replacementTagName = "blockquote";
-		else if(hasClassesContaining(element, ["index"])) replacementTagName = "dt";
-		else if(hasClassesContaining(element, ["fmtx"])) replacementTagName = "p";
-		else if(hasClassesContaining(element, ["image"])) replacementTagName = "figure";
-		else if(hasClassesContaining(element, ["caption"])) replacementTagName = "figcaption";
-		else if(hasClassesContaining(element, ["note"])) replacementTagName = "dt";
+		switch(true)
+		{
+			case looksLikeHeading(element): replacementTagName = "h2"; break;
+			case looksLikeExtract(element): replacementTagName = "blockquote"; break;
+			case hasClassesContaining(element, ["index"]): replacementTagName = "dt"; break;
+			case hasClassesContaining(element, ["fmtx"]): replacementTagName = "p"; break;
+			case hasClassesContaining(element, ["image"]): replacementTagName = "figure"; break;
+			case hasClassesContaining(element, ["caption"]): replacementTagName = "figcaption"; break;
+			case hasClassesContaining(element, ["note"]): replacementTagName = "dt"; break;
+		}
 		if(replacementTagName)
 		{
 			numReplaced++;
@@ -5052,11 +5055,14 @@ function createTagsByClassName()
 	{
 		const element = spans[i];
 		let replacementTagName = null;
-		if(hasClassesContaining(element, ["bold"])) replacementTagName = "b";
-		else if(hasClassesStartingWith(element, ["epub-b"])) replacementTagName = "b";
-		else if(hasClassesStartingWith(element, ["epub-i"])) replacementTagName = "i";
-		else if(hasClassesContaining(element, ["italic", "txit"])) replacementTagName = "i";
-		else if(hasClassesContaining(element, ["small"])) replacementTagName = "small";
+		switch(true)
+		{
+			case hasClassesContaining(element, ["bold"]): replacementTagName = "b"; break;
+			case hasClassesStartingWith(element, ["epub-b"]): replacementTagName = "b"; break;
+			case hasClassesStartingWith(element, ["epub-i"]): replacementTagName = "i"; break;
+			case hasClassesContaining(element, ["italic", "txit"]): replacementTagName = "i"; break;
+			case hasClassesContaining(element, ["small"]): replacementTagName = "small"; break;
+		}
 		if(replacementTagName)
 		{
 			numReplaced++;
