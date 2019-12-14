@@ -101,6 +101,7 @@ const Nimbus = {
 		highlightSpecificNodesContaining: highlightSpecificNodesContaining,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		insertElementBeforeSelectedNode: insertElementBeforeSelectedNode,
+		insertHrBeforeAll: insertHrBeforeAll,
 		insertStyle: insertStyle,
 		insertStyleHighlight: insertStyleHighlight,
 		iw: setImageWidth,
@@ -1968,6 +1969,13 @@ function replaceEmptyParagraphsWithHr()
 			para.parentNode.replaceChild(document.createElement("hr"), para);
 		}
 	}
+}
+
+function insertHrBeforeAll(selector)
+{
+	const elems = get(selector);
+	for(let i = 0, ii = elems.length; i < ii; i++)
+		insertBefore(elems[i], document.createElement("hr"));
 }
 
 function replaceSpansWithTextNodes()
@@ -5804,6 +5812,7 @@ function handleKeyDown(e)
 			case KEYCODES.W: cleanupAttributes(); break;
 			case KEYCODES.FORWARD_SLASH: focusButton(); break;
 			case KEYCODES.F12: highlightCode(true); break;
+			case KEYCODES.MINUS: callFunctionWithArgs("Insert HR before (selector)", insertHrBeforeAll); break;
 		}
 	}
 	//
