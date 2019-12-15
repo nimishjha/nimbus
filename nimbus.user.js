@@ -52,6 +52,7 @@ const Nimbus = {
 		cleanupUnicode: cleanupUnicode,
 		cleanupWikipedia: cleanupWikipedia,
 		convertDivsToParagraphs: convertDivsToParagraphs,
+		convertMarkedElementsToList: convertMarkedElementsToList,
 		createPagerFromSelect: createPagerFromSelect,
 		createTagsByClassName: createTagsByClassName,
 		del: del,
@@ -3198,6 +3199,20 @@ function convertDivsToParagraphs()
 			div.remove();
 		}
 	}
+}
+
+function convertMarkedElementsToList(tagName)
+{
+	const elemsToJoin = get(Nimbus.markerClass);
+	const parent = document.createElement(tagName);
+	for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
+	{
+		const child = document.createElement("li");
+		child.innerHTML = elemsToJoin[i].innerHTML;
+		parent.appendChild(child);
+	}
+	insertBefore(elemsToJoin[0], parent);
+	del(Nimbus.markerClass);
 }
 
 function makeHeadings()
