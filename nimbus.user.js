@@ -89,7 +89,7 @@ const Nimbus = {
 		getElementsContainingText: getElementsContainingText,
 		getLargeImages: getLargeImages,
 		getPagerLinks: getPagerLinks,
-		getSelectorsWithLightBackgrounds: getSelectorsWithLightBackgrounds,
+		listSelectorsWithLightBackgrounds: listSelectorsWithLightBackgrounds,
 		getStreamingImages: getStreamingImages,
 		handleBlockEditClick: handleBlockEditClick,
 		highlightAllMatches: highlightAllMatches,
@@ -183,6 +183,7 @@ const Nimbus = {
 	highlightTagNameList: ["mark", "markred", "markgreen", "markblue", "markpurple", "markyellow"],
 	replacementTagName: "blockquote",
 	markerClass: "nimbushl",
+	markerClass2: "nimbushl2",
 };
 
 const KEYCODES = {
@@ -723,7 +724,7 @@ function selectRandom(arr)
 	return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function getSelectorsWithLightBackgrounds()
+function listSelectorsWithLightBackgrounds()
 {
 	const THRESHOLD = 200;
 	const e = Array.from(document.getElementsByTagName("*"));
@@ -5035,6 +5036,11 @@ function looksLikeHeading(element)
 	if(hasClassesContaining(element, ["heading", "chapternumber", "chaptertitle", "h1", "h2"])) return true;
 }
 
+function looksLikeComment(element)
+{
+	if(hasClassesContaining(element, ["omment"])) return true;
+}
+
 function looksLikeExtract(element)
 {
 	if(element.querySelectorAll("div, p").length > 5) return false;
@@ -5059,6 +5065,7 @@ function createTagsByClassName()
 		switch(true)
 		{
 			case looksLikeHeading(element): replacementTagName = "h2"; break;
+			case looksLikeComment(element): replacementTagName = "dt"; break;
 			case looksLikeExtract(element): replacementTagName = "blockquote"; break;
 			case hasClassesContaining(element, ["index"]): replacementTagName = "dt"; break;
 			case hasClassesContaining(element, ["fmtx"]): replacementTagName = "p"; break;
