@@ -132,6 +132,7 @@ const Nimbus = {
 		removeClassFromAll: removeClassFromAll,
 		removeEventListeners: removeEventListeners,
 		removeInlineStyles: removeInlineStyles,
+		removeQueryStringFromImageSources: removeQueryStringFromImageSources,
 		removeSpanTags: removeSpanTags,
 		replaceAudio: replaceAudio,
 		replaceClass: replaceClass,
@@ -1879,6 +1880,16 @@ function changeGalleryImage(direction)
 				break;
 			}
 		}
+	}
+}
+
+function removeQueryStringFromImageSources()
+{
+	let images = get("img");
+	for(let i = 0, ii = images.length; i < ii; i++)
+	{
+		const image = images[i];
+		image.src = trimAt(image.src, "?");
 	}
 }
 
