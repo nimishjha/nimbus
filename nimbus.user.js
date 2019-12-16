@@ -2520,9 +2520,9 @@ function toggleStyleNegative()
 	'body.xDontShowLinks a, body.xDontShowLinks a *, body.xDontShowLinks a:link { color: inherit; text-decoration: none; }' +
 	'body.xDontShowLinks a:visited *, body.xDontShowLinks a:visited { color: inherit; text-decoration: none; }' +
 	'body.xDontShowLinks a:hover *, body.xDontShowLinks a:focus *, body.xDontShowLinks a:hover, body.xDontShowLinks a:focus { color: #FFF; text-decoration: none; }' +
-	'.hl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }' +
-	'.hl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
-	'.hl::after, .hl2::after { content: " "; display: block; clear: both; }' +
+	'.nimbushl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }' +
+	'.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }' +
+	'.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }' +
 	'user { background: #000; padding: 2px 10px; border-left: 10px solid #09F; margin: 0; }';
 
 	toggleStyle(s, "styleNegative");
@@ -2654,7 +2654,7 @@ function toggleShowAriaAttributes()
 			}
 			else
 			{
-				elem.classList.add("hl2");
+				elem.classList.add(Nimbus.markerClass2);
 				annotateElement(elem, "role: " + elem.getAttribute("role"));
 			}
 		}
@@ -4546,7 +4546,7 @@ function unhighlightAll()
 {
 	let count = 0;
 	count += removeClassFromAllQuiet(Nimbus.markerClass);
-	count += removeClassFromAllQuiet("hl2");
+	count += removeClassFromAllQuiet(Nimbus.markerClass2);
 	count += removeClassFromAllQuiet("error");
 	del(["annotationinfo", "annotationwarning", "annotationerror"]);
 	showMessageBig(`Removed highlighting from ${count} elements`);
