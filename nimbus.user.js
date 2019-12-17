@@ -3213,10 +3213,18 @@ function convertDivsToParagraphs()
 	}
 }
 
+function makeClassSelector(className)
+{
+	if(className.indexOf(".") !== 0)
+		return "." + trim(className);
+	return trim(className);
+}
+
 function convertMarkedElementsToList(tagName)
 {
-	const elemsToJoin = get(Nimbus.markerClass);
-	const parent = document.createElement(tagName);
+	const parentTagName = tagName || "ul";
+	const elemsToJoin = get(makeClassSelector(Nimbus.markerClass));
+	const parent = document.createElement(parentTagName);
 	for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
 	{
 		const child = document.createElement("li");
