@@ -3998,7 +3998,7 @@ function highlightTextAcrossTags(node, searchString)
 	let index1 = node.textContent.indexOf(searchString);
 	if(index1 === -1)
 	{
-		showMessageBig(searchString + " not found in " + node.textContent);
+		showMessageBig(`${searchString} not found`);
 		return;
 	}
 	let index2 = index1 + searchString.length;
