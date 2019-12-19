@@ -2360,18 +2360,18 @@ function setImageWidth(width)
 
 function insertStyleHighlight()
 {
-	const s = '.nimbushl, .focused { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }' +
-		'.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }' +
-		'.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }';
+	const s = `.nimbushl, .focused { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }
+	.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }
+	.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }`;
 	insertStyle(s, "styleHighlight", true);
 }
 
 function insertStyleAnnotations()
 {
-	const s = "annotationinfo, annotationwarning, annotationerror { display: inline-block; font: 14px helvetica; padding: 2px 5px; border-radius: 0; }" +
-			"annotationinfo { background: #000; color: #0F0; }" +
-			"annotationwarning { background: #000; color: #F90; }" +
-			"annotationerror { background: #A00; color: #FFF; }";
+	const s = `annotationinfo, annotationwarning, annotationerror { display: inline-block; font: 14px helvetica; padding: 2px 5px; border-radius: 0; }
+	annotationinfo { background: #000; color: #0F0; }
+	annotationwarning { background: #000; color: #F90; }
+	annotationerror { background: #A00; color: #FFF; }`;
 	insertStyle(s, "styleAnnotations", true);
 }
 
@@ -2383,41 +2383,41 @@ function insertStyleShowErrors()
 
 function toggleStyleSimpleNegative()
 {
-	const s = 'body, body[class] {background-color: #181818; }' +
-	'*, *[class] { background-color: transparent; color: #CCC; border-color: transparent; }' +
-	'h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #FFF; }' +
-	'mark {color: #FF0; }' +
-	'a, a[class] *, * a[class] {color: #09F; }' +
-	'a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #FFF; }' +
-	'a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #048; }' +
-	'button[class], input[class], textarea[class] { border: 2px solid #09F; }' +
-	'button[class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 2px solid #FFF; }';
+	const s = `body, body[class] {background-color: #181818; }
+	*, *[class] { background-color: transparent; color: #CCC; border-color: transparent; }
+	h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #FFF; }
+	mark {color: #FF0; }
+	a, a[class] *, * a[class] {color: #09F; }
+	a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #FFF; }
+	a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #048; }
+	button[class], input[class], textarea[class] { border: 2px solid #09F; }
+	button[class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 2px solid #FFF; }`;
 	toggleStyle(s, "styleSimpleNegative", true);
 }
 
 function toggleStyleGrey()
 {
-	const s = 'body { background: #203040; color: #ABC; font: 24px "swis721 cn bt"; }' +
-	'h1, h2, h3, h4, h5, h6 { background: #123; padding: 0.35em 10px; font-weight: normal; }' +
-	'body.pad100 { padding: 100px; }' +
-	'body.xwrap { width: 1000px; margin: 0 auto; }' +
-	'mark { background: #049; color: #7CF; padding: 4px 2px; }' +
-	'p { line-height: 135%; text-align: justify; }' +
-	'blockquote { margin: 0 0 0 40px; padding: 10px 20px; border-left: 10px solid #123; }' +
-	'a { text-decoration: none; color: #09F; }' +
-	'em, i, strong, b { font-style: normal; font-weight: normal; color: #FFF; }' +
-	'code { background: #012; color: #ABC; }' +
-	'pre { background: #012; color: #ABC; padding: 20px; }' +
-	'pre q1 { color: #57F; background: #024; }' +
-	'pre q2 { color: #C7F; background: #214; }' +
-	'pre c1 { font-style: normal; color: #F90; background: #331500; }' +
-	'pre c2 { color: #F00; background: #400; }' +
-	'pre b1 { color: #0F0; }' +
-	'pre b2 { color: #FFF; }' +
-	'pre b3 { color: #F90; }' +
-	'pre xk { color: #29F; }' +
-	'pre xh { color: #57F; }' +
-	'pre xv { color: #F47; }';
+	const s = `body { background: #203040; color: #ABC; font: 24px "swis721 cn bt"; }
+	h1, h2, h3, h4, h5, h6 { background: #123; padding: 0.35em 10px; font-weight: normal; }
+	body.pad100 { padding: 100px; }
+	body.xwrap { width: 1000px; margin: 0 auto; }
+	mark { background: #049; color: #7CF; padding: 4px 2px; }
+	p { line-height: 135%; text-align: justify; }
+	blockquote { margin: 0 0 0 40px; padding: 10px 20px; border-left: 10px solid #123; }
+	a { text-decoration: none; color: #09F; }
+	em, i, strong, b { font-style: normal; font-weight: normal; color: #FFF; }
+	code { background: #012; color: #ABC; }
+	pre { background: #012; color: #ABC; padding: 20px; }
+	pre q1 { color: #57F; background: #024; }
+	pre q2 { color: #C7F; background: #214; }
+	pre c1 { font-style: normal; color: #F90; background: #331500; }
+	pre c2 { color: #F00; background: #400; }
+	pre b1 { color: #0F0; }
+	pre b2 { color: #FFF; }
+	pre b3 { color: #F90; }
+	pre xk { color: #29F; }
+	pre xh { color: #57F; }
+	pre xv { color: #F47; }`;
 	toggleStyle(s, "styleGrey", true);
 }
 
@@ -2543,31 +2543,26 @@ function toggleStyleWhite()
 
 function toggleStyleShowClasses()
 {
-	if(get("#styleShowClasses"))
-	{
-		del("#styleShowClasses");
-		return;
-	}
-	const s = 'body { background: #333; color: #BBB; }' +
-	'a { color: #09F; text-decoration: none; }' +
-	'div { padding: 0 0 0 10px; margin: 1px 1px 1px 10px; border: 2px solid #000; }' +
-	'div::before, p::before { content: attr(class); color:#FF0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
-	'div::after, p::after { content: attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
-	'span::before { content: attr(class); color:#0F0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }' +
-	'select, textarea, input { background: #444; border: 1px solid red; }' +
-	'button { background: #222; color: #AAA; }' +
-	'nav { border: 6px solid #09F; padding: 20px; margin: 10px; background: #400; }' +
-	'section { border: 6px solid #999; padding: 20px; margin: 10px; background: #040; }' +
-	'main { border: 6px solid #DDD; padding: 20px; margin: 10px; background: #555; }' +
-	'footer { border: 6px solid #555; padding: 20px; margin: 10px; background: #008; }' +
-	'h1, h2, h3, h4, h5, h6 { position: relative; padding: 10px 10px 10px 5rem; background: #300; color: #FFF; }' +
-	'h1::before { content: "h1"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }' +
-	'h2::before { content: "h2"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }' +
-	'h3::before { content: "h3"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }' +
-	'h4::before { content: "h4"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }' +
-	'h5::before { content: "h5"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }' +
-	'h6::before { content: "h6"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }';
-	insertStyle(s, "styleShowClasses", true);
+	const s = `body { background: #333; color: #BBB; }
+	a { color: #09F; text-decoration: none; }
+	div { padding: 0 0 0 10px; margin: 1px 1px 1px 10px; border: 2px solid #000; }
+	div::before, p::before { content: attr(class); color:#FF0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
+	div::after, p::after { content: attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
+	span::before { content: attr(class); color:#0F0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
+	select, textarea, input { background: #444; border: 1px solid red; }
+	button { background: #222; color: #AAA; }
+	nav { border: 6px solid #09F; padding: 20px; margin: 10px; background: #400; }
+	section { border: 6px solid #999; padding: 20px; margin: 10px; background: #040; }
+	main { border: 6px solid #DDD; padding: 20px; margin: 10px; background: #555; }
+	footer { border: 6px solid #555; padding: 20px; margin: 10px; background: #008; }
+	h1, h2, h3, h4, h5, h6 { position: relative; padding: 10px 10px 10px 5rem; background: #300; color: #FFF; }
+	h1::before { content: "h1"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+	h2::before { content: "h2"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+	h3::before { content: "h3"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+	h4::before { content: "h4"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+	h5::before { content: "h5"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+	h6::before { content: "h6"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }`;
+	toggleStyle(s, "styleShowClasses", true);
 }
 
 function showSelectorsFor(tagName)
@@ -5824,7 +5819,7 @@ function handleKeyDown(e)
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
-			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining, 1); break;
+			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining); break;
 			case KEYCODES.Z: cleanupUnicode(); break;
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); focusFormElement(); break;
