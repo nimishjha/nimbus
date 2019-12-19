@@ -3276,7 +3276,8 @@ function makeHeadings()
 			const tag = tags[j];
 			if(elem.getElementsByTagName(tag).length === 1)
 			{
-				if(elem.querySelector(tag).textContent && removeWhitespace(elem.querySelector(tag).textContent) === s)
+				const childText = elem.querySelector(tag).textContent;
+				if(childText && childText.length < MAX_LENGTH && removeWhitespace(childText) === s)
 				{
 					elem.className = "parah2";
 				}
