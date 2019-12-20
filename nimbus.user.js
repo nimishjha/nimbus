@@ -1659,13 +1659,9 @@ function doStackOverflow()
 
 function markElementsBySelector(s)
 {
-	if(!(s && s.length)) return;
-	const e = get(s);
-	if(!e)
-	{
-		showMessageError("No elements found for selector " + s);
+	if(!(s && s.length))
 		return;
-	}
+	const e = get(s);
 	if(e.length)
 	{
 		let i = e.length;
@@ -1674,9 +1670,14 @@ function markElementsBySelector(s)
 		showMessageBig("Highlighted " + e.length + " elements");
 	}
 	else if(e)
+	{
 		e.classList.add(Nimbus.markerClass);
+		showMessageBig("Highlighted 1 element");
+	}
 	else
+	{
 		showMessageError("No elements found for selector " + s);
+	}
 	insertStyleHighlight();
 }
 
