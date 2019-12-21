@@ -157,6 +157,7 @@ const Nimbus = {
 		setImageWidth: setImageWidth,
 		showPrintLink: showPrintLink,
 		showResources: showResources,
+		showSavedStreamingImages: showSavedStreamingImages,
 		showSelectorsFor: showSelectorsFor,
 		showTextToHTMLRatio: showTextToHTMLRatio,
 		toggleBlockEditMode: toggleBlockEditMode,
@@ -2122,6 +2123,12 @@ function getStreamingImages()
 	}
 	setTimeout(getStreamingImages, 5000);
 	showMessageBig(images.length + " unique images so far");
+}
+
+function showSavedStreamingImages()
+{
+	retrieve("#nimbusStreamingImageContainer");
+	cleanupGeneral();
 }
 
 function addLinksToLargerImages()
