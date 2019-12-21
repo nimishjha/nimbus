@@ -3705,14 +3705,14 @@ function retrieve(selector)
 		for(i = 0, ii = e.length; i < ii; i++)
 			tempNode.appendChild(e[i]);
 	}
-	else
+	else if(e)
 	{
 		tempNode.appendChild(e);
 	}
 	if(tempNode.innerHTML.length)
 		document.body.innerHTML = tempNode.innerHTML;
 	else
-		showMessageBig("Not found");
+		showMessageBig(`${selector} not found`);
 }
 
 function deleteNonContentElements()
