@@ -131,6 +131,7 @@ const Nimbus = {
 		removeAttributeOf: removeAttributeOf,
 		removeClassFromAll: removeClassFromAll,
 		removeEventListeners: removeEventListeners,
+		removeHighlightsFromMarkedElements: removeHighlightsFromMarkedElements,
 		removeInlineStyles: removeInlineStyles,
 		removeQueryStringFromImageSources: removeQueryStringFromImageSources,
 		removeSpanTags: removeSpanTags,
@@ -4589,6 +4590,11 @@ function unhighlightAll()
 	count += removeClassFromAllQuiet("error");
 	del(["annotationinfo", "annotationwarning", "annotationerror"]);
 	showMessageBig(`Removed highlighting from ${count} elements`);
+}
+
+function removeHighlightsFromMarkedElements()
+{
+	get(makeClassSelector(Nimbus.markerClass)).forEach((element) => { element.innerHTML = element.innerHTML.replace(/<\/?mark[^>]*>/g, ""); });
 }
 
 function cleanupLinks()
