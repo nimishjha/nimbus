@@ -3787,18 +3787,38 @@ function getContentByParagraphCount()
 	contentContainer.classList.add(Nimbus.markerClass);
 }
 
-function expandMark()
+function modifyMark(direction, keepSelection)
 {
-	const e = getOne("." + Nimbus.markerClass);
-	if(e)
+	let currentElement;
+	const markedElements = get(makeClassSelector(Nimbus.markerClass));
+	if(markedElements && markedElements.length)
+		currentElement = markedElements[markedElements.length - 1];
+	else
+		currentElement = document.body.firstChild;
+	if(!currentElement)
 	{
-		const ep = e.parentNode;
-		if(ep.parentNode && ep.tagName !== 'BODY')
-		{
-			e.classList.remove(Nimbus.markerClass);
-			ep.classList.add(Nimbus.markerClass);
-			showMessageBig("Marked node is " + createSelector(ep));
-		}
+		showMessageError("Couldn't get marked element");
+		return;
+	}
+	let nextElement;
+	switch(direction)
+	{
+		case "expand": nextElement = currentElement.parentNode; break;
+		case "contract": nextElement = currentElement.firstElementChild; break;
+		case "previous": nextElement = currentElement.previousElementSibling; break;
+		case "next": nextElement = currentElement.nextElementSibling; break;
+	}
+	if(!nextElement)
+	{
+		showMessageError("Couldn't get next element");
+		return;
+	}
+	if(nextElement.tagName !== 'BODY')
+	{
+		if(!keepSelection)
+			currentElement.classList.remove(Nimbus.markerClass);
+		nextElement.classList.add(Nimbus.markerClass);
+		showMessageBig("Marked node is " + createSelector(nextElement));
 	}
 }
 
@@ -5833,8 +5853,8 @@ function handleKeyDown(e)
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); focusFormElement(); break;
 			case KEYCODES.DELETE: deleteMarkedElements(); break;
-			case KEYCODES.SQUARE_BRACKET_CLOSE: cycleThroughTopLevelElements(); break;
-			case KEYCODES.SQUARE_BRACKET_OPEN: cycleThroughTopLevelElements(true); break;
+			case KEYCODES.SQUARE_BRACKET_OPEN: changeGalleryImage("prev"); break;
+			case KEYCODES.SQUARE_BRACKET_CLOSE: changeGalleryImage("next"); break;
 			case KEYCODES.MINUS: insertElementBeforeSelectedNode(); break;
 			default: shouldPreventDefault = false;
 		}
@@ -5875,13 +5895,12 @@ function handleKeyDown(e)
 		shouldPreventDefault = true;
 		switch(k)
 		{
-			// case KEYCODES.SQUARE_BRACKET_OPEN: changeGalleryImage("prev"); break;
-			// case KEYCODES.SQUARE_BRACKET_CLOSE: changeGalleryImage("next"); break;
 			case KEYCODES.SQUARE_BRACKET_OPEN: changePage("prev"); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: changePage("next"); break;
-			case KEYCODES.LEFTARROW: changePage("prev"); break;
-			case KEYCODES.RIGHTARROW: changePage("next"); break;
-			case KEYCODES.UPARROW: expandMark(); break;
+			case KEYCODES.UPARROW: modifyMark("expand"); break;
+			case KEYCODES.DOWNARROW: modifyMark("contract"); break;
+			case KEYCODES.LEFTARROW: modifyMark("previous"); break;
+			case KEYCODES.RIGHTARROW: modifyMark("next"); break;
 			case KEYCODES.ONE: toggleStyleNegative(); break;
 			case KEYCODES.TWO: toggleStyleSimpleNegative(); break;
 			case KEYCODES.THREE: toggleStyleGrey(); break;
@@ -5923,6 +5942,10 @@ function handleKeyDown(e)
 			case KEYCODES.M: markOverlays(); break;
 			case KEYCODES.S: forceReloadCss(); break;
 			case KEYCODES.F12: analyze(true); break;
+			case KEYCODES.UPARROW: modifyMark("expand", true); break;
+			case KEYCODES.DOWNARROW: modifyMark("contract", true); break;
+			case KEYCODES.LEFTARROW: modifyMark("previous", true); break;
+			case KEYCODES.RIGHTARROW: modifyMark("next", true); break;
 		}
 	}
 	window.focus();
