@@ -3814,13 +3814,12 @@ function modifyMark(direction, keepSelection)
 		showMessageError("Couldn't get next element");
 		return;
 	}
-	if(nextElement.tagName !== 'BODY')
-	{
-		if(!keepSelection)
-			currentElement.classList.remove(Nimbus.markerClass);
-		nextElement.classList.add(Nimbus.markerClass);
-		showMessageBig("Marked node is " + createSelector(nextElement));
-	}
+	if(nextElement.tagName === 'BODY')
+		nextElement = nextElement.firstElementChild;
+	if(!keepSelection)
+		currentElement.classList.remove(Nimbus.markerClass);
+	nextElement.classList.add(Nimbus.markerClass);
+	showMessageBig("Marked node is " + createSelector(nextElement));
 }
 
 function cycleThroughTopLevelElements(boolReverse)
