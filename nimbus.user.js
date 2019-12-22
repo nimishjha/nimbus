@@ -2165,6 +2165,7 @@ function cleanupGeneral()
 	markUserLinks();
 	appendInfo();
 	getBestImageSrc();
+	insertStyleHighlight();
 	Nimbus.candidateHeadingElements = [];
 	Nimbus.candidateHeadingIndex = null;
 	document.body.className = "pad100 xwrap";
