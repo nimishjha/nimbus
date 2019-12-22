@@ -120,7 +120,7 @@ const Nimbus = {
 		markNavigationalLists: markNavigationalLists,
 		markNumericParagraphs: markNumericParagraphs,
 		markOverlays: markOverlays,
-		markTableRowsAndColumns: markTableRowsAndColumns,
+		numberTableRowsAndColumns: numberTableRowsAndColumns,
 		markUppercaseParagraphs: markUppercaseParagraphs,
 		numberDivs: numberDivs,
 		om: toggleMutationObserver,
@@ -792,7 +792,7 @@ function markElementsWithCssRule(prop, val)
 	}
 }
 
-function markTableRowsAndColumns()
+function numberTableRowsAndColumns()
 {
 	if(get("#styleShowTables"))
 	{
@@ -5916,7 +5916,7 @@ function handleKeyDown(e)
 			case KEYCODES.N: toggleShowDocumentBlockStructure(); break;
 			case KEYCODES.O: customPrompt("Highlight block elements containing").then(highlightSpecificNodesContaining); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
-			case KEYCODES.T: markTableRowsAndColumns(); break;
+			case KEYCODES.T: numberTableRowsAndColumns(); break;
 			case KEYCODES.V: toggleShowDocumentStructure(); break;
 			case KEYCODES.Z: markSelectionAnchorNode(); break;
 			case KEYCODES.F12: analyze(); break;
