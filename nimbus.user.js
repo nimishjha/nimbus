@@ -3795,7 +3795,7 @@ function modifyMark(direction, keepSelection)
 	if(markedElements && markedElements.length)
 		currentElement = markedElements[markedElements.length - 1];
 	else
-		currentElement = document.body.firstChild;
+		currentElement = document.body.firstElementChild;
 	if(!currentElement)
 	{
 		showMessageError("Couldn't get marked element");
@@ -3809,6 +3809,8 @@ function modifyMark(direction, keepSelection)
 		case "previous": nextElement = currentElement.previousElementSibling; break;
 		case "next": nextElement = currentElement.nextElementSibling; break;
 	}
+	if(nextElement && (nextElement.nodeType !== 1 || nextElement.tagName === "MESSAGE"))
+		nextElement = document.body.firstElementChild;
 	if(!nextElement)
 	{
 		showMessageError("Couldn't get next element");
