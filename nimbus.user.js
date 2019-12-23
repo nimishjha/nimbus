@@ -79,7 +79,7 @@ const Nimbus = {
 		fixParagraphs: fixParagraphs,
 		fixPres: fixPres,
 		focusButton: focusButton,
-		focusFormElement: focusFormElement,
+		cycleFocusOverFormFields: cycleFocusOverFormFields,
 		forAll: forAll,
 		forceReloadCss: forceReloadCss,
 		formatEbook: formatEbook,
@@ -939,6 +939,16 @@ function printPropsContaining(obj, arrStrings)
 	console.log(s);
 }
 
+function logElements(elements)
+{
+	let s = "";
+	for(let i = 0, ii = elements.length; i < ii; i++)
+	{
+		s += createSelector(elements[i]) + "\n";
+	}
+	console.log(s);
+}
+
 function insertBefore(elem, elemToInsert)
 {
 	elem.insertAdjacentElement("beforebegin", elemToInsert);
@@ -1702,6 +1712,8 @@ function createSelector(elem)
 		s += "#" + elem.id + " ";
 	if(elem.className)
 		s += "." + Array.from(elem.classList).join('.');
+	if(elem.name)
+		s += " name: " + elem.name;
 	return s;
 }
 
@@ -4795,54 +4807,49 @@ function focusField(elem)
 	consoleLog(createSelector(document.activeElement));
 }
 
-function focusFormElement()
+function cycleFocusOverFormFields()
 {
-	let len, i, ii, found;
-	let inputs = get("input");
-	const e = [];
-	len = inputs.length;
+	let inputs = get("input, textarea");
+	const len = inputs.length;
 	if(len === 1)
 	{
 		focusField(inputs[0]);
 		return;
 	}
-	for(i = 0; i < len; i++)
+	const candidateInputs = [];
+	for(let i = 0; i < len; i++)
 	{
 		const input = inputs[i];
 		if(input.name && input.name === "q")
 		{
-			input.focus();
+			focusField(input);
 			return;
 		}
 		if(input.type)
 		{
-			if(["hidden", "submit", "reset", "button", "radio", "checkbox", "image"].indexOf(input.type) === -1)
-				e.push(input);
+			if(!["hidden", "submit", "reset", "button", "radio", "checkbox", "image"].includes(input.type))
+				candidateInputs.push(input);
 		}
 		else
 		{
-			e.push(input);
+			candidateInputs.push(input);
 		}
 	}
-	inputs = get("textarea");
-	len = inputs.length;
-	for(i = 0; i < len; i++)
-		e.push(inputs[i]);
-	found = false;
-	for(i = 0, ii = e.length; i < ii; i++)
+	let found = false;
+	for(let i = 0, ii = candidateInputs.length; i < ii; i++)
 	{
-		if(e[i].classList.contains("focused"))
+		if(candidateInputs[i].classList.contains("focused"))
 		{
 			found = true;
 			if(i < ii-1)
-				focusField(e[i + 1]);
+				focusField(candidateInputs[i + 1]);
 			else
-				focusField(e[0]);
+				focusField(candidateInputs[0]);
 			break;
 		}
 	}
 	if(!found)
-		focusField(e[0]);
+		focusField(candidateInputs[0]);
 	consoleLog("document.activeElement is " + document.activeElement.name);
 }
 
@@ -5858,7 +5865,7 @@ function handleKeyDown(e)
 			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining); break;
 			case KEYCODES.Z: cleanupUnicode(); break;
 			case KEYCODES.F12: highlightCode(); break;
-			case KEYCODES.FORWARD_SLASH: showPassword(); focusFormElement(); break;
+			case KEYCODES.FORWARD_SLASH: showPassword(); cycleFocusOverFormFields(); break;
 			case KEYCODES.DELETE: deleteMarkedElements(); break;
 			case KEYCODES.SQUARE_BRACKET_OPEN: changeGalleryImage("prev"); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: changeGalleryImage("next"); break;
