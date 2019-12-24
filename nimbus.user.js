@@ -3796,34 +3796,37 @@ function getContentByParagraphCount()
 	}
 	del(["nav", "footer"]);
 	insertStyleHighlight();
-	const paras = get("p");
-	const totalNumParas = paras.length;
-	let i = -1;
-	let length = paras.length;
-	let candidateDivs = [];
-	while(++i < length)
+	const paragraphs = get("p");
+	const longParagraphs = [];
+	for(let i = 0, ii = paragraphs.length; i < ii; i++)
 	{
-		const tempContainer = paras[i].closest("div");
+		const paragraph = paragraphs[i];
+		if(normalizeString(paragraph.textContent).length > 100)
+		{
+			paragraph.classList.add("actualParagraph");
+			longParagraphs.push(paragraph);
+		}
+	}
+	let candidateDivs = [];
+	for(let i = 0, ii = longParagraphs.length; i < ii; i++)
+	{
+		const tempContainer = longParagraphs[i].closest("div");
 		if(tempContainer)
 			candidateDivs.push(tempContainer);
 	}
-	i = -1;
-	length = candidateDivs.length;
-	let numParas = 0;
-	let highestNumParas = 0;
+	let highestNumParagraphs = 0;
 	let contentContainer;
-	while(++i < length)
+	for(let i = 0, ii = candidateDivs.length; i < ii; i++)
 	{
 		const div = candidateDivs[i];
-		numParas = div.getElementsByTagName("p").length;
-		div.setAttribute("data-pcount", numParas);
-		if(numParas > highestNumParas)
+		let numParagraphs = div.querySelectorAll(".actualParagraph").length;
+		if(numParagraphs > highestNumParagraphs)
 		{
-			highestNumParas = numParas;
+			highestNumParagraphs = numParagraphs;
 			contentContainer = div;
 		}
 	}
-	while(contentContainer.getElementsByTagName("p").length < totalNumParas * 0.8 && contentContainer.parentNode && contentContainer.parentNode.tagName !== "BODY")
+	while(contentContainer.querySelectorAll(".actualParagraph").length < longParagraphs.length * 0.8 && contentContainer.parentNode && contentContainer.parentNode.tagName !== "BODY")
 		contentContainer = contentContainer.parentNode;
 	contentContainer.classList.add(Nimbus.markerClass);
 }
