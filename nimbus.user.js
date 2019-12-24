@@ -1421,10 +1421,12 @@ function customPrompt(message)
 					case KEYCODES.ESCAPE:
 						evt.preventDefault();
 						reject(closeCustomPrompt());
+						document.body.focus();
 						break;
 					case KEYCODES.ENTER:
 						evt.preventDefault();
 						resolve(closeCustomPrompt());
+						document.body.focus();
 						break;
 					case KEYCODES.UPARROW:
 						evt.preventDefault();
@@ -2830,19 +2832,15 @@ function removeEventListeners()
 
 function chooseDocumentHeading()
 {
+	let candidateTags = [];
 	let documentHeading = '';
 	deleteEmptyElements("h1");
-	const headings1 = get("h1");
-	const headings2 = get("h2");
+	const headings = get("h1, h2");
 	let currentTitle = '';
-	if(document.title.length)
+	if(document.title.length && !(~document.title.indexOf(headings[0].textContent)))
 		currentTitle = createElement("h1", { textContent: document.title });
-	let candidateTags = [];
 	candidateTags.push(currentTitle);
-	if(headings1)
-		candidateTags = candidateTags.concat(headings1);
-	if(headings2)
-		candidateTags = candidateTags.concat(headings2);
+	candidateTags = candidateTags.concat(headings);
 	if(!Nimbus.candidateHeadingElements)
 		Nimbus.candidateHeadingElements = [];
 	consoleLog({ candidateTags, candidateHeadingElements: Nimbus.candidateHeadingElements });
@@ -3195,11 +3193,6 @@ function padRight(str, width)
 	return str + spaces;
 }
 
-function normalizeWhitespace(s)
-{
-	return s.replace(/\s+/g, " ");
-}
-
 function cleanupHeadings()
 {
 	const headingElements = get("h1, h2, h3, h4, h5, h6");
@@ -3349,6 +3342,11 @@ function markNavigationalLists()
 	insertStyleHighlight();
 }
 
+function normalizeWhitespace(s)
+{
+	return s.replace(/\s+/g, " ");
+}
+
 function removeWhitespace(s)
 {
 	return s.replace(/\s+/g, '');
@@ -3357,6 +3355,25 @@ function removeWhitespace(s)
 function normalizeString(s)
 {
 	return removeWhitespace(s.toLowerCase());
+}
+
+function normalizeHTML(html)
+{
+	return html.replace(/&nbsp;/g, " ").replace(/\s+/g, " ");
+}
+
+function escapeHTML(html)
+{
+	const escapeElem = createElement("textarea");
+	escapeElem.textContent = html;
+	return escapeElem.innerHTML;
+}
+
+function unescapeHTML(html)
+{
+	const escapeElem = createElement("textarea");
+	escapeElem.innerHTML = html;
+	return escapeElem.textContent;
 }
 
 function logout()
@@ -3948,25 +3965,6 @@ function removeLineBreaks(s)
 	s = s.replace(/\n/g, " ");
 	s = s.replace(/\s+/g, " ");
 	return s;
-}
-
-function escapeHTML(html)
-{
-	const escapeElem = createElement("textarea");
-	escapeElem.textContent = html;
-	return escapeElem.innerHTML;
-}
-
-function unescapeHTML(html)
-{
-	const escapeElem = createElement("textarea");
-	escapeElem.innerHTML = html;
-	return escapeElem.textContent;
-}
-
-function normalizeHTML(html)
-{
-	return html.replace(/&nbsp;/g, " ").replace(/\s+/g, " ");
 }
 
 function expandToWordBoundaries(node, selection)
