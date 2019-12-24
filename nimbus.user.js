@@ -830,6 +830,18 @@ function containsAnyOfTheStrings(s, arrStrings)
 	return false;
 }
 
+function startsWithAnyOfTheStrings(s, arrStrings)
+{
+	if(!s || typeof s !== "string")
+		return false;
+	for(let i = 0, ii = arrStrings.length; i < ii; i++)
+	{
+		if(s.indexOf(arrStrings[i]) === 0)
+			return true;
+	}
+	return false;
+}
+
 function contains(elem, tagName)
 {
 	return elem.getElementsByTagName(tagName).length ? true : false;
@@ -1421,12 +1433,12 @@ function customPrompt(message)
 					case KEYCODES.ESCAPE:
 						evt.preventDefault();
 						reject(closeCustomPrompt());
-						document.body.focus();
+						window.focus();
 						break;
 					case KEYCODES.ENTER:
 						evt.preventDefault();
 						resolve(closeCustomPrompt());
-						document.body.focus();
+						window.focus();
 						break;
 					case KEYCODES.UPARROW:
 						evt.preventDefault();
@@ -2184,8 +2196,6 @@ function cleanupGeneral()
 	appendInfo();
 	getBestImageSrc();
 	insertStyleHighlight();
-	Nimbus.candidateHeadingElements = [];
-	Nimbus.candidateHeadingIndex = null;
 	document.body.className = "pad100 xwrap";
 	if(navigator.userAgent.indexOf("Chrome") !== -1)
 	{
@@ -2830,50 +2840,6 @@ function removeEventListeners()
 	}
 }
 
-function chooseDocumentHeading()
-{
-	let candidateTags = [];
-	let documentHeading = '';
-	deleteEmptyElements("h1");
-	const headings = get("h1, h2");
-	let currentTitle = '';
-	if(document.title.length && !(~document.title.indexOf(headings[0].textContent)))
-		currentTitle = createElement("h1", { textContent: document.title });
-	candidateTags.push(currentTitle);
-	candidateTags = candidateTags.concat(headings);
-	if(!Nimbus.candidateHeadingElements)
-		Nimbus.candidateHeadingElements = [];
-	consoleLog({ candidateTags, candidateHeadingElements: Nimbus.candidateHeadingElements });
-	for(let i = 0, ii = Math.min(10, candidateTags.length); i < ii; i++)
-	{
-		Nimbus.candidateHeadingElements.push(candidateTags[i]);
-	}
-	if(Nimbus.candidateHeadingElements.length)
-	{
-		Nimbus.candidateHeadingIndex = Nimbus.candidateHeadingIndex || 0;
-		documentHeading = Nimbus.candidateHeadingElements[Nimbus.candidateHeadingIndex].textContent;
-		Nimbus.candidateHeadingIndex++;
-		if(Nimbus.candidateHeadingIndex >= Nimbus.candidateHeadingElements.length)
-			Nimbus.candidateHeadingIndex = 0;
-	}
-
-	if(documentHeading.length < 3)
-	{
-		if(document.title)
-			documentHeading = document.title;
-		else
-			documentHeading = window.location.hostname;
-	}
-	if(document.body.textContent.match(/Page [0-9]+ of [0-9]+/))
-	{
-		if(!documentHeading.match(/Page [0-9]+/i))
-		{
-			documentHeading = documentHeading+ " - " + document.body.textContent.match(/Page [0-9]+ of [0-9]+/)[0];
-		}
-	}
-	return documentHeading;
-}
-
 function replaceDiacritics(s)
 {
 	const diacritics =[
@@ -2924,28 +2890,68 @@ function setDocTitleSimple(s)
 	}
 }
 
+function getFirstHeadingText()
+{
+	const headings = get("h1, h2");
+	if(headings.length)
+		return trim(headings[0].textContent);
+	return "";
+}
+
+function filterHeadings(headings)
+{
+	if(!headings.length)
+		return null;
+	const filteredHeadings = [];
+	for(let i = 0, ii = headings.length; i < ii; i++)
+	{
+		const heading = headings[i];
+		if(!startsWithAnyOfTheStrings(heading.textContent, ["Share", "Comments"]))
+			filteredHeadings.push(heading);
+	}
+	return filteredHeadings;
+}
+
+function chooseDocumentHeading()
+{
+	deleteEmptyHeadings();
+	const headings = filterHeadings(get("h1, h2"));
+	const candidateHeadingTexts = [];
+	for(let i = 0, ii = Math.min(10, headings.length); i < ii; i++)
+	{
+		const heading = headings[i];
+		if(heading.classList.contains("currentHeading"))
+			continue;
+		const text = trim(heading.textContent);
+		if(!candidateHeadingTexts.includes(text))
+			candidateHeadingTexts.push(text);
+	}
+
+	if(!Nimbus.currentHeadingText)
+		Nimbus.currentHeadingText = "";
+	let documentHeading = getNext(Nimbus.currentHeadingText, candidateHeadingTexts);
+
+	const pageNumberStrings = document.body.textContent.match(/Page [0-9]+ of [0-9]+/);
+	if(pageNumberStrings && !documentHeading.match(/Page [0-9]+/i))
+			documentHeading = documentHeading+ " - " + pageNumberStrings[0];
+	return documentHeading;
+}
+
 function setDocTitle(s)
 {
 	let i, labels, longestlabel, h;
-	deleteEmptyElements("h1");
-	deleteEmptyElements("h2");
-	deleteEmptyElements("h3");
+	let headingText = sanitizeTitle(s || chooseDocumentHeading());
 
-	if(!s)
-		s = sanitizeTitle(chooseDocumentHeading());
-	else
-		s = sanitizeTitle(s);
-
-	if(s.indexOf("Thread - ") !== -1)
-		s = s.substr(s.indexOf("Thread - ") + 9);
-
-	del(".candidateHeading");
-	if(!(getOne("h1") && getOne("h1").textContent === s))
+	if(!Nimbus.currentHeadingText)
+		Nimbus.currentHeadingText = getFirstHeadingText();
+	if(!(Nimbus.currentHeadingText && normalizeString(Nimbus.currentHeadingText) === normalizeString(headingText)))
 	{
-		h = createElement("h1", { className: "candidateHeading", textContent: s });
-		document.body.insertBefore(h, document.body.firstChild);
+		del(".currentHeading");
+		let newHeading = createElement("h1", { textContent: headingText, className: "currentHeading" });
+		document.body.insertBefore(newHeading, document.body.firstChild);
+		Nimbus.currentHeadingText = headingText;
 	}
-	// Append domain name to title for easy searching
+
 	if(location.hostname.length > 0)
 	{
 		let hn = location.hostname.replace(/www\./, '');
@@ -2962,10 +2968,10 @@ function setDocTitle(s)
 		{
 			if(longestlabel.length < labels[i].length) longestlabel = labels[i];
 		}
-		if(s.indexOf(longestlabel) === -1)
-			s += " [" + longestlabel + "]";
+		if(headingText.indexOf(longestlabel) === -1)
+			headingText += " [" + longestlabel + "]";
 	}
-	document.title = s;
+	document.title = headingText;
 }
 
 function zeroPad(n)
@@ -3139,12 +3145,14 @@ function delNewlines()
 
 function trim(s)
 {
+	if(!s)
+		return null;
 	return s.replace(/^\s+/, '').replace(/\s+$/, '');
 }
 
-function ltrim(str1)
+function ltrim(str)
 {
-	return str1.replace(/^\s+/, '');
+	return str.replace(/^\s+/, '');
 }
 
 function trimAt(str, sub)
