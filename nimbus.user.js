@@ -1189,11 +1189,14 @@ function getBestImageSrc()
 	while(i--)
 	{
 		const elem = e[i];
-		const srcset = elem.srcset || elem.getAttribute("data-srcset");
+		let srcset = elem.srcset || elem.getAttribute("data-srcset");
+		if(!srcset)
+			continue;
+		srcset = srcset.replace(/w,/g, "|");
 		if(srcset)
 		{
 			let bestSource;
-			let sources = srcset.split(',');
+			let sources = srcset.split('|');
 			let sourcesArray = [];
 			for(let j = 0, jj = sources.length; j < jj; j++)
 			{
