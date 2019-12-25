@@ -1580,19 +1580,20 @@ function removeNonAlpha(s)
 function changePage(direction)
 {
 	const links = get("a");
-	let i = links.length;
 	let matchStrings = [];
 	if(direction === "prev") matchStrings = ["prev", "previous"];
 	else if(direction === "next") matchStrings = ["next", "nextpage", "»"];
+	let i = links.length;
 	while(i--)
 	{
-		let s = links[i].textContent;
-		if(s)
+		const link = links[i];
+		let linkText = links[i].textContent;
+		if(linkText)
 		{
-			s = removeWhitespace(s).toLowerCase();
-			if(containsAnyOfTheStrings(s, matchStrings))
+			linkText = removeWhitespace(linkText).toLowerCase();
+			if(matchStrings.includes(linkText))
 			{
-				links[i].click();
+				link.click();
 				return;
 			}
 		}
@@ -5453,7 +5454,7 @@ function getPagerLinks()
 	{
 		const link = links[i];
 		let linkText = link.textContent;
-		if(trim(linkText).length && !isNaN(Number(linkText)))
+		if(linkText && trim(linkText).length && !isNaN(Number(linkText)))
 		{
 			count++;
 			pagerWrapper.appendChild(createElement("a", { href: link.href, textContent: link.textContent || "[no text]" }));
