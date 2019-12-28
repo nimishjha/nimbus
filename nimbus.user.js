@@ -90,7 +90,7 @@ const Nimbus = {
 		getLargeImages: getLargeImages,
 		getPagerLinks: getPagerLinks,
 		listSelectorsWithLightBackgrounds: listSelectorsWithLightBackgrounds,
-		getStreamingImages: getStreamingImages,
+		persistStreamingImages: persistStreamingImages,
 		handleBlockEditClick: handleBlockEditClick,
 		highlightAllMatches: highlightAllMatches,
 		highlightAllTableCellsInRow: highlightAllTableCellsInRow,
@@ -188,6 +188,7 @@ const Nimbus = {
 	replacementTagName: "blockquote",
 	markerClass: "nimbushl",
 	markerClass2: "nimbushl2",
+	minPersistWidth: 400,
 };
 
 const KEYCODES = {
@@ -2135,16 +2136,22 @@ function getLargeImages()
 	}
 }
 
-function getStreamingImages()
+function getImageWidth(image)
 {
+	return image.naturalWidth || image.clientWidth;
+}
+
+function persistStreamingImages(minWidth)
+{
+	if(minWidth)
+		Nimbus.minPersistWidth = minWidth;
 	let imageContainer = getOne("#nimbusStreamingImageContainer");
 	if(!imageContainer)
 	{
 		imageContainer = createElement("div", { id: "nimbusStreamingImageContainer" });
 		document.body.appendChild(imageContainer);
-		const style = "#nimbusStreamingImageContainer { position: fixed; top: 0; left: 0; width: 30vw; height: 100vh; overflow: hidden; }" +
-			" #nimbusStreamingImageContainer img { height: 40px; width: auto; float: left; }";
-		insertStyle(style, "styleGetStreamingImages", true);
+		const style = " #nimbusStreamingImageContainer img { height: 120px; width: auto; float: left; margin: 0 10px 10px 0; }";
+		insertStyle(style, "stylePersistStreamingImages", true);
 	}
 	if(!Nimbus.streamingImages)
 		Nimbus.streamingImages = [];
@@ -2152,18 +2159,20 @@ function getStreamingImages()
 	const e = document.querySelectorAll("img:not(.alreadySaved)");
 	for(let i = 0; i < e.length; i++)
 	{
-		const imgSrc = e[i].src;
-		if(images.includes(imgSrc))
+		const image = e[i];
+		const imgSrc = image.src;
+		if(images.includes(imgSrc) || getImageWidth(image) < Nimbus.minPersistWidth)
 			continue;
 		images.push(imgSrc);
 		imageContainer.appendChild(createElement("img", { src: imgSrc, className: "alreadySaved" }));
 	}
-	setTimeout(getStreamingImages, 5000);
+	Nimbus.persistStreamingImagesTimeout = setTimeout(persistStreamingImages, 5000);
 	showMessageBig(images.length + " unique images so far");
 }
 
 function showSavedStreamingImages()
 {
+	clearTimeout(Nimbus.persistStreamingImagesTimeout);
 	retrieve("#nimbusStreamingImageContainer");
 	cleanupGeneral();
 }
