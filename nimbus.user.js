@@ -1600,7 +1600,8 @@ function changePage(direction)
 			linkText = removeWhitespace(linkText).toLowerCase();
 			if(matchStrings.includes(linkText))
 			{
-				link.click();
+				link.innerHTML = "<mark>" + link.innerHTML + "</mark>";
+				location.href = link.href;
 				return;
 			}
 		}
