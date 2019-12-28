@@ -1588,7 +1588,7 @@ function changePage(direction)
 {
 	const links = get("a");
 	let matchStrings = [];
-	if(direction === "prev") matchStrings = ["prev", "previous"];
+	if(direction === "prev") matchStrings = ["prev", "previous", "previouspage"];
 	else if(direction === "next") matchStrings = ["next", "nextpage", "»"];
 	let i = links.length;
 	while(i--)
