@@ -111,7 +111,7 @@ const Nimbus = {
 		makeHeadings: makeHeadings,
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
 		makeHeadingsPlainText: makeHeadingsPlainText,
-		makeLinkTextPlain: makeLinkTextPlain,
+		makeLinksPlainText: makeLinksPlainText,
 		mark: mark,
 		markDivDepth: markDivDepth,
 		markElementsBySelector: markElementsBySelector,
@@ -188,7 +188,7 @@ const Nimbus = {
 	replacementTagName: "blockquote",
 	markerClass: "nimbushl",
 	markerClass2: "nimbushl2",
-	minPersistWidth: 400,
+	minPersistWidth: 600,
 };
 
 const KEYCODES = {
@@ -1200,12 +1200,14 @@ function getBestImageSrc()
 	if(!e)
 		return;
 	let i = e.length;
+	let count = 0;
 	while(i--)
 	{
 		const elem = e[i];
 		let srcset = elem.srcset || elem.getAttribute("data-srcset");
 		if(!srcset)
 			continue;
+		count++;
 		srcset = srcset.replace(/w,/g, "|");
 		if(srcset)
 		{
@@ -1230,6 +1232,7 @@ function getBestImageSrc()
 			}
 		}
 	}
+	console.log(`Got best image source for ${count} images`);
 }
 
 function deleteNonContentImages()
@@ -1659,22 +1662,16 @@ function getAllCssRulesMatching(s)
 	}
 }
 
-function handleStackOverflowMutations(mutations)
-{
-	let i = mutations.length;
-	while(i--)
-	{
-		const mutation = mutations[i];
-		if(mutation.addedNodes.length)
-		{
-			del("link");
-			del("script");
-		}
-	}
-}
 
-function doStackOverflow()
+function cleanupStackOverflow()
 {
+	function handleMutations(mutations)
+	{
+		for(let i = 0, ii = mutations.length; i < ii; i++)
+			if(mutations[i].addedNodes.length)
+				del(["link", "script"]);
+	}
+
 	const sites = ["stackexchange", "stackoverflow", "superuser", "serverfault"];
 	if(containsAnyOfTheStrings(location.hostname, sites) && location.href.match(/questions\/[0-9]+/) !== null)
 	{
@@ -1690,7 +1687,7 @@ function doStackOverflow()
 			if(x.textContent && x.textContent.indexOf("up vote") !== -1)
 				x.setAttribute("style", "width: 200px");
 		});
-		const observer = new MutationObserver(handleStackOverflowMutations);
+		const observer = new MutationObserver(handleMutations);
 		observer.observe(getOne("head"), { childList: true });
 	}
 }
@@ -2151,12 +2148,14 @@ function persistStreamingImages(minWidth)
 	{
 		imageContainer = createElement("div", { id: "nimbusStreamingImageContainer" });
 		document.body.appendChild(imageContainer);
-		const style = " #nimbusStreamingImageContainer img { height: 120px; width: auto; float: left; margin: 0 10px 10px 0; }";
+		const style = `#nimbusStreamingImageContainer { z-index: 2000000000; position: fixed; bottom: 90px; left: 10px; width: 100%; height: 20vh; background: #000; overflow: auto; }
+			#nimbusStreamingImageContainer img { height: 50px; width: auto; float: left; margin: 0 1px 1px 0; }`;
 		insertStyle(style, "stylePersistStreamingImages", true);
 	}
 	if(!Nimbus.streamingImages)
 		Nimbus.streamingImages = [];
 	let images = Nimbus.streamingImages;
+	let numImages = 0;
 	const e = document.querySelectorAll("img:not(.alreadySaved)");
 	for(let i = 0; i < e.length; i++)
 	{
@@ -2166,15 +2165,17 @@ function persistStreamingImages(minWidth)
 			continue;
 		images.push(imgSrc);
 		imageContainer.appendChild(createElement("img", { src: imgSrc, className: "alreadySaved" }));
+		numImages = get(".alreadySaved").length;
 	}
-	Nimbus.persistStreamingImagesTimeout = setTimeout(persistStreamingImages, 5000);
-	showMessageBig(images.length + " unique images so far");
+	Nimbus.persistStreamingImagesTimeout = setTimeout(persistStreamingImages, 250);
+	showMessage(`${numImages} unique images wider than ${Nimbus.minPersistWidth}px so far`, "messagebig", true);
 }
 
 function showSavedStreamingImages()
 {
 	clearTimeout(Nimbus.persistStreamingImagesTimeout);
 	retrieve("#nimbusStreamingImageContainer");
+	removeClassFromAllQuiet("alreadySaved");
 	cleanupGeneral();
 }
 
@@ -2197,7 +2198,7 @@ function cleanupGeneral()
 {
 	const t1 = performance.now();
 	cleanupHead();
-	getOne("body").removeAttribute("style");
+	document.body.removeAttribute("style");
 	replaceIframes();
 	deleteNonContentImages();
 	addLinksToLargerImages();
@@ -2437,7 +2438,7 @@ function insertStyleShowErrors()
 
 function toggleStyleSimpleNegative()
 {
-	const s = `body, body[class] {background-color: #181818; }
+	const s = `body, body[class] {background: #181818; }
 	*, *[class] { background-color: transparent; color: #CCC; border-color: transparent; }
 	h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #FFF; }
 	mark {color: #FF0; }
@@ -2950,7 +2951,7 @@ function chooseDocumentHeading()
 
 	const pageNumberStrings = document.body.textContent.match(/Page [0-9]+ of [0-9]+/);
 	if(pageNumberStrings && !documentHeading.match(/Page [0-9]+/i))
-			documentHeading = documentHeading+ " - " + pageNumberStrings[0];
+			documentHeading = documentHeading + " - " + pageNumberStrings[0];
 	return documentHeading;
 }
 
@@ -3226,13 +3227,11 @@ function cleanupHeadings()
 	{
 		const heading = headingElements[i];
 		let s = heading.innerHTML;
-		s = s.replace(/<[^as\/][a-z0-9]*>/g, " ");
-		s = s.replace(/<\/[^as][a-z0-9]*>/g, " ");
-		heading.innerHTML = s.trim();
+		s = s.replace(/<[^as\/][a-z0-9]*>/g, " ")
+			.replace(/<\/[^as][a-z0-9]*>/g, " ");
+		heading.innerHTML = trim(s);
 		if(trim(heading.textContent).length === 0)
-		{
 			heading.remove();
-		}
 	}
 }
 
@@ -3820,7 +3819,7 @@ function getContentByParagraphCount()
 		const paragraph = paragraphs[i];
 		if(normalizeString(paragraph.textContent).length > 100)
 		{
-			paragraph.classList.add("actualParagraph");
+			paragraph.classList.add("longParagraph");
 			longParagraphs.push(paragraph);
 		}
 	}
@@ -3832,20 +3831,20 @@ function getContentByParagraphCount()
 			candidateDivs.push(tempContainer);
 	}
 	let highestNumParagraphs = 0;
-	let contentContainer;
+	let contentDiv;
 	for(let i = 0, ii = candidateDivs.length; i < ii; i++)
 	{
 		const div = candidateDivs[i];
-		let numParagraphs = div.querySelectorAll(".actualParagraph").length;
+		let numParagraphs = div.querySelectorAll(".longParagraph").length;
 		if(numParagraphs > highestNumParagraphs)
 		{
 			highestNumParagraphs = numParagraphs;
-			contentContainer = div;
+			contentDiv = div;
 		}
 	}
-	while(contentContainer.querySelectorAll(".actualParagraph").length < longParagraphs.length * 0.8 && contentContainer.parentNode && contentContainer.parentNode.tagName !== "BODY")
-		contentContainer = contentContainer.parentNode;
-	contentContainer.classList.add(Nimbus.markerClass);
+	while(contentDiv.querySelectorAll(".longParagraph").length < longParagraphs.length * 0.8 && contentDiv.parentNode && contentDiv.parentNode.tagName !== "BODY")
+		contentDiv = contentDiv.parentNode;
+	contentDiv.classList.add(Nimbus.markerClass);
 }
 
 function modifyMark(direction, keepSelection)
@@ -4432,7 +4431,6 @@ function highlightNodesContaining(selector, str)
 					highlightAllTableCellsInRow(node);
 					break;
 				default:
-					node.classList.add(Nimbus.markerClass);
 					node.innerHTML = markerTagOpen + node.innerHTML + markerTagClose;
 					break;
 			}
@@ -5576,12 +5574,12 @@ function revealEmptyLinks()
 	while(i--)
 	{
 		const link = e[i];
-		if(!link.textContent.length && link.href.length)
+		if(!(link.textContent.length || link.getElementsByTagName("img").length) && link.href.length)
 			link.textContent = humanizeUrl(link.href);
 	}
 }
 
-function makeLinkTextPlain()
+function makeLinksPlainText()
 {
 	const links = get("a");
 	let i = links.length;
@@ -5596,14 +5594,16 @@ function makeLinkTextPlain()
 function inject()
 {
 	document.body.classList.add("nimbusDark");
+	document.body.removeAttribute("style");
 	document.addEventListener("keydown", handleKeyDown, false);
+	getBestImageSrc();
 	showPassword();
 	removeAccesskeys();
 	insertStyleHighlight();
 	insertStyleAnnotations();
 	xlog("Referrer: " + document.referrer);
 	xlog("Page loaded at " + getTimestamp());
-	doStackOverflow();
+	cleanupStackOverflow();
 	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
 	showMessageBig("Nimbus loaded");
 }
@@ -5774,7 +5774,7 @@ function autoCompleteInputBox()
 	function open()
 	{
 		const style = 'autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2000000000; font-family: "Swis721 Cn BT"; }' +
-			'autocompleteinputwrapper input { width: 100%; height: 2rem; font-size: 32px; background: #000; color: #FFF; border: 0; outline: 0; display: block; font-family: inherit; }' +
+			'autocompleteinputwrapper input { width: 100%; height: 3rem; font-size: 32px; background: #000; color: #FFF; border: 0; outline: 0; display: block; font-family: inherit; }' +
 			'autocompleteinputwrapper matches { display: block; background: #222; color: #CCC; }' +
 			'autocompleteinputwrapper match { display: block; padding: 2px 10px; font-size: 24px; }' +
 			'autocompleteinputwrapper match.current { background: #303030; color: #FFF; }' +
@@ -5882,7 +5882,7 @@ function handleKeyDown(e)
 			case KEYCODES.J: regressivelyUnenhance(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.L: showLog(); break;
-			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
+			case KEYCODES.M: customPrompt("Enter command").then(runCommand); break;
 			case KEYCODES.N: numberDivs(); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatches, true); break;
 			case KEYCODES.P: fixParagraphs(); break;
@@ -5915,6 +5915,7 @@ function handleKeyDown(e)
 			case KEYCODES.ZERO: getSelectionOrUserInput("Enter document title", setDocTitle, true); break;
 			case KEYCODES.ONE: showResources(); break;
 			case KEYCODES.TWO: replaceImagesWithTextLinks(); break;
+			case KEYCODES.FOUR: deleteImagesSmallerThan(100, 100); break;
 			case KEYCODES.FIVE: buildSlideshow(); break;
 			case KEYCODES.A: annotate(); break;
 			case KEYCODES.C: deleteNonContentElements(); break;
@@ -5955,7 +5956,7 @@ function handleKeyDown(e)
 			case KEYCODES.G: callFunctionWithArgs("Delete elements with class containing the string", deleteElementsWithClassContaining); break;
 			case KEYCODES.H: callFunctionWithArgs("Mark elements by selector", markElementsBySelector, 1); break;
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markElementsWithCssRule, 2); break;
-			case KEYCODES.M: customPrompt("Enter command").then(runCommand); break;
+			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
 			case KEYCODES.N: toggleShowDocumentBlockStructure(); break;
 			case KEYCODES.O: customPrompt("Highlight block elements containing").then(highlightSpecificNodesContaining); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
