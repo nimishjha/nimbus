@@ -1157,9 +1157,9 @@ function toggleShowDocumentStructureWithNames()
 	insertStyle(s, 'showDivs', true);
 }
 
-function highlightAllMatches(s)
+function highlightAllMatches(str)
 {
-	if(!(s && s.length))
+	if(!(str && str.length))
 		return;
 
 	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
@@ -1173,10 +1173,10 @@ function highlightAllMatches(s)
 	for(let i = 0, ii = images.length; i < ii; i++)
 		imageSources.push(images[i].src);
 
-	let ss = escapeForRegExp(s);
+	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
+	let regex = new RegExp(escapedString, "gi");
 	let tempHTML = document.body.innerHTML;
-	let r = new RegExp(ss, "gi");
-	tempHTML = tempHTML.replace(r, highlightTagOpen + s + highlightTagClose);
+	tempHTML = tempHTML.replace(regex, `${highlightTagOpen}$1${highlightTagClose}`);
 	document.body.innerHTML = tempHTML;
 
 	links = get("a");
