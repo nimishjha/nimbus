@@ -901,12 +901,15 @@ function createUUID()
 	});
 }
 
-function arrayToString(arr)
+function arrayToString(arr, separator)
 {
+	let sep = separator || " | ";
 	let s = "";
+	if(!arr.length)
+		return "[empty array]";
 	for(let i = 0, ii = arr.length; i < ii; i++)
-		s += arr[i] + " | ";
-	return s.substring(0, s.length - 2);
+		s += arr[i] + separator;
+	return s;
 }
 
 function arrayToStringTyped(arr)
@@ -2934,21 +2937,33 @@ function filterHeadings(headings)
 function chooseDocumentHeading()
 {
 	deleteEmptyHeadings();
+	let documentHeading = document.title;
 	const headings = filterHeadings(get("h1, h2"));
 	const candidateHeadingTexts = [];
-	for(let i = 0, ii = Math.min(10, headings.length); i < ii; i++)
+	if(headings && headings.length)
 	{
-		const heading = headings[i];
-		if(heading.classList.contains("currentHeading"))
-			continue;
-		const text = trim(heading.textContent);
-		if(!candidateHeadingTexts.includes(text))
-			candidateHeadingTexts.push(text);
+		for(let i = 0, ii = Math.min(10, headings.length); i < ii; i++)
+		{
+			const heading = headings[i];
+			if(heading.classList.contains("currentHeading"))
+				continue;
+			const text = trim(sanitizeTitle(heading.textContent));
+			if(text.length && !candidateHeadingTexts.includes(text))
+				candidateHeadingTexts.push(text);
+		}
 	}
+	console.log(arrayToString(candidateHeadingTexts, "\n"));
 
-	if(!Nimbus.currentHeadingText)
-		Nimbus.currentHeadingText = "";
-	let documentHeading = getNext(Nimbus.currentHeadingText, candidateHeadingTexts);
+	if(candidateHeadingTexts.length)
+	{
+		if(!Nimbus.currentHeadingText)
+			Nimbus.currentHeadingText = "";
+		documentHeading = getNext(Nimbus.currentHeadingText, candidateHeadingTexts);
+	}
+	else
+	{
+		Nimbus.currentHeadingText = documentHeading;
+	}
 
 	const pageNumberStrings = document.body.textContent.match(/Page [0-9]+ of [0-9]+/);
 	if(pageNumberStrings && !documentHeading.match(/Page [0-9]+/i))
@@ -2956,19 +2971,28 @@ function chooseDocumentHeading()
 	return documentHeading;
 }
 
+function setDocumentHeading(headingText)
+{
+	del(".currentHeading");
+	const firstHeadingText = document.body.firstChild.textContent;
+	if(firstHeadingText === headingText)
+		return;
+	let newHeading = createElement("h1", { textContent: headingText, className: "currentHeading" });
+	document.body.insertBefore(newHeading, document.body.firstChild);
+	Nimbus.currentHeadingText = headingText;
+}
+
 function setDocTitle(s)
 {
 	let i, labels, longestlabel, h;
 	let headingText = sanitizeTitle(s || chooseDocumentHeading());
+	console.log("headingText is " + headingText);
 
 	if(!Nimbus.currentHeadingText)
 		Nimbus.currentHeadingText = getFirstHeadingText();
 	if(!(Nimbus.currentHeadingText && normalizeString(Nimbus.currentHeadingText) === normalizeString(headingText)))
 	{
-		del(".currentHeading");
-		let newHeading = createElement("h1", { textContent: headingText, className: "currentHeading" });
-		document.body.insertBefore(newHeading, document.body.firstChild);
-		Nimbus.currentHeadingText = headingText;
+		setDocumentHeading(headingText);
 	}
 
 	if(location.hostname.length > 0)
