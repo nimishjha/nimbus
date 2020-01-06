@@ -4832,7 +4832,7 @@ function focusField(elem)
 	elem.focus();
 	elem.classList.add("focused");
 	showMessageBig("Focused " + createSelector(elem));
-	consoleLog(createSelector(document.activeElement));
+	consoleLog("focusField: " + createSelector(document.activeElement));
 }
 
 function cycleFocusOverFormFields()
@@ -4878,7 +4878,6 @@ function cycleFocusOverFormFields()
 	}
 	if(!found)
 		focusField(candidateInputs[0]);
-	consoleLog("document.activeElement is " + document.activeElement.name);
 }
 
 function focusButton()
