@@ -2584,7 +2584,8 @@ function toggleStyleNegative()
 	.nimbushl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }
 	.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }
 	.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
-	user { background: #000; padding: 2px 10px; border-left: 10px solid #09F; margin: 0; };`;
+	user { background: #000; padding: 2px 10px; border-left: 10px solid #09F; margin: 0; }
+	comment { display: block; padding: 5px 10px; border-left: 10px solid #555; background: #222; }`;
 
 	toggleStyle(s, "styleNegative");
 }
@@ -5156,7 +5157,7 @@ function createTagsByClassName()
 		switch(true)
 		{
 			case looksLikeHeading(element): replacementTagName = "h2"; break;
-			case looksLikeComment(element): replacementTagName = "dt"; break;
+			case looksLikeComment(element): replacementTagName = "comment"; break;
 			case looksLikeExtract(element): replacementTagName = "blockquote"; break;
 			case hasClassesContaining(element, ["index"]): replacementTagName = "dt"; break;
 			case hasClassesContaining(element, ["fmtx"]): replacementTagName = "p"; break;
