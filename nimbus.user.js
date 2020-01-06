@@ -5781,7 +5781,7 @@ function autoCompleteInputBox()
 			'autocompleteinputwrapper em { display: inline-block; width: 200px; }';
 		insertStyle(style, "styleAutoCompleteInputBox", true);
 		const dialogWrapper = createElement("autocompleteinputwrapper", { id: "autoCompleteInputWrapper" });
-		const inputElement = createElement("input", { id: "autoCompleteInput" });
+		const inputElement = createElement("input", { id: "autoCompleteInput", autocomplete: "randomstring" });
 		const optionsList = createElement("matches", { id: "autoCompleteMatches" });
 		inputElement.addEventListener("keyup", onAutoCompleteInputKeyUp);
 		inputElement.addEventListener("keydown", onAutoCompleteInputKeyDown);
