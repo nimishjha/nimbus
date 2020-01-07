@@ -3849,6 +3849,11 @@ function getContentByParagraphCount()
 	del(["nav", "footer"]);
 	insertStyleHighlight();
 	const paragraphs = get("p");
+	if(!paragraphs)
+	{
+		showMessageError("No paragraphs found");
+		return;
+	}
 	const longParagraphs = [];
 	for(let i = 0, ii = paragraphs.length; i < ii; i++)
 	{
@@ -3878,7 +3883,12 @@ function getContentByParagraphCount()
 			contentDiv = div;
 		}
 	}
-	while(contentDiv.querySelectorAll(".longParagraph").length < longParagraphs.length * 0.8 && contentDiv.parentNode && contentDiv.parentNode.tagName !== "BODY")
+	while(
+		contentDiv &&
+		contentDiv.parentNode &&
+		contentDiv.parentNode.tagName !== "BODY" &&
+		contentDiv.querySelectorAll(".longParagraph").length < longParagraphs.length * 0.8
+	)
 		contentDiv = contentDiv.parentNode;
 	contentDiv.classList.add(Nimbus.markerClass);
 }
