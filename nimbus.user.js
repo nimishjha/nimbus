@@ -924,7 +924,7 @@ function arrayToString(arr, separator)
 	if(!arr.length)
 		return "[empty array]";
 	for(let i = 0, ii = arr.length; i < ii; i++)
-		s += arr[i] + sep;
+		s += "\t" + arr[i] + sep;
 	return s;
 }
 
@@ -2929,14 +2929,6 @@ function setDocTitleSimple(s)
 	}
 }
 
-function getFirstHeadingText()
-{
-	const headings = get("h1, h2");
-	if(headings.length)
-		return trim(headings[0].textContent);
-	return "";
-}
-
 function filterHeadings(headings)
 {
 	if(!headings.length)
@@ -2954,7 +2946,8 @@ function filterHeadings(headings)
 function chooseDocumentHeading()
 {
 	deleteEmptyHeadings();
-	let documentHeading = document.title;
+	Nimbus.currentHeadingText = trim( document.title.replace(getBestDomainSegment(location.hostname), "") );
+	del("header h1");
 	const headings = filterHeadings(get("h1, h2"));
 	const candidateHeadingTexts = [];
 	if(headings && headings.length)
@@ -2969,63 +2962,61 @@ function chooseDocumentHeading()
 				candidateHeadingTexts.push(text);
 		}
 	}
-	console.log(arrayToString(candidateHeadingTexts, "\n"));
+	console.log("Nimbus.currentHeadingText: \n\t" + Nimbus.currentHeadingText);
+	console.log("candidateHeadingTexts:\n" + arrayToString(candidateHeadingTexts, "\n"));
 
-	if(candidateHeadingTexts.length)
-	{
-		if(!Nimbus.currentHeadingText)
-			Nimbus.currentHeadingText = "";
-		documentHeading = getNext(Nimbus.currentHeadingText, candidateHeadingTexts);
-	}
-	else
-	{
-		Nimbus.currentHeadingText = documentHeading;
-	}
+	if(candidateHeadingTexts.length && Nimbus.currentHeadingText)
+		Nimbus.currentHeadingText = getNext(Nimbus.currentHeadingText, candidateHeadingTexts);
 
 	const pageNumberStrings = document.body.textContent.match(/Page [0-9]+ of [0-9]+/);
-	if(pageNumberStrings && !documentHeading.match(/Page [0-9]+/i))
-			documentHeading = documentHeading + " - " + pageNumberStrings[0];
-	return documentHeading;
+	if(pageNumberStrings && !Nimbus.currentHeadingText.match(/Page [0-9]+/i))
+			Nimbus.currentHeadingText = Nimbus.currentHeadingText + " - " + pageNumberStrings[0];
+	return Nimbus.currentHeadingText;
 }
 
 function setDocumentHeading(headingText)
 {
-	del(".currentHeading");
+	emptyElement(getOne("header"));
 	const firstHeadingText = document.body.firstChild.textContent;
 	if(firstHeadingText === headingText)
 		return;
-	let newHeading = createElement("h1", { textContent: headingText, className: "currentHeading" });
-	document.body.insertBefore(newHeading, document.body.firstChild);
+	let newHeading = createElement("h1", { textContent: headingText });
+	let newHeadingWrapper = getOne("header");
+	if(!newHeadingWrapper)
+	{
+		newHeadingWrapper = createElement("header");
+		document.body.insertBefore(newHeadingWrapper, document.body.firstChild);
+	}
+	newHeadingWrapper.appendChild(newHeading);
 	Nimbus.currentHeadingText = headingText;
+}
+
+function getBestDomainSegment(str)
+{
+	if(!str || !str.length)
+		return "";
+	const segmentsToReplace = ["www.", "developer.", ".com", ".org", ".net", ".wordpress"];
+	let hostnameSanitized = str;
+	for(let i = 0, ii = segmentsToReplace.length; i < ii; i++)
+		hostnameSanitized = hostnameSanitized.replace(new RegExp(segmentsToReplace[i]));
+	let segments = hostnameSanitized.split(".");
+	let longestSegment = '';
+	let i = segments.length;
+	while(i--)
+	{
+		let segment = segments[i];
+		if(longestSegment.length < segment.length)
+			longestSegment = segment;
+	}
+	return " [" + longestSegment + "]";
 }
 
 function setDocTitle(s)
 {
-	let i, labels, longestlabel, h;
 	let headingText = sanitizeTitle(s || chooseDocumentHeading());
-	console.log("headingText is " + headingText);
 	setDocumentHeading(headingText);
-
-	if(location.hostname.length > 0)
-	{
-		let hn = location.hostname.replace(/www\./, '');
-		hn = hn.replace(/\.com/, '');
-		hn = hn.replace(/\.org/, '');
-		hn = hn.replace(/\.net/, '');
-		hn = hn.replace(/developer\./, '');
-		hn = hn.replace(/\.wordpress/, '');
-		hn = hn.replace(/\.blogspot/, '');
-		labels = hn.split(".");
-		i = labels.length;
-		longestlabel = '';
-		while(i--)
-		{
-			if(longestlabel.length < labels[i].length) longestlabel = labels[i];
-		}
-		if(headingText.indexOf(longestlabel) === -1)
-			headingText += " [" + longestlabel + "]";
-	}
-	document.title = headingText;
+	const domainSegment = getBestDomainSegment(location.hostname);
+	document.title = headingText + domainSegment;
 }
 
 function zeroPad(n)
