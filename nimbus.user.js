@@ -595,6 +595,19 @@ function filterNodesWithoutParentOfType(nodes, tagName)
 	return result;
 }
 
+function filterNodesWithTextLengthUnder(nodes, maxLength)
+{
+	let result = [];
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		if(getTextLength(node) < maxLength)
+			result.push(node);
+	}
+	return result;
+}
+
 function select(...args)
 {
 	const selector = args[0];
@@ -641,6 +654,7 @@ function select(...args)
 				case "doesNotHaveChildrenOfType": return filterNodesWithoutChildrenOfType(e, value);
 				case "hasParentOfType": return get(value + " " + selector);
 				case "doesNotHaveParentOfType": return filterNodesWithoutParentOfType(e, value);
+				case "hasTextLengthUnder": return filterNodesWithTextLengthUnder(e, value);
 				default: return false;
 			}
 		}
