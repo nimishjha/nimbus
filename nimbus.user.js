@@ -5938,8 +5938,8 @@ function handleKeyDown(e)
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); cycleFocusOverFormFields(); break;
 			case KEYCODES.DELETE: deleteMarkedElements(); break;
-			case KEYCODES.SQUARE_BRACKET_OPEN: changeGalleryImage("prev"); break;
-			case KEYCODES.SQUARE_BRACKET_CLOSE: changeGalleryImage("next"); break;
+			case KEYCODES.SQUARE_BRACKET_OPEN: modifyMark("previous", true); break;
+			case KEYCODES.SQUARE_BRACKET_CLOSE: modifyMark("next", true); break;
 			case KEYCODES.MINUS: insertElementBeforeSelectedNode(); break;
 			default: shouldPreventDefault = false;
 		}
