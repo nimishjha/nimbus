@@ -3959,22 +3959,23 @@ function cycleThroughTopLevelElements(boolReverse)
 		candidateElements[0].classList.add(Nimbus.markerClass);
 }
 
-function deleteSpecificEmptyElements()
+function getTextLength(elem)
 {
-	deleteEmptyElements("p, tr, li, div, figure");
-	deleteEmptyHeadings();
+	if(!elem.textContent)
+		return 0;
+	return elem.textContent.replace(/[^a-zA-Z0-9]/g, "").length;
 }
 
 function deleteEmptyElements(selector)
 {
-	const e = get(selector);
-	let i = e.length;
+	const elems = get(selector);
+	let i = elems.length;
 	while(i--)
 	{
-		const elem = e[i];
+		const elem = elems[i];
 		if(elem.textContent)
 		{
-			if(removeWhitespace(elem.textContent).length === 0 && !elem.getElementsByTagName("img").length)
+			if(getTextLength(elem) === 0 && !elem.getElementsByTagName("img").length)
 				elem.remove();
 		}
 		else
@@ -3992,16 +3993,15 @@ function deleteEmptyHeadings()
 	while(i--)
 	{
 		const elem = e[i];
-		if(elem.textContent)
-		{
-			if(removeWhitespace(elem.textContent).length === 0)
-				elem.remove();
-		}
-		else
-		{
+		if(getTextLength(elem) === 0)
 			elem.remove();
-		}
 	}
+}
+
+function deleteSpecificEmptyElements()
+{
+	deleteEmptyHeadings();
+	deleteEmptyElements("p, tr, li, div, figure, figcaption");
 }
 
 function escapeForRegExp(str)
