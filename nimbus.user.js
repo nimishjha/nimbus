@@ -908,21 +908,22 @@ function arrayToString(arr, separator)
 	if(!arr.length)
 		return "[empty array]";
 	for(let i = 0, ii = arr.length; i < ii; i++)
-		s += arr[i] + separator;
+		s += arr[i] + sep;
 	return s;
 }
 
-function arrayToStringTyped(arr)
+function arrayToStringTyped(arr, separator)
 {
+	let sep = separator || " | ";
 	let s = "";
 	for(let i = 0, ii = arr.length; i < ii; i++)
 	{
 		if(typeof arr[i] === "string")
-			s += '"' + arr[i] + '", ';
+			s += '"' + arr[i] + '"' + separator;
 		else
-			s += arr[i] + ", ";
+			s += arr[i] + separator;
 	}
-	return s.substring(0, s.length - 2);
+	return s;
 }
 
 function getPropValueSafe(obj, propName)
