@@ -5136,21 +5136,27 @@ function getTimestamp()
 
 function hasClassesContaining(element, arrStr)
 {
-	const classes = element.className;
+	const classes = element.className.toLowerCase();
 	let i = arrStr.length;
 	while(i--)
-		if(~classes.indexOf(arrStr[i]))
+	{
+		const str = arrStr[i].toLowerCase();
+		if(~classes.indexOf(str))
 			return true;
+	}
 	return false;
 }
 
 function hasClassesStartingWith(element, arrStr)
 {
-	const classes = element.className;
+	const classes = element.className.toLowerCase();
 	let i = arrStr.length;
 	while(i--)
-		if(classes.indexOf(arrStr[i]) === 0 || classes.indexOf(" " + arrStr[i]) === 0)
+	{
+		const str = arrStr[i].toLowerCase();
+		if(classes.indexOf(str) === 0 || classes.indexOf(" " + str) === 0)
 			return true;
+	}
 	return false;
 }
 
