@@ -120,6 +120,7 @@ const Nimbus = {
 		markNavigationalLists: markNavigationalLists,
 		markNumericParagraphs: markNumericParagraphs,
 		markOverlays: markOverlays,
+		markUserLinks: markUserLinks,
 		numberTableRowsAndColumns: numberTableRowsAndColumns,
 		markUppercaseParagraphs: markUppercaseParagraphs,
 		numberDivs: numberDivs,
@@ -128,6 +129,7 @@ const Nimbus = {
 		regressivelyUnenhance: regressivelyUnenhance,
 		remove: remove,
 		removeAccesskeys: removeAccesskeys,
+		removeAllHighlights: removeAllHighlights,
 		removeAttributeOf: removeAttributeOf,
 		removeClassFromAll: removeClassFromAll,
 		removeEmojis: removeEmojis,
@@ -174,7 +176,7 @@ const Nimbus = {
 		toggleStyleNegative: toggleStyleNegative,
 		toggleStyleShowClasses: toggleStyleShowClasses,
 		toggleStyleWhite: toggleStyleWhite,
-		unhighlightAll: unhighlightAll,
+		unmarkAll: unmarkAll,
 		wrapAnchorNodeInTag: wrapAnchorNodeInTag,
 		xlog: xlog,
 		ylog: ylog,
@@ -2337,7 +2339,7 @@ function replaceMarkedElements(tag)
 		const regex = new RegExp(elem.tagName, "i");
 		elem.outerHTML = elem.outerHTML.replace(regex, tag);
 	}
-	unhighlightAll();
+	unmarkAll();
 }
 
 function replaceElementsByClassesContaining(str, tagName)
@@ -2665,7 +2667,7 @@ function toggleContentEditable()
 	else
 	{
 		showMessageBig("contentEditable OFF");
-		unhighlightAll();
+		unmarkAll();
 	}
 }
 
@@ -2712,7 +2714,7 @@ function toggleShowAriaAttributes()
 	if(document.body.classList.contains("showingAriaAttributes"))
 	{
 		document.body.classList.remove("showingAriaAttributes");
-		unhighlightAll();
+		unmarkAll();
 		return;
 	}
 	const e = get("main, nav, section, footer, aside, div, form");
@@ -2847,7 +2849,7 @@ function toggleShowAriaProblems()
 	if(document.body.classList.contains("showingAriaProblems"))
 	{
 		document.body.classList.remove("showingAriaProblems");
-		unhighlightAll();
+		unmarkAll();
 		return;
 	}
 	checkAriaAttributes();
@@ -4656,7 +4658,7 @@ function removeClassFromAllQuiet(className)
 	return e.length;
 }
 
-function unhighlightAll()
+function unmarkAll()
 {
 	let count = 0;
 	count += removeClassFromAllQuiet(Nimbus.markerClass);
@@ -4664,6 +4666,12 @@ function unhighlightAll()
 	count += removeClassFromAllQuiet("error");
 	del(["annotationinfo", "annotationwarning", "annotationerror"]);
 	showMessageBig(`Removed highlighting from ${count} elements`);
+}
+
+function removeAllHighlights()
+{
+	replaceElementsBySelector("mark, markred, markgreen, markblue, markpurple, markyellow", "span");
+	removeSpanTags();
 }
 
 function removeHighlightsFromMarkedElements()
@@ -6015,7 +6023,7 @@ function handleKeyDown(e)
 			case KEYCODES.Z: deselect(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by classes containing", replaceElementsByClassesContaining, 2); break;
 			case KEYCODES.F: createTagsByClassName(); break;
-			case KEYCODES.H: unhighlightAll(); break;
+			case KEYCODES.H: unmarkAll(); break;
 			case KEYCODES.M: markOverlays(); break;
 			case KEYCODES.S: forceReloadCss(); break;
 			case KEYCODES.F12: analyze(true); break;
