@@ -3002,13 +3002,7 @@ function setDocTitle(s)
 	let i, labels, longestlabel, h;
 	let headingText = sanitizeTitle(s || chooseDocumentHeading());
 	console.log("headingText is " + headingText);
-
-	if(!Nimbus.currentHeadingText)
-		Nimbus.currentHeadingText = getFirstHeadingText();
-	if(!(Nimbus.currentHeadingText && normalizeString(Nimbus.currentHeadingText) === normalizeString(headingText)))
-	{
-		setDocumentHeading(headingText);
-	}
+	setDocumentHeading(headingText);
 
 	if(location.hostname.length > 0)
 	{
