@@ -935,9 +935,9 @@ function arrayToStringTyped(arr, separator)
 	for(let i = 0, ii = arr.length; i < ii; i++)
 	{
 		if(typeof arr[i] === "string")
-			s += '"' + arr[i] + '"' + separator;
+			s += '"' + arr[i] + '"' + sep;
 		else
-			s += arr[i] + separator;
+			s += arr[i] + sep;
 	}
 	return s;
 }
@@ -2159,6 +2159,11 @@ function getImageWidth(image)
 	return image.naturalWidth || image.clientWidth;
 }
 
+function getImageHeight(image)
+{
+	return image.naturalHeight || image.clientHeight;
+}
+
 function persistStreamingImages(minWidth)
 {
 	if(minWidth)
@@ -2175,28 +2180,29 @@ function persistStreamingImages(minWidth)
 	if(!Nimbus.streamingImages)
 		Nimbus.streamingImages = [];
 	let images = Nimbus.streamingImages;
-	let numImages = 0;
 	const e = document.querySelectorAll("img:not(.alreadySaved)");
 	for(let i = 0; i < e.length; i++)
 	{
 		const image = e[i];
 		const imgSrc = image.src;
-		if(images.includes(imgSrc) || getImageWidth(image) < Nimbus.minPersistWidth)
+		if(images.includes(imgSrc) || (getImageWidth(image) < Nimbus.minPersistWidth && getImageHeight(image) < Nimbus.minPersistWidth))
 			continue;
 		images.push(imgSrc);
 		imageContainer.appendChild(createElement("img", { src: imgSrc, className: "alreadySaved" }));
-		numImages = get(".alreadySaved").length;
 	}
+	let numImages = get(".alreadySaved").length;
+	showMessage(`${numImages} unique images larger than ${Nimbus.minPersistWidth}px so far`, "messagebig", true);
 	Nimbus.persistStreamingImagesTimeout = setTimeout(persistStreamingImages, 250);
-	showMessage(`${numImages} unique images wider than ${Nimbus.minPersistWidth}px so far`, "messagebig", true);
 }
 
 function showSavedStreamingImages()
 {
 	clearTimeout(Nimbus.persistStreamingImagesTimeout);
+	deleteImagesSmallerThan(100, 100);
+	insertStyle("#nimbusStreamingImageContainer { height: 80vh; }", "temp", true);
 	retrieve("#nimbusStreamingImageContainer");
 	removeClassFromAllQuiet("alreadySaved");
-	cleanupGeneral();
+	ylog(get("img").length + " images", "h2");
 }
 
 function addLinksToLargerImages()
@@ -2998,7 +3004,7 @@ function getBestDomainSegment(str)
 	const segmentsToReplace = ["www.", "developer.", ".com", ".org", ".net", ".wordpress"];
 	let hostnameSanitized = str;
 	for(let i = 0, ii = segmentsToReplace.length; i < ii; i++)
-		hostnameSanitized = hostnameSanitized.replace(new RegExp(segmentsToReplace[i]));
+		hostnameSanitized = hostnameSanitized.replace(new RegExp(segmentsToReplace[i]), "");
 	let segments = hostnameSanitized.split(".");
 	let longestSegment = '';
 	let i = segments.length;
@@ -3789,22 +3795,28 @@ function getElementsContainingText(selector, text)
 
 function retrieve(selector)
 {
-	let i, ii;
-	const e = get(selector);
+	const elementsToGet = get(selector);
 	const tempNode = document.createElement("div");
-	if(e.length)
+	if(elementsToGet.length)
 	{
-		for(i = 0, ii = e.length; i < ii; i++)
-			tempNode.appendChild(e[i]);
+		for(let i = 0, ii = elementsToGet.length; i < ii; i++)
+			tempNode.appendChild(elementsToGet[i]);
 	}
-	else if(e)
+	else if(elementsToGet)
 	{
-		tempNode.appendChild(e);
+		tempNode.appendChild(elementsToGet);
 	}
 	if(tempNode.innerHTML.length)
-		document.body.innerHTML = tempNode.innerHTML;
+	{
+		del(["link", "script", "iframe"]);
+		while(document.body.firstChild)
+			document.body.firstChild.remove();
+		document.body.appendChild(tempNode);
+	}
 	else
+	{
 		showMessageBig(`${selector} not found`);
+	}
 }
 
 function deleteNonContentElements()
@@ -5653,7 +5665,6 @@ function inject()
 	xlog("Page loaded at " + getTimestamp());
 	cleanupStackOverflow();
 	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
-	showMessageBig("Nimbus loaded");
 }
 
 function isIncorrectType(x, type)
@@ -5944,8 +5955,8 @@ function handleKeyDown(e)
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); cycleFocusOverFormFields(); break;
 			case KEYCODES.DELETE: deleteMarkedElements(); break;
-			case KEYCODES.SQUARE_BRACKET_OPEN: modifyMark("previous", true); break;
-			case KEYCODES.SQUARE_BRACKET_CLOSE: modifyMark("next", true); break;
+			case KEYCODES.SQUARE_BRACKET_OPEN: modifyMark("previous"); break;
+			case KEYCODES.SQUARE_BRACKET_CLOSE: modifyMark("next"); break;
 			case KEYCODES.MINUS: insertElementBeforeSelectedNode(); break;
 			default: shouldPreventDefault = false;
 		}
