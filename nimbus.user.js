@@ -480,6 +480,17 @@ const utils = function()
 		return null;
 	}
 
+	function getElemPropSafe(elem, prop)
+	{
+		if(!elem)
+			return null;
+		if(elem[prop])
+			return elem[prop];
+		if(elem.hasAttribute(prop))
+			return elem.getAttribute(prop);
+		return null;
+	}
+
 	function replaceIframes()
 	{
 		const e = get("iframe");
@@ -733,6 +744,31 @@ const utils = function()
 		});
 	}
 
+	function xlog(str, logTag)
+	{
+		let tag;
+		if(logTag && logTag.length)
+			tag = logTag;
+		else
+			tag = "h6";
+		Nimbus.logString += '<' + tag + ' class="xlog">' + str + '</' + tag + '>\r\n';
+	}
+
+	function ylog(str, tag, prepend)
+	{
+		const tagName = tag || "h6";
+		const logElement = createElement(tagName, { className: "xlog", innerHTML: str });
+		if(prepend)
+			document.body.insertBefore(logElement, document.body.firstChild);
+		else
+			document.body.appendChild(logElement);
+	}
+
+	function log2(str)
+	{
+		document.body.appendChild(createElement("h2", { className: "xlog", innerHTML: str }));
+	}
+
 	return {
 		get,
 		getOne,
@@ -749,6 +785,7 @@ const utils = function()
 		createElementWithChildren,
 		createReplacementElement,
 		getPropValueSafe,
+		getElemPropSafe,
 		replaceIframes,
 		replaceElementsBySelector,
 		replaceSingleElement,
@@ -769,6 +806,9 @@ const utils = function()
 		selectRandom,
 		getNext,
 		createUUID,
+		xlog,
+		ylog,
+		log2,
 	};
 };
 
@@ -3843,6 +3883,7 @@ const {
 	createElementWithChildren,
 	createReplacementElement,
 	getPropValueSafe,
+	getElemPropSafe,
 	replaceElementsBySelector,
 	replaceSingleElement,
 	replaceMarkedElements,
@@ -3862,6 +3903,9 @@ const {
 	selectRandom,
 	getNext,
 	createUUID,
+	xlog,
+	ylog,
+	log2,
 } = utils();
 
 const {
@@ -5783,31 +5827,6 @@ function deselect()
 	window.getSelection().removeAllRanges();
 }
 
-function xlog(str, logTag)
-{
-	let tag;
-	if(logTag && logTag.length)
-		tag = logTag;
-	else
-		tag = "h6";
-	Nimbus.logString += '<' + tag + ' class="xlog">' + str + '</' + tag + '>\r\n';
-}
-
-function ylog(str, tag, prepend)
-{
-	const tagName = tag || "h6";
-	const logElement = createElement(tagName, { className: "xlog", innerHTML: str });
-	if(prepend)
-		document.body.insertBefore(logElement, document.body.firstChild);
-	else
-		document.body.appendChild(logElement);
-}
-
-function log2(str)
-{
-	document.body.appendChild(createElement("h2", { className: "xlog", innerHTML: str }));
-}
-
 function deleteImagesBySrcContaining(str)
 {
 	const elems = document.getElementsByTagName("img");
@@ -5937,17 +5956,6 @@ function showLog(prepend)
 	}
 	else
 		ylog("No logs");
-}
-
-function getElemPropSafe(elem, prop)
-{
-	if(!elem)
-		return null;
-	if(elem[prop])
-		return elem[prop];
-	if(elem.hasAttribute(prop))
-		return elem.getAttribute(prop);
-	return null;
 }
 
 function showTextToHTMLRatio()
