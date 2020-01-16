@@ -1215,7 +1215,7 @@ const ui = function()
 		let args = [];
 		let arg = '';
 		let cleanCommandString = trim(commandString.replace(/\s+/g, ' '));
-		for(let i = 0, ii = s.length; i < ii; i++)
+		for(let i = 0, ii = cleanCommandString.length; i < ii; i++)
 		{
 			switch(cleanCommandString[i])
 			{
@@ -1238,7 +1238,7 @@ const ui = function()
 
 	function runCommand(commandString)
 	{
-		if(typeof commandString === "undefined" || !s.length)
+		if(typeof commandString === "undefined" || !commandString.length)
 			return;
 		Nimbus.lastCommand = commandString;
 		const commandSegments = parseCommand(commandString);
@@ -6334,6 +6334,7 @@ const Nimbus = {
 		convertMarkedElementsToList: convertMarkedElementsToList,
 		createPagerFromSelect: createPagerFromSelect,
 		createTagsByClassName: createTagsByClassName,
+		cycleFocusOverFormFields: cycleFocusOverFormFields,
 		del: del,
 		deleteElementsContainingText: deleteElementsContainingText,
 		deleteElementsWithClassContaining: deleteElementsWithClassContaining,
@@ -6357,7 +6358,6 @@ const Nimbus = {
 		fixParagraphs: fixParagraphs,
 		fixPres: fixPres,
 		focusButton: focusButton,
-		cycleFocusOverFormFields: cycleFocusOverFormFields,
 		forAll: forAll,
 		forceReloadCss: forceReloadCss,
 		formatEbook: formatEbook,
