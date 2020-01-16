@@ -47,11 +47,11 @@ const stringUtils = function()
 		return str;
 	}
 
-	function trim(s)
+	function trim(str)
 	{
-		if(!s)
+		if(!str)
 			return null;
-		return s.replace(/^\s+/, '').replace(/\s+$/, '');
+		return str.replace(/^\s+/, '').replace(/\s+$/, '');
 	}
 
 	function ltrim(str)
@@ -105,19 +105,19 @@ const stringUtils = function()
 		return str + spaces;
 	}
 
-	function normalizeWhitespace(s)
+	function normalizeWhitespace(str)
 	{
-		return s.replace(/\s+/g, " ");
+		return str.replace(/\s+/g, " ");
 	}
 
-	function removeWhitespace(s)
+	function removeWhitespace(str)
 	{
-		return s.replace(/\s+/g, '');
+		return str.replace(/\s+/g, '');
 	}
 
-	function normalizeString(s)
+	function normalizeString(str)
 	{
-		return removeWhitespace(s.toLowerCase());
+		return removeWhitespace(str.toLowerCase());
 	}
 
 	function normalizeHTML(html)
@@ -162,12 +162,12 @@ const stringUtils = function()
 		return false;
 	}
 
-	function removeNonAlpha(s)
+	function removeNonAlpha(str)
 	{
-		return s.replace(/[^A-Za-z]/g, '');
+		return str.replace(/[^A-Za-z]/g, '');
 	}
 
-	function replaceDiacritics(s)
+	function replaceDiacritics(str)
 	{
 		const diacritics =[
 			/[\300-\306]/g, /[\340-\346]/g,	// A, a
@@ -179,31 +179,30 @@ const stringUtils = function()
 			/[\307]/g, /[\347]/g,		// C, c
 		];
 		const chars = ['A','a','E','e','I','i','O','o','U','u','N','n','C','c'];
-		let i;
-		for(i = 0; i < diacritics.length; i++)
-			s = s.replace(diacritics[i],chars[i]);
-		return s;
+		for(let i = 0, ii = diacritics.length; i < ii; i++)
+			str = str.replace(diacritics[i],chars[i]);
+		return str;
 	}
 
-	function sanitizeTitle(str)
+	function sanitizeTitle(titleString)
 	{
-		if(str === undefined || str === null)
+		if(titleString === undefined || titleString === null)
 			return;
-		let s;
-		s = str.toString();
-		s = replaceDiacritics(s);
+		let sanitizedTitle;
+		sanitizedTitle = titleString.toString();
+		sanitizedTitle = replaceDiacritics(sanitizedTitle);
 
-		s = s.replace(/&/g, " and ");
-		s = s.replace(/\u00df/g, 'SS');
-		s = s.replace(/\u0142/g, "'l");
-		s = s.replace(/\u2018/g, "'");
-		s = s.replace(/\u2019/g, "'");
-		s = s.replace(/[:|\?]/g, " - ");
-		s = s.replace(/[\/]/g, "-");
-		s = s.replace(/[^\+\.\(\)0-9A-Za-z_!@\[\]\-\(\)'",]/g, " ");
-		s = s.replace(/\s+/g, " ");
+		sanitizedTitle = sanitizedTitle.replace(/&/g, " and ");
+		sanitizedTitle = sanitizedTitle.replace(/\u00df/g, 'SS');
+		sanitizedTitle = sanitizedTitle.replace(/\u0142/g, "'l");
+		sanitizedTitle = sanitizedTitle.replace(/\u2018/g, "'");
+		sanitizedTitle = sanitizedTitle.replace(/\u2019/g, "'");
+		sanitizedTitle = sanitizedTitle.replace(/[:|\?]/g, " - ");
+		sanitizedTitle = sanitizedTitle.replace(/[\/]/g, "-");
+		sanitizedTitle = sanitizedTitle.replace(/[^\+\.\(\)0-9A-Za-z_!@\[\]\-\(\)'",]/g, " ");
+		sanitizedTitle = sanitizedTitle.replace(/\s+/g, " ");
 
-		return s;
+		return sanitizedTitle;
 	}
 
 	function escapeForRegExp(str)
@@ -330,33 +329,36 @@ const debugUtils = function()
 	{
 		let i = -1;
 		const len = arr.length;
-		let s = "";
+		let strProps = "";
 		while(++i < len)
-			s += getPropValueSafe(arr[i], propName) + "\n";
-		console.log(s);
+			strProps += getPropValueSafe(arr[i], propName) + "\n";
+		console.log(strProps);
 	}
 
 	function printPropsContaining(obj, arrStrings)
 	{
 		const keys = Object.keys(obj);
-		let s = "";
+		let strPropsWithValues = "";
 		for(let i = 0, ii = keys.length; i < ii; i++)
 		{
 			const key = keys[i];
 			if(containsAnyOfTheStrings(key, arrStrings))
-				s += key + ": " + obj[key] + "\n";
+				strPropsWithValues += key + ": " + obj[key] + "\n";
 		}
-		console.log(s);
+		console.log(strPropsWithValues);
 	}
 
 	function logElements(elements)
 	{
-		let s = "";
-		for(let i = 0, ii = elements.length; i < ii; i++)
+		if(!isArray(elements))
 		{
-			s += createSelector(elements[i]) + "\n";
+			showMessageError("Expected array, got " + elements);
+			return;
 		}
-		console.log(s);
+		let strElementSelectors = "";
+		for(let i = 0, ii = elements.length; i < ii; i++)
+			strElementSelectors += "\t" + createSelector(elements[i]) + "\n";
+		console.log(strElementSelectors);
 	}
 
 	function showLog(prepend)
@@ -393,30 +395,30 @@ const debugUtils = function()
 
 const utils = function()
 {
-	function get(s)
+	function get(selector)
 	{
 		let nodes;
-		if(!isNaN(s))
-			s = "#i" + s;
+		if(!isNaN(selector))
+			selector = "#i" + selector;
 		try
 		{
-			nodes = document.querySelectorAll(s);
+			nodes = document.querySelectorAll(selector);
 		}
 		catch(error)
 		{
-			showMessageError("Invalid selector: " + s);
+			showMessageError("Invalid selector: " + selector);
 			return null;
 		}
-		if(s.indexOf("#") === 0 && !~s.indexOf(" ") && !~s.indexOf("."))
-			return document.querySelector(s);
+		if(selector.indexOf("#") === 0 && !~selector.indexOf(" ") && !~selector.indexOf("."))
+			return document.querySelector(selector);
 		if(nodes.length)
 			return Array.from(nodes);
 		return false;
 	}
 
-	function getOne(s)
+	function getOne(selector)
 	{
-		return document.querySelector(s);
+		return document.querySelector(selector);
 	}
 
 	function getOrCreate(tagName, id)
@@ -812,11 +814,11 @@ const utils = function()
 		return `${YYYY}/${MO}/${DD} ${HH}:${MM}:${SS}`;
 	}
 
-	function toNumber(s)
+	function toNumber(str)
 	{
-		if(!(typeof s === "string" && s.length))
+		if(!(typeof str === "string" && str.length))
 			return false;
-		const noCommas = s.replace(/,/g, "");
+		const noCommas = str.replace(/,/g, "");
 		const n = Number(trim(noCommas));
 		return !isNaN(n) ? n : false;
 	}
@@ -1052,14 +1054,14 @@ const ui = function()
 			Nimbus.messageTimeout = setTimeout(deleteMessage, 2000);
 	}
 
-	function showMessageBig(s)
+	function showMessageBig(messageText)
 	{
-		showMessage(s, "messagebig");
+		showMessage(messageText, "messagebig");
 	}
 
-	function showMessageError(s)
+	function showMessageError(messageText)
 	{
-		showMessage(s, "messagebig messageerror");
+		showMessage(messageText, "messagebig messageerror");
 	}
 
 	function deleteMessage()
@@ -1083,8 +1085,8 @@ const ui = function()
 	{
 		if(window.getSelection().toString().length)
 		{
-			const s = window.getSelection().toString();
-			callback(s);
+			const selection = window.getSelection().toString();
+			callback(selection);
 			return;
 		}
 		if(isUnary)
@@ -1208,38 +1210,38 @@ const ui = function()
 		inputTextarea.focus();
 	}
 
-	function parseCommand(s)
+	function parseCommand(commandString)
 	{
 		let args = [];
 		let arg = '';
-		s = trim(s.replace(/\s+/g, ' '));
+		let cleanCommandString = trim(commandString.replace(/\s+/g, ' '));
 		for(let i = 0, ii = s.length; i < ii; i++)
 		{
-			switch(s[i])
+			switch(cleanCommandString[i])
 			{
 				case '"':
 					i++;
-					while(s[i] !== '"' && i < ii)
-						arg += s[i++];
+					while(cleanCommandString[i] !== '"' && i < ii)
+						arg += cleanCommandString[i++];
 					break;
 				case ' ':
 					args.push(arg);
 					arg = '';
 					break;
 				default:
-					arg += s[i];
+					arg += cleanCommandString[i];
 			}
 		}
 		args.push(arg);
 		return args;
 	}
 
-	function runCommand(s)
+	function runCommand(commandString)
 	{
-		if(typeof s === "undefined" || !s.length)
+		if(typeof commandString === "undefined" || !s.length)
 			return;
-		Nimbus.lastCommand = s;
-		const commandSegments = parseCommand(s);
+		Nimbus.lastCommand = commandString;
+		const commandSegments = parseCommand(commandString);
 		if(!commandSegments.length)
 			return;
 		const funcName = commandSegments[0];
@@ -1546,26 +1548,26 @@ const markUtils = function()
 		}
 	}
 
-	function markElementsBySelector(s)
+	function markElementsBySelector(selector)
 	{
-		if(!(s && s.length))
+		if(!(typeof selector === "string" && selector.length))
 			return;
-		const e = get(s);
-		if(e.length)
+		const elements = get(selector);
+		if(elements.length)
 		{
-			let i = e.length;
+			let i = elements.length;
 			while(i--)
-				e[i].classList.add(Nimbus.markerClass);
+				elements[i].classList.add(Nimbus.markerClass);
 			showMessageBig("Highlighted " + e.length + " elements");
 		}
-		else if(e)
+		else if(elements)
 		{
-			e.classList.add(Nimbus.markerClass);
+			elements.classList.add(Nimbus.markerClass);
 			showMessageBig("Highlighted 1 element");
 		}
 		else
 		{
-			showMessageError("No elements found for selector " + s);
+			showMessageError("No elements found for selector " + selector);
 		}
 		insertStyleHighlight();
 	}
@@ -1673,8 +1675,8 @@ const markUtils = function()
 		while(i--)
 		{
 			const paragraph = paragraphs[i];
-			let s = paragraph.textContent;
-			if(s && !isNaN(Number(s)))
+			let paragraphText = paragraph.textContent;
+			if(paragraphText && !isNaN(Number(paragraphText)))
 				paragraph.className = Nimbus.markerClass;
 		}
 		insertStyleHighlight();
@@ -2752,14 +2754,14 @@ const formattingUtils = function()
 		if(hasClassesContaining(element, ["quote", "extract"])) return true;
 	}
 
-	function setDocTitleSimple(s)
+	function setDocTitleSimple(newTitle)
 	{
-		document.title = s;
-		const heading = getOne("h1");
-		if(!(heading && heading.innerHTML === s))
+		document.title = newTitle;
+		const firstHeading = getOne("h1");
+		if(!(firstHeading && trim(firstHeading.textContent) === newTitle))
 		{
-			const h = createElement("h1", { textContent: s });
-			document.body.insertBefore(h, document.body.firstChild);
+			const newHeading = createElement("h1", { textContent: newTitle });
+			document.body.insertBefore(newHeading, document.body.firstChild);
 		}
 	}
 
@@ -2777,7 +2779,7 @@ const formattingUtils = function()
 		return filteredHeadings;
 	}
 
-	function chooseDocumentHeading()
+	function cycleThroughDocumentHeadings()
 	{
 		deleteEmptyHeadings();
 		Nimbus.currentHeadingText = trim( document.title.replace(getBestDomainSegment(location.hostname), "") );
@@ -2845,9 +2847,9 @@ const formattingUtils = function()
 		return " [" + longestSegment + "]";
 	}
 
-	function setDocTitle(s)
+	function setDocTitle(newTitle)
 	{
-		let headingText = sanitizeTitle(s || chooseDocumentHeading());
+		let headingText = sanitizeTitle(newTitle || cycleThroughDocumentHeadings());
 		setDocumentHeading(headingText);
 		const domainSegment = getBestDomainSegment(location.hostname);
 		document.title = headingText + domainSegment;
@@ -2874,7 +2876,7 @@ const formattingUtils = function()
 		looksLikeExtract,
 		setDocTitleSimple,
 		filterHeadings,
-		chooseDocumentHeading,
+		cycleThroughDocumentHeadings,
 		setDocumentHeading,
 		getBestDomainSegment,
 		setDocTitle,
@@ -3232,25 +3234,24 @@ const browsingUtils = function()
 		let i = preBlocks.length;
 		while(i--)
 		{
-			const node = preBlocks[i];
+			const preElement = preBlocks[i];
 			// delete the <pre>s that only contain line numbers
-			if(node.textContent && node.textContent.match(/[a-z]/) === null)
+			if(preElement.textContent && preElement.textContent.match(/[a-z]/) === null)
 			{
-				node.remove();
+				preElement.remove();
 				continue;
 			}
 
-			let s = node.innerHTML, r;
-			s = s.replace(/<span[^>]*>/g, "");
-			s = s.replace(/<\/span>/g, "");
-
-			s = parseCode(s);
+			let nodeHTML = preElement.innerHTML;
+			nodeHTML = nodeHTML.replace(/<span[^>]*>/g, "");
+			nodeHTML = nodeHTML.replace(/<\/span>/g, "");
+			nodeHTML = parseCode(nodeHTML);
 
 			// Everything between angle brackets
-			s = s.replace(/(&lt;\/?[^&\r\n]+&gt;)/g, '<xh>$1</xh>');
+			nodeHTML = nodeHTML.replace(/(&lt;\/?[^&\r\n]+&gt;)/g, '<xh>$1</xh>');
 			// php opening and closing tags
-			s = s.replace(/(&lt;\?php)/g, '<b1>$1</b1>');
-			s = s.replace(/(\?&gt;)/g, '<b1>$1</b1>');
+			nodeHTML = nodeHTML.replace(/(&lt;\?php)/g, '<b1>$1</b1>');
+			nodeHTML = nodeHTML.replace(/(\?&gt;)/g, '<b1>$1</b1>');
 
 			if(highlightKeywords === true)
 			{
@@ -3266,11 +3267,11 @@ const browsingUtils = function()
 				let j = keywords.length;
 				while(j--)
 				{
-					r = new RegExp("\\b" + keywords[j] + "\\b", "g");
-					s = s.replace(r, "<xk>" + keywords[j] + "</xk>");
+					const regex = new RegExp("\\b" + keywords[j] + "\\b", "g");
+					nodeHTML = nodeHTML.replace(regex, "<xk>" + keywords[j] + "</xk>");
 				}
 			}
-			node.innerHTML = s;
+			preElement.innerHTML = nodeHTML;
 		}
 		// un-highlight elements in comments
 		// forAll("c1", htmlToText);
@@ -3397,11 +3398,11 @@ const browsingUtils = function()
 		}
 	}
 
-	function humanizeUrl(s)
+	function humanizeUrl(url)
 	{
-		const matches = s.match(/[0-9A-Za-z_\-\+]+/g);
+		const matches = url.match(/[0-9A-Za-z_\-\+]+/g);
 		if(!matches)
-			return s;
+			return url;
 		let i = matches.length;
 		let longestMatch = matches[i - 1];
 		while(i--)
@@ -3918,10 +3919,10 @@ const cleanupUtils = function()
 		while(i--)
 		{
 			const heading = headingElements[i];
-			let s = heading.innerHTML;
-			s = s.replace(/<[^as\/][a-z0-9]*>/g, " ")
+			let headingHTML = heading.innerHTML;
+			headingHTML = headingHTML.replace(/<[^as\/][a-z0-9]*>/g, " ")
 				.replace(/<\/[^as][a-z0-9]*>/g, " ");
-			heading.innerHTML = trim(s);
+			heading.innerHTML = trim(headingHTML);
 			if(heading.textContent && trim(heading.textContent).length === 0)
 				heading.remove();
 		}
@@ -5061,7 +5062,6 @@ const developerUtils = function()
 	function getAllCssRulesMatching(selectorOrPropertyOrValue)
 	{
 		const styleSheets = document.styleSheets;
-		const regex = new RegExp(selectorOrPropertyOrValue);
 		let i = styleSheets.length;
 		while(i--)
 		{
@@ -5071,8 +5071,8 @@ const developerUtils = function()
 			const rules = styleSheets.cssRules;
 			let j = rules.length;
 			while(j--)
-				if(~rules[j].cssText.indexOf(s))
-					ylog(rules[j].cssText.replace(regex, "<mark>" + s + "</mark>"));
+				if(~rules[j].cssText.indexOf(selectorOrPropertyOrValue))
+					ylog(rules[j].cssText.replace(selectorOrPropertyOrValue, "<mark>" + s + "</mark>"));
 		}
 	}
 
@@ -6088,7 +6088,7 @@ const {
 	looksLikeExtract,
 	setDocTitleSimple,
 	filterHeadings,
-	chooseDocumentHeading,
+	cycleThroughDocumentHeadings,
 	setDocumentHeading,
 	getBestDomainSegment,
 	setDocTitle,
@@ -6319,7 +6319,7 @@ const Nimbus = {
 		appendInfo: appendInfo,
 		buildGallery: buildGallery,
 		buildSlideshow: buildSlideshow,
-		chooseDocumentHeading: chooseDocumentHeading,
+		cycleThroughDocumentHeadings: cycleThroughDocumentHeadings,
 		cleanupAttributes: cleanupAttributes,
 		cleanupAttributes_regex: cleanupAttributes_regex,
 		cleanupBlogs: cleanupBlogs,
