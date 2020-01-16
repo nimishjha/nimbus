@@ -2886,6 +2886,22 @@ const formattingUtils = function()
 
 const browsingUtils = function()
 {
+	function removeColorsFromInlineStyles()
+	{
+		const elems = get("div");
+		let i = elems.length;
+		while(i--)
+		{
+			const elem = elems[i];
+			if(elem.hasAttribute("style"))
+			{
+				let styleText = elem.getAttribute("style");
+				styleText = styleText.replace(/background/g, "XXX").replace(/color/g, "YYY");
+				elem.setAttribute("style", styleText);
+			}
+		}
+	}
+
 	function cycleThroughTopLevelElements(boolReverse)
 	{
 		const hl = get("." + Nimbus.markerClass);
@@ -3577,6 +3593,7 @@ const browsingUtils = function()
 	}
 
 	return {
+		removeColorsFromInlineStyles,
 		cycleThroughTopLevelElements,
 		deselect,
 		removeAccessKeys,
@@ -6133,6 +6150,7 @@ const {
 } = cleanupUtils();
 
 const {
+	removeColorsFromInlineStyles,
 	cycleThroughTopLevelElements,
 	deselect,
 	removeAccessKeys,
@@ -6409,6 +6427,7 @@ const Nimbus = {
 		removeAllHighlights: removeAllHighlights,
 		removeAttributeOf: removeAttributeOf,
 		removeClassFromAll: removeClassFromAll,
+		removeColorsFromInlineStyles: removeColorsFromInlineStyles,
 		removeEmojis: removeEmojis,
 		removeEventListeners: removeEventListeners,
 		removeHighlightsFromMarkedElements: removeHighlightsFromMarkedElements,
