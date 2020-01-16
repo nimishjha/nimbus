@@ -38,6 +38,15 @@ let consoleError = noop;
 
 const stringUtils = function()
 {
+	function removeLineBreaks(str)
+	{
+		str = str.replace(/\r\n/g, " ");
+		str = str.replace(/\r/g, " ");
+		str = str.replace(/\n/g, " ");
+		str = str.replace(/\s+/g, " ");
+		return str;
+	}
+
 	function trim(s)
 	{
 		if(!s)
@@ -153,7 +162,58 @@ const stringUtils = function()
 		return false;
 	}
 
+	function removeNonAlpha(s)
+	{
+		return s.replace(/[^A-Za-z]/g, '');
+	}
+
+	function replaceDiacritics(s)
+	{
+		const diacritics =[
+			/[\300-\306]/g, /[\340-\346]/g,	// A, a
+			/[\310-\313]/g, /[\350-\353]/g,	// E, e
+			/[\314-\317]/g, /[\354-\357]/g,	// I, i
+			/[\322-\330]/g, /[\362-\370]/g,	// O, o
+			/[\331-\334]/g, /[\371-\374]/g,	// U, u
+			/[\321]/g, /[\361]/g,		// N,
+			/[\307]/g, /[\347]/g,		// C, c
+		];
+		const chars = ['A','a','E','e','I','i','O','o','U','u','N','n','C','c'];
+		let i;
+		for(i = 0; i < diacritics.length; i++)
+			s = s.replace(diacritics[i],chars[i]);
+		return s;
+	}
+
+	function sanitizeTitle(str)
+	{
+		if(str === undefined || str === null)
+			return;
+		let s;
+		s = str.toString();
+		s = replaceDiacritics(s);
+
+		s = s.replace(/&/g, " and ");
+		s = s.replace(/\u00df/g, 'SS');
+		s = s.replace(/\u0142/g, "'l");
+		s = s.replace(/\u2018/g, "'");
+		s = s.replace(/\u2019/g, "'");
+		s = s.replace(/[:|\?]/g, " - ");
+		s = s.replace(/[\/]/g, "-");
+		s = s.replace(/[^\+\.\(\)0-9A-Za-z_!@\[\]\-\(\)'",]/g, " ");
+		s = s.replace(/\s+/g, " ");
+
+		return s;
+	}
+
+	function escapeForRegExp(str)
+	{
+		const specials = new RegExp("[.*+?|()\\[\\]{}\\\\]", "g");
+		return str.replace(specials, "\\$&");
+	}
+
 	return {
+		removeLineBreaks,
 		trim,
 		ltrim,
 		trimAt,
@@ -170,6 +230,10 @@ const stringUtils = function()
 		unescapeHTML,
 		containsAnyOfTheStrings,
 		startsWithAnyOfTheStrings,
+		removeNonAlpha,
+		replaceDiacritics,
+		sanitizeTitle,
+		escapeForRegExp,
 	};
 };
 
@@ -295,6 +359,25 @@ const debugUtils = function()
 		console.log(s);
 	}
 
+	function showLog(prepend)
+	{
+		let logDiv;
+		if(Nimbus.logString.length > 0)
+		{
+			logDiv = document.createElement("log");
+			logDiv.innerHTML = Nimbus.logString;
+			if(prepend === true)
+				document.body.insertBefore(logDiv, document.body.firstChild);
+			else
+				document.body.appendChild(logDiv);
+			Nimbus.logString = "";
+		}
+		else
+		{
+			ylog("No logs");
+		}
+	}
+
 	return {
 		enableConsoleLogs,
 		disableConsoleLogs,
@@ -304,6 +387,7 @@ const debugUtils = function()
 		printPropOfObjectArray,
 		printPropsContaining,
 		logElements,
+		showLog,
 	};
 };
 
@@ -378,6 +462,11 @@ const utils = function()
 			return elem;
 		}
 		return elem;
+	}
+
+	function htmlToText(elem)
+	{
+		elem.innerHTML = elem.textContent;
 	}
 
 	function createSelector(elem)
@@ -523,6 +612,22 @@ const utils = function()
 			iframereplacement.appendChild(iframelink);
 			elem.parentNode.replaceChild(iframereplacement, elem);
 		}
+	}
+
+	function replaceSelectedElement(tag)
+	{
+		const replacementTag = tag ? tag : Nimbus.replacementTagName;
+		const selection = window.getSelection();
+		if(!selection)
+		{
+			showMessageBig("Nothing selected");
+			return;
+		}
+		let node = selection.anchorNode;
+		if(node.tagName === undefined)
+			node = node.parentNode;
+		if(node && node.parentNode)
+			replaceSingleElement(node, replacementTag);
 	}
 
 	function replaceElementsBySelector(selector, tagName)
@@ -769,6 +874,98 @@ const utils = function()
 		document.body.appendChild(createElement("h2", { className: "xlog", innerHTML: str }));
 	}
 
+	function logAllClassesFor(selector)
+	{
+		console.log(getAllClassesFor(selector).join("\n"));
+	}
+
+	function getAllClassesFor(selector)
+	{
+		const t1 = performance.now();
+		let sel = "*";
+		if(selector && selector.length)
+			sel = selector;
+		const nodes = get(sel);
+		const classes = {};
+		let i = nodes.length;
+		while(i--)
+		{
+			const classList = Array.from(nodes[i].classList);
+			if(!classList.length)
+			{
+				continue;
+			}
+			const elementClasses = classList.join('.');
+			const elementClassesSanitized = elementClasses.replace(/[^a-zA-Z0-9]+/g, '');
+			classes[elementClassesSanitized] = elementClasses;
+		}
+		const keys = Object.keys(classes);
+		let result = [];
+		for(let j = 0, jj = keys.length; j < jj; j++)
+		{
+			result.push(classes[keys[j]]);
+		}
+		const t2 = performance.now();
+		consoleLog(t2 - t1 + " ms: getAllClassesFor");
+		return result;
+	}
+
+	function isIncorrectType(x, type)
+	{
+		if(typeof x === type)
+			return false;
+		console.warn("Expected " + x + " to be " + type + "; got " + typeof x);
+		return true;
+	}
+
+	function replaceClass(class1, class2)
+	{
+		const e = document.querySelectorAll("." + class1);
+		let i = e.length;
+		showMessageBig("Replacing " + class1 + " with " + class2 + " on " + i + "elements");
+		while(i--)
+		{
+			e[i].classList.remove(class1);
+			e[i].classList.add(class2);
+		}
+	}
+
+	function zeroPad(n)
+	{
+		n += '';
+		if(n.length < 2) n = '0' + n;
+		return n;
+	}
+
+	function isCurrentDomainLink(url)
+	{
+		const urlSegments = url.split("/");
+		if(urlSegments[2] === location.hostname)
+		{
+			if(urlSegments.length === 3)
+				return true;
+			if(urlSegments.length === 4 && urlSegments[urlSegments.length - 1].length === 0)
+				return true;
+		}
+		return false;
+	}
+
+	function forAll(selector, callback)
+	{
+		const e = get(selector);
+		let i = -1;
+		const len = e.length;
+		while(++i < len)
+			callback(e[i]);
+	}
+
+	function makeClassSelector(className)
+	{
+		if(className.indexOf(".") !== 0)
+			return "." + trim(className);
+		return trim(className);
+	}
+
 	return {
 		get,
 		getOne,
@@ -787,6 +984,7 @@ const utils = function()
 		getPropValueSafe,
 		getElemPropSafe,
 		replaceIframes,
+		replaceSelectedElement,
 		replaceElementsBySelector,
 		replaceSingleElement,
 		replaceMarkedElements,
@@ -809,6 +1007,15 @@ const utils = function()
 		xlog,
 		ylog,
 		log2,
+		htmlToText,
+		getAllClassesFor,
+		logAllClassesFor,
+		isIncorrectType,
+		replaceClass,
+		zeroPad,
+		isCurrentDomainLink,
+		forAll,
+		makeClassSelector,
 	};
 };
 
@@ -862,14 +1069,439 @@ const ui = function()
 		del("#styleMessage");
 	}
 
+	function handleCommandInput(evt)
+	{
+		evt.stopPropagation();
+		switch(evt.keyCode)
+		{
+			case KEYCODES.ESCAPE: closeDialog(); break;
+			case KEYCODES.ENTER: runCommand(closeDialog()); break;
+		}
+	}
+
+	function getSelectionOrUserInput(promptMessage, callback, isUnary)
+	{
+		if(window.getSelection().toString().length)
+		{
+			const s = window.getSelection().toString();
+			callback(s);
+			return;
+		}
+		if(isUnary)
+		{
+			customPrompt(promptMessage).then(callback);
+			return;
+		}
+		customPrompt(promptMessage).then(function(userInput) {
+			if(~userInput.indexOf(" ") || ~userInput.indexOf('"'))
+			{
+				const args = parseCommand(userInput);
+				callback.apply(null, args);
+			}
+			else
+			{
+				callback.call(null, userInput);
+			}
+		});
+	}
+
+	function callFunctionWithArgs(promptMessage, callback, numArgs)
+	{
+		customPrompt(promptMessage).then(function(userInput) {
+			if(!numArgs || numArgs > 1)
+			{
+				const args = parseCommand(userInput);
+				if(numArgs && args.length !== numArgs)
+				{
+					showMessageBig(numArgs + " arguments are required");
+					callFunctionWithArgs(promptMessage, callback, numArgs);
+					return;
+				}
+				callback.apply(null, args);
+			}
+			else
+			{
+				callback.call(null, userInput);
+			}
+		});
+	}
+
+	function handleConsoleInput(evt, consoleType)
+	{
+		function insertTab(evt)
+		{
+			const targ = evt.target;
+			evt.preventDefault();
+			evt.stopPropagation();
+			const iStart = targ.selectionStart;
+			const iEnd = targ.selectionEnd;
+			targ.value = targ.value.substr(0, iStart) + '\t' + targ.value.substr(iEnd, targ.value.length);
+			targ.setSelectionRange(iStart + 1, iEnd + 1);
+		}
+
+		const userInputElement = getOne("#userInput");
+		if(!userInputElement)
+			return;
+		const inputText = userInputElement.value;
+		if(!inputText || !inputText.length)
+			return;
+		if(consoleType === "js")
+			Nimbus.jsConsoleText = inputText;
+		else if(consoleType === "css")
+			Nimbus.cssConsoleText = inputText;
+		const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
+		switch(evt.keyCode)
+		{
+			case KEYCODES.ENTER:
+				if(evt[ctrlOrMeta])
+				{
+					if(consoleType === "js")
+						eval(inputText);
+					else if(consoleType === "css")
+						insertStyle(inputText, "userStyle", true);
+				}
+				break;
+			case KEYCODES.TAB:
+				insertTab(evt);
+				return false;
+			case KEYCODES.ESCAPE:
+				toggleConsole();
+				break;
+		}
+	}
+
+	function getConsoleHistory(consoleType)
+	{
+		switch(consoleType)
+		{
+			case "css": return Nimbus.cssConsoleText || "";
+			case "js": return Nimbus.jsConsoleText || "";
+			default: return "";
+		}
+	}
+
+	function toggleConsole(consoleType)
+	{
+		if(get("#userInputWrapper"))
+		{
+			del("#userInputWrapper");
+			del("#styleUserInputWrapper");
+			return;
+		}
+		if(!consoleType || !["css", "js"].includes(consoleType))
+		{
+			showMessageError("toggleConsole needs a consoleType");
+			return;
+		}
+		let dialogStyle;
+		const consoleBackgroundColor = consoleType === "css" ? "#036" : "#000";
+		dialogStyle = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; }' +
+			'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: bold 18px Consolas, monospace; width: 100%; height: 100%; padding: 10px; border: 0; outline: 0; }';
+		insertStyle(dialogStyle, "styleUserInputWrapper", true);
+
+		const inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
+		const inputTextarea = createElement("textarea", { id: "userInput", value: getConsoleHistory(consoleType) });
+		const handleKeyDown = function(event){ handleConsoleInput(event, consoleType); };
+		inputTextarea.addEventListener("keydown", handleKeyDown);
+		inputTextareaWrapper.appendChild(inputTextarea);
+		document.body.appendChild(inputTextareaWrapper);
+		inputTextarea.focus();
+	}
+
+	function parseCommand(s)
+	{
+		let args = [];
+		let arg = '';
+		s = trim(s.replace(/\s+/g, ' '));
+		for(let i = 0, ii = s.length; i < ii; i++)
+		{
+			switch(s[i])
+			{
+				case '"':
+					i++;
+					while(s[i] !== '"' && i < ii)
+						arg += s[i++];
+					break;
+				case ' ':
+					args.push(arg);
+					arg = '';
+					break;
+				default:
+					arg += s[i];
+			}
+		}
+		args.push(arg);
+		return args;
+	}
+
+	function runCommand(s)
+	{
+		if(typeof s === "undefined" || !s.length)
+			return;
+		Nimbus.lastCommand = s;
+		const commandSegments = parseCommand(s);
+		if(!commandSegments.length)
+			return;
+		const funcName = commandSegments[0];
+		if(Nimbus.availableFunctions[funcName])
+		{
+			const args = [];
+			for(let i = 1, ii = commandSegments.length; i < ii; i++)
+			{
+				const n = parseInt(commandSegments[i], 10);
+				if(isNaN(n))
+					args.push(commandSegments[i]);
+				else args.push(n);
+			}
+			showMessageBig(funcName + "(" + arrayToStringTyped(args) + ")");
+			Nimbus.availableFunctions[funcName].apply(this, args);
+		}
+		else
+		{
+			showMessageBig(funcName + ": not found");
+		}
+	}
+
+	function openDialog(inputHandler)
+	{
+		if(!get("#xxdialog"))
+		{
+			del("#style-xxdialog");
+			const dialog = createElement("div", { id: "xxdialog" });
+			const dialogInput = createElement("textarea", { id: "xxdialoginput" });
+			dialog.appendChild(dialogInput);
+			document.body.insertBefore(dialog, document.body.firstChild);
+			const s = '#xxdialog { position: fixed; margin: auto; z-index: 10000; height: 60px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
+				'#xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0; border: 0; width: 100%; height: 100%; overflow: hidden; }';
+			insertStyle(s, "style-xxdialog", true);
+			const handler = inputHandler || defaultDialogInputHandler;
+			dialogInput.addEventListener("keydown", handler, false);
+			dialogInput.focus();
+		}
+	}
+
+	function closeDialog()
+	{
+		const command = get("#xxdialoginput").value;
+		del("#xxdialog");
+		del("#style-xxdialog");
+		return command;
+	}
+
+	function defaultDialogInputHandler(evt)
+	{
+		evt.stopPropagation();
+		switch(evt.keyCode)
+		{
+			case KEYCODES.ESCAPE: closeDialog(); break;
+		}
+	}
+
+	function customPrompt(message)
+	{
+		if(!get("#xxdialog"))
+		{
+			del("#style-xxdialog");
+			const dialog = createElement("div", { id: "xxdialog" });
+			const dialogHeading = createElement("heading", { textContent: message });
+			const dialogInput = createElement("input", { id: "xxdialoginput" });
+			dialog.appendChild(dialogHeading);
+			dialog.appendChild(dialogInput);
+			document.body.insertBefore(dialog, document.body.firstChild);
+			const s = '#xxdialog { position: fixed; margin: auto; z-index: 10000; height: 90px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 60vw; }' +
+				'#xxdialog heading { height: 30px; line-height: 30px; padding: 0 10px; background: #111; display: block; margin: 0; }' +
+				'#xxdialog #xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0 0; margin: 0; border-width: 0 10px; border-color: #000; width: 100%; height: 60px; overflow: hidden; box-sizing: border-box; }';
+			insertStyle(s, "style-xxdialog", true);
+			dialogInput.focus();
+			return new Promise(function(resolve, reject){
+				dialogInput.addEventListener("keydown", function handleCustomPromptInput(evt){
+					evt.stopPropagation();
+					switch(evt.keyCode)
+					{
+						case KEYCODES.ESCAPE:
+							evt.preventDefault();
+							reject(closeCustomPrompt());
+							window.focus();
+							break;
+						case KEYCODES.ENTER:
+							evt.preventDefault();
+							resolve(closeCustomPrompt());
+							window.focus();
+							break;
+						case KEYCODES.UPARROW:
+							evt.preventDefault();
+							restoreCustomPromptHistory(evt.target);
+							break;
+					}
+				}, false);
+			});
+		}
+	}
+
+	function restoreCustomPromptHistory(inputElement)
+	{
+		inputElement.focus();
+		if(Nimbus.lastCommand)
+			setTimeout(function(){ inputElement.value = Nimbus.lastCommand; }, 0);
+	}
+
+	function closeCustomPrompt()
+	{
+		const command = get("#xxdialoginput").value;
+		del("#xxdialog");
+		del("#style-xxdialog");
+		return command;
+	}
+
 	return {
 		showStatus,
 		showMessage,
 		showMessageBig,
 		showMessageError,
 		deleteMessage,
+		handleCommandInput,
+		getSelectionOrUserInput,
+		getConsoleHistory,
+		toggleConsole,
+		handleConsoleInput,
+		callFunctionWithArgs,
+		parseCommand,
+		runCommand,
+		openDialog,
+		closeDialog,
+		defaultDialogInputHandler,
+		customPrompt,
+		restoreCustomPromptHistory,
+		closeCustomPrompt,
 	};
 };
+
+const autoCompleteInputBox = function()
+{
+	const inputComponent = Nimbus.autoCompleteInputComponent;
+
+	function updateInputField()
+	{
+		if(inputComponent.currentIndex !== -1 && inputComponent.matches[inputComponent.currentIndex])
+			getOne("#autoCompleteInput").value = inputComponent.matches[inputComponent.currentIndex];
+	}
+
+	function highlightPrevMatch()
+	{
+		if(inputComponent.currentIndex > 0)
+			inputComponent.currentIndex--;
+		renderMatches();
+	}
+
+	function highlightNextMatch()
+	{
+		if(inputComponent.currentIndex < inputComponent.matches.length - 1)
+			inputComponent.currentIndex++;
+		renderMatches();
+	}
+
+	function onAutoCompleteInputKeyUp(evt)
+	{
+		const inputText = getOne("#autoCompleteInput").value;
+		if(!inputText)
+		{
+			clearMatches();
+			return;
+		}
+		showMatches(inputText);
+		switch(evt.keyCode)
+		{
+			case KEYCODES.TAB: updateInputField(); break;
+			case KEYCODES.ENTER: updateInputField(); executeFunction(); break;
+		}
+	}
+
+	function onAutoCompleteInputKeyDown(evt)
+	{
+		switch(evt.keyCode)
+		{
+			case KEYCODES.TAB: evt.preventDefault(); break;
+			case KEYCODES.ESCAPE: evt.preventDefault(); close(); break;
+			case KEYCODES.UPARROW: evt.preventDefault(); highlightPrevMatch(); break;
+			case KEYCODES.DOWNARROW: evt.preventDefault(); highlightNextMatch(); break;
+		}
+	}
+
+	function renderMatches()
+	{
+		let s = "";
+		for(let i = 0, ii = inputComponent.matches.length; i < ii; i++)
+		{
+			if(inputComponent.currentIndex === i)
+				s += '<match class="current">' + inputComponent.matches[i] + "</match>";
+			else
+				s += '<match>' + inputComponent.matches[i] + "</match>";
+		}
+		get("#autoCompleteMatches").innerHTML = s;
+	}
+
+	function showMatches(str)
+	{
+		if(!str || !str.length || str.length < 2)
+		{
+			emptyElement(get("#autoCompleteMatches"));
+			inputComponent.currentIndex = -1;
+			return;
+		}
+		str = str.toLowerCase();
+
+		inputComponent.matches = [];
+		const commands = Object.keys(Nimbus.availableFunctions);
+		for(let i = 0, ii = commands.length; i < ii; i++)
+		{
+			if(~commands[i].toLowerCase().indexOf(str))
+				inputComponent.matches.push(commands[i]);
+		}
+		renderMatches();
+	}
+
+	function clearMatches()
+	{
+		inputComponent.matches = [];
+		inputComponent.currentIndex = -1;
+		renderMatches();
+	}
+
+	function open()
+	{
+		const style = 'autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2000000000; font-family: "Swis721 Cn BT"; }' +
+			'autocompleteinputwrapper input { width: 100%; height: 3rem; font-size: 32px; background: #000; color: #FFF; border: 0; outline: 0; display: block; font-family: inherit; }' +
+			'autocompleteinputwrapper matches { display: block; background: #222; color: #CCC; }' +
+			'autocompleteinputwrapper match { display: block; padding: 2px 10px; font-size: 24px; }' +
+			'autocompleteinputwrapper match.current { background: #303030; color: #FFF; }' +
+			'autocompleteinputwrapper em { display: inline-block; width: 200px; }';
+		insertStyle(style, "styleAutoCompleteInputBox", true);
+		const dialogWrapper = createElement("autocompleteinputwrapper", { id: "autoCompleteInputWrapper" });
+		const inputElement = createElement("input", { id: "autoCompleteInput", autocomplete: "randomstring" });
+		const optionsList = createElement("matches", { id: "autoCompleteMatches" });
+		inputElement.addEventListener("keyup", onAutoCompleteInputKeyUp);
+		inputElement.addEventListener("keydown", onAutoCompleteInputKeyDown);
+		dialogWrapper.appendChild(inputElement);
+		dialogWrapper.appendChild(optionsList);
+		document.body.appendChild(dialogWrapper);
+		inputElement.focus();
+	}
+
+	function close()
+	{
+		del("#autoCompleteInputWrapper");
+	}
+
+	function executeFunction()
+	{
+		const command = getOne("#autoCompleteInput").value;
+		clearMatches();
+		runCommand(command);
+		close();
+	}
+
+	return { open, close };
+}
 
 const markUtils = function()
 {
@@ -1425,6 +2057,16 @@ const advancedSelectors = function()
 
 const imageUtils = function()
 {
+	function removeQueryStringFromImageSources()
+	{
+		let images = get("img");
+		for(let i = 0, ii = images.length; i < ii; i++)
+		{
+			const image = images[i];
+			image.src = trimAt(image.src, "?");
+		}
+	}
+
 	function deleteImagesSmallerThan(x, y)
 	{
 		const images = document.getElementsByTagName('img');
@@ -1549,7 +2191,7 @@ const imageUtils = function()
 		}
 	}
 
-	function getLargeImages()
+	function retrieveLargeImages()
 	{
 		const links = get("a");
 		let i = links.length;
@@ -1720,11 +2362,12 @@ const imageUtils = function()
 	}
 
 	return {
+		removeQueryStringFromImageSources,
 		deleteSmallImages,
 		deleteImagesSmallerThan,
 		getBestImageSrc,
 		replaceImagesWithTextLinks,
-		getLargeImages,
+		retrieveLargeImages,
 		getImageWidth,
 		getImageHeight,
 		persistStreamingImages,
@@ -1739,6 +2382,83 @@ const imageUtils = function()
 
 const formattingUtils = function()
 {
+	function convertDivsToParagraphs()
+	{
+		const divs = get("div");
+		let i = divs.length;
+		while(i--)
+		{
+			const div = divs[i];
+			if(div.getElementsByTagName("div").length) continue;
+			let s = div.innerHTML;
+			s = s.replace(/&nbsp;/g, ' ').replace(/\s+/g, '');
+			if(s.length)
+			{
+				if(! (s[0] === '<' && s[1].toLowerCase() === "p")) div.innerHTML = '<p>' + div.innerHTML + '</p>';
+			}
+			else
+			{
+				div.remove();
+			}
+		}
+	}
+
+	function replaceIncorrectHeading()
+	{
+		let heading1, heading1link, temp;
+		if(get("h1"))
+		{
+			heading1 = getOne("h1");
+			heading1link = heading1.querySelector("a");
+			if(heading1link)
+			{
+				if(isCurrentDomainLink(heading1link.href))
+				{
+					temp = createElement("h3", { innerHTML: heading1.innerHTML });
+					heading1.parentNode.replaceChild(temp, heading1);
+				}
+			}
+		}
+	}
+
+	function replaceEmptyParagraphsWithHr()
+	{
+		const paras = get("p");
+		let i = paras.length;
+		while(i--)
+		{
+			const para = paras[i];
+			if(trim(para.textContent).length === 0)
+			{
+				let nextPara = paras[i - 1];
+				while(nextPara && trim(nextPara.textContent).length === 0 && i > 0)
+				{
+					nextPara = paras[--i];
+				}
+				para.parentNode.replaceChild(document.createElement("hr"), para);
+			}
+		}
+	}
+
+	function makeHeadingFromSelection(tagname)
+	{
+		const selection = window.getSelection();
+		if(!selection)
+			return;
+		let node = selection.anchorNode;
+		if(node.tagName === undefined)
+			node = node.parentNode;
+		if(node && node.parentNode && node.parentNode.tagName !== "body")
+			node.parentNode.replaceChild(createElement(tagname, { innerHTML: node.innerHTML }), node);
+		else
+			xlog("Could not make heading");
+	}
+
+	function makeHeadingsPlainText()
+	{
+		forAll("h1, h2, h3, h4, h5, h6", htmlToText);
+	}
+
 	function makeLinksPlainText()
 	{
 		const links = get("a");
@@ -2032,7 +2752,112 @@ const formattingUtils = function()
 		if(hasClassesContaining(element, ["quote", "extract"])) return true;
 	}
 
+	function setDocTitleSimple(s)
+	{
+		document.title = s;
+		const heading = getOne("h1");
+		if(!(heading && heading.innerHTML === s))
+		{
+			const h = createElement("h1", { textContent: s });
+			document.body.insertBefore(h, document.body.firstChild);
+		}
+	}
+
+	function filterHeadings(headings)
+	{
+		if(!headings.length)
+			return null;
+		const filteredHeadings = [];
+		for(let i = 0, ii = headings.length; i < ii; i++)
+		{
+			const heading = headings[i];
+			if(!startsWithAnyOfTheStrings(heading.textContent, ["Share", "Comments"]))
+				filteredHeadings.push(heading);
+		}
+		return filteredHeadings;
+	}
+
+	function chooseDocumentHeading()
+	{
+		deleteEmptyHeadings();
+		Nimbus.currentHeadingText = trim( document.title.replace(getBestDomainSegment(location.hostname), "") );
+		del("header h1");
+		const headings = filterHeadings(get("h1, h2"));
+		const candidateHeadingTexts = [];
+		if(headings && headings.length)
+		{
+			for(let i = 0, ii = Math.min(10, headings.length); i < ii; i++)
+			{
+				const heading = headings[i];
+				if(heading.classList.contains("currentHeading"))
+					continue;
+				const text = trim(sanitizeTitle(heading.textContent));
+				if(text.length && !candidateHeadingTexts.includes(text))
+					candidateHeadingTexts.push(text);
+			}
+		}
+		console.log("Nimbus.currentHeadingText: \n\t" + Nimbus.currentHeadingText);
+		console.log("candidateHeadingTexts:\n" + arrayToString(candidateHeadingTexts, "\n"));
+
+		if(candidateHeadingTexts.length && Nimbus.currentHeadingText)
+			Nimbus.currentHeadingText = getNext(Nimbus.currentHeadingText, candidateHeadingTexts);
+
+		const pageNumberStrings = document.body.textContent.match(/Page [0-9]+ of [0-9]+/);
+		if(pageNumberStrings && !Nimbus.currentHeadingText.match(/Page [0-9]+/i))
+				Nimbus.currentHeadingText = Nimbus.currentHeadingText + " - " + pageNumberStrings[0];
+		return Nimbus.currentHeadingText;
+	}
+
+	function setDocumentHeading(headingText)
+	{
+		emptyElement(getOne("header"));
+		const firstHeadingText = document.body.firstChild.textContent;
+		if(firstHeadingText === headingText)
+			return;
+		let newHeading = createElement("h1", { textContent: headingText });
+		let newHeadingWrapper = getOne("header");
+		if(!newHeadingWrapper)
+		{
+			newHeadingWrapper = createElement("header");
+			document.body.insertBefore(newHeadingWrapper, document.body.firstChild);
+		}
+		newHeadingWrapper.appendChild(newHeading);
+		Nimbus.currentHeadingText = headingText;
+	}
+
+	function getBestDomainSegment(hostname)
+	{
+		if(!hostname || !hostname.length)
+			return "";
+		const segmentsToReplace = ["www.", "developer.", ".com", ".org", ".net", ".wordpress"];
+		let hostnameSanitized = hostname;
+		for(let i = 0, ii = segmentsToReplace.length; i < ii; i++)
+			hostnameSanitized = hostnameSanitized.replace(new RegExp(segmentsToReplace[i]), "");
+		let segments = hostnameSanitized.split(".");
+		let longestSegment = '';
+		let i = segments.length;
+		while(i--)
+		{
+			let segment = segments[i];
+			if(longestSegment.length < segment.length)
+				longestSegment = segment;
+		}
+		return " [" + longestSegment + "]";
+	}
+
+	function setDocTitle(s)
+	{
+		let headingText = sanitizeTitle(s || chooseDocumentHeading());
+		setDocumentHeading(headingText);
+		const domainSegment = getBestDomainSegment(location.hostname);
+		document.title = headingText + domainSegment;
+	}
+
 	return {
+		replaceIncorrectHeading,
+		replaceEmptyParagraphsWithHr,
+		makeHeadingFromSelection,
+		makeHeadingsPlainText,
 		makeLinksPlainText,
 		makeHeadings,
 		fixHeadings,
@@ -2047,11 +2872,74 @@ const formattingUtils = function()
 		looksLikeHeading,
 		looksLikeComment,
 		looksLikeExtract,
+		setDocTitleSimple,
+		filterHeadings,
+		chooseDocumentHeading,
+		setDocumentHeading,
+		getBestDomainSegment,
+		setDocTitle,
+		convertDivsToParagraphs,
 	};
 };
 
 const browsingUtils = function()
 {
+	function cycleThroughTopLevelElements(boolReverse)
+	{
+		const hl = get("." + Nimbus.markerClass);
+		consoleLog(hl);
+		if(hl.length && hl.length > 1)
+		{
+			showMessageError("More than one element is marked");
+			return;
+		}
+		insertStyleHighlight();
+		const candidateElements = get("body > div, body > section, body > main, body > nav, body > h1, body > h2");
+		printPropOfObjectArray(candidateElements, "tagName");
+		let found = false;
+		if(boolReverse)
+		{
+			for(let i = 0, ii = candidateElements.length; i < ii; i++)
+			{
+				const e = candidateElements[i];
+				if(e.classList.contains(Nimbus.markerClass))
+				{
+					found = true;
+					e.classList.remove(Nimbus.markerClass);
+					if(i > 0)
+						candidateElements[i - 1].classList.add(Nimbus.markerClass);
+					else
+						candidateElements[ii - 1].classList.add(Nimbus.markerClass);
+					break;
+				}
+			}
+		}
+		else
+		{
+			for(let i = 0, ii = candidateElements.length; i < ii; i++)
+			{
+				const e = candidateElements[i];
+				if(e.classList.contains(Nimbus.markerClass))
+				{
+					found = true;
+					e.classList.remove(Nimbus.markerClass);
+					if(i < ii - 1)
+						candidateElements[i + 1].classList.add(Nimbus.markerClass);
+					else
+						candidateElements[0].classList.add(Nimbus.markerClass);
+					break;
+				}
+			}
+		}
+		if(!found)
+			candidateElements[0].classList.add(Nimbus.markerClass);
+	}
+
+	function deselect()
+	{
+		window.getSelection().removeAllRanges();
+	}
+
 	function removeAccessKeys()
 	{
 		const e = get("a");
@@ -2534,7 +3422,162 @@ const browsingUtils = function()
 		}
 	}
 
+	function changePage(direction)
+	{
+		const links = get("a");
+		let matchStrings = [];
+		if(direction === "prev") matchStrings = ["prev", "previous", "previouspage"];
+		else if(direction === "next") matchStrings = ["next", "nextpage", "»"];
+		let i = links.length;
+		while(i--)
+		{
+			const link = links[i];
+			let linkText = links[i].textContent;
+			if(linkText)
+			{
+				linkText = removeWhitespace(linkText).toLowerCase();
+				if(matchStrings.includes(linkText))
+				{
+					link.innerHTML = "<mark>" + link.innerHTML + "</mark>";
+					location.href = link.href;
+					return;
+				}
+			}
+		}
+	}
+
+	function cycleHighlightTags()
+	{
+		const nextTag = getNext(Nimbus.highlightTagName, Nimbus.highlightTagNameList);
+		showMessageBig("Highlight tag is " + nextTag);
+		Nimbus.highlightTagName = nextTag;
+	}
+
+	function setReplacementTag(tagName)
+	{
+		Nimbus.replacementTagName = tagName;
+	}
+
+	function convertMarkedElementsToList(tagName)
+	{
+		const parentTagName = tagName || "ul";
+		const elemsToJoin = get(makeClassSelector(Nimbus.markerClass));
+		const parent = document.createElement(parentTagName);
+		for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
+		{
+			const child = document.createElement("li");
+			child.innerHTML = elemsToJoin[i].innerHTML;
+			parent.appendChild(child);
+		}
+		insertBefore(elemsToJoin[0], parent);
+		del(Nimbus.markerClass);
+	}
+
+	function logout()
+	{
+		switch(location.hostname)
+		{
+			case 'mail.google.com':
+			case 'accounts.google.com':
+				location.href = 'https://accounts.google.com/Logout';
+				return;
+		}
+		let e, i, ii, found = false, s;
+		e = get("a");
+		i = e.length;
+		for(i = 0, ii = e.length; i < ii; i++)
+		{
+			const node = e[i];
+			if(node.href)
+			{
+				s = normalizeString(node.href);
+				if((~s.indexOf("logout") && s.indexOf("logout_gear") === -1) || ~s.indexOf("signout"))
+				{
+					found = true;
+					showMessageBig(node.href);
+					node.classList.add(Nimbus.markerClass);
+					node.click();
+					break;
+				}
+			}
+			if(node.textContent)
+			{
+				s = normalizeString(node.textContent);
+				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
+				{
+					found = true;
+					showMessageBig(node.href);
+					node.classList.add(Nimbus.markerClass);
+					node.click();
+					break;
+				}
+			}
+		}
+		if(!found)
+		{
+			e = document.querySelectorAll("input", "button");
+			for(i = 0, ii = e.length; i < ii; i++)
+			{
+				const node = e[i];
+				if(node.value)
+				{
+					s = normalizeString(node.value);
+					if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
+					{
+						found = true;
+						showMessageBig("Logging out...");
+						node.classList.add(Nimbus.markerClass);
+						node.click();
+						break;
+					}
+				}
+				else if(node.textContent)
+				{
+					s = normalizeString(node.textContent);
+					if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
+					{
+						found = true;
+						showMessageBig("Logging out...");
+						node.classList.add(Nimbus.markerClass);
+						node.click();
+						break;
+					}
+				}
+			}
+
+		}
+		if(!found)
+		{
+			showMessageBig("Logout link not found");
+		}
+	}
+
+	function showPrintLink()
+	{
+		let i, found = false;
+		const e = get("a");
+		i = e.length;
+		while(i--)
+		{
+			const href = e[i].href;
+			if(href && href.toLowerCase().indexOf("print") >= 0)
+			{
+				found = true;
+				const printLink = createElement("a", { href: href, textContent: "Print" });
+				document.body.insertBefore(createElementWithChildren("h2", printLink), document.body.firstChild);
+				printLink.focus();
+				break;
+			}
+		}
+		if(!found)
+		{
+			showMessageBig("Print link not found");
+		}
+	}
+
 	return {
+		cycleThroughTopLevelElements,
+		deselect,
 		removeAccessKeys,
 		showPassword,
 		echoPassword,
@@ -2549,11 +3592,266 @@ const browsingUtils = function()
 		fillForms,
 		revealEmptyLinks,
 		revealLinkHrefs,
+		changePage,
+		cycleHighlightTags,
+		setReplacementTag,
+		convertMarkedElementsToList,
+		logout,
+		showPrintLink,
+	};
+};
+
+const styleUtils = function()
+{
+	function insertStyleHighlight()
+	{
+		const s = `.nimbushl, .focused { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }
+		.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }
+		.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }`;
+		insertStyle(s, "styleHighlight", true);
+	}
+
+	function insertStyleAnnotations()
+	{
+		const s = `annotationinfo, annotationwarning, annotationerror { display: inline-block; font: 14px helvetica; padding: 2px 5px; border-radius: 0; }
+		annotationinfo { background: #000; color: #0F0; }
+		annotationwarning { background: #000; color: #F90; }
+		annotationerror { background: #A00; color: #FFF; }`;
+		insertStyle(s, "styleAnnotations", true);
+	}
+
+	function insertStyleShowErrors()
+	{
+		const s = ".error { box-shadow: inset 2000px 2000px rgba(255, 0, 0, 1);";
+		insertStyle(s, "styleShowErrors", true);
+	}
+
+	function toggleStyleSimpleNegative()
+	{
+		const s = `body, body[class] {background: #181818; }
+		*, *[class] { background-color: transparent; color: #CCC; border-color: transparent; }
+		h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #FFF; }
+		mark {color: #FF0; }
+		a, a[class] *, * a[class] {color: #09F; }
+		a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #FFF; }
+		a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #048; }
+		button[class], input[class], textarea[class] { border: 2px solid #09F; }
+		button[class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 2px solid #FFF; }`;
+		toggleStyle(s, "styleSimpleNegative", true);
+	}
+
+	function toggleStyleGrey()
+	{
+		const s = `body { background: #203040; color: #ABC; font: 24px "swis721 cn bt"; }
+		h1, h2, h3, h4, h5, h6 { background: #123; padding: 0.35em 10px; font-weight: normal; }
+		body.pad100 { padding: 100px; }
+		body.xwrap { width: 1000px; margin: 0 auto; }
+		mark { background: #049; color: #7CF; padding: 4px 2px; }
+		p { line-height: 135%; text-align: justify; }
+		blockquote { margin: 0 0 0 40px; padding: 10px 20px; border-left: 10px solid #123; }
+		a { text-decoration: none; color: #09F; }
+		em, i, strong, b { font-style: normal; font-weight: normal; color: #FFF; }
+		code { background: #012; color: #ABC; }
+		pre { background: #012; color: #ABC; padding: 20px; }
+		pre q1 { color: #57F; background: #024; }
+		pre q2 { color: #C7F; background: #214; }
+		pre c1 { font-style: normal; color: #F90; background: #331500; }
+		pre c2 { color: #F00; background: #400; }
+		pre b1 { color: #0F0; }
+		pre b2 { color: #FFF; }
+		pre b3 { color: #F90; }
+		pre xk { color: #29F; }
+		pre xh { color: #57F; }
+		pre xv { color: #F47; }`;
+		toggleStyle(s, "styleGrey", true);
+	}
+
+	function toggleStyleNegative()
+	{
+		const s = `html { background: #181818; }
+		html body { margin: 0; }
+		html body, html body[class] { color: #888; background: #242424; font-weight: normal; }
+		body.pad100 { padding: 100px 100px; }
+		body.pad100 table { width: 100%; }
+		body.pad100 td, body.pad100 th { padding: 3px 10px; }
+		body.pad100 img { display: block; max-width: 100%; height: auto; }
+		nav { background: #111; }
+		body.xdark { background: #111; }
+		body.xblack { background: #000; }
+		body.xwrap { width: 1400px; margin: 0 auto; padding: 100px 300px; }
+		html h1, html h2, html h3, html h4, html h5, html h6, html h1[class], html h2[class], html h3[class], html h4[class], html h5[class], html h6[class] { color: #AAA; padding: 10px 20px; line-height: 160%; margin: 2px 0; background: #141414; border: 0; }
+		html h1, html h1[class], div[class] h1 { font: 40px "Swis721 Cn BT", Calibri, sans-serif; color: #FFF; }
+		html h2, html h2[class], div[class] h2 { font: 28px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
+		html h3, html h3[class], div[class] h3 { font: 24px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
+		html h4, html h4[class], div[class] h4 { font: 20px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
+		html h5, html h5[class], div[class] h5 { font: 16px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
+		html h6, html h6[class], div[class] h6 { font: 14px Verdana, sans-serif; color: #999; }
+		html h5, html h6 { padding: 0.5em 10px; }
+		dl { border-left: 20px solid #111; }
+		dt { color: inherit; padding: 0.5em 10px; line-height: 160%; margin: 2px 0; background: #111; border: 0; border-left: 20px solid #0C0C0C; color: #AAA; }
+		dd { color: inherit; padding: 0.25em 10px; line-height: 160%; margin: 2px 0; background: #141414; border: 0; border-left: 20px solid #0C0C0C; }
+		button, select, textarea, html input, html input[class] { border: 0; padding: 5px 10px; background: #242424; box-shadow: inset 0 0 5px #000; color: #999; line-height: 150%; -moz-appearance: none; border-radius: 0; }
+		html input[type="checkbox"] { width: 24px; height: 24px; background: #242424; }
+		button, html input[type="submit"], html input[type="button"] { box-shadow: none; background: #111; }
+		button:hover, button:focus, html input[type="submit"]:hover, input[type="submit"]:focus, html input[type="button"]:hover, html input[type="button"]:focus { background: #000; color: #FFF; }
+		input div { color: #999; }
+		select:focus, textarea:focus, input:focus { color: #999; outline: 0; background: #0C0C0C; }
+		textarea:focus *, input:focus * { color: #999; }
+
+		html a, html a:link { color: #09F; text-decoration: none; text-shadow: none; font: inherit; }
+		html a:visited { color: #36A; text-decoration: none; }
+		html a:hover, html a:focus, html a:hover *, html a:focus * { color: #FFF; text-decoration: none; outline: 0; }
+		html a:active { color: #FFF; outline: none; }
+		html .pagination a:link { font: bold 30px "swis721 cn bt"; border: 0; background: #111; padding: 10px; }
+
+		main, article, section, header, footer, hgroup, nav, ins, small, big, aside, details, font, article, form, fieldset, label, span, span[class], blockquote, div, div[class], ul, ol, li, a, i, b, strong, dl { color: inherit; background: transparent none; line-height: inherit; font-family: inherit; font-size: inherit; font-weight: inherit; text-decoration: inherit; }
+		ul { list-style: none; margin: 0; padding: 10px 0 10px 20px; }
+		li { font-size: 14px; list-style-image: none; background-image: none; line-height: 150%; }
+		tbody, thead, th, tr, td, table { background: #202020; color: inherit; font: 12px Verdana; }
+		body.pad100 ul li { border-left: 5px solid #0C0C0C; padding: 0 0 0 10px; margin: 0 0 2px 0; }
+		cite, u, em, i, b, strong { font-weight: normal; font-style: normal; text-decoration: none; color: #CCC; font-size: inherit; }
+		a u, a em, a i, a b, a strong { color: inherit; }
+		small { font-size: 80%; }
+		input, input *, button, button *, div, td, p { font-size: 12px; font-family: Verdana, sans-serif; line-height: 150%; }
+		p { margin: 0; padding: 5px 0; font-style: normal; font-weight: normal; line-height: 150%; color: inherit; background: inherit; border: 0; }
+		blockquote { margin: 0 0 0 20px; padding: 10px 0 10px 20px; border-style: solid; border-width: 10px 0 0 10px; border-color: #0C0C0C; }
+		blockquote blockquote { margin: 0 0 0 20px; padding: 0 0 0 20px; border-width: 0 0 0 10px; }
+
+		@media (min-width: 2048px)
+		{
+			tbody, thead, th, tr, td, table { background: #202020; color: inherit; font: 22px "Swis721 Cn BT"; }
+			input, input *, button, button *, div, td, p { font-size: 22px; font-family: "Swis721 Cn BT", sans-serif; line-height: 150%; }
+		}
+
+		code { background: #0C0C0C; font-family: Verdcode, Consolas, sans-serif; padding: 1px 2px; }
+		pre { background: #0C0C0C; border-style: solid; border-width: 0 0 0 10px; border-color: #444; padding: 10px 20px; font: 14px Verdcode; }
+		pre, code { color: #999; }
+		pre p { margin: 0; padding: 0; font: 14px Verdcode, Consolas, sans-serif; }
+
+		pre q1 { color: #57F; background: #024; }
+		pre q2 { color: #C7F; background: #214; }
+		pre c1 { font-style: normal; color: #F90; background: #331500; }
+		pre c2 { color: #F00; background: #400; }
+		pre b1 { color: #0F0; }
+		pre b2 { color: #FFF; }
+		pre b3 { color: #F90; }
+		pre xk { color: #29F; }
+		pre xh { color: #57F; }
+		pre xv { color: #F47; }
+
+		markgreen { background: #040 !important; color: #0F0 !important; padding: 2px 0 !important; line-height: inherit !important; }
+		markred { background: #400 !important; color: #F00 !important; padding: 2px 0 !important; line-height: inherit !important; }
+		markblue { background: #036 !important; color: #09F !important; padding: 2px 0 !important; line-height: inherit !important; }
+		markpurple { background: #404 !important; color: #F0F !important; padding: 2px 0 !important; line-height: inherit !important; }
+		markyellow { background: #440 !important; color: #FF0 !important; padding: 2px 0 !important; line-height: inherit !important; }
+
+		a img { border: none; }
+		button img, input img { display: none; }
+		table { border-collapse: collapse; background: #141414; border: 0; }
+		td { vertical-align: top; border-width: 0px; }
+		caption, th { background: #111; border-color: #111; text-align: left; }
+		th, tr, tbody { border: 0; }
+		fieldset { border: 1px solid #111; margin: 0 0 1px 0; }
+		span, ul, ol, li, div { border: 0; }
+		hr { height: 2px; background: #999; border-style: solid; border-color: #999; border-width: 0; margin: 20px 0; }
+		legend { background: #181818; }
+		textarea, textarea div { font-family: Verdcode, Consolas, sans-serif; }
+		samp, mark, hl, kbd { background: #331500; color: #F90; padding: 2px 0; }
+		container { border: 2px solid #F00; margin: 10px; display: block; padding: 10px; }
+		samp a:link, mark a:link, a:link samp, a:link mark { background: #331500; color: #F90; }
+		samp a:visited, mark a:visited, a:visited samp, a:visited mark { color: #e68a00; }
+		mark a:hover, a:hover mark, samp a:hover, a:hover samp { background-color: #4d2000; color: #FFF; }
+		samp, mark mark { font: 24px "Swis721 Cn BT", Calibri, sans-serif; }
+		figure { border: 0; background: #181818; padding: 20px; }
+		figcaption { background: #181818; color: #888; }
+		ruby { margin: 10px 0; background: #000; color: #AAA; padding: 20px 40px; display: block; }
+		rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 24px "Swis721 Cn BT", Calibri, sans-serif; border-top: 50px solid #000; border-bottom: 50px solid #000; }
+		rt { margin: 10px 0; padding: 20px; display: block; background: #181818; }
+		rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }
+		body.xDontShowLinks a, body.xDontShowLinks a *, body.xDontShowLinks a:link { color: inherit; text-decoration: none; }
+		body.xDontShowLinks a:visited *, body.xDontShowLinks a:visited { color: inherit; text-decoration: none; }
+		body.xDontShowLinks a:hover *, body.xDontShowLinks a:focus *, body.xDontShowLinks a:hover, body.xDontShowLinks a:focus { color: #FFF; text-decoration: none; }
+		.nimbushl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }
+		.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }
+		.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
+		user { background: #000; padding: 2px 10px; border-left: 10px solid #09F; margin: 0; }
+		comment { display: block; padding: 5px 10px; border-left: 10px solid #555; background: #222; }`;
+
+		toggleStyle(s, "styleNegative");
+	}
+
+	function toggleStyleWhite()
+	{
+		const s = 'body, input, select, textarea { background: #FFF; color: #000; }' +
+		'input, select, textarea { font: 12px verdana; }';
+		toggleStyle(s, "styleWhite", true);
+	}
+
+	function toggleStyleShowClasses()
+	{
+		const s = `body { background: #333; color: #BBB; }
+		a { color: #09F; text-decoration: none; }
+		div { padding: 0 0 0 10px; margin: 1px 1px 1px 10px; border: 2px solid #000; }
+		div::before, p::before { content: attr(class); color:#FF0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
+		div::after, p::after { content: attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
+		span::before { content: attr(class); color:#0F0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
+		select, textarea, input { background: #444; border: 1px solid red; }
+		button { background: #222; color: #AAA; }
+		nav { border: 6px solid #09F; padding: 20px; margin: 10px; background: #400; }
+		section { border: 6px solid #999; padding: 20px; margin: 10px; background: #040; }
+		main { border: 6px solid #DDD; padding: 20px; margin: 10px; background: #555; }
+		footer { border: 6px solid #555; padding: 20px; margin: 10px; background: #008; }
+		h1, h2, h3, h4, h5, h6 { position: relative; padding: 10px 10px 10px 5rem; background: #300; color: #FFF; }
+		h1::before { content: "h1"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+		h2::before { content: "h2"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+		h3::before { content: "h3"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+		h4::before { content: "h4"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+		h5::before { content: "h5"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+		h6::before { content: "h6"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }`;
+		toggleStyle(s, "styleShowClasses", true);
+	}
+
+	return {
+		insertStyleHighlight,
+		insertStyleAnnotations,
+		insertStyleShowErrors,
+		toggleStyleSimpleNegative,
+		toggleStyleGrey,
+		toggleStyleNegative,
+		toggleStyleWhite,
+		toggleStyleShowClasses,
 	};
 };
 
 const cleanupUtils = function()
 {
+	function retrieveElementsContainingText(selector, text)
+	{
+		if(!selector.length)
+			return;
+		let i, ii;
+		const e = get(selector);
+		const tempNode = document.createElement("div");
+		if(text && text.length)
+		{
+			for(i = 0, ii = e.length; i < ii; i++)
+				if(e[i].textContent && e[i].textContent.indexOf(text) !== -1 && !e[i].querySelector(selector))
+					tempNode.appendChild(e[i]);
+		}
+		else
+		{
+			if(e.length)
+				for(i = 0, ii = e.length; i < ii; i++)
+					tempNode.appendChild(e[i]);
+			else
+				tempNode.appendChild(e);
+		}
+		if(tempNode.innerHTML.length)
+			document.body.innerHTML = tempNode.innerHTML;
+		else
+			showMessageBig("Not found");
+	}
+
 	function delRange(m, n)
 	{
 		const numBlockElements = get("header, footer, article, aside, section, div").length || 0;
@@ -2781,6 +4079,21 @@ const cleanupUtils = function()
 		}
 	}
 
+	function deleteImagesBySrcContaining(str)
+	{
+		const elems = document.getElementsByTagName("img");
+		let i = elems.length;
+		while(i--)
+		{
+			const elem = elems[i];
+			if(~elem.src.indexOf(str))
+			{
+				xlog("Deleting image with src " + elem.src);
+				elem.remove();
+			}
+		}
+	}
+
 	function deleteElementsContainingText(selector, str)
 	{
 		if(!(typeof selector === "string" && selector.length))
@@ -2872,7 +4185,288 @@ const cleanupUtils = function()
 		deleteEmptyElements("p, tr, li, div, figure, figcaption");
 	}
 
+	function replaceFontTags()
+	{
+		const f = document.getElementsByTagName("font");
+		const replacements = [];
+		let h;
+		for(let i = 0, ii = f.length; i < ii; i++)
+		{
+			const fontElem = f[i];
+			if(fontElem.getAttribute("size"))
+			{
+				let hl = fontElem.getAttribute("size");
+				if(hl.indexOf("+") >= 0)
+				{
+					hl = hl[1];
+				}
+				switch(hl)
+				{
+					case '7': h = document.createElement("h1"); break;
+					case '6': h = document.createElement("h2"); break;
+					case '5': h = document.createElement("h3"); break;
+					case '4': h = document.createElement("h4"); break;
+					case '3': h = document.createElement("h5"); break;
+					case '2': h = document.createElement("p"); break;
+					case '1': h = document.createElement("p"); break;
+					default: h = document.createElement("p"); break;
+				}
+				h.innerHTML = fontElem.innerHTML;
+				replacements.push(h);
+			}
+			else
+			{
+				h = document.createElement("p");
+				h.innerHTML = fontElem.innerHTML;
+				replacements.push(h);
+			}
+		}
+		for(let i = f.length - 1; i >= 0; i--)
+		{
+			const fontElem = f[i];
+			fontElem.parentNode.replaceChild(replacements[i], fontElem);
+		}
+	}
+
+	function cleanupLinks()
+	{
+		const links = get("a");
+		let i = links.length;
+		while(i--)
+		{
+			const link = links[i];
+			let newLink;
+			if(link.id)
+				newLink = createElement("a", { innerHTML: link.innerHTML, href: link.href, id: link.id });
+			else
+				newLink = createElement("a", { innerHTML: link.innerHTML, href: link.href });
+			link.parentNode.replaceChild(newLink, link);
+		}
+	}
+
+	function replaceSpansWithTextNodes()
+	{
+		const spans = get("span");
+		let i = spans.length;
+		while(i--)
+		{
+			const span = spans[i];
+			if(span.innerHTML.indexOf("<") === -1)
+				span.parentNode.replaceChild(document.createTextNode(span.textContent || ""), span);
+		}
+	}
+
+	function removeSpanTags()
+	{
+	       let s = document.body.innerHTML;
+	       s = s.replace(/<\/{0,}span[^>]*>/g, "");
+	       document.body.innerHTML = s;
+	}
+
+	function deleteMarkedElements()
+	{
+		del("." + Nimbus.markerClass);
+	}
+
+	function replaceCommentsWithPres()
+	{
+		let s = document.body.innerHTML;
+		s = s.replace(/<!--/g, '<pre>');
+		s = s.replace(/-->/g, '</pre>');
+		document.body.innerHTML = s;
+	}
+
+	function replaceAudio()
+	{
+		let sources = get("source");
+		let i = sources.length;
+		while(i--)
+		{
+			const source = sources[i];
+			if(source.src)
+			{
+				const audioLink = createElement("a", { href: source.src, textContent: source.src });
+				const audioLinkWrapper = createElementWithChildren("h2", audioLink);
+				source.parentNode.replaceChild(audioLinkWrapper, source);
+			}
+		}
+		replaceElementsBySelector("audio", "div");
+	}
+
+	function appendInfo()
+	{
+		if(window.location.href.indexOf("file:///") >= 0) return;
+		const headings4 = get("h4");
+		if(headings4.length && headings4.length > 2 && headings4[headings4.length - 2].textContent.indexOf("URL:") === 0)
+			return;
+
+		const documentUrl = window.location.href.toString();
+
+		const domainLinkWrapper = createElement("h4", { textContent: "Domain: " });
+		const domainLink = document.createElement("a");
+		const documentUrlSegments = documentUrl.split("/");
+		domainLink.textContent = domainLink.href = documentUrlSegments[0] + "//" + documentUrlSegments[2];
+		domainLinkWrapper.appendChild(domainLink);
+		document.body.appendChild(domainLinkWrapper);
+
+		const documentLinkWrapper = createElement("h4", { textContent: "URL: " });
+		const documentLink = document.createElement("a");
+		let url = documentUrl;
+		if(documentUrl.indexOf("?utm_source") > 0)
+			url = url.substr(0, url.indexOf("?utm_source"));
+		documentLink.textContent = documentLink.href = url;
+		documentLinkWrapper.appendChild(documentLink);
+		document.body.appendChild(documentLinkWrapper);
+
+		const saveTime = createElement("h4", { textContent: "Saved at " + getTimestamp() });
+		document.body.appendChild(saveTime);
+	}
+
+	function deleteNonContentElements()
+	{
+		const markerClass = "." + Nimbus.markerClass;
+		if(get(markerClass).length)
+		{
+			del(markerClass);
+			cleanupGeneral();
+			return;
+		}
+		const sClass = "toget";
+
+		replaceElementsBySelector("article", "div");
+		markNavigationalLists();
+		deleteNonContentImages();
+		deleteEmptyElements("p");
+		deleteEmptyElements("div");
+		return;
+	}
+
+	function deleteIframes()
+	{
+		const numIframes = get("iframe").length;
+		if(numIframes !== undefined)
+		{
+			del("iframe");
+			showMessageBig(numIframes + " iframes deleted");
+		}
+		else
+		{
+			showMessageBig("No iframes found");
+		}
+		deleteElementsContainingText("rp", "iframe:");
+	}
+
+	function deleteImages()
+	{
+		del("svg");
+		const images = get("img");
+		const imagePlaceholders = get("rt");
+		if(images.length)
+		{
+			del("img");
+			showMessageBig("Deleted " + images.length + " images");
+		}
+		else if(imagePlaceholders.length)
+		{
+			del("rt");
+			showMessageBig("Deleted " + imagePlaceholders.length + " image placeholders");
+		}
+		else
+		{
+			showMessageBig("No images found");
+		}
+	}
+
+	function retrieve(selector)
+	{
+		const elementsToGet = get(selector);
+		const tempNode = document.createElement("div");
+		if(elementsToGet.length)
+		{
+			for(let i = 0, ii = elementsToGet.length; i < ii; i++)
+				tempNode.appendChild(elementsToGet[i]);
+		}
+		else if(elementsToGet)
+		{
+			tempNode.appendChild(elementsToGet);
+		}
+		if(tempNode.innerHTML.length)
+		{
+			del(["link", "script", "iframe"]);
+			while(document.body.firstChild)
+				document.body.firstChild.remove();
+			document.body.appendChild(tempNode);
+		}
+		else
+		{
+			showMessageBig(`${selector} not found`);
+		}
+	}
+
+	function getContentByParagraphCount()
+	{
+		const markerClass = "." + Nimbus.markerClass;
+		if(get(markerClass).length)
+		{
+			const title = document.title;
+			retrieve(markerClass);
+			setDocTitleSimple(title);
+			cleanupGeneral();
+			return;
+		}
+		del(["nav", "footer"]);
+		insertStyleHighlight();
+		const paragraphs = get("p");
+		if(!paragraphs)
+		{
+			showMessageError("No paragraphs found");
+			return;
+		}
+		const longParagraphs = [];
+		for(let i = 0, ii = paragraphs.length; i < ii; i++)
+		{
+			const paragraph = paragraphs[i];
+			if(paragraph.textContent && normalizeString(paragraph.textContent).length > 100)
+			{
+				paragraph.classList.add("longParagraph");
+				longParagraphs.push(paragraph);
+			}
+		}
+		let candidateDivs = [];
+		for(let i = 0, ii = longParagraphs.length; i < ii; i++)
+		{
+			const tempContainer = longParagraphs[i].closest("div");
+			if(tempContainer)
+				candidateDivs.push(tempContainer);
+		}
+		let highestNumParagraphs = 0;
+		let contentDiv;
+		for(let i = 0, ii = candidateDivs.length; i < ii; i++)
+		{
+			const div = candidateDivs[i];
+			let numParagraphs = div.querySelectorAll(".longParagraph").length;
+			if(numParagraphs > highestNumParagraphs)
+			{
+				highestNumParagraphs = numParagraphs;
+				contentDiv = div;
+			}
+		}
+		while(
+			contentDiv &&
+			contentDiv.parentNode &&
+			contentDiv.parentNode.tagName !== "BODY" &&
+			contentDiv.querySelectorAll(".longParagraph").length < longParagraphs.length * 0.8
+		)
+		{
+			contentDiv = contentDiv.parentNode;
+		}
+		if(contentDiv)
+			contentDiv.classList.add(Nimbus.markerClass);
+	}
+
+
 	return {
+		retrieveElementsContainingText,
 		cleanupAttributes,
 		cleanupAttributes_regex,
 		cleanupHeadings,
@@ -2885,6 +4479,7 @@ const cleanupUtils = function()
 		removeInlineStyles,
 		cleanupUnicode,
 		deleteLinksContainingText,
+		deleteImagesBySrcContaining,
 		deleteElementsContainingText,
 		deleteElementsWithClassContaining,
 		removeEmojis,
@@ -2892,6 +4487,19 @@ const cleanupUtils = function()
 		deleteEmptyElements,
 		deleteEmptyHeadings,
 		deleteSpecificEmptyElements,
+		replaceFontTags,
+		cleanupLinks,
+		replaceSpansWithTextNodes,
+		removeSpanTags,
+		deleteMarkedElements,
+		replaceCommentsWithPres,
+		replaceAudio,
+		appendInfo,
+		deleteNonContentElements,
+		deleteIframes,
+		deleteImages,
+		retrieve,
+		getContentByParagraphCount,
 	};
 };
 
@@ -3052,6 +4660,51 @@ const developerUtils = function()
 		window.scrollTo(0, 0);
 	}
 
+	function handleBlockEditClick(evt)
+	{
+		evt.stopPropagation();
+		let targ;
+		let ctrlOrMeta = "ctrlKey";
+		if(navigator.userAgent.indexOf("Macintosh") !== -1)
+			ctrlOrMeta = "metaKey";
+		if(!evt)
+			evt = window.event;
+		if(evt.target)
+			targ = e.target;
+		const tagNameLower = targ.tagName.toLowerCase();
+		// Retrieve clicked element
+		if(evt[ctrlOrMeta] && e.shiftKey)
+		{
+			document.body.innerHTML = targ.innerHTML;
+			toggleBlockEditMode();
+			return;
+		}
+		// delete clicked element
+		else if(evt[ctrlOrMeta] && !evt.shiftKey)
+		{
+			if(tagNameLower === 'body')
+				return;
+			if(tagNameLower === "li" || tagNameLower === "p" && targ.parentNode && targ.parentNode !== document.body)
+				targ = targ.parentNode;
+			targ.remove();
+			return false;
+		}
+		// append clicked element to a div
+		else if(evt.shiftKey)
+		{
+			if(!document.getElementById("newbody"))
+			{
+				const newbody = document.createElement("div");
+				newbody.id = "newbody";
+				document.body.appendChild(newbody);
+			}
+			if(targ.tagName.toLowerCase() === 'body')
+				return;
+			document.getElementById("newbody").appendChild(targ);
+		}
+		return true;
+	}
+
 	function toggleBlockEditMode()
 	{
 		const db = document.body;
@@ -3159,9 +4812,9 @@ const developerUtils = function()
 			}
 			divText.innerHTML += str;
 			str = '';
-			const k = getKeys(targ);
-			for(let i = 0; i < k.length; i++)
-				if(k[i] !== 'addEventListener') str += k[i] + ' ';
+			const keys = Object.keys(targ);
+			for(let i = 0, ii = keys.length; i < ii; i++)
+				str += keys[i] + ' ';
 			const events = document.createElement('em');
 			events.appendChild(document.createTextNode(str));
 			divText.appendChild(events);
@@ -3241,6 +4894,253 @@ const developerUtils = function()
 		node.innerHTML = indentOpen + node.innerHTML + indentClose;
 	}
 
+	function listSelectorsWithLightBackgrounds()
+	{
+		const THRESHOLD = 200;
+		const e = Array.from(document.getElementsByTagName("*"));
+		let i = e.length;
+		let count = 0;
+		let str = "";
+		for(i = 0, count = 0; i < e.length, count < 4000; i++, count++)
+		{
+			const elem = e[i];
+			if(!elem)
+				continue;
+			count++;
+			const bgColor = getComputedStyle(elem).getPropertyValue("background-color");
+			const rgbValues = bgColor.match(/[0-9]+/g);
+			if(rgbValues)
+			{
+				let average = (Number(rgbValues[0]) + Number(rgbValues[1]) + Number(rgbValues[2])) / 3;
+				if(average > THRESHOLD)
+				{
+					str += createSelector(elem) + "\r\n";
+					// str += padRight(createSelector(elem), 100) + bgColor + "\r\n";
+				}
+			}
+		}
+		console.log(str);
+	}
+
+	function numberTableRowsAndColumns()
+	{
+		if(get("#styleShowTables"))
+		{
+			del("#styleShowTables");
+			return;
+		}
+		const tr = get("tr");
+		for(let i = 0, ii = tr.length; i < ii; i++)
+		{
+			const tableRow = tr[i];
+			tableRow.className = "row" + i;
+			const tableCells = tableRow.getElementsByTagName("td");
+			for(let j = 0, jj = tableCells.length; j < jj; j++)
+				tableCells[j].className = "col" + j;
+			const tableHeaderCells = tableRow.getElementsByTagName("th");
+			for(let j = 0, jj = tableHeaderCells.length; j < jj; j++)
+				tableHeaderCells[j].className = "col" + j;
+		}
+		insertStyle("table, tr, td { box-shadow: inset 1px 1px #444, inset -1px -1px #444; }", "styleShowTables", true);
+	}
+
+	function logMutations(mutations)
+	{
+		let i, ii;
+		for(i = 0, ii = mutations.length; i < ii; i++)
+		{
+			const mutation = mutations[i];
+			if(mutation.type === "childList")
+			{
+				if(mutation.addedNodes.length)
+				{
+					for(let j = 0, jj = mutation.addedNodes.length; j < jj; j++)
+						console.log(padRight("Mutation: added", 25) + createSelector(mutation.addedNodes[j]));
+				}
+				if(mutation.removedNodes.length)
+				{
+					for(let j = 0, jj = mutation.removedNodes.length; j < jj; j++)
+						console.log(padRight("Mutation: removed", 25) + createSelector(mutation.removedNodes[j]));
+				}
+			}
+			else if(mutation.type === "attributes")
+			{
+				console.log(padRight("Mutation: attribute", 25) + padRight(createSelector(mutation.target), 50) + "'" + mutation.attributeName + "' changed to '" + mutation.target.getAttribute(mutation.attributeName) + "'");
+			}
+		}
+	}
+
+	function toggleMutationObserver(watchAttributes)
+	{
+		if(Nimbus.isObservingMutations)
+		{
+			Nimbus.observer.disconnect();
+			Nimbus.isObservingMutations = false;
+			showMessageBig("Stopped observing mutations");
+			return;
+		}
+		Nimbus.observer = new MutationObserver(logMutations);
+		let config = { childList: true };
+		let message = "Observing mutations";
+		if(watchAttributes)
+		{
+			config.attributes = true;
+			config.subtree = true;
+			message += " with attributes";
+		}
+		Nimbus.observer.observe(getOne("body"), config);
+		showMessageBig(message);
+		Nimbus.isObservingMutations = true;
+	}
+
+	function showSelectorsFor(tagName)
+	{
+		const styleId = 'styleShowClassesBySelector';
+		del("#" + styleId);
+		let style = `${tagName}::before { content: attr(id); background: #000; color: #FF0; padding: 1px 2px; font: 14px verdana; }` +
+			`${tagName}::after { content: attr(class); background: #000; color: #F90; padding: 1px 2px; font: 14px verdana; }` +
+			`${tagName} { border: 2px solid #000; }`;
+		insertStyle(style, styleId, true);
+	}
+
+	function removeEventListeners()
+	{
+		let db = document.body;
+		const tempBody = db.cloneNode(true);
+		db.parentNode.replaceChild(tempBody, db);
+
+		const elems = document.getElementsByTagName("*");
+		let i = elems.length;
+		while(i--)
+		{
+			const elem = elems[i];
+			elem.removeAttribute("onmousedown");
+			elem.removeAttribute("onmouseup");
+			elem.removeAttribute("onmouseover");
+			elem.removeAttribute("onclick");
+		}
+	}
+
+	function getAllInlineStyles()
+	{
+		let styleText = "";
+		const styleElements = get("style");
+		if(!styleElements)
+			return;
+		for(let j = 0, jj = styleElements.length; j < jj; j++)
+		{
+			const styleElement = styleElements[j];
+			const rules = styleElement.sheet.cssRules;
+			for(let i = 0, ii = rules.length; i < ii; i++)
+				styleText += rules[i].cssText + "\n";
+		}
+		return styleText;
+	}
+
+	function getAllCssRulesForElement(elem)
+	{
+		const styleSheets = document.styleSheets;
+		const rulesArray = [];
+		let i = styleSheets.length;
+		while(i--)
+		{
+			const styleSheet = styleSheets[i];
+			if(styleSheet.href && styleSheet.href.indexOf(location.hostname) === -1)
+				continue;
+			const rules = styleSheet.cssRules;
+			if(!rules)
+				continue;
+			let j = rules.length;
+			while(j--)
+				if(elem.matches(rules[j].selectorText))
+					rulesArray.push(rules[j].cssText);
+		}
+		return rulesArray;
+	}
+
+	function getAllCssRulesMatching(selectorOrPropertyOrValue)
+	{
+		const styleSheets = document.styleSheets;
+		const regex = new RegExp(selectorOrPropertyOrValue);
+		let i = styleSheets.length;
+		while(i--)
+		{
+			const styleSheet = styleSheets[i];
+			if(styleSheets.href && styleSheets.href.indexOf(location.hostname) === -1)
+				continue;
+			const rules = styleSheets.cssRules;
+			let j = rules.length;
+			while(j--)
+				if(~rules[j].cssText.indexOf(s))
+					ylog(rules[j].cssText.replace(regex, "<mark>" + s + "</mark>"));
+		}
+	}
+
+	function forceReloadCss()
+	{
+		showMessageBig("Force-reloading CSS");
+		const styleLinks = document.getElementsByTagName('link');
+		for(let i = 0; i < styleLinks.length; i++)
+		{
+			const styleSheet = styleLinks[i];
+			if(styleSheet.rel.toLowerCase().indexOf('stylesheet') >= 0 && styleSheet.href)
+			{
+				const h = styleSheet.href.replace(/(&|%5C?)forceReload=\d+/, '');
+				styleSheet.href = h + (h.indexOf('?') >= 0 ? '&' : '?') + 'forceReload=' + new Date().valueOf();
+			}
+		}
+	}
+
+	function modifyMark(direction, keepSelection)
+	{
+		let currentElement;
+		const markedElements = get(makeClassSelector(Nimbus.markerClass));
+		if(markedElements && markedElements.length)
+			currentElement = markedElements[markedElements.length - 1];
+		else
+			currentElement = document.body.firstElementChild;
+		if(!currentElement)
+		{
+			showMessageError("Couldn't get marked element");
+			return;
+		}
+		let nextElement;
+		switch(direction)
+		{
+			case "expand": nextElement = currentElement.parentNode; break;
+			case "contract": nextElement = currentElement.firstElementChild; break;
+			case "previous": nextElement = currentElement.previousElementSibling; break;
+			case "next": nextElement = currentElement.nextElementSibling; break;
+		}
+		if(nextElement && (nextElement.nodeType !== 1 || nextElement.tagName === "MESSAGE"))
+			nextElement = document.body.firstElementChild;
+		if(!nextElement)
+		{
+			showMessageError("Couldn't get next element");
+			return;
+		}
+		if(nextElement.tagName === 'BODY')
+			nextElement = nextElement.firstElementChild;
+		if(!keepSelection)
+			currentElement.classList.remove(Nimbus.markerClass);
+		nextElement.classList.add(Nimbus.markerClass);
+		showMessageBig("Marked node is " + createSelector(nextElement));
+	}
+
+	function showTextToHTMLRatio()
+	{
+		let text, html;
+		const e = get("body > div, body > main, body > section");
+		let i = e.length;
+		while(i--)
+		{
+			text = e[i].textContent;
+			html = e[i].innerHTML;
+			if(text && html)
+				e[i].innerHTML = "<mark>" + Math.floor( text.length / html.length * 100 ) + "</mark>" + e[i].innerHTML;
+		}
+	}
+
 	return {
 		showResource,
 		deleteResource,
@@ -3250,6 +5150,169 @@ const developerUtils = function()
 		toggleShowDocumentBlockStructure,
 		toggleShowDocumentStructureWithNames,
 		inspect,
+		listSelectorsWithLightBackgrounds,
+		numberTableRowsAndColumns,
+		toggleMutationObserver,
+		showSelectorsFor,
+		removeEventListeners,
+		getAllInlineStyles,
+		getAllCssRulesForElement,
+		getAllCssRulesMatching,
+		forceReloadCss,
+		modifyMark,
+		showTextToHTMLRatio,
+	};
+};
+
+const domUtils = function()
+{
+	function wrapElement(node, tag, config)
+	{
+		let s = node.outerHTML;
+		let tagOpen = tag;
+		if(config)
+		{
+			if(config.id)
+				tagOpen += ' id="' + config.id + '" ';
+			if(config.className)
+				tagOpen += ' class="' + config.className + '" ';
+		}
+		s = "<" + tagOpen + ">" + s + "</" + tag + ">";
+		node.outerHTML = s;
+	}
+
+	function wrapElementInner(node, tag, config)
+	{
+		let s = node.innerHTML;
+		let tagOpen = tag;
+		if(config)
+		{
+			if(config.id)
+				tagOpen += ' id="' + config.id + '" ';
+			if(config.className)
+				tagOpen += ' class="' + config.className + '" ';
+		}
+		s = "<" + tagOpen + ">" + s + "</" + tag + ">";
+		node.innerHTML = s;
+	}
+
+	function setAttributeOf(selector, attribute, value)
+	{
+		const e = get(selector);
+		let i = e.length;
+		while(i--)
+			e[i].setAttribute(attribute, value);
+	}
+
+	function removeAttributeOf(selector, attribute)
+	{
+		const e = get(selector);
+		let i = e.length;
+		while(i--)
+			e[i].removeAttribute(attribute);
+	}
+
+	function insertElementBeforeSelectedNode(tagName)
+	{
+		const tag = tagName || "hr";
+		const selection = window.getSelection();
+		if(!selection)
+		{
+			showMessageError("Couldn't get selection");
+			return;
+		}
+		let node = selection.anchorNode;
+		if(node.tagName === undefined)
+			node = node.parentNode;
+		if(node && node.parentNode)
+			node.parentNode.insertBefore(createElement(tag), node);
+	}
+
+	function annotate()
+	{
+		const selection = window.getSelection();
+		if(!selection)
+			return;
+		let node = selection.anchorNode;
+		if(node.tagName === undefined)
+			node = node.parentNode;
+		if(node && node.parentNode)
+		{
+			const d = createElement("ruby");
+			customPrompt("Enter annotation text").then(function(result){
+				d.textContent = result;
+				if(d.textContent.length)
+					node.parentNode.insertBefore(d, node);
+			});
+		}
+	}
+
+	function annotateElement(elem, message)
+	{
+		const annotation = createElement("annotationinfo", { textContent: message });
+		elem.insertBefore(annotation, elem.firstChild);
+	}
+
+	function annotateElementWarning(elem, message)
+	{
+		const annotation = createElement("annotationwarning", { textContent: message });
+		elem.insertBefore(annotation, elem.firstChild);
+	}
+
+	function annotateElementError(elem, message)
+	{
+		const annotation = createElement("annotationerror", { textContent: message });
+		elem.insertBefore(annotation, elem.firstChild);
+	}
+
+	function wrapAnchorNodeInTagHelper(tagName)
+	{
+		if(tagName && tagName.length)
+			wrapElementInner(Nimbus.currentNode, tagName);
+	}
+
+	function wrapAnchorNodeInTag()
+	{
+		const selection = window.getSelection();
+		if(!selection)
+			return;
+		let node = selection.anchorNode;
+		if(node.tagName === undefined)
+			node = node.parentNode;
+		if(!node)
+			return;
+		Nimbus.currentNode = node;
+		customPrompt("Enter tagName to wrap this node in").then(wrapAnchorNodeInTagHelper);
+	}
+
+	function insertHrBeforeAll(selector)
+	{
+		const elems = get(selector);
+		for(let i = 0, ii = elems.length; i < ii; i++)
+			insertBefore(elems[i], document.createElement("hr"));
+	}
+
+	function getTextLength(elem)
+	{
+		if(!elem.textContent)
+			return 0;
+		return elem.textContent.replace(/[^a-zA-Z0-9]/g, "").length;
+	}
+
+	return {
+		wrapElement,
+		wrapElementInner,
+		setAttributeOf,
+		removeAttributeOf,
+		insertElementBeforeSelectedNode,
+		annotate,
+		annotateElement,
+		annotateElementWarning,
+		annotateElementError,
+		wrapAnchorNodeInTagHelper,
+		wrapAnchorNodeInTag,
+		insertHrBeforeAll,
+		getTextLength,
 	};
 };
 
@@ -3836,8 +5899,16 @@ const ariaUtils = function(){
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 const {
+	removeLineBreaks,
 	trim,
 	ltrim,
 	trimAt,
@@ -3854,6 +5925,10 @@ const {
 	unescapeHTML,
 	containsAnyOfTheStrings,
 	startsWithAnyOfTheStrings,
+	removeNonAlpha,
+	replaceDiacritics,
+	sanitizeTitle,
+	escapeForRegExp,
 } = stringUtils();
 
 const {
@@ -3865,6 +5940,7 @@ const {
 	printPropOfObjectArray,
 	printPropsContaining,
 	logElements,
+	showLog,
 } = debugUtils();
 
 const {
@@ -3884,6 +5960,7 @@ const {
 	createReplacementElement,
 	getPropValueSafe,
 	getElemPropSafe,
+	replaceSelectedElement,
 	replaceElementsBySelector,
 	replaceSingleElement,
 	replaceMarkedElements,
@@ -3906,6 +5983,15 @@ const {
 	xlog,
 	ylog,
 	log2,
+	htmlToText,
+	getAllClassesFor,
+	logAllClassesFor,
+	isIncorrectType,
+	replaceClass,
+	zeroPad,
+	isCurrentDomainLink,
+	forAll,
+	makeClassSelector,
 } = utils();
 
 const {
@@ -3914,6 +6000,20 @@ const {
 	showMessageBig,
 	showMessageError,
 	deleteMessage,
+	handleCommandInput,
+	getSelectionOrUserInput,
+	getConsoleHistory,
+	toggleConsole,
+	handleConsoleInput,
+	callFunctionWithArgs,
+	parseCommand,
+	runCommand,
+	openDialog,
+	closeDialog,
+	defaultDialogInputHandler,
+	customPrompt,
+	restoreCustomPromptHistory,
+	closeCustomPrompt,
 } = ui();
 
 const {
@@ -3950,11 +6050,12 @@ const {
 } = markUtils();
 
 const {
+	removeQueryStringFromImageSources,
 	deleteSmallImages,
 	deleteImagesSmallerThan,
 	getBestImageSrc,
 	replaceImagesWithTextLinks,
-	getLargeImages,
+	retrieveLargeImages,
 	getImageWidth,
 	getImageHeight,
 	persistStreamingImages,
@@ -3967,6 +6068,10 @@ const {
 } = imageUtils();
 
 const {
+	replaceIncorrectHeading,
+	replaceEmptyParagraphsWithHr,
+	makeHeadingFromSelection,
+	makeHeadingsPlainText,
 	makeLinksPlainText,
 	makeHeadings,
 	fixHeadings,
@@ -3981,9 +6086,17 @@ const {
 	looksLikeHeading,
 	looksLikeComment,
 	looksLikeExtract,
+	setDocTitleSimple,
+	filterHeadings,
+	chooseDocumentHeading,
+	setDocumentHeading,
+	getBestDomainSegment,
+	setDocTitle,
+	convertDivsToParagraphs,
 } = formattingUtils();
 
 const {
+	retrieveElementsContainingText,
 	cleanupAttributes,
 	cleanupAttributes_regex,
 	cleanupHeadings,
@@ -3996,6 +6109,7 @@ const {
 	removeInlineStyles,
 	cleanupUnicode,
 	deleteLinksContainingText,
+	deleteImagesBySrcContaining,
 	deleteElementsContainingText,
 	deleteElementsWithClassContaining,
 	removeEmojis,
@@ -4003,9 +6117,24 @@ const {
 	deleteEmptyElements,
 	deleteEmptyHeadings,
 	deleteSpecificEmptyElements,
+	replaceFontTags,
+	cleanupLinks,
+	replaceSpansWithTextNodes,
+	removeSpanTags,
+	deleteMarkedElements,
+	replaceCommentsWithPres,
+	replaceAudio,
+	appendInfo,
+	deleteNonContentElements,
+	deleteIframes,
+	deleteImages,
+	retrieve,
+	getContentByParagraphCount,
 } = cleanupUtils();
 
 const {
+	cycleThroughTopLevelElements,
+	deselect,
 	removeAccessKeys,
 	showPassword,
 	echoPassword,
@@ -4020,16 +6149,62 @@ const {
 	fillForms,
 	revealEmptyLinks,
 	revealLinkHrefs,
+	changePage,
+	cycleHighlightTags,
+	setReplacementTag,
+	convertMarkedElementsToList,
+	logout,
+	showPrintLink,
 } = browsingUtils();
 
 const {
+	insertStyleHighlight,
+	insertStyleAnnotations,
+	insertStyleShowErrors,
+	toggleStyleSimpleNegative,
+	toggleStyleGrey,
+	toggleStyleNegative,
+	toggleStyleWhite,
+	toggleStyleShowClasses,
+} = styleUtils();
+
+const {
+	showResource,
+	deleteResource,
 	showResources,
 	toggleBlockEditMode,
 	toggleShowDocumentStructure,
 	toggleShowDocumentBlockStructure,
 	toggleShowDocumentStructureWithNames,
 	inspect,
+	listSelectorsWithLightBackgrounds,
+	numberTableRowsAndColumns,
+	toggleMutationObserver,
+	showSelectorsFor,
+	removeEventListeners,
+	getAllInlineStyles,
+	getAllCssRulesForElement,
+	getAllCssRulesMatching,
+	forceReloadCss,
+	modifyMark,
+	showTextToHTMLRatio,
 } = developerUtils();
+
+const {
+	wrapElement,
+	wrapElementInner,
+	setAttributeOf,
+	removeAttributeOf,
+	insertElementBeforeSelectedNode,
+	annotate,
+	annotateElement,
+	annotateElementWarning,
+	annotateElementError,
+	wrapAnchorNodeInTagHelper,
+	wrapAnchorNodeInTag,
+	insertHrBeforeAll,
+	getTextLength,
+} = domUtils();
 
 const { cleanupStackOverflow, cleanupWikipedia } = websiteSpecificUtils();
 
@@ -4172,7 +6347,6 @@ const Nimbus = {
 		deleteNonContentImages: deleteNonContentImages,
 		deleteSmallImages: deleteSmallImages,
 		deleteSpecificEmptyElements: deleteSpecificEmptyElements,
-		delNewlines: delNewlines,
 		delRange: delRange,
 		deselect: deselect,
 		disableConsoleLogs: disableConsoleLogs,
@@ -4190,12 +6364,11 @@ const Nimbus = {
 		getAllCssRulesMatching: getAllCssRulesMatching,
 		getBestImageSrc: getBestImageSrc,
 		getContentByParagraphCount: getContentByParagraphCount,
-		getElementsContainingText: getElementsContainingText,
-		getLargeImages: getLargeImages,
+		retrieveElementsContainingText: retrieveElementsContainingText,
+		retrieveLargeImages: retrieveLargeImages,
 		getPagerLinks: getPagerLinks,
 		listSelectorsWithLightBackgrounds: listSelectorsWithLightBackgrounds,
 		persistStreamingImages: persistStreamingImages,
-		handleBlockEditClick: handleBlockEditClick,
 		highlightAllMatches: highlightAllMatches,
 		highlightAllTableCellsInRow: highlightAllTableCellsInRow,
 		highlightCode: highlightCode,
@@ -4302,1850 +6475,13 @@ const KEYCODES = Nimbus.KEYCODES;
 //
 //
 //
-
-function listSelectorsWithLightBackgrounds()
-{
-	const THRESHOLD = 200;
-	const e = Array.from(document.getElementsByTagName("*"));
-	let i = e.length;
-	let count = 0;
-	let str = "";
-	for(i = 0, count = 0; i < e.length, count < 4000; i++, count++)
-	{
-		const elem = e[i];
-		if(!elem)
-			continue;
-		count++;
-		const bgColor = getComputedStyle(elem).getPropertyValue("background-color");
-		const rgbValues = bgColor.match(/[0-9]+/g);
-		if(rgbValues)
-		{
-			let average = (Number(rgbValues[0]) + Number(rgbValues[1]) + Number(rgbValues[2])) / 3;
-			if(average > THRESHOLD)
-			{
-				str += createSelector(elem) + "\r\n";
-				// str += padRight(createSelector(elem), 100) + bgColor + "\r\n";
-			}
-		}
-	}
-	console.log(str);
-}
-
-function numberTableRowsAndColumns()
-{
-	if(get("#styleShowTables"))
-	{
-		del("#styleShowTables");
-		return;
-	}
-	const tr = get("tr");
-	for(let i = 0, ii = tr.length; i < ii; i++)
-	{
-		const tableRow = tr[i];
-		tableRow.className = "row" + i;
-		const tableCells = tableRow.getElementsByTagName("td");
-		for(let j = 0, jj = tableCells.length; j < jj; j++)
-			tableCells[j].className = "col" + j;
-		const tableHeaderCells = tableRow.getElementsByTagName("th");
-		for(let j = 0, jj = tableHeaderCells.length; j < jj; j++)
-			tableHeaderCells[j].className = "col" + j;
-	}
-	insertStyle("table, tr, td { box-shadow: inset 1px 1px #444, inset -1px -1px #444; }", "styleShowTables", true);
-}
-
-function parseCommand(s)
-{
-	let args = [];
-	let arg = '';
-	s = trim(s.replace(/\s+/g, ' '));
-	for(let i = 0, ii = s.length; i < ii; i++)
-	{
-		switch(s[i])
-		{
-			case '"':
-				i++;
-				while(s[i] !== '"' && i < ii)
-					arg += s[i++];
-				break;
-			case ' ':
-				args.push(arg);
-				arg = '';
-				break;
-			default:
-				arg += s[i];
-		}
-	}
-	args.push(arg);
-	return args;
-}
-
-function runCommand(s)
-{
-	if(typeof s === "undefined" || !s.length)
-		return;
-	Nimbus.lastCommand = s;
-	const commandSegments = parseCommand(s);
-	if(!commandSegments.length)
-		return;
-	const funcName = commandSegments[0];
-	if(Nimbus.availableFunctions[funcName])
-	{
-		const args = [];
-		for(let i = 1, ii = commandSegments.length; i < ii; i++)
-		{
-			const n = parseInt(commandSegments[i], 10);
-			if(isNaN(n))
-				args.push(commandSegments[i]);
-			else args.push(n);
-		}
-		showMessageBig(funcName + "(" + arrayToStringTyped(args) + ")");
-		Nimbus.availableFunctions[funcName].apply(this, args);
-	}
-	else
-	{
-		showMessageBig(funcName + ": not found");
-	}
-}
-
-function openDialog(inputHandler)
-{
-	if(!get("#xxdialog"))
-	{
-		del("#style-xxdialog");
-		const dialog = createElement("div", { id: "xxdialog" });
-		const dialogInput = createElement("textarea", { id: "xxdialoginput" });
-		dialog.appendChild(dialogInput);
-		document.body.insertBefore(dialog, document.body.firstChild);
-		const s = '#xxdialog { position: fixed; margin: auto; z-index: 10000; height: 60px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 800px; }' +
-			'#xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0; border: 0; width: 100%; height: 100%; overflow: hidden; }';
-		insertStyle(s, "style-xxdialog", true);
-		const handler = inputHandler || defaultDialogInputHandler;
-		dialogInput.addEventListener("keydown", handler, false);
-		dialogInput.focus();
-	}
-}
-
-function closeDialog()
-{
-	const command = get("#xxdialoginput").value;
-	del("#xxdialog");
-	del("#style-xxdialog");
-	return command;
-}
-
-function defaultDialogInputHandler(evt)
-{
-	evt.stopPropagation();
-	switch(evt.keyCode)
-	{
-		case KEYCODES.ESCAPE: closeDialog(); break;
-	}
-}
-
-function customPrompt(message)
-{
-	if(!get("#xxdialog"))
-	{
-		del("#style-xxdialog");
-		const dialog = createElement("div", { id: "xxdialog" });
-		const dialogHeading = createElement("heading", { textContent: message });
-		const dialogInput = createElement("input", { id: "xxdialoginput" });
-		dialog.appendChild(dialogHeading);
-		dialog.appendChild(dialogInput);
-		document.body.insertBefore(dialog, document.body.firstChild);
-		const s = '#xxdialog { position: fixed; margin: auto; z-index: 10000; height: 90px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 60vw; }' +
-			'#xxdialog heading { height: 30px; line-height: 30px; padding: 0 10px; background: #111; display: block; margin: 0; }' +
-			'#xxdialog #xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0 0; margin: 0; border-width: 0 10px; border-color: #000; width: 100%; height: 60px; overflow: hidden; box-sizing: border-box; }';
-		insertStyle(s, "style-xxdialog", true);
-		dialogInput.focus();
-		return new Promise(function(resolve, reject){
-			dialogInput.addEventListener("keydown", function handleCustomPromptInput(evt){
-				evt.stopPropagation();
-				switch(evt.keyCode)
-				{
-					case KEYCODES.ESCAPE:
-						evt.preventDefault();
-						reject(closeCustomPrompt());
-						window.focus();
-						break;
-					case KEYCODES.ENTER:
-						evt.preventDefault();
-						resolve(closeCustomPrompt());
-						window.focus();
-						break;
-					case KEYCODES.UPARROW:
-						evt.preventDefault();
-						restoreCustomPromptHistory(evt.target);
-						break;
-				}
-			}, false);
-		});
-	}
-}
-
-function restoreCustomPromptHistory(inputElement)
-{
-	inputElement.focus();
-	if(Nimbus.lastCommand)
-		setTimeout(function(){ inputElement.value = Nimbus.lastCommand; }, 0);
-}
-
-function closeCustomPrompt()
-{
-	const command = get("#xxdialoginput").value;
-	del("#xxdialog");
-	del("#style-xxdialog");
-	return command;
-}
-
-function getSelectionOrUserInput(promptMessage, callback, isUnary)
-{
-	if(window.getSelection().toString().length)
-	{
-		const s = window.getSelection().toString();
-		callback(s);
-		return;
-	}
-	if(isUnary)
-	{
-		customPrompt(promptMessage).then(callback);
-		return;
-	}
-	customPrompt(promptMessage).then(function(userInput) {
-		if(~userInput.indexOf(" ") || ~userInput.indexOf('"'))
-		{
-			const args = parseCommand(userInput);
-			callback.apply(null, args);
-		}
-		else
-		{
-			callback.call(null, userInput);
-		}
-	});
-}
-
-function callFunctionWithArgs(promptMessage, callback, numArgs)
-{
-	customPrompt(promptMessage).then(function(userInput) {
-		if(!numArgs || numArgs > 1)
-		{
-			const args = parseCommand(userInput);
-			if(numArgs && args.length !== numArgs)
-			{
-				showMessageBig(numArgs + " arguments are required");
-				callFunctionWithArgs(promptMessage, callback, numArgs);
-				return;
-			}
-			callback.apply(null, args);
-		}
-		else
-		{
-			callback.call(null, userInput);
-		}
-	});
-}
-
-function insertElementBeforeSelectedNode(tagName)
-{
-	const tag = tagName || "hr";
-	const selection = window.getSelection();
-	if(!selection)
-		return;
-	let node = selection.anchorNode;
-	if(node.tagName === undefined)
-		node = node.parentNode;
-	if(node && node.parentNode)
-		node.parentNode.insertBefore(createElement(tag), node);
-}
-
-function annotate()
-{
-	const selection = window.getSelection();
-	if(!selection)
-		return;
-	let node = selection.anchorNode;
-	if(node.tagName === undefined)
-		node = node.parentNode;
-	if(node && node.parentNode)
-	{
-		const d = createElement("ruby");
-		customPrompt("Enter annotation text").then(function(result){
-			d.textContent = result;
-			if(d.textContent.length)
-				node.parentNode.insertBefore(d, node);
-		});
-	}
-}
-
-function annotateElement(elem, message)
-{
-	const annotation = createElement("annotationinfo", { textContent: message });
-	elem.insertBefore(annotation, elem.firstChild);
-}
-
-function annotateElementWarning(elem, message)
-{
-	const annotation = createElement("annotationwarning", { textContent: message });
-	elem.insertBefore(annotation, elem.firstChild);
-}
-
-function annotateElementError(elem, message)
-{
-	const annotation = createElement("annotationerror", { textContent: message });
-	elem.insertBefore(annotation, elem.firstChild);
-}
-
-function handleCommandInput(evt)
-{
-	evt.stopPropagation();
-	switch(evt.keyCode)
-	{
-		case KEYCODES.ESCAPE: closeDialog(); break;
-		case KEYCODES.ENTER: runCommand(closeDialog()); break;
-	}
-}
-
-function removeNonAlpha(s)
-{
-	return s.replace(/[^A-Za-z]/g, '');
-}
-
-function changePage(direction)
-{
-	const links = get("a");
-	let matchStrings = [];
-	if(direction === "prev") matchStrings = ["prev", "previous", "previouspage"];
-	else if(direction === "next") matchStrings = ["next", "nextpage", "»"];
-	let i = links.length;
-	while(i--)
-	{
-		const link = links[i];
-		let linkText = links[i].textContent;
-		if(linkText)
-		{
-			linkText = removeWhitespace(linkText).toLowerCase();
-			if(matchStrings.includes(linkText))
-			{
-				link.innerHTML = "<mark>" + link.innerHTML + "</mark>";
-				location.href = link.href;
-				return;
-			}
-		}
-	}
-}
-
-function getAllInlineStyles()
-{
-	let styleText = "";
-	const styleElements = get("style");
-	if(!styleElements)
-		return;
-	for(let j = 0, jj = styleElements.length; j < jj; j++)
-	{
-		const styleElement = styleElements[j];
-		const rules = styleElement.sheet.cssRules;
-		for(let i = 0, ii = rules.length; i < ii; i++)
-			styleText += rules[i].cssText + "\n";
-	}
-	return styleText;
-}
-
-function getAllCssRulesForElement(elem)
-{
-	const sheets = document.styleSheets;
-	const rulesArray = [];
-	let i = sheets.length;
-	while(i--)
-	{
-		const sheet = sheets[i];
-		if(sheet.href && sheet.href.indexOf(location.hostname) === -1)
-			continue;
-		const rules = sheets[i].cssRules;
-		if(!rules) continue;
-		let j = rules.length;
-		while(j--)
-			if(elem.matches(rules[j].selectorText))
-				rulesArray.push(rules[j].cssText);
-	}
-	return rulesArray;
-}
-
-function getAllCssRulesMatching(s)
-{
-	const sheets = document.styleSheets;
-	let i = sheets.length;
-	const regex = new RegExp(s);
-	while(i--)
-	{
-		const rules = sheets[i].cssRules;
-		let j = rules.length;
-		while(j--)
-			if(~rules[j].cssText.indexOf(s))
-				ylog(rules[j].cssText.replace(regex, "<mark>" + s + "</mark>"));
-	}
-}
-
-function wrapAnchorNodeInTagHelper(tagName)
-{
-	if(tagName && tagName.length)
-		wrapElementInner(Nimbus.currentNode, tagName);
-}
-
-function wrapAnchorNodeInTag()
-{
-	const selection = window.getSelection();
-	if(!selection)
-		return;
-	let node = selection.anchorNode;
-	if(node.tagName === undefined)
-		node = node.parentNode;
-	if(!node)
-		return;
-	Nimbus.currentNode = node;
-	customPrompt("Enter tagName to wrap this node in").then(wrapAnchorNodeInTagHelper);
-}
-
-function cycleHighlightTags()
-{
-	const nextTag = getNext(Nimbus.highlightTagName, Nimbus.highlightTagNameList);
-	showMessageBig("Highlight tag is " + nextTag);
-	Nimbus.highlightTagName = nextTag;
-}
-
-function setReplacementTag(tagName)
-{
-	Nimbus.replacementTagName = tagName;
-}
-
-function replaceSelectedElement(tag)
-{
-	const replacementTag = tag ? tag : Nimbus.replacementTagName;
-	const selection = window.getSelection();
-	if(!selection)
-	{
-		showMessageBig("Nothing selected");
-		return;
-	}
-	let node = selection.anchorNode;
-	if(node.tagName === undefined)
-		node = node.parentNode;
-	if(node && node.parentNode)
-		replaceSingleElement(node, replacementTag);
-}
-
-function makeHeadingFromSelection(tagname)
-{
-	const selection = window.getSelection();
-	if(!selection)
-		return;
-	let node = selection.anchorNode;
-	if(node.tagName === undefined)
-		node = node.parentNode;
-	if(node && node.parentNode && node.parentNode.tagName !== "body")
-		node.parentNode.replaceChild(createElement(tagname, { innerHTML: node.innerHTML }), node);
-	else
-		xlog("Could not make heading");
-}
-
-function removeQueryStringFromImageSources()
-{
-	let images = get("img");
-	for(let i = 0, ii = images.length; i < ii; i++)
-	{
-		const image = images[i];
-		image.src = trimAt(image.src, "?");
-	}
-}
-
-function deleteIframes()
-{
-	const numIframes = get("iframe").length;
-	if(numIframes !== undefined)
-	{
-		del("iframe");
-		showMessageBig(numIframes + " iframes deleted");
-	}
-	else
-	{
-		showMessageBig("No iframes found");
-	}
-	deleteElementsContainingText("rp", "iframe:");
-}
-
-function deleteImages()
-{
-	del("svg");
-	const images = get("img");
-	const imagePlaceholders = get("rt");
-	if(images.length)
-	{
-		del("img");
-		showMessageBig("Deleted " + images.length + " images");
-	}
-	else if(imagePlaceholders.length)
-	{
-		del("rt");
-		showMessageBig("Deleted " + imagePlaceholders.length + " image placeholders");
-	}
-	else
-	{
-		showMessageBig("No images found");
-	}
-}
-
-function replaceEmptyParagraphsWithHr()
-{
-	const paras = get("p");
-	let i = paras.length;
-	while(i--)
-	{
-		const para = paras[i];
-		if(trim(para.textContent).length === 0)
-		{
-			let nextPara = paras[i - 1];
-			while(nextPara && trim(nextPara.textContent).length === 0 && i > 0)
-			{
-				nextPara = paras[--i];
-			}
-			para.parentNode.replaceChild(document.createElement("hr"), para);
-		}
-	}
-}
-
-function insertHrBeforeAll(selector)
-{
-	const elems = get(selector);
-	for(let i = 0, ii = elems.length; i < ii; i++)
-		insertBefore(elems[i], document.createElement("hr"));
-}
-
-function replaceSpansWithTextNodes()
-{
-	const spans = get("span");
-	let i = spans.length;
-	while(i--)
-	{
-		const span = spans[i];
-		if(span.innerHTML.indexOf("<") === -1)
-			span.parentNode.replaceChild(document.createTextNode(span.textContent || ""), span);
-	}
-}
-
-function removeSpanTags()
-{
-       let s = document.body.innerHTML;
-       s = s.replace(/<\/{0,}span[^>]*>/g, "");
-       document.body.innerHTML = s;
-}
-
-function deleteMarkedElements()
-{
-	del("." + Nimbus.markerClass);
-}
-
-function replaceCommentsWithPres()
-{
-	let s = document.body.innerHTML;
-	s = s.replace(/<!--/g, '<pre>');
-	s = s.replace(/-->/g, '</pre>');
-	document.body.innerHTML = s;
-}
-
-function replaceAudio()
-{
-	let sources = get("source");
-	let i = sources.length;
-	while(i--)
-	{
-		const source = sources[i];
-		if(source.src)
-		{
-			const audioLink = createElement("a", { href: source.src, textContent: source.src });
-			const audioLinkWrapper = createElementWithChildren("h2", audioLink);
-			source.parentNode.replaceChild(audioLinkWrapper, source);
-		}
-	}
-	replaceElementsBySelector("audio", "div");
-}
-
-function forceReloadCss()
-{
-	showMessageBig("Force-reloading CSS");
-	const styleLinks = document.getElementsByTagName('link');
-	for(let i = 0; i < styleLinks.length; i++)
-	{
-		const styleSheet = styleLinks[i];
-		if(styleSheet.rel.toLowerCase().indexOf('stylesheet') >= 0 && styleSheet.href)
-		{
-			const h = styleSheet.href.replace(/(&|%5C?)forceReload=\d+/, '');
-			styleSheet.href = h + (h.indexOf('?') >= 0 ? '&' : '?') + 'forceReload=' + new Date().valueOf();
-		}
-	}
-}
-
-function insertStyleHighlight()
-{
-	const s = `.nimbushl, .focused { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }
-	.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }
-	.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }`;
-	insertStyle(s, "styleHighlight", true);
-}
-
-function insertStyleAnnotations()
-{
-	const s = `annotationinfo, annotationwarning, annotationerror { display: inline-block; font: 14px helvetica; padding: 2px 5px; border-radius: 0; }
-	annotationinfo { background: #000; color: #0F0; }
-	annotationwarning { background: #000; color: #F90; }
-	annotationerror { background: #A00; color: #FFF; }`;
-	insertStyle(s, "styleAnnotations", true);
-}
-
-function insertStyleShowErrors()
-{
-	const s = ".error { box-shadow: inset 2000px 2000px rgba(255, 0, 0, 1);";
-	insertStyle(s, "styleShowErrors", true);
-}
-
-function toggleStyleSimpleNegative()
-{
-	const s = `body, body[class] {background: #181818; }
-	*, *[class] { background-color: transparent; color: #CCC; border-color: transparent; }
-	h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #FFF; }
-	mark {color: #FF0; }
-	a, a[class] *, * a[class] {color: #09F; }
-	a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #FFF; }
-	a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #048; }
-	button[class], input[class], textarea[class] { border: 2px solid #09F; }
-	button[class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 2px solid #FFF; }`;
-	toggleStyle(s, "styleSimpleNegative", true);
-}
-
-function toggleStyleGrey()
-{
-	const s = `body { background: #203040; color: #ABC; font: 24px "swis721 cn bt"; }
-	h1, h2, h3, h4, h5, h6 { background: #123; padding: 0.35em 10px; font-weight: normal; }
-	body.pad100 { padding: 100px; }
-	body.xwrap { width: 1000px; margin: 0 auto; }
-	mark { background: #049; color: #7CF; padding: 4px 2px; }
-	p { line-height: 135%; text-align: justify; }
-	blockquote { margin: 0 0 0 40px; padding: 10px 20px; border-left: 10px solid #123; }
-	a { text-decoration: none; color: #09F; }
-	em, i, strong, b { font-style: normal; font-weight: normal; color: #FFF; }
-	code { background: #012; color: #ABC; }
-	pre { background: #012; color: #ABC; padding: 20px; }
-	pre q1 { color: #57F; background: #024; }
-	pre q2 { color: #C7F; background: #214; }
-	pre c1 { font-style: normal; color: #F90; background: #331500; }
-	pre c2 { color: #F00; background: #400; }
-	pre b1 { color: #0F0; }
-	pre b2 { color: #FFF; }
-	pre b3 { color: #F90; }
-	pre xk { color: #29F; }
-	pre xh { color: #57F; }
-	pre xv { color: #F47; }`;
-	toggleStyle(s, "styleGrey", true);
-}
-
-function toggleStyleNegative()
-{
-	const s = `html { background: #181818; }
-	html body { margin: 0; }
-	html body, html body[class] { color: #888; background: #242424; font-weight: normal; }
-	body.pad100 { padding: 100px 100px; }
-	body.pad100 table { width: 100%; }
-	body.pad100 td, body.pad100 th { padding: 3px 10px; }
-	body.pad100 img { display: block; max-width: 100%; height: auto; }
-	nav { background: #111; }
-	body.xdark { background: #111; }
-	body.xblack { background: #000; }
-	body.xwrap { width: 1400px; margin: 0 auto; padding: 100px 300px; }
-	html h1, html h2, html h3, html h4, html h5, html h6, html h1[class], html h2[class], html h3[class], html h4[class], html h5[class], html h6[class] { color: #AAA; padding: 10px 20px; line-height: 160%; margin: 2px 0; background: #141414; border: 0; }
-	html h1, html h1[class], div[class] h1 { font: 40px "Swis721 Cn BT", Calibri, sans-serif; color: #FFF; }
-	html h2, html h2[class], div[class] h2 { font: 28px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
-	html h3, html h3[class], div[class] h3 { font: 24px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
-	html h4, html h4[class], div[class] h4 { font: 20px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
-	html h5, html h5[class], div[class] h5 { font: 16px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
-	html h6, html h6[class], div[class] h6 { font: 14px Verdana, sans-serif; color: #999; }
-	html h5, html h6 { padding: 0.5em 10px; }
-	dl { border-left: 20px solid #111; }
-	dt { color: inherit; padding: 0.5em 10px; line-height: 160%; margin: 2px 0; background: #111; border: 0; border-left: 20px solid #0C0C0C; color: #AAA; }
-	dd { color: inherit; padding: 0.25em 10px; line-height: 160%; margin: 2px 0; background: #141414; border: 0; border-left: 20px solid #0C0C0C; }
-	button, select, textarea, html input, html input[class] { border: 0; padding: 5px 10px; background: #242424; box-shadow: inset 0 0 5px #000; color: #999; line-height: 150%; -moz-appearance: none; border-radius: 0; }
-	html input[type="checkbox"] { width: 24px; height: 24px; background: #242424; }
-	button, html input[type="submit"], html input[type="button"] { box-shadow: none; background: #111; }
-	button:hover, button:focus, html input[type="submit"]:hover, input[type="submit"]:focus, html input[type="button"]:hover, html input[type="button"]:focus { background: #000; color: #FFF; }
-	input div { color: #999; }
-	select:focus, textarea:focus, input:focus { color: #999; outline: 0; background: #0C0C0C; }
-	textarea:focus *, input:focus * { color: #999; }
-
-	html a, html a:link { color: #09F; text-decoration: none; text-shadow: none; font: inherit; }
-	html a:visited { color: #36A; text-decoration: none; }
-	html a:hover, html a:focus, html a:hover *, html a:focus * { color: #FFF; text-decoration: none; outline: 0; }
-	html a:active { color: #FFF; outline: none; }
-	html .pagination a:link { font: bold 30px "swis721 cn bt"; border: 0; background: #111; padding: 10px; }
-
-	main, article, section, header, footer, hgroup, nav, ins, small, big, aside, details, font, article, form, fieldset, label, span, span[class], blockquote, div, div[class], ul, ol, li, a, i, b, strong, dl { color: inherit; background: transparent none; line-height: inherit; font-family: inherit; font-size: inherit; font-weight: inherit; text-decoration: inherit; }
-	ul { list-style: none; margin: 0; padding: 10px 0 10px 20px; }
-	li { font-size: 14px; list-style-image: none; background-image: none; line-height: 150%; }
-	tbody, thead, th, tr, td, table { background: #202020; color: inherit; font: 12px Verdana; }
-	body.pad100 ul li { border-left: 5px solid #0C0C0C; padding: 0 0 0 10px; margin: 0 0 2px 0; }
-	cite, u, em, i, b, strong { font-weight: normal; font-style: normal; text-decoration: none; color: #CCC; font-size: inherit; }
-	a u, a em, a i, a b, a strong { color: inherit; }
-	small { font-size: 80%; }
-	input, input *, button, button *, div, td, p { font-size: 12px; font-family: Verdana, sans-serif; line-height: 150%; }
-	p { margin: 0; padding: 5px 0; font-style: normal; font-weight: normal; line-height: 150%; color: inherit; background: inherit; border: 0; }
-	blockquote { margin: 0 0 0 20px; padding: 10px 0 10px 20px; border-style: solid; border-width: 10px 0 0 10px; border-color: #0C0C0C; }
-	blockquote blockquote { margin: 0 0 0 20px; padding: 0 0 0 20px; border-width: 0 0 0 10px; }
-
-	@media (min-width: 2048px)
-	{
-		tbody, thead, th, tr, td, table { background: #202020; color: inherit; font: 22px "Swis721 Cn BT"; }
-		input, input *, button, button *, div, td, p { font-size: 22px; font-family: "Swis721 Cn BT", sans-serif; line-height: 150%; }
-	}
-
-	code { background: #0C0C0C; font-family: Verdcode, Consolas, sans-serif; padding: 1px 2px; }
-	pre { background: #0C0C0C; border-style: solid; border-width: 0 0 0 10px; border-color: #444; padding: 10px 20px; font: 14px Verdcode; }
-	pre, code { color: #999; }
-	pre p { margin: 0; padding: 0; font: 14px Verdcode, Consolas, sans-serif; }
-
-	pre q1 { color: #57F; background: #024; }
-	pre q2 { color: #C7F; background: #214; }
-	pre c1 { font-style: normal; color: #F90; background: #331500; }
-	pre c2 { color: #F00; background: #400; }
-	pre b1 { color: #0F0; }
-	pre b2 { color: #FFF; }
-	pre b3 { color: #F90; }
-	pre xk { color: #29F; }
-	pre xh { color: #57F; }
-	pre xv { color: #F47; }
-
-	markgreen { background: #040 !important; color: #0F0 !important; padding: 2px 0 !important; line-height: inherit !important; }
-	markred { background: #400 !important; color: #F00 !important; padding: 2px 0 !important; line-height: inherit !important; }
-	markblue { background: #036 !important; color: #09F !important; padding: 2px 0 !important; line-height: inherit !important; }
-	markpurple { background: #404 !important; color: #F0F !important; padding: 2px 0 !important; line-height: inherit !important; }
-	markyellow { background: #440 !important; color: #FF0 !important; padding: 2px 0 !important; line-height: inherit !important; }
-
-	a img { border: none; }
-	button img, input img { display: none; }
-	table { border-collapse: collapse; background: #141414; border: 0; }
-	td { vertical-align: top; border-width: 0px; }
-	caption, th { background: #111; border-color: #111; text-align: left; }
-	th, tr, tbody { border: 0; }
-	fieldset { border: 1px solid #111; margin: 0 0 1px 0; }
-	span, ul, ol, li, div { border: 0; }
-	hr { height: 2px; background: #999; border-style: solid; border-color: #999; border-width: 0; margin: 20px 0; }
-	legend { background: #181818; }
-	textarea, textarea div { font-family: Verdcode, Consolas, sans-serif; }
-	samp, mark, hl, kbd { background: #331500; color: #F90; padding: 2px 0; }
-	container { border: 2px solid #F00; margin: 10px; display: block; padding: 10px; }
-	samp a:link, mark a:link, a:link samp, a:link mark { background: #331500; color: #F90; }
-	samp a:visited, mark a:visited, a:visited samp, a:visited mark { color: #e68a00; }
-	mark a:hover, a:hover mark, samp a:hover, a:hover samp { background-color: #4d2000; color: #FFF; }
-	samp, mark mark { font: 24px "Swis721 Cn BT", Calibri, sans-serif; }
-	figure { border: 0; background: #181818; padding: 20px; }
-	figcaption { background: #181818; color: #888; }
-	ruby { margin: 10px 0; background: #000; color: #AAA; padding: 20px 40px; display: block; }
-	rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 24px "Swis721 Cn BT", Calibri, sans-serif; border-top: 50px solid #000; border-bottom: 50px solid #000; }
-	rt { margin: 10px 0; padding: 20px; display: block; background: #181818; }
-	rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }
-	body.xDontShowLinks a, body.xDontShowLinks a *, body.xDontShowLinks a:link { color: inherit; text-decoration: none; }
-	body.xDontShowLinks a:visited *, body.xDontShowLinks a:visited { color: inherit; text-decoration: none; }
-	body.xDontShowLinks a:hover *, body.xDontShowLinks a:focus *, body.xDontShowLinks a:hover, body.xDontShowLinks a:focus { color: #FFF; text-decoration: none; }
-	.nimbushl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }
-	.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }
-	.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
-	user { background: #000; padding: 2px 10px; border-left: 10px solid #09F; margin: 0; }
-	comment { display: block; padding: 5px 10px; border-left: 10px solid #555; background: #222; }`;
-
-	toggleStyle(s, "styleNegative");
-}
-
-function toggleStyleWhite()
-{
-	const s = 'body, input, select, textarea { background: #FFF; color: #000; }' +
-	'input, select, textarea { font: 12px verdana; }';
-	toggleStyle(s, "styleWhite", true);
-}
-
-function toggleStyleShowClasses()
-{
-	const s = `body { background: #333; color: #BBB; }
-	a { color: #09F; text-decoration: none; }
-	div { padding: 0 0 0 10px; margin: 1px 1px 1px 10px; border: 2px solid #000; }
-	div::before, p::before { content: attr(class); color:#FF0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
-	div::after, p::after { content: attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
-	span::before { content: attr(class); color:#0F0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
-	select, textarea, input { background: #444; border: 1px solid red; }
-	button { background: #222; color: #AAA; }
-	nav { border: 6px solid #09F; padding: 20px; margin: 10px; background: #400; }
-	section { border: 6px solid #999; padding: 20px; margin: 10px; background: #040; }
-	main { border: 6px solid #DDD; padding: 20px; margin: 10px; background: #555; }
-	footer { border: 6px solid #555; padding: 20px; margin: 10px; background: #008; }
-	h1, h2, h3, h4, h5, h6 { position: relative; padding: 10px 10px 10px 5rem; background: #300; color: #FFF; }
-	h1::before { content: "h1"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
-	h2::before { content: "h2"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
-	h3::before { content: "h3"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
-	h4::before { content: "h4"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
-	h5::before { content: "h5"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
-	h6::before { content: "h6"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }`;
-	toggleStyle(s, "styleShowClasses", true);
-}
-
-function showSelectorsFor(tagName)
-{
-	const styleId = 'styleShowClassesBySelector';
-	del("#" + styleId);
-	let style = `${tagName}::before { content: attr(id); background: #000; color: #FF0; padding: 1px 2px; font: 14px verdana; }` +
-		`${tagName}::after { content: attr(class); background: #000; color: #F90; padding: 1px 2px; font: 14px verdana; }` +
-		`${tagName} { border: 2px solid #000; }`;
-	insertStyle(style, styleId, true);
-}
-
-function removeEventListeners()
-{
-	let db = document.body;
-	const tempBody = db.cloneNode(true);
-	db.parentNode.replaceChild(tempBody, db);
-
-	const elems = document.getElementsByTagName("*");
-	let i = elems.length;
-	while(i--)
-	{
-		const elem = elems[i];
-		elem.removeAttribute("onmousedown");
-		elem.removeAttribute("onmouseup");
-		elem.removeAttribute("onmouseover");
-		elem.removeAttribute("onclick");
-	}
-}
-
-function replaceDiacritics(s)
-{
-	const diacritics =[
-		/[\300-\306]/g, /[\340-\346]/g,	// A, a
-		/[\310-\313]/g, /[\350-\353]/g,	// E, e
-		/[\314-\317]/g, /[\354-\357]/g,	// I, i
-		/[\322-\330]/g, /[\362-\370]/g,	// O, o
-		/[\331-\334]/g, /[\371-\374]/g,	// U, u
-		/[\321]/g, /[\361]/g,		// N,
-		/[\307]/g, /[\347]/g,		// C, c
-	];
-	const chars = ['A','a','E','e','I','i','O','o','U','u','N','n','C','c'];
-	let i;
-	for(i = 0; i < diacritics.length; i++)
-		s = s.replace(diacritics[i],chars[i]);
-	return s;
-}
-
-function sanitizeTitle(str)
-{
-	if(str === undefined || str === null)
-		return;
-	let s;
-	s = str.toString();
-	s = replaceDiacritics(s);
-
-	s = s.replace(/&/g, " and ");
-	s = s.replace(/\u00df/g, 'SS');
-	s = s.replace(/\u0142/g, "'l");
-	s = s.replace(/\u2018/g, "'");
-	s = s.replace(/\u2019/g, "'");
-	s = s.replace(/[:|\?]/g, " - ");
-	s = s.replace(/[\/]/g, "-");
-	s = s.replace(/[^\+\.\(\)0-9A-Za-z_!@\[\]\-\(\)'",]/g, " ");
-	s = s.replace(/\s+/g, " ");
-
-	return s;
-}
-
-function setDocTitleSimple(s)
-{
-	document.title = s;
-	const heading = getOne("h1");
-	if(!(heading && heading.innerHTML === s))
-	{
-		const h = createElement("h1", { textContent: s });
-		document.body.insertBefore(h, document.body.firstChild);
-	}
-}
-
-function filterHeadings(headings)
-{
-	if(!headings.length)
-		return null;
-	const filteredHeadings = [];
-	for(let i = 0, ii = headings.length; i < ii; i++)
-	{
-		const heading = headings[i];
-		if(!startsWithAnyOfTheStrings(heading.textContent, ["Share", "Comments"]))
-			filteredHeadings.push(heading);
-	}
-	return filteredHeadings;
-}
-
-function chooseDocumentHeading()
-{
-	deleteEmptyHeadings();
-	Nimbus.currentHeadingText = trim( document.title.replace(getBestDomainSegment(location.hostname), "") );
-	del("header h1");
-	const headings = filterHeadings(get("h1, h2"));
-	const candidateHeadingTexts = [];
-	if(headings && headings.length)
-	{
-		for(let i = 0, ii = Math.min(10, headings.length); i < ii; i++)
-		{
-			const heading = headings[i];
-			if(heading.classList.contains("currentHeading"))
-				continue;
-			const text = trim(sanitizeTitle(heading.textContent));
-			if(text.length && !candidateHeadingTexts.includes(text))
-				candidateHeadingTexts.push(text);
-		}
-	}
-	console.log("Nimbus.currentHeadingText: \n\t" + Nimbus.currentHeadingText);
-	console.log("candidateHeadingTexts:\n" + arrayToString(candidateHeadingTexts, "\n"));
-
-	if(candidateHeadingTexts.length && Nimbus.currentHeadingText)
-		Nimbus.currentHeadingText = getNext(Nimbus.currentHeadingText, candidateHeadingTexts);
-
-	const pageNumberStrings = document.body.textContent.match(/Page [0-9]+ of [0-9]+/);
-	if(pageNumberStrings && !Nimbus.currentHeadingText.match(/Page [0-9]+/i))
-			Nimbus.currentHeadingText = Nimbus.currentHeadingText + " - " + pageNumberStrings[0];
-	return Nimbus.currentHeadingText;
-}
-
-function setDocumentHeading(headingText)
-{
-	emptyElement(getOne("header"));
-	const firstHeadingText = document.body.firstChild.textContent;
-	if(firstHeadingText === headingText)
-		return;
-	let newHeading = createElement("h1", { textContent: headingText });
-	let newHeadingWrapper = getOne("header");
-	if(!newHeadingWrapper)
-	{
-		newHeadingWrapper = createElement("header");
-		document.body.insertBefore(newHeadingWrapper, document.body.firstChild);
-	}
-	newHeadingWrapper.appendChild(newHeading);
-	Nimbus.currentHeadingText = headingText;
-}
-
-function getBestDomainSegment(str)
-{
-	if(!str || !str.length)
-		return "";
-	const segmentsToReplace = ["www.", "developer.", ".com", ".org", ".net", ".wordpress"];
-	let hostnameSanitized = str;
-	for(let i = 0, ii = segmentsToReplace.length; i < ii; i++)
-		hostnameSanitized = hostnameSanitized.replace(new RegExp(segmentsToReplace[i]), "");
-	let segments = hostnameSanitized.split(".");
-	let longestSegment = '';
-	let i = segments.length;
-	while(i--)
-	{
-		let segment = segments[i];
-		if(longestSegment.length < segment.length)
-			longestSegment = segment;
-	}
-	return " [" + longestSegment + "]";
-}
-
-function setDocTitle(s)
-{
-	let headingText = sanitizeTitle(s || chooseDocumentHeading());
-	setDocumentHeading(headingText);
-	const domainSegment = getBestDomainSegment(location.hostname);
-	document.title = headingText + domainSegment;
-}
-
-function zeroPad(n)
-{
-	n += '';
-	if(n.length < 2) n = '0' + n;
-	return n;
-}
-
-function appendInfo()
-{
-	if(window.location.href.indexOf("file:///") >= 0) return;
-	const headings4 = get("h4");
-	if(headings4.length && headings4.length > 2 && headings4[headings4.length - 2].textContent.indexOf("URL:") === 0)
-		return;
-
-	const documentUrl = window.location.href.toString();
-
-	const domainLinkWrapper = createElement("h4", { textContent: "Domain: " });
-	const domainLink = document.createElement("a");
-	const documentUrlSegments = documentUrl.split("/");
-	domainLink.textContent = domainLink.href = documentUrlSegments[0] + "//" + documentUrlSegments[2];
-	domainLinkWrapper.appendChild(domainLink);
-	document.body.appendChild(domainLinkWrapper);
-
-	const documentLinkWrapper = createElement("h4", { textContent: "URL: " });
-	const documentLink = document.createElement("a");
-	let url = documentUrl;
-	if(documentUrl.indexOf("?utm_source") > 0)
-		url = url.substr(0, url.indexOf("?utm_source"));
-	documentLink.textContent = documentLink.href = url;
-	documentLinkWrapper.appendChild(documentLink);
-	document.body.appendChild(documentLinkWrapper);
-
-	const saveTime = createElement("h4", { textContent: "Saved at " + getTimestamp() });
-	document.body.appendChild(saveTime);
-}
-
-function replaceFontTags()
-{
-	const f = document.getElementsByTagName("font");
-	const replacements = [];
-	let h;
-	for(let i = 0, ii = f.length; i < ii; i++)
-	{
-		const fontElem = f[i];
-		if(fontElem.getAttribute("size"))
-		{
-			let hl = fontElem.getAttribute("size");
-			if(hl.indexOf("+") >= 0)
-			{
-				hl = hl[1];
-			}
-			switch(hl)
-			{
-				case '7': h = document.createElement("h1"); break;
-				case '6': h = document.createElement("h2"); break;
-				case '5': h = document.createElement("h3"); break;
-				case '4': h = document.createElement("h4"); break;
-				case '3': h = document.createElement("h5"); break;
-				case '2': h = document.createElement("p"); break;
-				case '1': h = document.createElement("p"); break;
-				default: h = document.createElement("p"); break;
-			}
-			h.innerHTML = fontElem.innerHTML;
-			replacements.push(h);
-		}
-		else
-		{
-			h = document.createElement("p");
-			h.innerHTML = fontElem.innerHTML;
-			replacements.push(h);
-		}
-	}
-	for(let i = f.length - 1; i >= 0; i--)
-	{
-		const fontElem = f[i];
-		fontElem.parentNode.replaceChild(replacements[i], fontElem);
-	}
-}
-
-function setAttributeOf(selector, attribute, value)
-{
-	const e = get(selector);
-	let i = e.length;
-	while(i--)
-		e[i].setAttribute(attribute, value);
-}
-
-function removeAttributeOf(selector, attribute)
-{
-	const e = get(selector);
-	let i = e.length;
-	while(i--)
-		e[i].removeAttribute(attribute);
-}
-
-function forAll(selector, callback)
-{
-	const e = get(selector);
-	let i = -1;
-	const len = e.length;
-	while(++i < len)
-		callback(e[i]);
-}
-
-function delNewlines()
-{
-	const paragraphs = document.getElementsByTagName("p");
-	let i = paragraphs.length;
-	while(i--)
-	{
-		const paragraph = paragraphs[i];
-		const s = paragraph.textContent.replace(/\s/g, '');
-		if(s.length === 0 && !paragraph.getElementsByTagName("img").length)
-		{
-			paragraph.remove();
-		}
-	}
-}
-
-function convertDivsToParagraphs()
-{
-	const divs = get("div");
-	let i = divs.length;
-	while(i--)
-	{
-		const div = divs[i];
-		if(div.getElementsByTagName("div").length) continue;
-		let s = div.innerHTML;
-		s = s.replace(/&nbsp;/g, ' ').replace(/\s+/g, '');
-		if(s.length)
-		{
-			if(! (s[0] === '<' && s[1].toLowerCase() === "p")) div.innerHTML = '<p>' + div.innerHTML + '</p>';
-		}
-		else
-		{
-			div.remove();
-		}
-	}
-}
-
-function makeClassSelector(className)
-{
-	if(className.indexOf(".") !== 0)
-		return "." + trim(className);
-	return trim(className);
-}
-
-function convertMarkedElementsToList(tagName)
-{
-	const parentTagName = tagName || "ul";
-	const elemsToJoin = get(makeClassSelector(Nimbus.markerClass));
-	const parent = document.createElement(parentTagName);
-	for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
-	{
-		const child = document.createElement("li");
-		child.innerHTML = elemsToJoin[i].innerHTML;
-		parent.appendChild(child);
-	}
-	insertBefore(elemsToJoin[0], parent);
-	del(Nimbus.markerClass);
-}
-
-function logout()
-{
-	switch(location.hostname)
-	{
-		case 'mail.google.com':
-		case 'accounts.google.com':
-			location.href = 'https://accounts.google.com/Logout';
-			return;
-	}
-	let e, i, ii, found = false, s;
-	e = get("a");
-	i = e.length;
-	for(i = 0, ii = e.length; i < ii; i++)
-	{
-		const node = e[i];
-		if(node.href)
-		{
-			s = normalizeString(node.href);
-			if((~s.indexOf("logout") && s.indexOf("logout_gear") === -1) || ~s.indexOf("signout"))
-			{
-				found = true;
-				showMessageBig(node.href);
-				node.classList.add(Nimbus.markerClass);
-				node.click();
-				break;
-			}
-		}
-		if(node.textContent)
-		{
-			s = normalizeString(node.textContent);
-			if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
-			{
-				found = true;
-				showMessageBig(node.href);
-				node.classList.add(Nimbus.markerClass);
-				node.click();
-				break;
-			}
-		}
-	}
-	if(!found)
-	{
-		e = document.querySelectorAll("input", "button");
-		for(i = 0, ii = e.length; i < ii; i++)
-		{
-			const node = e[i];
-			if(node.value)
-			{
-				s = normalizeString(node.value);
-				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
-				{
-					found = true;
-					showMessageBig("Logging out...");
-					node.classList.add(Nimbus.markerClass);
-					node.click();
-					break;
-				}
-			}
-			else if(node.textContent)
-			{
-				s = normalizeString(node.textContent);
-				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
-				{
-					found = true;
-					showMessageBig("Logging out...");
-					node.classList.add(Nimbus.markerClass);
-					node.click();
-					break;
-				}
-			}
-		}
-
-	}
-	if(!found)
-	{
-		showMessageBig("Logout link not found");
-	}
-}
-
-function showPrintLink()
-{
-	let i, found = false;
-	const e = get("a");
-	i = e.length;
-	while(i--)
-	{
-		const href = e[i].href;
-		if(href && href.toLowerCase().indexOf("print") >= 0)
-		{
-			found = true;
-			const printLink = createElement("a", { href: href, textContent: "Print" });
-			document.body.insertBefore(createElementWithChildren("h2", printLink), document.body.firstChild);
-			printLink.focus();
-			break;
-		}
-	}
-	if(!found)
-	{
-		showMessageBig("Print link not found");
-	}
-}
-
-function handleBlockEditClick(e)
-{
-	e.stopPropagation();
-	let targ;
-	let ctrlOrMeta = "ctrlKey";
-	if(navigator.userAgent.indexOf("Macintosh") !== -1)
-		ctrlOrMeta = "metaKey";
-	if(!e) e = window.event;
-	if(e.target)
-	{
-		targ = e.target;
-	}
-	const tn = targ.tagName.toLowerCase();
-	// Get clicked element
-	if(e[ctrlOrMeta] && e.shiftKey)
-	{
-		document.body.innerHTML = targ.innerHTML;
-		toggleBlockEditMode();
-		return;
-	}
-	// delete clicked element
-	else if(e[ctrlOrMeta] && !e.shiftKey)
-	{
-		if(tn === 'body')
-			return;
-		if(tn === "li" || tn === "p")
-			targ = targ.parentNode;
-		targ.remove();
-		return false;
-	}
-	// append clicked element to a div
-	else if(e.shiftKey)
-	{
-		if(!document.getElementById("newbody"))
-		{
-			const newbody = document.createElement("div");
-			newbody.id = "newbody";
-			document.body.appendChild(newbody);
-		}
-		if(targ.tagName.toLowerCase() === 'body')
-			return;
-		document.getElementById("newbody").appendChild(targ);
-	}
-	return true;
-}
-
-function htmlToText(elem)
-{
-	elem.innerHTML = elem.textContent;
-}
-
-function makeHeadingsPlainText()
-{
-	forAll("h1, h2, h3, h4, h5, h6", htmlToText);
-}
-
-function getElementsContainingText(selector, text)
-{
-	if(!selector.length)
-		return;
-	let i, ii;
-	const e = get(selector);
-	const tempNode = document.createElement("div");
-	if(text && text.length)
-	{
-		for(i = 0, ii = e.length; i < ii; i++)
-			if(e[i].textContent && e[i].textContent.indexOf(text) !== -1 && !e[i].querySelector(selector))
-				tempNode.appendChild(e[i]);
-	}
-	else
-	{
-		if(e.length)
-			for(i = 0, ii = e.length; i < ii; i++)
-				tempNode.appendChild(e[i]);
-		else
-			tempNode.appendChild(e);
-	}
-	if(tempNode.innerHTML.length)
-		document.body.innerHTML = tempNode.innerHTML;
-	else
-		showMessageBig("Not found");
-}
-
-function retrieve(selector)
-{
-	const elementsToGet = get(selector);
-	const tempNode = document.createElement("div");
-	if(elementsToGet.length)
-	{
-		for(let i = 0, ii = elementsToGet.length; i < ii; i++)
-			tempNode.appendChild(elementsToGet[i]);
-	}
-	else if(elementsToGet)
-	{
-		tempNode.appendChild(elementsToGet);
-	}
-	if(tempNode.innerHTML.length)
-	{
-		del(["link", "script", "iframe"]);
-		while(document.body.firstChild)
-			document.body.firstChild.remove();
-		document.body.appendChild(tempNode);
-	}
-	else
-	{
-		showMessageBig(`${selector} not found`);
-	}
-}
-
-function deleteNonContentElements()
-{
-	const markerClass = "." + Nimbus.markerClass;
-	if(get(markerClass).length)
-	{
-		del(markerClass);
-		cleanupGeneral();
-		return;
-	}
-	const sClass = "toget";
-
-	replaceElementsBySelector("article", "div");
-	markNavigationalLists();
-	deleteNonContentImages();
-	deleteEmptyElements("p");
-	deleteEmptyElements("div");
-	return;
-}
-
-function getContentByParagraphCount()
-{
-	const markerClass = "." + Nimbus.markerClass;
-	if(get(markerClass).length)
-	{
-		const title = document.title;
-		retrieve(markerClass);
-		setDocTitleSimple(title);
-		cleanupGeneral();
-		return;
-	}
-	del(["nav", "footer"]);
-	insertStyleHighlight();
-	const paragraphs = get("p");
-	if(!paragraphs)
-	{
-		showMessageError("No paragraphs found");
-		return;
-	}
-	const longParagraphs = [];
-	for(let i = 0, ii = paragraphs.length; i < ii; i++)
-	{
-		const paragraph = paragraphs[i];
-		if(paragraph.textContent && normalizeString(paragraph.textContent).length > 100)
-		{
-			paragraph.classList.add("longParagraph");
-			longParagraphs.push(paragraph);
-		}
-	}
-	let candidateDivs = [];
-	for(let i = 0, ii = longParagraphs.length; i < ii; i++)
-	{
-		const tempContainer = longParagraphs[i].closest("div");
-		if(tempContainer)
-			candidateDivs.push(tempContainer);
-	}
-	let highestNumParagraphs = 0;
-	let contentDiv;
-	for(let i = 0, ii = candidateDivs.length; i < ii; i++)
-	{
-		const div = candidateDivs[i];
-		let numParagraphs = div.querySelectorAll(".longParagraph").length;
-		if(numParagraphs > highestNumParagraphs)
-		{
-			highestNumParagraphs = numParagraphs;
-			contentDiv = div;
-		}
-	}
-	while(
-		contentDiv &&
-		contentDiv.parentNode &&
-		contentDiv.parentNode.tagName !== "BODY" &&
-		contentDiv.querySelectorAll(".longParagraph").length < longParagraphs.length * 0.8
-	)
-	{
-		contentDiv = contentDiv.parentNode;
-		contentDiv.classList.add("nimbushl2");
-	}
-	if(contentDiv)
-		contentDiv.classList.add(Nimbus.markerClass);
-}
-
-function modifyMark(direction, keepSelection)
-{
-	let currentElement;
-	const markedElements = get(makeClassSelector(Nimbus.markerClass));
-	if(markedElements && markedElements.length)
-		currentElement = markedElements[markedElements.length - 1];
-	else
-		currentElement = document.body.firstElementChild;
-	if(!currentElement)
-	{
-		showMessageError("Couldn't get marked element");
-		return;
-	}
-	let nextElement;
-	switch(direction)
-	{
-		case "expand": nextElement = currentElement.parentNode; break;
-		case "contract": nextElement = currentElement.firstElementChild; break;
-		case "previous": nextElement = currentElement.previousElementSibling; break;
-		case "next": nextElement = currentElement.nextElementSibling; break;
-	}
-	if(nextElement && (nextElement.nodeType !== 1 || nextElement.tagName === "MESSAGE"))
-		nextElement = document.body.firstElementChild;
-	if(!nextElement)
-	{
-		showMessageError("Couldn't get next element");
-		return;
-	}
-	if(nextElement.tagName === 'BODY')
-		nextElement = nextElement.firstElementChild;
-	if(!keepSelection)
-		currentElement.classList.remove(Nimbus.markerClass);
-	nextElement.classList.add(Nimbus.markerClass);
-	showMessageBig("Marked node is " + createSelector(nextElement));
-}
-
-function cycleThroughTopLevelElements(boolReverse)
-{
-	const hl = get("." + Nimbus.markerClass);
-	consoleLog(hl);
-	if(hl.length && hl.length > 1)
-	{
-		showMessageError("More than one element is marked");
-		return;
-	}
-	insertStyleHighlight();
-	const candidateElements = get("body > div, body > section, body > main, body > nav, body > h1, body > h2");
-	printPropOfObjectArray(candidateElements, "tagName");
-	let found = false;
-	if(boolReverse)
-	{
-		for(let i = 0, ii = candidateElements.length; i < ii; i++)
-		{
-			const e = candidateElements[i];
-			if(e.classList.contains(Nimbus.markerClass))
-			{
-				found = true;
-				e.classList.remove(Nimbus.markerClass);
-				if(i > 0)
-					candidateElements[i - 1].classList.add(Nimbus.markerClass);
-				else
-					candidateElements[ii - 1].classList.add(Nimbus.markerClass);
-				break;
-			}
-		}
-	}
-	else
-	{
-		for(let i = 0, ii = candidateElements.length; i < ii; i++)
-		{
-			const e = candidateElements[i];
-			if(e.classList.contains(Nimbus.markerClass))
-			{
-				found = true;
-				e.classList.remove(Nimbus.markerClass);
-				if(i < ii - 1)
-					candidateElements[i + 1].classList.add(Nimbus.markerClass);
-				else
-					candidateElements[0].classList.add(Nimbus.markerClass);
-				break;
-			}
-		}
-	}
-	if(!found)
-		candidateElements[0].classList.add(Nimbus.markerClass);
-}
-
-function getTextLength(elem)
-{
-	if(!elem.textContent)
-		return 0;
-	return elem.textContent.replace(/[^a-zA-Z0-9]/g, "").length;
-}
-
-function escapeForRegExp(str)
-{
-	const specials = new RegExp("[.*+?|()\\[\\]{}\\\\]", "g");
-	return str.replace(specials, "\\$&");
-}
-
-function removeLineBreaks(s)
-{
-	s = s.replace(/\r\n/g, " ");
-	s = s.replace(/\r/g, " ");
-	s = s.replace(/\n/g, " ");
-	s = s.replace(/\s+/g, " ");
-	return s;
-}
-
-function deselect()
-{
-	window.getSelection().removeAllRanges();
-}
-
-function deleteImagesBySrcContaining(str)
-{
-	const elems = document.getElementsByTagName("img");
-	let i = elems.length;
-	while(i--)
-	{
-		const elem = elems[i];
-		if(~elem.src.indexOf(str))
-		{
-			xlog("Deleting image with src " + elem.src);
-			elem.remove();
-		}
-	}
-}
-
-function getKeys(obj)
-{
-	const keys = [];
-	let key;
-	for(key in obj)
-		if(obj.hasOwnProperty && obj.hasOwnProperty(key))
-			keys.push(key);
-	return keys;
-}
-
-function cleanupLinks()
-{
-	const links = get("a");
-	let i = links.length;
-	while(i--)
-	{
-		const link = links[i];
-		let newLink;
-		if(link.id)
-			newLink = createElement("a", { innerHTML: link.innerHTML, href: link.href, id: link.id });
-		else
-			newLink = createElement("a", { innerHTML: link.innerHTML, href: link.href });
-		link.parentNode.replaceChild(newLink, link);
-	}
-}
-
-function replaceClass(class1, class2)
-{
-	const e = document.querySelectorAll("." + class1);
-	let i = e.length;
-	showMessageBig("Replacing " + class1 + " with " + class2 + " on " + i + "elements");
-	while(i--)
-	{
-		e[i].classList.remove(class1);
-		e[i].classList.add(class2);
-	}
-}
-
-function wrapElement(node, tag, config)
-{
-	let s = node.outerHTML;
-	let tagOpen = tag;
-	if(config)
-	{
-		if(config.id)
-			tagOpen += ' id="' + config.id + '" ';
-		if(config.className)
-			tagOpen += ' class="' + config.className + '" ';
-	}
-	s = "<" + tagOpen + ">" + s + "</" + tag + ">";
-	node.outerHTML = s;
-}
-
-function wrapElementInner(node, tag, config)
-{
-	let s = node.innerHTML;
-	let tagOpen = tag;
-	if(config)
-	{
-		if(config.id)
-			tagOpen += ' id="' + config.id + '" ';
-		if(config.className)
-			tagOpen += ' class="' + config.className + '" ';
-	}
-	s = "<" + tagOpen + ">" + s + "</" + tag + ">";
-	node.innerHTML = s;
-}
-
-function isCurrentDomainLink(s)
-{
-	const urlSegments = s.split("/");
-	if(urlSegments[2] === location.hostname)
-	{
-		if(urlSegments.length === 3)
-			return true;
-		if(urlSegments.length === 4 && urlSegments[urlSegments.length - 1].length === 0)
-			return true;
-	}
-	return false;
-}
-
-function replaceIncorrectHeading()
-{
-	let heading1, heading1link, temp;
-	if(get("h1"))
-	{
-		heading1 = getOne("h1");
-		heading1link = heading1.querySelector("a");
-		if(heading1link)
-		{
-			if(isCurrentDomainLink(heading1link.href))
-			{
-				temp = createElement("h3", { innerHTML: heading1.innerHTML });
-				heading1.parentNode.replaceChild(temp, heading1);
-			}
-		}
-	}
-}
-
-function showLog(prepend)
-{
-	let logDiv;
-	if(Nimbus.logString.length > 0)
-	{
-		logDiv = document.createElement("log");
-		logDiv.innerHTML = Nimbus.logString;
-		if(prepend === true)
-			document.body.insertBefore(logDiv, document.body.firstChild);
-		else
-			document.body.appendChild(logDiv);
-		Nimbus.logString = "";
-	}
-	else
-		ylog("No logs");
-}
-
-function showTextToHTMLRatio()
-{
-	let text, html;
-	const e = get("body > div, body > main, body > section");
-	let i = e.length;
-	while(i--)
-	{
-		text = e[i].textContent;
-		html = e[i].innerHTML;
-		if(text && html)
-			e[i].innerHTML = "<mark>" + Math.floor( text.length / html.length * 100 ) + "</mark>" + e[i].innerHTML;
-	}
-}
-
-function logMutations(mutations)
-{
-	let i, ii;
-	for(i = 0, ii = mutations.length; i < ii; i++)
-	{
-		const mutation = mutations[i];
-		if(mutation.type === "childList")
-		{
-			if(mutation.addedNodes.length)
-			{
-				for(let j = 0, jj = mutation.addedNodes.length; j < jj; j++)
-					console.log(padRight("Mutation: added", 25) + createSelector(mutation.addedNodes[j]));
-			}
-			if(mutation.removedNodes.length)
-			{
-				for(let j = 0, jj = mutation.removedNodes.length; j < jj; j++)
-					console.log(padRight("Mutation: removed", 25) + createSelector(mutation.removedNodes[j]));
-			}
-		}
-		else if(mutation.type === "attributes")
-		{
-			console.log(padRight("Mutation: attribute", 25) + padRight(createSelector(mutation.target), 50) + "'" + mutation.attributeName + "' changed to '" + mutation.target.getAttribute(mutation.attributeName) + "'");
-		}
-	}
-}
-
-function toggleMutationObserver(watchAttributes)
-{
-	if(Nimbus.isObservingMutations)
-	{
-		Nimbus.observer.disconnect();
-		Nimbus.isObservingMutations = false;
-		showMessageBig("Stopped observing mutations");
-		return;
-	}
-	Nimbus.observer = new MutationObserver(logMutations);
-	let config = { childList: true };
-	let message = "Observing mutations";
-	if(watchAttributes)
-	{
-		config.attributes = true;
-		config.subtree = true;
-		message += " with attributes";
-	}
-	Nimbus.observer.observe(getOne("body"), config);
-	showMessageBig(message);
-	Nimbus.isObservingMutations = true;
-}
-
-function handleConsoleInput(evt, consoleType)
-{
-	function insertTab(evt)
-	{
-		const targ = evt.target;
-		evt.preventDefault();
-		evt.stopPropagation();
-		const iStart = targ.selectionStart;
-		const iEnd = targ.selectionEnd;
-		targ.value = targ.value.substr(0, iStart) + '\t' + targ.value.substr(iEnd, targ.value.length);
-		targ.setSelectionRange(iStart + 1, iEnd + 1);
-	}
-
-	const userInputElement = getOne("#userInput");
-	if(!userInputElement)
-		return;
-	const inputText = userInputElement.value;
-	if(!inputText || !inputText.length)
-		return;
-	if(consoleType === "js")
-		Nimbus.jsConsoleText = inputText;
-	else if(consoleType === "css")
-		Nimbus.cssConsoleText = inputText;
-	const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
-	switch(evt.keyCode)
-	{
-		case KEYCODES.ENTER:
-			if(evt[ctrlOrMeta])
-			{
-				if(consoleType === "js")
-					eval(inputText);
-				else if(consoleType === "css")
-					insertStyle(inputText, "userStyle", true);
-			}
-			break;
-		case KEYCODES.TAB:
-			insertTab(evt);
-			return false;
-		case KEYCODES.ESCAPE:
-			toggleConsole();
-			break;
-	}
-}
-
-function getConsoleHistory(consoleType)
-{
-	switch(consoleType)
-	{
-		case "css": return Nimbus.cssConsoleText || "";
-		case "js": return Nimbus.jsConsoleText || "";
-		default: return "";
-	}
-}
-
-function toggleConsole(consoleType)
-{
-	if(get("#userInputWrapper"))
-	{
-		del("#userInputWrapper");
-		del("#styleUserInputWrapper");
-		return;
-	}
-	if(!consoleType || !["css", "js"].includes(consoleType))
-	{
-		showMessageError("toggleConsole needs a consoleType");
-		return;
-	}
-	let dialogStyle;
-	const consoleBackgroundColor = consoleType === "css" ? "#036" : "#000";
-	dialogStyle = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; }' +
-		'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: bold 18px Consolas, monospace; width: 100%; height: 100%; padding: 10px; border: 0; outline: 0; }';
-	insertStyle(dialogStyle, "styleUserInputWrapper", true);
-
-	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
-	const inputTextarea = createElement("textarea", { id: "userInput", value: getConsoleHistory(consoleType) });
-	const handleKeyDown = function(event){ handleConsoleInput(event, consoleType); };
-	inputTextarea.addEventListener("keydown", handleKeyDown);
-	inputTextareaWrapper.appendChild(inputTextarea);
-	document.body.appendChild(inputTextareaWrapper);
-	inputTextarea.focus();
-}
-
-function logAllClassesFor(selector)
-{
-	console.log(getAllClassesFor(selector).join("\n"));
-}
-
-function getAllClassesFor(selector)
-{
-	const t1 = performance.now();
-	let sel = "*";
-	if(selector && selector.length)
-		sel = selector;
-	const nodes = get(sel);
-	const classes = {};
-	let i = nodes.length;
-	while(i--)
-	{
-		const classList = Array.from(nodes[i].classList);
-		if(!classList.length)
-		{
-			continue;
-		}
-		const elementClasses = classList.join('.');
-		const elementClassesSanitized = elementClasses.replace(/[^a-zA-Z0-9]+/g, '');
-		classes[elementClassesSanitized] = elementClasses;
-	}
-	const keys = Object.keys(classes);
-	let result = [];
-	for(let j = 0, jj = keys.length; j < jj; j++)
-	{
-		result.push(classes[keys[j]]);
-	}
-	const t2 = performance.now();
-	consoleLog(t2 - t1 + " ms: getAllClassesFor");
-	return result;
-}
-
-function isIncorrectType(x, type)
-{
-	if(typeof x === type)
-		return false;
-	console.warn("Expected " + x + " to be " + type + "; got " + typeof x);
-	return true;
-}
+//
+//
+//
+//
+//
+//
+//
 
 function timer(identifier, durationSeconds)
 {
@@ -6211,133 +6547,6 @@ function timer(identifier, durationSeconds)
 	return { start, stop, update, reset, destroy };
 }
 
-function autoCompleteInputBox()
-{
-	const inputComponent = Nimbus.autoCompleteInputComponent;
-
-	function updateInputField()
-	{
-		if(inputComponent.currentIndex !== -1 && inputComponent.matches[inputComponent.currentIndex])
-			getOne("#autoCompleteInput").value = inputComponent.matches[inputComponent.currentIndex];
-	}
-
-	function highlightPrevMatch()
-	{
-		if(inputComponent.currentIndex > 0)
-			inputComponent.currentIndex--;
-		renderMatches();
-	}
-
-	function highlightNextMatch()
-	{
-		if(inputComponent.currentIndex < inputComponent.matches.length - 1)
-			inputComponent.currentIndex++;
-		renderMatches();
-	}
-
-	function onAutoCompleteInputKeyUp(evt)
-	{
-		const inputText = getOne("#autoCompleteInput").value;
-		if(!inputText)
-		{
-			clearMatches();
-			return;
-		}
-		showMatches(inputText);
-		switch(evt.keyCode)
-		{
-			case KEYCODES.TAB: updateInputField(); break;
-			case KEYCODES.ENTER: updateInputField(); executeFunction(); break;
-		}
-	}
-
-	function onAutoCompleteInputKeyDown(evt)
-	{
-		switch(evt.keyCode)
-		{
-			case KEYCODES.TAB: evt.preventDefault(); break;
-			case KEYCODES.ESCAPE: evt.preventDefault(); close(); break;
-			case KEYCODES.UPARROW: evt.preventDefault(); highlightPrevMatch(); break;
-			case KEYCODES.DOWNARROW: evt.preventDefault(); highlightNextMatch(); break;
-		}
-	}
-
-	function renderMatches()
-	{
-		let s = "";
-		for(let i = 0, ii = inputComponent.matches.length; i < ii; i++)
-		{
-			if(inputComponent.currentIndex === i)
-				s += '<match class="current">' + inputComponent.matches[i] + "</match>";
-			else
-				s += '<match>' + inputComponent.matches[i] + "</match>";
-		}
-		get("#autoCompleteMatches").innerHTML = s;
-	}
-
-	function showMatches(str)
-	{
-		if(!str || !str.length || str.length < 2)
-		{
-			emptyElement(get("#autoCompleteMatches"));
-			inputComponent.currentIndex = -1;
-			return;
-		}
-		str = str.toLowerCase();
-
-		inputComponent.matches = [];
-		const commands = Object.keys(Nimbus.availableFunctions);
-		for(let i = 0, ii = commands.length; i < ii; i++)
-		{
-			if(~commands[i].toLowerCase().indexOf(str))
-				inputComponent.matches.push(commands[i]);
-		}
-		renderMatches();
-	}
-
-	function clearMatches()
-	{
-		inputComponent.matches = [];
-		inputComponent.currentIndex = -1;
-		renderMatches();
-	}
-
-	function open()
-	{
-		const style = 'autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2000000000; font-family: "Swis721 Cn BT"; }' +
-			'autocompleteinputwrapper input { width: 100%; height: 3rem; font-size: 32px; background: #000; color: #FFF; border: 0; outline: 0; display: block; font-family: inherit; }' +
-			'autocompleteinputwrapper matches { display: block; background: #222; color: #CCC; }' +
-			'autocompleteinputwrapper match { display: block; padding: 2px 10px; font-size: 24px; }' +
-			'autocompleteinputwrapper match.current { background: #303030; color: #FFF; }' +
-			'autocompleteinputwrapper em { display: inline-block; width: 200px; }';
-		insertStyle(style, "styleAutoCompleteInputBox", true);
-		const dialogWrapper = createElement("autocompleteinputwrapper", { id: "autoCompleteInputWrapper" });
-		const inputElement = createElement("input", { id: "autoCompleteInput", autocomplete: "randomstring" });
-		const optionsList = createElement("matches", { id: "autoCompleteMatches" });
-		inputElement.addEventListener("keyup", onAutoCompleteInputKeyUp);
-		inputElement.addEventListener("keydown", onAutoCompleteInputKeyDown);
-		dialogWrapper.appendChild(inputElement);
-		dialogWrapper.appendChild(optionsList);
-		document.body.appendChild(dialogWrapper);
-		inputElement.focus();
-	}
-
-	function close()
-	{
-		del("#autoCompleteInputWrapper");
-	}
-
-	function executeFunction()
-	{
-		const command = getOne("#autoCompleteInput").value;
-		clearMatches();
-		runCommand(command);
-		close();
-	}
-
-	return { open, close };
-}
-
 function inject()
 {
 	document.body.classList.add("nimbusDark");
@@ -6354,37 +6563,6 @@ function inject()
 	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
 }
 
-function main()
-{
-	let load = true;
-	if(location.hostname)
-	{
-		switch(location.hostname)
-		{
-			case "maps.google.com.au":
-			case "maps.google.com":
-				load = false;
-				break;
-			case "en.wikipedia.org":
-			case "secure.wikimedia.org":
-				cleanupWikipedia();
-				break;
-			case "en.m.wikipedia.org":
-				location.href = location.href.replace(/en\.m\./, "en.");
-				break;
-		}
-	}
-	if(load)
-		setTimeout(inject, 200);
-	else
-		showMessageBig("Not injected");
-}
-
-//
-//
-//	Keyboard shortcuts
-//
-//
 function handleKeyDown(e)
 {
 	let shouldPreventDefault = true;
@@ -6467,7 +6645,7 @@ function handleKeyDown(e)
 			case KEYCODES.A: annotate(); break;
 			case KEYCODES.C: deleteNonContentElements(); break;
 			case KEYCODES.D: del("log"); break;
-			case KEYCODES.G: callFunctionWithArgs("Retrieve elements (optionally containing text)", getElementsContainingText); break;
+			case KEYCODES.G: callFunctionWithArgs("Retrieve elements (optionally containing text)", retrieveElementsContainingText); break;
 			case KEYCODES.K: showPrintLink(); break;
 			case KEYCODES.L: logout(); break;
 			case KEYCODES.P: getPagerLinks(); break;
@@ -6540,6 +6718,32 @@ function handleKeyDown(e)
 		}
 	}
 	window.focus();
+}
+
+function main()
+{
+	let load = true;
+	if(location.hostname)
+	{
+		switch(location.hostname)
+		{
+			case "maps.google.com.au":
+			case "maps.google.com":
+				load = false;
+				break;
+			case "en.wikipedia.org":
+			case "secure.wikimedia.org":
+				cleanupWikipedia();
+				break;
+			case "en.m.wikipedia.org":
+				location.href = location.href.replace(/en\.m\./, "en.");
+				break;
+		}
+	}
+	if(load)
+		setTimeout(inject, 200);
+	else
+		showMessageBig("Not injected");
 }
 
 main();
