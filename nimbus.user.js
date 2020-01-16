@@ -1646,8 +1646,11 @@ const markUtils = function()
 	function markUserLinks()
 	{
 		forAll("a", function(link){
-			if(link.href && containsAnyOfTheStrings(link.href, ["/u/", "/user", "/member"]) && link.parentNode && link.parentNode.tagName !== "USER")
-				wrapElement(link, "user");
+			if(
+				link.href &&
+				containsAnyOfTheStrings(link.href, ["/u/", "/user", "/member", "action=profile"]) &&
+				link.parentNode && link.parentNode.tagName !== "USER"
+			)
 		});
 	}
 
