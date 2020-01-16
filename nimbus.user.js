@@ -968,6 +968,28 @@ const utils = function()
 		return trim(className);
 	}
 
+	function simplifyClassNames()
+	{
+		const elems = get("div");
+		const classMap = {};
+		const baseClassName = "class";
+		let i = elems.length;
+		while(i--)
+		{
+			const elem = elems[i];
+			const oldClass = elem.className.replace(/[^a-zA-Z]+/g, "");
+			elem.className = oldClass;
+			classMap[oldClass] = "placeholder";
+		}
+		let keys = Object.keys(classMap);
+		for(let i = 0, ii = keys.length; i < ii; i++)
+		{
+			const oldClass = keys[i];
+			const newClass = baseClassName + i;
+			replaceClass(oldClass, newClass);
+		}
+	}
+
 	return {
 		get,
 		getOne,
@@ -1018,6 +1040,7 @@ const utils = function()
 		isCurrentDomainLink,
 		forAll,
 		makeClassSelector,
+		simplifyClassNames,
 	};
 };
 
@@ -6012,6 +6035,7 @@ const {
 	isCurrentDomainLink,
 	forAll,
 	makeClassSelector,
+	simplifyClassNames,
 } = utils();
 
 const {
@@ -6457,6 +6481,7 @@ const Nimbus = {
 		sanitizeTitle: sanitizeTitle,
 		setAttributeOf: setAttributeOf,
 		setDocTitle: setDocTitle,
+		simplifyClassNames: simplifyClassNames,
 		forceWidthForAllImages: forceWidthForAllImages,
 		showPrintLink: showPrintLink,
 		showResources: showResources,
