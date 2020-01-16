@@ -979,12 +979,15 @@ const utils = function()
 			const elem = elems[i];
 			const oldClass = elem.className.replace(/[^a-zA-Z]+/g, "");
 			elem.className = oldClass;
-			classMap[oldClass] = "placeholder";
+			classMap[oldClass] = true;
 		}
 		let keys = Object.keys(classMap);
 		for(let i = 0, ii = keys.length; i < ii; i++)
 		{
-			const oldClass = keys[i];
+			const key = keys[i];
+			if(!key.length)
+				continue;
+			const oldClass = key;
 			const newClass = baseClassName + i;
 			replaceClass(oldClass, newClass);
 		}
@@ -1013,7 +1016,6 @@ const utils = function()
 		replaceSingleElement,
 		replaceMarkedElements,
 		replaceElementsByClassesContaining,
-		replaceIframes,
 		remove,
 		contains,
 		removeId,
@@ -1526,7 +1528,7 @@ const autoCompleteInputBox = function()
 	}
 
 	return { open, close };
-}
+};
 
 const markUtils = function()
 {
@@ -1581,7 +1583,7 @@ const markUtils = function()
 			let i = elements.length;
 			while(i--)
 				elements[i].classList.add(Nimbus.markerClass);
-			showMessageBig("Highlighted " + e.length + " elements");
+			showMessageBig("Highlighted " + elements.length + " elements");
 		}
 		else if(elements)
 		{
@@ -1668,13 +1670,18 @@ const markUtils = function()
 
 	function markUserLinks()
 	{
-		forAll("a", function(link){
+		const links = get("a");
+		let i = links.length;
+		while(i--)
+		{
+			const link = links[i];
 			if(
 				link.href &&
 				containsAnyOfTheStrings(link.href, ["/u/", "/user", "/member", "action=profile"]) &&
 				link.parentNode && link.parentNode.tagName !== "USER"
 			)
-		});
+				wrapElement(link, "user");
+		}
 	}
 
 	function markUppercaseParagraphs()
@@ -4714,10 +4721,10 @@ const developerUtils = function()
 		if(!evt)
 			evt = window.event;
 		if(evt.target)
-			targ = e.target;
+			targ = evt.target;
 		const tagNameLower = targ.tagName.toLowerCase();
 		// Retrieve clicked element
-		if(evt[ctrlOrMeta] && e.shiftKey)
+		if(evt[ctrlOrMeta] && evt.shiftKey)
 		{
 			document.body.innerHTML = targ.innerHTML;
 			toggleBlockEditMode();
@@ -5115,7 +5122,7 @@ const developerUtils = function()
 			let j = rules.length;
 			while(j--)
 				if(~rules[j].cssText.indexOf(selectorOrPropertyOrValue))
-					ylog(rules[j].cssText.replace(selectorOrPropertyOrValue, "<mark>" + s + "</mark>"));
+					ylog(rules[j].cssText.replace(selectorOrPropertyOrValue, "<mark>" + selectorOrPropertyOrValue + "</mark>"));
 		}
 	}
 
@@ -5741,7 +5748,7 @@ const highlightUtils = function()
 		removeHighlightsFromMarkedElements,
 		removeAllHighlights,
 	};
-}
+};
 
 const ariaUtils = function(){
 	function getLinkAccessibleText(link)
@@ -5936,7 +5943,7 @@ const ariaUtils = function(){
 	return {
 		toggleShowAriaProblems,
 		toggleShowAriaAttributes,
-	}
+	};
 };
 
 //
