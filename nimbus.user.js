@@ -352,11 +352,7 @@ function createElement(tag, props)
 
 function removeLineBreaks(str)
 {
-	str = str.replace(/\r\n/g, " ");
-	str = str.replace(/\r/g, " ");
-	str = str.replace(/\n/g, " ");
-	str = str.replace(/\s+/g, " ");
-	return str;
+	return str.replace(/[\r\n\s]+/g, " ");
 }
 
 function trim(str)
@@ -504,15 +500,15 @@ function sanitizeTitle(titleString)
 	sanitizedTitle = titleString.toString();
 	sanitizedTitle = replaceDiacritics(sanitizedTitle);
 
-	sanitizedTitle = sanitizedTitle.replace(/&/g, " and ");
-	sanitizedTitle = sanitizedTitle.replace(/\u00df/g, 'SS');
-	sanitizedTitle = sanitizedTitle.replace(/\u0142/g, "'l");
-	sanitizedTitle = sanitizedTitle.replace(/\u2018/g, "'");
-	sanitizedTitle = sanitizedTitle.replace(/\u2019/g, "'");
-	sanitizedTitle = sanitizedTitle.replace(/[:|\?]/g, " - ");
-	sanitizedTitle = sanitizedTitle.replace(/[\/]/g, "-");
-	sanitizedTitle = sanitizedTitle.replace(/[^\+\.\(\)0-9A-Za-z_!@\[\]\-\(\)'",]/g, " ");
-	sanitizedTitle = sanitizedTitle.replace(/\s+/g, " ");
+	sanitizedTitle = sanitizedTitle.replace(/&/g, " and ")
+		.replace(/\u00df/g, 'SS')
+		.replace(/\u0142/g, "'l")
+		.replace(/\u2018/g, "'")
+		.replace(/\u2019/g, "'")
+		.replace(/[:|\?]/g, " - ")
+		.replace(/[\/]/g, "-")
+		.replace(/[^\+\.\(\)0-9A-Za-z_!@\[\]\-\(\)'",]/g, " ")
+		.replace(/\s+/g, " ");
 
 	return sanitizedTitle;
 }
@@ -1179,6 +1175,8 @@ function simplifyClassNames()
 	{
 		const elem = elems[i];
 		const oldClass = elem.className.replace(/[^a-zA-Z]+/g, "");
+		if(!oldClass.length)
+			continue;
 		elem.className = oldClass;
 		classMap[oldClass] = true;
 	}
@@ -1186,8 +1184,6 @@ function simplifyClassNames()
 	for(let i = 0, ii = keys.length; i < ii; i++)
 	{
 		const key = keys[i];
-		if(!key.length)
-			continue;
 		const oldClass = key;
 		const newClass = baseClassName + i;
 		replaceClass(oldClass, newClass);
@@ -1798,7 +1794,7 @@ function markUserLinks()
 		const link = links[i];
 		if(
 			link.href &&
-			containsAnyOfTheStrings(link.href, ["/u/", "/user", "/member", "action=profile"]) &&
+			containsAnyOfTheStrings(link.href, ["/u/", "/user", "/member", "action=profile", "/profile/"]) &&
 			link.parentNode && link.parentNode.tagName !== "USER"
 		)
 			wrapElement(link, "user");
@@ -2873,6 +2869,12 @@ function filterHeadings(headings)
 	return filteredHeadings;
 }
 
+function chooseDocumentHeading()
+{
+	Nimbus.currentHeadingText = trim( document.title.replace(getBestDomainSegment(location.hostname), "") );
+	return Nimbus.currentHeadingText;
+}
+
 function cycleThroughDocumentHeadings()
 {
 	deleteEmptyHeadings();
@@ -2902,6 +2904,7 @@ function cycleThroughDocumentHeadings()
 	if(pageNumberStrings && !Nimbus.currentHeadingText.match(/Page [0-9]+/i))
 			Nimbus.currentHeadingText = Nimbus.currentHeadingText + " - " + pageNumberStrings[0];
 	return Nimbus.currentHeadingText;
+	setDocTitle(Nimbus.currentHeadingText);
 }
 
 function setDocumentHeading(headingText)
@@ -2943,7 +2946,7 @@ function getBestDomainSegment(hostname)
 
 function setDocTitle(newTitle)
 {
-	let headingText = sanitizeTitle(newTitle || cycleThroughDocumentHeadings());
+	let headingText = sanitizeTitle(newTitle || chooseDocumentHeading());
 	setDocumentHeading(headingText);
 	const domainSegment = getBestDomainSegment(location.hostname);
 	document.title = headingText + domainSegment;
@@ -3980,31 +3983,37 @@ function cleanupBlogs()
 
 function deleteNonContentImages()
 {
-	deleteImagesBySrcContaining("transparent.");
-	deleteImagesBySrcContaining("pixel.");
-	deleteImagesBySrcContaining("spacer.");
-	deleteImagesBySrcContaining("nbb.org");
-	deleteImagesBySrcContaining("qm.gif");
-	deleteImagesBySrcContaining("avatar");
-	deleteImagesBySrcContaining("doubleclick");
-	deleteImagesBySrcContaining("bookmarking");
-	deleteImagesBySrcContaining("adbrite");
-	deleteImagesBySrcContaining("blogger.com");
-	deleteImagesBySrcContaining("style_images");
-	deleteImagesBySrcContaining("smilies");
-	deleteImagesBySrcContaining("smiley");
-	deleteImagesBySrcContaining("badges");
-	deleteImagesBySrcContaining("adriver");
-	deleteImagesBySrcContaining("/ads/");
-	deleteImagesBySrcContaining("/delivery/");
-	deleteImagesBySrcContaining("profile_images");
-	deleteImagesBySrcContaining("reputation_");
-	deleteImagesBySrcContaining("statusicons");
-	deleteImagesBySrcContaining("mt-static");
-	deleteImagesBySrcContaining("feed.");
-	deleteImagesBySrcContaining("twitter.");
-	deleteImagesBySrcContaining("bluesaint");
-	deleteImagesBySrcContaining("board/images");
+	const srcSubstrings = [
+		"transparent.",
+		"pixel.",
+		"spacer.",
+		"nbb.org",
+		"qm.gif",
+		"avatar",
+		"doubleclick",
+		"bookmarking",
+		"adbrite",
+		"blogger.com",
+		"style_images",
+		"smilies",
+		"smiley",
+		"badges",
+		"adriver",
+		"/ads/",
+		"/delivery/",
+		"profile_images",
+		"reputation_",
+		"statusicons",
+		"mt-static",
+		"feed.",
+		"twitter.",
+		"bluesaint",
+		"board/images"
+	];
+	for(let i = 0, ii = srcSubstrings.length; i < ii; i++)
+	{
+		deleteImagesBySrcContaining(srcSubstrings[i]);
+	}
 }
 
 function cleanupGeneral()
@@ -5894,7 +5903,7 @@ function inject()
 {
 	document.body.classList.add("nimbusDark");
 	document.body.removeAttribute("style");
-	document.addEventListener("keydown", handleKeyDown, false);
+	document.addEventListener("keydown", setupKeyboardShortcuts, false);
 	getBestImageSrc();
 	showPassword();
 	removeAccessKeys();
@@ -5906,7 +5915,7 @@ function inject()
 	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
 }
 
-function handleKeyDown(e)
+function setupKeyboardShortcuts(e)
 {
 	let shouldPreventDefault = true;
 	let ctrlOrMeta = "ctrlKey";
@@ -5940,7 +5949,7 @@ function handleKeyDown(e)
 			case KEYCODES.SEVEN: replaceCommentsWithPres(); break;
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
 			case KEYCODES.NINE: toggleStyleShowClasses(); break;
-			case KEYCODES.ZERO: setDocTitle(); break;
+			case KEYCODES.ZERO: cycleThroughDocumentHeadings(); break;
 			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", "none"]); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
