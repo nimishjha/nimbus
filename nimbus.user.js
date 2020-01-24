@@ -1026,8 +1026,23 @@ function selectRandom(arr)
 	return arr[Math.floor(Math.random() * arr.length)];
 }
 
+function debugVars(params)
+{
+	const keys = Object.keys(params);
+	for(let i = 0, ii = keys.length; i < ii; i++)
+	{
+		const key = keys[i];
+		const value = params[key];
+		if(isArray(value))
+			console.log(key, '\n', arrayToString(value, "\n"));
+		else
+			console.log(key, '\n\t', value);
+	}
+}
+
 function getNext(str, arrStrings)
 {
+	debugVars({ str, arrStrings });
 	let nextString = arrStrings[0];
 	const index = arrStrings.indexOf(str);
 	if(index !== -1)
@@ -2877,6 +2892,7 @@ function chooseDocumentHeading()
 
 function cycleThroughDocumentHeadings()
 {
+	const MAX_HEADINGS = 5;
 	deleteEmptyHeadings();
 	Nimbus.currentHeadingText = trim( document.title.replace(getBestDomainSegment(location.hostname), "") );
 	del("header h1");
@@ -2884,7 +2900,7 @@ function cycleThroughDocumentHeadings()
 	const candidateHeadingTexts = [];
 	if(headings && headings.length)
 	{
-		for(let i = 0, ii = Math.min(10, headings.length); i < ii; i++)
+		for(let i = 0, ii = Math.min(MAX_HEADINGS, headings.length); i < ii; i++)
 		{
 			const heading = headings[i];
 			if(heading.classList.contains("currentHeading"))
@@ -2894,17 +2910,14 @@ function cycleThroughDocumentHeadings()
 				candidateHeadingTexts.push(text);
 		}
 	}
-	console.log("Nimbus.currentHeadingText: \n\t" + Nimbus.currentHeadingText);
-	console.log("candidateHeadingTexts:\n" + arrayToString(candidateHeadingTexts, "\n"));
-
 	if(candidateHeadingTexts.length && Nimbus.currentHeadingText)
 		Nimbus.currentHeadingText = getNext(Nimbus.currentHeadingText, candidateHeadingTexts);
 
 	const pageNumberStrings = document.body.textContent.match(/Page [0-9]+ of [0-9]+/);
 	if(pageNumberStrings && !Nimbus.currentHeadingText.match(/Page [0-9]+/i))
 			Nimbus.currentHeadingText = Nimbus.currentHeadingText + " - " + pageNumberStrings[0];
-	return Nimbus.currentHeadingText;
 	setDocTitle(Nimbus.currentHeadingText);
+	return Nimbus.currentHeadingText;
 }
 
 function setDocumentHeading(headingText)
