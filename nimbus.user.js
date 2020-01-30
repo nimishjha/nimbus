@@ -795,7 +795,7 @@ function replaceIframes()
 			continue;
 		}
 		iframelink.href = s;
-		if(s.indexOf("youtube") !== -1)
+		if(~s.indexOf("youtube"))
 		{
 			s = s.replace(/\/embed\//, '/watch?v=');
 			const segments = s.split('?');
@@ -1045,7 +1045,7 @@ function getNext(str, arrStrings)
 	debugVars({ str, arrStrings });
 	let nextString = arrStrings[0];
 	const index = arrStrings.indexOf(str);
-	if(index !== -1)
+	if(~index)
 	{
 		const nextIndex = index < arrStrings.length - 1 ? index + 1 : 0;
 		nextString = arrStrings[nextIndex];
@@ -1543,7 +1543,7 @@ function autoCompleteInputBox()
 
 	function updateInputField()
 	{
-		if(inputComponent.currentIndex !== -1 && inputComponent.matches[inputComponent.currentIndex])
+		if(~inputComponent.currentIndex && inputComponent.matches[inputComponent.currentIndex])
 			getOne("#autoCompleteInput").value = inputComponent.matches[inputComponent.currentIndex];
 	}
 
@@ -1949,7 +1949,7 @@ function filterNodesByAttributeContaining(nodes, attribute, value)
 		while(i--)
 		{
 			const node = nodes[i];
-			if(node.textContent.indexOf(value) !== -1)
+			if(~node.textContent.indexOf(value))
 				result.push(node);
 		}
 	}
@@ -1958,7 +1958,7 @@ function filterNodesByAttributeContaining(nodes, attribute, value)
 		while(i--)
 		{
 			const node = nodes[i];
-			if(node.hasAttribute(attribute) && node.getAttribute(attribute).indexOf(value) !== -1)
+			if(node.hasAttribute(attribute) && ~node.getAttribute(attribute).indexOf(value))
 				result.push(node);
 		}
 	}
@@ -2649,24 +2649,26 @@ function fixHeadings()
 function fixPres()
 {
 	replaceElementsBySelector('font', 'span');
-	let e, i, s, temp;
-	e = get("code");
-	i = e.length;
+	let s, temp;
+	const codeElements = get("code");
+	let i = codeElements.length;
 	while(i--)
 	{
-		if(e[i].innerHTML.toLowerCase().indexOf("<br>") !== -1)
+		const codeElement = codeElements[i];
+		if(~codeElement.innerHTML.toLowerCase().indexOf("<br>"))
 		{
 			temp = document.createElement("pre");
-			temp.innerHTML = e[i].innerHTML;
-			e[i].parentNode.replaceChild(temp, e[i]);
+			temp.innerHTML = codeElement.innerHTML;
+			codeElement.parentNode.replaceChild(temp, codeElement);
 		}
 	}
-	e = get("pre");
-	i = e.length;
+	const preElements = get("pre");
+	i = preElements.length;
 	while(i--)
 	{
+		const pre = preElements[i];
 		// Remove any HTML code within the PREs
-		s = e[i].innerHTML;
+		s = pre.innerHTML;
 		s = s.replace(/&nbsp;/g, " ");
 		s = s.replace(/<\/div>/g, "\r\n");
 		s = s.replace(/<\/p>/g, "\r\n");
@@ -2688,7 +2690,7 @@ function fixPres()
 		s = s.replace(/\t/g, "GYZYtab");
 		s = s.replace(/\r\n/g, "GYZYnl");
 		s = s.replace(/\n/g, "GYZYnl");
-		e[i].innerHTML = s;
+		pre.innerHTML = s;
 	}
 }
 
@@ -3047,14 +3049,15 @@ function removeAccessKeys()
 
 function showPassword()
 {
-	const e = get("input");
-	let i = e.length;
+	const inputs = get("input");
+	let i = inputs.length;
 	while(i--)
 	{
-		if(e[i].type && e[i].type === "password" && !e[i].classList.contains("showPassword"))
+		const input = inputs[i];
+		if(input.type && input.type === "password" && !input.classList.contains("showPassword"))
 		{
-			e[i].addEventListener("keyup", echoPassword, false);
-			e[i].classList.add("showPassword");
+			input.addEventListener("keyup", echoPassword, false);
+			input.classList.add("showPassword");
 		}
 	}
 }
@@ -3482,11 +3485,11 @@ function fillForms()
 
 function revealLinkHrefs()
 {
-	const e = get("a");
-	let i = e.length;
+	const links = get("a");
+	let i = links.length;
 	while(i--)
 	{
-		const link = e[i];
+		const link = links[i];
 		if(link.getElementsByTagName("img").length)
 			continue;
 		link.textContent = link.getAttribute("href");
@@ -3508,11 +3511,11 @@ function humanizeUrl(url)
 
 function revealEmptyLinks()
 {
-	const e = get("a");
-	let i = e.length;
+	const links = get("a");
+	let i = links.length;
 	while(i--)
 	{
-		const link = e[i];
+		const link = links[i];
 		if(!(link.textContent.length || link.getElementsByTagName("img").length) && link.href.length)
 			link.textContent = humanizeUrl(link.href);
 	}
@@ -3528,7 +3531,7 @@ function changePage(direction)
 	while(i--)
 	{
 		const link = links[i];
-		let linkText = links[i].textContent;
+		let linkText = link.textContent;
 		if(linkText)
 		{
 			linkText = removeWhitespace(linkText).toLowerCase();
@@ -3578,15 +3581,14 @@ function logout()
 			location.href = 'https://accounts.google.com/Logout';
 			return;
 	}
-	let e, i, ii, found = false, s;
-	e = get("a");
-	i = e.length;
-	for(i = 0, ii = e.length; i < ii; i++)
+	let found = false;
+	const links = get("a");
+	for(let i = 0, ii = links.length; i < ii; i++)
 	{
-		const node = e[i];
+		const node = links[i];
 		if(node.href)
 		{
-			s = normalizeString(node.href);
+			const s = normalizeString(node.href);
 			if((~s.indexOf("logout") && s.indexOf("logout_gear") === -1) || ~s.indexOf("signout"))
 			{
 				found = true;
@@ -3598,8 +3600,8 @@ function logout()
 		}
 		if(node.textContent)
 		{
-			s = normalizeString(node.textContent);
-			if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
+			const s = normalizeString(node.textContent);
+			if(~s.indexOf("logout") || ~s.indexOf("signout"))
 			{
 				found = true;
 				showMessageBig(node.href);
@@ -3611,36 +3613,35 @@ function logout()
 	}
 	if(!found)
 	{
-		e = document.querySelectorAll("input", "button");
-		for(i = 0, ii = e.length; i < ii; i++)
+		const inputsButtons = document.querySelectorAll("input", "button");
+		for(i = 0, ii = inputsButtons.length; i < ii; i++)
 		{
-			const node = e[i];
-			if(node.value)
+			const element = inputsButtons[i];
+			if(element.value)
 			{
-				s = normalizeString(node.value);
+				s = normalizeString(element.value);
 				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 				{
 					found = true;
 					showMessageBig("Logging out...");
-					node.classList.add(Nimbus.markerClass);
-					node.click();
+					element.classList.add(Nimbus.markerClass);
+					element.click();
 					break;
 				}
 			}
-			else if(node.textContent)
+			else if(element.textContent)
 			{
-				s = normalizeString(node.textContent);
+				s = normalizeString(element.textContent);
 				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 				{
 					found = true;
 					showMessageBig("Logging out...");
-					node.classList.add(Nimbus.markerClass);
-					node.click();
+					element.classList.add(Nimbus.markerClass);
+					element.click();
 					break;
 				}
 			}
 		}
-
 	}
 	if(!found)
 	{
@@ -4065,7 +4066,7 @@ function cleanupGeneral()
 	getBestImageSrc();
 	insertStyleHighlight();
 	document.body.className = "pad100 xwrap";
-	if(navigator.userAgent.indexOf("Chrome") !== -1)
+	if(~navigator.userAgent.indexOf("Chrome"))
 	{
 		toggleStyleNegative();
 	}
@@ -4262,43 +4263,43 @@ function deleteSpecificEmptyElements()
 
 function replaceFontTags()
 {
-	const f = document.getElementsByTagName("font");
+	const fontElements = get("font");
 	const replacements = [];
-	let h;
-	for(let i = 0, ii = f.length; i < ii; i++)
+	let replacementHeading;
+	for(let i = 0, ii = fontElements.length; i < ii; i++)
 	{
-		const fontElem = f[i];
+		const fontElem = fontElements[i];
 		if(fontElem.getAttribute("size"))
 		{
-			let hl = fontElem.getAttribute("size");
-			if(hl.indexOf("+") >= 0)
+			let headingLevel = fontElem.getAttribute("size");
+			if(headingLevel.indexOf("+") >= 0)
 			{
-				hl = hl[1];
+				headingLevel = headingLevel[1];
 			}
-			switch(hl)
+			switch(headingLevel)
 			{
-				case '7': h = document.createElement("h1"); break;
-				case '6': h = document.createElement("h2"); break;
-				case '5': h = document.createElement("h3"); break;
-				case '4': h = document.createElement("h4"); break;
-				case '3': h = document.createElement("h5"); break;
-				case '2': h = document.createElement("p"); break;
-				case '1': h = document.createElement("p"); break;
-				default: h = document.createElement("p"); break;
+				case '7': replacementHeading = document.createElement("h1"); break;
+				case '6': replacementHeading = document.createElement("h2"); break;
+				case '5': replacementHeading = document.createElement("h3"); break;
+				case '4': replacementHeading = document.createElement("h4"); break;
+				case '3': replacementHeading = document.createElement("h5"); break;
+				case '2': replacementHeading = document.createElement("p"); break;
+				case '1': replacementHeading = document.createElement("p"); break;
+				default: replacementHeading = document.createElement("p"); break;
 			}
-			h.innerHTML = fontElem.innerHTML;
-			replacements.push(h);
+			replacementHeading.innerHTML = fontElem.innerHTML;
+			replacements.push(replacementHeading);
 		}
 		else
 		{
-			h = document.createElement("p");
-			h.innerHTML = fontElem.innerHTML;
-			replacements.push(h);
+			replacementHeading = document.createElement("p");
+			replacementHeading.innerHTML = fontElem.innerHTML;
+			replacements.push(replacementHeading);
 		}
 	}
-	for(let i = f.length - 1; i >= 0; i--)
+	for(let i = 0, ii = fontElements.length; i < ii; i++)
 	{
-		const fontElem = f[i];
+		const fontElem = fontElements[i];
 		fontElem.parentNode.replaceChild(replacements[i], fontElem);
 	}
 }
@@ -4610,7 +4611,7 @@ function cleanupStackOverflow()
 		cleanupGeneral();
 		highlightCode(true);
 		forAll("td", function f(x) {
-			if(x.textContent && x.textContent.indexOf("up vote") !== -1)
+			if(x.textContent && ~x.textContent.indexOf("up vote"))
 				x.setAttribute("style", "width: 200px");
 		});
 		const observer = new MutationObserver(handleMutations);
@@ -4672,7 +4673,7 @@ function showResources()
 	while(i--)
 	{
 		const elem = e[i];
-		if( elem.href && elem.href.indexOf("css") !== -1 || elem.type && elem.type === "text/css" )
+		if( elem.href && ~elem.href.indexOf("css") || elem.type && elem.type === "text/css" )
 		{
 			uuid = createUUID();
 			elem.id = uuid;
@@ -4694,7 +4695,7 @@ function handleBlockEditClick(evt)
 	evt.stopPropagation();
 	let targ;
 	let ctrlOrMeta = "ctrlKey";
-	if(navigator.userAgent.indexOf("Macintosh") !== -1)
+	if(~navigator.userAgent.indexOf("Macintosh"))
 		ctrlOrMeta = "metaKey";
 	if(!evt)
 		evt = window.event;
@@ -5947,7 +5948,7 @@ function setupKeyboardShortcuts(e)
 {
 	let shouldPreventDefault = true;
 	let ctrlOrMeta = "ctrlKey";
-	if(navigator.userAgent.indexOf("Macintosh") !== -1)
+	if(~navigator.userAgent.indexOf("Macintosh"))
 		ctrlOrMeta = "metaKey";
 	if(!(e.altKey || e.shiftKey || e[ctrlOrMeta]))
 	{
