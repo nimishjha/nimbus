@@ -3881,29 +3881,44 @@ function toggleStyleShowClasses()
 
 function retrieveElementsContainingText(selector, text)
 {
-	if(!selector.length)
+	if(!(typeof selector === "string" && selector.length))
 		return;
-	let i, ii;
-	const e = get(selector);
-	const tempNode = document.createElement("div");
-	if(text && text.length)
+	if(!(typeof text === "string" && text.length))
 	{
-		for(i = 0, ii = e.length; i < ii; i++)
-			if(e[i].textContent && e[i].textContent.indexOf(text) !== -1 && !e[i].querySelector(selector))
-				tempNode.appendChild(e[i]);
+		retrieve(selector);
+		return;
+	}
+	const elements = get(selector);
+	const wrapper = document.createElement("div");
+	for(let i = 0, ii = elements.length; i < ii; i++)
+	{
+		const element = elements[i];
+		if(element.textContent && ~element.textContent.indexOf(text) && !element.querySelector(selector))
+		{
+			wrapper.appendChild(element);
+		}
+		else if(element.tagName === "A")
+		{
+			if(element.href && ~element.href.indexOf(text))
+				wrapper.appendChild(element);
+		}
+		else if(element.tagName === "IMG")
+		{
+			if(element.src && ~element.src.indexOf(text))
+				wrapper.appendChild(element);
+		}
+	}
+	if(wrapper.firstChild)
+	{
+		del(["link", "script", "iframe"]);
+		while(document.body.firstChild)
+			document.body.firstChild.remove();
+		document.body.appendChild(wrapper);
 	}
 	else
 	{
-		if(e.length)
-			for(i = 0, ii = e.length; i < ii; i++)
-				tempNode.appendChild(e[i]);
-		else
-			tempNode.appendChild(e);
-	}
-	if(tempNode.innerHTML.length)
-		document.body.innerHTML = tempNode.innerHTML;
-	else
 		showMessageBig("Not found");
+	}
 }
 
 function delRange(m, n)
