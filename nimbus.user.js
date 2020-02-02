@@ -2199,12 +2199,17 @@ function deleteImagesSmallerThan(x, y)
 {
 	const images = document.getElementsByTagName('img');
 	let i = images.length;
+	let count = 0;
 	while(i--)
 	{
 		const image = images[i];
 		if(image.naturalWidth < x || image.naturalHeight < y)
+		{
 			image.remove();
+			count++;
+		}
 	}
+	showMessageBig(`Deleted ${count} images smaller than ${x} x ${y}`);
 }
 
 function deleteSmallImages()
