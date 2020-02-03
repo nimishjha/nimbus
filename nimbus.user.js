@@ -722,14 +722,24 @@ function cycleClass(elem, arrClasses)
 	}
 }
 
-function insertBefore(elem, elemToInsert)
+function insertBefore(anchorElement, elementToInsert)
 {
-	elem.insertAdjacentElement("beforebegin", elemToInsert);
+	anchorElement.insertAdjacentElement("beforebegin", elemToInsert);
 }
 
-function insertAfter(elem, elemToInsert)
+function insertAfter(anchorElement, elementToInsert)
 {
-	elem.insertAdjacentElement("afterend", elemToInsert);
+	anchorElement.insertAdjacentElement("afterend", elemToInsert);
+}
+
+function insertAsFirstChild(anchorElement, elementToInsert)
+{
+	anchorElement.insertAdjacentElement("afterbegin", elemToInsert);
+}
+
+function insertAsLastChild(anchorElement, elementToInsert)
+{
+	anchorElement.insertAdjacentElement("beforeend", elemToInsert);
 }
 
 function createElementWithChildren(tagName, ...children)
@@ -4793,11 +4803,7 @@ function toggleShowDocumentStructureWithNames()
 	while(i--)
 	{
 		const elem = e[i];
-		const elemName = createSelector(elem);
-		if(elem.firstChild)
-			elem.insertBefore(createElement("x", { textContent: elemName }), elem.firstChild);
-		else
-			elem.appendChild(createElement("x", { textContent: elemName }));
+		insertAsFirstChild(elem, createElement("x", { textContent: createSelector(elem) }));
 	}
 	document.body.classList.add("showdivs");
 	const s = 'body { padding: 100px; }' +
