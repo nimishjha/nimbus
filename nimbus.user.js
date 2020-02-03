@@ -835,7 +835,7 @@ function replaceElementsBySelector(selector, tagName)
 	const toReplace = get(selector);
 	if(toReplace.length)
 	{
-		showMessageBig("Replacing " + toReplace.length + " " + selector);
+		showMessageBig(`Replacing ${toReplace.length} ${selector} with ${tagName}`);
 		let i = toReplace.length;
 		if(tagName === "hr")
 		{
