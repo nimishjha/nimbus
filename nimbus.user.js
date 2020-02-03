@@ -1516,12 +1516,10 @@ function customPrompt(message)
 					case KEYCODES.ESCAPE:
 						evt.preventDefault();
 						reject(closeCustomPrompt());
-						window.focus();
 						break;
 					case KEYCODES.ENTER:
 						evt.preventDefault();
 						resolve(closeCustomPrompt());
-						window.focus();
 						break;
 					case KEYCODES.UPARROW:
 						evt.preventDefault();
