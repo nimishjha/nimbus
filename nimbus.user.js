@@ -275,6 +275,7 @@ const Nimbus = {
 	markerClass: "nimbushl",
 	markerClass2: "nimbushl2",
 	minPersistWidth: 600,
+	HEADING_CONTAINER_TAGNAME: "documentheading",
 };
 
 const KEYCODES = Nimbus.KEYCODES;
@@ -2902,7 +2903,7 @@ function cycleThroughDocumentHeadings()
 	const MAX_HEADINGS = 5;
 	deleteEmptyHeadings();
 	Nimbus.currentHeadingText = trim( document.title.replace(getBestDomainSegment(location.hostname), "") );
-	del("header h1");
+	del(Nimbus.HEADING_CONTAINER_TAGNAME + " h1");
 	const headings = filterHeadings(get("h1, h2"));
 	const candidateHeadingTexts = [];
 	if(headings && headings.length)
@@ -2929,15 +2930,15 @@ function cycleThroughDocumentHeadings()
 
 function setDocumentHeading(headingText)
 {
-	emptyElement(getOne("header"));
+	emptyElement(getOne(Nimbus.HEADING_CONTAINER_TAGNAME));
 	const firstHeadingText = document.body.firstChild.textContent;
 	if(firstHeadingText === headingText)
 		return;
 	let newHeading = createElement("h1", { textContent: headingText });
-	let newHeadingWrapper = getOne("header");
+	let newHeadingWrapper = getOne(Nimbus.HEADING_CONTAINER_TAGNAME);
 	if(!newHeadingWrapper)
 	{
-		newHeadingWrapper = createElement("header");
+		newHeadingWrapper = createElement(Nimbus.HEADING_CONTAINER_TAGNAME);
 		document.body.insertBefore(newHeadingWrapper, document.body.firstChild);
 	}
 	newHeadingWrapper.appendChild(newHeading);
@@ -3619,12 +3620,12 @@ function logout()
 	if(!found)
 	{
 		const inputsButtons = document.querySelectorAll("input", "button");
-		for(i = 0, ii = inputsButtons.length; i < ii; i++)
+		for(let i = 0, ii = inputsButtons.length; i < ii; i++)
 		{
 			const element = inputsButtons[i];
 			if(element.value)
 			{
-				s = normalizeString(element.value);
+				const s = normalizeString(element.value);
 				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 				{
 					found = true;
@@ -3636,7 +3637,7 @@ function logout()
 			}
 			else if(element.textContent)
 			{
-				s = normalizeString(element.textContent);
+				const s = normalizeString(element.textContent);
 				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 				{
 					found = true;
