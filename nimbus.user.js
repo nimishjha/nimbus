@@ -330,6 +330,23 @@ function del(arg)
 				del(arg[i]);
 }
 
+function debounce(func, delay)
+{
+	var timeout;
+	return function()
+	{
+		var context = this;
+		var args = arguments;
+		var later = function()
+		{
+			timeout = null;
+			func.apply(context, args);
+		};
+		clearTimeout(timeout);
+		timeout = setTimeout(later, delay);
+	};
+}
+
 function createElement(tag, props)
 {
 	const elem = document.createElement(tag);
