@@ -2586,63 +2586,45 @@ function makeLinksPlainText()
 
 function makeHeadings()
 {
-	let e, i, j, tags, s, len;
 	const MAX_LENGTH = 120;
-	e = get("p");
-	i = e.length;
+	const paragraphs = get("p");
+	let i = paragraphs.length;
 	while(i--)
 	{
-		const elem = e[i];
-		s = elem.textContent;
-		s = s.replace(/\s+/g, '');
-		len = s.length;
+		const paragraph = paragraphs[i];
+		let text = paragraph.textContent;
+		text = text.replace(/\s+/g, '');
+		let len = text.length;
 		if(len === 0)
 		{
-			if(!elem.getElementsByTagName("img").length)
-			{
-				elem.className = "deleteme";
-				continue;
-			}
+			if(!paragraph.getElementsByTagName("img").length)
+				paragraph.remove();
 		}
-		else if( s.match(/[IVX\.]+/g) && s.match(/[IVX\.]+/g)[0] === s )
+		else if( text.match(/[IVX\.]+/g) && text.match(/[IVX\.]+/g)[0] === text )
 		{
-			elem.className = "parah2";
+			paragraph.className = "parah2";
 			continue;
 		}
-		else if(len < MAX_LENGTH && !s[len-1].match(/[.,!\?'"\u2018\u201C\u2019\u201D]/) )
+		else if(len < MAX_LENGTH && !text[len-1].match(/[.,!\?'"\u2018\u201C\u2019\u201D]/) )
 		{
-			elem.className = "parah3";
+			paragraph.className = "parah3";
 		}
-		tags = ["b", "strong", "em"];
-		for(j = tags.length - 1; j >= 0; j--)
+		const tags = ["b", "strong", "em"];
+		for(let j = 0, jj = tags.length; j < jj; j++)
 		{
 			const tag = tags[j];
-			if(elem.getElementsByTagName(tag).length === 1)
+			if(paragraph.getElementsByTagName(tag).length === 1)
 			{
-				const childText = elem.querySelector(tag).textContent;
-				if(childText && childText.length < MAX_LENGTH && removeWhitespace(childText) === s)
+				const childText = paragraph.querySelector(tag).textContent;
+				if(childText && childText.length < MAX_LENGTH && removeWhitespace(childText) === text)
 				{
-					elem.className = "parah2";
+					paragraph.className = "parah2";
 				}
 			}
 		}
 	}
-	// Highlight users
-	const links = get("a");
-	i = links.length;
-	while(i--)
-	{
-		const link = links[i];
-		if(link.href && containsAnyOfTheStrings(link.href, ["profile", "member", "user", "/u/"]))
-			link.className = "highlightthis";
-	}
 	replaceElementsBySelector(".parah2", "h2");
 	replaceElementsBySelector(".parah3", "h3");
-	del(".deleteme");
-	e = get(".highlightthis");
-	i = e.length;
-	while(i--)
-		wrapElement(e[i], "h4");
 }
 
 function fixHeadings()
