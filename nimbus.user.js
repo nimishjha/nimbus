@@ -2223,7 +2223,8 @@ function deleteSmallImages()
 	{
 		index = indexElement.textContent || 0;
 		index++;
-		if(index > dimensions.length - 1) return;
+		if(index > dimensions.length - 1)
+			return;
 	}
 	else
 	{
@@ -2233,7 +2234,6 @@ function deleteSmallImages()
 	indexElement = createElement("h6", { textContent: index, id: "imagedimensionindex" });
 	document.body.appendChild(indexElement);
 	const dimension = dimensions[index];
-	showMessageBig("Deleting images smaller than " + dimension + " pixels");
 	deleteImagesSmallerThan(dimension, dimension);
 }
 
@@ -5636,11 +5636,13 @@ function highlightLinksInPres()
 {
 	fixPres();
 	restorePres();
-	const e = get("pre");
-	let i, ii;
-	for( i = 0, ii = e.length; i < ii; i++ )
-		if( e[i].textContent.match(/http[s]*:\/\/[^\s\r\n]+/g) )
-			e[i].innerHTML = e[i].innerHTML.replace(/(http[s]*:\/\/[^\s\r\n]+)/g, '<a href="' + "$1" + '">' + "$1" + '</a>');
+	const pres = get("pre");
+	for(let i = 0, ii = pres.length; i < ii; i++ )
+	{
+		const pre = pres[i];
+		if(pre.textContent.match(/http[s]*:\/\/[^\s\r\n]+/g))
+			pre.innerHTML = pre.innerHTML.replace(/(http[s]*:\/\/[^\s\r\n]+)/g, '<a href="' + "$1" + '">' + "$1" + '</a>');
+	}
 }
 
 function removeAllHighlights()
@@ -5795,7 +5797,7 @@ function checkAriaAttributes()
 function hasNoAriaText(button)
 {
 	if(button.textContent) return false;
-	if(button.getAttribute("aria-label") && button.getAttribute("aria-label").length) return false;
+	if(button.hasAttribute("aria-label") && button.getAttribute("aria-label").length) return false;
 	return true;
 }
 
