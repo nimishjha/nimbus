@@ -741,22 +741,22 @@ function cycleClass(elem, arrClasses)
 
 function insertBefore(anchorElement, elementToInsert)
 {
-	anchorElement.insertAdjacentElement("beforebegin", elemToInsert);
+	anchorElement.insertAdjacentElement("beforebegin", elementToInsert);
 }
 
 function insertAfter(anchorElement, elementToInsert)
 {
-	anchorElement.insertAdjacentElement("afterend", elemToInsert);
+	anchorElement.insertAdjacentElement("afterend", elementToInsert);
 }
 
 function insertAsFirstChild(anchorElement, elementToInsert)
 {
-	anchorElement.insertAdjacentElement("afterbegin", elemToInsert);
+	anchorElement.insertAdjacentElement("afterbegin", elementToInsert);
 }
 
 function insertAsLastChild(anchorElement, elementToInsert)
 {
-	anchorElement.insertAdjacentElement("beforeend", elemToInsert);
+	anchorElement.insertAdjacentElement("beforeend", elementToInsert);
 }
 
 function createElementWithChildren(tagName, ...children)
@@ -2959,7 +2959,7 @@ function getBestDomainSegment(hostname)
 	const segmentsToReplace = ["www.", "developer.", ".com", ".org", ".net", ".wordpress"];
 	let hostnameSanitized = hostname;
 	for(let i = 0, ii = segmentsToReplace.length; i < ii; i++)
-		hostnameSanitized = hostnameSanitized.replace(new RegExp(segmentsToReplace[i]), "");
+		hostnameSanitized = hostnameSanitized.replace(segmentsToReplace[i], "");
 	let segments = hostnameSanitized.split(".");
 	let longestSegment = '';
 	let i = segments.length;
@@ -2998,7 +2998,7 @@ function removeColorsFromInlineStyles()
 
 function cycleThroughTopLevelElements(boolReverse)
 {
-	const hl = get("." + Nimbus.markerClass);
+	const hl = get(makeClassSelector(Nimbus.markerClass));
 	consoleLog(hl);
 	if(hl.length && hl.length > 1)
 	{
@@ -3572,17 +3572,17 @@ function setReplacementTag(tagName)
 
 function convertMarkedElementsToList(tagName)
 {
-	const parentTagName = tagName || "ul";
+	const wrapperTagName = tagName || "ul";
 	const elemsToJoin = get(makeClassSelector(Nimbus.markerClass));
-	const parent = document.createElement(parentTagName);
+	const wrapper = document.createElement(wrapperTagName);
 	for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
 	{
 		const child = document.createElement("li");
 		child.innerHTML = elemsToJoin[i].innerHTML;
-		parent.appendChild(child);
+		wrapper.appendChild(child);
 	}
-	insertBefore(elemsToJoin[0], parent);
-	del(Nimbus.markerClass);
+	insertBefore(elemsToJoin[0], wrapper);
+	del(makeClassSelector(Nimbus.markerClass));
 }
 
 function logout()
