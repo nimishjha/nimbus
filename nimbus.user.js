@@ -189,6 +189,7 @@ const Nimbus = {
 		insertStyleHighlight: insertStyleHighlight,
 		iw: forceWidthForAllImages,
 		logAllClassesFor: logAllClassesFor,
+		makeHashLinksRelative: makeHashLinksRelative,
 		makeHeadingFromSelection: makeHeadingFromSelection,
 		makeHeadings: makeHeadings,
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
@@ -4330,6 +4331,25 @@ function cleanupLinks()
 		else
 			newLink = createElement("a", { innerHTML: link.innerHTML, href: link.href });
 		link.parentNode.replaceChild(newLink, link);
+	}
+}
+
+function makeHashLinksRelative()
+{
+	const links = get("a");
+	for(let i = 0, ii = links.length; i < ii; i++)
+	{
+		const link = links[i];
+		const linkHref = link.href;
+		if(linkHref && linkHref.indexOf("file:///") === 0 && ~linkHref.indexOf("#"))
+		{
+			const splitHref = linkHref.split("#");
+			if(splitHref.length)
+			{
+				const hash = "#" + splitHref[splitHref.length - 1];
+				link.href = hash;
+			}
+		}
 	}
 }
 
