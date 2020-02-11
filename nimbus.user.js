@@ -956,21 +956,21 @@ function removeId(id)
 
 function removeClassFromAll(className)
 {
-	const e = document.querySelectorAll("." + className);
-	let i = e.length;
-	showMessageBig("Removing class " + className + " from " + i + " elements");
-	while(i--)
-		e[i].classList.remove(className);
-	return e.length;
+	const num = removeClassFromAllQuiet(className);
+	if(num === 0)
+		showMessageBig(`Class ${className} not found`);
+	else
+		showMessageBig(`Removed class ${className} from ${num} elements`);
 }
 
 function removeClassFromAllQuiet(className)
 {
 	const e = document.querySelectorAll("." + className);
 	let i = e.length;
+	let count = i;
 	while(i--)
 		e[i].classList.remove(className);
-	return e.length;
+	return count;
 }
 
 function hasClassesContaining(element, arrStr)
@@ -1144,7 +1144,7 @@ function getAllClassesFor(selector)
 	}
 	const keys = Object.keys(classes);
 	let result = [];
-	for(i = 0, ii = keys.length; i < ii; i++)
+	for(let i = 0, ii = keys.length; i < ii; i++)
 	{
 		result.push(classes[keys[i]]);
 	}
