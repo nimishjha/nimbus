@@ -1144,9 +1144,9 @@ function getAllClassesFor(selector)
 	}
 	const keys = Object.keys(classes);
 	let result = [];
-	for(let j = 0, jj = keys.length; j < jj; j++)
+	for(i = 0, ii = keys.length; i < ii; i++)
 	{
-		result.push(classes[keys[j]]);
+		result.push(classes[keys[i]]);
 	}
 	const t2 = performance.now();
 	consoleLog(t2 - t1 + " ms: getAllClassesFor");
@@ -2795,7 +2795,7 @@ function createTagsByClassName()
 			replaceSingleElement(element, replacementTagName);
 		}
 	}
-	showMessageBig(`Replaced ${numReplaced} elements`);
+	showMessageBig(`createTagsByClassName: replaced ${numReplaced} elements`);
 }
 
 function makeHeadingsByTextLength()
