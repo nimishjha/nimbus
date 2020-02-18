@@ -307,13 +307,13 @@ function getOne(selector)
 	return document.querySelector(selector);
 }
 
-function getOrCreate(tagName, id)
+function getOrCreate(tagName, id, parent)
 {
 	const elem = getOne("#" + id);
 	if(elem)
 		return elem;
-	const newElem = createElement(tagName, { id: id });
-	document.body.appendChild(newElem);
+	const container = parent || document.body;
+	container.appendChild(createElement(tagName, { id: id }));
 	return newElem;
 }
 
