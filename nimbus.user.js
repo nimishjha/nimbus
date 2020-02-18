@@ -2435,6 +2435,8 @@ function addLinksToLargerImages()
 
 function forceWidthForAllImages(width)
 {
+	if(width < 10)
+		width *= 100;
 	const s = "img { width: " + width + "px; height: auto; }";
 	insertStyle(s, "styleImageWidth", true);
 }
@@ -5694,7 +5696,12 @@ function removeAllHighlights()
 
 function removeHighlightsFromMarkedElements()
 {
-	get(makeClassSelector(Nimbus.markerClass)).forEach((element) => { element.innerHTML = element.innerHTML.replace(/<\/?mark[^>]*>/g, ""); });
+	const markedElements = get(makeClassSelector(Nimbus.markerClass));
+	for(let i = 0, ii = markedElements.length; i < ii; i++)
+	{
+		const element = markedElements[i];
+		element.innerHTML = element.innerHTML.replace(/<\/?mark[^>]*>/g, "");
+	}
 }
 
 //
