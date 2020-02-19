@@ -5134,9 +5134,11 @@ function getAllCssRulesMatching(selectorOrPropertyOrValue)
 	while(i--)
 	{
 		const styleSheet = styleSheets[i];
-		if(styleSheets.href && styleSheets.href.indexOf(location.hostname) === -1)
+		if(styleSheet.href && styleSheet.href.indexOf(location.hostname) === -1)
 			continue;
-		const rules = styleSheets.cssRules;
+		const rules = styleSheet.cssRules;
+		if(!rules)
+			continue;
 		let j = rules.length;
 		while(j--)
 			if(~rules[j].cssText.indexOf(selectorOrPropertyOrValue))
