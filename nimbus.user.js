@@ -4242,6 +4242,7 @@ function removeEmojis()
 function deleteEmptyElements(selector)
 {
 	const elems = get(selector);
+	let count = 0;
 	let i = elems.length;
 	while(i--)
 	{
@@ -4249,14 +4250,21 @@ function deleteEmptyElements(selector)
 		if(elem.textContent)
 		{
 			if(getTextLength(elem) === 0 && !elem.getElementsByTagName("img").length)
+			{
 				elem.remove();
+				count++;
+			}
 		}
 		else
 		{
 			if(!elem.getElementsByTagName("img").length)
+			{
 				elem.remove();
+				count++;
+			}
 		}
 	}
+	showMessageBig(`Deleted ${count} empty ${selector} elements`);
 }
 
 function deleteEmptyHeadings()
