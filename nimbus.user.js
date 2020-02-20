@@ -313,7 +313,8 @@ function getOrCreate(tagName, id, parent)
 	if(elem)
 		return elem;
 	const container = parent || document.body;
-	container.appendChild(createElement(tagName, { id: id }));
+	const newElem = createElement(tagName, { id: id });
+	container.appendChild(newElem);
 	return newElem;
 }
 
