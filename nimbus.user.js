@@ -863,7 +863,7 @@ function replaceElementsBySelector(selector, tagName)
 	const toReplace = get(selector);
 	if(toReplace.length)
 	{
-		showMessageBig(`Replacing ${toReplace.length} ${selector} with ${tagName}`);
+		showMessageBig(`Replacing <b>${toReplace.length} ${selector}</b> with <b>${tagName}</b>`);
 		let i = toReplace.length;
 		if(tagName === "hr")
 		{
@@ -920,7 +920,7 @@ function replaceElementsByClassesContaining(str, tagName)
 		for(let i = 0, ii = e.length; i < ii; i++)
 			if(~e[i].className.indexOf(str))
 				toReplace.push(e[i]);
-		showMessageBig("Replacing " + toReplace.length + " elements");
+			showMessageBig(`Replacing <b>${toReplace.length}</b> elements`);
 		for(let i = toReplace.length - 1; i >= 0; i--)
 			toReplace[i].parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace[i].innerHTML }), toReplace[i]);
 	}
@@ -1165,7 +1165,7 @@ function replaceClass(class1, class2)
 {
 	const e = document.querySelectorAll("." + class1);
 	let i = e.length;
-	showMessageBig("Replacing " + class1 + " with " + class2 + " on " + i + "elements");
+	showMessageBig(`Replacing <b>${class1}</b> with <b>${class2}</b> on <b>${i}</b> elements`);
 	while(i--)
 	{
 		e[i].classList.remove(class1);
@@ -1239,13 +1239,13 @@ function showStatus(id, str)
 	getOrCreate("h3", id).textContent = id + ": " + str;
 }
 
-function showMessage(messageText, msgClass, persist)
+function showMessage(messageHtml, msgClass, persist)
 {
 	clearTimeout(Nimbus.messageTimeout);
 	let messageContainer;
 	msgClass = msgClass || "";
 	const strStyle = 'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; text-align: left; }' +
-	'message.messagebig { font: 32px "Swis721 cn bt"; color: #FFF; height: 60px; line-height: 60px; font-weight: 500; }' +
+	'message.messagebig { font: 32px "Swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }' +
 	'message.messageerror { color: #F00; background: #500; }';
 
 	if(!get("message"))
@@ -1260,19 +1260,19 @@ function showMessage(messageText, msgClass, persist)
 		messageContainer = getOne("message");
 		messageContainer.className = msgClass;
 	}
-	messageContainer.textContent = messageText;
+	messageContainer.innerHTML = messageHtml;
 	if(!persist)
 		Nimbus.messageTimeout = setTimeout(deleteMessage, 2000);
 }
 
-function showMessageBig(messageText)
+function showMessageBig(messageHtml)
 {
-	showMessage(messageText, "messagebig");
+	showMessage(messageHtml, "messagebig");
 }
 
-function showMessageError(messageText)
+function showMessageError(messageHtml)
 {
-	showMessage(messageText, "messagebig messageerror");
+	showMessage(messageHtml, "messagebig messageerror");
 }
 
 function deleteMessage()
@@ -1914,7 +1914,7 @@ function unmarkAll()
 	count += removeClassFromAllQuiet(Nimbus.markerClass2);
 	count += removeClassFromAllQuiet("error");
 	del(["annotationinfo", "annotationwarning", "annotationerror"]);
-	showMessageBig(`Removed highlighting from ${count} elements`);
+	showMessageBig(`Removed highlighting from <b>${count}</b> elements`);
 }
 
 function filterNodesByAttributeEqualTo(nodes, attribute, value)
@@ -2236,7 +2236,7 @@ function deleteImagesSmallerThan(x, y)
 			count++;
 		}
 	}
-	showMessageBig(`Deleted ${count} images smaller than ${x} x ${y}`);
+	showMessageBig(`Deleted <b>${count}</b> images smaller than <b>${x} x ${y}</b>`);
 }
 
 function deleteSmallImages()
@@ -2797,7 +2797,7 @@ function createTagsByClassName()
 			replaceSingleElement(element, replacementTagName);
 		}
 	}
-	showMessageBig(`createTagsByClassName: replaced ${numReplaced} elements`);
+	showMessageBig(`createTagsByClassName: replaced <b>${numReplaced}</b> elements`);
 }
 
 function makeHeadingsByTextLength()
@@ -3181,7 +3181,7 @@ function focusField(elem)
 	removeClassFromAllQuiet("focused");
 	elem.focus();
 	elem.classList.add("focused");
-	showMessageBig("Focused " + createSelector(elem));
+	showMessageBig(`Focused <b>${createSelector(elem)}</b>`);
 	consoleLog("focusField: " + createSelector(document.activeElement));
 }
 
@@ -3564,7 +3564,7 @@ function changePage(direction)
 function cycleHighlightTags()
 {
 	const nextTag = getNext(Nimbus.highlightTagName, Nimbus.highlightTagNameList);
-	showMessageBig("Highlight tag is " + nextTag);
+	showMessageBig(`Highlight tag is <b>${nextTag}</b>`);
 	Nimbus.highlightTagName = nextTag;
 }
 
