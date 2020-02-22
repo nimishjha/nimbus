@@ -2281,11 +2281,13 @@ function getBestImageSrc()
 	while(i--)
 	{
 		const elem = e[i];
-		let srcset = elem.srcset || elem.getAttribute("data-srcset");
+		const set1 = typeof elem.srcset === "string" && elem.srcset.length ? elem.srcset : null;
+		const set2 = elem.getAttribute("data-srcset");
+		let srcset = set1 || set2;
 		if(!srcset)
 			continue;
 		count++;
-		srcset = srcset.replace(/w,/g, "|");
+		srcset = srcset.replace(/, {0,}/g, "|");
 		if(srcset)
 		{
 			let bestSource;
@@ -2299,10 +2301,12 @@ function getBestImageSrc()
 				if(!isNaN(size))
 					sourcesArray.push({ size: size, src: src });
 			}
+			console.log('---- sourcesArray', sourcesArray);
 			if(sourcesArray.length > 1)
 			{
 				sourcesArray = sourcesArray.sort(sortSources);
 				bestSource = sourcesArray[sourcesArray.length - 1].src;
+				console.log('---- bestSource', bestSource);
 				elem.src = bestSource;
 				elem.removeAttribute("srcset");
 				elem.removeAttribute("data-srcset");
@@ -2356,6 +2360,7 @@ function retrieveLargeImages()
 {
 	const links = get("a");
 	let i = links.length;
+	let count = 0;
 	while(i--)
 	{
 		const link = links[i];
@@ -2363,9 +2368,13 @@ function retrieveLargeImages()
 		if(containsAnyOfTheStrings(linkHref.toLowerCase(), [".png", ".jpg", ".gif", ".jpe"]))
 		{
 			if(link.parentNode)
+			{
 				link.parentNode.replaceChild(createElement("img", { src: linkHref }), link);
+				count++;
+			}
 		}
 	}
+	showMessageBig(`Retrieved ${count} large images`);
 }
 
 function getImageWidth(image)
