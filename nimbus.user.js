@@ -2287,7 +2287,7 @@ function getBestImageSrc()
 		if(!srcset)
 			continue;
 		count++;
-		srcset = srcset.replace(/, {0,}/g, "|");
+		srcset = srcset.replace(/, /g, "|");
 		if(srcset)
 		{
 			let bestSource;
