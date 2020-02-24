@@ -2313,7 +2313,7 @@ function getBestImageSrc()
 			}
 		}
 	}
-	// console.log(`Got best image source for ${count} images`);
+	xlog(`Switched to best image source for ${count} images`);
 }
 
 function replaceImagesWithTextLinks()
@@ -3574,7 +3574,7 @@ function changePage(direction)
 function cycleHighlightTags()
 {
 	const nextTag = getNext(Nimbus.highlightTagName, Nimbus.highlightTagNameList);
-	showMessageBig(`Highlight tag is <b>${nextTag}</b>`);
+	showMessageBig(`<${nextTag}>Highlight tag is ${nextTag}</${nextTag}>`);
 	Nimbus.highlightTagName = nextTag;
 }
 
