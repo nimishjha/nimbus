@@ -188,6 +188,7 @@ const Nimbus = {
 		insertStyle: insertStyle,
 		insertStyleHighlight: insertStyleHighlight,
 		iw: forceWidthForAllImages,
+		joinMarkedParagraphs: joinMarkedParagraphs,
 		logAllClassesFor: logAllClassesFor,
 		makeHashLinksRelative: makeHashLinksRelative,
 		makeHeadingFromSelection: makeHeadingFromSelection,
@@ -3604,6 +3605,21 @@ function convertMarkedElementsToList(tagName)
 	del(makeClassSelector(Nimbus.markerClass));
 }
 
+function joinMarkedParagraphs()
+{
+	const wrapperTagName = "p";
+	let wrapperHtml = "";
+	const elemsToJoin = get(makeClassSelector(Nimbus.markerClass));
+	const wrapper = document.createElement(wrapperTagName);
+	for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
+	{
+		wrapperHtml += elemsToJoin[i].innerHTML + " ";
+	}
+	wrapper.innerHTML = wrapperHtml;
+	insertBefore(elemsToJoin[0], wrapper);
+	del(makeClassSelector(Nimbus.markerClass));
+}
+
 function logout()
 {
 	switch(location.hostname)
@@ -6091,6 +6107,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.C: deleteNonContentElements(); break;
 			case KEYCODES.D: del("log"); break;
 			case KEYCODES.G: callFunctionWithArgs("Retrieve elements (optionally containing text)", retrieveElementsContainingText); break;
+			case KEYCODES.J: joinMarkedParagraphs(); break;
 			case KEYCODES.K: showPrintLink(); break;
 			case KEYCODES.L: logout(); break;
 			case KEYCODES.P: getPagerLinks(); break;
