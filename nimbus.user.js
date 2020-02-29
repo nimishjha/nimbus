@@ -2607,7 +2607,13 @@ function makeHeadingFromSelection(tagname)
 
 function makeHeadingsPlainText()
 {
-	forAll("h1, h2, h3, h4, h5, h6", htmlToText);
+	const headings = get("h1, h2, h3, h4, h5, h6");
+	let i = headings.length;
+	while(i--)
+	{
+		const heading = headings[i];
+		heading.innerHTML = removeLineBreaks(heading.textContent);
+	}
 }
 
 function makeLinksPlainText()
