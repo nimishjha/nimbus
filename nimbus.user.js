@@ -5744,6 +5744,7 @@ function removeHighlightsFromMarkedElements()
 		const element = markedElements[i];
 		element.innerHTML = element.innerHTML.replace(/<\/?mark[^>]*>/g, "");
 	}
+	unmarkAll();
 }
 
 //
