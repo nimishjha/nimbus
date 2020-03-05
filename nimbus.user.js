@@ -4530,16 +4530,16 @@ function deleteImages()
 
 function retrieve(selector)
 {
-	const elementsToGet = get(selector);
+	const selected = get(selector);
 	const tempNode = document.createElement("div");
-	if(elementsToGet.length)
+	if(isArray(selected))
 	{
-		for(let i = 0, ii = elementsToGet.length; i < ii; i++)
-			tempNode.appendChild(elementsToGet[i]);
+		for(let i = 0, ii = selected.length; i < ii; i++)
+			tempNode.appendChild(selected[i]);
 	}
-	else if(elementsToGet)
+	else if(selected)
 	{
-		tempNode.appendChild(elementsToGet);
+		tempNode.appendChild(selected);
 	}
 	if(tempNode.innerHTML.length)
 	{
