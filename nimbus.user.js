@@ -4661,6 +4661,7 @@ function cleanupWikipedia()
 	// replaceElementsBySelector("sup", "small");
 	getBestImageSrc();
 	cleanupAttributes();
+	setTimeout(deleteSmallImages, 10000);
 	document.body.className = "pad100 xwrap";
 	insertStyle("img { width: 100%; }", "styleWikipedia", true);
 }
