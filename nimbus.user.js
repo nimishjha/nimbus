@@ -1739,6 +1739,11 @@ function markElementsBySelector(selector)
 	if(!(typeof selector === "string" && selector.length))
 		return;
 	const elements = get(selector);
+	if(!elements)
+	{
+		showMessageError("No elements found for selector " + selector);
+		return;
+	}
 	if(elements.length)
 	{
 		let i = elements.length;
@@ -1750,10 +1755,6 @@ function markElementsBySelector(selector)
 	{
 		elements.classList.add(Nimbus.markerClass);
 		showMessageBig("Highlighted 1 element");
-	}
-	else
-	{
-		showMessageError("No elements found for selector " + selector);
 	}
 	insertStyleHighlight();
 }
