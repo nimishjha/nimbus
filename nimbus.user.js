@@ -5395,7 +5395,7 @@ function highlightSelection()
 	}
 	if(selectionText.length)
 	{
-		selectionText = expandToWordBoundaries(node, selectionText);
+		selectionText = expandToSentenceBoundaries(node, selectionText);
 		highlightTextAcrossTags(node, selectionText);
 	}
 }
@@ -5566,6 +5566,31 @@ function expandToWordBoundaries(node, selection)
 		index1--;
 	while(text[index2] && text[index2].match(regexRight) && index2 < text.length)
 		index2++;
+	const expanded = trim(text.substring(index1, index2));
+	consoleLog("expanded: " + expanded);
+	return expanded;
+}
+
+function expandToSentenceBoundaries(node, selection)
+{
+	const text = node.textContent;
+	let index1 = text.indexOf(selection);
+	if(index1 === -1)
+		return selection;
+	let index2 = index1 + selection.length;
+	const regexLeft = /[\.\?!]/;
+	const regexRight = /[\.\?!]/;
+	while(!text[index1].match(regexLeft) && index1 > 0)
+		index1--;
+	while(text[index2] && !text[index2].match(regexRight) && index2 < text.length)
+		index2++;
+	index1++;
+	if(index1 < 10)
+		index1 = 0;
+	if(index2 < text.length - 1)
+		index2++;
+	if(index2 > text.length - 10)
+		index2 = text.length;
 	const expanded = trim(text.substring(index1, index2));
 	consoleLog("expanded: " + expanded);
 	return expanded;
