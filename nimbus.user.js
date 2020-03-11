@@ -2217,11 +2217,18 @@ function select(...args)
 
 function removeQueryStringFromImageSources()
 {
-	let images = get("img");
+	const images = get("img");
 	for(let i = 0, ii = images.length; i < ii; i++)
 	{
 		const image = images[i];
 		image.src = trimAt(image.src, "?");
+	}
+	const imagePlaceholders = get("rt a");
+	for(let i = 0, ii = imagePlaceholders.length; i < ii; i++)
+	{
+		const imagePlaceholder = imagePlaceholders[i];
+		imagePlaceholder.href = trimAt(imagePlaceholder.href, "?");
+		imagePlaceholder.textContent = imagePlaceholder.href;
 	}
 }
 
