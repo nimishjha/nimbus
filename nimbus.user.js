@@ -190,6 +190,7 @@ const Nimbus = {
 		iw: forceWidthForAllImages,
 		joinMarkedParagraphs: joinMarkedParagraphs,
 		logAllClassesFor: logAllClassesFor,
+		makeDocumentSemantic: makeDocumentSemantic,
 		makeHashLinksRelative: makeHashLinksRelative,
 		makeHeadingFromSelection: makeHeadingFromSelection,
 		makeHeadings: makeHeadings,
@@ -6215,6 +6216,12 @@ function setupKeyboardShortcuts(e)
 		}
 	}
 	window.focus();
+}
+
+function makeDocumentSemantic()
+{
+	// mark("p, div", "class", "contains", "author");
+	replaceElementsByClassesContaining("author", "author");
 }
 
 function main()
