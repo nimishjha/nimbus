@@ -5402,7 +5402,7 @@ function highlightSelection()
 	}
 	if(selectionText.length)
 	{
-		selectionText = expandToSentenceBoundaries(node, selectionText);
+		selectionText = expandSelectionToSentenceBoundaries(node, selectionText);
 		highlightTextAcrossTags(node, selectionText);
 	}
 }
@@ -5560,7 +5560,7 @@ function highlightLinksWithHrefContaining(str)
 	}
 }
 
-function expandToWordBoundaries(node, selection)
+function expandSelectionToWordBoundaries(node, selection)
 {
 	const text = node.textContent;
 	let index1 = text.indexOf(selection);
@@ -5578,7 +5578,7 @@ function expandToWordBoundaries(node, selection)
 	return expanded;
 }
 
-function expandToSentenceBoundaries(node, selection)
+function expandSelectionToSentenceBoundaries(node, selection)
 {
 	const text = node.textContent;
 	let index1 = text.indexOf(selection);
