@@ -4662,12 +4662,16 @@ function cleanupWikipedia()
 	let i = sups.length;
 	while(i--)
 	{
-		const sup = sups[i];
-		const small = createReplacementElement("small", sup, { id: "id", innerHTML: "innerHTML" });
-		console.log(small);
-		sup.parentNode.replaceChild(small, sup);
+		const existingSuperscript = sups[i];
+		const replacement = createReplacementElement("internalref", existingSuperscript, { id: "id", innerHTML: "innerHTML" });
+		existingSuperscript.parentNode.replaceChild(replacement, existingSuperscript);
 	}
-	// replaceElementsBySelector("sup", "small");
+	const refLinks = get("internalref a");
+	for(let i = 0, ii = refLinks.length; i < ii; i++)
+	{
+		const refLink = refLinks[i];
+		refLink.textContent = refLink.textContent.replace(/[^A-Za-z0-9]+/g, "");
+	}
 	getBestImageSrc();
 	cleanupAttributes();
 	setTimeout(deleteSmallImages, 10000);
