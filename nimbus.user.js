@@ -223,6 +223,7 @@ const Nimbus = {
 		removeHighlightsFromMarkedElements: removeHighlightsFromMarkedElements,
 		removeInlineStyles: removeInlineStyles,
 		removeQueryStringFromImageSources: removeQueryStringFromImageSources,
+		removeQueryStringFromLinks: removeQueryStringFromLinks,
 		removeSpanTags: removeSpanTags,
 		replaceAudio: replaceAudio,
 		replaceClass: replaceClass,
@@ -2230,6 +2231,16 @@ function removeQueryStringFromImageSources()
 		const imagePlaceholder = imagePlaceholders[i];
 		imagePlaceholder.href = trimAt(imagePlaceholder.href, "?");
 		imagePlaceholder.textContent = imagePlaceholder.href;
+	}
+}
+
+function removeQueryStringFromLinks()
+{
+	const links = get("a");
+	for(let i = 0, ii = links.length; i < ii; i++)
+	{
+		const link = links[i];
+		link.href = trimAt(link.href, "?");
 	}
 }
 
