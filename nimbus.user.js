@@ -4583,6 +4583,7 @@ function getContentByParagraphCount()
 		retrieve(markerClass);
 		setDocTitleSimple(title);
 		cleanupGeneral();
+		del("iframe");
 		return;
 	}
 	del(["nav", "footer"]);
