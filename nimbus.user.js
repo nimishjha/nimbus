@@ -1167,7 +1167,7 @@ function isIncorrectType(x, type)
 
 function replaceClass(class1, class2)
 {
-	const e = document.querySelectorAll("." + class1);
+	const e = document.querySelectorAll(makeClassSelector(class1));
 	let i = e.length;
 	showMessageBig(`Replacing <b>${class1}</b> with <b>${class2}</b> on <b>${i}</b> elements`);
 	while(i--)
@@ -4334,7 +4334,7 @@ function deleteEmptyHeadings()
 function deleteSpecificEmptyElements()
 {
 	deleteEmptyHeadings();
-	deleteEmptyElements("p, tr, li, div, figure, figcaption");
+	deleteEmptyElements("p, tr, li, div, figure, figcaption, aside");
 }
 
 function replaceFontTags()
@@ -4576,6 +4576,7 @@ function retrieve(selector)
 
 function getContentByParagraphCount()
 {
+	const LONG_PARAGRAPH_THRESHOLD = 100;
 	const markerClass = "." + Nimbus.markerClass;
 	if(get(markerClass).length)
 	{
@@ -4598,7 +4599,7 @@ function getContentByParagraphCount()
 	for(let i = 0, ii = paragraphs.length; i < ii; i++)
 	{
 		const paragraph = paragraphs[i];
-		if(paragraph.textContent && normalizeString(paragraph.textContent).length > 100)
+		if(paragraph.textContent && normalizeString(paragraph.textContent).length > LONG_PARAGRAPH_THRESHOLD)
 		{
 			paragraph.classList.add("longParagraph");
 			longParagraphs.push(paragraph);
@@ -4631,6 +4632,18 @@ function getContentByParagraphCount()
 	)
 	{
 		contentDiv = contentDiv.parentNode;
+	}
+	if(document.querySelectorAll("h1, h2").length > 0 && contentDiv.querySelectorAll("h1, h2").length === 0)
+	{
+		while(
+			contentDiv &&
+			contentDiv.parentNode &&
+			contentDiv.parentNode.tagName !== "BODY" &&
+			contentDiv.querySelectorAll("h1, h2").length === 0
+		)
+		{
+			contentDiv = contentDiv.parentNode;
+		}
 	}
 	if(contentDiv)
 		contentDiv.classList.add(Nimbus.markerClass);
