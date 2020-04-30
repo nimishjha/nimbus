@@ -4582,7 +4582,7 @@ function getContentByParagraphCount()
 		retrieve(markerClass);
 		setDocTitleSimple(title);
 		cleanupGeneral();
-		del("iframe");
+		del("rp");
 		return;
 	}
 	del(["nav", "footer"]);
@@ -4631,13 +4631,14 @@ function getContentByParagraphCount()
 	{
 		contentDiv = contentDiv.parentNode;
 	}
-	if(document.querySelectorAll("h1, h2").length > 0 && contentDiv.querySelectorAll("h1, h2").length === 0)
+	const HEADINGS_SELECTOR = "h1, h2";
+	if(document.querySelectorAll(HEADINGS_SELECTOR).length > 0 && contentDiv.querySelectorAll(HEADINGS_SELECTOR).length === 0)
 	{
 		while(
 			contentDiv &&
 			contentDiv.parentNode &&
 			contentDiv.parentNode.tagName !== "BODY" &&
-			contentDiv.querySelectorAll("h1, h2").length === 0
+			contentDiv.querySelectorAll(HEADINGS_SELECTOR).length === 0
 		)
 		{
 			contentDiv = contentDiv.parentNode;
