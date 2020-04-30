@@ -939,7 +939,7 @@ function remove(...args)
 	del(e);
 }
 
-function contains(elem, tagName)
+function hasChildrenOfType(elem, tagName)
 {
 	return elem.getElementsByTagName(tagName).length ? true : false;
 }
@@ -4502,8 +4502,6 @@ function deleteNonContentElements()
 		cleanupGeneral();
 		return;
 	}
-	const sClass = "toget";
-
 	replaceElementsBySelector("article", "div");
 	markNavigationalLists();
 	deleteNonContentImages();
@@ -5569,9 +5567,13 @@ function highlightNodesContaining(selector, str)
 					node.innerHTML = markerTagOpen + node.innerHTML + markerTagClose;
 					break;
 			}
+			node.classList.add(Nimbus.markerClass);
 		}
 		if(node.tagName.toLowerCase() === "a" && node.href && ~node.href.indexOf(str))
+		{
 			node.innerHTML = markerTagOpen + node.innerHTML + markerTagClose;
+			node.classList.add(Nimbus.markerClass);
+		}
 	}
 	insertStyleHighlight();
 }
