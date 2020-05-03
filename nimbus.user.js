@@ -205,6 +205,7 @@ const Nimbus = {
 		markNavigationalLists: markNavigationalLists,
 		markNumericParagraphs: markNumericParagraphs,
 		markOverlays: markOverlays,
+		markQuotes: markQuotes,
 		markUserLinks: markUserLinks,
 		numberTableRowsAndColumns: numberTableRowsAndColumns,
 		markUppercaseParagraphs: markUppercaseParagraphs,
@@ -274,7 +275,7 @@ const Nimbus = {
 		currentIndex: -1,
 	},
 	highlightTagName: "mark",
-	highlightTagNameList: ["mark", "markred", "markgreen", "markblue", "markpurple", "markyellow"],
+	highlightTagNameList: ["mark", "markred", "markgreen", "markblue", "markpurple", "markyellow", "markwhite"],
 	replacementTagName: "blockquote",
 	markerClass: "nimbushl",
 	markerClass2: "nimbushl2",
@@ -1766,6 +1767,11 @@ function markOverlays()
 	mark("div", "style", "contains", "z-index");
 	mark("div", "class", "contains", "modal");
 	mark("div", "aria-modal", "exists");
+}
+
+function markQuotes()
+{
+	document.body.innerHTML = document.body.innerHTML.replace(/“/g, '<markwhite>"').replace(/”/g, '"</markwhite>');
 }
 
 function markElementsWithSetWidths()
@@ -3881,6 +3887,7 @@ function toggleStyleNegative()
 	markblue { background: #036 !important; color: #09F !important; padding: 2px 0 !important; line-height: inherit !important; }
 	markpurple { background: #404 !important; color: #F0F !important; padding: 2px 0 !important; line-height: inherit !important; }
 	markyellow { background: #440 !important; color: #FF0 !important; padding: 2px 0 !important; line-height: inherit !important; }
+	markwhite { background: #000 !important; color: #FFF !important; padding: 2px 0 !important; line-height: inherit !important; }
 
 	a img { border: none; }
 	button img, input img { display: none; }
@@ -5799,7 +5806,8 @@ function highlightLinksInPres()
 
 function removeAllHighlights()
 {
-	replaceElementsBySelector("mark, markred, markgreen, markblue, markpurple, markyellow", "span");
+	const markerSelectors = Nimbus.highlightTagNameList.join(",");
+	replaceElementsBySelector(markerSelectors, "span");
 	removeSpanTags();
 }
 
