@@ -4308,7 +4308,7 @@ function deleteEmptyElements(selector)
 		const elem = elems[i];
 		if(elem.textContent)
 		{
-			if(getTextLength(elem) === 0 && !elem.getElementsByTagName("img").length)
+			if(getTextLength(elem) === 0 && !elem.getElementsByTagName("img").length && !elem.getElementsByTagName("video").length)
 			{
 				elem.remove();
 				count++;
@@ -4316,7 +4316,7 @@ function deleteEmptyElements(selector)
 		}
 		else
 		{
-			if(!elem.getElementsByTagName("img").length)
+			if(!elem.getElementsByTagName("img").length && !elem.getElementsByTagName("video").length)
 			{
 				elem.remove();
 				count++;
