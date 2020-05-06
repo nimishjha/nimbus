@@ -275,7 +275,7 @@ const Nimbus = {
 		currentIndex: -1,
 	},
 	highlightTagName: "mark",
-	highlightTagNameList: ["mark", "markred", "markgreen", "markblue", "markpurple", "markyellow", "markwhite"],
+	highlightTagNameList: ["mark", "markyellow", "markred", "markgreen", "markblue", "markpurple", "markwhite"],
 	replacementTagName: "blockquote",
 	markerClass: "nimbushl",
 	markerClass2: "nimbushl2",
