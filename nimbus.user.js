@@ -863,6 +863,18 @@ function replaceSelectedElement(tag)
 		replaceSingleElement(node, replacementTag);
 }
 
+function replaceElementsBySelectorHelper()
+{
+	if(get(makeClassSelector(Nimbus.markerClass)).length)
+	{
+		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2, ".nimbushl");
+	}
+	else
+	{
+		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2)
+	}
+}
+
 function replaceElementsBySelector(selector, tagName)
 {
 	const toReplace = get(selector);
@@ -1323,9 +1335,9 @@ function getSelectionOrUserInput(promptMessage, callback, isUnary)
 	});
 }
 
-function callFunctionWithArgs(promptMessage, callback, numArgs)
+function callFunctionWithArgs(promptMessage, callback, numArgs, initialValue)
 {
-	customPrompt(promptMessage).then(function(userInput) {
+	customPrompt(promptMessage, initialValue).then(function(userInput) {
 		if(!numArgs || numArgs > 1)
 		{
 			const args = parseCommand(userInput);
@@ -1515,7 +1527,7 @@ function defaultDialogInputHandler(evt)
 	}
 }
 
-function customPrompt(message)
+function customPrompt(message, initialValue)
 {
 	if(!get("#xxdialog"))
 	{
@@ -1523,6 +1535,8 @@ function customPrompt(message)
 		const dialog = createElement("div", { id: "xxdialog" });
 		const dialogHeading = createElement("heading", { textContent: message });
 		const dialogInput = createElement("input", { id: "xxdialoginput" });
+		if(initialValue)
+			dialogInput.value = initialValue;
 		dialog.appendChild(dialogHeading);
 		dialog.appendChild(dialogInput);
 		document.body.insertBefore(dialog, document.body.firstChild);
@@ -6214,7 +6228,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.FOUR: toggleStyleWhite(); break;
 			case KEYCODES.A: toggleShowAriaAttributes(); break;
 			case KEYCODES.B: toggleShowDocumentStructureWithNames(); break;
-			case KEYCODES.E: callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2); break;
+			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements with class containing the string", deleteElementsWithClassContaining); break;
 			case KEYCODES.H: callFunctionWithArgs("Mark elements by selector", markElementsBySelector, 1); break;
