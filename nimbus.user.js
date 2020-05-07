@@ -5792,6 +5792,15 @@ function highlightWithinPreformattedBlocks(str)
 		pres[i].innerHTML = pres[i].innerHTML.replace(reg, "<mark>$1</mark>");
 }
 
+function toggleHighlight()
+{
+	const markedElements = get(makeClassSelector(Nimbus.markerClass));
+	if(markedElements && markedElements.length === 1)
+		removeHighlightsFromMarkedElements();
+	else
+		highlightSelectedElement();
+}
+
 function highlightSelectedElement(tag)
 {
 	const t = tag ? tag : Nimbus.highlightTagName;
@@ -6163,7 +6172,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatches, true); break;
 			case KEYCODES.P: fixParagraphs(); break;
 			case KEYCODES.Q: fixHeadings(); break;
-			case KEYCODES.R: highlightSelectedElement(); break;
+			case KEYCODES.R: toggleHighlight(); break;
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
