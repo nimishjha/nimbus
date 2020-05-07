@@ -867,7 +867,7 @@ function replaceElementsBySelectorHelper()
 {
 	if(get(makeClassSelector(Nimbus.markerClass)).length)
 	{
-		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2, ".nimbushl");
+		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2, makeClassSelector(Nimbus.markerClass) + " ");
 	}
 	else
 	{
