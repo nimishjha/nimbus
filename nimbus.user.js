@@ -386,6 +386,13 @@ function trim(str)
 	return str.replace(/^\s+/, '').replace(/\s+$/, '');
 }
 
+function trimNonAlphanumeric(str)
+{
+	if(!str)
+		return null;
+	return str.replace(/^[^A-Za-z0-9]+/, '').replace(/[^A-Za-z0-9]+$/, '');
+}
+
 function ltrim(str)
 {
 	return str.replace(/^\s+/, '');
@@ -529,12 +536,13 @@ function sanitizeTitle(titleString)
 		.replace(/\u0142/g, "'l")
 		.replace(/\u2018/g, "'")
 		.replace(/\u2019/g, "'")
-		.replace(/[:|\?]/g, " - ")
-		.replace(/[\/]/g, "-")
+		.replace(/[:|\?]/g, "_")
+		.replace(/[\/]/g, "_")
 		.replace(/[^\+\.\(\)0-9A-Za-z_!@\[\]\-\(\)'",]/g, " ")
+		.replace(/_+/g, " - ")
 		.replace(/\s+/g, " ");
 
-	return sanitizedTitle;
+	return trimNonAlphanumeric(sanitizedTitle);
 }
 
 function escapeForRegExp(str)
@@ -542,7 +550,6 @@ function escapeForRegExp(str)
 	const specials = new RegExp("[.*+?|()\\[\\]{}\\\\]", "g");
 	return str.replace(specials, "\\$&");
 }
-
 
 function enableConsoleLogs()
 {
@@ -2959,6 +2966,29 @@ function filterHeadings(headings)
 	return filteredHeadings;
 }
 
+function cleanupTitle()
+{
+	const titleText = sanitizeTitle(document.title);
+	const headings = document.querySelectorAll("h1, h2");
+	if(headings && headings.length)
+	{
+		for(let i = 0, ii = headings.length; i < ii; i++)
+		{
+			const heading = headings[i];
+			if(!heading.textContent || !heading.textContent.length)
+				continue;
+			const headingText = sanitizeTitle(heading.textContent);
+			if(removeWhitespace(headingText).length === 0)
+				continue;
+			if(~titleText.indexOf(headingText) && headingText.length < titleText.length)
+			{
+				document.title = headingText;
+				return;
+			}
+		}
+	}
+}
+
 function chooseDocumentHeading()
 {
 	Nimbus.currentHeadingText = trim( document.title.replace(getBestDomainSegment(location.hostname), "") );
@@ -2980,7 +3010,7 @@ function cycleThroughDocumentHeadings()
 			const heading = headings[i];
 			if(heading.classList.contains("currentHeading"))
 				continue;
-			const text = trim(sanitizeTitle(heading.textContent));
+			const text = sanitizeTitle(heading.textContent);
 			if(text.length && !candidateHeadingTexts.includes(text))
 				candidateHeadingTexts.push(text);
 		}
@@ -4138,6 +4168,7 @@ function cleanupGeneral()
 {
 	const t1 = performance.now();
 	cleanupHead();
+	cleanupTitle();
 	document.body.removeAttribute("style");
 	replaceIframes();
 	deleteNonContentImages();
@@ -4603,7 +4634,7 @@ function getContentByParagraphCount()
 		retrieve(markerClass);
 		setDocTitleSimple(title);
 		cleanupGeneral();
-		del("rp");
+		deleteIframes();
 		return;
 	}
 	del(["nav", "footer"]);
@@ -5803,15 +5834,25 @@ function toggleHighlight()
 
 function highlightSelectedElement(tag)
 {
-	const t = tag ? tag : Nimbus.highlightTagName;
+	const highlightTag = tag ? tag : Nimbus.highlightTagName;
 	const selection = window.getSelection();
 	if(!selection)
 		return;
 	let node = selection.anchorNode;
 	if(node.tagName === undefined)
 		node = node.parentNode;
-	if(node && node.parentNode)
-		node.innerHTML = "<" + t + ">" + node.innerHTML + "</" + t + ">";
+	const parentNode = node.parentNode;
+	if(node && parentNode)
+	{
+		const highlightElement = createElement(highlightTag);
+		const replacementNode = createElement(node.tagName);
+		while(node.firstChild)
+		{
+			highlightElement.appendChild(node.firstChild);
+		}
+		replacementNode.appendChild(highlightElement);
+		node.parentNode.replaceChild(replacementNode, node);
+	}
 }
 
 function highlightLinksInPres()
