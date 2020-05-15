@@ -2364,6 +2364,19 @@ function getBestImageSrc()
 	xlog(`Switched to best image source for ${count} images`);
 }
 
+function shortenImageSrc(src)
+{
+	const splat = src.split("/");
+	let domain = "unknown domain";
+	let imageFileName = "image";
+	if(splat.length && splat.length > 2)
+	{
+		domain = splat[2];
+		imageFileName = splat[splat.length - 1];
+	}
+	return domain + "/.../" + imageFileName;
+}
+
 function replaceImagesWithTextLinks()
 {
 	let e, imageLink, imageReplacement, i;
@@ -2388,7 +2401,7 @@ function replaceImagesWithTextLinks()
 			const elem = e[i];
 			if(elem.src)
 			{
-				imageLink = createElement("a", { href: elem.src, textContent: elem.src });
+				imageLink = createElement("a", { href: elem.src, textContent: shortenImageSrc(elem.src) });
 				imageReplacement = createElementWithChildren("rt", imageLink);
 				if(elem.parentNode.tagName.toLowerCase() === "a")
 					elem.parentNode.parentNode.replaceChild(imageReplacement, elem.parentNode);
@@ -2487,7 +2500,7 @@ function addLinksToLargerImages()
 		const link = links[i];
 		const linkHref = link.href;
 		if(containsAnyOfTheStrings(linkHref.toLowerCase(), [".png", ".jpg", ".jpeg", ".gif"]))
-			link.parentNode.insertBefore(createElementWithChildren("rt", createElement("a", { href: linkHref, textContent: linkHref})), link);
+			link.parentNode.insertBefore(createElementWithChildren("rt", createElement("a", { href: linkHref, textContent: shortenImageSrc(linkHref) })), link);
 	}
 }
 
