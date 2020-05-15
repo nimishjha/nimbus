@@ -489,6 +489,24 @@ function containsAnyOfTheStrings(s, arrStrings)
 	return false;
 }
 
+function containsAllOfTheStrings(s, arrStrings)
+{
+	if(!s || typeof s !== "string")
+		return false;
+	let i = arrStrings.length;
+	let found = 0;
+	while(i--)
+	{
+		if(~s.indexOf(arrStrings[i]))
+		{
+			found++;
+		}
+	}
+	if(found === arrStrings.length)
+		return true;
+	return false;
+}
+
 function startsWithAnyOfTheStrings(s, arrStrings)
 {
 	if(!s || typeof s !== "string")
@@ -4558,6 +4576,18 @@ function appendInfo()
 	document.body.appendChild(saveTime);
 }
 
+function deleteNonContentLists()
+{
+	const lists = get("ul");
+	for(let i = 0, ii = lists.length; i < ii; i++)
+	{
+		const list = lists[i];
+		const listText = list.textContent;
+		if(listText && containsAllOfTheStrings(listText, ["witter", "acebook"]))
+			list.remove();
+	}
+}
+
 function deleteNonContentElements()
 {
 	const markerClass = "." + Nimbus.markerClass;
@@ -4570,6 +4600,7 @@ function deleteNonContentElements()
 	replaceElementsBySelector("article", "div");
 	markNavigationalLists();
 	deleteNonContentImages();
+	deleteNonContentLists();
 	deleteEmptyElements("p");
 	deleteEmptyElements("div");
 	return;
