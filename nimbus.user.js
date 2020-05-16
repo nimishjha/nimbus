@@ -711,7 +711,6 @@ function showLog(prepend)
 	}
 }
 
-
 function htmlToText(elem)
 {
 	elem.innerHTML = elem.textContent;
@@ -896,7 +895,7 @@ function replaceElementsBySelectorHelper()
 	}
 	else
 	{
-		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2)
+		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2);
 	}
 }
 
@@ -1570,7 +1569,7 @@ function customPrompt(message, initialValue)
 			'#xxdialog #xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0 0; margin: 0; border-width: 0 10px; border-color: #000; width: 100%; height: 60px; overflow: hidden; box-sizing: border-box; }';
 		insertStyle(s, "style-xxdialog", true);
 		dialogInput.focus();
-		return new Promise(function(resolve, reject){
+		return new Promise(function(resolve, reject) {
 			dialogInput.addEventListener("keydown", function handleCustomPromptInput(evt){
 				evt.stopPropagation();
 				switch(evt.keyCode)
@@ -2658,10 +2657,10 @@ function replaceEmptyParagraphsWithHr()
 	while(i--)
 	{
 		const para = paras[i];
-		if(trim(para.textContent).length === 0)
+		if(removeWhitespace(para.textContent).length === 0)
 		{
 			let nextPara = paras[i - 1];
-			while(nextPara && trim(nextPara.textContent).length === 0 && i > 0)
+			while(nextPara && removeWhitespace(nextPara.textContent).length === 0 && i > 0)
 			{
 				nextPara = paras[--i];
 			}
@@ -4682,6 +4681,7 @@ function getContentByParagraphCount()
 		return;
 	}
 	del(["nav", "footer"]);
+	deleteNonContentLists();
 	insertStyleHighlight();
 	const paragraphs = get("p");
 	if(!paragraphs)
@@ -5785,7 +5785,7 @@ function highlightTextAcrossTags(node, searchString)
 	let index1 = node.textContent.indexOf(searchString);
 	if(index1 === -1)
 	{
-		showMessageBig(`${searchString} not found`);
+		showMessageError('Not found');
 		return;
 	}
 	let index2 = index1 + searchString.length;
