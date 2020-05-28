@@ -143,7 +143,7 @@ const Nimbus = {
 		cycleFocusOverFormFields: cycleFocusOverFormFields,
 		del: del,
 		deleteElementsContainingText: deleteElementsContainingText,
-		deleteElementsWithClassContaining: deleteElementsWithClassContaining,
+		deleteElementsWithClassOrIdContaining: deleteElementsWithClassOrIdContaining,
 		deleteEmptyElements: deleteEmptyElements,
 		deleteEmptyHeadings: deleteEmptyHeadings,
 		deleteIframes: deleteIframes,
@@ -4365,14 +4365,14 @@ function deleteElementsContainingText(selector, str)
 	}
 }
 
-function deleteElementsWithClassContaining(str)
+function deleteElementsWithClassOrIdContaining(str)
 {
 	const e = get("*");
 	let i = e.length;
 	while(i--)
 	{
 		const node = e[i];
-		if(~node.className.toString().indexOf(str))
+		if(~node.className.toString().indexOf(str) || ~node.id.toString().indexOf(str))
 			del(node);
 	}
 }
@@ -5437,12 +5437,17 @@ function copyAttribute(selector, fromAttributeName, toAttributeName)
 	const elements = get(selector);
 	if(!elements)
 		return;
+	let count = 0;
 	for(let i = 0, ii = elements.length; i < ii; i++)
 	{
 		const element = elements[i];
 		if(element.hasAttribute(fromAttributeName))
+		{
+			count++;
 			element.setAttribute(toAttributeName, element.getAttribute(fromAttributeName));
+		}
 	}
+	showMessageBig(`Copied attribute ${fromAttributeName} to ${toAttributeName} on ${count} ${selector}s`)
 }
 
 function setAttributeOf(selector, attribute, value)
@@ -6362,7 +6367,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.B: toggleShowDocumentStructureWithNames(); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
-			case KEYCODES.G: callFunctionWithArgs("Delete elements with class containing the string", deleteElementsWithClassContaining); break;
+			case KEYCODES.G: callFunctionWithArgs("Delete elements with class or id containing the string", deleteElementsWithClassOrIdContaining); break;
 			case KEYCODES.H: callFunctionWithArgs("Mark elements by selector", markElementsBySelector, 1); break;
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markElementsWithCssRule, 2); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
