@@ -226,6 +226,7 @@ const Nimbus = {
 		removeQueryStringFromImageSources: removeQueryStringFromImageSources,
 		removeQueryStringFromLinks: removeQueryStringFromLinks,
 		removeSpanTags: removeSpanTags,
+		removeTimeCodeFromYoutubeLinks: removeTimeCodeFromYoutubeLinks,
 		replaceAudio: replaceAudio,
 		replaceClass: replaceClass,
 		replaceCommentsWithPres: replaceCommentsWithPres,
@@ -4469,6 +4470,22 @@ function replaceFontTags()
 	}
 }
 
+function removeTimeCodeFromYoutubeLinks()
+{
+	const links = get("a");
+	let count = 0;
+	for(let i = 0, ii = links.length; i < ii; i++)
+	{
+		const link = links[i];
+		if(~link.href.indexOf("&t="))
+		{
+			count++;
+			link.href = trimAt(link.href, "&t=");
+		}
+	}
+	showMessageBig(count + " time codes removed");
+}
+
 function cleanupLinks()
 {
 	const links = get("a");
@@ -6396,6 +6413,9 @@ function main()
 				break;
 			case "en.m.wikipedia.org":
 				location.href = location.href.replace(/en\.m\./, "en.");
+				break;
+			case "www.youtube.com":
+				setTimeout(removeTimeCodeFromYoutubeLinks, 5000);
 				break;
 		}
 	}
