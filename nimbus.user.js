@@ -2574,23 +2574,25 @@ function buildGallery()
 		showMessageBig("No images found");
 		return;
 	}
-	const db = document.body;
 	const galleryElement = createElement("slideshow", { id: "nimbusGallery" });
-	const uniqueImages = [...new Set(images)];
-	for(let i = 0, ii = uniqueImages.length; i < ii; i++)
+	const doneImageSources = [];
+	for(let i = 0, ii = images.length; i < ii; i++)
 	{
-		const image = uniqueImages[i];
+		const image = images[i];
+		if(doneImageSources.includes(image.src))
+			continue;
 		let w = image.naturalWidth;
 		let h = image.naturalHeight;
 		let aspectRatioClass;
 		if(w && h)
 			aspectRatioClass = w / h > 16 / 9 ? "aspectRatioLandscape" : "aspectRatioPortrait";
 		galleryElement.appendChild(createElement("img", { src: image.src, className: aspectRatioClass }));
+		doneImageSources.push(image.src);
 	}
 	del("img");
 	cleanupHead();
 	insertStyle("img { display: block; float: left; max-height: 300px; }", "styleGallery", true);
-	db.insertBefore(galleryElement, db.firstChild);
+	document.body.insertBefore(galleryElement, document.body.firstChild);
 }
 
 function buildSlideshow()
