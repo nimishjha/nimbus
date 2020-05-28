@@ -247,7 +247,7 @@ const Nimbus = {
 		replaceClass: replaceClass,
 		replaceCommentsWithPres: replaceCommentsWithPres,
 		replaceDiacritics: replaceDiacritics,
-		replaceElementsByClassesContaining: replaceElementsByClassesContaining,
+		replaceElementsByClassContaining: replaceElementsByClassContaining,
 		replaceElementsBySelector: replaceElementsBySelector,
 		replaceEmptyParagraphsWithHr: replaceEmptyParagraphsWithHr,
 		replaceFontTags: replaceFontTags,
@@ -371,6 +371,15 @@ function debounce(func, delay)
 	};
 }
 
+function setAttributeOrProperty(element, key, value)
+{
+	const settableProperties = ["id", "className", "textContent", "innerHTML", "value"];
+	if(settableProperties.includes(key))
+		element[key] = value;
+	else
+		element.setAttribute(key, value);
+}
+
 function createElement(tag, props)
 {
 	const elem = document.createElement(tag);
@@ -378,14 +387,11 @@ function createElement(tag, props)
 	{
 		const keys = Object.keys(props);
 		let i = keys.length;
-		const settableProperties = ["id", "className", "textContent", "innerHTML", "value"];
 		while(i--)
 		{
 			const key = keys[i];
-			if(settableProperties.includes(key))
-				elem[key] = props[key];
-			else
-				elem.setAttribute(key, props[key]);
+			const value = props[key];
+			setAttributeOrProperty(elem, key, value);
 		}
 		return elem;
 	}
@@ -830,15 +836,11 @@ function createReplacementElement(tagName, sourceElement, propertyMapping)
 	let i = keys.length;
 	while(i--)
 	{
-		const prop = keys[i];
-		const value = propertyMapping[prop];
-		if(sourceElement[value])
-		{
-			if(settableProperties.includes(prop))
-				elem[prop] = sourceElement[value];
-			else
-				elem.setAttribute(prop, sourceElement.getAttribute(value));
-		}
+		const key = keys[i];
+		const sourceProp = propertyMapping[key];
+		const value = sourceElement[sourceProp] || sourceElement.getAttribute(sourceProp);
+		if(value)
+			setAttributeOrProperty(elem, key, value);
 	}
 	return elem;
 }
@@ -977,18 +979,24 @@ function replaceMarkedElements(tag)
 	unmarkAll();
 }
 
-function replaceElementsByClassesContaining(str, tagName)
+function replaceElementsByClassContaining(str, tagName)
 {
-	const e = get("div, p, span");
-	if(e.length)
+	const elements = get("div, p, span");
+	const substring = str.toLowerCase();
+	if(elements.length)
 	{
 		const toReplace = [];
-		for(let i = 0, ii = e.length; i < ii; i++)
-			if(~e[i].className.indexOf(str))
-				toReplace.push(e[i]);
-			showMessageBig(`Replacing <b>${toReplace.length}</b> elements`);
+		for(let i = 0, ii = elements.length; i < ii; i++)
+		{
+			const element = elements[i];
+			if(~element.className.toLowerCase().indexOf(substring))
+				toReplace.push(element);
+		}
+		showMessageBig(`Replacing <b>${toReplace.length}</b> elements`);
 		for(let i = toReplace.length - 1; i >= 0; i--)
+		{
 			toReplace[i].parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace[i].innerHTML }), toReplace[i]);
+		}
 	}
 }
 
@@ -1929,6 +1937,14 @@ function markUserLinks()
 	}
 }
 
+function markAuthors()
+{
+	replaceElementsByClassContaining("author", "author");
+	replaceElementsByClassContaining("byline", "author");
+	mark("author", "hasChildrenOfType", "author");
+	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "div");
+}
+
 function markUppercaseParagraphs()
 {
 	const e = get("p");
@@ -2428,7 +2444,9 @@ function shortenImageSrc(src)
 		domain = splat[2];
 		imageFileName = splat[splat.length - 1];
 	}
-	return domain + "/.../" + imageFileName;
+	if(domain.length)
+		return domain + " | " + imageFileName;
+	return imageFileName;
 }
 
 function replaceImagesWithTextLinks()
@@ -3995,12 +4013,12 @@ function toggleStyleNegative()
 	pre xh { color: #57F; }
 	pre xv { color: #F47; }
 
-	markgreen { background: #040 !important; color: #0F0 !important; padding: 2px 0 !important; line-height: inherit !important; }
-	markred { background: #400 !important; color: #F00 !important; padding: 2px 0 !important; line-height: inherit !important; }
-	markblue { background: #036 !important; color: #09F !important; padding: 2px 0 !important; line-height: inherit !important; }
-	markpurple { background: #404 !important; color: #F0F !important; padding: 2px 0 !important; line-height: inherit !important; }
-	markyellow { background: #440 !important; color: #FF0 !important; padding: 2px 0 !important; line-height: inherit !important; }
-	markwhite { background: #000 !important; color: #FFF !important; padding: 2px 0 !important; line-height: inherit !important; }
+	markgreen { background: #040; color: #0F0; padding: 2px 0; line-height: inherit; }
+	markred { background: #400; color: #F00; padding: 2px 0; line-height: inherit; }
+	markblue { background: #036; color: #09F; padding: 2px 0; line-height: inherit; }
+	markpurple { background: #404; color: #F0F; padding: 2px 0; line-height: inherit; }
+	markyellow { background: #440; color: #FF0; padding: 2px 0; line-height: inherit; }
+	markwhite { background: #000; color: #FFF; padding: 2px 0; line-height: inherit; }
 
 	a img { border: none; }
 	button img, input img { display: none; }
@@ -4032,6 +4050,8 @@ function toggleStyleNegative()
 	.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }
 	.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
 	user { background: #000; padding: 2px 10px; border-left: 10px solid #09F; margin: 0; }
+	author { display: block; font-size: 24px; background: #111; color: #FFF; padding: 2px 10px; border-left: 10px solid #AF0; margin: 0; }
+	internalref { background: #000; color: #AAA; padding: 1px 5px; }
 	comment { display: block; padding: 5px 10px; border-left: 10px solid #555; background: #222; }`;
 
 	toggleStyle(s, "styleNegative");
@@ -4737,6 +4757,7 @@ function getContentByParagraphCount()
 	}
 	del(["nav", "footer"]);
 	deleteNonContentLists();
+	makeDocumentSemantic();
 	insertStyleHighlight();
 	const paragraphs = get("p");
 	if(!paragraphs)
@@ -6424,7 +6445,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.A: toggleShowAriaProblems(); break;
 			case KEYCODES.D: deselect(); break;
 			case KEYCODES.Z: deselect(); break;
-			case KEYCODES.E: callFunctionWithArgs("Replace elements by classes containing", replaceElementsByClassesContaining, 2); break;
+			case KEYCODES.E: callFunctionWithArgs("Replace elements by class containing", replaceElementsByClassContaining, 2); break;
 			case KEYCODES.F: createTagsByClassName(); break;
 			case KEYCODES.H: unmarkAll(); break;
 			case KEYCODES.M: markOverlays(); break;
@@ -6441,8 +6462,8 @@ function setupKeyboardShortcuts(e)
 
 function makeDocumentSemantic()
 {
-	// mark("p, div", "class", "contains", "author");
-	replaceElementsByClassesContaining("author", "author");
+	markAuthors();
+	markUserLinks();
 }
 
 function main()
