@@ -137,6 +137,7 @@ const Nimbus = {
 		cleanupWikipedia: cleanupWikipedia,
 		convertDivsToParagraphs: convertDivsToParagraphs,
 		convertMarkedElementsToList: convertMarkedElementsToList,
+		copyAttribute: copyAttribute,
 		createPagerFromSelect: createPagerFromSelect,
 		createTagsByClassName: createTagsByClassName,
 		cycleFocusOverFormFields: cycleFocusOverFormFields,
@@ -5429,6 +5430,19 @@ function wrapElementInner(node, tag, config)
 	}
 	s = "<" + tagOpen + ">" + s + "</" + tag + ">";
 	node.innerHTML = s;
+}
+
+function copyAttribute(selector, fromAttributeName, toAttributeName)
+{
+	const elements = get(selector);
+	if(!elements)
+		return;
+	for(let i = 0, ii = elements.length; i < ii; i++)
+	{
+		const element = elements[i];
+		if(element.hasAttribute(fromAttributeName))
+			element.setAttribute(toAttributeName, element.getAttribute(fromAttributeName));
+	}
 }
 
 function setAttributeOf(selector, attribute, value)
