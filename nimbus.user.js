@@ -2917,7 +2917,7 @@ function createTagsByClassName()
 			case looksLikeComment(element): replacementTagName = "comment"; break;
 			case looksLikeExtract(element): replacementTagName = "blockquote"; break;
 			case hasClassesContaining(element, ["index"]): replacementTagName = "dt"; break;
-			case hasClassesContaining(element, ["fmtx"]): replacementTagName = "p"; break;
+			// case hasClassesContaining(element, ["fmtx"]): replacementTagName = "p"; break;
 			case hasClassesContaining(element, ["image"]): replacementTagName = "figure"; break;
 			case hasClassesContaining(element, ["caption"]): replacementTagName = "figcaption"; break;
 			case hasClassesContaining(element, ["note"]): replacementTagName = "dt"; break;
@@ -2936,7 +2936,7 @@ function createTagsByClassName()
 		let replacementTagName = null;
 		switch(true)
 		{
-			case hasClassesContaining(element, ["bold"]): replacementTagName = "b"; break;
+			case hasClassesContaining(element, ["bold", "txbf"]): replacementTagName = "b"; break;
 			case hasClassesStartingWith(element, ["epub-b"]): replacementTagName = "b"; break;
 			case hasClassesStartingWith(element, ["epub-i"]): replacementTagName = "i"; break;
 			case hasClassesContaining(element, ["italic", "txit"]): replacementTagName = "i"; break;
