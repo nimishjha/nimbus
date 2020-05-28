@@ -2369,9 +2369,9 @@ function getBestImageSrc()
 			let sourcesArray = [];
 			for(let j = 0, jj = sources.length; j < jj; j++)
 			{
-				const splitted = trim(sources[j]).split(' ');
-				const src = splitted[0];
-				const size = parseInt(splitted[1], 10);
+				const splat = trim(sources[j]).split(' ');
+				const src = splat[0];
+				const size = parseInt(splat[1], 10);
 				if(!isNaN(size))
 					sourcesArray.push({ size: size, src: src });
 			}
