@@ -5483,7 +5483,7 @@ function wrapElementInner(node, tag, config)
 	node.innerHTML = s;
 }
 
-function copyAttribute(selector, fromAttributeName, toAttributeName)
+function copyAttribute(selector, sourceAttribute, targetAttribute)
 {
 	const elements = get(selector);
 	if(!elements)
@@ -5492,13 +5492,14 @@ function copyAttribute(selector, fromAttributeName, toAttributeName)
 	for(let i = 0, ii = elements.length; i < ii; i++)
 	{
 		const element = elements[i];
-		if(element.hasAttribute(fromAttributeName))
+		const sourceAttributeValue = element[sourceAttribute] || element.getAttribute(sourceAttribute);
+		if(sourceAttributeValue)
 		{
 			count++;
-			element.setAttribute(toAttributeName, element.getAttribute(fromAttributeName));
+			setAttributeOrProperty(element, targetAttribute, sourceAttributeValue);
 		}
 	}
-	showMessageBig(`Copied attribute ${fromAttributeName} to ${toAttributeName} on ${count} ${selector}s`)
+	showMessageBig(`Copied attribute ${sourceAttribute} to ${targetAttribute} on ${count} ${selector}s`);
 }
 
 function setAttributeOf(selector, attribute, value)
