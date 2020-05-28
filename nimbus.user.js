@@ -267,6 +267,7 @@ const Nimbus = {
 		toggleStyleNegative: toggleStyleNegative,
 		toggleStyleShowClasses: toggleStyleShowClasses,
 		toggleStyleWhite: toggleStyleWhite,
+		unmark: unmark,
 		unmarkAll: unmarkAll,
 		wrapAnchorNodeInTag: wrapAnchorNodeInTag,
 		xlog: xlog,
@@ -1752,6 +1753,18 @@ function mark(...args)
 	showMessageBig("Found " + i + " elements");
 	while(i--)
 		e[i].classList.add(Nimbus.markerClass);
+	insertStyleHighlight();
+}
+
+function unmark(...args)
+{
+	const e = select(...args);
+	if(!(e && e.length))
+		return;
+	let i = e.length;
+	showMessageBig("Found " + i + " elements");
+	while(i--)
+		e[i].classList.remove(Nimbus.markerClass);
 	insertStyleHighlight();
 }
 
