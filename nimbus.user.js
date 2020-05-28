@@ -393,6 +393,13 @@ function trimNonAlphanumeric(str)
 	return str.replace(/^[^A-Za-z0-9]+/, '').replace(/[^A-Za-z0-9]+$/, '');
 }
 
+function trimSpecialChars(str)
+{
+	if(!str)
+		return null;
+	return str.replace(/^[^A-Za-z0-9\(\)\[\]]+/, '').replace(/[^A-Za-z0-9\(\)\[\]]+$/, '');
+}
+
 function ltrim(str)
 {
 	return str.replace(/^\s+/, '');
@@ -560,7 +567,7 @@ function sanitizeTitle(titleString)
 		.replace(/_+/g, " - ")
 		.replace(/\s+/g, " ");
 
-	return trimNonAlphanumeric(sanitizedTitle);
+	return trimSpecialChars(sanitizedTitle);
 }
 
 function escapeForRegExp(str)
