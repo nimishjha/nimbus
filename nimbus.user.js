@@ -4533,6 +4533,11 @@ function removeTimeCodeFromYoutubeLinks()
 			count++;
 			link.href = trimAt(link.href, "&t=");
 		}
+		else if(~link.href.indexOf("?t="))
+		{
+			count++;
+			link.href = trimAt(link.href, "?t=");
+		}
 	}
 	showMessageBig(count + " time codes removed");
 }
