@@ -165,6 +165,7 @@ const Nimbus = {
 		deleteImages: deleteImages,
 		deleteImagesBySrcContaining: deleteImagesBySrcContaining,
 		deleteImagesSmallerThan: deleteImagesSmallerThan,
+		deleteNonContentClasses: deleteNonContentClasses,
 		deleteNonContentElements: deleteNonContentElements,
 		deleteNonContentImages: deleteNonContentImages,
 		deleteSmallImages: deleteSmallImages,
@@ -4071,6 +4072,7 @@ function toggleStyleShowClasses()
 	div { padding: 0 0 0 10px; margin: 1px 1px 1px 10px; border: 2px solid #000; }
 	div::before, p::before { content: attr(class); color:#FF0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
 	div::after, p::after { content: attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
+	span { box-shadow: inset 1px 1px #0F0, inset 1px 1px #0F0; }
 	span::before { content: attr(class); color:#0F0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
 	select, textarea, input { background: #444; border: 1px solid red; }
 	button { background: #222; color: #AAA; }
@@ -4667,6 +4669,26 @@ function deleteNonContentLists()
 	}
 }
 
+function deleteNonContentClasses()
+{
+	const nonContentClassSubstrings = [
+		"social",
+		"related",
+		"sponsor",
+		"recomm",
+		"sidebar",
+		"follow",
+		"share",
+		"sharing",
+		"float",
+		"overlay",
+		"modal",
+		"signup",
+	]
+	for(let i = 0, ii = nonContentClassSubstrings.length; i < ii; i++)
+		deleteElementsWithClassOrIdContaining(nonContentClassSubstrings[i]);
+}
+
 function deleteNonContentElements()
 {
 	const markerClass = "." + Nimbus.markerClass;
@@ -4677,6 +4699,7 @@ function deleteNonContentElements()
 		return;
 	}
 	replaceElementsBySelector("article", "div");
+	deleteNonContentClasses();
 	markNavigationalLists();
 	deleteNonContentImages();
 	deleteNonContentLists();
