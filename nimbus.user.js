@@ -969,7 +969,7 @@ function replaceSingleElement(elem, tagName)
 
 function replaceMarkedElements(tag)
 {
-	const e = get("." + Nimbus.markerClass);
+	const e = get(makeClassSelector(Nimbus.markerClass));
 	let i = e.length;
 	while(i--)
 	{
@@ -3571,7 +3571,7 @@ function highlightCode(highlightKeywords)
 
 function toggleContentEditable()
 {
-	const e = getOne("." + Nimbus.markerClass);
+	const e = getOne(makeClassSelector(Nimbus.markerClass));
 	if(!e)
 		return;
 	let isEditable = e.getAttribute("contenteditable") === "true";
@@ -4600,7 +4600,7 @@ function removeSpanTags()
 
 function deleteMarkedElements()
 {
-	del("." + Nimbus.markerClass);
+	del(makeClassSelector(Nimbus.markerClass));
 }
 
 function replaceCommentsWithPres()
@@ -4691,10 +4691,10 @@ function deleteNonContentClasses()
 
 function deleteNonContentElements()
 {
-	const markerClass = "." + Nimbus.markerClass;
-	if(get(markerClass).length)
+	const markerSelector = makeClassSelector(Nimbus.markerClass);
+	if(get(markerSelector).length)
 	{
-		del(markerClass);
+		del(markerSelector);
 		cleanupGeneral();
 		return;
 	}
@@ -4773,7 +4773,7 @@ function retrieve(selector)
 function getContentByParagraphCount()
 {
 	const LONG_PARAGRAPH_THRESHOLD = 100;
-	const markerClass = "." + Nimbus.markerClass;
+	const markerClass = makeClassSelector(Nimbus.markerClass);
 	if(get(markerClass).length)
 	{
 		const title = document.title;
