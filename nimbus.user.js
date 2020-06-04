@@ -1919,7 +1919,7 @@ function markSelectionAnchorNode()
 		node = node.parentNode;
 	node.classList.add(Nimbus.markerClass);
 	insertStyleHighlight();
-	showMessageBig("Marked node is " + createSelector(node));
+	showMessage("Marked node is " + createSelector(node), "messagebig", true);
 }
 
 function markUserLinks()
@@ -5063,7 +5063,7 @@ function toggleBlockEditMode()
 		db.addEventListener('mouseup', handleBlockEditClick, false);
 		db.classList.add("debug");
 		const s = 'html body.debug header, html body.debug footer, html body.debug article, html body.debug aside, html body.debug section, html body.debug div { border: 2px solid #666; margin: 5px; padding: 5px; }' +
-			'html body.debug header:hover, html body.debug footer:hover, html body.debug article:hover, html body.debug aside:hover, html body.debug section:hover, html body.debug div:hover { border-color: #F00; } ' +
+			'html body.debug header:hover, html body.debug footer:hover, html body.debug article:hover, html body.debug aside:hover, html body.debug section:hover, html body.debug div:hover { border-color: #FFF; } ' +
 			'html body.debug>header, html body.debug>footer, html body.debug>article, html body.debug>aside, html body.debug>section, html body.debug>div { border-width: 10px 10px 10px 20px; }';
 		insertStyle(s, "styleToggleBlockEditMode", true);
 		showMessageBig("Block edit mode on");
@@ -5464,7 +5464,7 @@ function modifyMark(direction, keepSelection)
 	if(!keepSelection)
 		currentElement.classList.remove(Nimbus.markerClass);
 	nextElement.classList.add(Nimbus.markerClass);
-	showMessageBig("Marked node is " + createSelector(nextElement));
+	showMessage("Marked node is " + createSelector(nextElement), "messagebig", true);
 }
 
 function showTextToHTMLRatio()
