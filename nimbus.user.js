@@ -5514,7 +5514,15 @@ function wrapElementInner(node, tag, config)
 
 function makeButtonsReadable()
 {
-	copyAttribute("button", "aria-label", "textContent");
+	const buttons = get("button");
+	for(let i = 0, ii = buttons.length; i < ii; i++)
+	{
+		const button = buttons[i];
+		if(button.hasAttribute("aria-label"))
+		{
+			button.textContent = trimAt(button.getAttribute("aria-label"), " ");
+		}
+	}
 }
 
 function copyAttribute(selector, sourceAttribute, targetAttribute)
