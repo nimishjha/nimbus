@@ -165,6 +165,7 @@ const Nimbus = {
 		deleteImages: deleteImages,
 		deleteImagesBySrcContaining: deleteImagesBySrcContaining,
 		deleteImagesSmallerThan: deleteImagesSmallerThan,
+		deleteMessage: deleteMessage,
 		deleteNonContentClasses: deleteNonContentClasses,
 		deleteNonContentElements: deleteNonContentElements,
 		deleteNonContentImages: deleteNonContentImages,
