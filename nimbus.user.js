@@ -175,6 +175,8 @@ const Nimbus = {
 		disableConsoleLogs: disableConsoleLogs,
 		edit: toggleContentEditable,
 		enableConsoleLogs: enableConsoleLogs,
+		enableRightClickToCollectUrls: enableRightClickToCollectUrls,
+		disableRightClickToCollectUrls: disableRightClickToCollectUrls,
 		fillForms: fillForms,
 		fixHeadings: fixHeadings,
 		fixParagraphs: fixParagraphs,
@@ -4559,6 +4561,42 @@ function cleanupLinks()
 			newLink = createElement("a", { innerHTML: link.innerHTML, href: link.href });
 		link.parentNode.replaceChild(newLink, link);
 	}
+}
+
+function logHrefsOnClick(evt)
+{
+	evt.preventDefault();
+	const href = evt.target.href;
+	if(href)
+	{
+		ylog(href);
+		showMessageBig(href);
+	}
+	return false;
+}
+
+function enableRightClickToCollectUrls()
+{
+	const links = get("a");
+	for(let i = 0, ii = links.length; i < ii; i++)
+	{
+		const link = links[i];
+		link.addEventListener("mouseup", logHrefsOnClick);
+		if(!hasChildrenOfType(link, "img"))
+			link.innerHTML = link.textContent;
+	}
+	showMessageBig("Right-clicking links will now log their hrefs");
+}
+
+function disableRightClickToCollectUrls()
+{
+	const links = get("a");
+	for(let i = 0, ii = links.length; i < ii; i++)
+	{
+		const link = links[i];
+		link.removeEventListener("mouseup", logHrefsOnClick);
+	}
+	showMessageBig("Right-clicking links will now work normally");
 }
 
 function makeHashLinksRelative()
