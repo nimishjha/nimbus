@@ -207,6 +207,7 @@ const Nimbus = {
 		iw: forceWidthForAllImages,
 		joinMarkedParagraphs: joinMarkedParagraphs,
 		logAllClassesFor: logAllClassesFor,
+		makeButtonsReadable: makeButtonsReadable,
 		makeDocumentSemantic: makeDocumentSemantic,
 		makeHashLinksRelative: makeHashLinksRelative,
 		makeHeadingFromSelection: makeHeadingFromSelection,
@@ -5509,6 +5510,11 @@ function wrapElementInner(node, tag, config)
 	}
 	s = "<" + tagOpen + ">" + s + "</" + tag + ">";
 	node.innerHTML = s;
+}
+
+function makeButtonsReadable()
+{
+	copyAttribute("button", "aria-label", "textContent");
 }
 
 function copyAttribute(selector, sourceAttribute, targetAttribute)
