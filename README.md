@@ -2,6 +2,10 @@
 
 ## Browsing utility suite for use with Greasemonkey/Tampermonkey
 
+### or
+
+## How I learned to stop worrying and love the DOM
+
 This user script gives the user a great deal of control over the browsing experience, and is quite useful for front-end development as well. Many commands can be executed using keyboard shortcuts, and all commands can be invoked using the in-page command prompt (`Ctrl-Alt-M`).
 
 The command prompt uses a shorthand to call functions with arguments. For instance, if you wanted to call `markElementsWithCssRule("float", "left")`, in the command prompt you'd enter
@@ -36,7 +40,13 @@ function f(x)
 
 Then, if you want to highlight the table rows containing the brand name "OCP", you'd hit `Alt-Y`(for `highlight nodes containing text`), then enter `tr OCP` in the command prompt.
 
+## Note
+
+This userscript is meant to be used along with a custom stylesheet, without which quite a few of the operations will have no visible effect. To apply this stylesheet, press Ctrl-Alt-1. This should be the first thing you do if you're expecting to work with highlights, annotations, etc.
+
 ## Keyboard shortcuts
+
+Some of these are very likely out of date. As this script is mainly for my personal use, I'm not too concerned about this.
 
 ### With Alt key
 
