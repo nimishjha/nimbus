@@ -5553,14 +5553,17 @@ function wrapElementInner(node, tag, config)
 function makeButtonsReadable()
 {
 	const buttons = get("button");
+	let count = 0;
 	for(let i = 0, ii = buttons.length; i < ii; i++)
 	{
 		const button = buttons[i];
 		if(button.hasAttribute("aria-label"))
 		{
+			count++;
 			button.textContent = trimAt(button.getAttribute("aria-label"), " ");
 		}
 	}
+	showMessageBig(`Labeled ${count} buttons`);
 }
 
 function copyAttribute(selector, sourceAttribute, targetAttribute)
