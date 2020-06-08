@@ -4545,7 +4545,6 @@ function removeTimeCodeFromYoutubeLinks()
 			link.href = trimAt(link.href, "?t=");
 		}
 	}
-	showMessageBig(count + " time codes removed");
 }
 
 function cleanupLinks()
@@ -6049,7 +6048,7 @@ function highlightWithinPreformattedBlocks(str)
 function toggleHighlight()
 {
 	const markedElements = get(makeClassSelector(Nimbus.markerClass));
-	if(markedElements && markedElements.length === 1)
+	if(markedElements)
 		removeHighlightsFromMarkedElements();
 	else
 		highlightSelectedElement();
