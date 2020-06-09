@@ -436,23 +436,26 @@ function ltrim(str)
 
 function trimAt(str, sub)
 {
-	if(str.indexOf(sub) === -1)
+	const index = str.indexOf(sub);
+	if(index === -1)
 		return str;
-	return str.substring(0, str.indexOf(sub));
+	return str.substring(0, index);
 }
 
 function trimAtInclusive(str, sub)
 {
-	if(str.indexOf(sub) === -1)
+	const index = str.indexOf(sub);
+	if(index === -1)
 		return str;
-	return str.substring(0, str.indexOf(sub) + sub.length);
+	return str.substring(0, index + sub.length);
 }
 
 function trimStartingAt(str, sub)
 {
-	if(str.indexOf(sub) === -1)
+	const index = str.indexOf(sub);
+	if(index === -1)
 		return str;
-	return str.substring(str.indexOf(sub));
+	return str.substring(index);
 }
 
 function trimBetween(str, sub1, sub2)
