@@ -667,6 +667,47 @@ function parseObject(o, indentLevel, parent)
 	return s;
 }
 
+function parseQueryString(url)
+{
+	const index = url.indexOf("?");
+	if(index === -1 || index > url.length - 4)
+	{
+		showMessageError("Url has no query string");
+		return;
+	}
+	const queryString = url.substring(index + 1);
+	let queryStringSplat = queryString.split("&");
+	const parsedParameters = [];
+	for(let i = 0, ii = queryStringSplat.length; i < ii; i++)
+	{
+		const keyValuePairSplat = queryStringSplat[i].split("=");
+		parsedParameters.push({
+			key: keyValuePairSplat[0],
+			value: keyValuePairSplat[1]
+		});
+	}
+	return(parsedParameters);
+}
+
+function removeQueryParameter(url, parameterName)
+{
+	const parsedParameters = parseQueryString(url);
+	let baseUrl = trimAt(url, "?");
+	let newQueryString = "";
+	for(let i = 0, ii = parsedParameters.length; i < ii; i++)
+	{
+		const param = parsedParameters[i].key;
+		const value = parsedParameters[i].value;
+		if(param !== parameterName)
+		{
+			newQueryString += `${param}=${value}`;
+		}
+	}
+	if(newQueryString.length)
+		return(`${baseUrl}?${newQueryString}`);
+	return baseUrl;
+}
+
 function arrayToString(arr, separator)
 {
 	let sep = separator || " | ";
@@ -4534,15 +4575,10 @@ function removeTimeCodeFromYoutubeLinks()
 	for(let i = 0, ii = links.length; i < ii; i++)
 	{
 		const link = links[i];
-		if(~link.href.indexOf("&t="))
+		const href = link.href;
+		if(~href.indexOf("&t=") || ~href.indexOf("?t="))
 		{
-			count++;
-			link.href = trimAt(link.href, "&t=");
-		}
-		else if(~link.href.indexOf("?t="))
-		{
-			count++;
-			link.href = trimAt(link.href, "?t=");
+			link.href = removeQueryParameter(href, "t");
 		}
 	}
 }
@@ -4723,7 +4759,7 @@ function deleteNonContentClasses()
 		"overlay",
 		"modal",
 		"signup",
-	]
+	];
 	for(let i = 0, ii = nonContentClassSubstrings.length; i < ii; i++)
 		deleteElementsWithClassOrIdContaining(nonContentClassSubstrings[i]);
 }
