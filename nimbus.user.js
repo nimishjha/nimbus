@@ -2923,11 +2923,6 @@ function restorePres()
 	}
 }
 
-function replaceNbsp()
-{
-	document.body.innerHTML = document.body.innerHTML.replace(/&nbsp;/g, " ");
-}
-
 function fixParagraphs()
 {
 	fixPres();
@@ -4484,6 +4479,16 @@ function removeEmojis()
 	{
 		const textNode = textNodes.snapshotItem(i);
 		textNode.data = textNode.data.replace(regex, "");
+	}
+}
+
+function replaceNbsp()
+{
+	const textNodes = document.evaluate("//text()", document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
+	{
+		const textNode = textNodes.snapshotItem(i);
+		textNode.data = textNode.data.replace(/&nbsp;/g, " ").replace(/[ ]+/g, " ");
 	}
 }
 
