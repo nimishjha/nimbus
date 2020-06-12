@@ -5612,34 +5612,23 @@ function showTextToHTMLRatio()
 	}
 }
 
-function wrapElement(node, tag, config)
+function wrapElement(node, tagName)
 {
-	let s = node.outerHTML;
-	let tagOpen = tag;
-	if(config)
-	{
-		if(config.id)
-			tagOpen += ' id="' + config.id + '" ';
-		if(config.className)
-			tagOpen += ' class="' + config.className + '" ';
-	}
-	s = "<" + tagOpen + ">" + s + "</" + tag + ">";
-	node.outerHTML = s;
+	const wrapper = createElement(tagName);
+	const newNode = node.cloneNode(true);
+	wrapper.appendChild(newNode);
+	node.parentNode.replaceChild(wrapper, node);
 }
 
-function wrapElementInner(node, tag, config)
+function wrapElementInner(node, tagName)
 {
-	let s = node.innerHTML;
-	let tagOpen = tag;
-	if(config)
-	{
-		if(config.id)
-			tagOpen += ' id="' + config.id + '" ';
-		if(config.className)
-			tagOpen += ' class="' + config.className + '" ';
-	}
-	s = "<" + tagOpen + ">" + s + "</" + tag + ">";
-	node.innerHTML = s;
+	const wrapper = createElement(tagName);
+	const newNode = document.createElement(node.tagName);
+	if(node.tagName === "A" && node.href && node.href.length)
+		newNode.href = node.href;
+	while(node.firstChild)
+		wrapper.appendChild(node.firstChild);
+	node.appendChild(wrapper);
 }
 
 function makeButtonsReadable()
