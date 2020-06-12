@@ -6144,18 +6144,8 @@ function highlightSelectedElement(tag)
 	let node = selection.anchorNode;
 	if(node.tagName === undefined)
 		node = node.parentNode;
-	const parentNode = node.parentNode;
-	if(node && parentNode)
-	{
-		const highlightElement = createElement(highlightTag);
-		const replacementNode = createElement(node.tagName);
-		while(node.firstChild)
-		{
-			highlightElement.appendChild(node.firstChild);
-		}
-		replacementNode.appendChild(highlightElement);
-		node.parentNode.replaceChild(replacementNode, node);
-	}
+	if(node && node.parentNode && node.tagName !== "BODY")
+		wrapElementInner(node, highlightTag);
 }
 
 function highlightLinksInPres()
