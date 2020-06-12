@@ -351,6 +351,16 @@ function getTextNodes()
 	return document.evaluate("//text()", document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
 }
 
+function xPathSelect(xpath, context)
+{
+	const xPathContext = context || document;
+	const nodes = document.evaluate(xpath, xPathContext, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	let selected = new Array(nodes.snapshotLength);
+	for(let i = 0, ii = selected.length; i < ii; i++)
+		selected[i] = nodes.snapshotItem(i);
+	return selected;
+}
+
 function del(arg)
 {
 	if(!arg)
