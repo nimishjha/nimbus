@@ -261,6 +261,7 @@ const Nimbus = {
 		replaceMarkedElements: replaceMarkedElements,
 		replaceNbsp: replaceNbsp,
 		replaceSpansWithTextNodes: replaceSpansWithTextNodes,
+		replaceSpecialCharacters:replaceSpecialCharacters,
 		restorePres: restorePres,
 		retrieve: retrieve,
 		revealEmptyLinks: revealEmptyLinks,
@@ -577,6 +578,48 @@ function replaceDiacritics(str)
 	for(let i = 0, ii = diacritics.length; i < ii; i++)
 		str = str.replace(diacritics[i],chars[i]);
 	return str;
+}
+
+function replaceSpecialCharacters()
+{
+	const replacements = {
+		"\xa0": " ",
+		"\xa9": "(c)",
+		"\xae": "(r)",
+		"\xb7": "*",
+		"\u2018": "'",
+		"\u2019": "'",
+		"\u201c": '"',
+		"\u201d": '"',
+		"\u2026": "...",
+		"\u2002": " ",
+		"\u2003": " ",
+		"\u2009": " ",
+		"\u2013": "-",
+		"\u2014": "--",
+		"\u2122": "(tm)"
+	};
+
+	const regularExpressions = {};
+	const keys = Object.keys(replacements);
+	for(let i = 0, ii = keys.length; i < ii; i++)
+	{
+		const key = keys[i];
+		regularExpressions[key] = new RegExp(key, 'g');
+	}
+
+	const textNodes = getTextNodes();
+	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
+	{
+		const textNode = textNodes.snapshotItem(i);
+		let nodeText = textNode.data;
+		for(let j = 0, jj = keys.length; j < jj; j++)
+		{
+			const key = keys[j];
+			nodeText = nodeText.replace(regularExpressions[key], replacements[key]);
+		}
+		textNode.data = nodeText;
+	}
 }
 
 function sanitizeTitle(titleString)
