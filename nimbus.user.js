@@ -4137,7 +4137,7 @@ function toggleStyleNegative()
 	.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
 	user { background: #000; padding: 2px 10px; border-left: 10px solid #09F; margin: 0; }
 	author { display: block; font-size: 24px; background: #111; color: #FFF; padding: 2px 10px; border-left: 10px solid #AF0; margin: 0; }
-	internalref { background: #000; color: #AAA; padding: 1px 5px; }
+	reference { background: #000; color: #AAA; padding: 1px 5px; }
 	comment { display: block; padding: 5px 10px; border-left: 10px solid #555; background: #222; }`;
 
 	toggleStyle(s, "styleNegative");
@@ -4504,11 +4504,12 @@ function deleteElementsContainingText(selector, str)
 
 function deleteElementsWithClassOrIdContaining(str)
 {
+	const strLower = str.toLowerCase();
 	const e = get("*");
 	for(let i = 0, ii = e.length; i < ii; i++)
 	{
 		const node = e[i];
-		if(node && ~node.className.toString().indexOf(str) || ~node.id.toString().indexOf(str))
+		if(node && ~node.className.toString().toLowerCase().indexOf(strLower) || ~node.id.toString().toLowerCase().indexOf(strLower))
 			del(node);
 	}
 }
@@ -5017,10 +5018,10 @@ function cleanupWikipedia()
 	while(i--)
 	{
 		const existingSuperscript = sups[i];
-		const replacement = createReplacementElement("internalref", existingSuperscript, { id: "id", innerHTML: "innerHTML" });
+		const replacement = createReplacementElement("reference", existingSuperscript, { id: "id", innerHTML: "innerHTML" });
 		existingSuperscript.parentNode.replaceChild(replacement, existingSuperscript);
 	}
-	const refLinks = get("internalref a");
+	const refLinks = get("reference a");
 	for(let i = 0, ii = refLinks.length; i < ii; i++)
 	{
 		const refLink = refLinks[i];
@@ -6531,7 +6532,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.W: cleanupGeneral_light(); break;
 			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
 			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining); break;
-			case KEYCODES.Z: cleanupUnicode(); break;
+			case KEYCODES.Z: replaceSpecialCharacters(); break;
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); cycleFocusOverFormFields(); break;
 			case KEYCODES.DELETE: deleteMarkedElements(); break;
