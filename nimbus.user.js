@@ -259,7 +259,7 @@ const Nimbus = {
 		replaceIframes: replaceIframes,
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
 		replaceMarkedElements: replaceMarkedElements,
-		replaceNbsp: replaceNbsp,
+		normalizeWhitespace: normalizeWhitespace,
 		replaceSpansWithTextNodes: replaceSpansWithTextNodes,
 		replaceSpecialCharacters:replaceSpecialCharacters,
 		restorePres: restorePres,
@@ -4525,13 +4525,13 @@ function removeEmojis()
 	}
 }
 
-function replaceNbsp()
+function normalizeWhitespace()
 {
 	const textNodes = getTextNodes();
 	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
 	{
 		const textNode = textNodes.snapshotItem(i);
-		textNode.data = textNode.data.replace(/&nbsp;/g, " ").replace(/[ ]+/g, " ");
+		textNode.data = textNode.data.replace(/\s+/g, " ");
 	}
 }
 
