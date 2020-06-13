@@ -189,7 +189,7 @@ const Nimbus = {
 		getAllCssRulesMatching: getAllCssRulesMatching,
 		getBestImageSrc: getBestImageSrc,
 		getContentByParagraphCount: getContentByParagraphCount,
-		getElementsByChildrenHavingTheExactText: getElementsByChildrenHavingTheExactText,
+		markElementsByChildrenHavingTheExactText: markElementsByChildrenHavingTheExactText,
 		retrieveElementsContainingText: retrieveElementsContainingText,
 		retrieveLargeImages: retrieveLargeImages,
 		getPagerLinks: getPagerLinks,
@@ -393,7 +393,7 @@ function getElementsByChildrenHavingTheExactText(params)
 	}
 	if(childTagName && text)
 	{
-		childClause = `//a[text()='${text}']`;
+		childClause = `//${childTagName}[text()='${text}']`;
 	}
 	else
 	{
@@ -405,6 +405,48 @@ function getElementsByChildrenHavingTheExactText(params)
 		return false;
 	}
 	return xPathSelect(childClause + parentClause);
+}
+
+function markElementsByChildrenHavingTheExactText(...args)
+{
+	let parentTagName, parentClass, childTagName, text;
+	const params = {};
+	switch(args.length)
+	{
+		case 3:
+			parentTagName = args[0];
+			childTagName = args[1];
+			text = args[2];
+			break;
+		case 4:
+			parentTagName = args[0];
+			parentClass = args[1];
+			childTagName = args[2];
+			text = args[3];
+			break;
+		default:
+			showMessageError("Invalid arguments");
+			return false;
+	}
+	let isValid = false;
+	if(parentTagName && childTagName && text)
+	{
+		params.parentTagName = parentTagName;
+		params.childTagName = childTagName;
+		params.text = text;
+		isValid = true;
+	}
+	if(parentClass)
+		params.parentClass = parentClass;
+	if(isValid)
+	{
+		const elems = getElementsByChildrenHavingTheExactText(params);
+		let i = elems.length;
+		showMessageBig(`Found ${i} elements`);
+		while(i--)
+			elems[i].classList.add(Nimbus.markerClass);
+		insertStyleHighlight();
+	}
 }
 
 function debounce(func, delay)
