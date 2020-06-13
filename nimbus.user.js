@@ -260,7 +260,7 @@ const Nimbus = {
 		replaceIframes: replaceIframes,
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
 		replaceMarkedElements: replaceMarkedElements,
-		normalizeWhitespace: normalizeWhitespace,
+		normalizeAllWhitespace: normalizeAllWhitespace,
 		replaceSpansWithTextNodes: replaceSpansWithTextNodes,
 		replaceSpecialCharacters:replaceSpecialCharacters,
 		restorePres: restorePres,
@@ -4612,7 +4612,7 @@ function removeEmojis()
 	}
 }
 
-function normalizeWhitespace()
+function normalizeAllWhitespace()
 {
 	const textNodes = getTextNodes();
 	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
