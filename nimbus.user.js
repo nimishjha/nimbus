@@ -389,7 +389,7 @@ function getElementsByChildrenHavingTheExactText(params)
 	}
 	else
 	{
-		errorMessage += 'parentTagName is required; '
+		errorMessage += 'parentTagName is required; ';
 	}
 	if(childTagName && text)
 	{
@@ -397,7 +397,7 @@ function getElementsByChildrenHavingTheExactText(params)
 	}
 	else
 	{
-		errorMessage += 'childTagName and text are required; '
+		errorMessage += 'childTagName and text are required; ';
 	}
 	if(!(parentClause && childClause))
 	{
@@ -1576,7 +1576,10 @@ function handleConsoleInput(evt, consoleType)
 			if(evt[ctrlOrMeta])
 			{
 				if(consoleType === "js")
-					eval(inputText);
+				{
+					return;
+					// eval(inputText);
+				}
 				else if(consoleType === "css")
 					insertStyle(inputText, "userStyle", true);
 			}
