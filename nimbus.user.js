@@ -895,7 +895,7 @@ function createSelector(elem)
 function emptyElement(elem)
 {
 	if(elem)
-		elem.innerHTML = '';
+		elem.textContent = '';
 }
 
 function isArray(o)
