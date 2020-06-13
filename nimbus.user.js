@@ -189,6 +189,7 @@ const Nimbus = {
 		getAllCssRulesMatching: getAllCssRulesMatching,
 		getBestImageSrc: getBestImageSrc,
 		getContentByParagraphCount: getContentByParagraphCount,
+		getElementsByChildrenHavingTheExactText: getElementsByChildrenHavingTheExactText,
 		retrieveElementsContainingText: retrieveElementsContainingText,
 		retrieveLargeImages: retrieveLargeImages,
 		getPagerLinks: getPagerLinks,
@@ -335,6 +336,20 @@ function getOne(selector)
 	return document.querySelector(selector);
 }
 
+function del(arg)
+{
+	if(!arg)
+		return;
+	if(arg.nodeType)
+		arg.remove();
+	else if(arg.length)
+		if(typeof arg === "string")
+			del(get(arg));
+		else
+			for(let i = 0, ii = arg.length; i < ii; i++)
+				del(arg[i]);
+}
+
 function getOrCreate(tagName, id, parent)
 {
 	const elem = getOne("#" + id);
@@ -361,18 +376,35 @@ function xPathSelect(xpath, context)
 	return selected;
 }
 
-function del(arg)
+function getElementsByChildrenHavingTheExactText(params)
 {
-	if(!arg)
-		return;
-	if(arg.nodeType)
-		arg.remove();
-	else if(arg.length)
-		if(typeof arg === "string")
-			del(get(arg));
+	const { parentTagName, parentClass, childTagName, text } = params;
+	let parentClause, childClause, errorMessage = "";
+	if(parentTagName)
+	{
+		if(parentClass)
+			parentClause = `/ancestor::${parentTagName}[contains(@class, '${parentClass}')]`;
 		else
-			for(let i = 0, ii = arg.length; i < ii; i++)
-				del(arg[i]);
+			parentClause = `/ancestor::${parentTagName}`;
+	}
+	else
+	{
+		errorMessage += 'parentTagName is required; '
+	}
+	if(childTagName && text)
+	{
+		childClause = `//a[text()='${text}']`;
+	}
+	else
+	{
+		errorMessage += 'childTagName and text are required; '
+	}
+	if(!(parentClause && childClause))
+	{
+		showMessageError(errorMessage);
+		return false;
+	}
+	return xPathSelect(childClause + parentClause);
 }
 
 function debounce(func, delay)
