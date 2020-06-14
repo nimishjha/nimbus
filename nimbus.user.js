@@ -433,7 +433,7 @@ function getElementsByChildrenWithText(params)
 function markElementsByChildrenHavingTheExactText(...args)
 {
 	let parentTagName, parentClass, childTagName, text;
-	const params = {};
+	const params = { exactMatch: true };
 	switch(args.length)
 	{
 		case 3:
@@ -463,7 +463,6 @@ function markElementsByChildrenHavingTheExactText(...args)
 		params.parentClass = parentClass;
 	if(isValid)
 	{
-		params.exactMatch = true;
 		const elems = getElementsByChildrenWithText(params);
 		let i = elems.length;
 		showMessageBig(`Found ${i} elements`);
@@ -4006,7 +4005,7 @@ function logout()
 	}
 	if(!found)
 	{
-		const inputsButtons = document.querySelectorAll("input", "button");
+		const inputsButtons = document.querySelectorAll("input, button");
 		for(let i = 0, ii = inputsButtons.length; i < ii; i++)
 		{
 			const element = inputsButtons[i];
