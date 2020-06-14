@@ -2597,12 +2597,10 @@ function getBestImageSrc()
 				if(!isNaN(size))
 					sourcesArray.push({ size: size, src: src });
 			}
-			console.log('---- sourcesArray', sourcesArray);
 			if(sourcesArray.length > 1)
 			{
 				sourcesArray = sourcesArray.sort(sortSources);
 				bestSource = sourcesArray[sourcesArray.length - 1].src;
-				console.log('---- bestSource', bestSource);
 				elem.src = bestSource;
 				elem.removeAttribute("srcset");
 				elem.removeAttribute("data-srcset");
@@ -4222,6 +4220,8 @@ function toggleStyleNegative()
 	.nimbushl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }
 	.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }
 	.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
+	table.nimbushl { outline: 2px solid red; }
+	tr.nimbushl td { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }
 	user { background: #000; padding: 2px 10px; border-left: 10px solid #09F; margin: 0; }
 	author { display: block; font-size: 24px; background: #111; color: #FFF; padding: 2px 10px; border-left: 10px solid #AF0; margin: 0; }
 	reference { background: #000; color: #AAA; padding: 1px 5px; }
@@ -6596,7 +6596,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.R: toggleHighlight(); break;
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
-			case KEYCODES.X: toggleClass(db, "xShowImages"); break;
+			case KEYCODES.X: removeEmojis(); break;
 			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining); break;
 			case KEYCODES.Z: replaceSpecialCharacters(); break;
 			case KEYCODES.F12: highlightCode(); break;
