@@ -201,7 +201,7 @@ const Nimbus = {
 		highlightElementsContainingText: highlightElementsContainingText,
 		highlightLinksInPres: highlightLinksInPres,
 		highlightLinksWithHrefContaining: highlightLinksWithHrefContaining,
-		highlightNodesContaining: highlightNodesContaining,
+		highlightSelectedElementsContainingText: highlightSelectedElementsContainingText,
 		highlightSelection: highlightSelection,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		insertElementBeforeSelectedNode: insertElementBeforeSelectedNode,
@@ -6002,7 +6002,7 @@ function highlightElementsContainingText(str)
 	}
 }
 
-function highlightNodesContaining(selector, str)
+function highlightSelectedElementsContainingText(selector, str)
 {
 	if(!(selector && str && selector.length && str.length))
 		return;
@@ -6612,7 +6612,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
 			case KEYCODES.X: removeEmojis(); break;
-			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightNodesContaining); break;
+			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightSelectedElementsContainingText); break;
 			case KEYCODES.Z: replaceSpecialCharacters(); break;
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); cycleFocusOverFormFields(); break;
