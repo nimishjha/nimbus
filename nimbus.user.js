@@ -1092,13 +1092,9 @@ function replaceSelectedElement(tag)
 function replaceElementsBySelectorHelper()
 {
 	if(get(makeClassSelector(Nimbus.markerClass)).length)
-	{
 		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2, makeClassSelector(Nimbus.markerClass) + " ");
-	}
 	else
-	{
 		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2);
-	}
 }
 
 function replaceElementsBySelector(selector, tagName)
@@ -2442,8 +2438,8 @@ function filterNodesWithTextLengthUnder(nodes, maxLength)
 function select(...args)
 {
 	const selector = args[0];
-	const e = document.querySelectorAll(selector);
-	if(e && e.length)
+	const elems = document.querySelectorAll(selector);
+	if(elems && elems.length)
 	{
 		if(args.length === 4)
 		{
@@ -2454,13 +2450,13 @@ function select(...args)
 			{
 				case "equals":
 				case "=":
-					return filterNodesByAttributeEqualTo(e, attribute, value);
+					return filterNodesByAttributeEqualTo(elems, attribute, value);
 				case "doesNotEqual":
 				case "!=":
-					return filterNodesByAttributeNotEqualTo(e, attribute, value);
-				case "contains": return filterNodesByAttributeContaining(e, attribute, value);
-				case "doesNotContain": return filterNodesByAttributeNotContaining(e, attribute, value);
-				case "matches": return filterNodesByAttributeMatching(e, attribute, value);
+					return filterNodesByAttributeNotEqualTo(elems, attribute, value);
+				case "contains": return filterNodesByAttributeContaining(elems, attribute, value);
+				case "doesNotContain": return filterNodesByAttributeNotContaining(elems, attribute, value);
+				case "matches": return filterNodesByAttributeMatching(elems, attribute, value);
 				default: return false;
 			}
 		}
@@ -2470,8 +2466,8 @@ function select(...args)
 			const operator = args[2];
 			switch(operator)
 			{
-				case "exists": return filterNodesByAttributeExistence(e, attribute);
-				case "doesNotExist": return filterNodesByAttributeNonExistence(e, attribute);
+				case "exists": return filterNodesByAttributeExistence(elems, attribute);
+				case "doesNotExist": return filterNodesByAttributeNonExistence(elems, attribute);
 				default: return false;
 			}
 		}
@@ -2481,11 +2477,11 @@ function select(...args)
 			const value = args[2];
 			switch(operator)
 			{
-				case "hasChildrenOfType": return filterNodesWithChildrenOfType(e, value);
-				case "doesNotHaveChildrenOfType": return filterNodesWithoutChildrenOfType(e, value);
+				case "hasChildrenOfType": return filterNodesWithChildrenOfType(elems, value);
+				case "doesNotHaveChildrenOfType": return filterNodesWithoutChildrenOfType(elems, value);
 				case "hasParentOfType": return get(value + " " + selector);
-				case "doesNotHaveParentOfType": return filterNodesWithoutParentOfType(e, value);
-				case "hasTextLengthUnder": return filterNodesWithTextLengthUnder(e, value);
+				case "doesNotHaveParentOfType": return filterNodesWithoutParentOfType(elems, value);
+				case "hasTextLengthUnder": return filterNodesWithTextLengthUnder(elems, value);
 				default: return false;
 			}
 		}
@@ -2569,14 +2565,14 @@ function sortSources(a, b)
 
 function getBestImageSrc()
 {
-	const e = get("img");
-	if(!e)
+	const images = get("img");
+	if(!images)
 		return;
-	let i = e.length;
+	let i = images.length;
 	let count = 0;
 	while(i--)
 	{
-		const elem = e[i];
+		const elem = images[i];
 		const set1 = typeof elem.srcset === "string" && elem.srcset.length ? elem.srcset : null;
 		const set2 = elem.getAttribute("data-srcset");
 		let srcset = set1 || set2;
@@ -2627,15 +2623,14 @@ function shortenImageSrc(src)
 
 function replaceImagesWithTextLinks()
 {
-	let e, imageLink, imageReplacement, i;
 	if(get("rt"))
 	{
-		e = get("rt");
-		i = e.length;
+		const images = get("rt");
+		let i = images.length;
 		while(i--)
 		{
-			const elem = e[i];
-			imageLink = createElement("img", { src: elem.querySelector("a").href });
+			const elem = images[i];
+			const imageLink = createElement("img", { src: elem.querySelector("a").href });
 			elem.parentNode.replaceChild(imageLink, elem);
 		}
 		del('#styleReplaceImages');
@@ -2643,14 +2638,14 @@ function replaceImagesWithTextLinks()
 	}
 	else if(get("img"))
 	{
-		e = get("img");
-		for(i = 0; i < e.length; i++)
+		const images = get("img");
+		for(let i = 0; i < images.length; i++)
 		{
-			const elem = e[i];
+			const elem = images[i];
 			if(elem.src)
 			{
-				imageLink = createElement("a", { href: elem.src, textContent: shortenImageSrc(elem.src) });
-				imageReplacement = createElementWithChildren("rt", imageLink);
+				const imageLink = createElement("a", { href: elem.src, textContent: shortenImageSrc(elem.src) });
+				const imageReplacement = createElementWithChildren("rt", imageLink);
 				if(elem.parentNode.tagName.toLowerCase() === "a")
 					elem.parentNode.parentNode.replaceChild(imageReplacement, elem.parentNode);
 				else
@@ -2712,10 +2707,10 @@ function persistStreamingImages(minWidth)
 	if(!Nimbus.streamingImages)
 		Nimbus.streamingImages = [];
 	let images = Nimbus.streamingImages;
-	const e = document.querySelectorAll("img:not(.alreadySaved)");
-	for(let i = 0; i < e.length; i++)
+	const unsavedImages = document.querySelectorAll("img:not(.alreadySaved)");
+	for(let i = 0; i < unsavedImages.length; i++)
 	{
-		const image = e[i];
+		const image = unsavedImages[i];
 		const imgSrc = image.src;
 		if(images.includes(imgSrc) || (getImageWidth(image) < Nimbus.minPersistWidth && getImageHeight(image) < Nimbus.minPersistWidth))
 			continue;
@@ -2822,22 +2817,22 @@ function changeGalleryImage(direction)
 	const gallery = get("#nimbusGallery");
 	if(!gallery)
 		return;
-	const e = gallery.getElementsByTagName("img");
-	for(let i = 0, ii = e.length; i < ii; i++)
+	const images = gallery.getElementsByTagName("img");
+	for(let i = 0, ii = images.length; i < ii; i++)
 	{
-		if(e[i].classList.contains("currentImage"))
+		if(images[i].classList.contains("currentImage"))
 		{
-			e[i].classList.remove("currentImage");
+			images[i].classList.remove("currentImage");
 			if(direction === "prev")
 			{
-				if(i === 0) e[ii - 1].classList.add("currentImage");
-				else e[i - 1].classList.add("currentImage");
+				if(i === 0) images[ii - 1].classList.add("currentImage");
+				else images[i - 1].classList.add("currentImage");
 				break;
 			}
 			else if(direction === "next")
 			{
-				if(i === ii-1) e[0].classList.add("currentImage");
-				else e[i + 1].classList.add("currentImage");
+				if(i === ii-1) images[0].classList.add("currentImage");
+				else images[i + 1].classList.add("currentImage");
 				break;
 			}
 		}
@@ -3039,11 +3034,11 @@ function fixPres()
 
 function restorePres()
 {
-	const e = get("pre");
+	const pres = get("pre");
 	let i, ii;
-	for(i = 0, ii = e.length; i < ii; i++)
+	for(i = 0, ii = pres.length; i < ii; i++)
 	{
-		const pre = e[i];
+		const pre = pres[i];
 		pre.innerHTML = pre.innerHTML.replace(/GYZYtab/g, "\t");
 		pre.innerHTML = pre.innerHTML.replace(/GYZYnl/g, "\n");
 		pre.innerHTML = pre.innerHTML.replace(/\n+/g, "\n");
@@ -5962,14 +5957,12 @@ function highlightSelection_old()
 
 function highlightAllTableCellsInRow(tr)
 {
-	const e = tr.querySelectorAll("td");
-	let i = e.length;
-	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
-	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
+	const tds = tr.querySelectorAll("td");
+	let i = tds.length;
 	while(i--)
 	{
-		const td = e[i];
-		td.innerHTML = highlightTagOpen + td.innerHTML + highlightTagClose;
+		const td = tds[i];
+		wrapElementInner(td, Nimbus.highlightTagName);
 	}
 }
 
@@ -5981,9 +5974,8 @@ function highlightElementsContainingText(str)
 	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
 	{
 		const textNode = textNodes.snapshotItem(i);
-		const parentNode = textNode.parentNode;
 		if(textNode.data.match(regex))
-			wrapElementInner(parentNode, Nimbus.highlightTagName);
+			wrapElementInner(textNode.parentNode, Nimbus.highlightTagName);
 	}
 }
 
@@ -5992,8 +5984,6 @@ function highlightNodesContaining(selector, str)
 	if(!(selector && str && selector.length && str.length))
 		return;
 	const e = get(selector);
-	const markerTagOpen = "<" + Nimbus.highlightTagName + ">";
-	const markerTagClose = "</" + Nimbus.highlightTagName + ">";
 	let i = e.length;
 	while(i--)
 	{
@@ -6004,21 +5994,21 @@ function highlightNodesContaining(selector, str)
 		{
 			switch(node.tagName.toLowerCase())
 			{
-				case "a":
-					node.innerHTML = markerTagOpen + node.innerHTML + markerTagClose;
-					break;
 				case "tr":
 					highlightAllTableCellsInRow(node);
 					break;
+				case "a":
+					wrapElementInner(node, Nimbus.highlightTagName);
+					break;
 				default:
-					node.innerHTML = markerTagOpen + node.innerHTML + markerTagClose;
+					wrapElementInner(node, Nimbus.highlightTagName);
 					break;
 			}
 			node.classList.add(Nimbus.markerClass);
 		}
 		if(node.tagName.toLowerCase() === "a" && node.href && ~node.href.indexOf(str))
 		{
-			node.innerHTML = markerTagOpen + node.innerHTML + markerTagClose;
+			wrapElementInner(node, Nimbus.highlightTagName);
 			node.classList.add(Nimbus.markerClass);
 		}
 	}
@@ -6027,15 +6017,13 @@ function highlightNodesContaining(selector, str)
 
 function highlightLinksWithHrefContaining(str)
 {
-	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
-	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
 	const links = document.getElementsByTagName("a");
 	let i = links.length;
 	while(i--)
 	{
 		const link = links[i];
-		if(link.href.indexOf(str) >= 0)
-			link.innerHTML = highlightTagOpen + link.innerHTML + highlightTagClose;
+		if(~link.href.indexOf(str))
+			wrapElementInner(link, Nimbus.highlightTagName);
 	}
 }
 
