@@ -198,11 +198,11 @@ const Nimbus = {
 		highlightAllMatches: highlightAllMatches,
 		highlightAllTableCellsInRow: highlightAllTableCellsInRow,
 		highlightCode: highlightCode,
+		highlightElementsContainingText: highlightElementsContainingText,
 		highlightLinksInPres: highlightLinksInPres,
 		highlightLinksWithHrefContaining: highlightLinksWithHrefContaining,
 		highlightNodesContaining: highlightNodesContaining,
 		highlightSelection: highlightSelection,
-		highlightSpecificNodesContaining: highlightSpecificNodesContaining,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		insertElementBeforeSelectedNode: insertElementBeforeSelectedNode,
 		insertHrBeforeAll: insertHrBeforeAll,
@@ -5960,16 +5960,6 @@ function highlightSelection_old()
 	}
 }
 
-function highlightSpecificNodesContaining(searchString)
-{
-	showMessageBig("Highlight specific nodes containing text");
-	if(!(searchString && searchString.length))
-		return;
-	const tagNames = ["p", "h1", "h2", "h3", "tr", "li"];
-	for(let i = 0, ii = tagNames.length; i < ii; i++)
-		highlightNodesContaining(tagNames[i], searchString);
-}
-
 function highlightAllTableCellsInRow(tr)
 {
 	const e = tr.querySelectorAll("td");
@@ -5980,6 +5970,20 @@ function highlightAllTableCellsInRow(tr)
 	{
 		const td = e[i];
 		td.innerHTML = highlightTagOpen + td.innerHTML + highlightTagClose;
+	}
+}
+
+function highlightElementsContainingText(str)
+{
+	const textNodes = getTextNodes();
+	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
+	let regex = new RegExp(escapedString, "gi");
+	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
+	{
+		const textNode = textNodes.snapshotItem(i);
+		const parentNode = textNode.parentNode;
+		if(textNode.data.match(regex))
+			wrapElementInner(parentNode, Nimbus.highlightTagName);
 	}
 }
 
@@ -6665,7 +6669,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markElementsWithCssRule, 2); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
 			case KEYCODES.N: toggleShowDocumentBlockStructure(); break;
-			case KEYCODES.O: customPrompt("Highlight block elements containing").then(highlightSpecificNodesContaining); break;
+			case KEYCODES.O: customPrompt("Highlight elements containing text").then(highlightElementsContainingText); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
 			case KEYCODES.T: numberTableRowsAndColumns(); break;
 			case KEYCODES.V: toggleShowDocumentStructure(); break;
