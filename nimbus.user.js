@@ -293,6 +293,7 @@ const Nimbus = {
 		unmarkAll: unmarkAll,
 		wrapAnchorNodeInTag: wrapAnchorNodeInTag,
 		xlog: xlog,
+		xPathMark: xPathMark,
 		ylog: ylog,
 	},
 	autoCompleteInputComponent: {
@@ -303,7 +304,6 @@ const Nimbus = {
 	highlightTagNameList: ["mark", "markyellow", "markred", "markgreen", "markblue", "markpurple", "markwhite"],
 	replacementTagName: "blockquote",
 	markerClass: "nimbushl",
-	markerClass2: "nimbushl2",
 	minPersistWidth: 600,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 };
@@ -374,6 +374,34 @@ function xPathSelect(xpath, context)
 	for(let i = 0, ii = selected.length; i < ii; i++)
 		selected[i] = nodes.snapshotItem(i);
 	return selected;
+}
+
+function xPathMark(xpath)
+{
+	processElements(xPathSelect(xpath), "mark");
+}
+
+function processElements(elements, action)
+{
+	if(!(elements && elements.length))
+	{
+		showMessageError("processElements(): elements is " + elements);
+		return;
+	}
+	switch(action)
+	{
+		case "mark":
+			for(let i = 0, ii = elements.length; i < ii; i++)
+				elements[i].classList.add(Nimbus.markerClass);
+			break;
+		case "unmark":
+			for(let i = 0, ii = elements.length; i < ii; i++)
+				elements[i].classList.remove(Nimbus.markerClass);
+			break;
+		case "delete":
+			del(elements);
+			break;
+	}
 }
 
 function getElementsByChildrenWithText(params)
@@ -460,6 +488,15 @@ function debounce(func, delay)
 		clearTimeout(timeout);
 		timeout = setTimeout(debounced, delay);
 	};
+}
+
+function forAll(selector, callback)
+{
+	const e = get(selector);
+	let i = -1;
+	const len = e.length;
+	while(++i < len)
+		callback(e[i]);
 }
 
 function setAttributeOrProperty(element, key, value)
@@ -1082,7 +1119,7 @@ function replaceSelectedElement(tag)
 	if(node.tagName === undefined)
 		node = node.parentNode;
 	if(node && node.parentNode)
-		replaceSingleElement(node, replacementTag);
+		replaceElement(node, replacementTag);
 }
 
 function replaceElementsBySelectorHelper()
@@ -1128,20 +1165,19 @@ function replaceElementsBySelector(selector, tagName)
 	}
 }
 
-function replaceSingleElement(elem, tagName)
+function replaceElement(elem, tagName)
 {
 	elem.parentNode.replaceChild(createElement(tagName, { innerHTML: elem.innerHTML }), elem);
 }
 
-function replaceMarkedElements(tag)
+function replaceMarkedElements(tagName)
 {
 	const e = get(makeClassSelector(Nimbus.markerClass));
 	let i = e.length;
 	while(i--)
 	{
 		const elem = e[i];
-		const regex = new RegExp(elem.tagName, "i");
-		elem.outerHTML = elem.outerHTML.replace(regex, tag);
+		replaceElement(elem, tagName);
 	}
 	unmarkAll();
 }
@@ -1432,15 +1468,6 @@ function isCurrentDomainLink(url)
 			return true;
 	}
 	return false;
-}
-
-function forAll(selector, callback)
-{
-	const e = get(selector);
-	let i = -1;
-	const len = e.length;
-	while(++i < len)
-		callback(e[i]);
 }
 
 function makeClassSelector(className)
@@ -2100,7 +2127,7 @@ function markUserLinks()
 		const link = links[i];
 		if(
 			link.href &&
-			containsAnyOfTheStrings(link.href, ["/u/", "/user", "/member", "action=profile", "/profile/"]) &&
+			containsAnyOfTheStrings(link.pathname, ["/u/", "/user", "/member", "profile"]) &&
 			link.parentNode && link.parentNode.tagName !== "USER"
 		)
 			wrapElement(link, "user");
@@ -2183,7 +2210,6 @@ function unmarkAll()
 {
 	let count = 0;
 	count += removeClassFromAllQuiet(Nimbus.markerClass);
-	count += removeClassFromAllQuiet(Nimbus.markerClass2);
 	count += removeClassFromAllQuiet("error");
 	del(["annotationinfo", "annotationwarning", "annotationerror"]);
 	showMessageBig(`Removed highlighting from <b>${count}</b> elements`);
@@ -3087,7 +3113,7 @@ function createTagsByClassName()
 		if(replacementTagName)
 		{
 			numReplaced++;
-			replaceSingleElement(element, replacementTagName);
+			replaceElement(element, replacementTagName);
 		}
 	}
 	const spans = get("span");
@@ -3107,7 +3133,7 @@ function createTagsByClassName()
 		if(replacementTagName)
 		{
 			numReplaced++;
-			replaceSingleElement(element, replacementTagName);
+			replaceElement(element, replacementTagName);
 		}
 	}
 	showMessageBig(`createTagsByClassName: replaced <b>${numReplaced}</b> elements`);
@@ -6318,7 +6344,7 @@ function toggleShowAriaAttributes()
 			}
 			else
 			{
-				elem.classList.add(Nimbus.markerClass2);
+				elem.classList.add(Nimbus.markerClass);
 				annotateElement(elem, "role: " + elem.getAttribute("role"));
 			}
 		}
@@ -6657,6 +6683,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
 			case KEYCODES.T: numberTableRowsAndColumns(); break;
 			case KEYCODES.V: toggleShowDocumentStructure(); break;
+			case KEYCODES.X: customPrompt("Enter xPath").then(xPathMark); break;
 			case KEYCODES.Z: markSelectionAnchorNode(); break;
 			case KEYCODES.F12: inspect(); break;
 			default: shouldPreventDefault = false; break;
