@@ -1037,7 +1037,6 @@ function createElementWithChildren(tagName, ...children)
 
 function createReplacementElement(tagName, sourceElement, propertyMapping)
 {
-	const settableProperties = ["id", "className", "textContent", "innerHTML", "value"];
 	const elem = document.createElement(tagName);
 	const keys = Object.keys(propertyMapping);
 	let i = keys.length;
@@ -1166,7 +1165,10 @@ function replaceElementsBySelector(selector, tagName)
 
 function replaceElement(elem, tagName)
 {
-	elem.parentNode.replaceChild(createElement(tagName, { innerHTML: elem.innerHTML }), elem);
+	const replacement = document.createElement(tagName);
+	while(elem.firstChild)
+		replacement.appendChild(elem.firstChild);
+	elem.parentNode.replaceChild(replacement, elem);
 }
 
 function replaceMarkedElements(tagName)
