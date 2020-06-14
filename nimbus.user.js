@@ -376,10 +376,10 @@ function xPathSelect(xpath, context)
 	return selected;
 }
 
-function getElementsByChildrenHavingTheExactText(params)
+function getElementsByChildrenWithText(params)
 {
-	const { parentTagName, parentClass, childTagName, text } = params;
-	let parentClause, childClause, errorMessage = "";
+	const { parentTagName, parentClass, childTagName, text, exactMatch } = params;
+	let parentClause, childClause;
 	if(parentTagName)
 	{
 		if(parentClass)
@@ -387,21 +387,16 @@ function getElementsByChildrenHavingTheExactText(params)
 		else
 			parentClause = `/ancestor::${parentTagName}`;
 	}
-	else
-	{
-		errorMessage += 'parentTagName is required; ';
-	}
 	if(childTagName && text)
 	{
-		childClause = `//${childTagName}[text()='${text}']`;
-	}
-	else
-	{
-		errorMessage += 'childTagName and text are required; ';
+		if(exactMatch)
+			childClause = `//${childTagName}[text()='${text}']`;
+		else
+			childClause = `//${childTagName}[contains(text(), '${text}')]`;
 	}
 	if(!(parentClause && childClause))
 	{
-		showMessageError(errorMessage);
+		showMessageError("Invalid parameters");
 		return false;
 	}
 	return xPathSelect(childClause + parentClause);
@@ -440,7 +435,8 @@ function markElementsByChildrenHavingTheExactText(...args)
 		params.parentClass = parentClass;
 	if(isValid)
 	{
-		const elems = getElementsByChildrenHavingTheExactText(params);
+		params.exactMatch = true;
+		const elems = getElementsByChildrenWithText(params);
 		let i = elems.length;
 		showMessageBig(`Found ${i} elements`);
 		while(i--)
