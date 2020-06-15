@@ -235,7 +235,6 @@ const Nimbus = {
 		markUppercaseParagraphs: markUppercaseParagraphs,
 		numberDivs: numberDivs,
 		om: toggleMutationObserver,
-		parseCode: parseCode,
 		regressivelyUnenhance: regressivelyUnenhance,
 		remove: remove,
 		removeAccessKeys: removeAccessKeys,
@@ -380,7 +379,9 @@ function xPathSelect(xpath, context)
 
 function xPathMark(xpath)
 {
-	processElements(xPathSelect(xpath), "mark");
+	const elements = xPathSelect(xpath);
+	if(elements.length)
+		processElements(elements, "mark");
 }
 
 function processElements(elements, action)
@@ -2795,7 +2796,7 @@ function addLinksToLargerImages()
 
 function forceWidthForAllImages(width)
 {
-	if(width < 10)
+	if(width < 20)
 		width *= 100;
 	const s = "img { width: " + width + "px; height: auto; }";
 	insertStyle(s, "styleImageWidth", true);
@@ -2856,7 +2857,7 @@ function buildSlideshow()
 	window.scrollTo(0, 0);
 }
 
-function changeGalleryImage(direction)
+function slideshowChangeSlide(direction)
 {
 	if(!get("#styleSlideshow"))
 		return;
@@ -4891,9 +4892,7 @@ function appendInfo()
 	const documentUrl = window.location.href.toString();
 
 	const domainLinkWrapper = createElement("h4", { textContent: "Domain: " });
-	const domainLink = document.createElement("a");
-	const documentUrlSegments = documentUrl.split("/");
-	domainLink.textContent = domainLink.href = documentUrlSegments[0] + "//" + documentUrlSegments[2];
+	const domainLink = createElement("a", { textContent: window.location.hostname, href: window.location.hostname });
 	domainLinkWrapper.appendChild(domainLink);
 	document.body.appendChild(domainLinkWrapper);
 
@@ -5213,6 +5212,13 @@ function showResources()
 		del("#styleShowResources");
 		return;
 	}
+	const images = get("img");
+	if(images)
+		ylog(images.length + " images", "h3", true);
+	const iframes = get("iframe");
+	if(iframes)
+		ylog(iframes.length + " iframes", "h3", true);
+
 	let count, uuid;
 	let e = get("script");
 	let i = e.length;
@@ -5235,7 +5241,7 @@ function showResources()
 	while(i--)
 	{
 		const elem = e[i];
-		if( elem.href && ~elem.href.indexOf("css") || elem.type && elem.type === "text/css" )
+		if(elem.href && ~elem.href.indexOf("css") || elem.type && elem.type === "text/css")
 		{
 			uuid = createUUID();
 			elem.id = uuid;
@@ -6664,6 +6670,8 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.FORWARD_SLASH: focusButton(); break;
 			case KEYCODES.F12: highlightCode(true); break;
 			case KEYCODES.MINUS: callFunctionWithArgs("Insert HR before (selector)", insertHrBeforeAll); break;
+			case KEYCODES.SQUARE_BRACKET_OPEN: slideshowChangeSlide("prev"); break;
+			case KEYCODES.SQUARE_BRACKET_CLOSE: slideshowChangeSlide("next"); break;
 		}
 	}
 	//
