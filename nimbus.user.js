@@ -184,7 +184,7 @@ const Nimbus = {
 		fixPres: fixPres,
 		focusButton: focusButton,
 		forAll: forAll,
-		forAllSelected: forAllSelected,
+		forAllMarked: forAllMarked,
 		forceReloadCss: forceReloadCss,
 		formatEbook: formatEbook,
 		getAllCssRulesMatching: getAllCssRulesMatching,
@@ -505,7 +505,7 @@ function getMarkedElements()
 	return get(makeClassSelector(Nimbus.markerClass));
 }
 
-function forAllSelected(callbackName)
+function forAllMarked(callbackName)
 {
 	const func = Nimbus.availableFunctions[callbackName];
 	if(!func)
@@ -3724,9 +3724,8 @@ function parseCode(s)
 	return t;
 }
 
-function highlightCode(highlightKeywords)
+function highlightCode(shouldHighlightKeywords)
 {
-	const t1 = performance.now();
 	fixPres();
 	restorePres();
 
@@ -3749,11 +3748,11 @@ function highlightCode(highlightKeywords)
 
 		// Everything between angle brackets
 		nodeHTML = nodeHTML.replace(/(&lt;\/?[^&\r\n]+&gt;)/g, '<xh>$1</xh>');
-		// php opening and closing tags
-		nodeHTML = nodeHTML.replace(/(&lt;\?php)/g, '<b1>$1</b1>');
+		// php/XML opening and closing tags
+		nodeHTML = nodeHTML.replace(/(&lt;\?)/g, '<b1>$1</b1>');
 		nodeHTML = nodeHTML.replace(/(\?&gt;)/g, '<b1>$1</b1>');
 
-		if(highlightKeywords === true)
+		if(shouldHighlightKeywords === true)
 		{
 			const keywords = [
 				"abstract", "addEventListener", "appendChild", "object", "prototype", "break", "byte", "case", "catch", "char", "class", "const", "continue",
@@ -3773,11 +3772,6 @@ function highlightCode(highlightKeywords)
 		}
 		preElement.innerHTML = nodeHTML;
 	}
-	// un-highlight elements in comments
-	// forAll("c1", htmlToText);
-	// forAll("c2", htmlToText);
-	const t2 = performance.now();
-	xlog(t2 - t1 + "ms: highlightCode");
 }
 
 function toggleContentEditable()
@@ -5182,10 +5176,6 @@ function cleanupStackOverflow()
 		retrieve("#content");
 		cleanupGeneral();
 		highlightCode(true);
-		forAll("td", function f(x) {
-			if(x.textContent && ~x.textContent.indexOf("up vote"))
-				x.setAttribute("style", "width: 200px");
-		});
 		const observer = new MutationObserver(handleMutations);
 		observer.observe(getOne("head"), { childList: true });
 	}
