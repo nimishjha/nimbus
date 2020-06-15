@@ -184,6 +184,7 @@ const Nimbus = {
 		fixPres: fixPres,
 		focusButton: focusButton,
 		forAll: forAll,
+		forAllSelected: forAllSelected,
 		forceReloadCss: forceReloadCss,
 		formatEbook: formatEbook,
 		getAllCssRulesMatching: getAllCssRulesMatching,
@@ -204,6 +205,7 @@ const Nimbus = {
 		highlightSelectedElementsContainingText: highlightSelectedElementsContainingText,
 		highlightSelection: highlightSelection,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
+		htmlToText: htmlToText,
 		insertElementBeforeSelectedNode: insertElementBeforeSelectedNode,
 		insertHrBeforeAll: insertHrBeforeAll,
 		insertStyle: insertStyle,
@@ -496,6 +498,27 @@ function forAll(selector, callback)
 	const len = e.length;
 	while(++i < len)
 		callback(e[i]);
+}
+
+function getMarkedElements()
+{
+	return get(makeClassSelector(Nimbus.markerClass));
+}
+
+function forAllSelected(callbackName)
+{
+	const func = Nimbus.availableFunctions[callbackName];
+	if(!func)
+	{
+		showMessageError("callback is " + func);
+		return;
+	}
+	const elements = getMarkedElements();
+	for(let i = 0, ii = elements.length; i < ii; i++)
+	{
+		if(elements[i])
+			func.call(null, elements[i]);
+	}
 }
 
 function setAttributeOrProperty(element, key, value)
