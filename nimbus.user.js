@@ -389,7 +389,7 @@ function processElements(elements, action)
 {
 	if(!(elements && elements.length))
 	{
-		showMessageError("processElements(): elements is " + elements);
+		showMessageError("processElements(): elements is null or empty");
 		return;
 	}
 	switch(action)
@@ -5223,11 +5223,11 @@ function showResources()
 		return;
 	}
 	const images = get("img");
-	if(images)
-		ylog(images.length + " images", "h3", true);
+	const numImages = images ? images.length : 0;
+	ylog(numImages + " images", "h3", true);
 	const iframes = get("iframe");
-	if(iframes)
-		ylog(iframes.length + " iframes", "h3", true);
+	const numIframes = iframes ? iframes.length : 0;
+	ylog(numIframes + " iframes", "h3", true);
 
 	let count, uuid;
 	let e = get("script");
@@ -6034,12 +6034,13 @@ function highlightElementsContainingText(str)
 function markBlockElementsContainingText(str)
 {
 	const elements = getBlockElementsContainingText(str);
-	processElements(elements, "mark");
+	if(elements.length)
+		processElements(elements, "mark");
 }
 
 function getBlockElementsContainingText(str)
 {
-	const BLOCK_ELEMENTS = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "DIV"];
+	const BLOCK_ELEMENTS = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "DIV", "TD"];
 	const textNodes = getTextNodes();
 	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
 	let regex = new RegExp(escapedString, "gi");
