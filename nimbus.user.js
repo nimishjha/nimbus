@@ -1171,19 +1171,14 @@ function replaceElementsBySelector(selector, tagName)
 		{
 			while(i--)
 			{
-				const elem = toReplace[i];
-				const elemId = elem.id;
-				if(elemId)
-					elem.parentNode.replaceChild(createElement(tagName, { id: elemId, innerHTML: elem.innerHTML }), elem);
-				else
-					elem.parentNode.replaceChild(createElement(tagName, { innerHTML: elem.innerHTML }), elem);
+				replaceElementKeepingId(toReplace[i], tagName);
 			}
 		}
 	}
 	else if(toReplace && toReplace.parentNode)
 	{
 		showMessageBig("Replacing one " + selector);
-		toReplace.parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace.innerHTML }), toReplace);
+		replaceElement(toReplace, tagName);
 	}
 }
 
@@ -1192,6 +1187,17 @@ function replaceElement(elem, tagName)
 	const replacement = document.createElement(tagName);
 	while(elem.firstChild)
 		replacement.appendChild(elem.firstChild);
+	elem.parentNode.replaceChild(replacement, elem);
+}
+
+function replaceElementKeepingId(elem, tagName)
+{
+	const replacement = document.createElement(tagName);
+	while(elem.firstChild)
+		replacement.appendChild(elem.firstChild);
+	const elemId = elem.id;
+	if(elemId)
+		replacement.id = elemId;
 	elem.parentNode.replaceChild(replacement, elem);
 }
 
