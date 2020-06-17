@@ -224,6 +224,7 @@ const Nimbus = {
 		mark: mark,
 		markDivDepth: markDivDepth,
 		markElementsBySelector: markElementsBySelector,
+		markBlockElementsContainingText: markBlockElementsContainingText,
 		markElementsWithCssRule: markElementsWithCssRule,
 		markElementsWithSetWidths: markElementsWithSetWidths,
 		markNavigationalLists: markNavigationalLists,
@@ -6027,6 +6028,34 @@ function highlightElementsContainingText(str)
 	}
 }
 
+function markBlockElementsContainingText(str)
+{
+	const elements = getBlockElementsContainingText(str);
+	processElements(elements, "mark");
+}
+
+function getBlockElementsContainingText(str)
+{
+	const BLOCK_ELEMENTS = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "DIV"];
+	const textNodes = getTextNodes();
+	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
+	let regex = new RegExp(escapedString, "gi");
+	const matchingElements = [];
+	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
+	{
+		const textNode = textNodes.snapshotItem(i);
+		if(textNode.data.match(regex))
+		{
+			let blockParent = textNode.parentNode;
+			while(blockParent && !BLOCK_ELEMENTS.includes(blockParent.tagName))
+				blockParent = blockParent.parentNode;
+			if(blockParent)
+				matchingElements.push(blockParent);
+		}
+	}
+	return matchingElements;
+}
+
 function highlightSelectedElementsContainingText(selector, str)
 {
 	if(!(selector && str && selector.length && str.length))
@@ -6709,6 +6738,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.N: toggleShowDocumentBlockStructure(); break;
 			case KEYCODES.O: customPrompt("Highlight elements containing text").then(highlightElementsContainingText); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
+			case KEYCODES.S: callFunctionWithArgs("Mark block elements containing text", markBlockElementsContainingText, 1); break;
 			case KEYCODES.T: numberTableRowsAndColumns(); break;
 			case KEYCODES.V: toggleShowDocumentStructure(); break;
 			case KEYCODES.X: customPrompt("Enter xPath").then(xPathMark); break;
