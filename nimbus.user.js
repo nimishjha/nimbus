@@ -191,7 +191,7 @@ const Nimbus = {
 		getBestImageSrc: getBestImageSrc,
 		getContentByParagraphCount: getContentByParagraphCount,
 		markElementsByChildrenHavingTheExactText: markElementsByChildrenHavingTheExactText,
-		retrieveElementsContainingText: retrieveElementsContainingText,
+		retrieveElementsBySelectorAndText: retrieveElementsBySelectorAndText,
 		retrieveLargeImages: retrieveLargeImages,
 		getPagerLinks: getPagerLinks,
 		listSelectorsWithLightBackgrounds: listSelectorsWithLightBackgrounds,
@@ -202,7 +202,7 @@ const Nimbus = {
 		highlightElementsContainingText: highlightElementsContainingText,
 		highlightLinksInPres: highlightLinksInPres,
 		highlightLinksWithHrefContaining: highlightLinksWithHrefContaining,
-		highlightSelectedElementsContainingText: highlightSelectedElementsContainingText,
+		highlightElementsBySelectorAndText: highlightElementsBySelectorAndText,
 		highlightSelection: highlightSelection,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		htmlToText: htmlToText,
@@ -4305,7 +4305,7 @@ function toggleStyleShowClasses()
 	toggleStyle(s, "styleShowClasses", true);
 }
 
-function retrieveElementsContainingText(selector, text)
+function retrieveElementsBySelectorAndText(selector, text)
 {
 	if(!(typeof selector === "string" && selector.length))
 		return;
@@ -6056,7 +6056,7 @@ function getBlockElementsContainingText(str)
 	return matchingElements;
 }
 
-function highlightSelectedElementsContainingText(selector, str)
+function highlightElementsBySelectorAndText(selector, str)
 {
 	if(!(selector && str && selector.length && str.length))
 		return;
@@ -6666,7 +6666,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
 			case KEYCODES.X: removeEmojis(); break;
-			case KEYCODES.Y: callFunctionWithArgs("Highlight elements containing text", highlightSelectedElementsContainingText); break;
+			case KEYCODES.Y: callFunctionWithArgs("Highlight elements by selector and containing text", highlightElementsBySelectorAndText); break;
 			case KEYCODES.Z: replaceSpecialCharacters(); break;
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); cycleFocusOverFormFields(); break;
@@ -6695,7 +6695,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.A: annotate(); break;
 			case KEYCODES.C: deleteNonContentElements(); break;
 			case KEYCODES.D: del("log"); break;
-			case KEYCODES.G: callFunctionWithArgs("Retrieve elements (optionally containing text)", retrieveElementsContainingText); break;
+			case KEYCODES.G: callFunctionWithArgs("Retrieve elements by selector (optionally containing text)", retrieveElementsBySelectorAndText); break;
 			case KEYCODES.J: joinMarkedParagraphs(); break;
 			case KEYCODES.K: showPrintLink(); break;
 			case KEYCODES.L: logout(); break;
