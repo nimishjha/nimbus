@@ -4899,7 +4899,10 @@ function appendInfo()
 	const documentUrl = window.location.href.toString();
 
 	const domainLinkWrapper = createElement("h4", { textContent: "Domain: " });
-	const domainLink = createElement("a", { textContent: window.location.hostname, href: window.location.hostname });
+	const domainLink = document.createElement("a");
+	const documentUrlSegments = documentUrl.split("/");
+	domainLink.href = documentUrlSegments[0] + "//" + documentUrlSegments[2];
+	domainLink.textContent = documentUrlSegments[2];
 	domainLinkWrapper.appendChild(domainLink);
 	document.body.appendChild(domainLinkWrapper);
 
