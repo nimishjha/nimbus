@@ -265,6 +265,7 @@ const Nimbus = {
 		normalizeAllWhitespace: normalizeAllWhitespace,
 		replaceSpansWithTextNodes: replaceSpansWithTextNodes,
 		replaceSpecialCharacters:replaceSpecialCharacters,
+		rescueOrphanedTextNodes: rescueOrphanedTextNodes,
 		restorePres: restorePres,
 		retrieve: retrieve,
 		revealEmptyLinks: revealEmptyLinks,
@@ -1231,6 +1232,59 @@ function replaceElementsByClassContaining(str, tagName)
 		for(let i = toReplace.length - 1; i >= 0; i--)
 		{
 			toReplace[i].parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace[i].innerHTML }), toReplace[i]);
+		}
+	}
+}
+
+function rescueOrphanedTextNodes()
+{
+	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "TD", "HEAD"];
+	const textNodes = getTextNodes();
+	const nodeItems = [];
+	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
+	{
+		let hasBlockParent = false;
+		const node = textNodes.snapshotItem(i);
+		const nodeText = node.data;
+		if(removeWhitespace(nodeText).length)
+		{
+			let nodeParent = node;
+			while(nodeParent.parentNode)
+			{
+				nodeParent = nodeParent.parentNode;
+				if(BLOCK_ELEMENTS.includes(nodeParent.tagName))
+				{
+					hasBlockParent = true;
+					break;
+				}
+			}
+			nodeItems.push({ node, hasBlockParent });
+		}
+	}
+	let consecutiveOrphans = [];
+	for(let i = 0, ii = nodeItems.length; i < ii; i++)
+	{
+		const nodeItem = nodeItems[i];
+		if(nodeItem.hasBlockParent)
+		{
+			if(consecutiveOrphans.length)
+			{
+				const parent = document.createElement("p");
+				for(let j = 0, jj = consecutiveOrphans.length; j < jj; j++)
+				{
+					parent.appendChild(consecutiveOrphans[j].cloneNode());
+				}
+				consecutiveOrphans[0].parentNode.insertBefore(parent, consecutiveOrphans[0]);
+				for(let j = 0, jj = consecutiveOrphans.length; j < jj; j++)
+				{
+					consecutiveOrphans[j].remove();
+				}
+				consecutiveOrphans = [];
+			}
+		}
+		else
+		{
+			consecutiveOrphans.push(nodeItem.node);
 		}
 	}
 }
