@@ -211,7 +211,7 @@ const Nimbus = {
 		insertStyle: insertStyle,
 		insertStyleHighlight: insertStyleHighlight,
 		iw: forceWidthForAllImages,
-		joinMarkedParagraphs: joinMarkedParagraphs,
+		joinMarkedElements: joinMarkedElements,
 		logAllClassesFor: logAllClassesFor,
 		makeButtonsReadable: makeButtonsReadable,
 		makeDocumentSemantic: makeDocumentSemantic,
@@ -3976,17 +3976,22 @@ function convertMarkedElementsToList(tagName)
 	del(makeClassSelector(Nimbus.markerClass));
 }
 
-function joinMarkedParagraphs()
+function joinMarkedElements()
 {
-	const wrapperTagName = "p";
-	let wrapperHtml = "";
 	const elemsToJoin = get(makeClassSelector(Nimbus.markerClass));
+	if(!(elemsToJoin && elemsToJoin.length))
+		return;
+	const wrapperTagName = elemsToJoin[0].tagName;
 	const wrapper = document.createElement(wrapperTagName);
 	for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
 	{
-		wrapperHtml += elemsToJoin[i].innerHTML + " ";
+		const originalElement = elemsToJoin[i];
+		while(originalElement.firstChild)
+		{
+			wrapper.appendChild(originalElement.firstChild);
+			wrapper.appendChild(document.createTextNode(" "));
+		}
 	}
-	wrapper.innerHTML = wrapperHtml;
 	insertBefore(elemsToJoin[0], wrapper);
 	del(makeClassSelector(Nimbus.markerClass));
 }
@@ -6700,7 +6705,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.C: deleteNonContentElements(); break;
 			case KEYCODES.D: del("log"); break;
 			case KEYCODES.G: callFunctionWithArgs("Retrieve elements by selector (optionally containing text)", retrieveElementsBySelectorAndText); break;
-			case KEYCODES.J: joinMarkedParagraphs(); break;
+			case KEYCODES.J: joinMarkedElements(); break;
 			case KEYCODES.K: showPrintLink(); break;
 			case KEYCODES.L: logout(); break;
 			case KEYCODES.P: getPagerLinks(); break;
