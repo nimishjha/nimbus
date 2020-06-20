@@ -158,7 +158,7 @@ const Nimbus = {
 		cycleFocusOverFormFields: cycleFocusOverFormFields,
 		del: del,
 		deleteElementsContainingText: deleteElementsContainingText,
-		deleteElementsWithClassOrIdContaining: deleteElementsWithClassOrIdContaining,
+		deleteElementsByClassOrIdContaining: deleteElementsByClassOrIdContaining,
 		deleteEmptyElements: deleteEmptyElements,
 		deleteEmptyHeadings: deleteEmptyHeadings,
 		deleteIframes: deleteIframes,
@@ -230,7 +230,7 @@ const Nimbus = {
 		markNavigationalLists: markNavigationalLists,
 		markNumericParagraphs: markNumericParagraphs,
 		markOverlays: markOverlays,
-		markQuotes: markQuotes,
+		highlightQuotes: highlightQuotes,
 		markUserLinks: markUserLinks,
 		numberTableRowsAndColumns: numberTableRowsAndColumns,
 		markUppercaseParagraphs: markUppercaseParagraphs,
@@ -255,7 +255,7 @@ const Nimbus = {
 		replaceClass: replaceClass,
 		replaceCommentsWithPres: replaceCommentsWithPres,
 		replaceDiacritics: replaceDiacritics,
-		replaceElementsByClassContaining: replaceElementsByClassContaining,
+		replaceElementsByClassOrIdContaining: replaceElementsByClassOrIdContaining,
 		replaceElementsBySelector: replaceElementsBySelector,
 		replaceEmptyParagraphsWithHr: replaceEmptyParagraphsWithHr,
 		replaceFontTags: replaceFontTags,
@@ -273,6 +273,7 @@ const Nimbus = {
 		sanitizeTitle: sanitizeTitle,
 		setAttributeOf: setAttributeOf,
 		setDocTitle: setDocTitle,
+		setReplacementTag: setReplacementTag,
 		simplifyClassNames: simplifyClassNames,
 		forceWidthForAllImages: forceWidthForAllImages,
 		showPrintLink: showPrintLink,
@@ -475,6 +476,20 @@ function markElementsByChildrenHavingTheExactText(...args)
 			elems[i].classList.add(Nimbus.markerClass);
 		insertStyleHighlight();
 	}
+}
+
+function getElementsByClassOrIdContaining(str)
+{
+	const strLower = str.toLowerCase();
+	const e = get("*");
+	const selected = [];
+	for(let i = 0, ii = e.length; i < ii; i++)
+	{
+		const node = e[i];
+		if(node && ~node.className.toString().toLowerCase().indexOf(strLower) || ~node.id.toString().toLowerCase().indexOf(strLower))
+			selected.push(node);
+	}
+	return selected;
 }
 
 function debounce(func, delay)
@@ -1205,35 +1220,23 @@ function replaceElementKeepingId(elem, tagName)
 
 function replaceMarkedElements(tagName)
 {
-	const e = get(makeClassSelector(Nimbus.markerClass));
-	let i = e.length;
+	const toReplace = get(makeClassSelector(Nimbus.markerClass));
+	let i = toReplace.length;
 	while(i--)
-	{
-		const elem = e[i];
-		replaceElement(elem, tagName);
-	}
-	unmarkAll();
+		replaceElement(toReplace[i], tagName);
 }
 
-function replaceElementsByClassContaining(str, tagName)
+function replaceElementsByClassOrIdContaining(str, tagName)
 {
-	const elements = get("div, p, span");
-	const substring = str.toLowerCase();
-	if(elements.length)
-	{
-		const toReplace = [];
-		for(let i = 0, ii = elements.length; i < ii; i++)
-		{
-			const element = elements[i];
-			if(~element.className.toLowerCase().indexOf(substring))
-				toReplace.push(element);
-		}
-		showMessageBig(`Replacing <b>${toReplace.length}</b> elements`);
-		for(let i = toReplace.length - 1; i >= 0; i--)
-		{
-			toReplace[i].parentNode.replaceChild(createElement(tagName, { innerHTML: toReplace[i].innerHTML }), toReplace[i]);
-		}
-	}
+	const toReplace = getElementsByClassOrIdContaining(str);
+	showMessageBig(`Replacing <b>${toReplace.length}</b> elements`);
+	for(let i = toReplace.length - 1; i >= 0; i--)
+		replaceElement(toReplace[i], tagName)
+}
+
+function deleteElementsByClassOrIdContaining(str)
+{
+	del(getElementsByClassOrIdContaining(str));
 }
 
 function rescueOrphanedTextNodes()
@@ -1289,51 +1292,17 @@ function rescueOrphanedTextNodes()
 	}
 }
 
-function remove(...args)
-{
-	const e = select(...args);
-	if(!(e && e.length))
-		return;
-	showMessageBig("Removing " + e.length + " elements");
-	del(e);
-}
-
 function hasChildrenOfType(elem, tagName)
 {
 	return elem.getElementsByTagName(tagName).length ? true : false;
 }
 
-function removeId(id)
-{
-	let idWithHash = id;
-	if(idWithHash.indexOf("#") === -1)
-		idWithHash = "#" + id;
-	const elem = getOne(idWithHash);
-	if(!elem)
-	{
-		showMessageBig(idWithHash + " not found");
-		return;
-	}
-	elem.id = "";
-}
-
 function removeClassFromAll(className)
-{
-	const num = removeClassFromAllQuiet(className);
-	if(num === 0)
-		showMessageBig(`Class ${className} not found`);
-	else
-		showMessageBig(`Removed class ${className} from ${num} elements`);
-}
-
-function removeClassFromAllQuiet(className)
 {
 	const e = document.querySelectorAll("." + className);
 	let i = e.length;
-	let count = i;
 	while(i--)
 		e[i].classList.remove(className);
-	return count;
 }
 
 function hasClassesContaining(element, arrStr)
@@ -2050,30 +2019,6 @@ function autoCompleteInputBox()
 	return { open, close };
 }
 
-function mark(...args)
-{
-	const e = select(...args);
-	if(!(e && e.length))
-		return;
-	let i = e.length;
-	showMessageBig("Found " + i + " elements");
-	while(i--)
-		e[i].classList.add(Nimbus.markerClass);
-	insertStyleHighlight();
-}
-
-function unmark(...args)
-{
-	const e = select(...args);
-	if(!(e && e.length))
-		return;
-	let i = e.length;
-	showMessageBig("Found " + i + " elements");
-	while(i--)
-		e[i].classList.remove(Nimbus.markerClass);
-	insertStyleHighlight();
-}
-
 function markElementsWithCssRule(prop, val)
 {
 	const e = document.getElementsByTagName("*");
@@ -2135,7 +2080,7 @@ function markOverlays()
 	mark("div", "aria-modal", "exists");
 }
 
-function markQuotes()
+function highlightQuotes()
 {
 	document.body.innerHTML = document.body.innerHTML.replace(/“/g, '<markwhite>"').replace(/”/g, '"</markwhite>');
 }
@@ -2222,8 +2167,8 @@ function markUserLinks()
 
 function markAuthors()
 {
-	replaceElementsByClassContaining("author", "author");
-	replaceElementsByClassContaining("byline", "author");
+	replaceElementsByClassOrIdContaining("author", "author");
+	replaceElementsByClassOrIdContaining("byline", "author");
 	mark("author", "hasChildrenOfType", "author");
 	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "div");
 }
@@ -2295,8 +2240,8 @@ function unmarkElement(elem)
 function unmarkAll()
 {
 	let count = 0;
-	count += removeClassFromAllQuiet(Nimbus.markerClass);
-	count += removeClassFromAllQuiet("error");
+	count += removeClassFromAll(Nimbus.markerClass);
+	count += removeClassFromAll("error");
 	del(["annotationinfo", "annotationwarning", "annotationerror"]);
 	showMessageBig(`Removed highlighting from <b>${count}</b> elements`);
 }
@@ -2596,6 +2541,39 @@ function select(...args)
 	}
 }
 
+function mark(...args)
+{
+	const e = select(...args);
+	if(!(e && e.length))
+		return;
+	let i = e.length;
+	showMessageBig("Found " + i + " elements");
+	while(i--)
+		e[i].classList.add(Nimbus.markerClass);
+	insertStyleHighlight();
+}
+
+function unmark(...args)
+{
+	const e = select(...args);
+	if(!(e && e.length))
+		return;
+	let i = e.length;
+	showMessageBig("Found " + i + " elements");
+	while(i--)
+		e[i].classList.remove(Nimbus.markerClass);
+	insertStyleHighlight();
+}
+
+function remove(...args)
+{
+	const e = select(...args);
+	if(!(e && e.length))
+		return;
+	showMessageBig("Removing " + e.length + " elements");
+	del(e);
+}
+
 function removeQueryStringFromImageSources()
 {
 	const images = get("img");
@@ -2664,15 +2642,15 @@ function deleteSmallImages()
 	deleteImagesSmallerThan(dimension, dimension);
 }
 
-function sortSources(a, b)
-{
-	if(a.size > b.size) return 1;
-	if(a.size < b.size) return -1;
-	return 0;
-}
-
 function getBestImageSrc()
 {
+	function sortSources(a, b)
+	{
+		if(a.size > b.size) return 1;
+		if(a.size < b.size) return -1;
+		return 0;
+	}
+
 	const images = get("img");
 	if(!images)
 		return;
@@ -2836,7 +2814,7 @@ function showSavedStreamingImages()
 	deleteImagesSmallerThan(100, 100);
 	insertStyle("#nimbusStreamingImageContainer { height: 80vh; }", "temp", true);
 	retrieve("#nimbusStreamingImageContainer");
-	removeClassFromAllQuiet("alreadySaved");
+	removeClassFromAll("alreadySaved");
 	ylog(get("img").length + " images", "h2");
 }
 
@@ -3626,7 +3604,7 @@ function focusField(elem)
 {
 	if(!elem)
 		return;
-	removeClassFromAllQuiet("focused");
+	removeClassFromAll("focused");
 	elem.focus();
 	elem.classList.add("focused");
 	showMessageBig(`Focused <b>${createSelector(elem)}</b>`);
@@ -4691,18 +4669,6 @@ function deleteElementsContainingText(selector, str)
 	}
 }
 
-function deleteElementsWithClassOrIdContaining(str)
-{
-	const strLower = str.toLowerCase();
-	const e = get("*");
-	for(let i = 0, ii = e.length; i < ii; i++)
-	{
-		const node = e[i];
-		if(node && ~node.className.toString().toLowerCase().indexOf(strLower) || ~node.id.toString().toLowerCase().indexOf(strLower))
-			del(node);
-	}
-}
-
 function removeEmojis()
 {
 	const regex = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
@@ -5007,7 +4973,7 @@ function deleteNonContentClasses()
 		"signup",
 	];
 	for(let i = 0, ii = nonContentClassSubstrings.length; i < ii; i++)
-		deleteElementsWithClassOrIdContaining(nonContentClassSubstrings[i]);
+		deleteElementsByClassOrIdContaining(nonContentClassSubstrings[i]);
 }
 
 function deleteNonContentElements()
@@ -5492,7 +5458,7 @@ function inspect_mouseoverHandler(evt)
 	emptyElement(inspectorElem);
 	inspectorElem.appendChild(document.createTextNode(''));
 	evt.stopPropagation();
-	removeClassFromAllQuiet("hovered");
+	removeClassFromAll("hovered");
 	let target = evt.target;
 	target.classList.add("hovered");
 	while(target)
@@ -5533,7 +5499,7 @@ function inspect(onTop)
 		del('#inspector');
 		del('#inspector-style');
 		document.body.classList.remove("inspector");
-		removeClassFromAllQuiet("hovered");
+		removeClassFromAll("hovered");
 	}
 }
 
@@ -6794,7 +6760,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.B: toggleShowDocumentStructureWithNames(); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
-			case KEYCODES.G: callFunctionWithArgs("Delete elements with class or id containing the string", deleteElementsWithClassOrIdContaining); break;
+			case KEYCODES.G: callFunctionWithArgs("Delete elements with class or id containing the string", deleteElementsByClassOrIdContaining); break;
 			case KEYCODES.H: callFunctionWithArgs("Mark elements by selector", markElementsBySelector, 1); break;
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markElementsWithCssRule, 2); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
@@ -6823,7 +6789,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.A: toggleShowAriaProblems(); break;
 			case KEYCODES.D: deselect(); break;
 			case KEYCODES.Z: deselect(); break;
-			case KEYCODES.E: callFunctionWithArgs("Replace elements by class containing", replaceElementsByClassContaining, 2); break;
+			case KEYCODES.E: callFunctionWithArgs("Replace elements by class containing", replaceElementsByClassOrIdContaining, 2); break;
 			case KEYCODES.F: createTagsByClassName(); break;
 			case KEYCODES.H: unmarkAll(); break;
 			case KEYCODES.M: markOverlays(); break;
