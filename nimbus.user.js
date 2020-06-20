@@ -753,7 +753,7 @@ function replaceSpecialCharacters()
 		"\u2003": " ",
 		"\u2009": " ",
 		"\u2013": "-",
-		"\u2014": "--",
+		//"\u2014": "--",
 		"\u2122": "(tm)"
 	};
 
@@ -1301,8 +1301,10 @@ function removeClassFromAll(className)
 {
 	const e = document.querySelectorAll("." + className);
 	let i = e.length;
+	let count = i;
 	while(i--)
 		e[i].classList.remove(className);
+	return count;
 }
 
 function hasClassesContaining(element, arrStr)
@@ -2012,8 +2014,8 @@ function autoCompleteInputBox()
 	{
 		const command = getOne("#autoCompleteInput").value;
 		clearMatches();
-		runCommand(command);
 		close();
+		runCommand(command);
 	}
 
 	return { open, close };
@@ -2063,12 +2065,12 @@ function markElementsBySelector(selector)
 		let i = elements.length;
 		while(i--)
 			elements[i].classList.add(Nimbus.markerClass);
-		showMessageBig("Highlighted " + elements.length + " elements");
+		showMessageBig("Marked " + elements.length + " elements");
 	}
 	else if(elements)
 	{
 		elements.classList.add(Nimbus.markerClass);
-		showMessageBig("Highlighted 1 element");
+		showMessageBig("Marked 1 element");
 	}
 	insertStyleHighlight();
 }
@@ -2243,7 +2245,7 @@ function unmarkAll()
 	count += removeClassFromAll(Nimbus.markerClass);
 	count += removeClassFromAll("error");
 	del(["annotationinfo", "annotationwarning", "annotationerror"]);
-	showMessageBig(`Removed highlighting from <b>${count}</b> elements`);
+	showMessageBig(`Unmarked <b>${count}</b> elements`);
 }
 
 function filterNodesByAttributeEqualTo(nodes, attribute, value)
@@ -5072,7 +5074,7 @@ function getContentByParagraphCount()
 	}
 	del(["nav", "footer"]);
 	deleteNonContentLists();
-	makeDocumentSemantic();
+	// makeDocumentSemantic();
 	insertStyleHighlight();
 	const paragraphs = get("p");
 	if(!paragraphs)
@@ -5141,6 +5143,8 @@ function cleanupWikipedia()
 	const firstHeading = getOne("h1");
 	document.title = firstHeading.textContent;
 	del([
+		".toc",
+		".navbox",
 		"iframe",
 		"script",
 		"object",
@@ -6068,7 +6072,7 @@ function getBlockElementsContainingText(str)
 	const BLOCK_ELEMENTS = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "DIV", "TD"];
 	const textNodes = getTextNodes();
 	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
-	let regex = new RegExp(escapedString, "gi");
+	let regex = new RegExp(escapedString, "i");
 	const matchingElements = [];
 	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
 	{
