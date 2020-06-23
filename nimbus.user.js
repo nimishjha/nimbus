@@ -210,7 +210,7 @@ const Nimbus = {
 		highlightSelection: highlightSelection,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		htmlToText: htmlToText,
-		insertElementBeforeSelectedNode: insertElementBeforeSelectedNode,
+		insertElementBeforeSelectionAnchor: insertElementBeforeSelectionAnchor,
 		insertHrBeforeAll: insertHrBeforeAll,
 		insertStyle: insertStyle,
 		insertStyleHighlight: insertStyleHighlight,
@@ -5771,7 +5771,29 @@ function removeAttributeOf(selector, attribute)
 		e[i].removeAttribute(attribute);
 }
 
-function insertElementBeforeSelectedNode(tagName)
+function insertElementNextToAnchor(tagName, position)
+{
+	const tag = tagName || "hr";
+	const selection = window.getSelection();
+	if(!selection)
+	{
+		showMessageError("Couldn't get selection");
+		return;
+	}
+	let node = selection.anchorNode;
+	if(node.tagName === undefined)
+		node = node.parentNode;
+	if(node && node.parentNode)
+	{
+		switch(position)
+		{
+			case "before": insertBefore(node, createElement(tag)); break;
+			case "after": insertAfter(node, createElement(tag)); break;
+		}
+	}
+}
+
+function insertElementBeforeSelectionAnchor(tagName)
 {
 	const tag = tagName || "hr";
 	const selection = window.getSelection();
@@ -5798,7 +5820,7 @@ function annotate()
 	if(node && node.parentNode)
 	{
 		const d = createElement("ruby");
-		customPrompt("Enter annotation text").then(function(result){
+		customPrompt("Enter annotation text").then(function(result) {
 			d.textContent = result;
 			if(d.textContent.length)
 				node.parentNode.insertBefore(d, node);
@@ -6623,7 +6645,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.DELETE: deleteMarkedElements(); break;
 			case KEYCODES.SQUARE_BRACKET_OPEN: modifyMark("previous"); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: modifyMark("next"); break;
-			case KEYCODES.MINUS: insertElementBeforeSelectedNode(); break;
+			case KEYCODES.MINUS: insertElementBeforeSelectionAnchor(); break;
 			default: shouldPreventDefault = false;
 		}
 		if(shouldPreventDefault)
