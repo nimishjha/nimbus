@@ -52,6 +52,12 @@ let consoleWarn = noop;
 let consoleError = noop;
 
 const Nimbus = {
+	ACTIONS: {
+		MARK: "mark",
+		UNMARK: "unmark",
+		DELETE: "delete",
+		RETRIEVE: "retrieve",
+	},
 	logString: "",
 	messageTimeout: null,
 	KEYCODES: {
@@ -142,7 +148,6 @@ const Nimbus = {
 		cycleThroughDocumentHeadings: cycleThroughDocumentHeadings,
 		cleanupAttributes: cleanupAttributes,
 		cleanupAttributes_regex: cleanupAttributes_regex,
-		cleanupBlogs: cleanupBlogs,
 		cleanupGeneral: cleanupGeneral,
 		cleanupGeneral_light: cleanupGeneral_light,
 		cleanupHead: cleanupHead,
@@ -157,13 +162,12 @@ const Nimbus = {
 		createTagsByClassName: createTagsByClassName,
 		cycleFocusOverFormFields: cycleFocusOverFormFields,
 		del: del,
-		deleteElementsContainingText: deleteElementsContainingText,
+		deleteBySelectorAndText: deleteBySelectorAndText,
 		deleteElementsByClassOrIdContaining: deleteElementsByClassOrIdContaining,
 		deleteEmptyElements: deleteEmptyElements,
 		deleteEmptyHeadings: deleteEmptyHeadings,
 		deleteIframes: deleteIframes,
 		deleteImages: deleteImages,
-		deleteImagesBySrcContaining: deleteImagesBySrcContaining,
 		deleteImagesSmallerThan: deleteImagesSmallerThan,
 		deleteMessage: deleteMessage,
 		deleteNonContentClasses: deleteNonContentClasses,
@@ -382,7 +386,7 @@ function xPathMark(xpath)
 {
 	const elements = xPathSelect(xpath);
 	if(elements.length)
-		processElements(elements, "mark");
+		processElements(elements, Nimbus.ACTIONS.MARK);
 }
 
 function processElements(elements, action)
@@ -394,17 +398,24 @@ function processElements(elements, action)
 	}
 	switch(action)
 	{
-		case "mark":
+		case Nimbus.ACTIONS.MARK:
 			for(let i = 0, ii = elements.length; i < ii; i++)
 				elements[i].classList.add(Nimbus.markerClass);
 			break;
-		case "unmark":
+		case Nimbus.ACTIONS.UNMARK:
 			for(let i = 0, ii = elements.length; i < ii; i++)
 				elements[i].classList.remove(Nimbus.markerClass);
 			break;
-		case "delete":
+		case Nimbus.ACTIONS.DELETE:
 			del(elements);
 			break;
+		case Nimbus.ACTIONS.RETRIEVE:
+			const wrapper = document.createElement("div");
+			for(let i = 0, ii = elements.length; i < ii; i++)
+				wrapper.appendChild(elements[i]);
+			emptyElement(document.body);
+			del(["link", "script", "iframe"]);
+			document.body.appendChild(wrapper);
 	}
 }
 
@@ -4334,10 +4345,9 @@ function selectBySelectorAndText(selector, text)
 	if(!(typeof selector === "string" && selector.length))
 		return;
 	if(!(typeof text === "string" && text.length))
-	{
-		retrieve(selector);
-		return;
-	}
+		return get(selector);
+
+	text = text.toLowerCase();
 	const selected = [];
 	const elements = get(selector);
 	const wrapper = document.createElement("div");
@@ -4355,7 +4365,7 @@ function selectBySelectorAndText(selector, text)
 		}
 		else if(element.tagName === "IMG")
 		{
-			if(element.src && ~element.src.indexOf(text))
+			if(element.src && ~element.src.toLowerCase().indexOf(text))
 				selected.push(element);
 		}
 	}
@@ -4364,15 +4374,7 @@ function selectBySelectorAndText(selector, text)
 
 function retrieveBySelectorAndText(selector, text)
 {
-	const selected = selectBySelectorAndText(selector, text);
-	if(!selected.length)
-		return;
-	const wrapper = document.createElement("div");
-	for(let i = 0, ii = selected.length; i < ii; i++)
-		wrapper.appendChild(selected[i]);
-	emptyElement(document.body);
-	del(["link", "script", "iframe"]);
-	document.body.appendChild(wrapper);
+	processElements(selectBySelectorAndText(selector, text), Nimbus.ACTIONS.RETRIEVE);
 }
 
 function delRange(m, n)
@@ -4381,7 +4383,7 @@ function delRange(m, n)
 	if(typeof n === "undefined")
 		n = numBlockElements - 1;
 	for(let i = m; i <= n; i++)
-		del("#i" + i);
+		del(`#i${i}`);
 }
 
 function cleanupAttributes()
@@ -4450,19 +4452,6 @@ function cleanupHeadings()
 	}
 }
 
-function cleanupBlogs()
-{
-	deleteElementsContainingText("div", "Join Date:");
-	deleteElementsContainingText("div", "Joined:");
-	deleteElementsContainingText("div", "Location:");
-	deleteElementsContainingText("div", "Posts:");
-	deleteElementsContainingText("div", "Thanks:");
-	deleteElementsContainingText("div", "Thanked");
-	deleteElementsContainingText("table", "Users Say Thank You to");
-	deleteElementsContainingText("table", "View Public Profile");
-	del(["#share", "#comments_posting"]);
-}
-
 function deleteNonContentImages()
 {
 	const srcSubstrings = [
@@ -4494,7 +4483,7 @@ function deleteNonContentImages()
 	];
 	for(let i = 0, ii = srcSubstrings.length; i < ii; i++)
 	{
-		deleteImagesBySrcContaining(srcSubstrings[i]);
+		deleteBySelectorAndText("img", srcSubstrings[i]);
 	}
 }
 
@@ -4597,66 +4586,14 @@ function cleanupUnicode()
 	document.body.innerHTML = s;
 }
 
-function deleteLinksContainingText(str)
+function deleteBySelectorAndText(selector, str)
 {
-	const links = get("a");
-	let i = links.length;
-	while(i--)
+	if(typeof selector === "string")
 	{
-		const link = links[i];
-		if(~link.textContent.indexOf(str) || ~link.href.indexOf(str))
-			del(link);
-	}
-}
-
-function deleteImagesBySrcContaining(str)
-{
-	const elems = document.getElementsByTagName("img");
-	let i = elems.length;
-	while(i--)
-	{
-		const elem = elems[i];
-		if(~elem.src.indexOf(str))
-		{
-			xlog("Deleting image with src " + elem.src);
-			elem.remove();
-		}
-	}
-}
-
-function deleteElementsContainingText(selector, str)
-{
-	if(!(typeof selector === "string" && selector.length))
-		return;
-	if(!(typeof str === "string" && str.length))
-	{
-		del(selector);
-		return;
-	}
-
-	switch(selector)
-	{
-		case "img": deleteImagesBySrcContaining(str); return;
-		case "a": deleteLinksContainingText(str); return;
-	}
-
-	const e = get(selector);
-	if(e.length)
-	{
-		let i = e.length;
-		while(i--)
-		{
-			const elem = e[i];
-			if(elem.querySelector(selector))
-				continue;
-			if(~elem.textContent.indexOf(str))
-				elem.remove();
-		}
-	}
-	else if(e.parentNode)
-	{
-		if(~e.textContent.indexOf(str))
-			e.remove();
+		if(typeof str === "string")
+			processElements(selectBySelectorAndText(selector, str), Nimbus.ACTIONS.DELETE);
+		else
+			del(selector);
 	}
 }
 
@@ -4998,7 +4935,7 @@ function deleteIframes()
 	{
 		showMessageBig("No iframes found");
 	}
-	deleteElementsContainingText("rp", "iframe:");
+	deleteBySelectorAndText("rp", "iframe:");
 }
 
 function deleteImages()
@@ -5199,7 +5136,7 @@ function cleanupStackOverflow()
 		replaceElementsBySelector(".user-details", "h2");
 		replaceElementsBySelector(".answercell", "dt");
 		replaceElementsBySelector(".votecell", "h6");
-		deleteElementsContainingText("h2", "Not the answer");
+		deleteBySelectorAndText("h2", "Not the answer");
 		retrieve("#content");
 		cleanupGeneral();
 		highlightCode(true);
@@ -6053,7 +5990,7 @@ function markBlockElementsContainingText(str)
 {
 	const elements = getBlockElementsContainingText(str);
 	if(elements.length)
-		processElements(elements, "mark");
+		processElements(elements, Nimbus.ACTIONS.MARK);
 }
 
 function getBlockElementsContainingText(str)
@@ -6665,7 +6602,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.E: cycleHighlightTags(); break;
-			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteElementsContainingText); break;
+			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteBySelectorAndText); break;
 			case KEYCODES.I: toggleConsole("css"); break;
 			case KEYCODES.J: regressivelyUnenhance(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
