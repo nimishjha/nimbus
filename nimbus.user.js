@@ -219,8 +219,7 @@ const Nimbus = {
 		makeHeadingFromSelection: makeHeadingFromSelection,
 		makeHeadings: makeHeadings,
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
-		makeHeadingsPlainText: makeHeadingsPlainText,
-		makeLinksPlainText: makeLinksPlainText,
+		makePlainText: makePlainText,
 		mark: mark,
 		markDivDepth: markDivDepth,
 		markElementsBySelector: markElementsBySelector,
@@ -2999,26 +2998,31 @@ function makeHeadingFromSelection(tagname)
 		xlog("Could not make heading");
 }
 
-function makeHeadingsPlainText()
+function makePlainText(metaSelector)
 {
-	const headings = get("h1, h2, h3, h4, h5, h6");
-	let i = headings.length;
-	while(i--)
+	let selector = metaSelector.toLowerCase();
+	switch(metaSelector)
 	{
-		const heading = headings[i];
-		heading.innerHTML = removeLineBreaks(heading.textContent);
+		case "h": selector = "h1, h2, h3, h4, h5, h6"; break;
 	}
-}
-
-function makeLinksPlainText()
-{
-	const links = get("a");
-	let i = links.length;
-	while(i--)
+	const elements = get(selector);
+	let i = elements.length;
+	if(selector === "a")
 	{
-		const link = links[i];
-		if(!link.getElementsByTagName("img").length && link.innerHTML !== link.textContent)
-			link.innerHTML = link.textContent;
+		while(i--)
+		{
+			const elem = elements[i];
+			if(!elem.getElementsByTagName("img").length)
+				elem.textContent = removeLineBreaks(elem.textContent);
+		}
+	}
+	else
+	{
+		while(i--)
+		{
+			const elem = elements[i];
+			elem.textContent = removeLineBreaks(elem.textContent);
+		}
 	}
 }
 
