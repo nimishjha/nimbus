@@ -4576,9 +4576,15 @@ function deleteBySelectorAndText(selector, str)
 	if(typeof selector === "string")
 	{
 		if(typeof str === "string")
-			processElements(selectBySelectorAndText(selector, str), Nimbus.ACTIONS.DELETE);
+		{
+			const selected = selectBySelectorAndText(selector, str);
+			if(selected)
+				del(selected);
+		}
 		else
+		{
 			del(selector);
+		}
 	}
 }
 
@@ -4957,11 +4963,10 @@ function retrieve(selector)
 	{
 		tempNode.appendChild(selected);
 	}
-	if(tempNode.innerHTML.length)
+	if(tempNode.firstChild)
 	{
 		del(["link", "script", "iframe"]);
-		while(document.body.firstChild)
-			document.body.firstChild.remove();
+		emptyElement(document.body);
 		document.body.appendChild(tempNode);
 	}
 	else
@@ -5015,7 +5020,7 @@ function getContentByParagraphCount()
 	for(let i = 0, ii = candidateDivs.length; i < ii; i++)
 	{
 		const div = candidateDivs[i];
-		let numParagraphs = div.querySelectorAll(".longParagraph").length;
+		let numParagraphs = div.getElementsByClassName("longParagraph").length;
 		if(numParagraphs > highestNumParagraphs)
 		{
 			highestNumParagraphs = numParagraphs;
@@ -5026,7 +5031,7 @@ function getContentByParagraphCount()
 		contentDiv &&
 		contentDiv.parentNode &&
 		contentDiv.parentNode.tagName !== "BODY" &&
-		contentDiv.querySelectorAll(".longParagraph").length < longParagraphs.length * 0.8
+		contentDiv.getElementsByClassName("longParagraph").length < longParagraphs.length * 0.8
 	)
 	{
 		contentDiv = contentDiv.parentNode;
@@ -5450,7 +5455,6 @@ function listSelectorsWithLightBackgrounds()
 		const elem = e[i];
 		if(!elem)
 			continue;
-		count++;
 		const bgColor = getComputedStyle(elem).getPropertyValue("background-color");
 		const rgbValues = bgColor.match(/[0-9]+/g);
 		if(rgbValues)
@@ -5669,7 +5673,7 @@ function modifyMark(direction, keepSelection)
 	if(!keepSelection)
 		currentElement.classList.remove(Nimbus.markerClass);
 	nextElement.classList.add(Nimbus.markerClass);
-	showMessage("Marked node is " + createSelector(nextElement), "messagebig", true);
+	showMessage(createSelector(nextElement), "messagebig", true);
 }
 
 function showTextToHTMLRatio()
@@ -5972,16 +5976,15 @@ function highlightSelection_old()
 function highlightAllTableCellsInRow(tr)
 {
 	const tds = tr.querySelectorAll("td");
+	const highlightTagName = Nimbus.highlightTagName;
 	let i = tds.length;
 	while(i--)
-	{
-		const td = tds[i];
-		wrapElementInner(td, Nimbus.highlightTagName);
-	}
+		wrapElementInner(tds[i], highlightTagName);
 }
 
 function highlightElementsContainingText(str)
 {
+	const highlightTagName = Nimbus.highlightTagName;
 	const textNodes = getTextNodes();
 	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
 	let regex = new RegExp(escapedString, "gi");
@@ -5989,7 +5992,7 @@ function highlightElementsContainingText(str)
 	{
 		const textNode = textNodes.snapshotItem(i);
 		if(textNode.data.match(regex))
-			wrapElementInner(textNode.parentNode, Nimbus.highlightTagName);
+			wrapElementInner(textNode.parentNode, highlightTagName);
 	}
 }
 
@@ -6025,6 +6028,7 @@ function getBlockElementsContainingText(str)
 function highlightBySelectorAndText(selector, str)
 {
 	const e = selectBySelectorAndText(selector, str);
+	const highlightTagName = Nimbus.highlightTagName;
 	showMessageBig(`Found ${e.length} elements`);
 	if(!e.length)
 		return;
@@ -6038,10 +6042,10 @@ function highlightBySelectorAndText(selector, str)
 				highlightAllTableCellsInRow(node);
 				break;
 			case "a":
-				wrapElementInner(node, Nimbus.highlightTagName);
+				wrapElementInner(node, highlightTagName);
 				break;
 			default:
-				wrapElementInner(node, Nimbus.highlightTagName);
+				wrapElementInner(node, highlightTagName);
 				break;
 		}
 		node.classList.add(Nimbus.markerClass);
@@ -6051,13 +6055,14 @@ function highlightBySelectorAndText(selector, str)
 
 function highlightLinksWithHrefContaining(str)
 {
+	const highlightTagName = Nimbus.highlightTagName;
 	const links = document.getElementsByTagName("a");
 	let i = links.length;
 	while(i--)
 	{
 		const link = links[i];
 		if(~link.href.indexOf(str))
-			wrapElementInner(link, Nimbus.highlightTagName);
+			wrapElementInner(link, highlightTagName);
 	}
 }
 
