@@ -191,7 +191,7 @@ const Nimbus = {
 		getBestImageSrc: getBestImageSrc,
 		getContentByParagraphCount: getContentByParagraphCount,
 		markElementsByChildrenHavingTheExactText: markElementsByChildrenHavingTheExactText,
-		retrieveElementsBySelectorAndText: retrieveElementsBySelectorAndText,
+		retrieveBySelectorAndText: retrieveBySelectorAndText,
 		retrieveLargeImages: retrieveLargeImages,
 		getPagerLinks: getPagerLinks,
 		listSelectorsWithLightBackgrounds: listSelectorsWithLightBackgrounds,
@@ -202,7 +202,7 @@ const Nimbus = {
 		highlightElementsContainingText: highlightElementsContainingText,
 		highlightLinksInPres: highlightLinksInPres,
 		highlightLinksWithHrefContaining: highlightLinksWithHrefContaining,
-		highlightElementsBySelectorAndText: highlightElementsBySelectorAndText,
+		highlightBySelectorAndText: highlightBySelectorAndText,
 		highlightSelection: highlightSelection,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		htmlToText: htmlToText,
@@ -216,7 +216,6 @@ const Nimbus = {
 		makeButtonsReadable: makeButtonsReadable,
 		makeDocumentSemantic: makeDocumentSemantic,
 		makeHashLinksRelative: makeHashLinksRelative,
-		makeHeadingFromSelection: makeHeadingFromSelection,
 		makeHeadings: makeHeadings,
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
 		makePlainText: makePlainText,
@@ -1230,7 +1229,7 @@ function replaceElementsByClassOrIdContaining(str, tagName)
 	const toReplace = getElementsByClassOrIdContaining(str);
 	showMessageBig(`Replacing <b>${toReplace.length}</b> elements`);
 	for(let i = toReplace.length - 1; i >= 0; i--)
-		replaceElement(toReplace[i], tagName)
+		replaceElement(toReplace[i], tagName);
 }
 
 function deleteElementsByClassOrIdContaining(str)
@@ -2984,20 +2983,6 @@ function replaceEmptyParagraphsWithHr()
 	}
 }
 
-function makeHeadingFromSelection(tagname)
-{
-	const selection = window.getSelection();
-	if(!selection)
-		return;
-	let node = selection.anchorNode;
-	if(node.tagName === undefined)
-		node = node.parentNode;
-	if(node && node.parentNode && node.parentNode.tagName !== "body")
-		node.parentNode.replaceChild(createElement(tagname, { innerHTML: node.innerHTML }), node);
-	else
-		xlog("Could not make heading");
-}
-
 function makePlainText(metaSelector)
 {
 	let selector = metaSelector.toLowerCase();
@@ -3044,12 +3029,12 @@ function makeHeadings()
 		}
 		else if( text.match(/[IVX\.]+/g) && text.match(/[IVX\.]+/g)[0] === text )
 		{
-			paragraph.className = "parah2";
+			replaceElement(paragraph, "h2");
 			continue;
 		}
 		else if(len < MAX_LENGTH && !text[len-1].match(/[.,!\?'"\u2018\u201C\u2019\u201D]/) )
 		{
-			paragraph.className = "parah3";
+			replaceElement(paragraph, "h3");
 		}
 		const tags = ["b", "strong", "em"];
 		for(let j = 0, jj = tags.length; j < jj; j++)
@@ -3059,14 +3044,10 @@ function makeHeadings()
 			{
 				const childText = paragraph.querySelector(tag).textContent;
 				if(childText && childText.length < MAX_LENGTH && removeWhitespace(childText) === text)
-				{
-					paragraph.className = "parah2";
-				}
+					replaceElement(paragraph, "h2");
 			}
 		}
 	}
-	replaceElementsBySelector(".parah2", "h2");
-	replaceElementsBySelector(".parah3", "h3");
 }
 
 function fixHeadings()
@@ -4348,7 +4329,7 @@ function toggleStyleShowClasses()
 	toggleStyle(s, "styleShowClasses", true);
 }
 
-function retrieveElementsBySelectorAndText(selector, text)
+function selectBySelectorAndText(selector, text)
 {
 	if(!(typeof selector === "string" && selector.length))
 		return;
@@ -4357,37 +4338,41 @@ function retrieveElementsBySelectorAndText(selector, text)
 		retrieve(selector);
 		return;
 	}
+	const selected = [];
 	const elements = get(selector);
 	const wrapper = document.createElement("div");
 	for(let i = 0, ii = elements.length; i < ii; i++)
 	{
 		const element = elements[i];
-		if(element.textContent && ~element.textContent.indexOf(text) && !element.querySelector(selector))
+		if(element.textContent && ~element.textContent.toLowerCase().indexOf(text) && !element.querySelector(selector))
 		{
-			wrapper.appendChild(element);
+			selected.push(element);
 		}
 		else if(element.tagName === "A")
 		{
-			if(element.href && ~element.href.indexOf(text))
-				wrapper.appendChild(element);
+			if( (element.href && ~element.href.toLowerCase().indexOf(text)) || (~element.textContent.toLowerCase().indexOf(text)) )
+				selected.push(element);
 		}
 		else if(element.tagName === "IMG")
 		{
 			if(element.src && ~element.src.indexOf(text))
-				wrapper.appendChild(element);
+				selected.push(element);
 		}
 	}
-	if(wrapper.firstChild)
-	{
-		del(["link", "script", "iframe"]);
-		while(document.body.firstChild)
-			document.body.firstChild.remove();
-		document.body.appendChild(wrapper);
-	}
-	else
-	{
-		showMessageBig("Not found");
-	}
+	return selected;
+}
+
+function retrieveBySelectorAndText(selector, text)
+{
+	const selected = selectBySelectorAndText(selector, text);
+	if(!selected.length)
+		return;
+	const wrapper = document.createElement("div");
+	for(let i = 0, ii = selected.length; i < ii; i++)
+		wrapper.appendChild(selected[i]);
+	emptyElement(document.body);
+	del(["link", "script", "iframe"]);
+	document.body.appendChild(wrapper);
 }
 
 function delRange(m, n)
@@ -6093,38 +6078,29 @@ function getBlockElementsContainingText(str)
 	return matchingElements;
 }
 
-function highlightElementsBySelectorAndText(selector, str)
+function highlightBySelectorAndText(selector, str)
 {
-	if(!(selector && str && selector.length && str.length))
+	const e = selectBySelectorAndText(selector, str);
+	showMessageBig(`Found ${e.length} elements`);
+	if(!e.length)
 		return;
-	const e = get(selector);
 	let i = e.length;
 	while(i--)
 	{
 		const node = e[i];
-		if(node.querySelector(selector))
-			continue;
-		if(~node.textContent.indexOf(str))
+		switch(node.tagName.toLowerCase())
 		{
-			switch(node.tagName.toLowerCase())
-			{
-				case "tr":
-					highlightAllTableCellsInRow(node);
-					break;
-				case "a":
-					wrapElementInner(node, Nimbus.highlightTagName);
-					break;
-				default:
-					wrapElementInner(node, Nimbus.highlightTagName);
-					break;
-			}
-			node.classList.add(Nimbus.markerClass);
+			case "tr":
+				highlightAllTableCellsInRow(node);
+				break;
+			case "a":
+				wrapElementInner(node, Nimbus.highlightTagName);
+				break;
+			default:
+				wrapElementInner(node, Nimbus.highlightTagName);
+				break;
 		}
-		if(node.tagName.toLowerCase() === "a" && node.href && ~node.href.indexOf(str))
-		{
-			wrapElementInner(node, Nimbus.highlightTagName);
-			node.classList.add(Nimbus.markerClass);
-		}
+		node.classList.add(Nimbus.markerClass);
 	}
 	insertStyleHighlight();
 }
@@ -6673,8 +6649,8 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.NUMPAD1: fillForms(); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.F1: customPrompt("Enter replacement tag name").then(setReplacementTag); break;
-			case KEYCODES.F2: makeHeadingFromSelection("h2"); break;
-			case KEYCODES.F3: makeHeadingFromSelection("h3"); break;
+			case KEYCODES.F2: replaceSelectedElement("h2"); break;
+			case KEYCODES.F3: replaceSelectedElement("h3"); break;
 			case KEYCODES.ONE: cleanupGeneral(); break;
 			case KEYCODES.TWO: deleteImages(); break;
 			case KEYCODES.THREE: toggleClass(db, "xwrap"); break;
@@ -6703,7 +6679,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
 			case KEYCODES.X: removeEmojis(); break;
-			case KEYCODES.Y: callFunctionWithArgs("Highlight elements by selector and containing text", highlightElementsBySelectorAndText); break;
+			case KEYCODES.Y: callFunctionWithArgs("Highlight elements by selector and containing text", highlightBySelectorAndText); break;
 			case KEYCODES.Z: replaceSpecialCharacters(); break;
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); cycleFocusOverFormFields(); break;
@@ -6732,7 +6708,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.A: annotate(); break;
 			case KEYCODES.C: deleteNonContentElements(); break;
 			case KEYCODES.D: del("log"); break;
-			case KEYCODES.G: callFunctionWithArgs("Retrieve elements by selector (optionally containing text)", retrieveElementsBySelectorAndText); break;
+			case KEYCODES.G: callFunctionWithArgs("Retrieve elements by selector (optionally containing text)", retrieveBySelectorAndText); break;
 			case KEYCODES.J: joinMarkedElements(); break;
 			case KEYCODES.K: showPrintLink(); break;
 			case KEYCODES.L: logout(); break;
