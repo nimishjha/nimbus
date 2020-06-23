@@ -389,8 +389,9 @@ function xPathMark(xpath)
 		processElements(elements, Nimbus.ACTIONS.MARK);
 }
 
-function processElements(elements, action)
+function processElements(elems, action)
 {
+	const elements = elems.nodeType ? [elems] : elems;
 	if(!(elements && elements.length))
 	{
 		showMessageError("processElements(): elements is null or empty");
@@ -401,6 +402,7 @@ function processElements(elements, action)
 		case Nimbus.ACTIONS.MARK:
 			for(let i = 0, ii = elements.length; i < ii; i++)
 				elements[i].classList.add(Nimbus.markerClass);
+			insertStyleHighlight();
 			break;
 		case Nimbus.ACTIONS.UNMARK:
 			for(let i = 0, ii = elements.length; i < ii; i++)
@@ -416,6 +418,9 @@ function processElements(elements, action)
 			emptyElement(document.body);
 			del(["link", "script", "iframe"]);
 			document.body.appendChild(wrapper);
+			break;
+		default:
+			showMessageError(`Action is ${action}`);
 	}
 }
 
@@ -2061,27 +2066,7 @@ function markElementsWithCssRule(prop, val)
 
 function markElementsBySelector(selector)
 {
-	if(!(typeof selector === "string" && selector.length))
-		return;
-	const elements = get(selector);
-	if(!elements)
-	{
-		showMessageError("No elements found for selector " + selector);
-		return;
-	}
-	if(elements.length)
-	{
-		let i = elements.length;
-		while(i--)
-			elements[i].classList.add(Nimbus.markerClass);
-		showMessageBig("Marked " + elements.length + " elements");
-	}
-	else if(elements)
-	{
-		elements.classList.add(Nimbus.markerClass);
-		showMessageBig("Marked 1 element");
-	}
-	insertStyleHighlight();
+	processElements(get(selector), Nimbus.ACTIONS.MARK);
 }
 
 function markOverlays()
