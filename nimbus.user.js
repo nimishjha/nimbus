@@ -4490,8 +4490,9 @@ function cleanupGeneral()
 	addLinksToLargerImages();
 	replaceIncorrectHeading();
 	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet", "message"]);
+	replaceSpecialCharacters();
 	replaceElementsBySelector("center", "div");
-	remove("a", "textContent", "equals", "Section");
+	// remove("a", "textContent", "equals", "Section");
 	setDocTitle();
 	cleanupAttributes();
 	replaceSpansWithTextNodes();
@@ -4990,7 +4991,8 @@ function getContentByParagraphCount()
 	{
 		const title = document.title;
 		retrieve(markerClass);
-		setDocTitleSimple(title);
+		if(title)
+			setDocTitleSimple(title);
 		cleanupGeneral();
 		deleteIframes();
 		return;
