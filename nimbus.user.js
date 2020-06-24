@@ -156,7 +156,7 @@ const Nimbus = {
 		cleanupUnicode: cleanupUnicode,
 		cleanupWikipedia: cleanupWikipedia,
 		convertDivsToParagraphs: convertDivsToParagraphs,
-		convertMarkedElementsToList: convertMarkedElementsToList,
+		groupMarkedElements: groupMarkedElements,
 		copyAttribute: copyAttribute,
 		createPagerFromSelect: createPagerFromSelect,
 		createTagsByClassName: createTagsByClassName,
@@ -3976,14 +3976,20 @@ function setReplacementTag(tagName)
 	Nimbus.replacementTagName = tagName;
 }
 
-function convertMarkedElementsToList(tagName)
+function groupMarkedElements(tagName)
 {
-	const wrapperTagName = tagName || "ul";
+	const parentTagName = tagName || "ul";
+	let childTagName = "";
+	switch(parentTagName)
+	{
+		case "ul": childTagName = "li"; break;
+		case "blockquote": childTagName = "p"; break;
+	}
 	const elemsToJoin = get(makeClassSelector(Nimbus.markerClass));
-	const wrapper = document.createElement(wrapperTagName);
+	const wrapper = document.createElement(parentTagName);
 	for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
 	{
-		const child = document.createElement("li");
+		const child = document.createElement(childTagName);
 		child.innerHTML = elemsToJoin[i].innerHTML;
 		wrapper.appendChild(child);
 	}
