@@ -253,7 +253,6 @@ const Nimbus = {
 		removeQueryStringFromImageSources: removeQueryStringFromImageSources,
 		removeQueryStringFromLinks: removeQueryStringFromLinks,
 		removeSpanTags: removeSpanTags,
-		removeTimeCodeFromYoutubeLinks: removeTimeCodeFromYoutubeLinks,
 		replaceAudio: replaceAudio,
 		replaceClass: replaceClass,
 		replaceCommentsWithPres: replaceCommentsWithPres,
@@ -1256,7 +1255,7 @@ function deleteElementsByClassOrIdContaining(str)
 
 function rescueOrphanedTextNodes()
 {
-	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "TD", "HEAD"];
+	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "TD", "HEAD", "FIGURE"];
 	const textNodes = getTextNodes();
 	const nodeItems = [];
 	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
@@ -1314,7 +1313,7 @@ function hasChildrenOfType(elem, tagName)
 
 function removeClassFromAll(className)
 {
-	const e = document.querySelectorAll("." + className);
+	const e = get(makeClassSelector(className));
 	let i = e.length;
 	let count = i;
 	while(i--)
@@ -4715,21 +4714,6 @@ function replaceFontTags()
 	}
 }
 
-function removeTimeCodeFromYoutubeLinks()
-{
-	const links = get("a");
-	let count = 0;
-	for(let i = 0, ii = links.length; i < ii; i++)
-	{
-		const link = links[i];
-		const href = link.href;
-		if(~href.indexOf("&t=") || ~href.indexOf("?t="))
-		{
-			link.href = removeQueryParameter(href, "t");
-		}
-	}
-}
-
 function cleanupLinks()
 {
 	const links = get("a");
@@ -6760,9 +6744,6 @@ function main()
 				break;
 			case "en.m.wikipedia.org":
 				location.href = location.href.replace(/en\.m\./, "en.");
-				break;
-			case "www.youtube.com":
-				setTimeout(removeTimeCodeFromYoutubeLinks, 5000);
 				break;
 		}
 	}
