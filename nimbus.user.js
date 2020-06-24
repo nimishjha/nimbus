@@ -1141,7 +1141,7 @@ function replaceIframes()
 			continue;
 		}
 		iframelink.href = s;
-		if(~s.indexOf("youtube"))
+		if(~s.indexOf("youtube") && s.indexOf("subscribe_embed") === -1)
 		{
 			s = s.replace(/\/embed\//, '/watch?v=');
 			const segments = s.split('?');
@@ -1585,7 +1585,7 @@ function showMessage(messageHtml, msgClass, persist)
 	msgClass = msgClass || "";
 	const strStyle = 'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; text-align: left; }' +
 	'message.messagebig { font: 32px "Swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }' +
-	'message.messageerror { color: #F00; background: #500; }';
+	'message.messageerror { color: #FFF; background: #500; }';
 
 	if(!get("message"))
 	{
@@ -3953,7 +3953,8 @@ function changePage(direction)
 		let linkText = link.textContent;
 		if(linkText)
 		{
-			linkText = removeWhitespace(linkText).toLowerCase();
+			// linkText = removeWhitespace(linkText).toLowerCase();
+			linkText = linkText.replace(/[^a-zA-Z0-9»]/g, "").toLowerCase();
 			if(matchStrings.includes(linkText))
 			{
 				link.innerHTML = "<mark>" + link.innerHTML + "</mark>";
