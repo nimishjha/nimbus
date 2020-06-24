@@ -210,6 +210,7 @@ const Nimbus = {
 		highlightSelection: highlightSelection,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		htmlToText: htmlToText,
+		ih: forceHeightForAllImages,
 		insertElementBeforeSelectionAnchor: insertElementBeforeSelectionAnchor,
 		insertHrBeforeAll: insertHrBeforeAll,
 		insertStyle: insertStyle,
@@ -2835,6 +2836,14 @@ function forceWidthForAllImages(width)
 		width *= 100;
 	const s = "img { width: " + width + "px; height: auto; }";
 	insertStyle(s, "styleImageWidth", true);
+}
+
+function forceHeightForAllImages(height)
+{
+	if(height < 20)
+		height *= 100;
+	const s = "img { height: " + height + "px; width: auto; }";
+	insertStyle(s, "styleImageHeight", true);
 }
 
 function buildGallery()
