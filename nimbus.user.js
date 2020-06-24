@@ -5813,13 +5813,15 @@ function annotate()
 	let node = selection.anchorNode;
 	if(node.tagName === undefined)
 		node = node.parentNode;
+	while(node.parentNode && !["P", "DIV"].includes(node.tagName))
+		node = node.parentNode;
 	if(node && node.parentNode)
 	{
-		const d = createElement("ruby");
 		customPrompt("Enter annotation text").then(function(result) {
-			d.textContent = result;
-			if(d.textContent.length)
-				node.parentNode.insertBefore(d, node);
+			const annotation = document.createElement("ruby");
+			annotation.textContent = result;
+			if(annotation.textContent.length)
+				node.parentNode.insertBefore(annotation, node);
 		});
 	}
 }
