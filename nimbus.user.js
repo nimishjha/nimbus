@@ -4960,27 +4960,7 @@ function deleteImages()
 
 function retrieve(selector)
 {
-	const selected = get(selector);
-	const tempNode = document.createElement("div");
-	if(isArray(selected))
-	{
-		for(let i = 0, ii = selected.length; i < ii; i++)
-			tempNode.appendChild(selected[i]);
-	}
-	else if(selected)
-	{
-		tempNode.appendChild(selected);
-	}
-	if(tempNode.firstChild)
-	{
-		del(["link", "script", "iframe"]);
-		emptyElement(document.body);
-		document.body.appendChild(tempNode);
-	}
-	else
-	{
-		showMessageBig(`${selector} not found`);
-	}
+	processElements(get(selector), Nimbus.ACTIONS.RETRIEVE);
 }
 
 function getContentByParagraphCount()
