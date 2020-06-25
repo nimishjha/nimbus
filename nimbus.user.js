@@ -1315,7 +1315,7 @@ function removeClassFromAll(className)
 {
 	const e = get(makeClassSelector(className));
 	let i = e.length;
-	let count = i;
+	let count = i ? i : 0;
 	while(i--)
 		e[i].classList.remove(className);
 	return count;
@@ -4010,7 +4010,7 @@ function setReplacementTag(tagName)
 function groupMarkedElements(tagName)
 {
 	const parentTagName = tagName || "ul";
-	let childTagName = "";
+	let childTagName = "li";
 	switch(parentTagName)
 	{
 		case "ul": childTagName = "li"; break;
@@ -5055,6 +5055,8 @@ function getContentByParagraphCount()
 	}
 	if(contentDiv)
 		contentDiv.classList.add(Nimbus.markerClass);
+	else
+		showMessageError("Could not find content");
 }
 
 function cleanupWikipedia()
