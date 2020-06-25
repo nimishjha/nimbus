@@ -3948,12 +3948,33 @@ function revealEmptyLinks()
 	}
 }
 
+function changePageByUrl(direction)
+{
+	const url = window.location.href;
+	const urlPageMatch = url.match(/page\/[0-9]+/);
+	if(urlPageMatch)
+	{
+		let page = urlPageMatch[0].split('/')[1];
+		switch(direction)
+		{
+			case "previous": page--; break;
+			case "next": page++; break;
+		}
+		if(page < 1)
+			page = 1;
+		location.href = url.replace(urlPageMatch[0], `page/${page}`);
+	}
+}
+
 function changePage(direction)
 {
 	const links = get("a");
 	let matchStrings = [];
-	if(direction === "prev") matchStrings = ["prev", "previous", "previouspage"];
-	else if(direction === "next") matchStrings = ["next", "nextpage", "»"];
+	if(direction === "prev")
+		matchStrings = ["prev", "previous", "previouspage"];
+	else if(direction === "next")
+		matchStrings = ["next", "nextpage", "»"];
+
 	let i = links.length;
 	while(i--)
 	{
@@ -3961,7 +3982,6 @@ function changePage(direction)
 		let linkText = link.textContent;
 		if(linkText)
 		{
-			// linkText = removeWhitespace(linkText).toLowerCase();
 			linkText = linkText.replace(/[^a-zA-Z0-9»]/g, "").toLowerCase();
 			if(matchStrings.includes(linkText))
 			{
@@ -3971,6 +3991,8 @@ function changePage(direction)
 			}
 		}
 	}
+
+	changePageByUrl(direction);
 }
 
 function cycleHighlightTags()
