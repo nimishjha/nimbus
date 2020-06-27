@@ -6704,7 +6704,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
 			case KEYCODES.X: removeEmojis(); break;
-			case KEYCODES.Y: callFunctionWithArgs("Highlight elements by selector and containing text", highlightBySelectorAndText); break;
+			case KEYCODES.Y: callFunctionWithArgs("Highlight elements by tag name containing text", markByTagNameAndText, 2); break;
 			case KEYCODES.Z: replaceSpecialCharacters(); break;
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); cycleFocusOverFormFields(); break;
@@ -6774,7 +6774,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markElementsWithCssRule, 2); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
 			case KEYCODES.N: toggleShowDocumentBlockStructure(); break;
-			case KEYCODES.O: callFunctionWithArgs("Highlight elements by tag name containing text", markByTagNameAndText, 2); break;
+			case KEYCODES.O: customPrompt("Highlight first parent with text matching").then(highlightElementsContainingText); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
 			case KEYCODES.S: callFunctionWithArgs("Mark block elements containing text", markBlockElementsContainingText, 1); break;
 			case KEYCODES.T: numberTableRowsAndColumns(); break;
