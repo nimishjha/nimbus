@@ -309,6 +309,15 @@ const Nimbus = {
 	},
 	highlightTagName: "mark",
 	highlightTagNameList: ["mark", "markyellow", "markred", "markgreen", "markblue", "markpurple", "markwhite"],
+	trHighlightClass: {
+		"mark": "trMark",
+		"markyellow": "trMarkYellow",
+		"markred": "trMarkRed",
+		"markgreen": "trMarkGreen",
+		"markblue": "trMarkBlue",
+		"markpurple": "trMarkPurple",
+		"markwhite": "trMarkWhite",
+	},
 	replacementTagName: "blockquote",
 	markerClass: "nimbushl",
 	minPersistWidth: 600,
@@ -2243,6 +2252,13 @@ function unmarkAll()
 	let count = 0;
 	count += removeClassFromAll(Nimbus.markerClass);
 	count += removeClassFromAll("error");
+	count += removeClassFromAll("trMark");
+	count += removeClassFromAll("trMarkYellow");
+	count += removeClassFromAll("trMarkRed");
+	count += removeClassFromAll("trMarkGreen");
+	count += removeClassFromAll("trMarkBlue");
+	count += removeClassFromAll("trMarkPurple");
+	count += removeClassFromAll("trMarkWhite");
 	del(["annotationinfo", "annotationwarning", "annotationerror"]);
 	showMessageBig(`Unmarked <b>${count}</b> elements`);
 }
@@ -4340,7 +4356,15 @@ function toggleStyleNegative()
 	.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }
 	.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
 	table.nimbushl { outline: 2px solid red; }
-	tr.nimbushl td { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }
+	tr.nimbushl td, tr.nimbushl th { box-shadow: inset 0 -1000px #700; }
+	tr.trMark td, tr.trMark th { box-shadow: inset 0 -1000px #F90; }
+	tr.trMarkYellow td, tr.trMarkYellow th { box-shadow: inset 0 -1000px #FF0; }
+	tr.trMarkRed td, tr.trMarkRed th { box-shadow: inset 0 -1000px #800; }
+	tr.trMarkGreen td, tr.trMarkGreen th { box-shadow: inset 0 -1000px #070; }
+	tr.trMarkBlue td, tr.trMarkBlue th { box-shadow: inset 0 -1000px #038; }
+	tr.trMarkPurple td, tr.trMarkPurple th { box-shadow: inset 0 -1000px #707; }
+	tr.trMarkWhite td, tr.trMarkWhite th { box-shadow: inset 0 -1000px #000; }
+
 	user { background: #000; padding: 2px 10px; border-left: 10px solid #09F; margin: 0; }
 	author { display: block; font-size: 24px; background: #111; color: #FFF; padding: 2px 10px; border-left: 10px solid #AF0; margin: 0; }
 	reference { background: #000; color: #AAA; padding: 1px 5px; }
@@ -6062,9 +6086,12 @@ function highlightBySelectorAndText(selector, str)
 		return;
 	while(i--)
 	{
-		const node = e[i];
-		wrapElementInner(node, highlightTagName);
-		node.classList.add(Nimbus.markerClass);
+		const elem = e[i];
+		if(elem.tagName === "TR")
+			markElement(elem);
+		else
+			wrapElementInner(elem, highlightTagName);
+		elem.classList.add(Nimbus.markerClass);
 	}
 	insertStyleHighlight();
 }
@@ -6087,10 +6114,19 @@ function markByTagNameAndText(tagName, str)
 				count++;
 				parent = parent.parentNode;
 			}
-			if(parent)
-				parent.classList.add(Nimbus.markerClass);
+			markElement(parent);
 		}
 	}
+}
+
+function markElement(element)
+{
+	if(!(element && element.nodeType))
+		return;
+	if(element.tagName === "TR")
+		element.classList.add(Nimbus.trHighlightClass[Nimbus.highlightTagName]);
+	else
+		element.classList.add(Nimbus.markerClass);
 }
 
 function highlightLinksWithHrefContaining(str)
@@ -6738,8 +6774,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markElementsWithCssRule, 2); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
 			case KEYCODES.N: toggleShowDocumentBlockStructure(); break;
-			// case KEYCODES.O: customPrompt("Highlight elements containing text").then(highlightElementsContainingText); break;
-			case KEYCODES.O: callFunctionWithArgs("Highlight elements containing text", markByTagNameAndText, 2); break;
+			case KEYCODES.O: callFunctionWithArgs("Highlight elements by tag name containing text", markByTagNameAndText, 2); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
 			case KEYCODES.S: callFunctionWithArgs("Mark block elements containing text", markBlockElementsContainingText, 1); break;
 			case KEYCODES.T: numberTableRowsAndColumns(); break;
