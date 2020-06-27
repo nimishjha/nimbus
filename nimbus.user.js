@@ -29,21 +29,6 @@
 //	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-//
-//	NOTES
-//
-//	Hard requirements for this userscript:
-//
-//	- No dependencies whatsoever.
-//
-//	- It must be editable directly in any code editor, even notepad,
-//	without needing to set up a dev environment on the machine. This means
-//	no transpilers or task runners.
-//
-//	- Performance is paramount. This means, for instance, avoiding
-//	less-performant techniques like map() in favor of for/while loops.
-//
-
 "use strict";
 
 const noop = function(){};
