@@ -3786,13 +3786,25 @@ function highlightCode(shouldHighlightKeywords)
 		if(shouldHighlightKeywords === true)
 		{
 			const keywords = [
-				"abstract", "addEventListener", "appendChild", "object", "prototype", "break", "byte", "case", "catch", "char", "class", "const", "continue",
+				"abstract", "addEventListener", "appendChild",
+				"break", "byte",
+				"case", "catch", "char", "class", "const", "continue", "createElement", "createTextNode",
 				"debugger", "default", "delete", "do", "document", "documentElement", "double",
-				"else", "enum", "export", "extends", "false", "final", "finally", "firstChild", "float", "for", "function",
-				"getElementsByClassName", "getElementsByID", "getElementsByTagName", "goto", "if", "implements", "import", "in", "insertBefore",
-				"long", "NaN", "native", "new", "null", "onclick", "onload", "onmouseover", "package", "private", "protected", "public", "querySelector", "querySelectorAll", "return",
-				"src", "static", "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try", "type", "typeof", "undefined",
-				"let", "void", "volatile", "while", "with", "window", "script", "javascript", "document", "createElement", "createTextNode", "getElementsByTagName"
+				"else", "enum", "export", "extends",
+				"false", "final", "finally", "firstChild", "float", "for", "function",
+				"getElementsByClassName", "getElementsByID", "getElementsByTagName", "goto",
+				"if", "implements", "import", "in", "insertBefore", "int",
+				"let", "long",
+				"NaN", "native", "new", "null",
+				"object", "onclick", "onload", "onmouseover",
+				"package", "private", "protected", "prototype", "public",
+				"querySelector", "querySelectorAll",
+				"return",
+				"script", "src", "static", "String", "struct", "switch", "synchronized",
+				"this", "throw", "throws", "transient", "true", "try", "type", "typeof",
+				"undefined",
+				"var", "void", "volatile",
+				"while", "window", "with"
 			];
 			let j = keywords.length;
 			while(j--)
