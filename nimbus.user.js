@@ -403,12 +403,15 @@ function processElements(elems, action)
 			for(let i = 0, ii = elements.length; i < ii; i++)
 				elements[i].classList.add(Nimbus.markerClass);
 			insertStyleHighlight();
+			showMessageBig(`Marked <b>${elements.length}</b> elements`);
 			break;
 		case Nimbus.ACTIONS.UNMARK:
 			for(let i = 0, ii = elements.length; i < ii; i++)
 				elements[i].classList.remove(Nimbus.markerClass);
+			showMessageBig(`Unmarked <b>${elements.length}</b> elements`);
 			break;
 		case Nimbus.ACTIONS.DELETE:
+			showMessageBig(`Deleted <b>${elements.length}</b> elements`);
 			del(elements);
 			break;
 		case Nimbus.ACTIONS.RETRIEVE:
@@ -418,6 +421,7 @@ function processElements(elems, action)
 			emptyElement(document.body);
 			del(["link", "script", "iframe"]);
 			document.body.appendChild(wrapper);
+			showMessageBig(`Retrieved <b>${elements.length}</b> elements`);
 			break;
 		default:
 			showMessageError(`Action is ${action}`);
@@ -1255,7 +1259,7 @@ function deleteElementsByClassOrIdContaining(str)
 
 function rescueOrphanedTextNodes()
 {
-	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "TD", "HEAD", "FIGURE"];
+	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "TD", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD"];
 	const textNodes = getTextNodes();
 	const nodeItems = [];
 	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
@@ -3983,9 +3987,9 @@ function changePage(direction)
 	const links = get("a");
 	let matchStrings = [];
 	if(direction === "prev")
-		matchStrings = ["prev", "previous", "previouspage"];
+		matchStrings = ["prev", "previous", "previouspage", "\u00AB"];
 	else if(direction === "next")
-		matchStrings = ["next", "nextpage", "»"];
+		matchStrings = ["next", "nextpage", "\u00BB"];
 
 	let i = links.length;
 	while(i--)
@@ -3994,7 +3998,7 @@ function changePage(direction)
 		let linkText = link.textContent;
 		if(linkText)
 		{
-			linkText = linkText.replace(/[^a-zA-Z0-9»]/g, "").toLowerCase();
+			linkText = linkText.replace(/[^a-zA-Z0-9\u00AB\u00BB]/g, "").toLowerCase();
 			if(matchStrings.includes(linkText))
 			{
 				link.innerHTML = "<mark>" + link.innerHTML + "</mark>";
@@ -4025,8 +4029,10 @@ function groupMarkedElements(tagName)
 	let childTagName = "li";
 	switch(parentTagName)
 	{
-		case "ul": childTagName = "li"; break;
 		case "blockquote": childTagName = "p"; break;
+		case "dl": childTagName = "dt"; break;
+		case "ol": childTagName = "li"; break;
+		case "ul": childTagName = "li"; break;
 	}
 	const elemsToJoin = get(makeClassSelector(Nimbus.markerClass));
 	const wrapper = document.createElement(parentTagName);
@@ -4394,7 +4400,7 @@ function selectBySelectorAndText(selector, text)
 		}
 		else if(element.tagName === "A")
 		{
-			if( (element.href && ~element.href.toLowerCase().indexOf(text)) || (~element.textContent.toLowerCase().indexOf(text)) )
+			if(element.href && ~element.href.toLowerCase().indexOf(text))
 				selected.push(element);
 		}
 		else if(element.tagName === "IMG")
