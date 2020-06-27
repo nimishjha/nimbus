@@ -186,7 +186,6 @@ const Nimbus = {
 		listSelectorsWithLightBackgrounds: listSelectorsWithLightBackgrounds,
 		persistStreamingImages: persistStreamingImages,
 		highlightAllMatches: highlightAllMatches,
-		highlightAllTableCellsInRow: highlightAllTableCellsInRow,
 		highlightCode: highlightCode,
 		highlightElementsContainingText: highlightElementsContainingText,
 		highlightLinksInPres: highlightLinksInPres,
@@ -196,12 +195,12 @@ const Nimbus = {
 		highlightSelection: highlightSelection,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		htmlToText: htmlToText,
-		ih: forceHeightForAllImages,
+		ih: forceImageHeight,
 		insertElementBeforeSelectionAnchor: insertElementBeforeSelectionAnchor,
 		insertHrBeforeAll: insertHrBeforeAll,
 		insertStyle: insertStyle,
 		insertStyleHighlight: insertStyleHighlight,
-		iw: forceWidthForAllImages,
+		iw: forceImageWidth,
 		joinMarkedElements: joinMarkedElements,
 		logAllClassesFor: logAllClassesFor,
 		makeButtonsReadable: makeButtonsReadable,
@@ -263,7 +262,7 @@ const Nimbus = {
 		setDocTitle: setDocTitle,
 		setReplacementTag: setReplacementTag,
 		simplifyClassNames: simplifyClassNames,
-		forceWidthForAllImages: forceWidthForAllImages,
+		forceImageWidth: forceImageWidth,
 		showPrintLink: showPrintLink,
 		showResources: showResources,
 		showSavedStreamingImages: showSavedStreamingImages,
@@ -273,8 +272,6 @@ const Nimbus = {
 		toggleContentEditable: toggleContentEditable,
 		toggleHighlightMode: toggleHighlightMode,
 		toggleMutationObserver: toggleMutationObserver,
-		toggleShowAriaAttributes: toggleShowAriaAttributes,
-		toggleShowAriaProblems: toggleShowAriaProblems,
 		toggleShowDocumentBlockStructure: toggleShowDocumentBlockStructure,
 		toggleShowDocumentStructure: toggleShowDocumentStructure,
 		toggleShowDocumentStructureWithNames: toggleShowDocumentStructureWithNames,
@@ -2837,7 +2834,7 @@ function addLinksToLargerImages()
 	}
 }
 
-function forceWidthForAllImages(width)
+function forceImageWidth(width)
 {
 	if(width < 20)
 		width *= 100;
@@ -2845,7 +2842,7 @@ function forceWidthForAllImages(width)
 	insertStyle(s, "styleImageWidth", true);
 }
 
-function forceHeightForAllImages(height)
+function forceImageHeight(height)
 {
 	if(height < 20)
 		height *= 100;
@@ -5938,97 +5935,6 @@ function highlightSelection()
 	}
 }
 
-function highlightSelection_old()
-{
-	let index1, index2;
-	let textBeforeSelection, textOfSelection, textAfterSelection;
-	if(!window.getSelection().toString().length) return;
-	let selection = window.getSelection();
-	let node = selection.anchorNode;
-	selection = trim(removeLineBreaks(selection.toString()));
-	while(node.parentNode && (node.textContent.length < selection.length || node.nodeType !== 1))
-		node = node.parentNode;
-	if(!node || node.tagName === undefined)
-	{
-		showMessageBig("Couldn't get anchorNode");
-		return;
-	}
-	let nodeHTML = node.innerHTML;
-	nodeHTML = removeLineBreaks(nodeHTML);
-	node.innerHTML = nodeHTML;
-	if(selection.length)
-	{
-		index1 = nodeHTML.indexOf(selection);
-		if(~index1)
-		{
-			index2 = index1 + selection.length;
-			while(nodeHTML[index1].match(/[^ <>]/) && index1 > 0)
-				index1--;
-			if(index1 < 10)
-				index1 = 0;
-			while(nodeHTML[index2] && nodeHTML[index2].match(/[^ <>]/) && index2 < nodeHTML.length )
-				index2++;
-			if(nodeHTML.length - index2 < 10)
-				index2 = nodeHTML.length;
-			if(index1 > 0)
-				textBeforeSelection = nodeHTML.substr(0, index1);
-			else
-				textBeforeSelection = "";
-			textOfSelection = nodeHTML.substr(index1, index2 - index1);
-			textAfterSelection = nodeHTML.substr(index2);
-			nodeHTML = textBeforeSelection + "<mark>" + textOfSelection + "</mark>" + textAfterSelection;
-			node.innerHTML = nodeHTML;
-			return;
-		}
-		else
-		{
-			let selectionBegin = selection.substr(0, selection.length -1);
-			let selectionEnd = selection.substr(-selection.length -1);
-			// const step = Math.max(1, Math.round(selection.length / 20));
-			const step = 1;
-			while(nodeHTML.indexOf(selectionBegin) === -1 && selectionBegin.length > 1)
-				selectionBegin = selectionBegin.substr(0, selectionBegin.length - step);
-			while(nodeHTML.indexOf(selectionEnd) < 0 && selectionEnd.length > 1)
-				selectionEnd = selectionEnd.substr(-(selectionEnd.length - step));
-			index1 = nodeHTML.indexOf(selectionBegin);
-			index2 = nodeHTML.indexOf(selectionEnd) + selectionEnd.length;
-			if(~index1 && ~index2)
-			{
-				while(nodeHTML[index1].match(/[^<> ]/) && index1 > 0)
-					index1--;
-				while(nodeHTML[index2] && nodeHTML[index2].match(/[^<> ]/) && index2 < nodeHTML.length )
-					index2++;
-				if(index1 < 10)
-					index1 = 0;
-				if(index2 > nodeHTML.length * 0.9)
-					index2 = nodeHTML.length;
-				if(index1 > 0)
-					textBeforeSelection = nodeHTML.substr(0, index1);
-				else
-					textBeforeSelection = "";
-				textOfSelection = nodeHTML.substr(index1, index2 - index1);
-				textAfterSelection = nodeHTML.substr(index2);
-				nodeHTML = textBeforeSelection + "<mark>" + textOfSelection + "</mark>" + textAfterSelection;
-				const testNode = createElement("div", { innerHTML: nodeHTML });
-				if(testNode.textContent.length === node.textContent.length)
-					node.innerHTML = nodeHTML;
-				else
-					showMessageError("highlightSelection failed");
-				return;
-			}
-		}
-	}
-}
-
-function highlightAllTableCellsInRow(tr)
-{
-	const tds = tr.querySelectorAll("td");
-	const highlightTagName = Nimbus.highlightTagName;
-	let i = tds.length;
-	while(i--)
-		wrapElementInner(tds[i], highlightTagName);
-}
-
 function highlightElementsContainingText(str)
 {
 	const highlightTagName = Nimbus.highlightTagName;
@@ -6342,11 +6248,12 @@ function highlightLinksInPres()
 	fixPres();
 	restorePres();
 	const pres = get("pre");
+	const regex = /(http[s]*:\/\/[^\s\r\n]+)/g;
 	for(let i = 0, ii = pres.length; i < ii; i++ )
 	{
 		const pre = pres[i];
-		if(pre.textContent.match(/http[s]*:\/\/[^\s\r\n]+/g))
-			pre.innerHTML = pre.innerHTML.replace(/(http[s]*:\/\/[^\s\r\n]+)/g, '<a href="' + "$1" + '">' + "$1" + '</a>');
+		if(pre.textContent.match(regex))
+			pre.innerHTML = pre.innerHTML.replace(regex, '<a href="' + "$1" + '">' + "$1" + '</a>');
 	}
 }
 
@@ -6366,268 +6273,6 @@ function removeHighlightsFromMarkedElements()
 		element.innerHTML = element.innerHTML.replace(/<\/?mark[^>]*>/g, "");
 	}
 	unmarkAll();
-}
-
-//
-//	Aria utils
-//
-
-function getLinkAccessibleText(link)
-{
-	if(link.hasAttribute("aria-label"))
-		return link.getAttribute("aria-label");
-	if(link.hasAttribute("title"))
-		return link.getAttribute("title");
-	return null;
-}
-
-function showInaccessibleLinks()
-{
-	let countBadLinks = 0;
-	const links = get("a");
-	let i = links.length;
-	while(i--)
-	{
-		const link = links[i];
-		const linkText = link.textContent;
-		let needsAriaLabel = false;
-		if(link.textContent)
-		{
-			switch(trim(linkText.toLowerCase()))
-			{
-				case "read more": needsAriaLabel = true; break;
-				case "click here": needsAriaLabel = true; break;
-				case "learn more": needsAriaLabel = true; break;
-				default: break;
-			}
-		}
-		if(needsAriaLabel && getLinkAccessibleText(link) === linkText)
-		{
-			countBadLinks++;
-			annotateElementError(link, "Needs descriptive title");
-		}
-	}
-	showMessageBig(countBadLinks + " inaccessible links found");
-}
-
-function toggleShowAriaAttributes()
-{
-	if(document.body.classList.contains("showingAriaAttributes"))
-	{
-		document.body.classList.remove("showingAriaAttributes");
-		unmarkAll();
-		return;
-	}
-	const e = get("main, nav, section, footer, aside, div, form");
-	let i = e.length;
-	while(i--)
-	{
-		const elem = e[i];
-		if(elem.hasAttribute("role"))
-		{
-			if(["banner", "complementary", "contentinfo", "form", "main", "navigation", "region", "search"].includes(elem.getAttribute("role")))
-			{
-				elem.classList.add(Nimbus.markerClass);
-				annotateElementError(elem, "role: " + elem.getAttribute("role"));
-			}
-			else
-			{
-				elem.classList.add(Nimbus.markerClass);
-				annotateElement(elem, "role: " + elem.getAttribute("role"));
-			}
-		}
-
-		if(elem.attributes)
-		{
-			const attrs = elem.attributes;
-			let j = attrs.length;
-			while(j--)
-				if(attrs[j].name.indexOf("aria-") === 0)
-					elem.insertBefore(createElement("annotationwarning", { textContent: attrs[j].name + ": " + attrs[j].value }), elem.firstChild);
-		}
-	}
-
-	insertStyleHighlight();
-	insertStyleAnnotations();
-	document.body.classList.add("showingAriaAttributes");
-}
-
-function checkAriaAttributes()
-{
-	const elems = Array.from( document.getElementsByTagName("*") );
-	let i = elems.length;
-	while(i--)
-	{
-		const elem = elems[i];
-		if(elem.hasAttribute("aria-labelledby"))
-		{
-			const labelledById = "#" + elem.getAttribute("aria-labelledby");
-			const labelElement = get(labelledById);
-			if(!labelElement)
-			{
-				elem.classList.add(Nimbus.markerClass, "error");
-				annotateElementError(elem, "aria-labelledby refers to missing ID");
-				console.log("aria-labelledby refers to missing id: " + labelledById + " " + createSelector(elem));
-			}
-		}
-
-		if(elem.hasAttribute("aria-describedby"))
-		{
-			const describedById = "#" + elem.getAttribute("aria-describedby");
-			const labelElement = get(describedById);
-			if(!labelElement)
-			{
-				elem.classList.add(Nimbus.markerClass, "error");
-				annotateElementError(elem, "aria-describedby refers to missing ID");
-				console.log("aria-describedby refers to missing id: " + describedById + " " + createSelector(elem));
-			}
-		}
-
-		if(elem.hasAttribute("aria-expanded"))
-		{
-			if(elem.getAttribute("aria-expanded") !== "true" && elem.getAttribute("aria-expanded") !== "false")
-			{
-				elem.classList.add(Nimbus.markerClass, "error");
-				annotateElementError(elem, "aria-expanded needs to be either true or false");
-				console.log("aria-expanded needs to be either true or false: " + createSelector(elem));
-			}
-		}
-
-		if(elem.hasAttribute("aria-selected"))
-		{
-			if(elem.getAttribute("aria-selected") !== "true" && elem.getAttribute("aria-selected") !== "false")
-			{
-				elem.classList.add(Nimbus.markerClass, "error");
-				annotateElementError(elem, "aria-selected needs to be either true or false");
-				console.log("aria-selected needs to be either true or false: " + createSelector(elem));
-			}
-		}
-
-	}
-}
-
-function hasNoAriaText(button)
-{
-	if(button.textContent) return false;
-	if(button.hasAttribute("aria-label") && button.getAttribute("aria-label").length) return false;
-	return true;
-}
-
-function showAriaButtonsWithNoText()
-{
-	const e = get("button");
-	let i = e.length;
-	while(i--)
-	{
-		const button = e[i];
-		if(hasNoAriaText(button))
-		{
-			button.classList.add(Nimbus.markerClass, "error");
-			button.textContent = "Button needs label";
-			console.log("Button needs label");
-		}
-	}
-}
-
-function showAriaImagesWithMissingAltText()
-{
-	const e = get("img");
-	let i = e.length;
-	while(i--)
-	{
-		const image = e[i];
-		if(!image.hasAttribute("alt"))
-		{
-			image.classList.add(Nimbus.markerClass, "error");
-			image.setAttribute("title", "Image needs alt text");
-			console.log("Image has no alt text: " + image.src);
-		}
-	}
-}
-
-function toggleShowAriaProblems()
-{
-	if(document.body.classList.contains("showingAriaProblems"))
-	{
-		document.body.classList.remove("showingAriaProblems");
-		unmarkAll();
-		return;
-	}
-	checkAriaAttributes();
-	showAriaButtonsWithNoText();
-	showAriaImagesWithMissingAltText();
-	showInaccessibleLinks();
-	insertStyleHighlight();
-	insertStyleShowErrors();
-	document.body.classList.add("showingAriaProblems");
-}
-
-//
-//	End aria utils
-//
-
-function timer(identifier, durationSeconds)
-{
-	let errorLog = '';
-	if(isIncorrectType(identifier, "string") || identifier.match(/[^a-zA-Z0-9]/)) errorLog += 'Invalid argument: identifier\r\n';
-	if(isIncorrectType(durationSeconds, "number")) errorLog += 'Invalid argument: durationSeconds\r\n';
-	if(getOne("#" + identifier + "Wrapper") || getOne("#" + identifier + "Element")) errorLog += 'Error: element with that id already exists\r\n';
-	if(errorLog.length)
-	{
-		console.warn(errorLog);
-		return;
-	}
-
-	const id = identifier;
-	let timeCreated = new Date().getTime();
-	let durationMs = durationSeconds * 1000;
-	let timerInterval;
-
-	const timerWrapper = createElement("progressbar", { id: id + "Wrapper", className: "progressBarContainer" });
-	const timerElement = createElement("progressbar", { id: id + "Element", className: "progressBar" });
-	timerWrapper.appendChild(timerElement);
-	document.body.appendChild(timerWrapper);
-	const style = 'progressbar { display: block; height: 20px; }' +
-		'.progressBarContainer { border: 2px solid #AAA; background: #000; width: 200px; }' +
-		'.progressBar { background: #AAA; width: 0; }';
-	insertStyle(style, "styleTimerProgressBar", false);
-
-	function start()
-	{
-		timeCreated = new Date().getTime();
-		timerInterval = setInterval(update, 1000);
-	}
-
-	function stop()
-	{
-		clearInterval(timerInterval);
-	}
-
-	function update()
-	{
-		const timeElapsedMs = new Date() - new Date(timeCreated);
-		const percentage = Math.min(100, 100 * timeElapsedMs / durationMs);
-		getOne("#" + id + "Element").setAttribute("style", "width: " + percentage + "%");
-		if(percentage >= 100)
-		{
-			stop();
-		}
-	}
-
-	function reset(durationSeconds)
-	{
-		if(typeof durationSeconds === "number")
-			durationMs = durationSeconds * 1000;
-		timeCreated = new Date().getTime();
-	}
-
-	function destroy()
-	{
-		stop();
-		del("#" + id + "Wrapper");
-	}
-
-	return { start, stop, update, reset, destroy };
 }
 
 function inject()
@@ -6760,7 +6405,6 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.TWO: toggleStyleSimpleNegative(); break;
 			case KEYCODES.THREE: toggleStyleGrey(); break;
 			case KEYCODES.FOUR: toggleStyleWhite(); break;
-			case KEYCODES.A: toggleShowAriaAttributes(); break;
 			case KEYCODES.B: toggleShowDocumentStructureWithNames(); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
@@ -6790,7 +6434,6 @@ function setupKeyboardShortcuts(e)
 		e.preventDefault();
 		switch(k)
 		{
-			case KEYCODES.A: toggleShowAriaProblems(); break;
 			case KEYCODES.D: deselect(); break;
 			case KEYCODES.Z: deselect(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by class containing", replaceElementsByClassOrIdContaining, 2); break;
