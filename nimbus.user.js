@@ -271,6 +271,7 @@ const Nimbus = {
 		showTextToHTMLRatio: showTextToHTMLRatio,
 		toggleBlockEditMode: toggleBlockEditMode,
 		toggleContentEditable: toggleContentEditable,
+		toggleHighlightMode: toggleHighlightMode,
 		toggleMutationObserver: toggleMutationObserver,
 		toggleShowAriaAttributes: toggleShowAriaAttributes,
 		toggleShowAriaProblems: toggleShowAriaProblems,
@@ -307,6 +308,7 @@ const Nimbus = {
 	markerClass: "nimbushl",
 	minPersistWidth: 600,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
+	selectionHighlightMode: "sentence",
 };
 
 const KEYCODES = Nimbus.KEYCODES;
@@ -5905,6 +5907,12 @@ function getTextLength(elem)
 	return elem.textContent.replace(/[^a-zA-Z0-9]/g, "").length;
 }
 
+function toggleHighlightMode()
+{
+	Nimbus.selectionHighlightMode = Nimbus.selectionHighlightMode === "sentence" ? "word" : "sentence";
+	showMessageBig(`Highlight mode is ${Nimbus.selectionHighlightMode}`);
+}
+
 function highlightSelection()
 {
 	const selection = window.getSelection();
@@ -5922,7 +5930,10 @@ function highlightSelection()
 	}
 	if(selectionText.length)
 	{
-		selectionText = expandSelectionToSentenceBoundaries(node, selectionText);
+		if(Nimbus.selectionHighlightMode === "sentence")
+			selectionText = expandSelectionToSentenceBoundaries(node, selectionText);
+		else
+			selectionText = expandSelectionToWordBoundaries(node, selectionText);
 		highlightTextAcrossTags(node, selectionText);
 	}
 }
