@@ -6246,8 +6246,7 @@ function highlightTextAcrossTags(node, searchString)
 		}
 		else if(index1 < childNodeStart && index2 > childNodeEnd)
 		{
-			isMatch = true;
-			partialSearchString = childNode.textContent;
+			wrapElement(childNode, Nimbus.highlightTagName);
 		}
 		else if(index2 > childNodeStart && index2 <= childNodeEnd)
 		{
