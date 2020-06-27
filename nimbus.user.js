@@ -207,6 +207,7 @@ const Nimbus = {
 		highlightLinksInPres: highlightLinksInPres,
 		highlightLinksWithHrefContaining: highlightLinksWithHrefContaining,
 		highlightBySelectorAndText: highlightBySelectorAndText,
+		markByTagNameAndText: markByTagNameAndText,
 		highlightSelection: highlightSelection,
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		htmlToText: htmlToText,
@@ -6055,28 +6056,41 @@ function highlightBySelectorAndText(selector, str)
 {
 	const e = selectBySelectorAndText(selector, str);
 	const highlightTagName = Nimbus.highlightTagName;
-	showMessageBig(`Found ${e.length} elements`);
-	if(!e.length)
-		return;
 	let i = e.length;
+	showMessageBig(`Found ${i} elements`);
+	if(!i)
+		return;
 	while(i--)
 	{
 		const node = e[i];
-		switch(node.tagName.toLowerCase())
-		{
-			case "tr":
-				highlightAllTableCellsInRow(node);
-				break;
-			case "a":
-				wrapElementInner(node, highlightTagName);
-				break;
-			default:
-				wrapElementInner(node, highlightTagName);
-				break;
-		}
+		wrapElementInner(node, highlightTagName);
 		node.classList.add(Nimbus.markerClass);
 	}
 	insertStyleHighlight();
+}
+
+function markByTagNameAndText(tagName, str)
+{
+	tagName = tagName.toUpperCase();
+	const MAX_DEPTH = 5;
+	const highlightTagName = Nimbus.highlightTagName;
+	const textNodes = getTextNodes();
+	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
+	{
+		const textNode = textNodes.snapshotItem(i);
+		if(~textNode.data.indexOf(str))
+		{
+			let parent = textNode.parentNode;
+			let count = 0;
+			while(parent.parentNode && parent.tagName !== tagName && count < MAX_DEPTH)
+			{
+				count++;
+				parent = parent.parentNode;
+			}
+			if(parent)
+				parent.classList.add(Nimbus.markerClass);
+		}
+	}
 }
 
 function highlightLinksWithHrefContaining(str)
@@ -6724,7 +6738,8 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markElementsWithCssRule, 2); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
 			case KEYCODES.N: toggleShowDocumentBlockStructure(); break;
-			case KEYCODES.O: customPrompt("Highlight elements containing text").then(highlightElementsContainingText); break;
+			// case KEYCODES.O: customPrompt("Highlight elements containing text").then(highlightElementsContainingText); break;
+			case KEYCODES.O: callFunctionWithArgs("Highlight elements containing text", markByTagNameAndText, 2); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
 			case KEYCODES.S: callFunctionWithArgs("Mark block elements containing text", markBlockElementsContainingText, 1); break;
 			case KEYCODES.T: numberTableRowsAndColumns(); break;
