@@ -6087,21 +6087,21 @@ function markByTagNameAndText(tagName, str)
 	const MAX_DEPTH = 5;
 	const highlightTagName = Nimbus.highlightTagName;
 	const textNodes = getTextNodes();
+	let count = 0;
 	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
 	{
 		const textNode = textNodes.snapshotItem(i);
 		if(~textNode.data.indexOf(str))
 		{
 			let parent = textNode.parentNode;
-			let count = 0;
-			while(parent.parentNode && parent.tagName !== tagName && count < MAX_DEPTH)
-			{
-				count++;
+			let depth = 0;
+			while(parent.parentNode && parent.tagName !== tagName && ++depth < MAX_DEPTH)
 				parent = parent.parentNode;
-			}
 			markElement(parent);
+			count++;
 		}
 	}
+	showMessageBig(`Marked <b>${count}</b> elements`);
 }
 
 function markElement(element)
