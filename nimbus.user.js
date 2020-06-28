@@ -164,6 +164,7 @@ const Nimbus = {
 		deselect: deselect,
 		disableConsoleLogs: disableConsoleLogs,
 		edit: toggleContentEditable,
+		editDocumentTitle: editDocumentTitle,
 		enableConsoleLogs: enableConsoleLogs,
 		enableRightClickToCollectUrls: enableRightClickToCollectUrls,
 		disableRightClickToCollectUrls: disableRightClickToCollectUrls,
@@ -3324,6 +3325,12 @@ function cleanupTitle()
 	}
 }
 
+function editDocumentTitle()
+{
+	const currentHeading = chooseDocumentHeading();
+	callFunctionWithArgs("Set document heading", setDocTitle, 1, currentHeading);
+}
+
 function chooseDocumentHeading()
 {
 	Nimbus.currentHeadingText = trim( document.title.replace(getBestDomainSegment(location.hostname), "") );
@@ -6365,7 +6372,8 @@ function setupKeyboardShortcuts(e)
 		e.preventDefault();
 		switch(k)
 		{
-			case KEYCODES.ZERO: getSelectionOrUserInput("Enter document title", setDocTitle, true); break;
+			// case KEYCODES.ZERO: getSelectionOrUserInput("Enter document title", setDocTitle, true); break;
+			case KEYCODES.ZERO: editDocumentTitle(); break;
 			case KEYCODES.ONE: showResources(); break;
 			case KEYCODES.TWO: replaceImagesWithTextLinks(); break;
 			case KEYCODES.FOUR: deleteImagesSmallerThan(100, 100); break;
