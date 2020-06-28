@@ -5993,15 +5993,12 @@ function highlightBySelectorAndText(selector, str)
 	showMessageBig(`Found ${i} elements`);
 	if(!i)
 		return;
-	while(i--)
-	{
-		const elem = e[i];
-		if(elem.tagName === "TR")
-			markElement(elem);
-		else
-			wrapElementInner(elem, highlightTagName);
-		elem.classList.add(Nimbus.markerClass);
-	}
+	if(e[0].tagName === "TR")
+		while(i--)
+			markElement(e[i]);
+	else
+		while(i--)
+			wrapElementInner(e[i], highlightTagName);
 	insertStyleHighlight();
 }
 
