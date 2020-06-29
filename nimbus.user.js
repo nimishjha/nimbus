@@ -139,7 +139,6 @@ const Nimbus = {
 		cleanupHead: cleanupHead,
 		cleanupHeadings: cleanupHeadings,
 		cleanupLinks: cleanupLinks,
-		cleanupUnicode: cleanupUnicode,
 		cleanupWikipedia: cleanupWikipedia,
 		convertDivsToParagraphs: convertDivsToParagraphs,
 		groupMarkedElements: groupMarkedElements,
@@ -366,6 +365,15 @@ function getOrCreate(tagName, id, parent)
 function getTextNodes()
 {
 	return document.evaluate("//text()", document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+}
+
+function getTextNodesAsArray()
+{
+	const nodes = document.evaluate("//text()", document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+	let selected = new Array(nodes.snapshotLength);
+	for(let i = 0, ii = selected.length; i < ii; i++)
+		selected[i] = nodes.snapshotItem(i);
+	return selected;
 }
 
 function xPathSelect(xpath, context)
@@ -780,10 +788,10 @@ function replaceSpecialCharacters()
 		regularExpressions[key] = new RegExp(key, 'g');
 	}
 
-	const textNodes = getTextNodes();
-	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
+	const textNodes = getTextNodesAsArray();
+	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
-		const textNode = textNodes.snapshotItem(i);
+		const textNode = textNodes[i];
 		let nodeText = textNode.data;
 		for(let j = 0, jj = keys.length; j < jj; j++)
 		{
@@ -1260,12 +1268,12 @@ function markByClassOrIdContaining(str)
 function rescueOrphanedTextNodes()
 {
 	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "TD", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD"];
-	const textNodes = getTextNodes();
+	const textNodes = getTextNodesAsArray();
 	const nodeItems = [];
-	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
+	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
 		let hasBlockParent = false;
-		const node = textNodes.snapshotItem(i);
+		const node = textNodes[i];
 		const nodeText = node.data;
 		if(removeWhitespace(nodeText).length)
 		{
@@ -4480,11 +4488,11 @@ function selectByTagNameAndText(tagName, text)
 
 	text = text.toLowerCase();
 	const MAX_DEPTH = 5;
-	const textNodes = getTextNodes();
+	const textNodes = getTextNodesAsArray();
 	const selected = [];
-	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
+	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
-		const textNode = textNodes.snapshotItem(i);
+		const textNode = textNodes[i];
 		if(~textNode.data.toLowerCase().indexOf(text))
 		{
 			let parent = textNode;
@@ -4533,15 +4541,15 @@ function getFirstBlockParent(element)
 		return false;
 }
 
-function selectBlockElementsContainingText(str)
+function selectBlockElementsContainingText(text)
 {
-	const textNodes = getTextNodes();
-	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
+	const textNodes = getTextNodesAsArray();
+	const escapedString = "(\\w*" + escapeForRegExp(text) + "\\w*)";
 	let regex = new RegExp(escapedString, "i");
 	const selected = [];
-	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
+	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
-		const textNode = textNodes.snapshotItem(i);
+		const textNode = textNodes[i];
 		if(textNode.data.match(regex))
 		{
 			const parent = getFirstBlockParent(textNode);
@@ -4736,32 +4744,6 @@ function removeInlineStyles()
 		e[i].removeAttribute("style");
 }
 
-function cleanupUnicode()
-{
-	let s = document.body.innerHTML;
-	s = s.replace(/\u00e2\u20ac\u0022/g, '"');
-	s = s.replace(/\u00e2\u20ac\u2122/g, "'");
-	s = s.replace(/\u00e2\u20ac\u00a6/g, "...");
-	s = s.replace(/\u00e2\u20ac\u201d/g, "&mdash;");
-	s = s.replace(/\u00e2\u20ac\u009d/g, '"');
-	s = s.replace(/\u00e2\u20ac\u0153/g, '"');
-	s = s.replace(/\u00e2\u20ac\u00a6/g, '"');
-	s = s.replace(/\u00e2\u20ac\u02dc/g, "'");
-
-	s = s.replace(/\u00c2/g, " ");
-	s = s.replace(/\u00c4\u00fa/g, '"');
-	s = s.replace(/\u00c4\u00f9/g, '"');
-	s = s.replace(/\u00c4\u00f4/g, "'");
-	s = s.replace(/\u00e2\u20ac/g, '"');
-	s = s.replace(/\u00c3\u00a9/g, "&eacute;");
-	s = s.replace(/\ufffd/g, "&mdash;");
-	s = s.replace(/\u00cb\u0153/g, "'");
-	s = s.replace(/\u0142/g, "'l");
-
-	s = s.replace(/\s+/g, " ");
-	document.body.innerHTML = s;
-}
-
 function deleteBySelectorAndText(selector, str)
 {
 	let selected;
@@ -4786,20 +4768,20 @@ function deleteBySelectorAndText(selector, str)
 function removeEmojis()
 {
 	const regex = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
-	const textNodes = getTextNodes();
-	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
+	const textNodes = getTextNodesAsArray();
+	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
-		const textNode = textNodes.snapshotItem(i);
+		const textNode = textNodes[i];
 		textNode.data = textNode.data.replace(regex, "");
 	}
 }
 
 function normalizeAllWhitespace()
 {
-	const textNodes = getTextNodes();
-	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
+	const textNodes = getTextNodesAsArray();
+	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
-		const textNode = textNodes.snapshotItem(i);
+		const textNode = textNodes[i];
 		textNode.data = textNode.data.replace(/\s+/g, " ");
 	}
 }
@@ -6072,12 +6054,12 @@ function highlightSelection()
 function highlightFirstParentByText(str)
 {
 	const highlightTagName = Nimbus.highlightTagName;
-	const textNodes = getTextNodes();
+	const textNodes = getTextNodesAsArray();
 	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
 	let regex = new RegExp(escapedString, "gi");
-	for(let i = 0, ii = textNodes.snapshotLength; i < ii; i++)
+	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
-		const textNode = textNodes.snapshotItem(i);
+		const textNode = textNodes[i];
 		if(textNode.data.match(regex))
 			wrapElementInner(textNode.parentNode, highlightTagName);
 	}
