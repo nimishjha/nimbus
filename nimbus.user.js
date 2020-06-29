@@ -1169,11 +1169,9 @@ function replaceSelectedElement(tag)
 		showMessageBig("Nothing selected");
 		return;
 	}
-	let node = selection.anchorNode;
-	if(node.tagName === undefined)
-		node = node.parentNode;
-	if(node && node.parentNode)
-		replaceElement(node, replacementTag);
+	const blockParent = getFirstBlockParent(selection.anchorNode);
+	if(blockParent)
+		replaceElement(blockParent, replacementTag);
 }
 
 function replaceElementsBySelectorHelper()
