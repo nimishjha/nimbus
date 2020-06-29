@@ -6065,6 +6065,24 @@ function highlightFirstParentByText(str)
 	}
 }
 
+function highlightFirstBlockParentByText(str)
+{
+	const highlightTagName = Nimbus.highlightTagName;
+	const textNodes = getTextNodesAsArray();
+	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
+	let regex = new RegExp(escapedString, "gi");
+	for(let i = 0, ii = textNodes.length; i < ii; i++)
+	{
+		const textNode = textNodes[i];
+		if(textNode.data.match(regex))
+		{
+			const blockParent = getFirstBlockParent(textNode);
+			if(blockParent)
+				wrapElement(blockParent, highlightTagName);
+		}
+	}
+}
+
 function highlightBySelectorAndText(selector, str)
 {
 	const elements = selectBySelectorAndText(selector, str);
@@ -6472,7 +6490,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markByCssRule, 2); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
 			case KEYCODES.N: toggleShowDocumentBlockStructure(); break;
-			case KEYCODES.O: customPrompt("Highlight first parent with text matching").then(highlightFirstParentByText); break;
+			case KEYCODES.O: customPrompt("Highlight first parent with text matching").then(highlightFirstBlockParentByText); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
 			case KEYCODES.S: callFunctionWithArgs("Mark block elements containing text", markBlockElementsContainingText, 1); break;
 			case KEYCODES.T: numberTableRowsAndColumns(); break;
