@@ -4508,10 +4508,35 @@ function selectByTagNameAndText(tagName, text)
 	return selected;
 }
 
-function selectBlockElementsContainingText(str)
+function getFirstBlockParent(element)
 {
 	const BLOCK_ELEMENTS = ["P", "DIV", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "TD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD"];
 	const MAX_DEPTH = 5;
+	let found = false;
+	let parent = element;
+	let depth = 0;
+	if(!parent.nodeType)
+		parent = element.parentNode;
+	while(parent.parentNode && ++depth < MAX_DEPTH)
+	{
+		if(BLOCK_ELEMENTS.includes(parent.tagName))
+		{
+			found = true;
+			break;
+		}
+		else
+		{
+			parent = parent.parentNode;
+		}
+	}
+	if(found)
+		return parent;
+	else
+		return false;
+}
+
+function selectBlockElementsContainingText(str)
+{
 	const textNodes = getTextNodes();
 	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
 	let regex = new RegExp(escapedString, "i");
@@ -4521,19 +4546,8 @@ function selectBlockElementsContainingText(str)
 		const textNode = textNodes.snapshotItem(i);
 		if(textNode.data.match(regex))
 		{
-			let parent = textNode;
-			let depth = 0;
-			let found = false;
-			while(parent.parentNode && ++depth < MAX_DEPTH)
-			{
-				parent = parent.parentNode;
-				if(BLOCK_ELEMENTS.includes(parent.tagName))
-				{
-					found = true;
-					break;
-				}
-			}
-			if(found)
+			const parent = getFirstBlockParent(textNode);
+			if(parent)
 				selected.push(parent);
 		}
 	}
