@@ -149,7 +149,7 @@ const Nimbus = {
 		cycleFocusOverFormFields: cycleFocusOverFormFields,
 		del: del,
 		deleteBySelectorAndText: deleteBySelectorAndText,
-		deleteElementsByClassOrIdContaining: deleteElementsByClassOrIdContaining,
+		deleteByClassOrIdContaining: deleteByClassOrIdContaining,
 		deleteEmptyElements: deleteEmptyElements,
 		deleteEmptyHeadings: deleteEmptyHeadings,
 		deleteIframes: deleteIframes,
@@ -182,6 +182,7 @@ const Nimbus = {
 		getBestImageSrc: getBestImageSrc,
 		getContentByParagraphCount: getContentByParagraphCount,
 		markByChildrenHavingTheExactText: markByChildrenHavingTheExactText,
+		markByClassOrIdContaining: markByClassOrIdContaining,
 		retrieveBySelectorAndText: retrieveBySelectorAndText,
 		retrieveLargeImages: retrieveLargeImages,
 		getPagerLinks: getPagerLinks,
@@ -244,7 +245,7 @@ const Nimbus = {
 		replaceClass: replaceClass,
 		replaceCommentsWithPres: replaceCommentsWithPres,
 		replaceDiacritics: replaceDiacritics,
-		replaceElementsByClassOrIdContaining: replaceElementsByClassOrIdContaining,
+		replaceByClassOrIdContaining: replaceByClassOrIdContaining,
 		replaceElementsBySelector: replaceElementsBySelector,
 		replaceEmptyParagraphsWithHr: replaceEmptyParagraphsWithHr,
 		replaceFontTags: replaceFontTags,
@@ -1240,17 +1241,22 @@ function replaceMarkedElements(tagName)
 		replaceElement(toReplace[i], tagName);
 }
 
-function replaceElementsByClassOrIdContaining(str, tagName)
+function replaceByClassOrIdContaining(str, tagName)
 {
 	const toReplace = selectByClassOrIdContaining(str);
 	showMessageBig(`Replacing <b>${toReplace.length}</b> elements`);
-	for(let i = toReplace.length - 1; i >= 0; i--)
+	for(let i = 0, ii = toReplace.length; i < ii; i++)
 		replaceElement(toReplace[i], tagName);
 }
 
-function deleteElementsByClassOrIdContaining(str)
+function deleteByClassOrIdContaining(str)
 {
-	del(selectByClassOrIdContaining(str));
+	processElements(selectByClassOrIdContaining(str), Nimbus.ACTIONS.DELETE);
+}
+
+function markByClassOrIdContaining(str)
+{
+	processElements(selectByClassOrIdContaining(str), Nimbus.ACTIONS.MARK);
 }
 
 function rescueOrphanedTextNodes()
@@ -2209,8 +2215,8 @@ function markUserLinks()
 
 function markAuthors()
 {
-	replaceElementsByClassOrIdContaining("author", "author");
-	replaceElementsByClassOrIdContaining("byline", "author");
+	replaceByClassOrIdContaining("author", "author");
+	replaceByClassOrIdContaining("byline", "author");
 	mark("author", "hasChildrenOfType", "author");
 	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "div");
 }
@@ -4746,18 +4752,22 @@ function cleanupUnicode()
 
 function deleteBySelectorAndText(selector, str)
 {
+	let selected;
 	if(typeof selector === "string")
 	{
 		if(typeof str === "string")
-		{
-			const selected = selectBySelectorAndText(selector, str);
-			if(selected)
-				del(selected);
-		}
+			selected = selectBySelectorAndText(selector, str);
 		else
-		{
-			del(selector);
-		}
+			selected = get(selector);
+	}
+	if(selected)
+	{
+		showMessageBig(`Deleting ${selected.length} elements`);
+		del(selected);
+	}
+	else
+	{
+		showMessageBig("Not found");
 	}
 }
 
@@ -5045,7 +5055,7 @@ function deleteNonContentClasses()
 		"signup",
 	];
 	for(let i = 0, ii = nonContentClassSubstrings.length; i < ii; i++)
-		deleteElementsByClassOrIdContaining(nonContentClassSubstrings[i]);
+		deleteByClassOrIdContaining(nonContentClassSubstrings[i]);
 }
 
 function deleteNonContentElements()
@@ -6463,7 +6473,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.B: toggleShowDocumentStructureWithNames(); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
-			case KEYCODES.G: callFunctionWithArgs("Delete elements with class or id containing the string", deleteElementsByClassOrIdContaining); break;
+			case KEYCODES.G: callFunctionWithArgs("Delete elements with class or id containing the string", deleteByClassOrIdContaining); break;
 			case KEYCODES.H: callFunctionWithArgs("Mark elements by selector", markBySelector, 1); break;
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markByCssRule, 2); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
@@ -6491,7 +6501,7 @@ function setupKeyboardShortcuts(e)
 		{
 			case KEYCODES.D: deselect(); break;
 			case KEYCODES.Z: deselect(); break;
-			case KEYCODES.E: callFunctionWithArgs("Replace elements by class containing", replaceElementsByClassOrIdContaining, 2); break;
+			case KEYCODES.E: callFunctionWithArgs("Replace elements by class containing", replaceByClassOrIdContaining, 2); break;
 			case KEYCODES.F: createTagsByClassName(); break;
 			case KEYCODES.H: unmarkAll(); break;
 			case KEYCODES.M: markOverlays(); break;
