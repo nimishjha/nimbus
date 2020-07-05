@@ -251,6 +251,7 @@ const Nimbus = {
 		replaceIframes: replaceIframes,
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
 		replaceMarkedElements: replaceMarkedElements,
+		replaceTables: replaceTables,
 		normalizeAllWhitespace: normalizeAllWhitespace,
 		replaceSpansWithTextNodes: replaceSpansWithTextNodes,
 		replaceSpecialCharacters:replaceSpecialCharacters,
@@ -800,6 +801,11 @@ function replaceSpecialCharacters()
 		}
 		textNode.data = nodeText;
 	}
+}
+
+function replaceTables()
+{
+	replaceElementsBySelector("table, tbody, tr, td, th, thead", "div");
 }
 
 function sanitizeTitle(titleString)
