@@ -311,6 +311,7 @@ const Nimbus = {
 };
 
 const KEYCODES = Nimbus.KEYCODES;
+const ACTIONS = Nimbus.ACTIONS;
 
 function get(selector)
 {
@@ -391,7 +392,7 @@ function xPathMark(xpath)
 {
 	const elements = xPathSelect(xpath);
 	if(elements.length)
-		processElements(elements, Nimbus.ACTIONS.MARK);
+		processElements(elements, ACTIONS.MARK);
 	else
 		showMessageBig("No matches found");
 }
@@ -406,25 +407,25 @@ function processElements(elems, action)
 	}
 	switch(action)
 	{
-		case Nimbus.ACTIONS.MARK:
+		case ACTIONS.MARK:
 			for(let i = 0, ii = elements.length; i < ii; i++)
 				elements[i].classList.add(Nimbus.markerClass);
 			insertStyleHighlight();
 			showMessageBig(`Marked <b>${elements.length}</b> elements`);
 			break;
-		case Nimbus.ACTIONS.UNMARK:
+		case ACTIONS.UNMARK:
 			for(let i = 0, ii = elements.length; i < ii; i++)
 				elements[i].classList.remove(Nimbus.markerClass);
 			showMessageBig(`Unmarked <b>${elements.length}</b> elements`);
 			break;
-		case Nimbus.ACTIONS.DELETE:
+		case ACTIONS.DELETE:
 			showMessageBig(`Deleted <b>${elements.length}</b> elements`);
 			del(elements);
 			break;
-		case Nimbus.ACTIONS.RETRIEVE:
+		case ACTIONS.RETRIEVE:
 			retrieveElements(elements);
 			break;
-		case Nimbus.ACTIONS.HIGHLIGHT:
+		case ACTIONS.HIGHLIGHT:
 			highlightElements(elements);
 			break;
 		default:
@@ -930,9 +931,7 @@ function removeQueryParameter(url, parameterName)
 		const param = parsedParameters[i].key;
 		const value = parsedParameters[i].value;
 		if(param !== parameterName)
-		{
-			newQueryString += `${param}=${value}`;
-		}
+			newQueryString += `${param}=${value}&`;
 	}
 	if(newQueryString.length)
 		return(`${baseUrl}?${newQueryString}`);
@@ -1263,17 +1262,17 @@ function replaceByClassOrIdContaining(str, tagName)
 
 function deleteByClassOrIdContaining(str)
 {
-	processElements(selectByClassOrIdContaining(str), Nimbus.ACTIONS.DELETE);
+	processElements(selectByClassOrIdContaining(str), ACTIONS.DELETE);
 }
 
 function markByClassOrIdContaining(str)
 {
-	processElements(selectByClassOrIdContaining(str), Nimbus.ACTIONS.MARK);
+	processElements(selectByClassOrIdContaining(str), ACTIONS.MARK);
 }
 
 function rescueOrphanedTextNodes()
 {
-	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "TD", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD"];
+	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD"];
 	const textNodes = getTextNodesAsArray();
 	const nodeItems = [];
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
@@ -1309,6 +1308,7 @@ function rescueOrphanedTextNodes()
 				{
 					parent.appendChild(consecutiveOrphans[j].cloneNode());
 				}
+				parent.className = Nimbus.markerClass;
 				consecutiveOrphans[0].parentNode.insertBefore(parent, consecutiveOrphans[0]);
 				for(let j = 0, jj = consecutiveOrphans.length; j < jj; j++)
 				{
@@ -1341,7 +1341,7 @@ function removeClassFromAll(className)
 
 function hasClassesContaining(element, arrStr)
 {
-	const classes = element.className.toLowerCase();
+	const classes = element.className.toLowerCase().replace(/[^a-z]+/g, "");
 	let i = arrStr.length;
 	while(i--)
 	{
@@ -1571,8 +1571,7 @@ function simplifyClassNames()
 	const elems = get("div");
 	const classMap = {};
 	const baseClassName = "class";
-	let i = elems.length;
-	while(i--)
+	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
 		const oldClass = elem.className.replace(/[^a-zA-Z]+/g, "");
@@ -1727,8 +1726,8 @@ function handleConsoleInput(evt, consoleType)
 			{
 				if(consoleType === "js")
 				{
-					return;
 					// eval(inputText);
+					return;
 				}
 				else if(consoleType === "css")
 					insertStyle(inputText, "userStyle", true);
@@ -2080,22 +2079,22 @@ function markByCssRule(prop, val)
 
 function markBySelector(selector)
 {
-	processElements(get(selector), Nimbus.ACTIONS.MARK);
+	processElements(get(selector), ACTIONS.MARK);
 }
 
 function markByTagNameAndText(tagName, str)
 {
-	processElements(selectByTagNameAndText(tagName, str), Nimbus.ACTIONS.MARK);
+	processElements(selectByTagNameAndText(tagName, str), ACTIONS.MARK);
 }
 
 function highlightByTagNameAndText(tagName, str)
 {
-	processElements(selectByTagNameAndText(tagName, str), Nimbus.ACTIONS.HIGHLIGHT);
+	processElements(selectByTagNameAndText(tagName, str), ACTIONS.HIGHLIGHT);
 }
 
 function markBlockElementsContainingText(text)
 {
-	processElements(selectBlockElementsContainingText(text), Nimbus.ACTIONS.MARK);
+	processElements(selectBlockElementsContainingText(text), ACTIONS.MARK);
 }
 
 function markOverlays()
@@ -2206,7 +2205,7 @@ function markSelectionAnchorNode()
 		node = node.parentNode;
 	node.classList.add(Nimbus.markerClass);
 	insertStyleHighlight();
-	showMessage("Marked node is " + createSelector(node), "messagebig", true);
+	showMessage(createSelector(node), "messagebig", true);
 }
 
 function markUserLinks()
@@ -2218,6 +2217,7 @@ function markUserLinks()
 		const link = links[i];
 		if(
 			link.href &&
+			link.textContent.length &&
 			containsAnyOfTheStrings(link.pathname, ["/u/", "/user", "/member", "profile"]) &&
 			link.parentNode && link.parentNode.tagName !== "USER"
 		)
@@ -5159,12 +5159,12 @@ function deleteImages()
 
 function retrieve(selector)
 {
-	processElements(get(selector), Nimbus.ACTIONS.RETRIEVE);
+	processElements(get(selector), ACTIONS.RETRIEVE);
 }
 
 function retrieveBySelectorAndText(selector, text)
 {
-	processElements(selectBySelectorAndText(selector, text), Nimbus.ACTIONS.RETRIEVE);
+	processElements(selectBySelectorAndText(selector, text), ACTIONS.RETRIEVE);
 }
 
 function retrieveElements(elements)
@@ -5497,8 +5497,6 @@ function toggleShowDocumentStructure()
 	const style = 'header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F; }' +
 		'form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90; background: rgba(255, 150, 0, 0.2); }' +
 		'table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F; }' +
-		'ul, ol, li, span { box-shadow: inset 1px 1px #080, inset -1px -1px #080; }' +
-		'h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }' +
 		'ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0; }' +
 		'li { box-shadow: inset 1px 1px #080, inset -1px -1px #080; }' +
 		'span { box-shadow: inset 1px 1px #C50, inset -1px -1px #C50; }' +
@@ -5967,10 +5965,8 @@ function insertElementNextToAnchor(tagName, position)
 		showMessageError("Couldn't get selection");
 		return;
 	}
-	let node = selection.anchorNode;
-	if(node.tagName === undefined)
-		node = node.parentNode;
-	if(node && node.parentNode)
+	let node = getFirstBlockParent(selection.anchorNode);
+	if(node)
 	{
 		switch(position)
 		{
@@ -5989,10 +5985,8 @@ function insertElementBeforeSelectionAnchor(tagName)
 		showMessageError("Couldn't get selection");
 		return;
 	}
-	let node = selection.anchorNode;
-	if(node.tagName === undefined)
-		node = node.parentNode;
-	if(node && node.parentNode)
+	const node = getFirstBlockParent(selection.anchorNode);
+	if(node)
 		node.parentNode.insertBefore(createElement(tag), node);
 }
 
@@ -6046,9 +6040,7 @@ function wrapAnchorNodeInTag()
 	const selection = window.getSelection();
 	if(!selection)
 		return;
-	let node = selection.anchorNode;
-	if(node.tagName === undefined)
-		node = node.parentNode;
+	const node = getFirstBlockParent(selection.anchorNode);
 	if(!node)
 		return;
 	Nimbus.currentNode = node;
@@ -6066,13 +6058,13 @@ function getTextLength(elem)
 {
 	if(!elem.textContent)
 		return 0;
-	return elem.textContent.replace(/[^a-zA-Z0-9]/g, "").length;
+	return elem.textContent.replace(/[^a-zA-Z0-9\^]/g, "").length;
 }
 
 function toggleHighlightSelectionMode()
 {
 	Nimbus.selectionHighlightMode = Nimbus.selectionHighlightMode === "sentence" ? "word" : "sentence";
-	showMessageBig(`Highlight mode is ${Nimbus.selectionHighlightMode}`);
+	showMessageBig(`Highlight mode is <b>${Nimbus.selectionHighlightMode}</b>`);
 }
 
 function highlightSelection()
@@ -6353,9 +6345,7 @@ function highlightSelectedElement(tag)
 	const selection = window.getSelection();
 	if(!selection)
 		return;
-	let node = selection.anchorNode;
-	if(node.tagName === undefined)
-		node = node.parentNode;
+	let node = getFirstBlockParent(selection.anchorNode);
 	if(node && node.parentNode && node.tagName !== "BODY")
 		wrapElementInner(node, highlightTag);
 }
@@ -6393,7 +6383,7 @@ function removeHighlightsFromMarkedElements()
 	const markedElements = getMarkedElements();
 	for(let i = 0, ii = markedElements.length; i < ii; i++)
 	{
-		const element = markedElements[i];
+		const element = getFirstBlockParent(markedElements[i]);
 		element.innerHTML = element.innerHTML.replace(/<\/?mark[^>]*>/g, "");
 	}
 	unmarkAll();
@@ -6453,7 +6443,6 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", "none"]); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
-			case KEYCODES.E: cycleHighlightTags(); break;
 			case KEYCODES.E: cycleHighlightTag(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteBySelectorAndText); break;
 			case KEYCODES.I: toggleConsole("css"); break;
@@ -6533,6 +6522,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.TWO: toggleStyleSimpleNegative(); break;
 			case KEYCODES.THREE: toggleStyleGrey(); break;
 			case KEYCODES.FOUR: toggleStyleWhite(); break;
+			case KEYCODES.A: deleteEmptyElements("a"); break;
 			case KEYCODES.B: toggleShowDocumentStructureWithNames(); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
@@ -6568,6 +6558,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.F: createTagsByClassName(); break;
 			case KEYCODES.H: unmarkAll(); break;
 			case KEYCODES.M: markOverlays(); break;
+			case KEYCODES.R: rescueOrphanedTextNodes(); break;
 			case KEYCODES.S: forceReloadCss(); break;
 			case KEYCODES.F12: inspect(true); break;
 			case KEYCODES.UPARROW: modifyMark("expand", true); break;
