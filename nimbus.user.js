@@ -4076,9 +4076,16 @@ function changePage(direction)
 	changePageByUrl(direction);
 }
 
-function cycleHighlightTags()
+function cycleHighlightTag()
 {
 	const nextTag = getNext(Nimbus.highlightTagName, Nimbus.highlightTagNameList);
+	showMessageBig(`<${nextTag}>Highlight tag is ${nextTag}</${nextTag}>`);
+	Nimbus.highlightTagName = nextTag;
+}
+
+function resetHighlightTag()
+{
+	const nextTag = Nimbus.highlightTagNameList[0];
 	showMessageBig(`<${nextTag}>Highlight tag is ${nextTag}</${nextTag}>`);
 	Nimbus.highlightTagName = nextTag;
 }
@@ -6411,6 +6418,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.E: cycleHighlightTags(); break;
+			case KEYCODES.E: cycleHighlightTag(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteBySelectorAndText); break;
 			case KEYCODES.I: toggleConsole("css"); break;
 			case KEYCODES.J: regressivelyUnenhance(); break;
@@ -6455,6 +6463,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.A: annotate(); break;
 			case KEYCODES.C: deleteNonContentElements(); break;
 			case KEYCODES.D: del("log"); break;
+			case KEYCODES.E: resetHighlightTag(); break;
 			case KEYCODES.G: callFunctionWithArgs("Retrieve elements by selector (optionally containing text)", retrieveBySelectorAndText); break;
 			case KEYCODES.J: joinMarkedElements(); break;
 			case KEYCODES.K: showPrintLink(); break;
