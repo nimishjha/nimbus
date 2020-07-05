@@ -4438,25 +4438,31 @@ function toggleStyleWhite()
 function toggleStyleShowClasses()
 {
 	const s = `body { background: #333; color: #BBB; }
-	a { color: #09F; text-decoration: none; }
-	div { padding: 0 0 0 10px; margin: 1px 1px 1px 10px; border: 2px solid #000; }
-	div::before, p::before { content: attr(class); color:#FF0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
-	div::after, p::after { content: attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
-	span { box-shadow: inset 1px 1px #0F0, inset 1px 1px #0F0; }
-	span::before { content: attr(class); color:#0F0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
-	select, textarea, input { background: #444; border: 1px solid red; }
-	button { background: #222; color: #AAA; }
-	nav { border: 6px solid #09F; padding: 20px; margin: 10px; background: #400; }
-	section { border: 6px solid #999; padding: 20px; margin: 10px; background: #040; }
-	main { border: 6px solid #DDD; padding: 20px; margin: 10px; background: #555; }
-	footer { border: 6px solid #555; padding: 20px; margin: 10px; background: #008; }
-	h1, h2, h3, h4, h5, h6 { position: relative; padding: 10px 10px 10px 5rem; background: #300; color: #FFF; }
-	h1::before { content: "h1"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
-	h2::before { content: "h2"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
-	h3::before { content: "h3"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
-	h4::before { content: "h4"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
-	h5::before { content: "h5"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
-	h6::before { content: "h6"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }`;
+		a { color: #09F; text-decoration: none; }
+		header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F; padding: 0 0 0 10px; margin: 1px 1px 1px 10px; }
+		form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90; background: rgba(255, 150, 0, 0.2); }
+		table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F; }
+		ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0; }
+		li { box-shadow: inset 1px 1px #080, inset -1px -1px #080; }
+		span { box-shadow: inset 1px 1px #C50, inset -1px -1px #C50; }
+		h1, h2, h3, h4, h5, h6 { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }
+		p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }
+		div::before, p::before, li::before, ul::before, td::before { content: attr(class); color:#FF0; padding:0px 5px; background:#000; margin: 0 10px 0 1px; }
+		div::after, p::after, li::after, ul::after, td::after { content: attr(id); color:#0FF; padding:0px 5px; background:#000; margin: 0 10px 0 1px; }
+		span::before { content: attr(class); color:#0F0; padding:0px 5px; background:#000; margin: 0 10px 0 0; }
+		select, textarea, input { background: #444; border: 1px solid red; }
+		button { background: #222; color: #AAA; }
+		nav { border: 6px solid #09F; padding: 20px; margin: 10px; background: #400; }
+		section { border: 6px solid #999; padding: 20px; margin: 10px; background: #040; }
+		main { border: 6px solid #DDD; padding: 20px; margin: 10px; background: #555; }
+		footer { border: 6px solid #555; padding: 20px; margin: 10px; background: #008; }
+		h1, h2, h3, h4, h5, h6 { position: relative; padding: 10px 10px 10px 5rem; background: #300; color: #FFF; }
+		h1::before { content: "h1"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+		h2::before { content: "h2"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+		h3::before { content: "h3"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+		h4::before { content: "h4"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+		h5::before { content: "h5"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+		h6::before { content: "h6"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }`;
 	toggleStyle(s, "styleShowClasses", true);
 }
 
@@ -5469,6 +5475,12 @@ function toggleShowDocumentStructure()
 		'table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F; }' +
 		'ul, ol, li, span { box-shadow: inset 1px 1px #080, inset -1px -1px #080; }' +
 		'h1, h2, h3, h4, h5, h6, p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }' +
+		'ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0; }' +
+		'li { box-shadow: inset 1px 1px #080, inset -1px -1px #080; }' +
+		'span { box-shadow: inset 1px 1px #C50, inset -1px -1px #C50; }' +
+		'h1, h2, h3, h4, h5, h6 { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }' +
+		'p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }' +
+		'mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 1px 1px #FF0, inset -1px -1px #FF0; }' +
 		'a, a * { background: rgba(180, 255, 0, 0.25); }' +
 		'img { background: #800; padding: 2px; box-sizing: border-box; }';
 	insertStyle(style, styleId, true);
