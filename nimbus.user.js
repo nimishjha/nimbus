@@ -4044,7 +4044,31 @@ function changePageByUrl(direction)
 		if(page < 1)
 			page = 1;
 		location.href = url.replace(urlPageMatch[0], `page/${page}`);
+		return;
 	}
+
+	const queryParams = parseQueryString(url);
+	for(let i = 0, ii = queryParams.length; i < ii; i++)
+	{
+		if(queryParams[i].key === "page")
+		{
+			let page = queryParams[i].value;
+			switch(direction)
+			{
+				case "previous": page--; break;
+				case "next": page++; break;
+			}
+			if(page < 1)
+				page = 1;
+			queryParams[i].value = page;
+			break;
+		}
+	}
+	let newQueryString = "";
+	for(let i = 0, ii = queryParams.length; i < ii; i++)
+		newQueryString += `${queryParams[i].key}=${queryParams[i].value}&`;
+	let baseUrl = trimAt(url, "?");
+	console.log(`${baseUrl}?${newQueryString}`);
 }
 
 function changePage(direction)
