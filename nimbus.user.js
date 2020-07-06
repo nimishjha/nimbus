@@ -1301,7 +1301,7 @@ function markByClassOrIdContaining(str)
 
 function rescueOrphanedTextNodes()
 {
-	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD"];
+	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE"];
 	const textNodes = getTextNodesAsArray();
 	const nodeItems = [];
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
@@ -3990,15 +3990,8 @@ function fillForms()
 
 function revealLinkHrefs()
 {
-	const links = get("a");
-	let i = links.length;
-	while(i--)
-	{
-		const link = links[i];
-		if(link.getElementsByTagName("img").length)
-			continue;
-		link.textContent = link.getAttribute("href");
-	}
+	const style = "a::after { content: attr(href); background: #000; color: #F90; padding: 2px 10px; }";
+	insertStyle(style, "styleShowLinkHrefs", true);
 }
 
 function humanizeUrl(url)
@@ -6463,6 +6456,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.K: showPrintLink(); break;
 			case KEYCODES.L: logout(); break;
 			case KEYCODES.P: getPagerLinks(); break;
+			case KEYCODES.Q: rescueOrphanedTextNodes(); break;
 			case KEYCODES.R: replaceSelectedElement(); break;
 			case KEYCODES.W: cleanupAttributes(); break;
 			case KEYCODES.Y: callFunctionWithArgs("Highlight elements by tag name containing text", highlightByTagNameAndText, 2); break;
