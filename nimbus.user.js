@@ -205,7 +205,7 @@ const Nimbus = {
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
 		makePlainText: makePlainText,
 		mark: mark,
-		markDivDepth: markDivDepth,
+		showDivDepth: showDivDepth,
 		markBySelector: markBySelector,
 		markBlockElementsContainingText: markBlockElementsContainingText,
 		markByCssRule: markByCssRule,
@@ -214,7 +214,7 @@ const Nimbus = {
 		markNumericParagraphs: markNumericParagraphs,
 		markOverlays: markOverlays,
 		highlightQuotes: highlightQuotes,
-		markUserLinks: markUserLinks,
+		highlightUserLinks: highlightUserLinks,
 		numberTableRowsAndColumns: numberTableRowsAndColumns,
 		markUppercaseParagraphs: markUppercaseParagraphs,
 		numberDivs: numberDivs,
@@ -2204,7 +2204,7 @@ function markSelectionAnchorNode()
 	showMessage(createSelector(node), "messagebig", true);
 }
 
-function markUserLinks()
+function highlightUserLinks()
 {
 	const links = get("a");
 	let i = links.length;
@@ -2221,7 +2221,7 @@ function markUserLinks()
 	}
 }
 
-function markAuthors()
+function highlightAuthors()
 {
 	replaceByClassOrIdContaining("author", "author");
 	replaceByClassOrIdContaining("byline", "author");
@@ -2260,14 +2260,14 @@ function markNumericParagraphs()
 	insertStyleHighlight();
 }
 
-function markDivDepth()
+function showDivDepth()
 {
 	const divs = get("div");
 	let i = divs.length;
 	let node, level;
 	while(i--)
 	{
-		node= divs[i];
+		node = divs[i];
 		level = 0;
 		while(node.parentNode)
 		{
@@ -4722,7 +4722,7 @@ function cleanupGeneral()
 	cleanupAttributes();
 	replaceSpansWithTextNodes();
 	replaceAudio();
-	markUserLinks();
+	highlightUserLinks();
 	appendInfo();
 	getBestImageSrc();
 	insertStyleHighlight();
@@ -6552,8 +6552,8 @@ function setupKeyboardShortcuts(e)
 
 function makeDocumentSemantic()
 {
-	markAuthors();
-	markUserLinks();
+	highlightAuthors();
+	highlightUserLinks();
 }
 
 function main()
