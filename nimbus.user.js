@@ -389,8 +389,9 @@ function xPathMark(xpath)
 		showMessageBig("No matches found");
 }
 
-function markElements(elements)
+function markElements(elems)
 {
+	const elements = elems.nodeType ? [elems] : elems;
 	if(!(elements && elements.length))
 		return;
 	for(let i = 0, ii = elements.length; i < ii; i++)
@@ -399,8 +400,9 @@ function markElements(elements)
 	showMessageBig(`Marked <b>${elements.length}</b> elements`);
 }
 
-function unmarkElements(elements)
+function unmarkElements(elems)
 {
+	const elements = elems.nodeType ? [elems] : elems;
 	if(!(elements && elements.length))
 		return;
 	for(let i = 0, ii = elements.length; i < ii; i++)
@@ -408,8 +410,9 @@ function unmarkElements(elements)
 	showMessageBig(`Unmarked <b>${elements.length}</b> elements`);
 }
 
-function highlightElements(elements)
+function highlightElements(elems)
 {
+	const elements = elems.nodeType ? [elems] : elems;
 	if(!(elements && elements.length))
 	{
 		showMessageError("highlightElements(): no elements given");
@@ -436,16 +439,18 @@ function highlightElements(elements)
 	}
 }
 
-function deleteElements(elements)
+function deleteElements(elems)
 {
+	const elements = elems.nodeType ? [elems] : elems;
 	if(!(elements && elements.length))
 		return;
 	del(elements);
 	showMessageBig(`Deleted <b>${elements.length}</b> elements`);
 }
 
-function retrieveElements(elements)
+function retrieveElements(elems)
 {
+	const elements = elems.nodeType ? [elems] : elems;
 	if(!(elements && elements.length))
 		return;
 	const wrapper = document.createElement("div");
