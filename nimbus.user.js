@@ -37,13 +37,6 @@ let consoleWarn = noop;
 let consoleError = noop;
 
 const Nimbus = {
-	ACTIONS: {
-		MARK: "mark",
-		UNMARK: "unmark",
-		DELETE: "delete",
-		RETRIEVE: "retrieve",
-		HIGHLIGHT: "highlight",
-	},
 	logString: "",
 	messageTimeout: null,
 	KEYCODES: {
@@ -311,7 +304,6 @@ const Nimbus = {
 };
 
 const KEYCODES = Nimbus.KEYCODES;
-const ACTIONS = Nimbus.ACTIONS;
 
 function get(selector)
 {
@@ -392,45 +384,77 @@ function xPathMark(xpath)
 {
 	const elements = xPathSelect(xpath);
 	if(elements.length)
-		processElements(elements, ACTIONS.MARK);
+		markElements(elements);
 	else
 		showMessageBig("No matches found");
 }
 
-function processElements(elems, action)
+function markElements(elements)
 {
-	const elements = elems.nodeType ? [elems] : elems;
+	if(!(elements && elements.length))
+		return;
+	for(let i = 0, ii = elements.length; i < ii; i++)
+		elements[i].classList.add(Nimbus.markerClass);
+	insertStyleHighlight();
+	showMessageBig(`Marked <b>${elements.length}</b> elements`);
+}
+
+function unmarkElements(elements)
+{
+	if(!(elements && elements.length))
+		return;
+	for(let i = 0, ii = elements.length; i < ii; i++)
+		elements[i].classList.remove(Nimbus.markerClass);
+	showMessageBig(`Unmarked <b>${elements.length}</b> elements`);
+}
+
+function highlightElements(elements)
+{
 	if(!(elements && elements.length))
 	{
-		showMessageError("processElements(): elements is null or empty");
+		showMessageError("highlightElements(): no elements given");
 		return;
 	}
-	switch(action)
+	const BLOCK_ELEMENTS = ["P", "DIV", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "TD", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD"];
+	const firstElement = elements[0];
+	const highlightTagName = Nimbus.highlightTagName;
+	//	Assumption: the elements are all of the same type
+	if(firstElement.tagName === "TR")
 	{
-		case ACTIONS.MARK:
-			for(let i = 0, ii = elements.length; i < ii; i++)
-				elements[i].classList.add(Nimbus.markerClass);
-			insertStyleHighlight();
-			showMessageBig(`Marked <b>${elements.length}</b> elements`);
-			break;
-		case ACTIONS.UNMARK:
-			for(let i = 0, ii = elements.length; i < ii; i++)
-				elements[i].classList.remove(Nimbus.markerClass);
-			showMessageBig(`Unmarked <b>${elements.length}</b> elements`);
-			break;
-		case ACTIONS.DELETE:
-			showMessageBig(`Deleted <b>${elements.length}</b> elements`);
-			del(elements);
-			break;
-		case ACTIONS.RETRIEVE:
-			retrieveElements(elements);
-			break;
-		case ACTIONS.HIGHLIGHT:
-			highlightElements(elements);
-			break;
-		default:
-			showMessageError(`Action is ${action}`);
+		highlightTableRows(elements);
+		return;
 	}
+	else if(BLOCK_ELEMENTS.includes(firstElement.tagName))
+	{
+		for(let i = 0, ii = elements.length; i < ii; i++)
+			wrapElementInner(elements[i], highlightTagName);
+	}
+	else
+	{
+		for(let i = 0, ii = elements.length; i < ii; i++)
+			wrapElement(elements[i], highlightTagName);
+	}
+}
+
+function deleteElements(elements)
+{
+	if(!(elements && elements.length))
+		return;
+	del(elements);
+	showMessageBig(`Deleted <b>${elements.length}</b> elements`);
+}
+
+function retrieveElements(elements)
+{
+	if(!(elements && elements.length))
+		return;
+	const wrapper = document.createElement("div");
+	for(let i = 0, ii = elements.length; i < ii; i++)
+		wrapper.appendChild(elements[i]);
+	emptyElement(document.body);
+	del(["link", "script", "iframe"]);
+	document.body.appendChild(wrapper);
+	showMessageBig(`Retrieved <b>${elements.length}</b> elements`);
 }
 
 function selectByClassOrIdContaining(str)
@@ -1262,12 +1286,12 @@ function replaceByClassOrIdContaining(str, tagName)
 
 function deleteByClassOrIdContaining(str)
 {
-	processElements(selectByClassOrIdContaining(str), ACTIONS.DELETE);
+	deleteElements(selectByClassOrIdContaining(str));
 }
 
 function markByClassOrIdContaining(str)
 {
-	processElements(selectByClassOrIdContaining(str), ACTIONS.MARK);
+	markElements(selectByClassOrIdContaining(str));
 }
 
 function rescueOrphanedTextNodes()
@@ -2079,22 +2103,22 @@ function markByCssRule(prop, val)
 
 function markBySelector(selector)
 {
-	processElements(get(selector), ACTIONS.MARK);
+	markElements(get(selector));
 }
 
 function markByTagNameAndText(tagName, str)
 {
-	processElements(selectByTagNameAndText(tagName, str), ACTIONS.MARK);
+	markElements(selectByTagNameAndText(tagName, str));
 }
 
 function highlightByTagNameAndText(tagName, str)
 {
-	processElements(selectByTagNameAndText(tagName, str), ACTIONS.HIGHLIGHT);
+	highlightElements(selectByTagNameAndText(tagName, str));
 }
 
 function markBlockElementsContainingText(text)
 {
-	processElements(selectBlockElementsContainingText(text), ACTIONS.MARK);
+	markElements(selectBlockElementsContainingText(text));
 }
 
 function markOverlays()
@@ -2107,34 +2131,6 @@ function markOverlays()
 function highlightQuotes()
 {
 	document.body.innerHTML = document.body.innerHTML.replace(/\u201C/g, '<markwhite>"').replace(/\u201D/g, '"</markwhite>');
-}
-
-function highlightElements(elements)
-{
-	if(!(elements && elements.length))
-	{
-		showMessageError("highlightElements(): no elements given");
-		return;
-	}
-	const BLOCK_ELEMENTS = ["P", "DIV", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "TD", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD"];
-	const firstElement = elements[0];
-	const highlightTagName = Nimbus.highlightTagName;
-	//	Assumption: the elements are all of the same type
-	if(firstElement.tagName === "TR")
-	{
-		highlightTableRows(elements);
-		return;
-	}
-	else if(BLOCK_ELEMENTS.includes(firstElement.tagName))
-	{
-		for(let i = 0, ii = elements.length; i < ii; i++)
-			wrapElementInner(elements[i], highlightTagName);
-	}
-	else
-	{
-		for(let i = 0, ii = elements.length; i < ii; i++)
-			wrapElement(elements[i], highlightTagName);
-	}
 }
 
 function highlightTableRows(rows)
@@ -2290,11 +2286,6 @@ function numberDivs()
 	while(i--)
 		e[i].id = "i" + i;
 	toggleShowDocumentStructureWithNames();
-}
-
-function unmarkElement(elem)
-{
-	elem.classList.remove(Nimbus.markerClass);
 }
 
 function unmarkAll()
@@ -5159,23 +5150,12 @@ function deleteImages()
 
 function retrieve(selector)
 {
-	processElements(get(selector), ACTIONS.RETRIEVE);
+	retrieveElements(get(selector));
 }
 
 function retrieveBySelectorAndText(selector, text)
 {
-	processElements(selectBySelectorAndText(selector, text), ACTIONS.RETRIEVE);
-}
-
-function retrieveElements(elements)
-{
-	const wrapper = document.createElement("div");
-	for(let i = 0, ii = elements.length; i < ii; i++)
-		wrapper.appendChild(elements[i]);
-	emptyElement(document.body);
-	del(["link", "script", "iframe"]);
-	document.body.appendChild(wrapper);
-	showMessageBig(`Retrieved <b>${elements.length}</b> elements`);
+	retrieveElements(selectBySelectorAndText(selector, text));
 }
 
 function getContentByParagraphCount()
