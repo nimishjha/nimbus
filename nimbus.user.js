@@ -4454,7 +4454,7 @@ function toggleStyleShowClasses()
 {
 	const s = `body { background: #333; color: #BBB; }
 		a { color: #09F; text-decoration: none; }
-		header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F; padding: 0 0 0 10px; margin: 1px 1px 1px 10px; }
+		header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #999, inset -2px -2px #999; padding: 0 0 0 10px; margin: 1px 1px 1px 10px; }
 		form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90; background: rgba(255, 150, 0, 0.2); }
 		table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F; }
 		ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0; }
@@ -4479,6 +4479,18 @@ function toggleStyleShowClasses()
 		h5::before { content: "h5"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
 		h6::before { content: "h6"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }`;
 	toggleStyle(s, "styleShowClasses", true);
+}
+
+function toggleShowDocumentStructureWithNames()
+{
+	const style = `
+		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 10px; padding: 10px; }
+		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #FF0; background: #000; padding: 2px 5px; }
+		p::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #F90; background: #000; padding: 2px 5px; }
+		span { box-shadow: inset 0 -100px rgba(0,128,0,0.5); }
+		span::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #0F0; background: #000; padding: 2px 5px; }
+		`;
+	toggleStyle(style, "styleShowDocumentStructureWithNames", true);
 }
 
 function selectBySelectorAndText(selector, text)
@@ -5502,30 +5514,6 @@ function toggleShowDocumentBlockStructure()
 		'ol, ul { background: #00F; }' +
 		'table { background: #080; }';
 	insertStyle(style, styleId, true);
-}
-
-function toggleShowDocumentStructureWithNames()
-{
-	if(document.body.classList.contains("showdivs"))
-	{
-		del("x");
-		del("#showDivs");
-		document.body.classList.remove("showdivs");
-		return;
-	}
-	const e = get("table, tr, td, div, ul, aside, header, footer, article, section");
-	let i = e.length;
-	while(i--)
-	{
-		const elem = e[i];
-		insertAsFirstChild(elem, createElement("x", { textContent: createSelector(elem) }));
-	}
-	document.body.classList.add("showdivs");
-	const s = 'body { padding: 100px; }' +
-	'div, aside, section, header, footer, aside, ul, ol { box-shadow: inset 2px 2px #000, inset -2px -2px #000; min-height: 30px; padding: 0 10px 10px 10px; margin-top: 10px; }' +
-	'div::after { content: " "; display: block; clear: both; }' +
-	'x { color: #FC0; background: #000; font: 12px Verdana; padding: 5px 10px; letter-spacing: 0; display: block; margin : 0 -10px 10px -10px; }';
-	insertStyle(s, 'showDivs', true);
 }
 
 function getAttributes(targ)
