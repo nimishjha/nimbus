@@ -3204,6 +3204,7 @@ function fixParagraphs()
 
 function createTagsByClassName()
 {
+	replaceElementsBySelector(".indent", "p");
 	const e = document.querySelectorAll("div, p");
 	let i = e.length;
 	let numReplaced = 0;
