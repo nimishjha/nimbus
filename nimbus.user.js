@@ -4802,14 +4802,9 @@ function deleteBySelectorAndText(selector, str)
 			selected = get(selector);
 	}
 	if(selected)
-	{
-		showMessageBig(`Deleting ${selected.length} elements`);
-		del(selected);
-	}
+		deleteElements(selected);
 	else
-	{
 		showMessageBig("Not found");
-	}
 }
 
 function removeEmojis()
