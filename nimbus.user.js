@@ -457,7 +457,7 @@ function retrieveElements(elems)
 	for(let i = 0, ii = elements.length; i < ii; i++)
 		wrapper.appendChild(elements[i]);
 	emptyElement(document.body);
-	del(["link", "script", "iframe"]);
+	del(["link", "script"]);
 	document.body.appendChild(wrapper);
 	showMessageBig(`Retrieved <b>${elements.length}</b> elements`);
 }
@@ -5994,7 +5994,7 @@ function annotateElementError(elem, message)
 function wrapAnchorNodeInTagHelper(tagName)
 {
 	if(tagName && tagName.length)
-		wrapElementInner(Nimbus.currentNode, tagName);
+		wrapElement(Nimbus.currentNode, tagName);
 }
 
 function wrapAnchorNodeInTag()
