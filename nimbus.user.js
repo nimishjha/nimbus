@@ -2219,7 +2219,7 @@ function highlightUserLinks()
 		const link = links[i];
 		if(
 			link.href &&
-			link.textContent.length &&
+			link.textContent.replace(/\s+/g, "").length &&
 			containsAnyOfTheStrings(link.pathname, ["/u/", "/user", "/member", "profile"]) &&
 			link.parentNode && link.parentNode.tagName !== "USER"
 		)
