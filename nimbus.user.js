@@ -159,8 +159,8 @@ const Nimbus = {
 		edit: toggleContentEditable,
 		editDocumentTitle: editDocumentTitle,
 		enableConsoleLogs: enableConsoleLogs,
-		enableRightClickToCollectUrls: enableRightClickToCollectUrls,
-		disableRightClickToCollectUrls: disableRightClickToCollectUrls,
+		enableClickToCollectUrls: enableClickToCollectUrls,
+		disableClickToCollectUrls: disableClickToCollectUrls,
 		fillForms: fillForms,
 		fixHeadings: fixHeadings,
 		fixParagraphs: fixParagraphs,
@@ -4937,7 +4937,16 @@ function cleanupLinks()
 function logHrefsOnClick(evt)
 {
 	evt.preventDefault();
-	const href = evt.target.href;
+	evt.stopPropagation();
+	const MAX_DEPTH = 5;
+	let link = evt.target;
+	let depth = 0;
+	while(link.tagName !== "A" && link.parentNode && ++depth < MAX_DEPTH)
+		link = link.parentNode;
+	if(link.tagName !== "A")
+		return;
+	wrapElement(link, Nimbus.highlightTagName);
+	const href = link.href;
 	if(href)
 	{
 		ylog(href);
@@ -4946,28 +4955,22 @@ function logHrefsOnClick(evt)
 	return false;
 }
 
-function enableRightClickToCollectUrls()
+function enableClickToCollectUrls()
 {
 	const links = get("a");
 	for(let i = 0, ii = links.length; i < ii; i++)
-	{
-		const link = links[i];
-		link.addEventListener("mouseup", logHrefsOnClick);
-		if(!hasChildrenOfType(link, "img"))
-			link.innerHTML = link.textContent;
-	}
-	showMessageBig("Right-clicking links will now log their hrefs");
+		links[i].setAttribute("onclick", "return false");
+	document.body.addEventListener("mouseup", logHrefsOnClick);
+	showMessageBig("Clicking links will now log their hrefs");
 }
 
-function disableRightClickToCollectUrls()
+function disableClickToCollectUrls()
 {
 	const links = get("a");
 	for(let i = 0, ii = links.length; i < ii; i++)
-	{
-		const link = links[i];
-		link.removeEventListener("mouseup", logHrefsOnClick);
-	}
-	showMessageBig("Right-clicking links will now work normally");
+		links[i].removeAttribute("onclick");
+	document.body.removeEventListener("mouseup", logHrefsOnClick);
+	showMessageBig("Clicking links will now work normally");
 }
 
 function makeHashLinksRelative()
