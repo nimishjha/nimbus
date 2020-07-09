@@ -170,6 +170,7 @@ const Nimbus = {
 		forAllMarked: forAllMarked,
 		forceReloadCss: forceReloadCss,
 		formatEbook: formatEbook,
+		generateTableOfContents: generateTableOfContents,
 		getAllCssRulesMatching: getAllCssRulesMatching,
 		getBestImageSrc: getBestImageSrc,
 		getContentByParagraphCount: getContentByParagraphCount,
@@ -4437,7 +4438,9 @@ function toggleStyleNegative()
 	user { background: #000; padding: 2px 10px; border-left: 10px solid #09F; margin: 0; }
 	author { display: block; font-size: 24px; background: #111; color: #FFF; padding: 2px 10px; border-left: 10px solid #AF0; margin: 0; }
 	reference { background: #000; color: #AAA; padding: 1px 5px; }
-	comment { display: block; padding: 5px 10px; border-left: 10px solid #555; background: #222; }`;
+	comment { display: block; padding: 5px 10px; border-left: 10px solid #555; background: #222; }
+	ind { display: block; padding-left: 50px; }`;
+
 
 	toggleStyle(s, "styleNegative");
 }
@@ -5602,15 +5605,18 @@ function inspect_clickHandler(e)
 		prompt("", get("#inspector").textContent);
 }
 
-function indentByDepth(node, depth)
+function indentByDepth(node, depth, tag)
 {
+	const tagName = tag || "blockquote";
+	const indentTagOpen = `<${tagName}>`;
+	const indentTagClose = `</${tagName}>`;
 	let indentOpen = "";
 	let indentClose = "";
 	let i = -1;
 	while(++i < depth)
 	{
-		indentOpen += "<blockquote>";
-		indentClose += "</blockquote>";
+		indentOpen += indentTagOpen;
+		indentClose += indentTagClose;
 	}
 	node.innerHTML = indentOpen + node.innerHTML + indentClose;
 }
@@ -6007,6 +6013,37 @@ function wrapAnchorNodeInTag()
 		return;
 	Nimbus.currentNode = node;
 	customPrompt("Enter tagName to wrap this node in").then(wrapAnchorNodeInTagHelper);
+}
+
+function generateTableOfContents()
+{
+	function createId(s)
+	{
+		return removeWhitespace(s.toLowerCase().replace(/[^a-z]/g, ''));
+	}
+
+	const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
+	const toc = document.createElement('div');
+	for (let i = 0, ii = headings.length; i < ii; i++)
+	{
+		const heading = headings[i];
+		const id = createId(heading.textContent);
+		const newAnchor = createElement("a", { id: id });
+		const tocEntryLink = createElement("a", { textContent: heading.textContent, href: "#" + id } );
+		const tocEntryHeading = createElement(heading.tagName);
+		const tocEntryWrapper = document.createElement("div");
+		tocEntryHeading.appendChild(tocEntryLink);
+		tocEntryWrapper.appendChild(tocEntryHeading);
+		const indentLevel = parseInt(heading.tagName.substring(1), 10);
+		indentByDepth(tocEntryWrapper, indentLevel, "ind");
+		heading.parentNode.insertBefore(newAnchor, heading);
+		toc.appendChild(tocEntryWrapper);
+	}
+	const documentHeading = getOne("documentheading");
+	if(documentHeading)
+		insertAfter(documentHeading, toc);
+	else
+		insertAsFirstChild(document.body, toc);
 }
 
 function insertHrBeforeAll(selector)
