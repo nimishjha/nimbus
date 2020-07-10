@@ -1757,6 +1757,7 @@ function handleConsoleInput(evt, consoleType)
 				if(consoleType === "js")
 				{
 					// eval(inputText);
+					showMessageBig("JS console has been disabled for security");
 					return;
 				}
 				else if(consoleType === "css")
