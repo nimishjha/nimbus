@@ -1756,12 +1756,13 @@ function handleConsoleInput(evt, consoleType)
 			{
 				if(consoleType === "js")
 				{
-					// eval(inputText);
-					showMessageBig("JS console has been disabled for security");
+					eval(inputText);
 					return;
 				}
 				else if(consoleType === "css")
+				{
 					insertStyle(inputText, "userStyle", true);
+				}
 			}
 			break;
 		case KEYCODES.TAB:
@@ -1799,7 +1800,7 @@ function toggleConsole(consoleType)
 	let dialogStyle;
 	const consoleBackgroundColor = consoleType === "css" ? "#036" : "#000";
 	dialogStyle = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; }' +
-		'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: bold 18px Consolas, monospace; width: 100%; height: 100%; padding: 10px; border: 0; outline: 0; }';
+		'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: bold 24px Consolas, monospace; width: 100%; height: 100%; padding: 10px; border: 0; outline: 0; }';
 	insertStyle(dialogStyle, "styleUserInputWrapper", true);
 
 	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
