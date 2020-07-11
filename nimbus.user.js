@@ -4042,7 +4042,7 @@ function changePageByUrl(direction)
 	const queryParams = parseQueryString(url);
 	for(let i = 0, ii = queryParams.length; i < ii; i++)
 	{
-		if(queryParams[i].key === "page")
+		if(["page", "p"].includes(queryParams[i].key))
 		{
 			let page = queryParams[i].value;
 			switch(direction)
@@ -4060,7 +4060,7 @@ function changePageByUrl(direction)
 	for(let i = 0, ii = queryParams.length; i < ii; i++)
 		newQueryString += `${queryParams[i].key}=${queryParams[i].value}&`;
 	let baseUrl = trimAt(url, "?");
-	console.log(`${baseUrl}?${newQueryString}`);
+	location.href = `${baseUrl}?${newQueryString}`;
 }
 
 function changePage(direction)
