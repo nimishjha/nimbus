@@ -1664,7 +1664,6 @@ function showMessageError(messageHtml)
 function deleteMessage()
 {
 	del("message");
-	del(".xalert");
 	del("#styleMessage");
 }
 
