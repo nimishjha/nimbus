@@ -228,7 +228,7 @@ const Nimbus = {
 		removeClassFromAll: removeClassFromAll,
 		removeColorsFromInlineStyles: removeColorsFromInlineStyles,
 		removeEmojis: removeEmojis,
-		removeEventListeners: removeEventListeners,
+		removeEventListenerAttributes: removeEventListenerAttributes,
 		removeHighlightsFromMarkedElements: removeHighlightsFromMarkedElements,
 		removeInlineStyles: removeInlineStyles,
 		removeQueryStringFromImageSources: removeQueryStringFromImageSources,
@@ -306,6 +306,9 @@ const Nimbus = {
 
 const KEYCODES = Nimbus.KEYCODES;
 
+//	Useful wrapper around document.querySelector() and document.querySelectorAll()
+//	Returns an array of nodes except when the selector is an id selector, in which case it
+//	returns a single node.
 function get(selector)
 {
 	let nodes;
@@ -332,6 +335,9 @@ function getOne(selector)
 	return document.querySelector(selector);
 }
 
+//	This function is an ideal candidate for overloading, because deletion is a universal operation.
+//	It will delete from the DOM tree anything that's passed to it, whether that's a node, an array of nodes,
+//	a selector, or an array of selectors.
 function del(arg)
 {
 	if(!arg)
@@ -1134,6 +1140,10 @@ function createElementWithChildren(tagName, ...children)
 	return elem;
 }
 
+//	Takes a source element and a tagName, and returns an element of type tagName
+//	with the source element's properties mapped across to the new element as specified
+//	in the propertyMapping parameter. This could be used, for instance, to create an <a>
+//	based upon an <img>, taking its textContent from the image's src attribute.
 function createReplacementElement(tagName, sourceElement, propertyMapping)
 {
 	const elem = document.createElement(tagName);
@@ -1203,9 +1213,11 @@ function replaceIframes()
 	}
 }
 
-function replaceSelectedElement(tag)
+//	If the user has selected some text, this function takes that selection's first block parent,
+//	and replaces that element with an element of type tagName.
+function replaceSelectedElement(tagName)
 {
-	const replacementTag = tag ? tag : Nimbus.replacementTagName;
+	const replacementTag = tagName ? tagName : Nimbus.replacementTagName;
 	const selection = window.getSelection();
 	if(!selection)
 	{
@@ -4111,6 +4123,8 @@ function setReplacementTag(tagName)
 	Nimbus.replacementTagName = tagName;
 }
 
+//	This function is for the use case where a document contains adjacent elements that should
+//	be grouped inside a parent element, like a list or a blockquote.
 function groupMarkedElements(tagName)
 {
 	const parentTagName = tagName || "ul";
@@ -4134,6 +4148,8 @@ function groupMarkedElements(tagName)
 	del(makeClassSelector(Nimbus.markerClass));
 }
 
+//	This function fixes the problem where two adjacent elements should in fact be one element.
+//	Useful for joining, say, a paragraph that has erroneously been broken into two paragraphs.
 function joinMarkedElements()
 {
 	const elemsToJoin = getMarkedElements();
@@ -4154,6 +4170,7 @@ function joinMarkedElements()
 	del(makeClassSelector(Nimbus.markerClass));
 }
 
+//	I find it hard to believe the number of website creators who think a logout button should be hidden behind two or more clicks.
 function logout()
 {
 	switch(location.hostname)
@@ -4256,7 +4273,8 @@ function showPrintLink()
 
 function insertStyleHighlight()
 {
-	const s = `.nimbushl, .focused { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }
+	const s = `.nimbushl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }
+	.focused { box-shadow: inset 0px 1000px #000; }
 	.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }
 	.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }`;
 	insertStyle(s, "styleHighlight", true);
@@ -4496,6 +4514,8 @@ function toggleShowDocumentStructureWithNames()
 	toggleStyle(style, "styleShowDocumentStructureWithNames", true);
 }
 
+//	Returns an array of elements matching a selector and also containing the specified text.
+//	For links and images, it matches the text against hrefs and image sources as well.
 function selectBySelectorAndText(selector, text)
 {
 	if(!(typeof selector === "string" && selector.length))
@@ -4528,6 +4548,7 @@ function selectBySelectorAndText(selector, text)
 	return selected;
 }
 
+//	This is optimised for the case when the selector is simply a tagName, excluding "img" or "a".
 function selectByTagNameAndText(tagName, text)
 {
 	tagName = tagName.toUpperCase();
@@ -4609,6 +4630,8 @@ function selectBlockElementsContainingText(text)
 	return selected;
 }
 
+//	To be used once all the container elements on a page have been given numeric IDs.
+//	Useful to delete all the cruft after the main content.
 function delRange(m, n)
 {
 	const numBlockElements = get("header, footer, article, aside, section, div").length || 0;
@@ -4618,6 +4641,8 @@ function delRange(m, n)
 		del(`#i${i}`);
 }
 
+//	Removes all attributes from all elements, excluding the essential ones. It's surprising how
+//	much a page's file size can be reduced simply by removing classes and other attributes.
 function cleanupAttributes()
 {
 	const t1 = performance.now();
@@ -4635,6 +4660,7 @@ function cleanupAttributes()
 				const attr = attrs[j];
 				switch(attr.name)
 				{
+					//	These attributes are essential
 					case "href":
 					case "src":
 					case "srcset":
@@ -4643,6 +4669,7 @@ function cleanupAttributes()
 					case "rowspan":
 						break;
 					case "id":
+						//	Don't remove ids from these elements, because they're commonly used for linking to footnotes etc.
 						if(["a", "li", "sup", "small"].includes(tagName))
 							break;
 						else
@@ -4719,6 +4746,7 @@ function deleteNonContentImages()
 	}
 }
 
+//	This function "cleans up" a webpage and optimises it for saving locally.
 function cleanupGeneral()
 {
 	const t1 = performance.now();
@@ -4809,6 +4837,7 @@ function deleteBySelectorAndText(selector, str)
 		showMessageBig("Not found");
 }
 
+//	Potential improvement: add another function that scans comments for over-use of emojis to flag the poster as an idiot.
 function removeEmojis()
 {
 	const regex = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
@@ -4876,6 +4905,7 @@ function deleteSpecificEmptyElements()
 	deleteEmptyElements("p, tr, li, div, figure, figcaption, aside");
 }
 
+//	For those ancient webpages that still use <font size...> tags to denote headings.
 function replaceFontTags()
 {
 	const fontElements = get("font");
@@ -4919,6 +4949,7 @@ function replaceFontTags()
 	}
 }
 
+//	This function replaces all links on a page with ones that are identical except that all event handlers have been removed.
 function cleanupLinks()
 {
 	const links = get("a");
@@ -4956,6 +4987,7 @@ function logHrefsOnClick(evt)
 	return false;
 }
 
+//	Useful when you want to grab a bunch of links from a webpage (to pass to a download manager, for instance)
 function enableClickToCollectUrls()
 {
 	const links = get("a");
@@ -4974,6 +5006,8 @@ function disableClickToCollectUrls()
 	showMessageBig("Clicking links will now work normally");
 }
 
+//	When saving webpages that have internal links (to references/footnotes), the browser converts those links to absolute URLs (with "file:///").
+//	If you then move the saved HTML files to a new location, all those links break. This function makes those links relative.
 function makeHashLinksRelative()
 {
 	const links = get("a");
@@ -4993,6 +5027,9 @@ function makeHashLinksRelative()
 	}
 }
 
+//	Lots of documents have useless spans sprinkled throughout the HTML.
+//	This function replaces them with plain text nodes.
+//	Make sure you're replaced the .italics and .bolds, etc. with the appropriate tags first.
 function replaceSpansWithTextNodes()
 {
 	const spans = get("span");
@@ -5000,11 +5037,13 @@ function replaceSpansWithTextNodes()
 	while(i--)
 	{
 		const span = spans[i];
+		//	Don't replace spans that contain other HTML elements, as this will cause loss of information.
 		if(span.innerHTML.indexOf("<") === -1)
 			span.parentNode.replaceChild(document.createTextNode(span.textContent || ""), span);
 	}
 }
 
+//	This function does a brute-force removal of all <span> tags in a document.
 function removeSpanTags()
 {
        let s = document.body.innerHTML;
@@ -5012,6 +5051,7 @@ function removeSpanTags()
        document.body.innerHTML = s;
 }
 
+//	You'll be amazed at some of the things people put in HTML comments.
 function replaceCommentsWithPres()
 {
 	let s = document.body.innerHTML;
@@ -5037,6 +5077,7 @@ function replaceAudio()
 	replaceElementsBySelector("audio", "div");
 }
 
+//	Append useful information to a webpage, including a link to the parent domain, a link to the original document, and a timestamp
 function appendInfo()
 {
 	if(window.location.href.indexOf("file:///") >= 0) return;
@@ -5161,6 +5202,8 @@ function deleteImages()
 	}
 }
 
+//	This function takes a selector and replaces the document's content with elements that match that selector.
+//	Useful for marking content blocks and deleting everything else, for instance.
 function retrieve(selector)
 {
 	retrieveElements(get(selector));
@@ -5358,6 +5401,8 @@ function deleteResource(evt)
 	del("#link" + idToDelete);
 }
 
+//	Displays a list of all external resources at the top of the page, and lets you delete the
+//	resources you don't want. Useful if you want to save a page with some JS/CSS files but not others.
 function showResources()
 {
 	if(get(".xlog").length)
@@ -5457,6 +5502,10 @@ function handleBlockEditClick(evt)
 	return true;
 }
 
+//	This function toggles "block edit mode," in which you can:
+//		- retrieve the clicked element (ctrl-shift-click)
+//		- delete the clicked element (ctrl-click)
+//		- move the clicked element to a container div at the end of the document, which you can later retrieve using ctrl-shift-click
 function toggleBlockEditMode()
 {
 	const db = document.body;
@@ -5567,6 +5616,7 @@ function inspect_mouseoverHandler(evt)
 	}
 }
 
+//	*Much* faster than any browser's devtools inspector.
 function inspect(onTop)
 {
 	if(!get("#inspector"))
@@ -5609,6 +5659,7 @@ function inspect_clickHandler(e)
 		prompt("", get("#inspector").textContent);
 }
 
+//	Takes an element and an integer depth, and wraps that element in that many levels of elements of type <tag>
 function indentByDepth(node, depth, tag)
 {
 	const tagName = tag || "blockquote";
@@ -5652,6 +5703,7 @@ function listSelectorsWithLightBackgrounds()
 	console.log(str);
 }
 
+//	Gives each cell in a table a unique id
 function numberTableRowsAndColumns()
 {
 	if(get("#styleShowTables"))
@@ -5674,6 +5726,8 @@ function numberTableRowsAndColumns()
 	insertStyle("table, tr, td { box-shadow: inset 1px 1px #444, inset -1px -1px #444; }", "styleShowTables", true);
 }
 
+//	Logs all mutations. Useful for things like finding out what's changing in the DOM when, for instance,
+//	you hover over an element and a popup appears, or similar things that regular developer tools are no good for.
 function logMutations(mutations)
 {
 	let i, ii;
@@ -5723,6 +5777,7 @@ function toggleMutationObserver(watchAttributes)
 	Nimbus.isObservingMutations = true;
 }
 
+//	Useful when, say, you want to see the classes and ids for all <input> elements
 function showSelectorsFor(tagName)
 {
 	const styleId = 'styleShowClassesBySelector';
@@ -5733,7 +5788,7 @@ function showSelectorsFor(tagName)
 	insertStyle(style, styleId, true);
 }
 
-function removeEventListeners()
+function removeEventListenerAttributes()
 {
 	let db = document.body;
 	const tempBody = db.cloneNode(true);
@@ -6238,6 +6293,12 @@ function highlightAllMatchesInNode(node, splitMatches)
 	node.innerHTML = nodeHTML;
 }
 
+//	This function solves the problem of highlighting text in an HTML element when that text
+//	spans other HTML elements, such as span, b, or em tags. The way it works is by finding the
+//	starting and ending indices of the search string in the textContent of the parent element,
+//	then comparing those indices to the indices of each childNode of the parent element. Using
+//	this, we can split the search string into substrings that are fully contained by the parent
+//	element's childNodes. We can then highlight each split substring inside the childNodes.
 function highlightTextAcrossTags(node, searchString)
 {
 	searchString = escapeHTML(searchString.replace(/\s+/g, " "));
