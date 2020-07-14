@@ -1868,7 +1868,7 @@ function runCommand(commandString)
 				args.push(commandSegments[i]);
 			else args.push(n);
 		}
-		showMessageBig(funcName + "(" + arrayToStringTyped(args) + ")");
+		showMessageBig(funcName + "(" + arrayToStringTyped(args, ", ") + ")");
 		Nimbus.availableFunctions[funcName].apply(this, args);
 	}
 	else
