@@ -247,6 +247,7 @@ const Nimbus = {
 		replaceMarkedElements: replaceMarkedElements,
 		replaceTables: replaceTables,
 		normalizeAllWhitespace: normalizeAllWhitespace,
+		normaliseWhitespaceForParagraphs: normaliseWhitespaceForParagraphs,
 		replaceSpansWithTextNodes: replaceSpansWithTextNodes,
 		replaceSpecialCharacters:replaceSpecialCharacters,
 		rescueOrphanedTextNodes: rescueOrphanedTextNodes,
@@ -4842,6 +4843,18 @@ function normalizeAllWhitespace()
 	{
 		const textNode = textNodes[i];
 		textNode.data = textNode.data.replace(/\s+/g, " ");
+	}
+}
+
+function normaliseWhitespaceForParagraphs()
+{
+	const textNodes = getTextNodesAsArray();
+	for(let i = 0, ii = textNodes.length; i < ii; i++)
+	{
+		const textNode = textNodes[i];
+		const blockParent = getFirstBlockParent(textNode);
+		if(blockParent && blockParent.tagName === "P")
+			textNode.data = normalizeWhitespace(textNode.data);
 	}
 }
 
