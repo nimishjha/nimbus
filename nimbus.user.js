@@ -288,6 +288,8 @@ const Nimbus = {
 	},
 	highlightTagName: "mark",
 	highlightTagNameList: ["mark", "markyellow", "markred", "markgreen", "markblue", "markpurple", "markwhite"],
+	smallImageThreshold: 50,
+	smallImageThresholdList: [100, 200, 300, 400],
 	trHighlightClass: {
 		"mark": "trMark",
 		"markyellow": "trMarkYellow",
@@ -1477,17 +1479,17 @@ function debugVars(params)
 	}
 }
 
-function getNext(str, arrStrings)
+function getNext(item, arr)
 {
-	debugVars({ str, arrStrings });
-	let nextString = arrStrings[0];
-	const index = arrStrings.indexOf(str);
+	debugVars({ item, arr });
+	let nextItem = arr[0];
+	const index = arr.indexOf(item);
 	if(~index)
 	{
-		const nextIndex = index < arrStrings.length - 1 ? index + 1 : 0;
-		nextString = arrStrings[nextIndex];
+		const nextIndex = index < arr.length - 1 ? index + 1 : 0;
+		nextItem = arr[nextIndex];
 	}
-	return nextString;
+	return nextItem;
 }
 
 function createUUID()
@@ -2671,7 +2673,7 @@ function removeQueryStringFromLinks()
 	}
 }
 
-function deleteImagesSmallerThan(x, y)
+function deleteImagesSmallerThan(pixelArea)
 {
 	const images = document.getElementsByTagName('img');
 	let i = images.length;
@@ -2679,37 +2681,21 @@ function deleteImagesSmallerThan(x, y)
 	while(i--)
 	{
 		const image = images[i];
-		if(image.naturalWidth < x || image.naturalHeight < y)
+		if(image.naturalWidth * image.naturalHeight < pixelArea)
 		{
 			image.remove();
 			count++;
 		}
 	}
-	showMessageBig(`Deleted <b>${count}</b> images smaller than <b>${x} x ${y}</b>`);
+	showMessageBig(`Deleted <b>${count}</b> images smaller than <b>${pixelArea}</b>`);
 }
 
 function deleteSmallImages()
 {
 	const images = get("img");
-	const dimensions = [100, 200, 300, 400];
-	let index = 0;
-	let indexElement = get("#imagedimensionindex");
-	if(indexElement)
-	{
-		index = indexElement.textContent || 0;
-		index++;
-		if(index > dimensions.length - 1)
-			return;
-	}
-	else
-	{
-		index = 0;
-	}
-	del("#imagedimensionindex");
-	indexElement = createElement("h6", { textContent: index, id: "imagedimensionindex" });
-	document.body.appendChild(indexElement);
-	const dimension = dimensions[index];
-	deleteImagesSmallerThan(dimension, dimension);
+	const nextThreshold = getNext(Nimbus.smallImageThreshold, Nimbus.smallImageThresholdList);
+	Nimbus.smallImageThreshold = nextThreshold;
+	deleteImagesSmallerThan(nextThreshold * nextThreshold);
 }
 
 function getBestImageSrc()
@@ -5074,7 +5060,7 @@ function replaceAudio()
 			source.parentNode.replaceChild(audioLinkWrapper, source);
 		}
 	}
-	replaceElementsBySelector("audio", "div");
+	replaceElementsBySelector("audio", "h2");
 }
 
 //	Append useful information to a webpage, including a link to the parent domain, a link to the original document, and a timestamp
