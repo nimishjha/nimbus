@@ -472,6 +472,23 @@ function retrieveElements(elems)
 	showMessageBig(`Retrieved <b>${elements.length}</b> elements`);
 }
 
+function selectByTagNameMatching(text)
+{
+	const selected = [];
+	const textUpper = text.toUpperCase();
+	const e = Array.from( document.body.getElementsByTagName("*") );
+	for(let i = 0, ii = e.length; i < ii; i++)
+	{
+		const elem = e[i];
+		if(!elem || !elem.nodeType)
+			continue;
+		const elemTagName = elem.tagName;
+		if(elemTagName && ~elemTagName.indexOf(textUpper))
+			selected.push(elem);
+	}
+	return selected;
+}
+
 function selectByClassOrIdContaining(str)
 {
 	const strLower = str.toLowerCase();
@@ -1230,6 +1247,14 @@ function replaceSelectedElement(tagName)
 	const blockParent = getFirstBlockParent(selection.anchorNode);
 	if(blockParent)
 		replaceElement(blockParent, replacementTag);
+}
+
+function replaceElementsByTagNameMatching(text, tagName)
+{
+	const replacementTagName = tagName || "blockquote";
+	const e = selectByTagNameMatching(text);
+	for(let i = 0, ii = e.length; i < ii; i++)
+		replaceElement(e[i], replacementTagName);
 }
 
 function replaceElementsBySelectorHelper()
@@ -6616,6 +6641,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.T: numberTableRowsAndColumns(); break;
 			case KEYCODES.V: toggleShowDocumentStructure(); break;
 			case KEYCODES.X: customPrompt("Enter xPath").then(xPathMark); break;
+			case KEYCODES.Y: replaceElementsByTagNameMatching("ytd"); break;
 			case KEYCODES.Z: markSelectionAnchorNode(); break;
 			case KEYCODES.F12: inspect(); break;
 			default: shouldPreventDefault = false; break;
