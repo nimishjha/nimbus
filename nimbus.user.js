@@ -403,7 +403,10 @@ function markElements(elems)
 {
 	const elements = elems.nodeType ? [elems] : elems;
 	if(!(elements && elements.length))
+	{
+		showMessageBig("No elements given");
 		return;
+	}
 	for(let i = 0, ii = elements.length; i < ii; i++)
 		elements[i].classList.add(Nimbus.markerClass);
 	insertStyleHighlight();
@@ -414,7 +417,10 @@ function unmarkElements(elems)
 {
 	const elements = elems.nodeType ? [elems] : elems;
 	if(!(elements && elements.length))
+	{
+		showMessageBig("No elements given");
 		return;
+	}
 	for(let i = 0, ii = elements.length; i < ii; i++)
 		elements[i].classList.remove(Nimbus.markerClass);
 	showMessageBig(`Unmarked <b>${elements.length}</b> elements`);
@@ -4461,7 +4467,7 @@ function toggleStyleNegative()
 	samp, mark mark { font: 24px "Swis721 Cn BT", Calibri, sans-serif; }
 	figure { border: 0; background: #181818; padding: 20px; }
 	figcaption { background: #181818; color: #888; }
-	ruby { margin: 10px 0; background: #000; color: #AAA; padding: 20px 40px; display: block; }
+	ruby { margin: 10px 0; background: #000; color: #CCC; padding: 20px 40px; display: block; border-left: 10px solid #F90; }
 	rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 24px "Swis721 Cn BT", Calibri, sans-serif; border-top: 50px solid #000; border-bottom: 50px solid #000; }
 	rt { margin: 10px 0; padding: 20px; display: block; background: #181818; }
 	rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }
