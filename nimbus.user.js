@@ -265,6 +265,7 @@ const Nimbus = {
 		showResources: showResources,
 		showSavedStreamingImages: showSavedStreamingImages,
 		showSelectorsFor: showSelectorsFor,
+		showTags: showTags,
 		toggleBlockEditMode: toggleBlockEditMode,
 		toggleContentEditable: toggleContentEditable,
 		toggleHighlightSelectionMode: toggleHighlightSelectionMode,
@@ -2339,6 +2340,29 @@ function numberDivs()
 	while(i--)
 		e[i].id = "i" + i;
 	toggleShowDocumentStructureWithNames();
+}
+
+function showTags()
+{
+	const e = Array.from( document.body.getElementsByTagName("*") );
+	const tags = {};
+	for(let i = 0, ii = e.length; i < ii; i++)
+	{
+		const elem = e[i];
+		if(!elem || !elem.nodeType)
+			continue;
+		const elemTagName = elem.tagName;
+		if(elemTagName)
+		{
+			elem.setAttribute("data-tagname", elemTagName);
+			elem.classList.add("nimbusShowTags");
+		}
+	}
+	const style = `
+		.nimbusShowTags { padding: 10px; margin: 10px; box-shadow: inset 4px 4px #000, inset -4px -4px #000; }
+		.nimbusShowTags::before { content: attr(data-tagname); color: #F90; background: #000; padding: 2px 5px; }
+		`;
+	insertStyle(style, "styleShowTags", true);
 }
 
 function unmarkAll()
