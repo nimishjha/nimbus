@@ -2354,7 +2354,7 @@ function showTags()
 		const elemTagName = elem.tagName;
 		if(elemTagName)
 		{
-			elem.setAttribute("data-tagname", elemTagName);
+			elem.setAttribute("data-tagname", elemTagName.toLowerCase());
 			elem.classList.add("nimbusShowTags");
 		}
 	}
@@ -4563,8 +4563,8 @@ function toggleShowDocumentStructureWithNames()
 {
 	const style = `
 		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 10px; padding: 10px; }
-		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #FF0; background: #000; padding: 2px 5px; }
-		p::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #F90; background: #000; padding: 2px 5px; }
+		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #F90; background: #000; padding: 2px 5px; }
+		p::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #F0F; background: #000; padding: 2px 5px; }
 		span { box-shadow: inset 0 -100px rgba(0,128,0,0.5); }
 		span::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #0F0; background: #000; padding: 2px 5px; }
 		`;
@@ -6145,17 +6145,12 @@ function wrapAnchorNodeInTag()
 
 function generateTableOfContents()
 {
-	function createId(s)
-	{
-		return removeWhitespace(s.toLowerCase().replace(/[^a-z]/g, ''));
-	}
-
 	const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
 	const toc = document.createElement('div');
 	for (let i = 0, ii = headings.length; i < ii; i++)
 	{
 		const heading = headings[i];
-		const id = createId(heading.textContent);
+		const id = createUUID();
 		const newAnchor = createElement("a", { id: id });
 		const tocEntryLink = createElement("a", { textContent: heading.textContent, href: "#" + id } );
 		const tocEntryHeading = createElement(heading.tagName);
