@@ -6414,7 +6414,7 @@ function highlightTextAcrossTags(node, searchString)
 		{
 			//	If the childNode is an element node
 			if(childNode.nodeType === 1)
-				childNode.innerHTML = highlightTagOpen + childNode.innerHTML + highlightTagClose;
+				wrapElementInner(childNode, Nimbus.highlightTagName);
 			else
 				splitMatches.push(partialSearchString);
 		}
