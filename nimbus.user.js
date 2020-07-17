@@ -6393,15 +6393,18 @@ function highlightTextAcrossTags(node, searchString)
 		let isMatch = false;
 		if(["I", "B", "EM", "STRONG"].includes(childNode.tagName))
 			continue;
+		//	The childNode contains the beginning of the search string
 		if(index1 >= childNodeStart && index1 < childNodeEnd)
 		{
 			isMatch = true;
 			partialSearchString = childNode.textContent.substring(index1 - childNodeStart, index1 - childNodeStart + searchString.length);
 		}
+		//	If the childNode is entirely contained within the search string
 		else if(index1 < childNodeStart && index2 > childNodeEnd)
 		{
 			wrapElement(childNode, Nimbus.highlightTagName);
 		}
+		//	The childNode contains the end of the search string
 		else if(index2 > childNodeStart && index2 <= childNodeEnd)
 		{
 			isMatch = true;
@@ -6409,6 +6412,7 @@ function highlightTextAcrossTags(node, searchString)
 		}
 		if(isMatch && partialSearchString.length > 5)
 		{
+			//	If the childNode is an element node
 			if(childNode.nodeType === 1)
 				childNode.innerHTML = highlightTagOpen + childNode.innerHTML + highlightTagClose;
 			else
