@@ -1170,7 +1170,7 @@ function createElementWithChildren(tagName, ...children)
 //	Takes a source element and a tagName, and returns an element of type tagName
 //	with the source element's properties mapped across to the new element as specified
 //	in the propertyMapping parameter. This could be used, for instance, to create an <a>
-//	based upon an <img>, taking its textContent from the image's src attribute.
+//	based upon an <img>, taking its textContent and href from the image's src attribute.
 function createReplacementElement(tagName, sourceElement, propertyMapping)
 {
 	const elem = document.createElement(tagName);
@@ -5572,9 +5572,9 @@ function handleBlockEditClick(evt)
 }
 
 //	This function toggles "block edit mode," in which you can:
-//		- retrieve the clicked element (ctrl-shift-click)
-//		- delete the clicked element (ctrl-click)
-//		- move the clicked element to a container div at the end of the document, which you can later retrieve using ctrl-shift-click
+//		- ctrl-shift-click to retrieve the clicked element
+//		- ctrl-click to delete the clicked element
+//		- shift-click to move the clicked element to a container div at the end of the document, which you can later retrieve using ctrl-shift-click
 function toggleBlockEditMode()
 {
 	const db = document.body;
@@ -6414,12 +6414,17 @@ function highlightTextAcrossTags(node, searchString)
 		{
 			//	If the childNode is an element node
 			if(childNode.nodeType === 1)
+			{
+				consoleLog("childNode is an element node");
+				consoleLog(childNode);
 				wrapElementInner(childNode, Nimbus.highlightTagName);
+			}
 			else
+			{
 				splitMatches.push(partialSearchString);
+			}
 		}
 	}
-	consoleLog("splitMatches: " + arrayToString(splitMatches));
 	highlightAllMatchesInNode(node, splitMatches);
 }
 
