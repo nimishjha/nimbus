@@ -3204,6 +3204,18 @@ function tabifySpaces(s)
 	return s;
 }
 
+//	Some people use <br> elements to create line breaks inside pres.
+//	"Only two things are infinite..."
+function replaceBrsInPres()
+{
+	const brs = document.querySelectorAll("pre br");
+	for(let i = 0, ii = brs.length; i < ii; i++)
+	{
+		const br = brs[i];
+		br.parentNode.replaceChild(document.createTextNode("\n"), br);
+	}
+}
+
 function fixPres()
 {
 	replaceElementsBySelector('font', 'span');
@@ -3894,6 +3906,7 @@ function parseCode(s)
 
 function highlightCode(shouldHighlightKeywords)
 {
+	replaceBrsInPres();
 	fixPres();
 	restorePres();
 
