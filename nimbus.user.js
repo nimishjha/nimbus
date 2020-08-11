@@ -3945,7 +3945,7 @@ function highlightCode(shouldHighlightKeywords)
 				"getElementsByClassName", "getElementsByID", "getElementsByTagName", "goto",
 				"if", "implements", "import", "in", "insertBefore", "int",
 				"let", "long",
-				"NaN", "native", "new", "null",
+				"NaN", "native", "new", "npm", "null",
 				"object", "onclick", "onload", "onmouseover",
 				"package", "private", "protected", "prototype", "public",
 				"querySelector", "querySelectorAll",
@@ -3954,6 +3954,7 @@ function highlightCode(shouldHighlightKeywords)
 				"this", "throw", "throws", "transient", "true", "try", "type", "typeof",
 				"undefined",
 				"var", "void", "volatile",
+				"yarn",
 				"while", "window", "with"
 			];
 			let j = keywords.length;
@@ -4109,7 +4110,7 @@ function changePageByUrl(direction)
 	const urlPageMatch = url.match(/page\/[0-9]+/);
 	if(urlPageMatch)
 	{
-		let page = urlPageMatch[0].split('/')[1];
+		let page = parseInt(urlPageMatch[0].split('/')[1], 10);
 		switch(direction)
 		{
 			case "previous": page--; break;
@@ -4117,16 +4118,23 @@ function changePageByUrl(direction)
 		}
 		if(page < 1)
 			page = 1;
-		location.href = url.replace(urlPageMatch[0], `page/${page}`);
-		return;
+		showMessageBig("Going to page " + page);
+		const newUrl = url.replace(urlPageMatch[0], `page/${page}`);
+		consoleLog(newUrl);
+		location.href = newUrl;
+		return true;
 	}
 
 	const queryParams = parseQueryString(url);
+	console.log(queryParams);
+	let found = false;
+	let page;
 	for(let i = 0, ii = queryParams.length; i < ii; i++)
 	{
 		if(["page", "p"].includes(queryParams[i].key))
 		{
-			let page = queryParams[i].value;
+			found = true;
+			page = parseInt(queryParams[i].value, 10);
 			switch(direction)
 			{
 				case "previous": page--; break;
@@ -4138,15 +4146,26 @@ function changePageByUrl(direction)
 			break;
 		}
 	}
-	let newQueryString = "";
-	for(let i = 0, ii = queryParams.length; i < ii; i++)
-		newQueryString += `${queryParams[i].key}=${queryParams[i].value}&`;
-	let baseUrl = trimAt(url, "?");
-	location.href = `${baseUrl}?${newQueryString}`;
+	if(found)
+	{
+		showMessageBig("Going to page " + page);
+		let newQueryString = "";
+		for(let i = 0, ii = queryParams.length; i < ii; i++)
+			newQueryString += `${queryParams[i].key}=${queryParams[i].value}&`;
+		let baseUrl = trimAt(url, "?");
+		const newUrl = `${baseUrl}?${newQueryString}`;
+		consoleLog(newUrl);
+		location.href = newUrl;
+		return true;
+	}
+	return false;
 }
 
 function changePage(direction)
 {
+	const canChangePageByUrl = changePageByUrl(direction);
+	if(canChangePageByUrl)
+		return;
 	const links = get("a");
 	let matchStrings = [];
 	if(direction === "prev")
@@ -4170,8 +4189,6 @@ function changePage(direction)
 			}
 		}
 	}
-
-	changePageByUrl(direction);
 }
 
 function cycleHighlightTag()
@@ -4238,6 +4255,7 @@ function joinMarkedElements()
 	}
 	insertBefore(elemsToJoin[0], wrapper);
 	del(makeClassSelector(Nimbus.markerClass));
+	deleteMessage();
 }
 
 //	I find it hard to believe the number of website creators who think a logout button should be hidden behind two or more clicks.
@@ -4369,7 +4387,7 @@ function toggleStyleSimpleNegative()
 {
 	const s = `body, body[class] {background: #181818; }
 	*, *[class] { background-color: transparent; color: #CCC; border-color: transparent; }
-	h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #FFF; }
+	h1, h2, h3, h4, h5, h6, b, strong, em, i { color: #FFF; }
 	mark {color: #FF0; }
 	a, a[class] *, * a[class] {color: #09F; }
 	a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #FFF; }
@@ -4839,6 +4857,7 @@ function cleanupGeneral()
 	appendInfo();
 	getBestImageSrc();
 	insertStyleHighlight();
+	forceImageWidth(1200);
 	document.body.className = "pad100 xwrap";
 	if(~navigator.userAgent.indexOf("Chrome"))
 	{
@@ -5162,7 +5181,8 @@ function replaceAudio()
 //	Append useful information to a webpage, including a link to the parent domain, a link to the original document, and a timestamp
 function appendInfo()
 {
-	if(window.location.href.indexOf("file:///") >= 0) return;
+	if(window.location.href.indexOf("file:///") >= 0)
+		return;
 	const headings4 = get("h4");
 	if(headings4.length && headings4.length > 2 && headings4[headings4.length - 2].textContent.indexOf("URL:") === 0)
 		return;
@@ -5197,7 +5217,7 @@ function deleteNonContentLists()
 	{
 		const list = lists[i];
 		const listText = list.textContent;
-		if(listText && containsAllOfTheStrings(listText, ["witter", "acebook"]))
+		if(listText && (containsAllOfTheStrings(listText, ["witter", "acebook"]) || containsAllOfTheStrings(listText, ["hare", "weet"])))
 			list.remove();
 	}
 }
@@ -6193,7 +6213,7 @@ function getTextLength(elem)
 {
 	if(!elem.textContent)
 		return 0;
-	return elem.textContent.replace(/[^a-zA-Z0-9\^]/g, "").length;
+	return elem.textContent.replace(/[^a-zA-Z0-9\^\*]/g, "").length;
 }
 
 function toggleHighlightSelectionMode()
@@ -6576,6 +6596,7 @@ function setupKeyboardShortcuts(e)
 		{
 			case KEYCODES.TILDE: highlightSelection(); break;
 			case KEYCODES.NUMPAD1: fillForms(); break;
+			case KEYCODES.NUMPAD3: toggleContentEditable(); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.F1: customPrompt("Enter replacement tag name").then(setReplacementTag); break;
 			case KEYCODES.F2: replaceSelectedElement("h2"); break;
@@ -6643,6 +6664,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.J: joinMarkedElements(); break;
 			case KEYCODES.K: showPrintLink(); break;
 			case KEYCODES.L: logout(); break;
+			case KEYCODES.N: callFunctionWithArgs("Delete numbered divs in range", delRange); break;
 			case KEYCODES.P: getPagerLinks(); break;
 			case KEYCODES.Q: rescueOrphanedTextNodes(); break;
 			case KEYCODES.R: replaceSelectedElement(); break;
