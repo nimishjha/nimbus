@@ -4385,15 +4385,15 @@ function insertStyleShowErrors()
 
 function toggleStyleSimpleNegative()
 {
-	const s = `body, body[class] {background: #181818; }
-	*, *[class] { background-color: transparent; color: #CCC; border-color: transparent; }
-	h1, h2, h3, h4, h5, h6, b, strong, em, i { color: #FFF; }
-	mark {color: #FF0; }
-	a, a[class] *, * a[class] {color: #09F; }
-	a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #FFF; }
-	a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #048; }
-	button[class], input[class], textarea[class] { border: 2px solid #09F; }
-	button[class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 2px solid #FFF; }`;
+	const s = `html, body, body[class] {background: #000; }
+		*, *[class] { background-color: rgba(0,0,0,0.4); color: #CCC; border-color: transparent; }
+		h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #FFF; }
+		mark {color: #FF0; }
+		a, a[class] *, * a[class] {color: #09F; }
+		a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #FFF; }
+		a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #048; }
+		button[class], input[class], textarea[class] { border: 2px solid #09F; }
+		button[class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 2px solid #FFF; }`;
 	toggleStyle(s, "styleSimpleNegative", true);
 }
 
