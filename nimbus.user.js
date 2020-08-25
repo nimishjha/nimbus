@@ -5002,8 +5002,9 @@ function deleteEmptyHeadings()
 
 function deleteSpecificEmptyElements()
 {
+	const BLOCK_ELEMENTS_SELECTOR = "p, tr, ul, ol, li, div, figure, figcaption, aside, blockquote";
 	deleteEmptyHeadings();
-	deleteEmptyElements("p, tr, li, div, figure, figcaption, aside");
+	deleteEmptyElements(BLOCK_ELEMENTS_SELECTOR);
 }
 
 //	For those ancient webpages that still use <font size...> tags to denote headings.
