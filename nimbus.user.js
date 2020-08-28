@@ -3296,6 +3296,7 @@ function createTagsByClassName()
 	const e = document.querySelectorAll("div, p");
 	let i = e.length;
 	let numReplaced = 0;
+	const tagsCreated = {};
 	while(i--)
 	{
 		const element = e[i];
@@ -3310,6 +3311,10 @@ function createTagsByClassName()
 		}
 		if(replacementTagName)
 		{
+			if(tagsCreated[replacementTagName])
+				tagsCreated[replacementTagName]++;
+			else
+				tagsCreated[replacementTagName] = 1;
 			numReplaced++;
 			replaceElement(element, replacementTagName);
 		}
@@ -3330,11 +3335,16 @@ function createTagsByClassName()
 		}
 		if(replacementTagName)
 		{
+			if(tagsCreated[replacementTagName])
+				tagsCreated[replacementTagName]++;
+			else
+				tagsCreated[replacementTagName] = 1;
 			numReplaced++;
 			replaceElement(element, replacementTagName);
 		}
 	}
 	showMessageBig(`createTagsByClassName: replaced <b>${numReplaced}</b> elements`);
+	console.log(tagsCreated);
 }
 
 function makeHeadingsByTextLength()
