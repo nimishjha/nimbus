@@ -165,6 +165,7 @@ const Nimbus = {
 		fixHeadings: fixHeadings,
 		fixParagraphs: fixParagraphs,
 		fixPres: fixPres,
+		fixCdnImages: fixCdnImages,
 		focusButton: focusButton,
 		forAll: forAll,
 		forAllMarked: forAllMarked,
@@ -291,7 +292,7 @@ const Nimbus = {
 	highlightTagName: "mark",
 	highlightTagNameList: ["mark", "markyellow", "markred", "markgreen", "markblue", "markpurple", "markwhite"],
 	smallImageThreshold: 50,
-	smallImageThresholdList: [100, 200, 300, 400],
+	smallImageThresholdList: [100, 200, 300, 400, 500, 600],
 	trHighlightClass: {
 		"mark": "trMark",
 		"markyellow": "trMarkYellow",
@@ -303,7 +304,7 @@ const Nimbus = {
 	},
 	replacementTagName: "blockquote",
 	markerClass: "nimbushl",
-	minPersistWidth: 600,
+	minPersistWidth: 1000,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
 };
@@ -1350,6 +1351,7 @@ function markByClassOrIdContaining(str)
 function rescueOrphanedTextNodes()
 {
 	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE"];
+	const REPLACEMENT_TAGNAME = "h2";
 	const textNodes = getTextNodesAsArray();
 	const nodeItems = [];
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
@@ -1380,7 +1382,7 @@ function rescueOrphanedTextNodes()
 		{
 			if(consecutiveOrphans.length)
 			{
-				const parent = document.createElement("p");
+				const parent = document.createElement(REPLACEMENT_TAGNAME);
 				for(let j = 0, jj = consecutiveOrphans.length; j < jj; j++)
 				{
 					parent.appendChild(consecutiveOrphans[j].cloneNode());
@@ -1399,6 +1401,7 @@ function rescueOrphanedTextNodes()
 			consecutiveOrphans.push(nodeItem.node);
 		}
 	}
+	insertStyleHighlight();
 }
 
 function hasChildrenOfType(elem, tagName)
@@ -3179,6 +3182,20 @@ function fixHeadings()
 	cleanupHeadings();
 }
 
+function fixCdnImages()
+{
+	const images = get("img[src*='si-cdn']");
+	for(let i = 0, ii = images.length; i < ii; i++)
+	{
+		let src = images[i].src;
+		if(src.indexOf("/http"))
+		{
+			src = trimStartingAt(src, "/http").substring(1);
+			images[i].src = src;
+		}
+	}
+}
+
 function reindentPreformatted(pre)
 {
 	let s = pre.innerHTML;
@@ -4234,6 +4251,8 @@ function groupMarkedElements(tagName)
 		case "ul": childTagName = "li"; break;
 	}
 	const elemsToJoin = getMarkedElements();
+	if(!elemsToJoin.length)
+		return;
 	const wrapper = document.createElement(parentTagName);
 	for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
 	{
@@ -4246,7 +4265,7 @@ function groupMarkedElements(tagName)
 }
 
 //	This function fixes the problem where two adjacent elements should in fact be one element.
-//	Useful for joining, say, a paragraph that has erroneously been broken into two paragraphs.
+//	Useful for joining, say, a paragraph that has erroneously been split into two paragraphs.
 function joinMarkedElements()
 {
 	const elemsToJoin = getMarkedElements();
@@ -4372,7 +4391,7 @@ function showPrintLink()
 function insertStyleHighlight()
 {
 	const s = `.nimbushl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }
-	.focused { box-shadow: inset 0px 1000px #000; }
+	.focused { box-shadow: inset 0px 1000px #000; color: #FFF; }
 	.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }
 	.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }`;
 	insertStyle(s, "styleHighlight", true);
@@ -4488,6 +4507,8 @@ function toggleStyleNegative()
 	{
 		tbody, thead, th, tr, td, table { background: #202020; color: inherit; font: 22px "Swis721 Cn BT"; }
 		input, input *, button, button *, div, td, p { font-size: 22px; font-family: "Swis721 Cn BT", sans-serif; line-height: 150%; }
+		li { font-size: 22px; }
+		pre { font-size: 22px; }
 	}
 
 	code { background: #0C0C0C; font-family: Verdcode, Consolas, sans-serif; padding: 1px 2px; }
@@ -5444,6 +5465,7 @@ function cleanupWikipedia()
 	]);
 	replaceElementsBySelector(".thumb", "figure");
 	replaceElementsBySelector(".thumbcaption", "figcaption");
+	replaceElementsBySelector(".hatnote", "dt");
 	const sups = get("sup");
 	let i = sups.length;
 	while(i--)
@@ -6435,7 +6457,7 @@ function highlightTextAcrossTags(node, searchString)
 		childNodeEnd += childNode.textContent.length;
 		let partialSearchString;
 		let isMatch = false;
-		if(["I", "B", "EM", "STRONG"].includes(childNode.tagName))
+		if(["I", "B", "EM", "STRONG", "REFERENCE"].includes(childNode.tagName))
 			continue;
 		//	The childNode contains the beginning of the search string
 		if(index1 >= childNodeStart && index1 < childNodeEnd)
@@ -6609,6 +6631,8 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.NUMPAD1: fillForms(); break;
 			case KEYCODES.NUMPAD3: toggleContentEditable(); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
+			case KEYCODES.NUMPAD5: toggleHighlightSelectionMode(); break;
+			case KEYCODES.NUMPAD7: groupMarkedElements("blockquote"); break;
 			case KEYCODES.F1: customPrompt("Enter replacement tag name").then(setReplacementTag); break;
 			case KEYCODES.F2: replaceSelectedElement("h2"); break;
 			case KEYCODES.F3: replaceSelectedElement("h3"); break;
