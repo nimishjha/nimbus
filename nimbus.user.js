@@ -6465,7 +6465,7 @@ function highlightTextAcrossTags(node, searchString)
 			isMatch = true;
 			partialSearchString = childNode.textContent.substring(index1 - childNodeStart, index1 - childNodeStart + searchString.length);
 		}
-		//	If the childNode is entirely contained within the search string
+		//	The childNode is entirely contained within the search string
 		else if(index1 < childNodeStart && index2 > childNodeEnd)
 		{
 			wrapElement(childNode, Nimbus.highlightTagName);
