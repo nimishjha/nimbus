@@ -4333,29 +4333,14 @@ function logout()
 		for(let i = 0, ii = inputsButtons.length; i < ii; i++)
 		{
 			const element = inputsButtons[i];
-			if(element.value)
+			const s = normalizeString(element.value || element.textContent);
+			if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
 			{
-				const s = normalizeString(element.value);
-				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
-				{
-					found = true;
-					showMessageBig("Logging out...");
-					element.classList.add(Nimbus.markerClass);
-					element.click();
-					break;
-				}
-			}
-			else if(element.textContent)
-			{
-				const s = normalizeString(element.textContent);
-				if(s.indexOf("logout") >= 0 || s.indexOf("signout") >= 0)
-				{
-					found = true;
-					showMessageBig("Logging out...");
-					element.classList.add(Nimbus.markerClass);
-					element.click();
-					break;
-				}
+				found = true;
+				showMessageBig("Logging out...");
+				element.classList.add(Nimbus.markerClass);
+				element.click();
+				break;
 			}
 		}
 	}
