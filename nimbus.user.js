@@ -206,6 +206,7 @@ const Nimbus = {
 		makeHeadings: makeHeadings,
 		makeHeadingsByTextLength: makeHeadingsByTextLength,
 		makePlainText: makePlainText,
+		makeReferencesSemantic: makeReferencesSemantic,
 		mark: mark,
 		showDivDepth: showDivDepth,
 		markBySelector: markBySelector,
@@ -1084,7 +1085,7 @@ function showLog(prepend)
 
 function htmlToText(elem)
 {
-	elem.innerHTML = elem.textContent;
+	elem.textContent = elem.textContent;
 }
 
 function createSelector(elem)
@@ -2284,6 +2285,36 @@ function highlightAuthors()
 	replaceByClassOrIdContaining("byline", "author");
 	mark("author", "hasChildrenOfType", "author");
 	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "div");
+}
+
+//	If a superscript element contains a link, it's most likely a reference,
+//	and should be distinguished from regular superscripts
+function makeReferencesSemantic()
+{
+	const sups = get("sup");
+	for(let i = 0, ii = sups.length; i < ii; i++)
+	{
+		const sup = sups[i];
+		if(sup.getElementsByTagName("a").length)
+		{
+			replaceElement(sup, "reference");
+		}
+		else
+		{
+			const parent = sup.parentNode;
+			if(parent.tagName === "A")
+			{
+				parent.textContent = parent.textContent;
+				wrapElement(parent, "reference");
+			}
+		}
+	}
+	const refLinks = get("reference a");
+	for(let i = 0, ii = refLinks.length; i < ii; i++)
+	{
+		const refLink = refLinks[i];
+		refLink.textContent = refLink.textContent.replace(/[\[\]]/, "");
+	}
 }
 
 function markUppercaseParagraphs()
