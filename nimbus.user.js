@@ -2255,8 +2255,9 @@ function markSelectionAnchorNode()
 	if(!selection.toString().length)
 		return;
 	let node = selection.anchorNode;
-	while(node.parentNode && (node.textContent.length < selection.length || node.nodeType !== 1))
-		node = node.parentNode;
+	// while(node.parentNode && (node.textContent.length < selection.length || node.nodeType !== 1))
+	// 	node = node.parentNode;
+	node = getFirstBlockParent(node);
 	node.classList.add(Nimbus.markerClass);
 	insertStyleHighlight();
 	showMessage(createSelector(node), "messagebig", true);
@@ -4293,6 +4294,7 @@ function groupMarkedElements(tagName)
 	}
 	insertBefore(elemsToJoin[0], wrapper);
 	del(makeClassSelector(Nimbus.markerClass));
+	deleteMessage();
 }
 
 //	This function fixes the problem where two adjacent elements should in fact be one element.
@@ -4431,7 +4433,7 @@ function insertStyleShowErrors()
 function toggleStyleSimpleNegative()
 {
 	const s = `html, body, body[class] {background: #000; }
-		*, *[class] { background-color: rgba(0,0,0,0.4); color: #CCC; border-color: transparent; }
+		*, *[class] { background-color: #202020; color: #AAA; border-color: transparent; }
 		h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #FFF; }
 		mark {color: #FF0; }
 		a, a[class] *, * a[class] {color: #09F; }
@@ -5049,7 +5051,7 @@ function deleteEmptyHeadings()
 
 function deleteSpecificEmptyElements()
 {
-	const BLOCK_ELEMENTS_SELECTOR = "p, tr, ul, ol, li, div, figure, figcaption, aside, blockquote";
+	const BLOCK_ELEMENTS_SELECTOR = "p, tr, ul, ol, li, div, figure, figcaption, aside, blockquote, pre";
 	deleteEmptyHeadings();
 	deleteEmptyElements(BLOCK_ELEMENTS_SELECTOR);
 }
