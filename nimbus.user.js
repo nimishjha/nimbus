@@ -5336,7 +5336,7 @@ function deleteIframes()
 
 function deleteImages()
 {
-	del("svg");
+	del(["svg", "canvas"]);
 	const images = get("img");
 	const imagePlaceholders = get("rt");
 	if(images.length)
