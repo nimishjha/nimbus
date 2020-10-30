@@ -1793,8 +1793,8 @@ function handleConsoleInput(evt, consoleType)
 	if(!userInputElement)
 		return;
 	const inputText = userInputElement.value;
-	if(!inputText || !inputText.length)
-		return;
+	// if(!inputText || !inputText.length)
+	// 	return;
 	if(consoleType === "js")
 		Nimbus.jsConsoleText = inputText;
 	else if(consoleType === "css")
