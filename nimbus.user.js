@@ -308,6 +308,7 @@ const Nimbus = {
 	minPersistWidth: 1000,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
+	BLOCK_ELEMENTS: ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE"],
 };
 
 const KEYCODES = Nimbus.KEYCODES;
@@ -437,7 +438,7 @@ function highlightElements(elems)
 		showMessageError("highlightElements(): no elements given");
 		return;
 	}
-	const BLOCK_ELEMENTS = ["P", "DIV", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "TD", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD"];
+	const BLOCK_ELEMENTS = Nimbus.BLOCK_ELEMENTS;
 	const firstElement = elements[0];
 	const highlightTagName = Nimbus.highlightTagName;
 	//	Assumption: the elements are all of the same type
@@ -1351,7 +1352,7 @@ function markByClassOrIdContaining(str)
 
 function rescueOrphanedTextNodes()
 {
-	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE"];
+	const BLOCK_ELEMENTS = Nimbus.BLOCK_ELEMENTS;
 	const REPLACEMENT_TAGNAME = "h2";
 	const textNodes = getTextNodesAsArray();
 	const nodeItems = [];
@@ -4723,7 +4724,7 @@ function selectByTagNameAndText(tagName, text)
 
 function getFirstBlockParent(element)
 {
-	const BLOCK_ELEMENTS = ["P", "DIV", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "TD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD"];
+	const BLOCK_ELEMENTS = Nimbus.BLOCK_ELEMENTS;
 	const MAX_DEPTH = 5;
 	let found = false;
 	let parent = element;
