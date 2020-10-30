@@ -6786,7 +6786,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.A: deleteEmptyElements("a"); break;
 			case KEYCODES.B: toggleShowDocumentStructureWithNames(); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
-			case KEYCODES.F: del(["object", "embed", "video"]); break;
+			case KEYCODES.F: del(["object", "embed", "video", "iframe"]); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements with class or id containing the string", deleteByClassOrIdContaining); break;
 			case KEYCODES.H: callFunctionWithArgs("Mark elements by selector", markBySelector, 1); break;
 			case KEYCODES.J: deleteNodesBeforeSelected(); break;
