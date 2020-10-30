@@ -4779,6 +4779,40 @@ function delRange(m, n)
 		del(`#i${i}`);
 }
 
+function deleteNodesBeforeSelected()
+{
+	deleteNodesRelativeToSelected("before");
+}
+
+function deleteNodesAfterSelected()
+{
+	deleteNodesRelativeToSelected("after");
+}
+
+function deleteNodesRelativeToSelected(predicate = "after")
+{
+	const selection = window.getSelection();
+	const condition = predicate === "after" ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
+	if(!selection)
+	{
+		showMessageError("Couldn't get selection");
+		return;
+	}
+	const anchorNode = getFirstBlockParent(selection.anchorNode);
+	const nodes = get("ol, ul, p, div");
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		const relativePositionMeetsCriterion = anchorNode.compareDocumentPosition(node) & condition;
+		const containsAnchorNode = anchorNode.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_CONTAINS;
+		if(relativePositionMeetsCriterion && !containsAnchorNode)
+		{
+			del(node);
+		}
+	}
+}
+
 //	Removes all attributes from all elements, excluding the essential ones. It's surprising how
 //	much a page's file size can be reduced simply by removing classes and other attributes.
 function cleanupAttributes()
@@ -6755,6 +6789,8 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.F: del(["object", "embed", "video"]); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements with class or id containing the string", deleteByClassOrIdContaining); break;
 			case KEYCODES.H: callFunctionWithArgs("Mark elements by selector", markBySelector, 1); break;
+			case KEYCODES.J: deleteNodesBeforeSelected(); break;
+			case KEYCODES.K: deleteNodesAfterSelected(); break;
 			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markByCssRule, 2); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
 			case KEYCODES.N: toggleShowDocumentBlockStructure(); break;
