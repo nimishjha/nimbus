@@ -3343,6 +3343,10 @@ function fixParagraphs()
 function createTagsByClassName()
 {
 	replaceElementsBySelector(".indent", "p");
+	replaceElementsBySelector(".cn", "h2");
+	replaceElementsBySelector(".ct", "h2");
+	replaceElementsBySelector(".cst", "h2");
+	replaceElementsBySelector(".atx", "blockquote");
 	const e = document.querySelectorAll("div, p");
 	let i = e.length;
 	let numReplaced = 0;
@@ -3369,18 +3373,21 @@ function createTagsByClassName()
 			replaceElement(element, replacementTagName);
 		}
 	}
-	const spans = get("span");
-	i = spans.length;
+	const elements = get("span, div, p");
+	i = elements.length;
 	while(i--)
 	{
-		const element = spans[i];
+		const element = elements[i];
 		let replacementTagName = null;
 		switch(true)
 		{
-			case hasClassesContaining(element, ["bold", "txbf"]): replacementTagName = "b"; break;
-			case hasClassesStartingWith(element, ["epub-b"]): replacementTagName = "b"; break;
-			case hasClassesStartingWith(element, ["epub-i"]): replacementTagName = "i"; break;
-			case hasClassesContaining(element, ["italic", "txit"]): replacementTagName = "i"; break;
+			case hasClassesStartingWith(element, ["h1"]): replacementTagName = "h1"; break;
+			case hasClassesStartingWith(element, ["h2"]): replacementTagName = "h2"; break;
+			case hasClassesStartingWith(element, ["h3"]): replacementTagName = "h3"; break;
+			case hasClassesStartingWith(element, ["partno", "partnum", "parttitle", "part-title"]): replacementTagName = "h1"; break;
+			case hasClassesStartingWith(element, ["chapno", "chapnum", "chaptitle", "chap-title", "fmtitle"]): replacementTagName = "h2"; break;
+			case hasClassesContaining(element, ["bold", "txbf", "epub-b"]): replacementTagName = "b"; break;
+			case hasClassesContaining(element, ["italic", "txit", "epub-i"]): replacementTagName = "i"; break;
 			case hasClassesContaining(element, ["small"]): replacementTagName = "small"; break;
 		}
 		if(replacementTagName)
