@@ -308,7 +308,7 @@ const Nimbus = {
 	minPersistWidth: 1000,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
-	BLOCK_ELEMENTS: ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE"],
+	BLOCK_ELEMENTS: ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "RUBY"],
 };
 
 const KEYCODES = Nimbus.KEYCODES;
@@ -1682,7 +1682,7 @@ function showMessage(messageHtml, msgClass, persist)
 	clearTimeout(Nimbus.messageTimeout);
 	let messageContainer;
 	msgClass = msgClass || "";
-	const strStyle = 'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; text-align: left; }' +
+	const strStyle = 'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; text-align: center; }' +
 	'message.messagebig { font: 32px "Swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }' +
 	'message.messageerror { color: #FFF; background: #500; }';
 
@@ -2315,7 +2315,7 @@ function makeReferencesSemantic()
 	for(let i = 0, ii = refLinks.length; i < ii; i++)
 	{
 		const refLink = refLinks[i];
-		refLink.textContent = refLink.textContent.replace(/[\[\]]/, "");
+		refLink.textContent = refLink.textContent.replace(/[\[\]]/g, "");
 	}
 }
 
@@ -2784,6 +2784,7 @@ function deleteImagesSmallerThan(pixelArea)
 
 function deleteSmallImages()
 {
+	deleteBySelectorAndText("img", "data");
 	const images = get("img");
 	const nextThreshold = getNext(Nimbus.smallImageThreshold, Nimbus.smallImageThresholdList);
 	Nimbus.smallImageThreshold = nextThreshold;
@@ -4441,7 +4442,7 @@ function insertStyleShowErrors()
 function toggleStyleSimpleNegative()
 {
 	const s = `html, body, body[class] {background: #000; }
-		*, *[class] { background-color: #202020; color: #AAA; border-color: transparent; }
+		*, *[class] { background-color: rgba(0,0,0,0.4); color: #CCC; border-color: transparent; }
 		h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #FFF; }
 		mark {color: #FF0; }
 		a, a[class] *, * a[class] {color: #09F; }
