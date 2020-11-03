@@ -220,7 +220,7 @@ const Nimbus = {
 		highlightQuotes: highlightQuotes,
 		highlightUserLinks: highlightUserLinks,
 		numberTableRowsAndColumns: numberTableRowsAndColumns,
-		markUppercaseParagraphs: markUppercaseParagraphs,
+		markUppercaseElements: markUppercaseElements,
 		numberDivs: numberDivs,
 		om: toggleMutationObserver,
 		regressivelyUnenhance: regressivelyUnenhance,
@@ -309,7 +309,7 @@ const Nimbus = {
 	minPersistWidth: 1000,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
-	BLOCK_ELEMENTS: ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION"],
+	BLOCK_ELEMENTS: ["DIV", "P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION"],
 };
 
 const KEYCODES = Nimbus.KEYCODES;
@@ -2342,9 +2342,9 @@ function makeReferencesSemantic()
 	}
 }
 
-function markUppercaseParagraphs()
+function markUppercaseElements(selector)
 {
-	const e = get("p");
+	const e = get(selector);
 	let i = e.length;
 	while(i--)
 	{
@@ -2790,7 +2790,7 @@ function removeQueryStringFromLinks()
 
 function deleteImagesSmallerThan(pixelArea)
 {
-	const images = document.getElementsByTagName('img');
+	const images = get('img');
 	let i = images.length;
 	let count = 0;
 	while(i--)
@@ -4839,9 +4839,8 @@ function deleteNodesRelativeToSelected(predicate = "after")
 	while(i--)
 	{
 		const node = nodes[i];
-		const relativePositionMeetsCriterion = anchorNode.compareDocumentPosition(node) & condition;
-		const containsAnchorNode = anchorNode.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_CONTAINS;
-		if(relativePositionMeetsCriterion && !containsAnchorNode)
+		const relativePosition = anchorNode.compareDocumentPosition(node);
+		if(relativePosition & condition && !(relativePosition & Node.DOCUMENT_POSITION_CONTAINS))
 		{
 			del(node);
 		}
@@ -6258,7 +6257,7 @@ function annotate()
 	let node = selection.anchorNode;
 	if(node.tagName === undefined)
 		node = node.parentNode;
-	while(node.parentNode && !["P", "DIV"].includes(node.tagName))
+	while(node.parentNode && !Nimbus.BLOCK_ELEMENTS.includes(node.tagName))
 		node = node.parentNode;
 	if(node && node.parentNode)
 	{
@@ -6694,7 +6693,7 @@ function inject()
 {
 	document.body.classList.add("nimbusDark");
 	document.body.removeAttribute("style");
-	document.addEventListener("keydown", setupKeyboardShortcuts, false);
+	document.addEventListener("keydown", handleKeyDown, false);
 	getBestImageSrc();
 	showPassword();
 	removeAccessKeys();
@@ -6706,7 +6705,7 @@ function inject()
 	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
 }
 
-function setupKeyboardShortcuts(e)
+function handleKeyDown(e)
 {
 	let shouldPreventDefault = true;
 	let ctrlOrMeta = "ctrlKey";
@@ -6734,6 +6733,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.F1: customPrompt("Enter replacement tag name").then(setReplacementTag); break;
 			case KEYCODES.F2: replaceSelectedElement("h2"); break;
 			case KEYCODES.F3: replaceSelectedElement("h3"); break;
+			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.ONE: cleanupGeneral(); break;
 			case KEYCODES.TWO: deleteImages(); break;
 			case KEYCODES.THREE: toggleClass(db, "xwrap"); break;
@@ -6764,7 +6764,6 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.X: removeEmojis(); break;
 			case KEYCODES.Y: callFunctionWithArgs("Mark elements by tag name containing text", markByTagNameAndText, 2); break;
 			case KEYCODES.Z: replaceSpecialCharacters(); break;
-			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); cycleFocusOverFormFields(); break;
 			case KEYCODES.DELETE: deleteMarkedElements(); break;
 			case KEYCODES.SQUARE_BRACKET_OPEN: modifyMark("previous"); break;
