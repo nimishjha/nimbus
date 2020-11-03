@@ -2784,7 +2784,7 @@ function deleteImagesSmallerThan(pixelArea)
 
 function deleteSmallImages()
 {
-	deleteBySelectorAndText("img", "data");
+	deleteBySelectorAndTextMatching("img", "data");
 	const images = get("img");
 	const nextThreshold = getNext(Nimbus.smallImageThreshold, Nimbus.smallImageThresholdList);
 	Nimbus.smallImageThreshold = nextThreshold;
@@ -4658,9 +4658,9 @@ function toggleShowDocumentStructureWithNames()
 	toggleStyle(style, "styleShowDocumentStructureWithNames", true);
 }
 
-//	Returns an array of elements matching a selector and also containing the specified text.
+//	Returns an array of elements matching a selector and also containing or not containing the specified text.
 //	For links and images, it matches the text against hrefs and image sources as well.
-function selectBySelectorAndText(selector, text)
+function selectBySelectorAndText(selector, text, boolInvertSelection = false)
 {
 	if(!(typeof selector === "string" && selector.length))
 		return;
@@ -4669,8 +4669,8 @@ function selectBySelectorAndText(selector, text)
 
 	text = text.toLowerCase();
 	const selected = [];
+	const selectedInverse = [];
 	const elements = get(selector);
-	const wrapper = document.createElement("div");
 	for(let i = 0, ii = elements.length; i < ii; i++)
 	{
 		const element = elements[i];
@@ -4688,7 +4688,13 @@ function selectBySelectorAndText(selector, text)
 			if(element.src && ~element.src.toLowerCase().indexOf(text))
 				selected.push(element);
 		}
+		else
+		{
+			selectedInverse.push(element);
+		}
 	}
+	if(boolInvertSelection === true)
+		return selectedInverse;
 	return selected;
 }
 
@@ -4920,7 +4926,7 @@ function deleteNonContentImages()
 	];
 	for(let i = 0, ii = srcSubstrings.length; i < ii; i++)
 	{
-		deleteBySelectorAndText("img", srcSubstrings[i]);
+		deleteBySelectorAndTextMatching("img", srcSubstrings[i]);
 	}
 }
 
@@ -5000,13 +5006,23 @@ function removeInlineStyles()
 		e[i].removeAttribute("style");
 }
 
-function deleteBySelectorAndText(selector, str)
+function deleteBySelectorAndTextMatching(selector, str)
+{
+	deleteBySelectorAndText(selector, str);
+}
+
+function deleteBySelectorAndTextNotMatching(selector, str)
+{
+	deleteBySelectorAndText(selector, str, true);
+}
+
+function deleteBySelectorAndText(selector, str, boolInvertSelection = false)
 {
 	let selected;
 	if(typeof selector === "string")
 	{
 		if(typeof str === "string")
-			selected = selectBySelectorAndText(selector, str);
+			selected = selectBySelectorAndText(selector, str, boolInvertSelection);
 		else
 			selected = get(selector);
 	}
@@ -5371,7 +5387,7 @@ function deleteIframes()
 	{
 		showMessageBig("No iframes found");
 	}
-	deleteBySelectorAndText("rp", "iframe:");
+	deleteBySelectorAndTextMatching("rp", "iframe:");
 }
 
 function deleteImages()
@@ -5562,7 +5578,7 @@ function cleanupStackOverflow()
 		replaceElementsBySelector(".user-details", "h2");
 		replaceElementsBySelector(".answercell", "dt");
 		replaceElementsBySelector(".votecell", "h6");
-		deleteBySelectorAndText("h2", "Not the answer");
+		deleteBySelectorAndTextMatching("h2", "Not the answer");
 		retrieve("#content");
 		cleanupGeneral();
 		highlightCode(true);
@@ -6709,7 +6725,7 @@ function setupKeyboardShortcuts(e)
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteSpecificEmptyElements(); break;
 			case KEYCODES.E: cycleHighlightTag(); break;
-			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteBySelectorAndText); break;
+			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteBySelectorAndTextMatching); break;
 			case KEYCODES.I: toggleConsole("css"); break;
 			case KEYCODES.J: regressivelyUnenhance(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
@@ -6823,6 +6839,7 @@ function setupKeyboardShortcuts(e)
 		switch(k)
 		{
 			case KEYCODES.D: deselect(); break;
+			case KEYCODES.G: callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
 			case KEYCODES.Z: deselect(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by class containing", replaceByClassOrIdContaining, 2); break;
 			case KEYCODES.F: createTagsByClassName(); break;
