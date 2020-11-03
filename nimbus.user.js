@@ -204,6 +204,7 @@ const Nimbus = {
 		makeDocumentSemantic: makeDocumentSemantic,
 		makeHashLinksRelative: makeHashLinksRelative,
 		makeHeadings: makeHeadings,
+		replaceBrs: replaceBrs,
 		replaceHeadingClassesByTextLength: replaceHeadingClassesByTextLength,
 		makePlainText: makePlainText,
 		makeReferencesSemantic: makeReferencesSemantic,
@@ -808,6 +809,28 @@ function startsWithAnyOfTheStrings(s, arrStrings)
 function removeNonAlpha(str)
 {
 	return str.replace(/[^A-Za-z]/g, '');
+}
+
+function replaceBrs(sel)
+{
+	const selector = sel || makeClassSelector(Nimbus.markerClass);
+	const elems = get(selector);
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+		let elemHtml = elem.innerHTML;
+		if(elemHtml.indexOf("<br") === -1)
+			continue;
+		elemHtml = elemHtml.replace(/<br [^>]+/g, "<br");
+		const splat = elemHtml.split("<br>");
+		const replacement = document.createElement("blockquote");
+		replacement.className = Nimbus.markerClass;
+		for(let j = 0, jj = splat.length; j < jj; j++)
+		{
+			replacement.appendChild(createElement("p", { textContent: splat[j].replace(/<[^<>]+>/g, "") }));
+		}
+		elem.parentNode.replaceChild(replacement, elem);
+	}
 }
 
 function replaceDiacritics(str)
