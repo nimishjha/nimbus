@@ -308,7 +308,7 @@ const Nimbus = {
 	minPersistWidth: 1000,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
-	BLOCK_ELEMENTS: ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "RUBY"],
+	BLOCK_ELEMENTS: ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION"],
 };
 
 const KEYCODES = Nimbus.KEYCODES;
@@ -6226,7 +6226,7 @@ function annotate()
 	if(node && node.parentNode)
 	{
 		customPrompt("Enter annotation text").then(function(result) {
-			const annotation = document.createElement("ruby");
+			const annotation = document.createElement("annotation");
 			annotation.textContent = result;
 			if(annotation.textContent.length)
 				node.parentNode.insertBefore(annotation, node);
