@@ -204,7 +204,7 @@ const Nimbus = {
 		makeDocumentSemantic: makeDocumentSemantic,
 		makeHashLinksRelative: makeHashLinksRelative,
 		makeHeadings: makeHeadings,
-		makeHeadingsByTextLength: makeHeadingsByTextLength,
+		replaceHeadingClassesByTextLength: replaceHeadingClassesByTextLength,
 		makePlainText: makePlainText,
 		makeReferencesSemantic: makeReferencesSemantic,
 		mark: mark,
@@ -3343,10 +3343,8 @@ function fixParagraphs()
 
 function createTagsByClassName()
 {
-	replaceElementsBySelector(".indent", "p");
-	replaceElementsBySelector(".cn", "h2");
-	replaceElementsBySelector(".ct", "h2");
-	replaceElementsBySelector(".cst", "h2");
+	replaceElementsBySelector(".indent, .tx, .fmtx", "p");
+	replaceElementsBySelector(".cn, .ct, .cst", "h2");
 	replaceElementsBySelector(".atx", "blockquote");
 	const e = document.querySelectorAll("div, p");
 	let i = e.length;
@@ -3358,6 +3356,10 @@ function createTagsByClassName()
 		let replacementTagName = null;
 		switch(true)
 		{
+			case hasClassesStartingWith(element, ["h1", "partno", "partnum", "parttitle", "part-title"]): replacementTagName = "h1"; break;
+			case hasClassesStartingWith(element, ["chapno", "chapnum", "chaptitle", "chap-title", "fmtitle", "fmh", "h2"]): replacementTagName = "h2"; break;
+			case hasClassesStartingWith(element, ["h3"]): replacementTagName = "h3"; break;
+			case hasClassesStartingWith(element, ["ded", "epi"]): replacementTagName = "h4"; break;
 			case looksLikeHeading(element): replacementTagName = "h2"; break;
 			case looksLikeComment(element): replacementTagName = "comment"; break;
 			case looksLikeExtract(element): replacementTagName = "blockquote"; break;
@@ -3374,7 +3376,7 @@ function createTagsByClassName()
 			replaceElement(element, replacementTagName);
 		}
 	}
-	const elements = get("span, div, p");
+	const elements = get("span");
 	i = elements.length;
 	while(i--)
 	{
@@ -3382,11 +3384,7 @@ function createTagsByClassName()
 		let replacementTagName = null;
 		switch(true)
 		{
-			case hasClassesStartingWith(element, ["h1"]): replacementTagName = "h1"; break;
-			case hasClassesStartingWith(element, ["h2"]): replacementTagName = "h2"; break;
-			case hasClassesStartingWith(element, ["h3"]): replacementTagName = "h3"; break;
-			case hasClassesStartingWith(element, ["partno", "partnum", "parttitle", "part-title"]): replacementTagName = "h1"; break;
-			case hasClassesStartingWith(element, ["chapno", "chapnum", "chaptitle", "chap-title", "fmtitle"]): replacementTagName = "h2"; break;
+			case hasClassesStartingWith(element, ["ital"]): replacementTagName = "i"; break;
 			case hasClassesContaining(element, ["bold", "txbf", "epub-b"]): replacementTagName = "b"; break;
 			case hasClassesContaining(element, ["italic", "txit", "epub-i"]): replacementTagName = "i"; break;
 			case hasClassesContaining(element, ["small"]): replacementTagName = "small"; break;
@@ -3405,7 +3403,7 @@ function createTagsByClassName()
 	console.log(tagsCreated);
 }
 
-function makeHeadingsByTextLength()
+function replaceHeadingClassesByTextLength()
 {
 	let e = get("div, p");
 	const classes = getAllClassesFor("div, p");
@@ -3452,7 +3450,7 @@ function formatEbook()
 {
 	createTagsByClassName();
 	replaceEmptyParagraphsWithHr();
-	makeHeadingsByTextLength();
+	replaceHeadingClassesByTextLength();
 }
 
 function looksLikeUrl(str)
