@@ -4070,21 +4070,20 @@ function getNodeContainingSelection()
 
 function toggleContentEditable()
 {
-	const e = getOne(makeClassSelector(Nimbus.markerClass));
-	if(!e)
+	const selectedNode = getNodeContainingSelection();
+	if(!selectedNode)
 		return;
-	let isEditable = e.getAttribute("contenteditable") === "true";
-	e.setAttribute("contenteditable", isEditable ? "false" : "true");
+	let isEditable = selectedNode.getAttribute("contenteditable") === "true";
+	selectedNode.setAttribute("contenteditable", isEditable ? "false" : "true");
 	isEditable = !isEditable;
 	if(isEditable)
 	{
 		showMessageBig("contentEditable ON");
-		e.focus();
+		selectedNode.focus();
 	}
 	else
 	{
 		showMessageBig("contentEditable OFF");
-		unmarkAll();
 	}
 }
 
