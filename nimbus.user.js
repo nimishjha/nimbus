@@ -4057,6 +4057,17 @@ function highlightCode(shouldHighlightKeywords)
 	}
 }
 
+function getNodeContainingSelection()
+{
+	const selection = window.getSelection();
+	if(!selection)
+	{
+		showMessageError("Couldn't get selection");
+		return false;
+	}
+	return getFirstBlockParent(selection.anchorNode);
+}
+
 function toggleContentEditable()
 {
 	const e = getOne(makeClassSelector(Nimbus.markerClass));
