@@ -1270,16 +1270,12 @@ function replaceIframes()
 //	and replaces that element with an element of type tagName.
 function replaceSelectedElement(tagName)
 {
-	const replacementTag = tagName ? tagName : Nimbus.replacementTagName;
-	const selection = window.getSelection();
-	if(!selection)
+	const node = getNodeContainingSelection();
+	if(node)
 	{
-		showMessageBig("Nothing selected");
-		return;
+		const replacementTag = tagName ? tagName : Nimbus.replacementTagName;
+		replaceElement(node, replacementTag);
 	}
-	const blockParent = getFirstBlockParent(selection.anchorNode);
-	if(blockParent)
-		replaceElement(blockParent, replacementTag);
 }
 
 function replaceElementsByTagNameMatching(text, tagName)
@@ -2275,13 +2271,7 @@ function markNavigationalLists()
 
 function markSelectionAnchorNode()
 {
-	const selection = window.getSelection();
-	if(!selection.toString().length)
-		return;
-	let node = selection.anchorNode;
-	// while(node.parentNode && (node.textContent.length < selection.length || node.nodeType !== 1))
-	// 	node = node.parentNode;
-	node = getFirstBlockParent(node);
+	const node = getNodeContainingSelection();
 	node.classList.add(Nimbus.markerClass);
 	insertStyleHighlight();
 	showMessage(createSelector(node), "messagebig", true);
@@ -4836,14 +4826,10 @@ function deleteNodesAfterSelected()
 
 function deleteNodesRelativeToSelected(predicate = "after")
 {
-	const selection = window.getSelection();
 	const condition = predicate === "after" ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
-	if(!selection)
-	{
-		showMessageError("Couldn't get selection");
+	const anchorNode = getNodeContainingSelection();
+	if(!anchorNode)
 		return;
-	}
-	const anchorNode = getFirstBlockParent(selection.anchorNode);
 	const nodes = get("ol, ul, p, div");
 	let i = nodes.length;
 	while(i--)
@@ -6228,13 +6214,7 @@ function removeAttributeOf(selector, attribute)
 function insertElementNextToAnchor(tagName, position)
 {
 	const tag = tagName || "hr";
-	const selection = window.getSelection();
-	if(!selection)
-	{
-		showMessageError("Couldn't get selection");
-		return;
-	}
-	let node = getFirstBlockParent(selection.anchorNode);
+	const node = getNodeContainingSelection();
 	if(node)
 	{
 		switch(position)
@@ -6248,27 +6228,14 @@ function insertElementNextToAnchor(tagName, position)
 function insertElementBeforeSelectionAnchor(tagName)
 {
 	const tag = tagName || "hr";
-	const selection = window.getSelection();
-	if(!selection)
-	{
-		showMessageError("Couldn't get selection");
-		return;
-	}
-	const node = getFirstBlockParent(selection.anchorNode);
+	const node = getNodeContainingSelection();
 	if(node)
 		node.parentNode.insertBefore(createElement(tag), node);
 }
 
 function annotate()
 {
-	const selection = window.getSelection();
-	if(!selection)
-		return;
-	let node = selection.anchorNode;
-	if(node.tagName === undefined)
-		node = node.parentNode;
-	while(node.parentNode && !Nimbus.BLOCK_ELEMENTS.includes(node.tagName))
-		node = node.parentNode;
+	let node = getNodeContainingSelection();
 	if(node && node.parentNode)
 	{
 		customPrompt("Enter annotation text").then(function(result) {
@@ -6306,10 +6273,7 @@ function wrapAnchorNodeInTagHelper(tagName)
 
 function wrapAnchorNodeInTag()
 {
-	const selection = window.getSelection();
-	if(!selection)
-		return;
-	const node = getFirstBlockParent(selection.anchorNode);
+	const node = getNodeContainingSelection();
 	if(!node)
 		return;
 	Nimbus.currentNode = node;
@@ -6651,13 +6615,12 @@ function toggleHighlight()
 
 function highlightSelectedElement(tag)
 {
-	const highlightTag = tag ? tag : Nimbus.highlightTagName;
-	const selection = window.getSelection();
-	if(!selection)
-		return;
-	let node = getFirstBlockParent(selection.anchorNode);
+	let node = getNodeContainingSelection();
 	if(node && node.parentNode && node.tagName !== "BODY")
+	{
+		const highlightTag = tag ? tag : Nimbus.highlightTagName;
 		wrapElementInner(node, highlightTag);
+	}
 }
 
 function highlightLinksInPres()
