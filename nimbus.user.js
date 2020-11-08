@@ -818,6 +818,7 @@ function replaceBrs(sel)
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
+		const tagName = elem.tagName;
 		let elemHtml = elem.innerHTML;
 		if(elemHtml.indexOf("<br") === -1)
 			continue;
@@ -827,7 +828,7 @@ function replaceBrs(sel)
 		replacement.className = Nimbus.markerClass;
 		for(let j = 0, jj = splat.length; j < jj; j++)
 		{
-			replacement.appendChild(createElement("p", { textContent: splat[j].replace(/<[^<>]+>/g, "") }));
+			replacement.appendChild(createElement(tagName, { textContent: splat[j].replace(/<[^<>]+>/g, "") }));
 		}
 		elem.parentNode.replaceChild(replacement, elem);
 	}
