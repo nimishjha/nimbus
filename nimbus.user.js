@@ -198,6 +198,7 @@ const Nimbus = {
 		insertStyle: insertStyle,
 		insertStyleHighlight: insertStyleHighlight,
 		iw: forceImageWidth,
+		joinAdjacentElements: joinAdjacentElements,
 		joinMarkedElements: joinMarkedElements,
 		logAllClassesFor: logAllClassesFor,
 		makeButtonsReadable: makeButtonsReadable,
@@ -4326,6 +4327,26 @@ function groupMarkedElements(tagName)
 	insertBefore(elemsToJoin[0], wrapper);
 	del(makeClassSelector(Nimbus.markerClass));
 	deleteMessage();
+}
+
+function joinAdjacentElements(selector)
+{
+	const elems = get(selector);
+	const tagName = elems[0].tagName;
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+		let nextElem = elem.nextElementSibling;
+		while(nextElem && nextElem.tagName === tagName)
+		{
+			i++;
+			while(nextElem.firstChild)
+				elem.appendChild(nextElem.firstChild);
+			const appendedElem = nextElem;
+			nextElem = nextElem.nextElementSibling;
+			appendedElem.remove();
+		}
+	}
 }
 
 //	This function fixes the problem where two adjacent elements should in fact be one element.
