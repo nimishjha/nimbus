@@ -2205,7 +2205,7 @@ function markOverlays()
 {
 	mark("div", "style", "contains", "z-index");
 	mark("div", "class", "contains", "modal");
-	mark("div", "aria-modal", "exists");
+	mark("div", "hasAttribute", "aria-modal");
 }
 
 function highlightQuotes()
@@ -2692,14 +2692,14 @@ function select(...args)
 				default: return false;
 			}
 		}
-		else if(args.length === 3 && ["exists", "doesNotExist"].includes(args[2]))
+		else if(args.length === 3 && ["hasAttribute", "doesNotHaveAttribute"].includes(args[1]))
 		{
-			const attribute = args[1];
-			const operator = args[2];
+			const operator = args[1];
+			const attribute = args[2];
 			switch(operator)
 			{
-				case "exists": return filterNodesByAttributeExistence(elems, attribute);
-				case "doesNotExist": return filterNodesByAttributeNonExistence(elems, attribute);
+				case "hasAttribute": return filterNodesByAttributeExistence(elems, attribute);
+				case "doesNotHaveAttribute": return filterNodesByAttributeNonExistence(elems, attribute);
 				default: return false;
 			}
 		}
