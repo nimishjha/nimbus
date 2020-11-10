@@ -1358,7 +1358,7 @@ function replaceByClassOrIdContaining(str, tagName)
 	const toReplace = selectByClassOrIdContaining(str);
 	showMessageBig(`Replacing <b>${toReplace.length}</b> elements`);
 	for(let i = 0, ii = toReplace.length; i < ii; i++)
-		replaceElement(toReplace[i], tagName);
+		replaceElementKeepingId(toReplace[i], tagName);
 }
 
 function deleteByClassOrIdContaining(str)
@@ -3358,6 +3358,7 @@ function fixParagraphs()
 
 function createTagsByClassName()
 {
+	replaceElementsBySelector(".calibre", "section");
 	replaceElementsBySelector(".indent, .tx, .fmtx", "p");
 	replaceElementsBySelector(".cn, .ct, .cst", "h2");
 	replaceElementsBySelector(".atx", "blockquote");
@@ -3372,7 +3373,7 @@ function createTagsByClassName()
 		switch(true)
 		{
 			case hasClassesStartingWith(element, ["h1", "partno", "partnum", "parttitle", "part-title"]): replacementTagName = "h1"; break;
-			case hasClassesStartingWith(element, ["chapno", "chapnum", "chaptitle", "chap-title", "fmtitle", "fmh", "h2"]): replacementTagName = "h2"; break;
+			case hasClassesStartingWith(element, ["chap", "fmtitle", "fmh", "h2"]): replacementTagName = "h2"; break;
 			case hasClassesStartingWith(element, ["h3"]): replacementTagName = "h3"; break;
 			case hasClassesStartingWith(element, ["ded", "epi"]): replacementTagName = "h4"; break;
 			case looksLikeHeading(element): replacementTagName = "h2"; break;
@@ -3465,7 +3466,8 @@ function formatEbook()
 {
 	createTagsByClassName();
 	replaceEmptyParagraphsWithHr();
-	replaceHeadingClassesByTextLength();
+	// replaceHeadingClassesByTextLength();
+	document.body.classList.add("ebook");
 }
 
 function looksLikeUrl(str)
