@@ -1462,7 +1462,7 @@ function hasClassesStartingWith(element, arrStr)
 	while(i--)
 	{
 		const str = arrStr[i].toLowerCase();
-		if(classes.indexOf(str) === 0 || classes.indexOf(" " + str) === 0)
+		if(classes.indexOf(str) === 0 || classes.indexOf(" " + str) !== -1)
 			return true;
 	}
 	return false;
