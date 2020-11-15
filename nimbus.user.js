@@ -216,7 +216,7 @@ const Nimbus = {
 		markByCssRule: markByCssRule,
 		markElementsWithSetWidths: markElementsWithSetWidths,
 		markNavigationalLists: markNavigationalLists,
-		markNumericParagraphs: markNumericParagraphs,
+		markNumericElements: markNumericElements,
 		markOverlays: markOverlays,
 		highlightQuotes: highlightQuotes,
 		highlightUserLinks: highlightUserLinks,
@@ -2351,16 +2351,16 @@ function markUppercaseElements(selector)
 	insertStyleHighlight();
 }
 
-function markNumericParagraphs()
+function markNumericElements(selector)
 {
-	const paragraphs = get("p");
-	let i = paragraphs.length;
+	const elements = get(selector);
+	let i = elements.length;
 	while(i--)
 	{
-		const paragraph = paragraphs[i];
-		let paragraphText = paragraph.textContent;
-		if(paragraphText && !isNaN(Number(paragraphText)))
-			paragraph.className = Nimbus.markerClass;
+		const elem = elements[i];
+		let elemText = elem.textContent;
+		if(elemText && !isNaN(Number(elemText)))
+			elem.className = Nimbus.markerClass;
 	}
 	insertStyleHighlight();
 }
