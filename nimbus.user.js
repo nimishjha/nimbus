@@ -4895,11 +4895,10 @@ function cleanupAttributes()
 					case "rowspan":
 						break;
 					case "id":
-						//	Don't remove ids from these elements, because they're commonly used for linking to footnotes etc.
-						if(["a", "li", "sup", "small"].includes(tagName))
-							break;
-						else
-							elem.removeAttribute("id");
+						// if(["a", "li", "sup", "small"].includes(tagName))
+						// 	break;
+						// else
+						// 	elem.removeAttribute("id");
 						break;
 					default:
 						elem.removeAttribute(attr.name);
