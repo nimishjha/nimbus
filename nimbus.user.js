@@ -2084,7 +2084,13 @@ function autoCompleteInputBox()
 	function renderMatches()
 	{
 		let s = "";
-		for(let i = 0, ii = inputComponent.matches.length; i < ii; i++)
+		const numMatches = inputComponent.matches.length;
+		if(numMatches === 1)
+		{
+			inputComponent.currentIndex = 0;
+			updateInputField();
+		}
+		for(let i = 0, ii = numMatches; i < ii; i++)
 		{
 			if(inputComponent.currentIndex === i)
 				s += '<match class="current">' + inputComponent.matches[i] + "</match>";
