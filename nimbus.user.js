@@ -1540,7 +1540,7 @@ function debugVars(params)
 
 function getNext(item, arr)
 {
-	debugVars({ item, arr });
+	// debugVars({ item, arr });
 	let nextItem = arr[0];
 	const index = arr.indexOf(item);
 	if(~index)
