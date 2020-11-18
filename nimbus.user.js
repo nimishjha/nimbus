@@ -134,6 +134,7 @@ const Nimbus = {
 		cleanupLinks: cleanupLinks,
 		cleanupWikipedia: cleanupWikipedia,
 		convertDivsToParagraphs: convertDivsToParagraphs,
+		createListsFromBulletedParagraphs: createListsFromBulletedParagraphs,
 		groupMarkedElements: groupMarkedElements,
 		copyAttribute: copyAttribute,
 		createPagerFromSelect: createPagerFromSelect,
@@ -1426,6 +1427,38 @@ function rescueOrphanedTextNodes()
 		}
 	}
 	insertStyleHighlight();
+}
+
+function createListsFromBulletedParagraphs()
+{
+	const paras = get("p");
+	let i = paras.length;
+	while(i--)
+	{
+		const para = paras[i];
+		if(para.textContent.match(/\u2022/))
+		{
+			para.classList.add(Nimbus.markerClass);
+			para.innerHTML = para.innerHTML.replace(/\u2022/, "");
+		}
+	}
+
+	const elems = get(makeClassSelector(Nimbus.markerClass));
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+		let nextElem = elem.nextElementSibling;
+		const parent = document.createElement("ul");
+		insertBefore(elem, parent);
+		parent.appendChild(elem);
+		while(nextElem && nextElem.classList.contains(Nimbus.markerClass))
+		{
+			i++;
+			const nextElemTemp = nextElem.nextElementSibling;
+			parent.appendChild(nextElem);
+			nextElem = nextElemTemp;
+		}
+	}
 }
 
 function hasChildrenOfType(elem, tagName)
