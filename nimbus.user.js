@@ -2945,17 +2945,18 @@ function replaceImagesWithTextLinks()
 	else if(get("img"))
 	{
 		const images = get("img");
-		for(let i = 0; i < images.length; i++)
+		let i = images.length;
+		while(i--)
 		{
 			const elem = images[i];
 			if(elem.src)
 			{
 				const imageLink = createElement("a", { href: elem.src, textContent: shortenImageSrc(elem.src) });
 				const imageReplacement = createElementWithChildren("rt", imageLink);
-				if(elem.parentNode.tagName.toLowerCase() === "a")
-					elem.parentNode.parentNode.replaceChild(imageReplacement, elem.parentNode);
+				if(elem.parentNode.tagName === "A")
+					insertBefore(elem.parentNode, imageReplacement);
 				else
-					elem.parentNode.insertBefore(imageReplacement, elem);
+					insertBefore(elem, imageReplacement);
 			}
 		}
 		del("img");
