@@ -1478,7 +1478,7 @@ function removeClassFromAll(className)
 
 function hasClassesContaining(element, arrStr)
 {
-	const classes = element.className.toLowerCase().replace(/[^a-z]+/g, "");
+	const classes = element.className.toLowerCase().replace(/[^a-z\-]+/g, "");
 	let i = arrStr.length;
 	while(i--)
 	{
