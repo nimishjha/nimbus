@@ -2707,6 +2707,21 @@ function filterNodesWithTextLengthUnder(nodes, maxLength)
 	return result;
 }
 
+function filterNodesFollowingNodesOfType(nodes, tagName)
+{
+	let result = [];
+	const tagNameUpper = tagName.toUpperCase();
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		const prevElement = node.previousElementSibling;
+		if(prevElement && prevElement.tagName === tagNameUpper)
+			result.push(node);
+	}
+	return result;
+}
+
 function select(...args)
 {
 	const selector = args[0];
@@ -2732,7 +2747,7 @@ function select(...args)
 				default: return false;
 			}
 		}
-		else if(args.length === 3 && ["hasAttribute", "doesNotHaveAttribute"].includes(args[1]))
+		else if(args.length === 3 && ["hasAttribute", "doesNotHaveAttribute", "following"].includes(args[1]))
 		{
 			const operator = args[1];
 			const attribute = args[2];
@@ -2740,6 +2755,7 @@ function select(...args)
 			{
 				case "hasAttribute": return filterNodesByAttributeExistence(elems, attribute);
 				case "doesNotHaveAttribute": return filterNodesByAttributeNonExistence(elems, attribute);
+				case "following": return filterNodesFollowingNodesOfType(elems, attribute);
 				default: return false;
 			}
 		}
