@@ -200,6 +200,7 @@ const Nimbus = {
 		iw: forceImageWidth,
 		joinAdjacentElements: joinAdjacentElements,
 		joinMarkedElements: joinMarkedElements,
+		joinParagraphsByLastChar: joinParagraphsByLastChar,
 		logAllClassesFor: logAllClassesFor,
 		makeButtonsReadable: makeButtonsReadable,
 		makeDocumentSemantic: makeDocumentSemantic,
@@ -4347,6 +4348,31 @@ function joinAdjacentElements(selector)
 			const appendedElem = nextElem;
 			nextElem = nextElem.nextElementSibling;
 			appendedElem.remove();
+		}
+	}
+}
+
+function joinParagraphsByLastChar()
+{
+	const MINLENGTH = 20;
+	const paras = get("p");
+	let i = paras.length;
+	while(i--)
+	{
+		const para = paras[i];
+		const paraText = trim(para.textContent);
+		if(!paraText || paraText.length < MINLENGTH)
+			continue;
+		if(paraText[paraText.length - 1].match(/[a-z,\-]/i))
+		{
+			const nextPara = para.nextElementSibling;
+			if(nextPara && nextPara.tagName === "P")
+			{
+				para.classList.add(Nimbus.markerClass);
+				para.appendChild(document.createTextNode(" "));
+				while(nextPara.firstChild)
+					para.appendChild(nextPara.firstChild);
+			}
 		}
 	}
 }
