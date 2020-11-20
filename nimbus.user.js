@@ -203,6 +203,7 @@ const Nimbus = {
 		joinMarkedElements: joinMarkedElements,
 		joinParagraphsByLastChar: joinParagraphsByLastChar,
 		logAllClassesFor: logAllClassesFor,
+		logAllClassesForCommonElements: logAllClassesForCommonElements,
 		makeButtonsReadable: makeButtonsReadable,
 		makeDocumentSemantic: makeDocumentSemantic,
 		makeHashLinksRelative: makeHashLinksRelative,
@@ -1620,9 +1621,17 @@ function log2(str)
 	document.body.appendChild(createElement("h2", { className: "xlog", innerHTML: str }));
 }
 
+function logAllClassesForCommonElements()
+{
+	logAllClassesFor("div");
+	logAllClassesFor("p");
+	logAllClassesFor("span");
+}
+
 function logAllClassesFor(selector)
 {
-	console.log(getAllClassesFor(selector).join("\n"));
+	console.log(selector);
+	console.log("\t" + getAllClassesFor(selector).join("\n\t"));
 }
 
 function getAllClassesFor(selector)
