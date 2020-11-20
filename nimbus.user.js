@@ -163,6 +163,7 @@ const Nimbus = {
 		enableClickToCollectUrls: enableClickToCollectUrls,
 		disableClickToCollectUrls: disableClickToCollectUrls,
 		fillForms: fillForms,
+		fixBrsInHeadings: fixBrsInHeadings,
 		fixHeadings: fixHeadings,
 		fixParagraphs: fixParagraphs,
 		fixPres: fixPres,
@@ -816,6 +817,11 @@ function removeNonAlpha(str)
 }
 
 function replaceBrs(sel)
+function fixBrsInHeadings()
+{
+	replaceBrs("h1, h2, h3", "div");
+}
+
 {
 	const selector = sel || makeClassSelector(Nimbus.markerClass);
 	const elems = get(selector);
