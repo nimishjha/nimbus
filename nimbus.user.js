@@ -4431,18 +4431,39 @@ function joinAdjacentElements(selector)
 {
 	const elems = get(selector);
 	const tagName = elems[0].tagName;
-	for(let i = 0, ii = elems.length; i < ii; i++)
+	if(["blockquote", "ul", "ol"].includes(selector))
 	{
-		const elem = elems[i];
-		let nextElem = elem.nextElementSibling;
-		while(nextElem && nextElem.tagName === tagName)
+		for(let i = 0, ii = elems.length; i < ii; i++)
 		{
-			i++;
-			while(nextElem.firstChild)
-				elem.appendChild(nextElem.firstChild);
-			const appendedElem = nextElem;
-			nextElem = nextElem.nextElementSibling;
-			appendedElem.remove();
+			const elem = elems[i];
+			const parent = document.createElement(selector);
+			insertBefore(elem, parent);
+			parent.appendChild(elem);
+			let nextElem = elem.nextElementSibling;
+			while(nextElem && nextElem.tagName === tagName)
+			{
+				i++;
+				const nextElemTemp = nextElem.nextElementSibling;
+				parent.appendChild(nextElem);
+				nextElem = nextElemTemp;
+			}
+		}
+	}
+	else
+	{
+		for(let i = 0, ii = elems.length; i < ii; i++)
+		{
+			const elem = elems[i];
+			let nextElem = elem.nextElementSibling;
+			while(nextElem && nextElem.tagName === tagName)
+			{
+				i++;
+				while(nextElem.firstChild)
+					elem.appendChild(nextElem.firstChild);
+				const appendedElem = nextElem;
+				nextElem = nextElem.nextElementSibling;
+				appendedElem.remove();
+			}
 		}
 	}
 }
