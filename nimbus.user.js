@@ -2716,6 +2716,19 @@ function filterNodesWithTextLengthUnder(nodes, maxLength)
 	return result;
 }
 
+function filterNodesWithTextLengthOver(nodes, maxLength)
+{
+	let result = [];
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		if(getTextLength(node) > maxLength)
+			result.push(node);
+	}
+	return result;
+}
+
 function filterNodesFollowingNodesOfType(nodes, tagName)
 {
 	let result = [];
@@ -2726,6 +2739,21 @@ function filterNodesFollowingNodesOfType(nodes, tagName)
 		const node = nodes[i];
 		const prevElement = node.previousElementSibling;
 		if(prevElement && prevElement.tagName === tagNameUpper)
+			result.push(node);
+	}
+	return result;
+}
+
+function filterNodesPrecedingNodesOfType(nodes, tagName)
+{
+	let result = [];
+	const tagNameUpper = tagName.toUpperCase();
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		const nextElement = node.nextElementSibling;
+		if(nextElement && nextElement.tagName === tagNameUpper)
 			result.push(node);
 	}
 	return result;
@@ -2756,7 +2784,7 @@ function select(...args)
 				default: return false;
 			}
 		}
-		else if(args.length === 3 && ["hasAttribute", "doesNotHaveAttribute", "following"].includes(args[1]))
+		else if(args.length === 3 && ["hasAttribute", "doesNotHaveAttribute", "following", "preceding"].includes(args[1]))
 		{
 			const operator = args[1];
 			const attribute = args[2];
@@ -2765,6 +2793,7 @@ function select(...args)
 				case "hasAttribute": return filterNodesByAttributeExistence(elems, attribute);
 				case "doesNotHaveAttribute": return filterNodesByAttributeNonExistence(elems, attribute);
 				case "following": return filterNodesFollowingNodesOfType(elems, attribute);
+				case "preceding": return filterNodesPrecedingNodesOfType(elems, attribute);
 				default: return false;
 			}
 		}
@@ -2779,6 +2808,7 @@ function select(...args)
 				case "hasParentOfType": return get(value + " " + selector);
 				case "doesNotHaveParentOfType": return filterNodesWithoutParentOfType(elems, value);
 				case "hasTextLengthUnder": return filterNodesWithTextLengthUnder(elems, value);
+				case "hasTextLengthOver": return filterNodesWithTextLengthOver(elems, value);
 				default: return false;
 			}
 		}
