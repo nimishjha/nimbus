@@ -6374,7 +6374,15 @@ function insertElementBeforeSelectionAnchor(tagName)
 	const tag = tagName || "hr";
 	const node = getNodeContainingSelection();
 	if(node)
-		node.parentNode.insertBefore(createElement(tag), node);
+		insertBefore(node, createElement(tag));
+}
+
+function insertElementAfterSelectionAnchor(tagName)
+{
+	const tag = tagName || "hr";
+	const node = getNodeContainingSelection();
+	if(node)
+		insertAfter(node, createElement(tag));
 }
 
 function annotate()
@@ -6921,7 +6929,7 @@ function handleKeyDown(e)
 			case KEYCODES.Y: callFunctionWithArgs("Highlight elements by tag name containing text", highlightByTagNameAndText, 2); break;
 			case KEYCODES.FORWARD_SLASH: focusButton(); break;
 			case KEYCODES.F12: highlightCode(true); break;
-			case KEYCODES.MINUS: callFunctionWithArgs("Insert HR before (selector)", insertHrBeforeAll); break;
+			case KEYCODES.MINUS: callFunctionWithArgs("Insert HR before all (selector)", insertHrBeforeAll); break;
 			case KEYCODES.SQUARE_BRACKET_OPEN: slideshowChangeSlide("prev"); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: slideshowChangeSlide("next"); break;
 		}
@@ -6963,6 +6971,7 @@ function handleKeyDown(e)
 			case KEYCODES.X: customPrompt("Enter xPath").then(xPathMark); break;
 			case KEYCODES.Y: replaceElementsByTagNameMatching("ytd"); break;
 			case KEYCODES.Z: markSelectionAnchorNode(); break;
+			case KEYCODES.MINUS: insertElementAfterSelectionAnchor(); break;
 			case KEYCODES.F12: inspect(); break;
 			default: shouldPreventDefault = false; break;
 		}
