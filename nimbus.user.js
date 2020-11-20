@@ -164,10 +164,10 @@ const Nimbus = {
 		disableClickToCollectUrls: disableClickToCollectUrls,
 		fillForms: fillForms,
 		fixBrsInHeadings: fixBrsInHeadings,
+		fixCdnImages: fixCdnImages,
 		fixHeadings: fixHeadings,
 		fixParagraphs: fixParagraphs,
 		fixPres: fixPres,
-		fixCdnImages: fixCdnImages,
 		focusButton: focusButton,
 		forAll: forAll,
 		forAllMarked: forAllMarked,
@@ -816,14 +816,15 @@ function removeNonAlpha(str)
 	return str.replace(/[^A-Za-z]/g, '');
 }
 
-function replaceBrs(sel)
 function fixBrsInHeadings()
 {
 	replaceBrs("h1, h2, h3", "div");
 }
 
+function replaceBrs(sel, strParentTagName)
 {
 	const selector = sel || makeClassSelector(Nimbus.markerClass);
+	const parentTagName =  strParentTagName || "blockquote";
 	const elems = get(selector);
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
@@ -834,7 +835,7 @@ function fixBrsInHeadings()
 			continue;
 		elemHtml = elemHtml.replace(/<br [^>]+/g, "<br");
 		const splat = elemHtml.split("<br>");
-		const replacement = document.createElement("blockquote");
+		const replacement = document.createElement(parentTag);
 		replacement.className = Nimbus.markerClass;
 		for(let j = 0, jj = splat.length; j < jj; j++)
 		{
@@ -3566,8 +3567,10 @@ function replaceHeadingClassesByTextLength()
 
 function formatEbook()
 {
+	cleanupHead();
 	createTagsByClassName();
 	replaceEmptyParagraphsWithHr();
+	joinAdjacentElements("hr");
 	// replaceHeadingClassesByTextLength();
 	document.body.classList.add("ebook");
 }
