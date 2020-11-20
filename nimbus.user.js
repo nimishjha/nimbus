@@ -5499,8 +5499,7 @@ function appendInfo()
 	const documentLinkWrapper = createElement("h4", { textContent: "URL: " });
 	const documentLink = document.createElement("a");
 	let url = documentUrl;
-	if(documentUrl.indexOf("?utm_source") > 0)
-		url = url.substr(0, url.indexOf("?utm_source"));
+	url = removeQueryParameter(url, "utm_source");
 	documentLink.textContent = documentLink.href = url;
 	documentLinkWrapper.appendChild(documentLink);
 	document.body.appendChild(documentLinkWrapper);
