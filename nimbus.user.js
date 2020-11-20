@@ -5300,9 +5300,9 @@ function deleteEmptyHeadings()
 
 function deleteSpecificEmptyElements()
 {
-	const BLOCK_ELEMENTS_SELECTOR = "p, tr, ul, ol, li, div, figure, figcaption, aside, blockquote, pre";
+	const SELECTOR = "p, tr, ul, ol, li, div, figure, figcaption, aside, blockquote, pre, span";
 	deleteEmptyHeadings();
-	deleteEmptyElements(BLOCK_ELEMENTS_SELECTOR);
+	deleteEmptyElements(SELECTOR);
 }
 
 //	For those ancient webpages that still use <font size...> tags to denote headings.
@@ -6499,7 +6499,7 @@ function getTextLength(elem)
 {
 	if(!elem.textContent)
 		return 0;
-	return elem.textContent.replace(/[^a-zA-Z0-9\^\*]/g, "").length;
+	return elem.textContent.replace(/[^A-zÀ-ÿ0-9\^\*]/g, "").length;
 }
 
 function toggleHighlightSelectionMode()
