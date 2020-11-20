@@ -1443,7 +1443,7 @@ function createListsFromBulletedParagraphs()
 		}
 	}
 
-	const elems = get(makeClassSelector(Nimbus.markerClass));
+	const elems = getMarkedElements();
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
