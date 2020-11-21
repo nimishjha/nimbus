@@ -835,7 +835,7 @@ function replaceBrs(sel, strParentTagName)
 			continue;
 		elemHtml = elemHtml.replace(/<br [^>]+/g, "<br");
 		const splat = elemHtml.split("<br>");
-		const replacement = document.createElement(parentTag);
+		const replacement = document.createElement(parentTagName);
 		replacement.className = Nimbus.markerClass;
 		for(let j = 0, jj = splat.length; j < jj; j++)
 		{
@@ -1025,6 +1025,8 @@ function parseQueryString(url)
 function removeQueryParameter(url, parameterName)
 {
 	const parsedParameters = parseQueryString(url);
+	if(!parsedParameters)
+		return url;
 	let baseUrl = trimAt(url, "?");
 	let newQueryString = "";
 	for(let i = 0, ii = parsedParameters.length; i < ii; i++)
@@ -3184,7 +3186,7 @@ function slideshowChangeSlide(direction)
 		if(images[i].classList.contains("currentImage"))
 		{
 			images[i].classList.remove("currentImage");
-			if(direction === "prev")
+			if(direction === "previous")
 			{
 				if(i === 0) images[ii - 1].classList.add("currentImage");
 				else images[i - 1].classList.add("currentImage");
@@ -4309,6 +4311,7 @@ function changePageByUrl(direction)
 	if(urlPageMatch)
 	{
 		let page = parseInt(urlPageMatch[0].split('/')[1], 10);
+		let currentPage = page;
 		switch(direction)
 		{
 			case "previous": page--; break;
@@ -4316,7 +4319,7 @@ function changePageByUrl(direction)
 		}
 		if(page < 1)
 			page = 1;
-		showMessageBig("Going to page " + page);
+		showMessageBig(`Found page ${currentPage} in URL, Going to page ${page}`);
 		const newUrl = url.replace(urlPageMatch[0], `page/${page}`);
 		consoleLog(newUrl);
 		location.href = newUrl;
@@ -4327,12 +4330,14 @@ function changePageByUrl(direction)
 	console.log(queryParams);
 	let found = false;
 	let page;
+	let currentPage;
 	for(let i = 0, ii = queryParams.length; i < ii; i++)
 	{
 		if(["page", "p"].includes(queryParams[i].key))
 		{
 			found = true;
 			page = parseInt(queryParams[i].value, 10);
+			currentPage = page;
 			switch(direction)
 			{
 				case "previous": page--; break;
@@ -4346,7 +4351,7 @@ function changePageByUrl(direction)
 	}
 	if(found)
 	{
-		showMessageBig("Going to page " + page);
+		showMessageBig(`Found page ${currentPage} in query string, going to page ${page}`);
 		let newQueryString = "";
 		for(let i = 0, ii = queryParams.length; i < ii; i++)
 			newQueryString += `${queryParams[i].key}=${queryParams[i].value}&`;
@@ -4366,8 +4371,8 @@ function changePage(direction)
 		return;
 	const links = get("a");
 	let matchStrings = [];
-	if(direction === "prev")
-		matchStrings = ["prev", "previous", "previouspage", "\u00AB"];
+	if(direction === "previous")
+		matchStrings = ["previous", "previous", "previouspage", "\u00AB"];
 	else if(direction === "next")
 		matchStrings = ["next", "nextpage", "\u00BB"];
 
@@ -4379,7 +4384,7 @@ function changePage(direction)
 		if(linkText)
 		{
 			linkText = linkText.replace(/[^a-zA-Z0-9\u00AB\u00BB]/g, "").toLowerCase();
-			if(matchStrings.includes(linkText))
+			if(matchStrings.includes(linkText) || containsAnyOfTheStrings(linkText, matchStrings))
 			{
 				link.innerHTML = "<mark>" + link.innerHTML + "</mark>";
 				location.href = link.href;
@@ -6959,7 +6964,7 @@ function handleKeyDown(e)
 			case KEYCODES.FORWARD_SLASH: focusButton(); break;
 			case KEYCODES.F12: highlightCode(true); break;
 			case KEYCODES.MINUS: callFunctionWithArgs("Insert HR before all (selector)", insertHrBeforeAll); break;
-			case KEYCODES.SQUARE_BRACKET_OPEN: slideshowChangeSlide("prev"); break;
+			case KEYCODES.SQUARE_BRACKET_OPEN: slideshowChangeSlide("previous"); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: slideshowChangeSlide("next"); break;
 		}
 	}
@@ -6971,7 +6976,7 @@ function handleKeyDown(e)
 		shouldPreventDefault = true;
 		switch(k)
 		{
-			case KEYCODES.SQUARE_BRACKET_OPEN: changePage("prev"); break;
+			case KEYCODES.SQUARE_BRACKET_OPEN: changePage("previous"); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: changePage("next"); break;
 			case KEYCODES.UPARROW: modifyMark("expand"); break;
 			case KEYCODES.DOWNARROW: modifyMark("contract"); break;
