@@ -1750,6 +1750,13 @@ function showStatus(id, str)
 	getOrCreate("h3", id).textContent = id + ": " + str;
 }
 
+function refreshScreen()
+{
+	const elem = document.createElement("screenrefresh");
+	document.body.appendChild(elem);
+	setTimeout(function(){ elem.remove() }, 500);
+}
+
 function showMessage(messageHtml, msgClass, persist)
 {
 	clearTimeout(Nimbus.messageTimeout);
@@ -6889,6 +6896,7 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.NUMPAD5: toggleHighlightSelectionMode(); break;
 			case KEYCODES.NUMPAD7: groupMarkedElements("blockquote"); break;
+			case KEYCODES.NUMPAD8: refreshScreen(); break;
 			case KEYCODES.F1: customPrompt("Enter replacement tag name").then(setReplacementTag); break;
 			case KEYCODES.F2: replaceSelectedElement("h2"); break;
 			case KEYCODES.F3: replaceSelectedElement("h3"); break;
