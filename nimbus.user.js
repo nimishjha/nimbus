@@ -4856,6 +4856,17 @@ function toggleStyleShowClasses()
 	toggleStyle(s, "styleShowClasses", true);
 }
 
+function toggleStyleShowClasses2()
+{
+	const style = `
+		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before { content: attr(class); color: #F90; background: #000; }
+		p::before { content: attr(class); color: #F0F; background: #000; }
+		span { box-shadow: inset 0 -100px rgba(0,128,0,0.5); }
+		span::before { content: attr(class); color: #0F0; background: #000; padding: 2px 5px; }
+		`;
+	toggleStyle(style, "styleShowClasses2", true);
+}
+
 function toggleShowDocumentStructureWithNames()
 {
 	const style = `
@@ -6994,6 +7005,7 @@ function handleKeyDown(e)
 			case KEYCODES.TWO: toggleStyleSimpleNegative(); break;
 			case KEYCODES.THREE: toggleStyleGrey(); break;
 			case KEYCODES.FOUR: toggleStyleWhite(); break;
+			case KEYCODES.FIVE: toggleStyleShowClasses2(); break;
 			case KEYCODES.A: deleteEmptyElements("a"); break;
 			case KEYCODES.B: toggleShowDocumentStructureWithNames(); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
