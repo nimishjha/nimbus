@@ -2540,6 +2540,42 @@ function filterNodesByAttributeNotEqualTo(nodes, attribute, value)
 	return result;
 }
 
+function filterNodesByAttributeValueLessThan(nodes, attribute, value)
+{
+	let i = nodes.length;
+	let result = [];
+	while(i--)
+	{
+		const node = nodes[i];
+		const nodeAttr = node.hasAttribute(attribute) || node[attribute];
+		if(nodeAttr)
+		{
+			const attrValue = parseInt(nodeAttr, 10);
+			if(!isNaN(attrValue) && attrValue < value)
+				result.push(node);
+		}
+	}
+	return result;
+}
+
+function filterNodesByAttributeValueGreaterThan(nodes, attribute, value)
+{
+	let i = nodes.length;
+	let result = [];
+	while(i--)
+	{
+		const node = nodes[i];
+		const nodeAttr = node.hasAttribute(attribute) || node[attribute];
+		if(nodeAttr)
+		{
+			const attrValue = parseInt(nodeAttr, 10);
+			if(!isNaN(attrValue) && attrValue > value)
+				result.push(node);
+		}
+	}
+	return result;
+}
+
 function filterNodesByAttributeContaining(nodes, attribute, value)
 {
 	let i = nodes.length;
@@ -2794,6 +2830,8 @@ function select(...args)
 				case "doesNotEqual":
 				case "!=":
 					return filterNodesByAttributeNotEqualTo(elems, attribute, value);
+				case "<": return filterNodesByAttributeValueLessThan(elems, attribute, value);
+				case ">": return filterNodesByAttributeValueGreaterThan(elems, attribute, value);
 				case "contains": return filterNodesByAttributeContaining(elems, attribute, value);
 				case "doesNotContain": return filterNodesByAttributeNotContaining(elems, attribute, value);
 				case "matches": return filterNodesByAttributeMatching(elems, attribute, value);
