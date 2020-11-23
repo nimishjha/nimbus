@@ -1338,6 +1338,15 @@ function replaceElementsBySelector(selector, tagName)
 	}
 }
 
+function convertElement(elem, tagName)
+{
+	const replacement = document.createElement(tagName);
+	const temp = elem.cloneNode(true);
+	while(temp.firstChild)
+		replacement.appendChild(temp.firstChild);
+	return replacement;
+}
+
 function replaceElement(elem, tagName)
 {
 	const replacement = document.createElement(tagName);
@@ -4490,22 +4499,40 @@ function joinAdjacentElements(selector)
 {
 	const elems = get(selector);
 	const tagName = elems[0].tagName;
-	if(["blockquote", "ul", "ol"].includes(selector))
+	if(["BLOCKQUOTE", "LI"].includes(tagName))
 	{
+		let parentTagName = "";
+		let childTagName = "";
+		switch(tagName)
+		{
+			case "BLOCKQUOTE":
+				parentTagName = "blockquote";
+				childTagName = "p";
+				break;
+			case "LI":
+				parentTagName = "ul";
+				childTagName = "li";
+				break;
+			default:
+				parentTagName = "blockquote";
+				childTagName = "p";
+				break;
+		}
 		for(let i = 0, ii = elems.length; i < ii; i++)
 		{
 			const elem = elems[i];
-			const parent = document.createElement(selector);
-			insertBefore(elem, parent);
-			parent.appendChild(elem);
+			const parent = document.createElement(parentTagName);
+			parent.appendChild(convertElement(elem, childTagName));
 			let nextElem = elem.nextElementSibling;
 			while(nextElem && nextElem.tagName === tagName)
 			{
 				i++;
 				const nextElemTemp = nextElem.nextElementSibling;
-				parent.appendChild(nextElem);
+				parent.appendChild(convertElement(nextElem, childTagName));
+				nextElem.remove();
 				nextElem = nextElemTemp;
 			}
+			elem.parentNode.replaceChild(parent, elem);
 		}
 	}
 	else
