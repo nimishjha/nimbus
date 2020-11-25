@@ -4691,19 +4691,24 @@ function showPrintLink()
 
 function insertStyleHighlight()
 {
-	const s = `.nimbushl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }
-	.focused { box-shadow: inset 0px 1000px #000; color: #FFF; }
-	.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }
-	.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }`;
+	const s = `
+		.nimbushl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }
+		.focused { box-shadow: inset 0px 1000px #000; color: #FFF; }
+		.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }
+		.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
+		a.nimbushl::after, span.nimbushl::after { content: ""; display: inline; clear: none; }
+	`;
 	insertStyle(s, "styleHighlight", true);
 }
 
 function insertStyleAnnotations()
 {
-	const s = `annotationinfo, annotationwarning, annotationerror { display: inline-block; font: 14px helvetica; padding: 2px 5px; border-radius: 0; }
-	annotationinfo { background: #000; color: #0F0; }
-	annotationwarning { background: #000; color: #F90; }
-	annotationerror { background: #A00; color: #FFF; }`;
+	const s = `
+		annotationinfo, annotationwarning, annotationerror { display: inline-block; font: 14px helvetica; padding: 2px 5px; border-radius: 0; }
+		annotationinfo { background: #000; color: #0F0; }
+		annotationwarning { background: #000; color: #F90; }
+		annotationerror { background: #A00; color: #FFF; }
+	`;
 	insertStyle(s, "styleAnnotations", true);
 }
 
@@ -4715,7 +4720,8 @@ function insertStyleShowErrors()
 
 function toggleStyleSimpleNegative()
 {
-	const s = `html, body, body[class] {background: #000; }
+	const s = `
+		html, body, body[class] {background: #000; }
 		*, *[class] { background-color: rgba(0,0,0,0.4); color: #CCC; border-color: transparent; }
 		h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #FFF; }
 		mark {color: #FF0; }
@@ -4723,163 +4729,168 @@ function toggleStyleSimpleNegative()
 		a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #FFF; }
 		a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #048; }
 		button[class], input[class], textarea[class] { border: 2px solid #09F; }
-		button[class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 2px solid #FFF; }`;
+		button[class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 2px solid #FFF; }
+		`;
 	toggleStyle(s, "styleSimpleNegative", true);
 }
 
 function toggleStyleGrey()
 {
-	const s = `body { background: #203040; color: #ABC; font: 24px "swis721 cn bt"; }
-	h1, h2, h3, h4, h5, h6 { background: #123; padding: 0.35em 10px; font-weight: normal; }
-	body.pad100 { padding: 100px; }
-	body.xwrap { width: 1000px; margin: 0 auto; }
-	mark { background: #049; color: #7CF; padding: 4px 2px; }
-	p { line-height: 135%; text-align: justify; }
-	blockquote { margin: 0 0 0 40px; padding: 10px 20px; border-left: 10px solid #123; }
-	a { text-decoration: none; color: #09F; }
-	em, i, strong, b { font-style: normal; font-weight: normal; color: #FFF; }
-	code { background: #012; color: #ABC; }
-	pre { background: #012; color: #ABC; padding: 20px; }
-	pre q1 { color: #57F; background: #024; }
-	pre q2 { color: #C7F; background: #214; }
-	pre c1 { font-style: normal; color: #F90; background: #331500; }
-	pre c2 { color: #F00; background: #400; }
-	pre b1 { color: #0F0; }
-	pre b2 { color: #FFF; }
-	pre b3 { color: #F90; }
-	pre xk { color: #29F; }
-	pre xh { color: #57F; }
-	pre xv { color: #F47; }`;
+	const s = `
+		body { background: #203040; color: #ABC; font: 24px "swis721 cn bt"; }
+		h1, h2, h3, h4, h5, h6 { background: #123; padding: 0.35em 10px; font-weight: normal; }
+		body.pad100 { padding: 100px; }
+		body.xwrap { width: 1000px; margin: 0 auto; }
+		mark { background: #049; color: #7CF; padding: 4px 2px; }
+		p { line-height: 135%; text-align: justify; }
+		blockquote { margin: 0 0 0 40px; padding: 10px 20px; border-left: 10px solid #123; }
+		a { text-decoration: none; color: #09F; }
+		em, i, strong, b { font-style: normal; font-weight: normal; color: #FFF; }
+		code { background: #012; color: #ABC; }
+		pre { background: #012; color: #ABC; padding: 20px; }
+		pre q1 { color: #57F; background: #024; }
+		pre q2 { color: #C7F; background: #214; }
+		pre c1 { font-style: normal; color: #F90; background: #331500; }
+		pre c2 { color: #F00; background: #400; }
+		pre b1 { color: #0F0; }
+		pre b2 { color: #FFF; }
+		pre b3 { color: #F90; }
+		pre xk { color: #29F; }
+		pre xh { color: #57F; }
+		pre xv { color: #F47; }
+	`;
 	toggleStyle(s, "styleGrey", true);
 }
 
 function toggleStyleNegative()
 {
-	const s = `html { background: #181818; }
-	html body { margin: 0; }
-	html body, html body[class] { color: #888; background: #242424; font-weight: normal; }
-	body.pad100 { padding: 100px 100px; }
-	body.pad100 table { width: 100%; }
-	body.pad100 td, body.pad100 th { padding: 3px 10px; }
-	body.pad100 img { display: block; max-width: 100%; height: auto; }
-	nav { background: #111; }
-	body.xdark { background: #111; }
-	body.xblack { background: #000; }
-	body.xwrap { width: 1400px; margin: 0 auto; padding: 100px 300px; }
-	html h1, html h2, html h3, html h4, html h5, html h6, html h1[class], html h2[class], html h3[class], html h4[class], html h5[class], html h6[class] { color: #AAA; padding: 10px 20px; line-height: 160%; margin: 2px 0; background: #141414; border: 0; }
-	html h1, html h1[class], div[class] h1 { font: 40px "Swis721 Cn BT", Calibri, sans-serif; color: #FFF; }
-	html h2, html h2[class], div[class] h2 { font: 28px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
-	html h3, html h3[class], div[class] h3 { font: 24px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
-	html h4, html h4[class], div[class] h4 { font: 20px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
-	html h5, html h5[class], div[class] h5 { font: 16px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
-	html h6, html h6[class], div[class] h6 { font: 14px Verdana, sans-serif; color: #999; }
-	html h5, html h6 { padding: 0.5em 10px; }
-	dl { border-left: 20px solid #111; }
-	dt { color: inherit; padding: 0.5em 10px; line-height: 160%; margin: 2px 0; background: #111; border: 0; border-left: 20px solid #0C0C0C; color: #AAA; }
-	dd { color: inherit; padding: 0.25em 10px; line-height: 160%; margin: 2px 0; background: #141414; border: 0; border-left: 20px solid #0C0C0C; }
-	button, select, textarea, html input, html input[class] { border: 0; padding: 5px 10px; background: #242424; box-shadow: inset 0 0 5px #000; color: #999; line-height: 150%; -moz-appearance: none; border-radius: 0; }
-	html input[type="checkbox"] { width: 24px; height: 24px; background: #242424; }
-	button, html input[type="submit"], html input[type="button"] { box-shadow: none; background: #111; }
-	button:hover, button:focus, html input[type="submit"]:hover, input[type="submit"]:focus, html input[type="button"]:hover, html input[type="button"]:focus { background: #000; color: #FFF; }
-	input div { color: #999; }
-	select:focus, textarea:focus, input:focus { color: #999; outline: 0; background: #0C0C0C; }
-	textarea:focus *, input:focus * { color: #999; }
+	const s = `
+		html { background: #181818; }
+		html body { margin: 0; }
+		html body, html body[class] { color: #888; background: #242424; font-weight: normal; }
+		body.pad100 { padding: 100px 100px; }
+		body.pad100 table { width: 100%; }
+		body.pad100 td, body.pad100 th { padding: 3px 10px; }
+		body.pad100 img { display: block; max-width: 100%; height: auto; }
+		nav { background: #111; }
+		body.xdark { background: #111; }
+		body.xblack { background: #000; }
+		body.xwrap { width: 1400px; margin: 0 auto; padding: 100px 300px; }
+		html h1, html h2, html h3, html h4, html h5, html h6, html h1[class], html h2[class], html h3[class], html h4[class], html h5[class], html h6[class] { color: #AAA; padding: 10px 20px; line-height: 160%; margin: 2px 0; background: #141414; border: 0; }
+		html h1, html h1[class], div[class] h1 { font: 40px "Swis721 Cn BT", Calibri, sans-serif; color: #FFF; }
+		html h2, html h2[class], div[class] h2 { font: 28px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
+		html h3, html h3[class], div[class] h3 { font: 24px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
+		html h4, html h4[class], div[class] h4 { font: 20px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
+		html h5, html h5[class], div[class] h5 { font: 16px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
+		html h6, html h6[class], div[class] h6 { font: 14px Verdana, sans-serif; color: #999; }
+		html h5, html h6 { padding: 0.5em 10px; }
+		dl { border-left: 20px solid #111; }
+		dt { color: inherit; padding: 0.5em 10px; line-height: 160%; margin: 2px 0; background: #111; border: 0; border-left: 20px solid #0C0C0C; color: #AAA; }
+		dd { color: inherit; padding: 0.25em 10px; line-height: 160%; margin: 2px 0; background: #141414; border: 0; border-left: 20px solid #0C0C0C; }
+		button, select, textarea, html input, html input[class] { border: 0; padding: 5px 10px; background: #242424; box-shadow: inset 0 0 5px #000; color: #999; line-height: 150%; -moz-appearance: none; border-radius: 0; }
+		html input[type="checkbox"] { width: 24px; height: 24px; background: #242424; }
+		button, html input[type="submit"], html input[type="button"] { box-shadow: none; background: #111; }
+		button:hover, button:focus, html input[type="submit"]:hover, input[type="submit"]:focus, html input[type="button"]:hover, html input[type="button"]:focus { background: #000; color: #FFF; }
+		input div { color: #999; }
+		select:focus, textarea:focus, input:focus { color: #999; outline: 0; background: #0C0C0C; }
+		textarea:focus *, input:focus * { color: #999; }
 
-	html a, html a:link { color: #09F; text-decoration: none; text-shadow: none; font: inherit; }
-	html a:visited { color: #36A; text-decoration: none; }
-	html a:hover, html a:focus, html a:hover *, html a:focus * { color: #FFF; text-decoration: none; outline: 0; }
-	html a:active { color: #FFF; outline: none; }
-	html .pagination a:link { font: bold 30px "swis721 cn bt"; border: 0; background: #111; padding: 10px; }
+		html a, html a:link { color: #09F; text-decoration: none; text-shadow: none; font: inherit; }
+		html a:visited { color: #36A; text-decoration: none; }
+		html a:hover, html a:focus, html a:hover *, html a:focus * { color: #FFF; text-decoration: none; outline: 0; }
+		html a:active { color: #FFF; outline: none; }
+		html .pagination a:link { font: bold 30px "swis721 cn bt"; border: 0; background: #111; padding: 10px; }
 
-	main, article, section, header, footer, hgroup, nav, ins, small, big, aside, details, font, article, form, fieldset, label, span, span[class], blockquote, div, div[class], ul, ol, li, a, i, b, strong, dl { color: inherit; background: transparent none; line-height: inherit; font-family: inherit; font-size: inherit; font-weight: inherit; text-decoration: inherit; }
-	ul { list-style: none; margin: 0; padding: 10px 0 10px 20px; }
-	li { font-size: 14px; list-style-image: none; background-image: none; line-height: 150%; }
-	tbody, thead, th, tr, td, table { background: #202020; color: inherit; font: 12px Verdana; }
-	body.pad100 ul li { border-left: 5px solid #0C0C0C; padding: 0 0 0 10px; margin: 0 0 2px 0; }
-	cite, u, em, i, b, strong { font-weight: normal; font-style: normal; text-decoration: none; color: #CCC; font-size: inherit; }
-	a u, a em, a i, a b, a strong { color: inherit; }
-	small { font-size: 80%; }
-	input, input *, button, button *, div, td, p { font-size: 12px; font-family: Verdana, sans-serif; line-height: 150%; }
-	p { margin: 0; padding: 5px 0; font-style: normal; font-weight: normal; line-height: 150%; color: inherit; background: inherit; border: 0; }
-	blockquote { margin: 0 0 0 20px; padding: 10px 0 10px 20px; border-style: solid; border-width: 10px 0 0 10px; border-color: #0C0C0C; }
-	blockquote blockquote { margin: 0 0 0 20px; padding: 0 0 0 20px; border-width: 0 0 0 10px; }
+		main, article, section, header, footer, hgroup, nav, ins, small, big, aside, details, font, article, form, fieldset, label, span, span[class], blockquote, div, div[class], ul, ol, li, a, i, b, strong, dl { color: inherit; background: transparent none; line-height: inherit; font-family: inherit; font-size: inherit; font-weight: inherit; text-decoration: inherit; }
+		ul { list-style: none; margin: 0; padding: 10px 0 10px 20px; }
+		li { font-size: 14px; list-style-image: none; background-image: none; line-height: 150%; }
+		tbody, thead, th, tr, td, table { background: #202020; color: inherit; font: 12px Verdana; }
+		body.pad100 ul li { border-left: 5px solid #0C0C0C; padding: 0 0 0 10px; margin: 0 0 2px 0; }
+		cite, u, em, i, b, strong { font-weight: normal; font-style: normal; text-decoration: none; color: #CCC; font-size: inherit; }
+		a u, a em, a i, a b, a strong { color: inherit; }
+		small { font-size: 80%; }
+		input, input *, button, button *, div, td, p { font-size: 12px; font-family: Verdana, sans-serif; line-height: 150%; }
+		p { margin: 0; padding: 5px 0; font-style: normal; font-weight: normal; line-height: 150%; color: inherit; background: inherit; border: 0; }
+		blockquote { margin: 0 0 0 20px; padding: 10px 0 10px 20px; border-style: solid; border-width: 10px 0 0 10px; border-color: #0C0C0C; }
+		blockquote blockquote { margin: 0 0 0 20px; padding: 0 0 0 20px; border-width: 0 0 0 10px; }
 
-	@media (min-width: 2048px)
-	{
-		tbody, thead, th, tr, td, table { background: #202020; color: inherit; font: 22px "Swis721 Cn BT"; }
-		input, input *, button, button *, div, td, p { font-size: 22px; font-family: "Swis721 Cn BT", sans-serif; line-height: 150%; }
-		li { font-size: 22px; }
-		pre { font-size: 22px; }
-	}
+		@media (min-width: 2048px)
+		{
+			tbody, thead, th, tr, td, table { background: #202020; color: inherit; font: 22px "Swis721 Cn BT"; }
+			input, input *, button, button *, div, td, p { font-size: 22px; font-family: "Swis721 Cn BT", sans-serif; line-height: 150%; }
+			li { font-size: 22px; }
+			pre { font-size: 22px; }
+		}
 
-	code { background: #0C0C0C; font-family: Verdcode, Consolas, sans-serif; padding: 1px 2px; }
-	pre { background: #0C0C0C; border-style: solid; border-width: 0 0 0 10px; border-color: #444; padding: 10px 20px; font: 14px Verdcode; }
-	pre, code { color: #999; }
-	pre p { margin: 0; padding: 0; font: 14px Verdcode, Consolas, sans-serif; }
+		code { background: #0C0C0C; font-family: Verdcode, Consolas, sans-serif; padding: 1px 2px; }
+		pre { background: #0C0C0C; border-style: solid; border-width: 0 0 0 10px; border-color: #444; padding: 10px 20px; font: 14px Verdcode; }
+		pre, code { color: #999; }
+		pre p { margin: 0; padding: 0; font: 14px Verdcode, Consolas, sans-serif; }
 
-	pre q1 { color: #57F; background: #024; }
-	pre q2 { color: #C7F; background: #214; }
-	pre c1 { font-style: normal; color: #F90; background: #331500; }
-	pre c2 { color: #F00; background: #400; }
-	pre b1 { color: #0F0; }
-	pre b2 { color: #FFF; }
-	pre b3 { color: #F90; }
-	pre xk { color: #29F; }
-	pre xh { color: #57F; }
-	pre xv { color: #F47; }
+		pre q1 { color: #57F; background: #024; }
+		pre q2 { color: #C7F; background: #214; }
+		pre c1 { font-style: normal; color: #F90; background: #331500; }
+		pre c2 { color: #F00; background: #400; }
+		pre b1 { color: #0F0; }
+		pre b2 { color: #FFF; }
+		pre b3 { color: #F90; }
+		pre xk { color: #29F; }
+		pre xh { color: #57F; }
+		pre xv { color: #F47; }
 
-	markgreen { background: #040; color: #0F0; padding: 2px 0; line-height: inherit; }
-	markred { background: #400; color: #F00; padding: 2px 0; line-height: inherit; }
-	markblue { background: #036; color: #09F; padding: 2px 0; line-height: inherit; }
-	markpurple { background: #404; color: #F0F; padding: 2px 0; line-height: inherit; }
-	markyellow { background: #440; color: #FF0; padding: 2px 0; line-height: inherit; }
-	markwhite { background: #000; color: #FFF; padding: 2px 0; line-height: inherit; }
+		markgreen { background: #040; color: #0F0; padding: 2px 0; line-height: inherit; }
+		markred { background: #400; color: #F00; padding: 2px 0; line-height: inherit; }
+		markblue { background: #036; color: #09F; padding: 2px 0; line-height: inherit; }
+		markpurple { background: #404; color: #F0F; padding: 2px 0; line-height: inherit; }
+		markyellow { background: #440; color: #FF0; padding: 2px 0; line-height: inherit; }
+		markwhite { background: #000; color: #FFF; padding: 2px 0; line-height: inherit; }
 
-	a img { border: none; }
-	button img, input img { display: none; }
-	table { border-collapse: collapse; background: #141414; border: 0; }
-	td { vertical-align: top; border-width: 0px; }
-	caption, th { background: #111; border-color: #111; text-align: left; }
-	th, tr, tbody { border: 0; }
-	fieldset { border: 1px solid #111; margin: 0 0 1px 0; }
-	span, ul, ol, li, div { border: 0; }
-	hr { height: 2px; background: #999; border-style: solid; border-color: #999; border-width: 0; margin: 20px 0; }
-	legend { background: #181818; }
-	textarea, textarea div { font-family: Verdcode, Consolas, sans-serif; }
-	samp, mark, hl, kbd { background: #331500; color: #F90; padding: 2px 0; }
-	container { border: 2px solid #F00; margin: 10px; display: block; padding: 10px; }
-	samp a:link, mark a:link, a:link samp, a:link mark { background: #331500; color: #F90; }
-	samp a:visited, mark a:visited, a:visited samp, a:visited mark { color: #e68a00; }
-	mark a:hover, a:hover mark, samp a:hover, a:hover samp { background-color: #4d2000; color: #FFF; }
-	samp, mark mark { font: 24px "Swis721 Cn BT", Calibri, sans-serif; }
-	figure { border: 0; background: #181818; padding: 20px; }
-	figcaption { background: #181818; color: #888; }
-	ruby { margin: 10px 0; background: #000; color: #CCC; padding: 20px 40px; display: block; border-left: 10px solid #F90; }
-	rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 24px "Swis721 Cn BT", Calibri, sans-serif; border-top: 50px solid #000; border-bottom: 50px solid #000; }
-	rt { margin: 10px 0; padding: 20px; display: block; background: #181818; }
-	rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }
-	body.xDontShowLinks a, body.xDontShowLinks a *, body.xDontShowLinks a:link { color: inherit; text-decoration: none; }
-	body.xDontShowLinks a:visited *, body.xDontShowLinks a:visited { color: inherit; text-decoration: none; }
-	body.xDontShowLinks a:hover *, body.xDontShowLinks a:focus *, body.xDontShowLinks a:hover, body.xDontShowLinks a:focus { color: #FFF; text-decoration: none; }
-	.nimbushl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }
-	.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }
-	.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
-	table.nimbushl { outline: 2px solid red; }
-	tr.nimbushl td, tr.nimbushl th { box-shadow: inset 0 -1000px #700; }
-	tr.trMark td, tr.trMark th { box-shadow: inset 0 -1000px #F90; }
-	tr.trMarkYellow td, tr.trMarkYellow th { box-shadow: inset 0 -1000px #FF0; }
-	tr.trMarkRed td, tr.trMarkRed th { box-shadow: inset 0 -1000px #800; }
-	tr.trMarkGreen td, tr.trMarkGreen th { box-shadow: inset 0 -1000px #070; }
-	tr.trMarkBlue td, tr.trMarkBlue th { box-shadow: inset 0 -1000px #038; }
-	tr.trMarkPurple td, tr.trMarkPurple th { box-shadow: inset 0 -1000px #707; }
-	tr.trMarkWhite td, tr.trMarkWhite th { box-shadow: inset 0 -1000px #000; }
+		a img { border: none; }
+		button img, input img { display: none; }
+		table { border-collapse: collapse; background: #141414; border: 0; }
+		td { vertical-align: top; border-width: 0px; }
+		caption, th { background: #111; border-color: #111; text-align: left; }
+		th, tr, tbody { border: 0; }
+		fieldset { border: 1px solid #111; margin: 0 0 1px 0; }
+		span, ul, ol, li, div { border: 0; }
+		hr { height: 2px; background: #999; border-style: solid; border-color: #999; border-width: 0; margin: 20px 0; }
+		legend { background: #181818; }
+		textarea, textarea div { font-family: Verdcode, Consolas, sans-serif; }
+		samp, mark, hl, kbd { background: #331500; color: #F90; padding: 2px 0; }
+		container { border: 2px solid #F00; margin: 10px; display: block; padding: 10px; }
+		samp a:link, mark a:link, a:link samp, a:link mark { background: #331500; color: #F90; }
+		samp a:visited, mark a:visited, a:visited samp, a:visited mark { color: #e68a00; }
+		mark a:hover, a:hover mark, samp a:hover, a:hover samp { background-color: #4d2000; color: #FFF; }
+		samp, mark mark { font: 24px "Swis721 Cn BT", Calibri, sans-serif; }
+		figure { border: 0; background: #181818; padding: 20px; }
+		figcaption { background: #181818; color: #888; }
+		ruby { margin: 10px 0; background: #000; color: #CCC; padding: 20px 40px; display: block; border-left: 10px solid #F90; }
+		rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 24px "Swis721 Cn BT", Calibri, sans-serif; border-top: 50px solid #000; border-bottom: 50px solid #000; }
+		rt { margin: 10px 0; padding: 20px; display: block; background: #181818; }
+		rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }
+		body.xDontShowLinks a, body.xDontShowLinks a *, body.xDontShowLinks a:link { color: inherit; text-decoration: none; }
+		body.xDontShowLinks a:visited *, body.xDontShowLinks a:visited { color: inherit; text-decoration: none; }
+		body.xDontShowLinks a:hover *, body.xDontShowLinks a:focus *, body.xDontShowLinks a:hover, body.xDontShowLinks a:focus { color: #FFF; text-decoration: none; }
+		.nimbushl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }
+		.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }
+		.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
+		a.nimbushl::after, span.nimbushl::after { content: ""; display: inline; clear: none; }
+		table.nimbushl { outline: 2px solid red; }
+		tr.nimbushl td, tr.nimbushl th { box-shadow: inset 0 -1000px #700; }
+		tr.trMark td, tr.trMark th { box-shadow: inset 0 -1000px #F90; }
+		tr.trMarkYellow td, tr.trMarkYellow th { box-shadow: inset 0 -1000px #FF0; }
+		tr.trMarkRed td, tr.trMarkRed th { box-shadow: inset 0 -1000px #800; }
+		tr.trMarkGreen td, tr.trMarkGreen th { box-shadow: inset 0 -1000px #070; }
+		tr.trMarkBlue td, tr.trMarkBlue th { box-shadow: inset 0 -1000px #038; }
+		tr.trMarkPurple td, tr.trMarkPurple th { box-shadow: inset 0 -1000px #707; }
+		tr.trMarkWhite td, tr.trMarkWhite th { box-shadow: inset 0 -1000px #000; }
 
-	user { background: #000; padding: 2px 10px; border-left: 10px solid #09F; margin: 0; }
-	author { display: block; font-size: 24px; background: #111; color: #FFF; padding: 2px 10px; border-left: 10px solid #AF0; margin: 0; }
-	reference { background: #000; color: #AAA; padding: 1px 5px; }
-	comment { display: block; padding: 5px 10px; border-left: 10px solid #555; background: #222; }
-	ind { display: block; padding-left: 50px; }`;
-
+		user { background: #000; padding: 2px 10px; border-left: 10px solid #09F; margin: 0; }
+		author { display: block; font-size: 24px; background: #111; color: #FFF; padding: 2px 10px; border-left: 10px solid #AF0; margin: 0; }
+		reference { background: #000; color: #AAA; padding: 1px 5px; }
+		comment { display: block; padding: 5px 10px; border-left: 10px solid #555; background: #222; }
+		ind { display: block; padding-left: 50px; }
+	`;
 
 	toggleStyle(s, "styleNegative");
 }
