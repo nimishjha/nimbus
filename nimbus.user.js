@@ -2746,11 +2746,11 @@ function filterNodesWithoutParentOfType(nodes, tagName)
 	{
 		const node = nodes[i];
 		let hasParentOfType = false;
-		let count = 0;
+		let depth = 0;
 		let currentNode = node;
-		while(currentNode.parentNode && count < 20)
+		while(currentNode.parentNode && depth < 20)
 		{
-			count++;
+			depth++;
 			currentNode = currentNode.parentNode;
 			if(currentNode.tagName && currentNode.tagName.toUpperCase() === tagNameUpper)
 			{
@@ -4381,7 +4381,8 @@ function changePageByUrl(direction)
 	}
 
 	const queryParams = parseQueryString(url);
-	console.log(queryParams);
+	if(!queryParams)
+		return false;
 	let found = false;
 	let page;
 	let currentPage;
