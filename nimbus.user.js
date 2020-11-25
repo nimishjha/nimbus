@@ -165,6 +165,7 @@ const Nimbus = {
 		fillForms: fillForms,
 		fixBrsInHeadings: fixBrsInHeadings,
 		fixCdnImages: fixCdnImages,
+		fixEmptyAnchorLinks: fixEmptyAnchorLinks,
 		fixHeadings: fixHeadings,
 		fixParagraphs: fixParagraphs,
 		fixPres: fixPres,
@@ -2404,7 +2405,7 @@ function makeReferencesSemantic()
 	for(let i = 0, ii = refLinks.length; i < ii; i++)
 	{
 		const refLink = refLinks[i];
-		refLink.textContent = refLink.textContent.replace(/[\[\]]/g, "");
+		refLink.textContent = refLink.textContent.replace(/[\[\]\{\}]/g, "");
 	}
 }
 
@@ -4350,11 +4351,55 @@ function revealEmptyLinks()
 {
 	const links = get("a");
 	let i = links.length;
+	let count = 0;
 	while(i--)
 	{
 		const link = links[i];
-		if(!(link.textContent.length || link.getElementsByTagName("img").length) && link.href.length)
-			link.textContent = humanizeUrl(link.href);
+		if(!(link.textContent.length || link.getElementsByTagName("img").length))
+		{
+			count++;
+			link.textContent = humanizeUrl(link.href || link.id || link.className);
+			link.classList.add(Nimbus.markerClass);
+		}
+	}
+	showMessageBig("Revealed " + count + " empty links");
+}
+
+//	Replaces empty, invisible anchor links (that only have an ID, no href)
+//	by taking their IDs and applying the IDs to either an adjacent link or
+//	the first block parent
+function fixEmptyAnchorLinks()
+{
+	const links = get("a");
+	let i = links.length;
+	while(i--)
+	{
+		const link = links[i];
+		if(!(link.textContent.length || link.getElementsByTagName("img").length))
+		{
+			if(!link.id)
+				continue;
+			const nextElem = link.nextElementSibling;
+			const prevElem = link.previousElementSibling;
+			if(nextElem && nextElem.tagName === "A")
+			{
+				nextElem.id = link.id;
+				link.remove();
+				continue;
+			}
+			else if (prevElem && prevElem.tagName === "A")
+			{
+				prevElem.id = link.id;
+				link.remove();
+				continue;
+			}
+			else
+			{
+				const parent = getFirstBlockParent(link);
+				parent.id = link.id;
+				link.remove();
+			}
+		}
 	}
 }
 
