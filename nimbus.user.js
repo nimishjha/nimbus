@@ -4545,7 +4545,7 @@ function joinAdjacentElements(selector)
 {
 	const elems = get(selector);
 	const tagName = elems[0].tagName;
-	if(["BLOCKQUOTE", "LI"].includes(tagName))
+	if(["BLOCKQUOTE", "LI", "P"].includes(tagName))
 	{
 		let parentTagName = "";
 		let childTagName = "";
@@ -4559,6 +4559,10 @@ function joinAdjacentElements(selector)
 				parentTagName = "ul";
 				childTagName = "li";
 				break;
+			case "P":
+				parentTagName = "blockquote";
+				childTagName = "P";
+				break;
 			default:
 				parentTagName = "blockquote";
 				childTagName = "p";
@@ -4570,7 +4574,7 @@ function joinAdjacentElements(selector)
 			const parent = document.createElement(parentTagName);
 			parent.appendChild(convertElement(elem, childTagName));
 			let nextElem = elem.nextElementSibling;
-			while(nextElem && nextElem.tagName === tagName)
+			while(nextElem && elems.includes(nextElem))
 			{
 				i++;
 				const nextElemTemp = nextElem.nextElementSibling;
