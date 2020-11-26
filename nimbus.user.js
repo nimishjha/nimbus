@@ -2060,7 +2060,7 @@ function customPrompt(message, initialValue)
 			'#xxdialog #xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0 0; margin: 0; border-width: 0 10px; border-color: #000; width: 100%; height: 60px; overflow: hidden; box-sizing: border-box; }';
 		insertStyle(s, "style-xxdialog", true);
 		dialogInput.focus();
-		return new Promise(function(resolve, reject) {
+		const func = function(resolve, reject) {
 			dialogInput.addEventListener("keydown", function handleCustomPromptInput(evt){
 				evt.stopPropagation();
 				switch(evt.keyCode)
@@ -2079,7 +2079,8 @@ function customPrompt(message, initialValue)
 						break;
 				}
 			}, false);
-		});
+		}
+		return new Promise(func);
 	}
 }
 
