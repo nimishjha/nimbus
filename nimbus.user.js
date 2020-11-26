@@ -6070,10 +6070,12 @@ function toggleBlockEditMode()
 	{
 		db.addEventListener('mouseup', handleBlockEditClick, false);
 		db.classList.add("debug");
-		const s = 'html body.debug header, html body.debug footer, html body.debug article, html body.debug aside, html body.debug section, html body.debug div { border: 2px solid #666; margin: 5px; padding: 5px; }' +
-			'html body.debug header:hover, html body.debug footer:hover, html body.debug article:hover, html body.debug aside:hover, html body.debug section:hover, html body.debug div:hover { border-color: #FFF; } ' +
-			'html body.debug>header, html body.debug>footer, html body.debug>article, html body.debug>aside, html body.debug>section, html body.debug>div { border-width: 10px 10px 10px 20px; }';
-		insertStyle(s, "styleToggleBlockEditMode", true);
+		const style = `
+			html body.debug header, html body.debug footer, html body.debug article, html body.debug aside, html body.debug section, html body.debug div { border: 2px solid #666; margin: 5px; padding: 5px; }
+			html body.debug header:hover, html body.debug footer:hover, html body.debug article:hover, html body.debug aside:hover, html body.debug section:hover, html body.debug div:hover { border-color: #FFF; }
+			html body.debug>header, html body.debug>footer, html body.debug>article, html body.debug>aside, html body.debug>section, html body.debug>div { border-width: 10px 10px 10px 20px; }
+		`;
+		insertStyle(style, "styleToggleBlockEditMode", true);
 		showMessageBig("Block edit mode on");
 	}
 }
@@ -6086,17 +6088,19 @@ function toggleShowDocumentStructure()
 		del("#" + styleId);
 		return;
 	}
-	const style = 'header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F; }' +
-		'form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90; background: rgba(255, 150, 0, 0.2); }' +
-		'table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F; }' +
-		'ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0; }' +
-		'li { box-shadow: inset 1px 1px #080, inset -1px -1px #080; }' +
-		'span { box-shadow: inset 1px 1px #C50, inset -1px -1px #C50; }' +
-		'h1, h2, h3, h4, h5, h6 { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }' +
-		'p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }' +
-		'mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 1px 1px #FF0, inset -1px -1px #FF0; }' +
-		'a, a * { background: rgba(180, 255, 0, 0.25); }' +
-		'img { background: #800; padding: 2px; box-sizing: border-box; }';
+	const style = `
+		header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F; }
+		form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90; background: rgba(255, 150, 0, 0.2); }
+		table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F; }
+		ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0; }
+		li { box-shadow: inset 1px 1px #080, inset -1px -1px #080; }
+		span { box-shadow: inset 1px 1px #C50, inset -1px -1px #C50; }
+		h1, h2, h3, h4, h5, h6 { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }
+		p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }
+		mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 1px 1px #FF0, inset -1px -1px #FF0; }
+		a, a * { background: rgba(180, 255, 0, 0.25); }
+		img { background: #800; padding: 2px; box-sizing: border-box; }
+	`;
 	insertStyle(style, styleId, true);
 }
 
@@ -6108,11 +6112,13 @@ function toggleShowDocumentBlockStructure()
 		del("#" + styleId);
 		return;
 	}
-	const style = 'div { background: linear-gradient(135deg, black, white); }' +
-		'h1, h2, h3, h4, h5, h6 { background: #F00; }' +
-		'p { background: #09F; }' +
-		'ol, ul { background: #00F; }' +
-		'table { background: #080; }';
+	const style = `
+		div { background: linear-gradient(135deg, black, white); }
+		h1, h2, h3, h4, h5, h6 { background: #F00; }
+		p { background: #09F; }
+		ol, ul { background: #00F; }
+		table { background: #080; }
+	`;
 	insertStyle(style, styleId, true);
 }
 
