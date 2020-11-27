@@ -121,7 +121,7 @@ const Nimbus = {
 	availableFunctions: {
 		addLinksToLargerImages: addLinksToLargerImages,
 		annotate: annotate,
-		appendInfo: appendInfo,
+		appendMetadata: appendMetadata,
 		buildGallery: buildGallery,
 		buildSlideshow: buildSlideshow,
 		cycleThroughDocumentHeadings: cycleThroughDocumentHeadings,
@@ -5291,7 +5291,7 @@ function cleanupGeneral()
 	replaceSpansWithTextNodes();
 	replaceAudio();
 	highlightUserLinks();
-	appendInfo();
+	appendMetadata();
 	getBestImageSrc();
 	insertStyleHighlight();
 	forceImageWidth(1200);
@@ -5315,7 +5315,7 @@ function cleanupGeneral_light()
 	setDocTitle();
 	del("x");
 	cleanupAttributes_regex();
-	appendInfo();
+	appendMetadata();
 	document.body.className = "pad100 xShowImages";
 	const t2 = performance.now();
 	xlog(Math.round(t2 - t1) + " ms: cleanupGeneral_light");
@@ -5625,20 +5625,40 @@ function replaceAudio()
 	replaceElementsBySelector("audio", "h2");
 }
 
-//	Append useful information to a webpage, including a link to the parent domain, a link to the original document, and a timestamp
-function appendInfo()
+function getMetadata()
 {
-	if(window.location.href.indexOf("file:///") >= 0)
-		return;
 	const headings4 = get("h4");
-	if(headings4.length && headings4.length > 2 && headings4[headings4.length - 2].textContent.indexOf("URL:") === 0)
+	const len = headings4.length;
+	if(len < 3)
+		return false;
+	const lastHeading4 = headings4[len - 1];
+	if(!lastHeading4 || lastHeading4.textContent.indexOf("Saved at") !== 0)
+		return false;
+
+	const fields = headings4.splice(len - 3);
+	const domain = fields[0].textContent;
+	const pageUrl = fields[1].textContent;
+	const saveTimestamp = fields[2].textContent;
+	return {
+		domain,
+		pageUrl,
+		saveTimestamp
+	};
+}
+
+//	Append useful information to a webpage, including a link to the parent domain, a link to the webpage URL, and a timestamp
+function appendMetadata()
+{
+	const existingMetadata = getMetadata();
+	const loc = window.location;
+	if(loc.protocol === "file:" || existingMetadata)
 		return;
 
-	const documentUrl = removeQueryParameter(window.location.href.toString(), "utm_source");
-	const documentUrlSegments = documentUrl.split("/");
+	const urlWithoutHash = loc.protocol + "//" + loc.hostname + loc.pathname + loc.search;
+	const documentUrl = removeQueryParameter(urlWithoutHash, "utm_source");
 
 	const domainLinkWrapper = createElement("h4", { textContent: "Domain: " });
-	const domainLink = createElement("a", { textContent: documentUrlSegments[2], href: documentUrlSegments[2] });
+	const domainLink = createElement("a", { textContent: loc.hostname, href: loc.protocol + "//" + loc.hostname });
 	domainLinkWrapper.appendChild(domainLink);
 	document.body.appendChild(domainLinkWrapper);
 
