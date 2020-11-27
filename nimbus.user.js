@@ -153,7 +153,7 @@ const Nimbus = {
 		deleteNonContentElements: deleteNonContentElements,
 		deleteNonContentImages: deleteNonContentImages,
 		deleteSmallImages: deleteSmallImages,
-		deleteSpecificEmptyElements: deleteSpecificEmptyElements,
+		deleteEmptyBlockElements: deleteEmptyBlockElements,
 		delRange: delRange,
 		deselect: deselect,
 		disableConsoleLogs: disableConsoleLogs,
@@ -315,7 +315,7 @@ const Nimbus = {
 	minPersistWidth: 1000,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
-	BLOCK_ELEMENTS: ["DIV", "P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING"],
+	BLOCK_ELEMENTS: ["DIV", "P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV"],
 };
 
 const KEYCODES = Nimbus.KEYCODES;
@@ -1006,7 +1006,6 @@ function parseQueryString(url)
 	const index = url.indexOf("?");
 	if(index === -1 || index > url.length - 4)
 	{
-		showMessageError("Url has no query string");
 		return;
 	}
 	const queryString = url.substring(index + 1);
@@ -1764,7 +1763,7 @@ function refreshScreen()
 {
 	const elem = document.createElement("screenrefresh");
 	document.body.appendChild(elem);
-	setTimeout(function(){ elem.remove() }, 500);
+	setTimeout(function(){ elem.remove(); }, 500);
 }
 
 function showMessage(messageHtml, msgClass, persist)
@@ -2079,7 +2078,7 @@ function customPrompt(message, initialValue)
 						break;
 				}
 			}, false);
-		}
+		};
 		return new Promise(func);
 	}
 }
@@ -3630,7 +3629,7 @@ function formatEbook()
 	replaceEmptyParagraphsWithHr();
 	joinAdjacentElements("hr");
 	// replaceHeadingClassesByTextLength();
-	document.body.classList.add("ebook");
+	// document.body.classList.add("ebook");
 }
 
 function looksLikeUrl(str)
@@ -5433,7 +5432,7 @@ function deleteEmptyElements(selector)
 			}
 		}
 	}
-	showMessageBig(`Deleted ${count} empty ${selector} elements`);
+	showMessageBig(`Deleted ${count} empty elements`);
 }
 
 function deleteEmptyHeadings()
@@ -5448,10 +5447,9 @@ function deleteEmptyHeadings()
 	}
 }
 
-function deleteSpecificEmptyElements()
+function deleteEmptyBlockElements()
 {
-	const SELECTOR = "p, tr, ul, ol, li, div, figure, figcaption, aside, blockquote, pre, span";
-	deleteEmptyHeadings();
+	const SELECTOR = Nimbus.BLOCK_ELEMENTS.join(",");
 	deleteEmptyElements(SELECTOR);
 }
 
@@ -5636,21 +5634,16 @@ function appendInfo()
 	if(headings4.length && headings4.length > 2 && headings4[headings4.length - 2].textContent.indexOf("URL:") === 0)
 		return;
 
-	const documentUrl = window.location.href.toString();
+	const documentUrl = removeQueryParameter(window.location.href.toString(), "utm_source");
+	const documentUrlSegments = documentUrl.split("/");
 
 	const domainLinkWrapper = createElement("h4", { textContent: "Domain: " });
-	const domainLink = document.createElement("a");
-	const documentUrlSegments = documentUrl.split("/");
-	domainLink.href = documentUrlSegments[0] + "//" + documentUrlSegments[2];
-	domainLink.textContent = documentUrlSegments[2];
+	const domainLink = createElement("a", { textContent: documentUrlSegments[2], href: documentUrlSegments[2] });
 	domainLinkWrapper.appendChild(domainLink);
 	document.body.appendChild(domainLinkWrapper);
 
 	const documentLinkWrapper = createElement("h4", { textContent: "URL: " });
-	const documentLink = document.createElement("a");
-	let url = documentUrl;
-	url = removeQueryParameter(url, "utm_source");
-	documentLink.textContent = documentLink.href = url;
+	const documentLink = createElement("a", { textContent: documentUrl, href: documentUrl });
 	documentLinkWrapper.appendChild(documentLink);
 	document.body.appendChild(documentLinkWrapper);
 
@@ -5776,6 +5769,7 @@ function getContentByParagraphCount()
 			setDocTitleSimple(title);
 		cleanupGeneral();
 		deleteIframes();
+		deleteEmptyBlockElements();
 		return;
 	}
 	del(["nav", "footer"]);
@@ -6956,7 +6950,7 @@ function highlightSelectedElement(tag)
 	if(node && node.parentNode && node.tagName !== "BODY")
 	{
 		const highlightTag = tag ? tag : Nimbus.highlightTagName;
-		wrapElementInner(node, highlightTag);
+		wrapElementInner(getFirstBlockParent(node), highlightTag);
 	}
 }
 
@@ -7057,7 +7051,7 @@ function handleKeyDown(e)
 			case KEYCODES.ZERO: cycleThroughDocumentHeadings(); break;
 			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", "none"]); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
-			case KEYCODES.D: deleteSpecificEmptyElements(); break;
+			case KEYCODES.D: deleteEmptyBlockElements(); break;
 			case KEYCODES.E: cycleHighlightTag(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteBySelectorAndTextMatching); break;
 			case KEYCODES.I: toggleConsole("css"); break;
@@ -7177,7 +7171,7 @@ function handleKeyDown(e)
 			case KEYCODES.G: callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
 			case KEYCODES.Z: deselect(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by class containing", replaceByClassOrIdContaining, 2); break;
-			case KEYCODES.F: createTagsByClassName(); break;
+			case KEYCODES.F: formatEbook(); break;
 			case KEYCODES.H: unmarkAll(); break;
 			case KEYCODES.M: markOverlays(); break;
 			case KEYCODES.R: rescueOrphanedTextNodes(); break;
