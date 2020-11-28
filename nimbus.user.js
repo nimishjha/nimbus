@@ -6584,7 +6584,7 @@ function insertElementAfterSelectionAnchor(tagName)
 		insertAfter(node, createElement(tag));
 }
 
-function annotate()
+function annotate(position = "before")
 {
 	let node = getNodeContainingSelection();
 	if(node && node.parentNode)
@@ -6593,7 +6593,10 @@ function annotate()
 			const annotation = document.createElement("annotation");
 			annotation.textContent = result;
 			if(annotation.textContent.length)
-				node.parentNode.insertBefore(annotation, node);
+				if(position === "after")
+					insertAfter(node, annotation);
+				else
+					insertBefore(node, annotation);
 		});
 	}
 }
@@ -7187,6 +7190,7 @@ function handleKeyDown(e)
 		e.preventDefault();
 		switch(k)
 		{
+			case KEYCODES.A: annotate("after"); break;
 			case KEYCODES.D: deselect(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
 			case KEYCODES.Z: deselect(); break;
