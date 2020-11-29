@@ -207,7 +207,6 @@ const Nimbus = {
 		logAllClassesFor: logAllClassesFor,
 		logAllClassesForCommonElements: logAllClassesForCommonElements,
 		makeButtonsReadable: makeButtonsReadable,
-		makeDocumentSemantic: makeDocumentSemantic,
 		makeHashLinksRelative: makeHashLinksRelative,
 		makeHeadings: makeHeadings,
 		replaceBrs: replaceBrs,
@@ -3628,6 +3627,7 @@ function formatEbook()
 	createTagsByClassName();
 	replaceEmptyParagraphsWithHr();
 	joinAdjacentElements("hr");
+	makeReferencesSemantic();
 	// replaceHeadingClassesByTextLength();
 	// document.body.classList.add("ebook");
 }
@@ -4953,7 +4953,8 @@ function toggleStyleWhite()
 
 function toggleStyleShowClasses()
 {
-	const s = `body { background: #333; color: #BBB; }
+	const s = `
+		body { background: #333; color: #BBB; }
 		a { color: #09F; text-decoration: none; }
 		header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #999, inset -2px -2px #999; padding: 0 0 0 10px; margin: 1px 1px 1px 10px; }
 		form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90; background: rgba(255, 150, 0, 0.2); }
@@ -4978,7 +4979,8 @@ function toggleStyleShowClasses()
 		h3::before { content: "h3"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
 		h4::before { content: "h4"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
 		h5::before { content: "h5"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
-		h6::before { content: "h6"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }`;
+		h6::before { content: "h6"; display: block; position: absolute; top: 0; left: 0; background: #A00; color: #FFF; padding: 10px; }
+	`;
 	toggleStyle(s, "styleShowClasses", true);
 }
 
@@ -4989,7 +4991,7 @@ function toggleStyleShowClasses2()
 		p::before { content: attr(class); color: #F0F; background: #000; }
 		span { box-shadow: inset 0 -100px rgba(0,128,0,0.5); }
 		span::before { content: attr(class); color: #0F0; background: #000; padding: 2px 5px; }
-		`;
+	`;
 	toggleStyle(style, "styleShowClasses2", true);
 }
 
@@ -5193,12 +5195,7 @@ function cleanupAttributes()
 					case "name":
 					case "colspan":
 					case "rowspan":
-						break;
 					case "id":
-						// if(["a", "li", "sup", "small"].includes(tagName))
-						// 	break;
-						// else
-						// 	elem.removeAttribute("id");
 						break;
 					default:
 						elem.removeAttribute(attr.name);
@@ -5285,7 +5282,6 @@ function cleanupGeneral()
 	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet", "message"]);
 	replaceSpecialCharacters();
 	replaceElementsBySelector("center", "div");
-	// remove("a", "textContent", "equals", "Section");
 	setDocTitle();
 	cleanupAttributes();
 	replaceSpansWithTextNodes();
@@ -5794,7 +5790,6 @@ function getContentByParagraphCount()
 	}
 	del(["nav", "footer"]);
 	deleteNonContentLists();
-	// makeDocumentSemantic();
 	insertStyleHighlight();
 	const paragraphs = get("p");
 	if(!paragraphs)
@@ -7208,12 +7203,6 @@ function handleKeyDown(e)
 		}
 	}
 	window.focus();
-}
-
-function makeDocumentSemantic()
-{
-	highlightAuthors();
-	highlightUserLinks();
 }
 
 function main()
