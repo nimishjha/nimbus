@@ -132,7 +132,6 @@ const Nimbus = {
 		cleanupHead: cleanupHead,
 		cleanupHeadings: cleanupHeadings,
 		cleanupLinks: cleanupLinks,
-		cleanupWikipedia: cleanupWikipedia,
 		convertDivsToParagraphs: convertDivsToParagraphs,
 		createListsFromBulletedParagraphs: createListsFromBulletedParagraphs,
 		groupMarkedElements: groupMarkedElements,
@@ -5854,63 +5853,6 @@ function getContentByParagraphCount()
 		showMessageError("Could not find content");
 }
 
-function cleanupWikipedia()
-{
-	cleanupHead();
-	const firstHeading = getOne("h1");
-	document.title = firstHeading.textContent;
-	del([
-		".toc",
-		".navbox",
-		"iframe",
-		"script",
-		"object",
-		"embed",
-		"link",
-		"#siteNotice",
-		"#contentSub",
-		"#jump-to-nav",
-		"#catlinks",
-		"#toctitle",
-		"#section_SpokenWikipedia",
-		"#footer",
-		"#column-one",
-		".noprint",
-		".rellink",
-		".editsection",
-		".metadata",
-		".internal",
-		".dablink",
-		".messagebox",
-		"#mw-articlefeedback",
-		"form",
-		"#mw-navigation",
-		".mw-editsection",
-		"input",
-	]);
-	replaceElementsBySelector(".thumb", "figure");
-	replaceElementsBySelector(".thumbcaption", "figcaption");
-	replaceElementsBySelector(".hatnote", "dt");
-	const sups = get("sup");
-	let i = sups.length;
-	while(i--)
-	{
-		const existingSuperscript = sups[i];
-		const replacement = createReplacementElement("reference", existingSuperscript, { id: "id", innerHTML: "innerHTML" });
-		existingSuperscript.parentNode.replaceChild(replacement, existingSuperscript);
-	}
-	const refLinks = get("reference a");
-	for(let i = 0, ii = refLinks.length; i < ii; i++)
-	{
-		const refLink = refLinks[i];
-		refLink.textContent = refLink.textContent.replace(/[^A-Za-z0-9]+/g, "");
-	}
-	getBestImageSrc();
-	cleanupAttributes();
-	setTimeout(deleteSmallImages, 10000);
-	document.body.className = "pad100 xwrap";
-	insertStyle("img { width: 100%; }", "styleWikipedia", true);
-}
 
 function cleanupStackOverflow()
 {
@@ -7215,13 +7157,6 @@ function main()
 			case "maps.google.com.au":
 			case "maps.google.com":
 				load = false;
-				break;
-			case "en.wikipedia.org":
-			case "secure.wikimedia.org":
-				cleanupWikipedia();
-				break;
-			case "en.m.wikipedia.org":
-				location.href = location.href.replace(/en\.m\./, "en.");
 				break;
 		}
 	}
