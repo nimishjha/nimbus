@@ -5082,15 +5082,15 @@ function selectByTagNameAndText(tagName, text)
 	return selected;
 }
 
-function getFirstBlockParent(element)
+function getFirstBlockParent(node)
 {
 	const BLOCK_ELEMENTS = Nimbus.BLOCK_ELEMENTS;
 	const MAX_DEPTH = 5;
 	let found = false;
-	let parent = element;
+	let parent = node;
 	let depth = 0;
 	if(!parent.nodeType)
-		parent = element.parentNode;
+		parent = node.parentNode;
 	while(parent.parentNode && ++depth < MAX_DEPTH)
 	{
 		if(BLOCK_ELEMENTS.includes(parent.tagName))
@@ -5107,6 +5107,24 @@ function getFirstBlockParent(element)
 		return parent;
 	else
 		return false;
+}
+
+function getFirstParentOfType(node, tagName)
+{
+	const MAX_DEPTH = 20;
+	const tagNameUpper = tagName.toUpperCase();
+	let found = false;
+	let parent = node.parentNode;
+	let depth = 0;
+	if(!parent.nodeType)
+		parent = parent.parentNode;
+	while(parent.parentNode && ++depth < MAX_DEPTH)
+	{
+		if(parent.tagName === tagNameUpper)
+			return parent;
+		parent = parent.parentNode;
+	}
+	return false;
 }
 
 function selectBlockElementsContainingText(text)
