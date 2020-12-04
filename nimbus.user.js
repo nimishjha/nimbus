@@ -208,7 +208,7 @@ const Nimbus = {
 		makeButtonsReadable: makeButtonsReadable,
 		makeHashLinksRelative: makeHashLinksRelative,
 		makeHeadings: makeHeadings,
-		replaceBrs: replaceBrs,
+		splitByBrs: splitByBrs,
 		replaceHeadingClassesByTextLength: replaceHeadingClassesByTextLength,
 		makePlainText: makePlainText,
 		makeReferencesSemantic: makeReferencesSemantic,
@@ -614,7 +614,7 @@ function forAll(selector, callback)
 
 function getMarkedElements()
 {
-	const markedElements = get(makeClassSelector(Nimbus.markerClass));
+	const markedElements = get(Nimbus.markerClassSelector);
 	return markedElements ? markedElements : [];
 }
 
@@ -817,10 +817,10 @@ function removeNonAlpha(str)
 
 function fixBrsInHeadings()
 {
-	replaceBrs("h1, h2, h3", "div");
+	splitByBrs("h1, h2, h3", "div");
 }
 
-function replaceBrs(sel, strParentTagName)
+function splitByBrs(sel, strParentTagName)
 {
 	const selector = sel || makeClassSelector(Nimbus.markerClass);
 	const parentTagName =  strParentTagName || "blockquote";
@@ -1301,7 +1301,7 @@ function replaceElementsByTagNameMatching(text, tagName)
 function replaceElementsBySelectorHelper()
 {
 	if(getMarkedElements().length)
-		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2, makeClassSelector(Nimbus.markerClass) + " ");
+		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2, Nimbus.markerClassSelector + " ");
 	else
 		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2);
 }
@@ -1761,7 +1761,7 @@ function refreshScreen()
 {
 	const elem = document.createElement("screenrefresh");
 	document.body.appendChild(elem);
-	setTimeout(function(){ elem.remove(); }, 500);
+	setTimeout(function(){ elem.remove(); }, 100);
 }
 
 function showMessage(messageHtml, msgClass, persist)
@@ -3430,7 +3430,7 @@ function tabifySpaces(s)
 
 //	Some people use <br> elements to create line breaks inside pres.
 //	"Only two things are infinite..."
-function replaceBrsInPres()
+function splitByBrsInPres()
 {
 	const brs = document.querySelectorAll("pre br");
 	for(let i = 0, ii = brs.length; i < ii; i++)
@@ -4150,7 +4150,7 @@ function parseCode(s)
 
 function highlightCode(shouldHighlightKeywords)
 {
-	replaceBrsInPres();
+	splitByBrsInPres();
 	fixPres();
 	restorePres();
 
@@ -4647,7 +4647,7 @@ function joinMarkedElements()
 		}
 	}
 	insertBefore(elemsToJoin[0], wrapper);
-	del(makeClassSelector(Nimbus.markerClass));
+	del(Nimbus.markerClassSelector);
 	deleteMessage();
 }
 
@@ -5718,10 +5718,9 @@ function deleteNonContentClasses()
 
 function deleteNonContentElements()
 {
-	const markerSelector = makeClassSelector(Nimbus.markerClass);
-	if(get(markerSelector).length)
+	if(get(Nimbus.markerClassSelector).length)
 	{
-		del(markerSelector);
+		del(Nimbus.markerClassSelector);
 		cleanupGeneral();
 		return;
 	}
@@ -5793,11 +5792,10 @@ function retrieveBySelectorAndText(selector, text)
 function getContentByParagraphCount()
 {
 	const LONG_PARAGRAPH_THRESHOLD = 100;
-	const markerClass = makeClassSelector(Nimbus.markerClass);
-	if(get(markerClass).length)
+	if(get(Nimbus.markerClassSelector).length)
 	{
 		const title = document.title;
-		retrieve(markerClass);
+		retrieve(Nimbus.markerClassSelector);
 		if(title)
 			setDocTitleSimple(title);
 		cleanupGeneral();
@@ -6985,6 +6983,7 @@ function inject()
 	xlog("Page loaded at " + getTimestamp());
 	cleanupStackOverflow();
 	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
+	Nimbus.markerClassSelector = makeClassSelector(Nimbus.markerClass);
 }
 
 function handleKeyDown(e)
