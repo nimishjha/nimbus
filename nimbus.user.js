@@ -410,29 +410,27 @@ function xPathMark(xpath)
 
 function markElements(elems)
 {
-	const elements = elems.nodeType ? [elems] : elems;
-	if(!(elements && elements.length))
-	{
-		showMessageBig("No elements given");
-		return;
-	}
-	for(let i = 0, ii = elements.length; i < ii; i++)
-		elements[i].classList.add(Nimbus.markerClass);
-	insertStyleHighlight();
-	showMessageBig(`Marked <b>${elements.length}</b> elements`);
+	markOrUnmarkElements(elems, "mark");
 }
 
 function unmarkElements(elems)
 {
+	markOrUnmarkElements(elems, "unmark");
+}
+
+function markOrUnmarkElements(elems, action = "mark")
+{
 	const elements = elems.nodeType ? [elems] : elems;
+	const func = action === "mark" ? "add" : "remove";
 	if(!(elements && elements.length))
 	{
 		showMessageBig("No elements given");
 		return;
 	}
 	for(let i = 0, ii = elements.length; i < ii; i++)
-		elements[i].classList.remove(Nimbus.markerClass);
-	showMessageBig(`Unmarked <b>${elements.length}</b> elements`);
+		elements[i].classList[func](Nimbus.markerClass);
+
+	showMessageBig(`${action}ed <b>${elements.length}</b> elements`);
 }
 
 function highlightElements(elems)
