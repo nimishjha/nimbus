@@ -5460,7 +5460,7 @@ function deleteEmptyHeadings()
 
 function deleteEmptyBlockElements()
 {
-	const SELECTOR = Nimbus.BLOCK_ELEMENTS.join(",");
+	const SELECTOR = "div, p, blockquote, h1, h2, h3, h4, h5, h6, li, figure, figcaption, pre, dt, dd, message, annotation, quote, quoteauthor, partheading, aside, section, article, nav, ul, ol";
 	deleteEmptyElements(SELECTOR);
 }
 
