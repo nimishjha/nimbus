@@ -7166,21 +7166,7 @@ function handleKeyDown(e)
 
 function main()
 {
-	let load = true;
-	if(location.hostname)
-	{
-		switch(location.hostname)
-		{
-			case "maps.google.com.au":
-			case "maps.google.com":
-				load = false;
-				break;
-		}
-	}
-	if(load)
-		setTimeout(inject, 200);
-	else
-		showMessageBig("Not injected");
+	setTimeout(inject, 200);
 }
 
 main();
