@@ -5083,7 +5083,7 @@ function selectByTagNameAndText(tagName, text)
 function getFirstBlockParent(node)
 {
 	const BLOCK_ELEMENTS = Nimbus.BLOCK_ELEMENTS;
-	const MAX_DEPTH = 5;
+	const MAX_DEPTH = 10;
 	let found = false;
 	let parent = node;
 	let depth = 0;
@@ -5460,6 +5460,7 @@ function deleteEmptyHeadings()
 
 function deleteEmptyBlockElements()
 {
+	del("noscript");
 	const SELECTOR = "div, p, blockquote, h1, h2, h3, h4, h5, h6, li, figure, figcaption, pre, dt, dd, message, annotation, quote, quoteauthor, partheading, aside, section, article, nav, ul, ol";
 	deleteEmptyElements(SELECTOR);
 }
@@ -5605,9 +5606,11 @@ function replaceSpansWithTextNodes()
 //	This function does a brute-force removal of all <span> tags in a document.
 function removeSpanTags()
 {
-       let s = document.body.innerHTML;
-       s = s.replace(/<\/{0,}span[^>]*>/g, "");
-       document.body.innerHTML = s;
+	const numSpans = get("span").length;
+	let s = document.body.innerHTML;
+	s = s.replace(/<\/{0,}span[^>]*>/g, "");
+	document.body.innerHTML = s;
+	showMessageBig(numSpans + " span tags removed");
 }
 
 //	You'll be amazed at some of the things people put in HTML comments.
