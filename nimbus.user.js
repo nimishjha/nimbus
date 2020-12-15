@@ -148,6 +148,7 @@ const Nimbus = {
 		deleteImages: deleteImages,
 		deleteImagesSmallerThan: deleteImagesSmallerThan,
 		deleteMessage: deleteMessage,
+		deleteNodesBetweenMarkers: deleteNodesBetweenMarkers,
 		deleteNonContentClasses: deleteNonContentClasses,
 		deleteNonContentElements: deleteNonContentElements,
 		deleteNonContentImages: deleteNonContentImages,
@@ -5179,7 +5180,34 @@ function deleteNodesRelativeToSelected(predicate = "after")
 		const relativePosition = anchorNode.compareDocumentPosition(node);
 		if(relativePosition & condition && !(relativePosition & Node.DOCUMENT_POSITION_CONTAINS))
 		{
-			del(node);
+			node.remove();
+		}
+	}
+}
+
+function deleteNodesBetweenMarkers()
+{
+	const marked = getMarkedElements();
+	if(marked.length !== 2)
+		return;
+	unmarkAll();
+	const markerOne = marked[0];
+	const markerTwo = marked[1];
+	const nodes = get("ol, ul, p, div");
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		const positionRelativeToFirst = markerOne.compareDocumentPosition(node);
+		const positionRelativeToSecond = markerTwo.compareDocumentPosition(node);
+		if(
+			positionRelativeToFirst & Node.DOCUMENT_POSITION_FOLLOWING
+			&& positionRelativeToSecond & Node.DOCUMENT_POSITION_PRECEDING
+			&& !(positionRelativeToFirst & Node.DOCUMENT_POSITION_CONTAINS)
+			&& !(positionRelativeToSecond & Node.DOCUMENT_POSITION_CONTAINS)
+		)
+		{
+			node.remove();
 		}
 	}
 }
@@ -7119,7 +7147,8 @@ function handleKeyDown(e)
 			case KEYCODES.H: callFunctionWithArgs("Mark elements by selector", markBySelector, 1); break;
 			case KEYCODES.J: deleteNodesBeforeSelected(); break;
 			case KEYCODES.K: deleteNodesAfterSelected(); break;
-			case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markByCssRule, 2); break;
+			case KEYCODES.L: deleteNodesBetweenMarkers(); break;
+			// case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markByCssRule, 2); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
 			case KEYCODES.N: toggleShowDocumentBlockStructure(); break;
 			case KEYCODES.O: customPrompt("Highlight first parent with text matching").then(highlightFirstBlockParentByText); break;
