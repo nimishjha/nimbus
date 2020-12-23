@@ -152,6 +152,7 @@ const Nimbus = {
 		deleteNonContentClasses: deleteNonContentClasses,
 		deleteNonContentElements: deleteNonContentElements,
 		deleteNonContentImages: deleteNonContentImages,
+		deleteNonContentLists: deleteNonContentLists,
 		deleteSmallImages: deleteSmallImages,
 		deleteEmptyBlockElements: deleteEmptyBlockElements,
 		delRange: delRange,
@@ -1768,10 +1769,12 @@ function showMessage(messageHtml, msgClass, persist)
 	clearTimeout(Nimbus.messageTimeout);
 	let messageContainer;
 	msgClass = msgClass || "";
-	const strStyle = 'message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; padding: 0 1em; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; text-align: center; }' +
-	'message.messagebig { font: 32px "Swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }' +
-	'message.messageerror { color: #FFF; background: #500; }';
-
+	const strStyle = `
+		message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; }
+		messageinner { display: block; max-width: 1200px; margin: 0 auto; text-align: left; }
+		message.messagebig { font: 32px "Swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }
+		message.messageerror { color: #FFF; background: #500; }
+	`;
 	if(!get("message"))
 	{
 		messageContainer = createElement("message", { className: msgClass });
@@ -1784,7 +1787,7 @@ function showMessage(messageHtml, msgClass, persist)
 		messageContainer = getOne("message");
 		messageContainer.className = msgClass;
 	}
-	messageContainer.innerHTML = messageHtml;
+	messageContainer.innerHTML = "<messageinner>" + messageHtml + "</messageinner>";
 	if(!persist)
 		Nimbus.messageTimeout = setTimeout(deleteMessage, 2000);
 }
@@ -3516,7 +3519,7 @@ function fixParagraphs()
 function createTagsByClassName()
 {
 	replaceElementsBySelector(".calibre", "section");
-	replaceElementsBySelector(".indent, .tx, .fmtx", "p");
+	replaceElementsBySelector(".indent, .tx, .fmtx, .fmtx1", "p");
 	replaceElementsBySelector(".cn, .ct, .cst", "h2");
 	replaceElementsBySelector(".atx", "blockquote");
 	const e = document.querySelectorAll("div, p");
@@ -5191,15 +5194,13 @@ function deleteNodesBetweenMarkers()
 	if(marked.length !== 2)
 		return;
 	unmarkAll();
-	const markerOne = marked[0];
-	const markerTwo = marked[1];
 	const nodes = get("ol, ul, p, div");
 	let i = nodes.length;
 	while(i--)
 	{
 		const node = nodes[i];
-		const positionRelativeToFirst = markerOne.compareDocumentPosition(node);
-		const positionRelativeToSecond = markerTwo.compareDocumentPosition(node);
+		const positionRelativeToFirst = marked[0].compareDocumentPosition(node);
+		const positionRelativeToSecond = marked[1].compareDocumentPosition(node);
 		if(
 			positionRelativeToFirst & Node.DOCUMENT_POSITION_FOLLOWING
 			&& positionRelativeToSecond & Node.DOCUMENT_POSITION_PRECEDING
