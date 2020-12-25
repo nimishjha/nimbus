@@ -618,14 +618,14 @@ function getMarkedElements()
 	return markedElements ? markedElements : [];
 }
 
-function forAllMarked(callbackName)
+function forAllMarked(func)
 {
-	const func = Nimbus.availableFunctions[callbackName];
-	if(!func)
-	{
-		showMessageError("callback is " + func);
-		return;
-	}
+	// const func = Nimbus.availableFunctions[callbackName];
+	// if(!func)
+	// {
+	// 	showMessageError("callback is " + func);
+	// 	return;
+	// }
 	const elements = getMarkedElements();
 	for(let i = 0, ii = elements.length; i < ii; i++)
 	{
