@@ -4768,6 +4768,15 @@ function insertStyleShowErrors()
 	insertStyle(s, "styleShowErrors", true);
 }
 
+function toggleScreenRefresh()
+{
+	const style = `
+		@keyframes move { 0% { top: 0; } 100% { top: 100%; } }
+		html:after { content: ""; position: fixed; left: 0; top: 0; width: 100%; height: 10px; background: #888; animation: move 40s linear alternate infinite; z-index: -1; }
+	`;
+	toggleStyle(style, "styleScreenRefresh");
+}
+
 function toggleStyleSimpleNegative()
 {
 	const s = `
@@ -7041,7 +7050,8 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.NUMPAD5: toggleHighlightSelectionMode(); break;
 			case KEYCODES.NUMPAD7: groupMarkedElements("blockquote"); break;
-			case KEYCODES.NUMPAD8: refreshScreen(); break;
+			case KEYCODES.NUMPAD8: toggleScreenRefresh(); break;
+			case KEYCODES.NUMPAD9: refreshScreen(); break;
 			case KEYCODES.F1: customPrompt("Enter replacement tag name").then(setReplacementTag); break;
 			case KEYCODES.F2: replaceSelectedElement("h2"); break;
 			case KEYCODES.F3: replaceSelectedElement("h3"); break;
