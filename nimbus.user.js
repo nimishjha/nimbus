@@ -202,7 +202,7 @@ const Nimbus = {
 		insertStyle: insertStyle,
 		insertStyleHighlight: insertStyleHighlight,
 		iw: forceImageWidth,
-		joinAdjacentElements: joinAdjacentElements,
+		groupAdjacentElements: groupAdjacentElements,
 		joinMarkedElements: joinMarkedElements,
 		joinParagraphsByLastChar: joinParagraphsByLastChar,
 		logAllClassesFor: logAllClassesFor,
@@ -3627,7 +3627,7 @@ function formatEbook()
 	cleanupHead();
 	createTagsByClassName();
 	replaceEmptyParagraphsWithHr();
-	joinAdjacentElements("hr");
+	groupAdjacentElements("hr");
 	makeReferencesSemantic();
 	// replaceHeadingClassesByTextLength();
 	// document.body.classList.add("ebook");
@@ -4542,7 +4542,7 @@ function groupMarkedElements(tagName)
 	deleteMessage();
 }
 
-function joinAdjacentElements(selector)
+function groupAdjacentElements(selector)
 {
 	const elems = get(selector);
 	const tagName = elems[0].tagName;
@@ -4771,8 +4771,12 @@ function insertStyleShowErrors()
 function toggleScreenRefresh()
 {
 	const style = `
-		@keyframes move { 0% { top: 0; } 100% { top: 100%; } }
-		html:after { content: ""; position: fixed; left: 0; top: 0; width: 100%; height: 10px; background: #888; animation: move 40s linear alternate infinite; z-index: -1; }
+		@keyframes move {
+			0% { top: 0; background: #141414;  }
+			50% { background: #999; }
+			100% { top: 100%; background: #141414; }
+		}
+		html:after { content: ""; position: fixed; left: 0; top: 0; width: 100%; height: 100px; background: #888; animation: move 40s linear alternate infinite; z-index: -1; }
 	`;
 	toggleStyle(style, "styleScreenRefresh");
 }
@@ -6106,7 +6110,7 @@ function toggleShowDocumentStructure()
 		table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F; }
 		ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0; }
 		li { box-shadow: inset 1px 1px #080, inset -1px -1px #080; }
-		span { box-shadow: inset 1px 1px #C50, inset -1px -1px #C50; }
+		font, small, span, abbr, cite { box-shadow: inset 1px 1px #C50, inset -1px -1px #C50; }
 		h1, h2, h3, h4, h5, h6 { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }
 		p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }
 		mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 1px 1px #FF0, inset -1px -1px #FF0; }
@@ -7195,8 +7199,8 @@ function handleKeyDown(e)
 			case KEYCODES.D: deselect(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
 			case KEYCODES.Z: deselect(); break;
-			case KEYCODES.E: callFunctionWithArgs("Replace elements by class containing", replaceByClassOrIdContaining, 2); break;
-			case KEYCODES.F: formatEbook(); break;
+			case KEYCODES.E: callFunctionWithArgs("Replace elements by class or id containing", replaceByClassOrIdContaining, 2); break;
+			case KEYCODES.F: console.log("F"); formatEbook(); break;
 			case KEYCODES.H: unmarkAll(); break;
 			case KEYCODES.M: markOverlays(); break;
 			case KEYCODES.R: rescueOrphanedTextNodes(); break;
