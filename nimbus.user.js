@@ -329,6 +329,8 @@ function get(selector)
 	let nodes;
 	if(!isNaN(selector))
 		selector = "#i" + selector;
+	if(selector === "h")
+		selector = "h1, h2, h3, h4, h5, h6";
 	try
 	{
 		nodes = document.querySelectorAll(selector);
@@ -588,7 +590,7 @@ function markByChildrenHavingTheExactText(...args)
 }
 
 //	Marks elements that contain exactly one child element of a given type
-//	that "spans" the entire width of the parent
+//	that contains the entire text of the parent
 function markElementsWithChildSpanning(parentSelector, childSelector)
 {
 	const parents = get(parentSelector);
@@ -597,7 +599,7 @@ function markElementsWithChildSpanning(parentSelector, childSelector)
 	{
 		const parent = parents[i];
 		if(!parent.textContent)
-			return;
+			continue;
 		let textLength = parent.textContent.replace(/\s+/g, '').length;
 		const children = parent.querySelectorAll(childSelector);
 		if(children.length === 1)
@@ -901,7 +903,6 @@ function replaceSpecialCharacters()
 		"\u2003": " ",
 		"\u2009": " ",
 		"\u2013": "-",
-		//"\u2014": "--",
 		"\u2122": "(tm)"
 	};
 
@@ -4424,6 +4425,7 @@ function fixEmptyAnchors()
 			emptyLinksToDelete.push(link);
 		}
 	}
+	showMessageBig(`Replaced ${emptyLinksToDelete.length} empty links`);
 	del(emptyLinksToDelete);
 }
 
@@ -5680,6 +5682,11 @@ function replaceSpansWithTextNodes()
 function removeSpanTags()
 {
 	const numSpans = get("span").length;
+	if(!numSpans)
+	{
+		showMessageBig("No span tags found");
+		return;
+	}
 	let s = document.body.innerHTML;
 	s = s.replace(/<\/{0,}span[^>]*>/g, "");
 	document.body.innerHTML = s;
@@ -6669,7 +6676,7 @@ function generateTableOfContents()
 	{
 		const heading = headings[i];
 		const id = createUUID();
-		const newAnchor = createElement("a", { id: id });
+		heading.id = id;
 		const tocEntryLink = createElement("a", { textContent: heading.textContent, href: "#" + id } );
 		const tocEntryHeading = createElement(heading.tagName);
 		const tocEntryWrapper = document.createElement("div");
@@ -6677,7 +6684,6 @@ function generateTableOfContents()
 		tocEntryWrapper.appendChild(tocEntryHeading);
 		const indentLevel = parseInt(heading.tagName.substring(1), 10);
 		indentByDepth(tocEntryWrapper, indentLevel, "ind");
-		heading.parentNode.insertBefore(newAnchor, heading);
 		toc.appendChild(tocEntryWrapper);
 	}
 	const documentHeading = getOne("documentheading");
@@ -7186,7 +7192,7 @@ function handleKeyDown(e)
 			case KEYCODES.THREE: toggleStyleGrey(); break;
 			case KEYCODES.FOUR: toggleStyleWhite(); break;
 			case KEYCODES.FIVE: toggleStyleShowClasses2(); break;
-			case KEYCODES.A: deleteEmptyElements("a"); break;
+			case KEYCODES.A: revealEmptyLinks(); break;
 			case KEYCODES.B: toggleShowDocumentStructureWithNames(); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
 			case KEYCODES.F: del(["object", "embed", "video", "iframe"]); break;
