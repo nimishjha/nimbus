@@ -5224,13 +5224,16 @@ function deleteNodesRelativeToSelected(predicate = "after")
 	}
 }
 
-function deleteNodesBetweenMarkers()
+function deleteNodesBetweenMarkers(selector = "div, ol, ul, p")
 {
 	const marked = getMarkedElements();
 	if(marked.length !== 2)
+	{
+		showMessageBig("Expected 2 marked elements, found " + marked.length);
 		return;
+	}
 	unmarkAll();
-	const nodes = get("ol, ul, p, div");
+	const nodes = get(selector);
 	let i = nodes.length;
 	while(i--)
 	{
@@ -5238,10 +5241,10 @@ function deleteNodesBetweenMarkers()
 		const positionRelativeToFirst = marked[0].compareDocumentPosition(node);
 		const positionRelativeToSecond = marked[1].compareDocumentPosition(node);
 		if(
-			positionRelativeToFirst & Node.DOCUMENT_POSITION_FOLLOWING
-			&& positionRelativeToSecond & Node.DOCUMENT_POSITION_PRECEDING
-			&& !(positionRelativeToFirst & Node.DOCUMENT_POSITION_CONTAINS)
-			&& !(positionRelativeToSecond & Node.DOCUMENT_POSITION_CONTAINS)
+			positionRelativeToFirst & Node.DOCUMENT_POSITION_FOLLOWING &&
+			positionRelativeToSecond & Node.DOCUMENT_POSITION_PRECEDING &&
+			!(positionRelativeToFirst & Node.DOCUMENT_POSITION_CONTAINS) &&
+			!(positionRelativeToSecond & Node.DOCUMENT_POSITION_CONTAINS)
 		)
 		{
 			node.remove();
