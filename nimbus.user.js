@@ -166,7 +166,7 @@ const Nimbus = {
 		fillForms: fillForms,
 		fixBrsInHeadings: fixBrsInHeadings,
 		fixCdnImages: fixCdnImages,
-		fixEmptyAnchorLinks: fixEmptyAnchorLinks,
+		fixEmptyAnchors: fixEmptyAnchors,
 		fixHeadings: fixHeadings,
 		fixParagraphs: fixParagraphs,
 		fixPres: fixPres,
@@ -3628,8 +3628,8 @@ function formatEbook()
 	createTagsByClassName();
 	replaceEmptyParagraphsWithHr();
 	groupAdjacentElements("hr");
+	fixEmptyAnchors();
 	makeReferencesSemantic();
-	// replaceHeadingClassesByTextLength();
 	// document.body.classList.add("ebook");
 }
 
@@ -4366,12 +4366,14 @@ function revealEmptyLinks()
 	showMessageBig("Revealed " + count + " empty links");
 }
 
-//	Replaces empty, invisible anchor links (that only have an ID, no href)
-//	by taking their IDs and applying the IDs to either an adjacent link or
-//	the first block parent
-function fixEmptyAnchorLinks()
+//	Replaces empty, invisible anchor links by taking their IDs and
+//	applying the IDs to either an adjacent link if one exists, or to a
+//	<cite> element that is appended to the block parent
+function fixEmptyAnchors()
 {
+	const CHAR_BULLET = '\u2022';
 	const links = get("a");
+	let emptyLinksToDelete = [];
 	let i = links.length;
 	while(i--)
 	{
@@ -4380,28 +4382,26 @@ function fixEmptyAnchorLinks()
 		{
 			if(!link.id)
 				continue;
-			const nextElem = link.nextElementSibling;
 			const prevElem = link.previousElementSibling;
-			if(nextElem && nextElem.tagName === "A")
-			{
-				nextElem.id = link.id;
-				link.remove();
-				continue;
-			}
-			else if (prevElem && prevElem.tagName === "A")
+			const nextElem = link.nextElementSibling;
+			if(prevElem && prevElem.tagName && prevElem.tagName === "A")
 			{
 				prevElem.id = link.id;
-				link.remove();
-				continue;
+			}
+			else if(nextElem && nextElem.tagName && nextElem.tagName === "A")
+			{
+				nextElem.id = link.id;
 			}
 			else
 			{
 				const parent = getFirstBlockParent(link);
-				parent.id = link.id;
-				link.remove();
+				if(parent)
+					parent.appendChild(createElement("cite", { textContent: CHAR_BULLET, id: link.id }));
 			}
+			emptyLinksToDelete.push(link);
 		}
 	}
+	del(emptyLinksToDelete);
 }
 
 function changePageByUrl(direction)
@@ -6883,7 +6883,7 @@ function highlightTextAcrossTags(node, searchString)
 		childNodeEnd += childNode.textContent.length;
 		let partialSearchString;
 		let isMatch = false;
-		if(["I", "B", "EM", "STRONG", "REFERENCE"].includes(childNode.tagName))
+		if(["I", "B", "EM", "STRONG", "REFERENCE", "CITE"].includes(childNode.tagName))
 			continue;
 		//	The childNode contains the beginning of the search string
 		if(index1 >= childNodeStart && index1 < childNodeEnd)
@@ -7200,7 +7200,7 @@ function handleKeyDown(e)
 			case KEYCODES.G: callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
 			case KEYCODES.Z: deselect(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by class or id containing", replaceByClassOrIdContaining, 2); break;
-			case KEYCODES.F: console.log("F"); formatEbook(); break;
+			case KEYCODES.F: formatEbook(); break;
 			case KEYCODES.H: unmarkAll(); break;
 			case KEYCODES.M: markOverlays(); break;
 			case KEYCODES.R: rescueOrphanedTextNodes(); break;
