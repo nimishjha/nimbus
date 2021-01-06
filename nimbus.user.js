@@ -181,6 +181,7 @@ const Nimbus = {
 		getContentByParagraphCount: getContentByParagraphCount,
 		markByChildrenHavingTheExactText: markByChildrenHavingTheExactText,
 		markByClassOrIdContaining: markByClassOrIdContaining,
+		markElementsWithChildSpanning: markElementsWithChildSpanning,
 		retrieveBySelectorAndText: retrieveBySelectorAndText,
 		retrieveLargeImages: retrieveLargeImages,
 		getPagerLinks: getPagerLinks,
@@ -583,6 +584,28 @@ function markByChildrenHavingTheExactText(...args)
 		while(i--)
 			elems[i].classList.add(Nimbus.markerClass);
 		insertStyleHighlight();
+	}
+}
+
+//	Marks elements that contain exactly one child element of a given type
+//	that "spans" the entire width of the parent
+function markElementsWithChildSpanning(parentSelector, childSelector)
+{
+	const parents = get(parentSelector);
+	let i = parents.length;
+	while(i--)
+	{
+		const parent = parents[i];
+		if(!parent.textContent)
+			return;
+		let textLength = parent.textContent.replace(/\s+/g, '').length;
+		const children = parent.querySelectorAll(childSelector);
+		if(children.length === 1)
+		{
+			const childText = children[0].textContent;
+			if(childText && childText.replace(/\s+/g, '').length === textLength)
+				parent.classList.add(Nimbus.markerClass);
+		}
 	}
 }
 
