@@ -255,6 +255,7 @@ const Nimbus = {
 		replaceIframes: replaceIframes,
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
 		replaceMarkedElements: replaceMarkedElements,
+		replaceSpanAnchors: replaceSpanAnchors,
 		replaceTables: replaceTables,
 		normalizeAllWhitespace: normalizeAllWhitespace,
 		normaliseWhitespaceForParagraphs: normaliseWhitespaceForParagraphs,
@@ -280,6 +281,7 @@ const Nimbus = {
 		toggleContentEditable: toggleContentEditable,
 		toggleHighlightSelectionMode: toggleHighlightSelectionMode,
 		toggleMutationObserver: toggleMutationObserver,
+		toggleScreenRefresh: toggleScreenRefresh,
 		toggleShowDocumentBlockStructure: toggleShowDocumentBlockStructure,
 		toggleShowDocumentStructure: toggleShowDocumentStructure,
 		toggleShowDocumentStructureWithNames: toggleShowDocumentStructureWithNames,
@@ -4429,6 +4431,24 @@ function fixEmptyAnchors()
 	del(emptyLinksToDelete);
 }
 
+function replaceSpanAnchors()
+{
+	const CHAR_BULLET = '\u2022';
+	const spans = get("span[id]");
+	let count = 0;
+	let i = spans.length;
+	while(i--)
+	{
+		const span = spans[i];
+		count++;
+		const parent = getFirstBlockParent(span);
+		if(parent)
+			parent.appendChild(createElement("cite", { textContent: CHAR_BULLET, id: span.id }));
+		span.id = null;
+	}
+	showMessageBig(`Replaced ${count} spans`);
+}
+
 function changePageByUrl(direction)
 {
 	const url = window.location.href;
@@ -5681,6 +5701,7 @@ function replaceSpansWithTextNodes()
 //	This function does a brute-force removal of all <span> tags in a document.
 function removeSpanTags()
 {
+	replaceSpanAnchors();
 	const numSpans = get("span").length;
 	if(!numSpans)
 	{
