@@ -2409,24 +2409,9 @@ function highlightAuthors()
 //	and should be distinguished from regular superscripts
 function makeReferencesSemantic()
 {
-	const sups = get("sup");
-	for(let i = 0, ii = sups.length; i < ii; i++)
-	{
-		const sup = sups[i];
-		if(sup.getElementsByTagName("a").length)
-		{
-			replaceElement(sup, "reference");
-		}
-		else
-		{
-			const parent = sup.parentNode;
-			if(parent.tagName === "A")
-			{
-				parent.textContent = parent.textContent;
-				wrapElement(parent, "reference");
-			}
-		}
-	}
+	const internalLinks = get('a[href^="#"]');
+	for(let i = 0, ii = internalLinks.length; i < ii; i++)
+		wrapElement(internalLinks[i], "reference");
 	const refLinks = get("reference a");
 	for(let i = 0, ii = refLinks.length; i < ii; i++)
 	{
