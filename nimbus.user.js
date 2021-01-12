@@ -204,6 +204,7 @@ const Nimbus = {
 		insertStyleHighlight: insertStyleHighlight,
 		iw: forceImageWidth,
 		groupAdjacentElements: groupAdjacentElements,
+		joinAdjacentElements: joinAdjacentElements,
 		joinMarkedElements: joinMarkedElements,
 		joinParagraphsByLastChar: joinParagraphsByLastChar,
 		logAllClassesFor: logAllClassesFor,
@@ -214,7 +215,7 @@ const Nimbus = {
 		splitByBrs: splitByBrs,
 		replaceHeadingClassesByTextLength: replaceHeadingClassesByTextLength,
 		makePlainText: makePlainText,
-		makeReferencesSemantic: makeReferencesSemantic,
+		fixInternalReferences: fixInternalReferences,
 		mark: mark,
 		showDivDepth: showDivDepth,
 		markBySelector: markBySelector,
@@ -259,7 +260,6 @@ const Nimbus = {
 		replaceTables: replaceTables,
 		normalizeAllWhitespace: normalizeAllWhitespace,
 		normaliseWhitespaceForParagraphs: normaliseWhitespaceForParagraphs,
-		replaceSpansWithTextNodes: replaceSpansWithTextNodes,
 		replaceSpecialCharacters:replaceSpecialCharacters,
 		rescueOrphanedTextNodes: rescueOrphanedTextNodes,
 		restorePres: restorePres,
@@ -1390,6 +1390,13 @@ function replaceElementKeepingId(elem, tagName)
 	elem.parentNode.replaceChild(replacement, elem);
 }
 
+function replaceElements(toReplace, tagName)
+{
+	let i = toReplace.length;
+	while(i--)
+		replaceElement(toReplace[i], tagName);
+}
+
 function replaceMarkedElements(tagName)
 {
 	const toReplace = getMarkedElements();
@@ -2407,8 +2414,10 @@ function highlightAuthors()
 
 //	If a superscript element contains a link, it's most likely a reference,
 //	and should be distinguished from regular superscripts
-function makeReferencesSemantic()
+function fixInternalReferences()
 {
+	replaceSpanAnchors();
+	fixEmptyAnchors();
 	const internalLinks = get('a[href^="#"]');
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
 		wrapElement(internalLinks[i], "reference");
@@ -2418,6 +2427,7 @@ function makeReferencesSemantic()
 		const refLink = refLinks[i];
 		refLink.textContent = refLink.textContent.replace(/[\[\]\{\}]/g, "");
 	}
+	replaceElements(select("sup", "hasChildrenOfType", "reference"), "span");
 }
 
 function markUppercaseElements(selector)
@@ -2699,14 +2709,14 @@ function filterNodesByAttributeNonExistence(nodes, attribute)
 	return result;
 }
 
-function filterNodesWithChildrenOfType(nodes, tagName)
+function filterNodesWithChildrenOfType(nodes, selector)
 {
 	let result = [];
 	let i = nodes.length;
 	while(i--)
 	{
 		const node = nodes[i];
-		if(node.getElementsByTagName(tagName).length)
+		if(node.querySelectorAll(selector).length)
 			result.push(node);
 	}
 	return result;
@@ -2719,7 +2729,7 @@ function filterNodesWithoutChildrenOfType(nodes, tagName)
 	while(i--)
 	{
 		const node = nodes[i];
-		if(!node.getElementsByTagName(tagName).length)
+		if(!node.querySelectorAll(selector).length)
 			result.push(node);
 	}
 	return result;
@@ -3640,7 +3650,7 @@ function formatEbook()
 	replaceEmptyParagraphsWithHr();
 	groupAdjacentElements("hr");
 	fixEmptyAnchors();
-	makeReferencesSemantic();
+	fixInternalReferences();
 	// document.body.classList.add("ebook");
 }
 
@@ -4370,10 +4380,15 @@ function revealEmptyLinks()
 		if(!(link.textContent.length || link.getElementsByTagName("img").length))
 		{
 			count++;
-			link.textContent = humanizeUrl(link.href || link.id || link.className);
 			link.classList.add(Nimbus.markerClass);
 		}
 	}
+	const style = `
+		a.nimbushl { padding: 0 5px; }
+		a.nimbushl::before { content: attr(id); color: #FF0; }
+		a.nimbushl::after { content: attr(href); color: #55F; }
+	`;
+	insertStyle(style, 'styleRevealEmptyLinks', true);
 	showMessageBig("Revealed " + count + " empty links");
 }
 
@@ -4395,11 +4410,11 @@ function fixEmptyAnchors()
 				continue;
 			const prevElem = link.previousElementSibling;
 			const nextElem = link.nextElementSibling;
-			if(prevElem && prevElem.tagName && prevElem.tagName === "A")
+			if(prevElem && prevElem.tagName && prevElem.tagName === "A" && prevElem.textContent.length && !prevElem.hasAttribute("id"))
 			{
 				prevElem.id = link.id;
 			}
-			else if(nextElem && nextElem.tagName && nextElem.tagName === "A")
+			else if(nextElem && nextElem.tagName && nextElem.tagName === "A" && nextElem.textContent.length && !nextElem.hasAttribute("id"))
 			{
 				nextElem.id = link.id;
 			}
@@ -4426,10 +4441,18 @@ function replaceSpanAnchors()
 	{
 		const span = spans[i];
 		count++;
-		const parent = getFirstBlockParent(span);
-		if(parent)
-			parent.appendChild(createElement("cite", { textContent: CHAR_BULLET, id: span.id }));
-		span.id = null;
+		const childLink = span.querySelector("a");
+		if(childLink && !childLink.hasAttribute("id") && childLink.textContent.length)
+		{
+			childLink.id = span.id;
+		}
+		else
+		{
+			const parent = getFirstBlockParent(span);
+			if(parent)
+				parent.appendChild(createElement("cite", { textContent: CHAR_BULLET, id: span.id }));
+		}
+		span.removeAttribute("id");
 	}
 	showMessageBig(`Replaced ${count} spans`);
 }
@@ -4572,14 +4595,14 @@ function groupMarkedElements(tagName)
 	deleteMessage();
 }
 
-function groupAdjacentElements(selector)
+function groupAdjacentElements(selector, parentTag, childTag)
 {
 	const elems = get(selector);
 	const tagName = elems[0].tagName;
-	if(["BLOCKQUOTE", "LI", "P"].includes(tagName))
+	let parentTagName = parentTag || "";
+	let childTagName = childTag || "";
+	if(!(parentTagName && childTagName))
 	{
-		let parentTagName = "";
-		let childTagName = "";
 		switch(tagName)
 		{
 			case "BLOCKQUOTE":
@@ -4596,41 +4619,43 @@ function groupAdjacentElements(selector)
 				break;
 			default:
 				parentTagName = "blockquote";
-				childTagName = "p";
+				childTagName = tagName;
 				break;
 		}
-		for(let i = 0, ii = elems.length; i < ii; i++)
-		{
-			const elem = elems[i];
-			const parent = document.createElement(parentTagName);
-			parent.appendChild(convertElement(elem, childTagName));
-			let nextElem = elem.nextElementSibling;
-			while(nextElem && elems.includes(nextElem))
-			{
-				i++;
-				const nextElemTemp = nextElem.nextElementSibling;
-				parent.appendChild(convertElement(nextElem, childTagName));
-				nextElem.remove();
-				nextElem = nextElemTemp;
-			}
-			elem.parentNode.replaceChild(parent, elem);
-		}
 	}
-	else
+	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
-		for(let i = 0, ii = elems.length; i < ii; i++)
+		const elem = elems[i];
+		const parent = document.createElement(parentTagName);
+		parent.appendChild(convertElement(elem, childTagName));
+		let nextElem = elem.nextElementSibling;
+		while(nextElem && elems.includes(nextElem))
 		{
-			const elem = elems[i];
-			let nextElem = elem.nextElementSibling;
-			while(nextElem && nextElem.tagName === tagName)
-			{
-				i++;
-				while(nextElem.firstChild)
-					elem.appendChild(nextElem.firstChild);
-				const appendedElem = nextElem;
-				nextElem = nextElem.nextElementSibling;
-				appendedElem.remove();
-			}
+			i++;
+			const nextElemTemp = nextElem.nextElementSibling;
+			parent.appendChild(convertElement(nextElem, childTagName));
+			nextElem.remove();
+			nextElem = nextElemTemp;
+		}
+		elem.parentNode.replaceChild(parent, elem);
+	}
+}
+
+function joinAdjacentElements(selector)
+{
+	const elems = get(selector);
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+		let nextElem = elem.nextElementSibling;
+		while(nextElem && elems.includes(nextElem))
+		{
+			i++;
+			while(nextElem.firstChild)
+				elem.appendChild(nextElem.firstChild);
+			const appendedElem = nextElem;
+			nextElem = nextElem.nextElementSibling;
+			appendedElem.remove();
 		}
 	}
 }
@@ -5374,7 +5399,7 @@ function cleanupGeneral()
 	replaceElementsBySelector("center", "div");
 	setDocTitle();
 	cleanupAttributes();
-	replaceSpansWithTextNodes();
+	replaceElementsWithTextNodes("span");
 	replaceAudio();
 	highlightUserLinks();
 	appendMetadata();
@@ -5667,20 +5692,21 @@ function makeHashLinksRelative()
 	}
 }
 
-//	Lots of documents have useless spans sprinkled throughout the HTML.
-//	This function replaces them with plain text nodes.
-//	Make sure you're replaced the .italics and .bolds, etc. with the appropriate tags first.
-function replaceSpansWithTextNodes()
+function replaceElementsWithTextNodes(selector)
 {
-	const spans = get("span");
-	let i = spans.length;
+	const elems = get(selector);
+	let count = 0;
+	let i = elems.length;
 	while(i--)
 	{
-		const span = spans[i];
-		//	Don't replace spans that contain other HTML elements, as this will cause loss of information.
-		if(span.innerHTML.indexOf("<") === -1)
-			span.parentNode.replaceChild(document.createTextNode(span.textContent || ""), span);
+		const elem = elems[i];
+		if(elem.innerHTML.indexOf("<") === -1)
+		{
+			count++;
+			elem.parentNode.replaceChild(document.createTextNode(elem.textContent || ""), elem);
+		}
 	}
+	showMessageBig(`Replaced ${count} elements with text nodes`);
 }
 
 //	This function does a brute-force removal of all <span> tags in a document.
