@@ -265,7 +265,7 @@ const Nimbus = {
 		rescueOrphanedTextNodes: rescueOrphanedTextNodes,
 		restorePres: restorePres,
 		retrieve: retrieve,
-		revealEmptyLinks: revealEmptyLinks,
+		revealEmptyLinksAndSpans: revealEmptyLinksAndSpans,
 		revealLinkHrefs: revealLinkHrefs,
 		sanitizeTitle: sanitizeTitle,
 		setAttributeOf: setAttributeOf,
@@ -3650,7 +3650,7 @@ function formatEbook()
 	createTagsByClassName();
 	replaceEmptyParagraphsWithHr();
 	groupAdjacentElements("hr");
-	fixEmptyAnchors();
+	replaceEmptyAnchors();
 	fixInternalReferences();
 	// document.body.classList.add("ebook");
 }
@@ -4370,27 +4370,39 @@ function humanizeUrl(url)
 	return longestMatch;
 }
 
-function revealEmptyLinks()
+function revealEmptyLinksAndSpans()
 {
 	const links = get("a");
-	let i = links.length;
-	let count = 0;
-	while(i--)
+	let countLinks = 0;
+	let countSpans = 0;
+	for(let i = 0, ii = links.length; i < ii; i++)
 	{
 		const link = links[i];
 		if(!(link.textContent.length || link.getElementsByTagName("img").length))
 		{
-			count++;
+			countLinks++;
 			link.classList.add(Nimbus.markerClass);
+		}
+	}
+	const spans = get("span");
+	for(let i = 0, ii = spans.length; i < ii; i++)
+	{
+		const span = spans[i];
+		if(!(span.textContent.length || span.getElementsByTagName("img").length))
+		{
+			countSpans++;
+			span.classList.add(Nimbus.markerClass);
 		}
 	}
 	const style = `
 		a.nimbushl { padding: 0 5px; }
 		a.nimbushl::before { content: attr(id); color: #FF0; }
 		a.nimbushl::after { content: attr(href); color: #55F; }
+		span.nimbushl { padding: 0 10px; }
+		span.nimbushl::before { content: attr(id); color: #0F0; }
 	`;
-	insertStyle(style, 'styleRevealEmptyLinks', true);
-	showMessageBig("Revealed " + count + " empty links");
+	insertStyle(style, 'styleRevealEmptyLinksAndSpans', true);
+	showMessageBig(`Revealed ${countLinks} empty links and ${countSpans} empty spans`);
 }
 
 //	Replaces empty, invisible anchor links by taking their IDs and
@@ -7252,7 +7264,7 @@ function handleKeyDown(e)
 			case KEYCODES.THREE: toggleStyleGrey(); break;
 			case KEYCODES.FOUR: toggleStyleWhite(); break;
 			case KEYCODES.FIVE: toggleStyleShowClasses2(); break;
-			case KEYCODES.A: revealEmptyLinks(); break;
+			case KEYCODES.A: revealEmptyLinksAndSpans(); break;
 			case KEYCODES.B: toggleShowDocumentStructureWithNames(); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
 			case KEYCODES.F: del(["object", "embed", "video", "iframe"]); break;
