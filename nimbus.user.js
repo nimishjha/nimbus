@@ -124,6 +124,7 @@ const Nimbus = {
 		appendMetadata: appendMetadata,
 		buildGallery: buildGallery,
 		buildSlideshow: buildSlideshow,
+		consolidateAnchors: consolidateAnchors,
 		cycleThroughDocumentHeadings: cycleThroughDocumentHeadings,
 		cleanupAttributes: cleanupAttributes,
 		cleanupAttributes_regex: cleanupAttributes_regex,
@@ -5690,6 +5691,33 @@ function makeHashLinksRelative()
 			}
 		}
 	}
+}
+
+function consolidateAnchors()
+{
+	makeHashLinksRelative();
+	const internalLinks = get('a[href^="#"]');
+	const toDelete = [];
+	for(let i = 0, ii = internalLinks.length; i < ii; i++)
+	{
+		const link = internalLinks[i];
+		const linkHref = link.getAttribute("href");
+		const linkedElement = document.getElementById(linkHref.substring(1));
+		if(!linkedElement)
+			continue;
+		if(linkedElement && linkedElement.tagName && linkedElement.tagName === "CITE")
+		{
+			const parent = getFirstBlockParent(linkedElement);
+			if(!parent)
+				continue;
+			if(!parent.id)
+				parent.id = "ref" + i;
+			link.setAttribute("href", "#" + parent.id);
+			toDelete.push(linkedElement);
+		}
+	}
+	showMessageBig(`${toDelete.length} anchors consolidated`);
+	del(toDelete);
 }
 
 function replaceElementsWithTextNodes(selector)
