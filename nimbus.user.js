@@ -167,7 +167,7 @@ const Nimbus = {
 		fillForms: fillForms,
 		fixBrsInHeadings: fixBrsInHeadings,
 		fixCdnImages: fixCdnImages,
-		fixEmptyAnchors: fixEmptyAnchors,
+		replaceEmptyAnchors: replaceEmptyAnchors,
 		fixHeadings: fixHeadings,
 		fixParagraphs: fixParagraphs,
 		fixPres: fixPres,
@@ -2413,12 +2413,10 @@ function highlightAuthors()
 	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "div");
 }
 
-//	If a superscript element contains a link, it's most likely a reference,
-//	and should be distinguished from regular superscripts
 function fixInternalReferences()
 {
 	replaceSpanAnchors();
-	fixEmptyAnchors();
+	replaceEmptyAnchors();
 	const internalLinks = get('a[href^="#"]');
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
 		wrapElement(internalLinks[i], "reference");
@@ -4408,7 +4406,7 @@ function revealEmptyLinksAndSpans()
 //	Replaces empty, invisible anchor links by taking their IDs and
 //	applying the IDs to either an adjacent link if one exists, or to a
 //	<cite> element that is appended to the block parent
-function fixEmptyAnchors()
+function replaceEmptyAnchors()
 {
 	const CHAR_BULLET = '\u2022';
 	const links = get("a");
@@ -4987,7 +4985,7 @@ function toggleStyleNegative()
 		hr { height: 2px; background: #999; border-style: solid; border-color: #999; border-width: 0; margin: 20px 0; }
 		legend { background: #181818; }
 		textarea, textarea div { font-family: Verdcode, Consolas, sans-serif; }
-		samp, mark, hl, kbd { background: #331500; color: #F90; padding: 2px 0; }
+		samp, mark, hl, kbd { background: #420; color: #F90; padding: 2px 0; }
 		container { border: 2px solid #F00; margin: 10px; display: block; padding: 10px; }
 		samp a:link, mark a:link, a:link samp, a:link mark { background: #331500; color: #F90; }
 		samp a:visited, mark a:visited, a:visited samp, a:visited mark { color: #e68a00; }
