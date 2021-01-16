@@ -211,7 +211,7 @@ const Nimbus = {
 		logAllClassesFor: logAllClassesFor,
 		logAllClassesForCommonElements: logAllClassesForCommonElements,
 		makeButtonsReadable: makeButtonsReadable,
-		makeHashLinksRelative: makeHashLinksRelative,
+		makeFileLinksRelative: makeFileLinksRelative,
 		makeHeadings: makeHeadings,
 		splitByBrs: splitByBrs,
 		replaceHeadingClassesByTextLength: replaceHeadingClassesByTextLength,
@@ -1388,6 +1388,9 @@ function replaceElementKeepingId(elem, tagName)
 	const elemId = elem.id;
 	if(elemId)
 		replacement.id = elemId;
+	const elemClass = elem.className.replace(/nimbushl/, " ");
+	if(elemClass)
+		replacement.className = elemClass;
 	elem.parentNode.replaceChild(replacement, elem);
 }
 
@@ -2417,6 +2420,7 @@ function fixInternalReferences()
 {
 	replaceSpanAnchors();
 	replaceEmptyAnchors();
+	makeFileLinksRelative();
 	const internalLinks = get('a[href^="#"]');
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
 		wrapElement(internalLinks[i], "reference");
@@ -2721,7 +2725,7 @@ function filterNodesWithChildrenOfType(nodes, selector)
 	return result;
 }
 
-function filterNodesWithoutChildrenOfType(nodes, tagName)
+function filterNodesWithoutChildrenOfType(nodes, selector)
 {
 	let result = [];
 	let i = nodes.length;
@@ -4663,7 +4667,10 @@ function joinAdjacentElements(selector)
 		{
 			i++;
 			while(nextElem.firstChild)
+			{
+				elem.appendChild(document.createTextNode(" "));
 				elem.appendChild(nextElem.firstChild);
+			}
 			const appendedElem = nextElem;
 			nextElem = nextElem.nextElementSibling;
 			appendedElem.remove();
@@ -5682,22 +5689,33 @@ function disableClickToCollectUrls()
 	showMessageBig("Clicking links will now work normally");
 }
 
-//	When saving webpages that have internal links (to references/footnotes), the browser converts those links to absolute URLs (with "file:///").
-//	If you then move the saved HTML files to a new location, all those links break. This function makes those links relative.
-function makeHashLinksRelative()
+//	When saving webpages that have internal links (to references/footnotes or images),
+//	the browser converts those links to absolute URLs (with "file:///"). If you then move
+//	the saved HTML files to a new location, all those links break. This function makes those links relative.
+function makeFileLinksRelative()
 {
 	const links = get("a");
 	for(let i = 0, ii = links.length; i < ii; i++)
 	{
 		const link = links[i];
 		const linkHref = link.href;
-		if(linkHref && linkHref.indexOf("file:///") === 0 && ~linkHref.indexOf("#"))
+		if(linkHref && linkHref.indexOf("file:///") === 0)
 		{
-			const splitHref = linkHref.split("#");
-			if(splitHref.length)
+			if(~linkHref.indexOf("#"))
 			{
-				const hash = "#" + splitHref[splitHref.length - 1];
-				link.href = hash;
+				const splitHref = linkHref.split("#");
+				if(splitHref.length)
+				{
+					const hash = "#" + splitHref[splitHref.length - 1];
+					link.href = hash;
+				}
+			}
+			else if(~linkHref.indexOf("/images/"))
+			{
+				const splitHref = linkHref.split("/");
+				const folderName = splitHref[splitHref.length - 2];
+				const imageFileName = splitHref[splitHref.length - 1];
+				link.href = folderName + "/" + imageFileName;
 			}
 		}
 	}
@@ -5705,7 +5723,7 @@ function makeHashLinksRelative()
 
 function consolidateAnchors()
 {
-	makeHashLinksRelative();
+	makeFileLinksRelative();
 	const internalLinks = get('a[href^="#"]');
 	const toDelete = [];
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
@@ -7160,6 +7178,7 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD3: toggleContentEditable(); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.NUMPAD5: toggleHighlightSelectionMode(); break;
+			case KEYCODES.NUMPAD6: retrieveLargeImages(); break;
 			case KEYCODES.NUMPAD7: groupMarkedElements("blockquote"); break;
 			case KEYCODES.NUMPAD8: toggleScreenRefresh(); break;
 			case KEYCODES.NUMPAD9: refreshScreen(); break;
