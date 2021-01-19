@@ -5082,7 +5082,7 @@ function toggleStyleShowClasses()
 function toggleStyleShowClasses2()
 {
 	const style = `
-		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before { content: attr(class); color: #F90; background: #000; }
+		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before, h1::before, h2::before, h3::before, h4::before, td::before { content: attr(class); color: #F90; background: #000; }
 		p::before { content: attr(class); color: #F0F; background: #000; }
 		span { box-shadow: inset 0 -100px rgba(0,128,0,0.5); }
 		span::before { content: attr(class); color: #0F0; background: #000; padding: 2px 5px; }
@@ -6404,27 +6404,26 @@ function listSelectorsWithLightBackgrounds()
 	console.log(str);
 }
 
-//	Gives each cell in a table a unique id
-function numberTableRowsAndColumns()
+function numberTableRowsAndColumns(tableElement)
 {
-	if(get("#styleShowTables"))
+	const tableRows = tableElement ? tableElement.querySelectorAll("tr") : get("tr");
+	for(let i = 0, ii = tableRows.length; i < ii; i++)
 	{
-		del("#styleShowTables");
-		return;
-	}
-	const tr = get("tr");
-	for(let i = 0, ii = tr.length; i < ii; i++)
-	{
-		const tableRow = tr[i];
+		const tableRow = tableRows[i];
 		tableRow.className = "row" + i;
-		const tableCells = tableRow.getElementsByTagName("td");
+		const tableCells = tableRow.querySelectorAll("td, th");
+		let count = 0;
 		for(let j = 0, jj = tableCells.length; j < jj; j++)
-			tableCells[j].className = "col" + j;
-		const tableHeaderCells = tableRow.getElementsByTagName("th");
-		for(let j = 0, jj = tableHeaderCells.length; j < jj; j++)
-			tableHeaderCells[j].className = "col" + j;
+		{
+			const tableCell = tableCells[j];
+			tableCell.className = "col" + count++;
+			if(tableCell.hasAttribute("colspan"))
+				count += parseInt(tableCell.getAttribute("colspan"), 10) - 1;
+		}
 	}
-	insertStyle("table, tr, td { box-shadow: inset 1px 1px #444, inset -1px -1px #444; }", "styleShowTables", true);
+	const tables = tableElement ? [tableElement] : get("table");
+	for(let i = 0, ii = tables.length; i < ii; i++)
+		tables[i].classList.add("numbered");
 }
 
 //	Logs all mutations. Useful for things like finding out what's changing in the DOM when, for instance,
@@ -6483,8 +6482,8 @@ function showSelectorsFor(tagName)
 {
 	const styleId = 'styleShowClassesBySelector';
 	del("#" + styleId);
-	let style = `${tagName}::before { content: attr(id); background: #000; color: #FF0; padding: 1px 2px; font: 14px verdana; }` +
-		`${tagName}::after { content: attr(class); background: #000; color: #F90; padding: 1px 2px; font: 14px verdana; }` +
+	let style = `${tagName}::before { content: attr(id); background: #000; color: #FF0; }` +
+		`${tagName}::after { content: attr(class); background: #000; color: #F90; }` +
 		`${tagName} { border: 2px solid #000; }`;
 	insertStyle(style, styleId, true);
 }
