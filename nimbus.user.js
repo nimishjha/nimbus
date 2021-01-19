@@ -481,6 +481,7 @@ function deleteElements(elems)
 
 function retrieveElements(elems)
 {
+	const docTitle = document.title;
 	const elements = elems.nodeType ? [elems] : elems;
 	if(!(elements && elements.length))
 		return;
@@ -490,6 +491,7 @@ function retrieveElements(elems)
 	emptyElement(document.body);
 	del(["link", "script"]);
 	document.body.appendChild(wrapper);
+	document.title = docTitle;
 	showMessageBig(`Retrieved <b>${elements.length}</b> elements`);
 }
 
@@ -1815,7 +1817,7 @@ function showMessage(messageHtml, msgClass, persist)
 	if(!get("message"))
 	{
 		messageContainer = createElement("message", { className: msgClass });
-		document.body.insertBefore(messageContainer, document.body.firstChild);
+		document.body.appendChild(messageContainer);
 		if(!getOne("#styleMessage"))
 			insertStyle(strStyle, "styleMessage", true);
 	}
@@ -1825,6 +1827,7 @@ function showMessage(messageHtml, msgClass, persist)
 		messageContainer.className = msgClass;
 	}
 	messageContainer.innerHTML = "<messageinner>" + messageHtml + "</messageinner>";
+	console.log("Nimbus: \t " + messageContainer.textContent);
 	if(!persist)
 		Nimbus.messageTimeout = setTimeout(deleteMessage, 2000);
 }
@@ -2296,6 +2299,11 @@ function markByCssRule(prop, val)
 function markBySelector(selector)
 {
 	markElements(get(selector));
+}
+
+function markBySelectorAndText(selector, str)
+{
+	markElements(selectBySelectorAndText(selector, str));
 }
 
 function markByTagNameAndText(tagName, str)
@@ -7215,7 +7223,7 @@ function handleKeyDown(e)
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
 			case KEYCODES.X: removeEmojis(); break;
-			case KEYCODES.Y: callFunctionWithArgs("Mark elements by tag name containing text", markByTagNameAndText, 2); break;
+			case KEYCODES.Y: callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
 			case KEYCODES.Z: replaceSpecialCharacters(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); cycleFocusOverFormFields(); break;
 			case KEYCODES.DELETE: deleteMarkedElements(); break;
