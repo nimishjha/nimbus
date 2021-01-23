@@ -168,6 +168,7 @@ const Nimbus = {
 		fixBrsInHeadings: fixBrsInHeadings,
 		fixCdnImages: fixCdnImages,
 		replaceEmptyAnchors: replaceEmptyAnchors,
+		findStringsInProximity: findStringsInProximity,
 		fixHeadings: fixHeadings,
 		fixParagraphs: fixParagraphs,
 		fixPres: fixPres,
@@ -4828,6 +4829,13 @@ function insertStyleHighlight()
 		.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }
 		.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
 		a.nimbushl::after, span.nimbushl::after { content: ""; display: inline; clear: none; }
+		mark { background: #420; color: #09F; padding: 2px 0; line-height: inherit; }
+		markgreen { background: #040; color: #0F0; padding: 2px 0; line-height: inherit; }
+		markred { background: #400; color: #F00; padding: 2px 0; line-height: inherit; }
+		markblue { background: #036; color: #09F; padding: 2px 0; line-height: inherit; }
+		markpurple { background: #404; color: #F0F; padding: 2px 0; line-height: inherit; }
+		markyellow { background: #440; color: #FF0; padding: 2px 0; line-height: inherit; }
+		markwhite { background: #000; color: #FFF; padding: 2px 0; line-height: inherit; }
 	`;
 	insertStyle(s, "styleHighlight", true);
 }
@@ -6915,7 +6923,7 @@ function expandSelectionToWordBoundaries(node, selection)
 function expandSelectionToSentenceBoundaries(node, selection)
 {
 	const text = node.textContent;
-	let index1 = text.indexOf(selection);
+	let index1 = text.toLowerCase().indexOf(selection.toLowerCase());
 	if(index1 === -1)
 		return selection;
 	let index2 = index1 + selection.length;
@@ -6993,7 +7001,7 @@ function highlightTextAcrossTags(node, searchString)
 		node.innerHTML = nodeHTML.replace(searchString, highlightTagOpen + searchString + highlightTagClose);
 		return;
 	}
-	let index1 = node.textContent.indexOf(searchString);
+	let index1 = node.textContent.toLowerCase().indexOf(searchString.toLowerCase());
 	if(index1 === -1)
 	{
 		showMessageError('Not found');
@@ -7045,6 +7053,71 @@ function highlightTextAcrossTags(node, searchString)
 		}
 	}
 	highlightAllMatchesInNode(node, splitMatches);
+}
+
+//	Fast search for two strings occurring in close proximity in a document.
+//	Only paragraphs are scanned. The document is modified: most importantly,
+//	paragraph IDs are replaced, so existing internal references will be destroyed.
+function findStringsInProximity(stringOne, stringTwo)
+{
+	insertStyleHighlight();
+	const stringOneLower = stringOne.toLowerCase();
+	const stringTwoLower = stringTwo.toLowerCase();
+	const DISTANCE = 5;
+	const round = (n) => Math.round(n / DISTANCE) * DISTANCE;
+	const paras = get("p");
+	const lookup1 = {};
+	const lookup2 = {};
+	for(let i = 0, ii = paras.length; i < ii; i++)
+	{
+		const para = paras[i];
+		para.id = `p-${i}`;
+		const paraText = para.textContent.toLowerCase().replace(/\s+/g, " ");
+		if(~paraText.indexOf(stringOneLower))
+		{
+			if(!lookup1['p' + round(i)])
+				lookup1['p' + round(i)] = i;
+			Nimbus.highlightTagName = "markgreen";
+			highlightTextAcrossTags(para, stringOne);
+		}
+		if(~paraText.indexOf(stringTwoLower))
+		{
+			if(!lookup2['p' + round(i)])
+				lookup2['p' + round(i)] = i;
+			Nimbus.highlightTagName = "markblue";
+			highlightTextAcrossTags(para, stringTwo);
+		}
+	}
+
+	const keys = Object.keys(lookup1);
+	if(!keys.length)
+		return;
+	const resultsWrapper = createElement("div", { id: "proximateSearchResults" } );
+	resultsWrapper.appendChild(createElement( "h2", { textContent: `Proximity search results for "${stringOne}" and "${stringTwo}"` } ));
+	const resultsList = document.createElement("ol");
+	for(let i = 0, ii = keys.length; i < ii; i++)
+	{
+		const key = keys[i];
+		const stringOneParagraphIndex = lookup1[key];
+		const keyPrev = "p" + round(stringOneParagraphIndex - DISTANCE);
+		const keyNext = "p" + round(stringOneParagraphIndex + DISTANCE);
+		let stringTwoParagraphIndex = lookup2[key] || lookup2[keyPrev] || lookup2[keyNext];
+		if(stringTwoParagraphIndex)
+		{
+			const firstIndex = Math.min(stringOneParagraphIndex, stringTwoParagraphIndex);
+			const paragraph = getOne("#p-" + firstIndex);
+			const resultsListItem = document.createElement("li");
+			let excerpt = paragraph.textContent.replace(/\s+/g, " ").substring(0, 100);
+			const link = createElement("a", { textContent: stringOneParagraphIndex, href: "#p-" + stringOneParagraphIndex });
+			const linkWrapper = createElementWithChildren("h5", link);
+			linkWrapper.appendChild(document.createTextNode(" " + excerpt));
+			resultsListItem.appendChild(linkWrapper);
+			resultsList.appendChild(resultsListItem);
+		}
+	}
+	resultsWrapper.appendChild(resultsList);
+	document.body.insertBefore(resultsWrapper, document.body.firstChild);
+	window.scrollTo(0, 0);
 }
 
 function highlightAllMatches(str)
