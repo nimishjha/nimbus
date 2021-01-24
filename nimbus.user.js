@@ -170,6 +170,7 @@ const Nimbus = {
 		replaceEmptyAnchors: replaceEmptyAnchors,
 		findStringsInProximity: findStringsInProximity,
 		fixHeadings: fixHeadings,
+		fixLineBreaks: fixLineBreaks,
 		fixParagraphs: fixParagraphs,
 		fixPres: fixPres,
 		focusButton: focusButton,
@@ -271,6 +272,7 @@ const Nimbus = {
 		sanitizeTitle: sanitizeTitle,
 		setAttributeOf: setAttributeOf,
 		setDocTitle: setDocTitle,
+		setQueryParameter: setQueryParameter,
 		setReplacementTag: setReplacementTag,
 		simplifyClassNames: simplifyClassNames,
 		forceImageWidth: forceImageWidth,
@@ -851,6 +853,23 @@ function fixBrsInHeadings()
 	splitByBrs("h1, h2, h3", "div");
 }
 
+function fixLineBreaks()
+{
+	var spans = get("span");
+	for(let i = 0, ii = spans.length; i < ii; i++)
+	{
+		const span = spans[i];
+		if(span.textContent === "\n")
+			replaceElement(span, "br");
+	}
+	var e = getOne(".nimbushl");
+	if(e)
+	{
+		e.innerHTML = e.innerHTML.replace(/\n+/g, "<br>");
+		e.classList.remove("nimbushl");
+	}
+}
+
 function splitByBrs(sel, strParentTagName)
 {
 	const selector = sel || makeClassSelector(Nimbus.markerClass);
@@ -1063,6 +1082,27 @@ function removeQueryParameter(url, parameterName)
 		const value = parsedParameters[i].value;
 		if(param !== parameterName)
 			newQueryString += `${param}=${value}&`;
+	}
+	if(newQueryString.length)
+		return(`${baseUrl}?${newQueryString}`);
+	return baseUrl;
+}
+
+function setQueryParameter(url, parameterName, newValue)
+{
+	const parsedParameters = parseQueryString(url);
+	if(!parsedParameters)
+		return url;
+	let baseUrl = trimAt(url, "?");
+	let newQueryString = "";
+	for(let i = 0, ii = parsedParameters.length; i < ii; i++)
+	{
+		const param = parsedParameters[i].key;
+		const value = parsedParameters[i].value;
+		if(param !== parameterName)
+			newQueryString += `${param}=${value}&`;
+		else
+			newQueryString += `${param}=${newValue}&`;
 	}
 	if(newQueryString.length)
 		return(`${baseUrl}?${newQueryString}`);
