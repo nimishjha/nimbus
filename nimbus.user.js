@@ -322,7 +322,7 @@ const Nimbus = {
 	minPersistWidth: 1000,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
-	BLOCK_ELEMENTS: ["DIV", "P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV"],
+	BLOCK_ELEMENTS: ["DIV", "P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE"],
 };
 
 const KEYCODES = Nimbus.KEYCODES;
@@ -1357,6 +1357,16 @@ function replaceSelectedElement(tagName)
 	{
 		const replacementTag = tagName ? tagName : Nimbus.replacementTagName;
 		replaceElement(node, replacementTag);
+	}
+}
+
+function wrapMarkedElement(tagName)
+{
+	const node = getMarkedElements()[0];
+	if(node)
+	{
+		const wrapperTag = tagName ? tagName : Nimbus.replacementTagName;
+		wrapElement(node, wrapperTag);
 	}
 }
 
@@ -7115,15 +7125,17 @@ function findStringsInProximity(stringOne, stringTwo)
 		const paraText = para.textContent.toLowerCase().replace(/\s+/g, " ");
 		if(~paraText.indexOf(stringOneLower))
 		{
-			if(!lookup1['p' + round(i)])
-				lookup1['p' + round(i)] = i;
+			const bracket = 'p' + round(i);
+			if(!lookup1[bracket])
+				lookup1[bracket] = i;
 			Nimbus.highlightTagName = "markgreen";
 			highlightTextAcrossTags(para, stringOne);
 		}
 		if(~paraText.indexOf(stringTwoLower))
 		{
-			if(!lookup2['p' + round(i)])
-				lookup2['p' + round(i)] = i;
+			const bracket = 'p' + round(i);
+			if(!lookup2[bracket])
+				lookup2[bracket] = i;
 			Nimbus.highlightTagName = "markblue";
 			highlightTextAcrossTags(para, stringTwo);
 		}
@@ -7372,7 +7384,7 @@ function handleKeyDown(e)
 			case KEYCODES.N: callFunctionWithArgs("Delete numbered divs in range", delRange); break;
 			case KEYCODES.P: getPagerLinks(); break;
 			case KEYCODES.Q: rescueOrphanedTextNodes(); break;
-			case KEYCODES.R: replaceSelectedElement(); break;
+			case KEYCODES.R: wrapMarkedElement(); break;
 			case KEYCODES.W: cleanupAttributes(); break;
 			case KEYCODES.Y: callFunctionWithArgs("Highlight elements by tag name containing text", highlightByTagNameAndText, 2); break;
 			case KEYCODES.FORWARD_SLASH: focusButton(); break;
