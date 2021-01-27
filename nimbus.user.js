@@ -1761,7 +1761,7 @@ function getAllClassesFor(selector)
 		classes[elementClassesSanitized] = elementClasses;
 	}
 	const keys = Object.keys(classes);
-	let result = [];
+	const result = [];
 	for(let i = 0, ii = keys.length; i < ii; i++)
 	{
 		result.push(classes[keys[i]]);
@@ -2045,7 +2045,7 @@ function toggleConsole(consoleType)
 
 function parseCommand(commandString)
 {
-	let args = [];
+	const args = [];
 	let arg = '';
 	let cleanCommandString = trim(commandString.replace(/\s+/g, ' '));
 	for(let i = 0, ii = cleanCommandString.length; i < ii; i++)
@@ -2586,7 +2586,7 @@ function unmarkAll()
 function filterNodesByAttributeEqualTo(nodes, attribute, value)
 {
 	let i = nodes.length;
-	let result = [];
+	const result = [];
 	if(attribute === "text" || attribute === "textContent")
 	{
 		while(i--)
@@ -2611,7 +2611,7 @@ function filterNodesByAttributeEqualTo(nodes, attribute, value)
 function filterNodesByAttributeNotEqualTo(nodes, attribute, value)
 {
 	let i = nodes.length;
-	let result = [];
+	const result = [];
 	if(attribute === "text" || attribute === "textContent")
 	{
 		while(i--)
@@ -2636,7 +2636,7 @@ function filterNodesByAttributeNotEqualTo(nodes, attribute, value)
 function filterNodesByAttributeValueLessThan(nodes, attribute, value)
 {
 	let i = nodes.length;
-	let result = [];
+	const result = [];
 	while(i--)
 	{
 		const node = nodes[i];
@@ -2654,7 +2654,7 @@ function filterNodesByAttributeValueLessThan(nodes, attribute, value)
 function filterNodesByAttributeValueGreaterThan(nodes, attribute, value)
 {
 	let i = nodes.length;
-	let result = [];
+	const result = [];
 	while(i--)
 	{
 		const node = nodes[i];
@@ -2672,7 +2672,7 @@ function filterNodesByAttributeValueGreaterThan(nodes, attribute, value)
 function filterNodesByAttributeContaining(nodes, attribute, value)
 {
 	let i = nodes.length;
-	let result = [];
+	const result = [];
 	if(attribute === "text" || attribute === "textContent")
 	{
 		while(i--)
@@ -2697,7 +2697,7 @@ function filterNodesByAttributeContaining(nodes, attribute, value)
 function filterNodesByAttributeNotContaining(nodes, attribute, value)
 {
 	let i = nodes.length;
-	let result = [];
+	const result = [];
 	if(attribute === "text" || attribute === "textContent")
 	{
 		while(i--)
@@ -2722,7 +2722,7 @@ function filterNodesByAttributeNotContaining(nodes, attribute, value)
 function filterNodesByAttributeMatching(nodes, attribute, value)
 {
 	let i = nodes.length;
-	let result = [];
+	const result = [];
 	let regex = new RegExp(escapeForRegExp(value));
 	if(attribute === "text" || attribute === "textContent")
 	{
@@ -2748,7 +2748,7 @@ function filterNodesByAttributeMatching(nodes, attribute, value)
 function filterNodesByAttributeExistence(nodes, attribute)
 {
 	let i = nodes.length;
-	let result = [];
+	const result = [];
 	while(i--)
 	{
 		const node = nodes[i];
@@ -2761,7 +2761,7 @@ function filterNodesByAttributeExistence(nodes, attribute)
 function filterNodesByAttributeNonExistence(nodes, attribute)
 {
 	let i = nodes.length;
-	let result = [];
+	const result = [];
 	while(i--)
 	{
 		const node = nodes[i];
@@ -2773,7 +2773,7 @@ function filterNodesByAttributeNonExistence(nodes, attribute)
 
 function filterNodesWithChildrenOfType(nodes, selector)
 {
-	let result = [];
+	const result = [];
 	let i = nodes.length;
 	while(i--)
 	{
@@ -2786,7 +2786,7 @@ function filterNodesWithChildrenOfType(nodes, selector)
 
 function filterNodesWithoutChildrenOfType(nodes, selector)
 {
-	let result = [];
+	const result = [];
 	let i = nodes.length;
 	while(i--)
 	{
@@ -2799,7 +2799,7 @@ function filterNodesWithoutChildrenOfType(nodes, selector)
 
 function filterNodesWithParentOfType(nodes, tagName)
 {
-	let result = [];
+	const result = [];
 	const tagNameUpper = tagName.toUpperCase();
 	let i = nodes.length;
 	while(i--)
@@ -2823,7 +2823,7 @@ function filterNodesWithParentOfType(nodes, tagName)
 
 function filterNodesWithoutParentOfType(nodes, tagName)
 {
-	let result = [];
+	const result = [];
 	const tagNameUpper = tagName.toUpperCase();
 	let i = nodes.length;
 	while(i--)
@@ -2850,7 +2850,7 @@ function filterNodesWithoutParentOfType(nodes, tagName)
 
 function filterNodesWithTextLengthUnder(nodes, maxLength)
 {
-	let result = [];
+	const result = [];
 	let i = nodes.length;
 	while(i--)
 	{
@@ -2863,7 +2863,7 @@ function filterNodesWithTextLengthUnder(nodes, maxLength)
 
 function filterNodesWithTextLengthOver(nodes, maxLength)
 {
-	let result = [];
+	const result = [];
 	let i = nodes.length;
 	while(i--)
 	{
@@ -2876,7 +2876,7 @@ function filterNodesWithTextLengthOver(nodes, maxLength)
 
 function filterNodesFollowingNodesOfType(nodes, tagName)
 {
-	let result = [];
+	const result = [];
 	const tagNameUpper = tagName.toUpperCase();
 	let i = nodes.length;
 	while(i--)
@@ -2891,7 +2891,7 @@ function filterNodesFollowingNodesOfType(nodes, tagName)
 
 function filterNodesPrecedingNodesOfType(nodes, tagName)
 {
-	let result = [];
+	const result = [];
 	const tagNameUpper = tagName.toUpperCase();
 	let i = nodes.length;
 	while(i--)
@@ -4473,7 +4473,7 @@ function replaceEmptyAnchors()
 {
 	const CHAR_BULLET = '\u2022';
 	const links = get("a");
-	let emptyLinksToDelete = [];
+	const emptyLinksToDelete = [];
 	let i = links.length;
 	while(i--)
 	{
@@ -4719,6 +4719,7 @@ function groupAdjacentElements(selector, parentTag, childTag)
 function groupUnderHeading()
 {
 	const WRAPPER_ELEMENT_TAGNAME = "section";
+	const ELEMENTS_TO_BREAK_ON = ["H1", "H2", "H3", "H4", "H5", "H6", "SECTION"];
 	const heading = getMarkedElements()[0];
 	if(!heading)
 	{
@@ -4732,7 +4733,7 @@ function groupUnderHeading()
 	wrapperElem.appendChild(heading.cloneNode(true));
 	let nextElem = heading.nextElementSibling;
 	let count = 0;
-	while(nextElem && nextElem.tagName !== headingTagName && count < 1000)
+	while(nextElem && !ELEMENTS_TO_BREAK_ON.includes(nextElem.tagName) && count < 1000)
 	{
 		count++;
 		wrapperElem.appendChild(nextElem.cloneNode(true));
@@ -5598,7 +5599,7 @@ function deleteBySelectorAndText(selector, str, boolInvertSelection = false)
 	if(selected)
 		deleteElements(selected);
 	else
-		showMessageBig("Not found");
+		showMessageBig("deleteBySelectorAndText: no elements found");
 }
 
 //	Potential improvement: add another function that scans comments for over-use of emojis to flag the poster as an idiot.
@@ -6085,7 +6086,7 @@ function getContentByParagraphCount()
 			longParagraphs.push(paragraph);
 		}
 	}
-	let candidateDivs = [];
+	const candidateDivs = [];
 	for(let i = 0, ii = longParagraphs.length; i < ii; i++)
 	{
 		const tempContainer = longParagraphs[i].closest("div");
@@ -7082,7 +7083,7 @@ function highlightTextAcrossTags(node, searchString)
 	let index1 = node.textContent.toLowerCase().indexOf(searchString.toLowerCase());
 	if(index1 === -1)
 	{
-		showMessageError('Not found');
+		showMessageError("highlightTextAcrossTags: string not found in text");
 		return;
 	}
 	let index2 = index1 + searchString.length;
