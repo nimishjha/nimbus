@@ -4660,8 +4660,9 @@ function groupMarkedElements(tagName)
 	const wrapper = document.createElement(parentTagName);
 	for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
 	{
-		const child = document.createElement(childTagName);
-		child.innerHTML = elemsToJoin[i].innerHTML;
+		const elem = elemsToJoin[i];
+		const child = convertElement(elem, childTagName);
+		child.id = elem.id;
 		wrapper.appendChild(child);
 	}
 	insertBefore(elemsToJoin[0], wrapper);
@@ -4713,6 +4714,33 @@ function groupAdjacentElements(selector, parentTag, childTag)
 		}
 		elem.parentNode.replaceChild(parent, elem);
 	}
+}
+
+function groupUnderHeading()
+{
+	const WRAPPER_ELEMENT_TAGNAME = "section";
+	const heading = getMarkedElements()[0];
+	if(!heading)
+	{
+		showMessageBig("Nothing is marked");
+		return;
+	}
+	unmarkAll();
+	const headingTagName = heading.tagName;
+	const wrapperElem = document.createElement(WRAPPER_ELEMENT_TAGNAME);
+	const toDelete = [];
+	wrapperElem.appendChild(heading.cloneNode(true));
+	let nextElem = heading.nextElementSibling;
+	let count = 0;
+	while(nextElem && nextElem.tagName !== headingTagName && count < 1000)
+	{
+		count++;
+		wrapperElem.appendChild(nextElem.cloneNode(true));
+		toDelete.push(nextElem);
+		nextElem = nextElem.nextElementSibling;
+	}
+	heading.parentNode.replaceChild(wrapperElem, heading);
+	del(toDelete);
 }
 
 function joinAdjacentElements(selector)
@@ -7312,7 +7340,7 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD5: toggleHighlightSelectionMode(); break;
 			case KEYCODES.NUMPAD6: retrieveLargeImages(); break;
 			case KEYCODES.NUMPAD7: groupMarkedElements("blockquote"); break;
-			case KEYCODES.NUMPAD8: toggleScreenRefresh(); break;
+			case KEYCODES.NUMPAD8: groupUnderHeading(); break;
 			case KEYCODES.NUMPAD9: refreshScreen(); break;
 			case KEYCODES.NUMPAD0: deleteResources(); break;
 			case KEYCODES.F1: customPrompt("Enter replacement tag name").then(setReplacementTag); break;
