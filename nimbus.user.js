@@ -4471,7 +4471,6 @@ function revealEmptyLinksAndSpans()
 //	<cite> element that is appended to the block parent
 function replaceEmptyAnchors()
 {
-	const CHAR_BULLET = '\u2022';
 	const links = get("a");
 	const emptyLinksToDelete = [];
 	let i = links.length;
@@ -4496,7 +4495,7 @@ function replaceEmptyAnchors()
 			{
 				const parent = getFirstBlockParent(link);
 				if(parent)
-					parent.appendChild(createElement("cite", { textContent: CHAR_BULLET, id: link.id }));
+					parent.appendChild(createBulletAnchor(link.id));
 			}
 			emptyLinksToDelete.push(link);
 		}
@@ -4507,7 +4506,6 @@ function replaceEmptyAnchors()
 
 function replaceSpanAnchors()
 {
-	const CHAR_BULLET = '\u2022';
 	const spans = get("span[id]");
 	let count = 0;
 	let i = spans.length;
@@ -4524,7 +4522,7 @@ function replaceSpanAnchors()
 		{
 			const parent = getFirstBlockParent(span);
 			if(parent)
-				parent.appendChild(createElement("cite", { textContent: CHAR_BULLET, id: span.id }));
+				parent.appendChild(createBulletAnchor(span.id));
 		}
 		span.removeAttribute("id");
 	}
@@ -4746,6 +4744,7 @@ function groupUnderHeading()
 
 function joinAdjacentElements(selector)
 {
+	const idsToSave = [];
 	const elems = get(selector);
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
@@ -4760,9 +4759,12 @@ function joinAdjacentElements(selector)
 				elem.appendChild(nextElem.firstChild);
 			}
 			const appendedElem = nextElem;
+			if(appendedElem.id)
+				idsToSave.push(appendedElem.id);
 			nextElem = nextElem.nextElementSibling;
 			appendedElem.remove();
 		}
+		saveIdsToElement(elem, idsToSave);
 	}
 }
 
@@ -4791,10 +4793,30 @@ function joinParagraphsByLastChar()
 	}
 }
 
+function createBulletAnchor(id)
+{
+	const CHAR_BULLET = '\u2022';
+	return createElement("cite", { textContent: CHAR_BULLET, id: id });
+}
+
+function saveIdsToElement(element, ids)
+{
+	if(ids.length === 1 && !element.id)
+	{
+		element.id = ids[0];
+	}
+	else
+	{
+		for(let j = 0, jj = ids.length; j < jj; j++)
+			element.appendChild(createBulletAnchor(ids[j]));
+	}
+}
+
 //	This function fixes the problem where two adjacent elements should in fact be one element.
 //	Useful for joining, say, a paragraph that has erroneously been split into two paragraphs.
 function joinMarkedElements()
 {
+	const idsToSave = [];
 	const elemsToJoin = getMarkedElements();
 	if(!elemsToJoin.length)
 		return;
@@ -4803,12 +4825,15 @@ function joinMarkedElements()
 	for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
 	{
 		const originalElement = elemsToJoin[i];
+		if(originalElement.id)
+			idsToSave.push(originalElement.id);
 		while(originalElement.firstChild)
 		{
 			wrapper.appendChild(originalElement.firstChild);
 			wrapper.appendChild(document.createTextNode(" "));
 		}
 	}
+	saveIdsToElement(wrapper, idsToSave);
 	insertBefore(elemsToJoin[0], wrapper);
 	del(Nimbus.markerClassSelector);
 	deleteMessage();
@@ -4908,7 +4933,7 @@ function insertStyleHighlight()
 		.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }
 		.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
 		a.nimbushl::after, span.nimbushl::after { content: ""; display: inline; clear: none; }
-		mark { background: #420; color: #09F; padding: 2px 0; line-height: inherit; }
+		mark { background: #420; color: #F90; padding: 2px 0; line-height: inherit; }
 		markgreen { background: #040; color: #0F0; padding: 2px 0; line-height: inherit; }
 		markred { background: #400; color: #F00; padding: 2px 0; line-height: inherit; }
 		markblue { background: #036; color: #09F; padding: 2px 0; line-height: inherit; }
@@ -6895,6 +6920,13 @@ function toggleHighlightSelectionMode()
 	showMessageBig(`Highlight mode is <b>${Nimbus.selectionHighlightMode}</b>`);
 }
 
+function highlightSelectionRed()
+{
+	Nimbus.highlightTagName = "markred";
+	highlightSelection();
+	Nimbus.highlightTagName = "mark";
+}
+
 function highlightSelection()
 {
 	const selection = window.getSelection();
@@ -7326,6 +7358,7 @@ function handleKeyDown(e)
 		return;
 	}
 	const db = document.body;
+	const dh = document.documentElement;
 	const k = e.keyCode;
 	//
 	//	Alt
@@ -7358,7 +7391,7 @@ function handleKeyDown(e)
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
 			case KEYCODES.NINE: toggleStyleShowClasses(); break;
 			case KEYCODES.ZERO: cycleThroughDocumentHeadings(); break;
-			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", "none"]); break;
+			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", "none"]); cycleClass(dh, ["xDontShowLinks", "xHE", "none"]); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteEmptyBlockElements(); break;
 			case KEYCODES.E: cycleHighlightTag(); break;
@@ -7396,7 +7429,7 @@ function handleKeyDown(e)
 		e.preventDefault();
 		switch(k)
 		{
-			// case KEYCODES.ZERO: getSelectionOrUserInput("Enter document title", setDocTitle, true); break;
+			case KEYCODES.TILDE: highlightSelectionRed(); break;
 			case KEYCODES.ZERO: editDocumentTitle(); break;
 			case KEYCODES.ONE: showResources(); break;
 			case KEYCODES.TWO: replaceImagesWithTextLinks(); break;
