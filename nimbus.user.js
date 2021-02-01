@@ -1422,6 +1422,7 @@ function convertElement(elem, tagName)
 	const temp = elem.cloneNode(true);
 	while(temp.firstChild)
 		replacement.appendChild(temp.firstChild);
+	replacement.id = elem.id;
 	return replacement;
 }
 
@@ -1441,9 +1442,9 @@ function replaceElementKeepingId(elem, tagName)
 	const elemId = elem.id;
 	if(elemId)
 		replacement.id = elemId;
-	const elemClass = elem.className.replace(/nimbushl/, " ");
-	if(elemClass)
-		replacement.className = elemClass;
+	// const elemClass = elem.className.replace(/nimbushl/, " ");
+	// if(elemClass)
+	// 	replacement.className = elemClass;
 	elem.parentNode.replaceChild(replacement, elem);
 }
 
@@ -4688,7 +4689,7 @@ function groupAdjacentElements(selector, parentTag, childTag)
 				break;
 			case "P":
 				parentTagName = "blockquote";
-				childTagName = "P";
+				childTagName = "p";
 				break;
 			default:
 				parentTagName = "blockquote";
@@ -5542,7 +5543,6 @@ function cleanupGeneral()
 	highlightUserLinks();
 	appendMetadata();
 	getBestImageSrc();
-	insertStyleHighlight();
 	forceImageWidth(1200);
 	document.body.className = "pad100 xwrap";
 	if(~navigator.userAgent.indexOf("Chrome"))
@@ -5590,7 +5590,8 @@ function regressivelyUnenhance()
 
 function deleteResources()
 {
-	del(["link", "style", "script"]);
+	del(["link", "style", "script", "message"]);
+	document.body.className = "xwrap pad100";
 }
 
 function removeInlineStyles()
@@ -5886,9 +5887,10 @@ function replaceElementsWithTextNodes(selector)
 }
 
 //	This function does a brute-force removal of all <span> tags in a document.
-function removeSpanTags()
+function removeSpanTags(boolIgnoreIds)
 {
-	replaceSpanAnchors();
+	if(!boolIgnoreIds)
+		replaceSpanAnchors();
 	const numSpans = get("span").length;
 	if(!numSpans)
 	{
@@ -7221,7 +7223,7 @@ function findStringsInProximity(stringOne, stringTwo)
 			const paragraph = getOne("#p-" + firstIndex);
 			const resultsListItem = document.createElement("li");
 			let excerpt = paragraph.textContent.replace(/\s+/g, " ").substring(0, 100);
-			const link = createElement("a", { textContent: stringOneParagraphIndex, href: "#p-" + stringOneParagraphIndex });
+			const link = createElement("a", { textContent: firstIndex, href: "#p-" + firstIndex });
 			const linkWrapper = createElementWithChildren("h5", link);
 			linkWrapper.appendChild(document.createTextNode(" " + excerpt));
 			resultsListItem.appendChild(linkWrapper);
@@ -7391,7 +7393,7 @@ function handleKeyDown(e)
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
 			case KEYCODES.NINE: toggleStyleShowClasses(); break;
 			case KEYCODES.ZERO: cycleThroughDocumentHeadings(); break;
-			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", "none"]); cycleClass(dh, ["xDontShowLinks", "xHE", "none"]); break;
+			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", "none"]); dh.className = db.className; break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteEmptyBlockElements(); break;
 			case KEYCODES.E: cycleHighlightTag(); break;
