@@ -1104,9 +1104,20 @@ function setQueryParameter(url, parameterName, newValue)
 		else
 			newQueryString += `${param}=${newValue}&`;
 	}
+	newQueryString = newQueryString.substring(0, newQueryString.length - 1);
 	if(newQueryString.length)
 		return(`${baseUrl}?${newQueryString}`);
 	return baseUrl;
+}
+
+function replaceQueryParameter(key, oldValue, newValue)
+{
+	const links = get(`a[href*='${key}=${oldValue}']`);
+	for(let i = 0, ii = links.length; i < ii; i++)
+	{
+		const link = links[i];
+		link.href = setQueryParameter(link.href, key, newValue);
+	}
 }
 
 function arrayToString(arr, separator)
