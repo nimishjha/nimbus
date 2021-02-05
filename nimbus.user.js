@@ -145,6 +145,7 @@ const Nimbus = {
 		deleteByClassOrIdContaining: deleteByClassOrIdContaining,
 		deleteEmptyElements: deleteEmptyElements,
 		deleteEmptyHeadings: deleteEmptyHeadings,
+		deleteEmptyTextNodes: deleteEmptyTextNodes,
 		deleteIframes: deleteIframes,
 		deleteImages: deleteImages,
 		deleteImagesSmallerThan: deleteImagesSmallerThan,
@@ -168,6 +169,7 @@ const Nimbus = {
 		fixBrsInHeadings: fixBrsInHeadings,
 		fixCdnImages: fixCdnImages,
 		replaceEmptyAnchors: replaceEmptyAnchors,
+		replaceQueryParameter: replaceQueryParameter,
 		findStringsInProximity: findStringsInProximity,
 		fixHeadings: fixHeadings,
 		fixLineBreaks: fixLineBreaks,
@@ -4762,7 +4764,7 @@ function joinAdjacentElements(selector)
 	{
 		const elem = elems[i];
 		let nextElem = elem.nextElementSibling;
-		while(nextElem && elems.includes(nextElem))
+		while(nextElem && elems.includes(nextElem) && nextElem === elem.nextSibling)
 		{
 			i++;
 			while(nextElem.firstChild)
@@ -5673,6 +5675,23 @@ function normaliseWhitespaceForParagraphs()
 	}
 }
 
+function deleteEmptyTextNodes()
+{
+	const nodes = getTextNodesAsArray();
+	let count = 0;
+	for(let i = 0, ii = nodes.length; i < ii; i++)
+	{
+		const node = nodes[i];
+		let nodeText = node.data;
+		if(nodeText.replace(/\s+/g, "").length === 0)
+		{
+			count++;
+			node.remove();
+		}
+	}
+	showMessageBig(`${count} empty text nodes removed`);
+}
+
 function deleteEmptyElements(selector)
 {
 	const elems = get(selector);
@@ -5715,6 +5734,7 @@ function deleteEmptyHeadings()
 
 function deleteEmptyBlockElements()
 {
+	deleteEmptyTextNodes();
 	del("noscript");
 	const SELECTOR = "div, p, blockquote, h1, h2, h3, h4, h5, h6, li, figure, figcaption, pre, dt, dd, message, annotation, quote, quoteauthor, partheading, aside, section, article, nav, ul, ol";
 	deleteEmptyElements(SELECTOR);
