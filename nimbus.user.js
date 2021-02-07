@@ -7048,7 +7048,7 @@ function highlightLinksWithHrefContaining(str)
 
 function expandSelectionToWordBoundaries(node, selection)
 {
-	const text = node.textContent;
+	const text = node.textContent.replace(/\s+/g, " ");
 	let index1 = text.indexOf(selection);
 	if(index1 === -1)
 		return selection;
@@ -7059,14 +7059,14 @@ function expandSelectionToWordBoundaries(node, selection)
 		index1--;
 	while(text[index2] && text[index2].match(regexRight) && index2 < text.length)
 		index2++;
-	const expanded = trim(text.substring(index1, index2));
+	const expanded = trim(text.substring(index1, index2).replace(/\s+/g, " "));
 	consoleLog("expanded: " + expanded);
 	return expanded;
 }
 
 function expandSelectionToSentenceBoundaries(node, selection)
 {
-	const text = node.textContent;
+	const text = node.textContent.replace(/\s+/g, " ");
 	let index1 = text.toLowerCase().indexOf(selection.toLowerCase());
 	if(index1 === -1)
 		return selection;
@@ -7084,7 +7084,7 @@ function expandSelectionToSentenceBoundaries(node, selection)
 		index2++;
 	if(index2 > text.length - 10)
 		index2 = text.length;
-	const expanded = trim(text.substring(index1, index2));
+	const expanded = trim(text.substring(index1, index2).replace(/\s+/g, " "));
 	consoleLog("expanded: " + expanded);
 	return expanded;
 }
@@ -7092,6 +7092,7 @@ function expandSelectionToSentenceBoundaries(node, selection)
 function highlightAllMatchesInNode(node, splitMatches)
 {
 	let nodeHTML = node.innerHTML;
+	nodeHTML = nodeHTML.replace(/\s+/g, " ");
 	let lastIndex = 0;
 	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
 	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
@@ -7137,7 +7138,7 @@ function highlightAllMatchesInNode(node, splitMatches)
 function highlightTextAcrossTags(node, searchString)
 {
 	searchString = escapeHTML(searchString.replace(/\s+/g, " "));
-	let nodeHTML = node.innerHTML;
+	const nodeHTML = node.innerHTML;
 	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
 	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
 	if(~nodeHTML.indexOf(searchString))
@@ -7145,10 +7146,14 @@ function highlightTextAcrossTags(node, searchString)
 		node.innerHTML = nodeHTML.replace(searchString, highlightTagOpen + searchString + highlightTagClose);
 		return;
 	}
-	let index1 = node.textContent.toLowerCase().indexOf(searchString.toLowerCase());
+	//	Sometimes cleaning up whitespace in the HTML still leaves multiple spaces in the textContent
+	const nodeText = node.textContent.replace(/\s+/g, " ");
+	let index1 = nodeText.toLowerCase().indexOf(searchString.toLowerCase());
 	if(index1 === -1)
 	{
 		showMessageError("highlightTextAcrossTags: string not found in text");
+		console.log(searchString.replace(/\s/g, "_"));
+		console.log(nodeText.replace(/\s/g, "_"));
 		return;
 	}
 	let index2 = index1 + searchString.length;
