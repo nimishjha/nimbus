@@ -261,7 +261,7 @@ const Nimbus = {
 		replaceIframes: replaceIframes,
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
 		replaceMarkedElements: replaceMarkedElements,
-		replaceSpanAnchors: replaceSpanAnchors,
+		replaceSupSpanAnchors: replaceSupSpanAnchors,
 		replaceTables: replaceTables,
 		normalizeAllWhitespace: normalizeAllWhitespace,
 		normaliseWhitespaceForParagraphs: normaliseWhitespaceForParagraphs,
@@ -1580,6 +1580,7 @@ function createListsFromBulletedParagraphs()
 			nextElem = nextElemTemp;
 		}
 	}
+	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "li");
 }
 
 function hasChildrenOfType(elem, tagName)
@@ -2491,7 +2492,7 @@ function highlightAuthors()
 
 function fixInternalReferences()
 {
-	replaceSpanAnchors();
+	replaceSupSpanAnchors();
 	replaceEmptyAnchors();
 	makeFileLinksRelative();
 	const internalLinks = get('a[href^="#"]');
@@ -4518,29 +4519,29 @@ function replaceEmptyAnchors()
 	del(emptyLinksToDelete);
 }
 
-function replaceSpanAnchors()
+function replaceSupSpanAnchors()
 {
-	const spans = get("span[id]");
+	const anchors = get("sup[id], span[id]");
 	let count = 0;
-	let i = spans.length;
+	let i = anchors.length;
 	while(i--)
 	{
-		const span = spans[i];
+		const anchor = anchors[i];
 		count++;
-		const childLink = span.querySelector("a");
+		const childLink = anchor.querySelector("a");
 		if(childLink && !childLink.hasAttribute("id") && childLink.textContent.length)
 		{
-			childLink.id = span.id;
+			childLink.id = anchor.id;
 		}
 		else
 		{
-			const parent = getFirstBlockParent(span);
+			const parent = getFirstBlockParent(anchor);
 			if(parent)
-				parent.appendChild(createBulletAnchor(span.id));
+				parent.appendChild(createBulletAnchor(anchor.id));
 		}
-		span.removeAttribute("id");
+		anchor.removeAttribute("id");
 	}
-	showMessageBig(`Replaced ${count} spans`);
+	showMessageBig(`Replaced ${count} anchors`);
 }
 
 function changePageByUrl(direction)
@@ -5921,7 +5922,7 @@ function replaceElementsWithTextNodes(selector)
 function removeSpanTags(boolIgnoreIds)
 {
 	if(!boolIgnoreIds)
-		replaceSpanAnchors();
+		replaceSupSpanAnchors();
 	const numSpans = get("span").length;
 	if(!numSpans)
 	{
@@ -6918,7 +6919,7 @@ function generateTableOfContents()
 		const id = createUUID();
 		heading.id = id;
 		const tocEntryLink = createElement("a", { textContent: heading.textContent, href: "#" + id } );
-		const tocEntryHeading = createElement(heading.tagName);
+		const tocEntryHeading = createElement("h5");
 		const tocEntryWrapper = document.createElement("div");
 		tocEntryHeading.appendChild(tocEntryLink);
 		tocEntryWrapper.appendChild(tocEntryHeading);
@@ -7371,7 +7372,7 @@ function removeHighlightsFromMarkedElements()
 function inject()
 {
 	document.body.classList.add("nimbusDark");
-	document.body.removeAttribute("style");
+	// document.body.removeAttribute("style");
 	document.addEventListener("keydown", handleKeyDown, false);
 	getBestImageSrc();
 	showPassword();
