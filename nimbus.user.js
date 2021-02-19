@@ -1647,7 +1647,7 @@ function insertStyle(str, identifier, important)
 	if(identifier && identifier.length && get("#" + identifier))
 		del("#" + identifier);
 	if(important)
-		str = str.replace(/;/g, " !important;");
+		str = str.replace(/!important/g, " ").replace(/;/g, " !important;");
 	const head = getOne("head");
 	const style = document.createElement("style");
 	const rules = document.createTextNode(str);
@@ -3194,6 +3194,8 @@ function retrieveLargeImages()
 	while(i--)
 	{
 		const link = links[i];
+		if(link.parentNode.tagName === "RT")
+			continue;
 		const linkHref = link.href;
 		if(containsAnyOfTheStrings(linkHref.toLowerCase(), [".png", ".jpg", ".gif", ".jpe"]))
 		{
@@ -3679,7 +3681,7 @@ function createTagsByClassName()
 			case hasClassesStartingWith(element, ["ital"]): replacementTagName = "i"; break;
 			case hasClassesContaining(element, ["bold", "txbf", "epub-b"]): replacementTagName = "b"; break;
 			case hasClassesContaining(element, ["italic", "txit", "epub-i"]): replacementTagName = "i"; break;
-			case hasClassesContaining(element, ["small"]): replacementTagName = "small"; break;
+			case hasClassesContaining(element, ["epub-sc, small"]): replacementTagName = "small"; break;
 		}
 		if(replacementTagName)
 		{
@@ -5157,9 +5159,9 @@ function toggleStyleNegative()
 		rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 24px "Swis721 Cn BT", Calibri, sans-serif; border-top: 50px solid #000; border-bottom: 50px solid #000; }
 		rt { margin: 10px 0; padding: 20px; display: block; background: #181818; }
 		rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }
-		body.xDontShowLinks a, body.xDontShowLinks a *, body.xDontShowLinks a:link { color: inherit; text-decoration: none; }
-		body.xDontShowLinks a:visited *, body.xDontShowLinks a:visited { color: inherit; text-decoration: none; }
-		body.xDontShowLinks a:hover *, body.xDontShowLinks a:focus *, body.xDontShowLinks a:hover, body.xDontShowLinks a:focus { color: #FFF; text-decoration: none; }
+		body.nimbusTheme1 a, body.nimbusTheme1 a *, body.nimbusTheme1 a:link { color: inherit; text-decoration: none; }
+		body.nimbusTheme1 a:visited *, body.nimbusTheme1 a:visited { color: inherit; text-decoration: none; }
+		body.nimbusTheme1 a:hover *, body.nimbusTheme1 a:focus *, body.nimbusTheme1 a:hover, body.nimbusTheme1 a:focus { color: #FFF; text-decoration: none; }
 		.nimbushl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }
 		.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }
 		.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
@@ -5227,8 +5229,8 @@ function toggleStyleShowClasses()
 function toggleStyleShowClasses2()
 {
 	const style = `
-		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before, h1::before, h2::before, h3::before, h4::before, td::before { content: attr(class); color: #F90; background: #000; }
-		p::before { content: attr(class); color: #F0F; background: #000; }
+		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before, h1::before, h2::before, h3::before, h4::before, td::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #F90; background: #000; padding: 2px 5px; font-size: 22px; }
+		p::before { content: attr(tag)"#"attr(id)" ."attr(class); color: #F0F; background: #000; padding: 2px 5px; font-size: 22px; }
 		span { box-shadow: inset 0 -100px rgba(0,128,0,0.5); }
 		span::before { content: attr(class); color: #0F0; background: #000; padding: 2px 5px; }
 	`;
@@ -5239,8 +5241,8 @@ function toggleShowDocumentStructureWithNames()
 {
 	const style = `
 		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 10px; padding: 10px; }
-		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #F90; background: #000; padding: 2px 5px; }
-		p::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #F0F; background: #000; padding: 2px 5px; }
+		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #F90; background: #000; padding: 2px 5px; font-size: 22px; }
+		p::before { content: attr(tag)"#"attr(id)" ."attr(class); color: #F0F; background: #000; padding: 2px 5px; }
 		span { box-shadow: inset 0 -100px rgba(0,128,0,0.5); }
 		span::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #0F0; background: #000; padding: 2px 5px; }
 		`;
@@ -5753,7 +5755,7 @@ function deleteEmptyHeadings()
 
 function deleteEmptyBlockElements()
 {
-	deleteEmptyTextNodes();
+	// deleteEmptyTextNodes();
 	del("noscript");
 	const SELECTOR = "div, p, blockquote, h1, h2, h3, h4, h5, h6, li, figure, figcaption, pre, dt, dd, message, annotation, quote, quoteauthor, partheading, aside, section, article, nav, ul, ol";
 	deleteEmptyElements(SELECTOR);
@@ -7096,6 +7098,8 @@ function expandSelectionToSentenceBoundaries(node, selection)
 		index1--;
 	while(text[index2] && !text[index2].match(regexRight) && index2 < text.length)
 		index2++;
+	if(index2 < text.length-1 && text[index2 + 1].match(/['"]/))
+		index2++;
 	index1++;
 	if(index1 < 10)
 		index1 = 0;
@@ -7183,7 +7187,8 @@ function highlightTextAcrossTags(node, searchString)
 	{
 		const childNode = childNodes[j];
 		const childNodeStart = childNodeEnd;
-		childNodeEnd += childNode.textContent.length;
+		const childNodeText = childNode.textContent;
+		childNodeEnd += childNodeText.length;
 		let partialSearchString;
 		let isMatch = false;
 		if(["I", "B", "EM", "STRONG", "REFERENCE", "CITE"].includes(childNode.tagName))
@@ -7192,7 +7197,7 @@ function highlightTextAcrossTags(node, searchString)
 		if(index1 >= childNodeStart && index1 < childNodeEnd)
 		{
 			isMatch = true;
-			partialSearchString = childNode.textContent.substring(index1 - childNodeStart, index1 - childNodeStart + searchString.length);
+			partialSearchString = childNodeText.substring(index1 - childNodeStart, index1 - childNodeStart + searchString.length);
 		}
 		//	The childNode is entirely contained within the search string
 		else if(index1 < childNodeStart && index2 > childNodeEnd)
@@ -7203,7 +7208,7 @@ function highlightTextAcrossTags(node, searchString)
 		else if(index2 > childNodeStart && index2 <= childNodeEnd)
 		{
 			isMatch = true;
-			partialSearchString = childNode.textContent.substring(0, index2 - childNodeStart);
+			partialSearchString = childNodeText.substring(0, index2 - childNodeStart);
 		}
 		if(isMatch && partialSearchString.length > 5)
 		{
@@ -7220,6 +7225,7 @@ function highlightTextAcrossTags(node, searchString)
 			}
 		}
 	}
+	console.log("splitMatches", splitMatches);
 	highlightAllMatchesInNode(node, splitMatches);
 }
 
@@ -7448,7 +7454,7 @@ function handleKeyDown(e)
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
 			case KEYCODES.NINE: toggleStyleShowClasses(); break;
 			case KEYCODES.ZERO: cycleThroughDocumentHeadings(); break;
-			case KEYCODES.A: cycleClass(db, ["xDontShowLinks", "xHE", "none"]); dh.className = db.className; break;
+			case KEYCODES.A: cycleClass(db, ["nimbusTheme1", "nimbusTheme2", "none"]); dh.className = db.className; break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteEmptyBlockElements(); break;
 			case KEYCODES.E: cycleHighlightTag(); break;
