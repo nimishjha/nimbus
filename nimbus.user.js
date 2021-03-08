@@ -1514,7 +1514,7 @@ function markByClassOrIdContaining(str)
 
 function rescueOrphanedTextNodes()
 {
-	const BLOCK_ELEMENTS = Nimbus.BLOCK_ELEMENTS;
+	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE"];
 	const REPLACEMENT_TAGNAME = "h2";
 	const textNodes = getTextNodesAsArray();
 	const nodeItems = [];
@@ -1884,7 +1884,7 @@ function refreshScreen()
 {
 	const elem = document.createElement("screenrefresh");
 	document.body.appendChild(elem);
-	setTimeout(function(){ elem.remove(); }, 100);
+	setTimeout(function(){ elem.remove(); }, 500);
 }
 
 function showMessage(messageHtml, msgClass, persist)
@@ -7098,9 +7098,11 @@ function expandSelectionToSentenceBoundaries(node, selection)
 		index1--;
 	while(text[index2] && !text[index2].match(regexRight) && index2 < text.length)
 		index2++;
-	if(index2 < text.length-1 && text[index2 + 1].match(/['"]/))
+	if(index2 < text.length - 1 && text[index2 + 1].match(/['"\)]/))
 		index2++;
 	index1++;
+	if(text[index1].match(/['"\)]/))
+		index1++;
 	if(index1 < 10)
 		index1 = 0;
 	if(index2 < text.length - 1)
@@ -7150,6 +7152,38 @@ function highlightAllMatchesInNode(node, splitMatches)
 		}
 	}
 	node.innerHTML = nodeHTML;
+	consolidateMarksInNode(node);
+	node.innerHTML = node.innerHTML.replace(/<\/{0,}segment[^>]*>/g, "");
+}
+
+function consolidateMarksInNode(node)
+{
+	const MARK_TAG = Nimbus.highlightTagName;
+	const marks = node.querySelectorAll(MARK_TAG);
+	let i = marks.length;
+	while(i--)
+	{
+		let count = 0;
+		const mark = marks[i];
+		while(mark.previousElementSibling && mark.previousElementSibling === mark.previousSibling && count < 10)
+		{
+			const prevElem = mark.previousElementSibling;
+			count++;
+			if(prevElem.tagName.toLowerCase() === MARK_TAG)
+			{
+				mark.insertBefore(convertElement(mark.previousElementSibling, "segment"), mark.firstChild);
+				mark.previousElementSibling.remove();
+			}
+			else
+			{
+				const prevPrevElem = prevElem.previousElementSibling;
+				if(prevPrevElem && prevPrevElem === prevElem.previousSibling && prevPrevElem.tagName.toLowerCase() === MARK_TAG)
+				{
+					mark.insertBefore(prevElem, mark.firstChild);
+				}
+			}
+		}
+	}
 }
 
 //	This function solves the problem of highlighting text in an HTML element when that text
@@ -7225,7 +7259,6 @@ function highlightTextAcrossTags(node, searchString)
 			}
 		}
 	}
-	console.log("splitMatches", splitMatches);
 	highlightAllMatchesInNode(node, splitMatches);
 }
 
