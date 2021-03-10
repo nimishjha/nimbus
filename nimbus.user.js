@@ -134,6 +134,7 @@ const Nimbus = {
 		cleanupHeadings: cleanupHeadings,
 		cleanupLinks: cleanupLinks,
 		convertDivsToParagraphs: convertDivsToParagraphs,
+		count: count,
 		createListsFromBulletedParagraphs: createListsFromBulletedParagraphs,
 		groupMarkedElements: groupMarkedElements,
 		copyAttribute: copyAttribute,
@@ -358,6 +359,11 @@ function get(selector)
 function getOne(selector)
 {
 	return document.querySelector(selector);
+}
+
+function count(selector)
+{
+	showMessageBig(get(selector).length + " elements matching " + selector);
 }
 
 //	This function is an ideal candidate for overloading, because deletion is a universal operation.
@@ -4618,8 +4624,7 @@ function changePageByUrl(direction)
 			newQueryString += `${queryParams[i].key}=${queryParams[i].value}&`;
 		let baseUrl = trimAt(url, "?");
 		const newUrl = `${baseUrl}?${newQueryString}`;
-		consoleLog(newUrl);
-		location.href = newUrl;
+		location.href = newUrl.substring(0, newUrl.length - 1);
 		return true;
 	}
 	return false;
@@ -6400,15 +6405,15 @@ function toggleShowDocumentStructure()
 		return;
 	}
 	const style = `
-		header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 1px 1px #09F, inset -1px -1px #09F; }
-		form, input, button, label { box-shadow: inset 1px 1px #F90, inset -1px -1px #F90; background: rgba(255, 150, 0, 0.2); }
-		table, tr, td { box-shadow: inset 1px 1px #00F, inset -1px -1px #00F; }
-		ul, ol { box-shadow: inset 1px 1px #0F0, inset -1px -1px #0F0; }
-		li { box-shadow: inset 1px 1px #080, inset -1px -1px #080; }
-		font, small, span, abbr, cite { box-shadow: inset 1px 1px #C50, inset -1px -1px #C50; }
-		h1, h2, h3, h4, h5, h6 { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }
-		p { box-shadow: inset 1px 1px #F0F, inset -1px -1px #F0F; }
-		mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 1px 1px #FF0, inset -1px -1px #FF0; }
+		header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #09F, inset -2px -2px #09F; }
+		form, input, button, label { box-shadow: inset 2px 2px #F90, inset -2px -2px #F90; background: rgba(255, 150, 0, 0.2); }
+		table, tr, td { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }
+		ul, ol { box-shadow: inset 2px 2px #0F0, inset -2px -2px #0F0; }
+		li { box-shadow: inset 2px 2px #080, inset -2px -2px #080; }
+		font, small, span, abbr, cite { box-shadow: inset 2px 2px #C50, inset -2px -2px #C50; }
+		h1, h2, h3, h4, h5, h6 { box-shadow: inset 2px 2px #F0F, inset -2px -2px #F0F; }
+		p { box-shadow: inset 2px 2px #F0F, inset -2px -2px #F0F; }
+		mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 2px 2px #FF0, inset -2px -2px #FF0; }
 		a, a * { background: rgba(180, 255, 0, 0.25); }
 		img { background: #800; padding: 2px; box-sizing: border-box; }
 	`;
@@ -6965,7 +6970,7 @@ function getTextLength(elem)
 {
 	if(!elem.textContent)
 		return 0;
-	return elem.textContent.replace(/[^A-zÀ-ÿ0-9\^\*]/g, "").length;
+	return elem.textContent.replace(/[^\u0021-\u007e]/g, "").length;
 }
 
 function toggleHighlightSelectionMode()
