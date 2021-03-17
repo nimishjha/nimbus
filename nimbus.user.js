@@ -188,6 +188,7 @@ const Nimbus = {
 		markByChildrenHavingTheExactText: markByChildrenHavingTheExactText,
 		markByClassOrIdContaining: markByClassOrIdContaining,
 		markElementsWithChildSpanning: markElementsWithChildSpanning,
+		markBySelectorAndRegex: markBySelectorAndRegex,
 		retrieveBySelectorAndText: retrieveBySelectorAndText,
 		retrieveLargeImages: retrieveLargeImages,
 		getPagerLinks: getPagerLinks,
@@ -2394,6 +2395,24 @@ function markBySelector(selector)
 function markBySelectorAndText(selector, str)
 {
 	markElements(selectBySelectorAndText(selector, str));
+}
+
+function markBySelectorAndRegex(selector, regex, boolInvertSelection = false)
+{
+	const selected = [];
+	const selectedInverse = [];
+	const elements = get(selector);
+	for(let i = 0, ii = elements.length; i < ii; i++)
+	{
+		const element = elements[i];
+		if(element.textContent && element.textContent.trim().match(regex) !== null && !element.querySelector(selector))
+			selected.push(element);
+		else
+			selectedInverse.push(element);
+	}
+	if(boolInvertSelection === true)
+		markElements(selectedInverse);
+	markElements(selected);
 }
 
 function markByTagNameAndText(tagName, str)
