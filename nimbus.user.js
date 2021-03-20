@@ -205,6 +205,7 @@ const Nimbus = {
 		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
 		htmlToText: htmlToText,
 		ih: forceImageHeight,
+		inlineFootnotes: inlineFootnotes,
 		insertElementBeforeSelectionAnchor: insertElementBeforeSelectionAnchor,
 		insertHrBeforeAll: insertHrBeforeAll,
 		insertStyle: insertStyle,
@@ -2397,11 +2398,12 @@ function markBySelectorAndText(selector, str)
 	markElements(selectBySelectorAndText(selector, str));
 }
 
-function markBySelectorAndRegex(selector, regex, boolInvertSelection = false)
+function markBySelectorAndRegex(selector, regexString, boolInvertSelection = false)
 {
 	const selected = [];
 	const selectedInverse = [];
 	const elements = get(selector);
+	const regex = new RegExp(regexString);
 	for(let i = 0, ii = elements.length; i < ii; i++)
 	{
 		const element = elements[i];
@@ -2548,6 +2550,35 @@ function fixInternalReferences()
 		refLink.textContent = refLink.textContent.replace(/[\[\]\{\}]/g, "");
 	}
 	replaceElements(select("sup", "hasChildrenOfType", "reference"), "span");
+}
+
+//	Takes footnotes from the end of the document and puts them inline after the paragraph that references them.
+//	Requirement: the footnotes have to be in <footnote> elements, and references in <reference> elements.
+function inlineFootnotes()
+{
+	const FOOTNOTE_TAGNAME = "footnote";
+	const REFERENCE_TAGNAME = "reference";
+	const paras = get("p");
+	for(let i = 0, ii = paras.length; i < ii; i++)
+	{
+		const para = paras[i];
+		const paraRefs = para.querySelectorAll(REFERENCE_TAGNAME);
+		if(!paraRefs.length)
+			continue;
+		let j = paraRefs.length;
+		while(j--)
+		{
+			const ref = paraRefs[j];
+			if(isNaN(Number(ref.textContent)))
+				continue;
+			const refLink = ref.querySelector("a");
+			let footnote;
+			if(refLink)
+				footnote = getFirstParentOfType(getOne(refLink.getAttribute("href")), FOOTNOTE_TAGNAME);
+			if(footnote)
+				para.insertAdjacentElement("afterend", footnote);
+		}
+	}
 }
 
 function markUppercaseElements(selector)
@@ -7524,7 +7555,7 @@ function handleKeyDown(e)
 			case KEYCODES.N: numberDivs(); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatches, true); break;
 			case KEYCODES.P: fixParagraphs(); break;
-			case KEYCODES.Q: fixHeadings(); break;
+			case KEYCODES.Q: resetHighlightTag(); break;
 			case KEYCODES.R: toggleHighlight(); break;
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
