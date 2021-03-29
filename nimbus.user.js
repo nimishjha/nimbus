@@ -1861,13 +1861,13 @@ function makeClassSelector(className)
 
 function simplifyClassNames()
 {
-	const elems = get("div");
+	const elems = get("div, p, span");
 	const classMap = {};
 	const baseClassName = "class";
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
-		const oldClass = elem.className.replace(/[^a-zA-Z]+/g, "");
+		const oldClass = elem.tagName.toLowerCase() + "_" + elem.className.replace(/[^a-zA-Z]+/g, "");
 		if(!oldClass.length)
 			continue;
 		elem.className = oldClass;
@@ -5076,6 +5076,7 @@ function toggleStyleSimpleNegative()
 		a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #048; }
 		button[class], input[class], textarea[class] { border: 2px solid #09F; }
 		button[class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 2px solid #FFF; }
+		img { opacity: 0.25; }
 		`;
 	toggleStyle(s, "styleSimpleNegative", true);
 }
@@ -6803,9 +6804,16 @@ function modifyMark(direction, keepSelection)
 	let currentElement;
 	const markedElements = getMarkedElements();
 	if(markedElements && markedElements.length)
-		currentElement = markedElements[markedElements.length - 1];
+	{
+		if(direction === "previous")
+			currentElement = markedElements[0];
+		else
+			currentElement = markedElements[markedElements.length - 1];
+	}
 	else
+	{
 		currentElement = document.body.firstElementChild;
+	}
 	if(!currentElement)
 	{
 		showMessageError("Couldn't get marked element");
@@ -6828,7 +6836,7 @@ function modifyMark(direction, keepSelection)
 	}
 	if(nextElement.tagName === 'BODY')
 		nextElement = nextElement.firstElementChild;
-	if(!keepSelection)
+	if(!keepSelection || direction === "expand" || direction === "contract")
 		currentElement.classList.remove(Nimbus.markerClass);
 	nextElement.classList.add(Nimbus.markerClass);
 	showMessage(createSelector(nextElement), "messagebig", true);
@@ -7023,6 +7031,11 @@ function getTextLength(elem)
 	return elem.textContent.replace(/[^\u0021-\u007e]/g, "").length;
 }
 
+function containsOnlyPlainText(element)
+{
+	return element.children.length === 0;
+}
+
 function toggleHighlightSelectionMode()
 {
 	Nimbus.selectionHighlightMode = Nimbus.selectionHighlightMode === "sentence" ? "word" : "sentence";
@@ -7081,6 +7094,7 @@ function highlightFirstBlockParentByText(str)
 	const textNodes = getTextNodesAsArray();
 	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
 	let regex = new RegExp(escapedString, "gi");
+	let count = 0;
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
 		const textNode = textNodes[i];
@@ -7088,9 +7102,13 @@ function highlightFirstBlockParentByText(str)
 		{
 			const blockParent = getFirstBlockParent(textNode);
 			if(blockParent)
+			{
 				wrapElement(blockParent, highlightTagName);
+				count++;
+			}
 		}
 	}
+	showMessageBig(count + " occurrences highlighted");
 }
 
 function highlightBySelectorAndText(selector, str)
@@ -7326,7 +7344,7 @@ function findStringsInProximity(stringOne, stringTwo)
 	const stringOneLower = stringOne.toLowerCase();
 	const stringTwoLower = stringTwo.toLowerCase();
 	const DISTANCE = 5;
-	const round = (n) => Math.round(n / DISTANCE) * DISTANCE;
+	const createBracketKey = (n) => Math.round(n / DISTANCE) * DISTANCE;
 	const paras = get("p");
 	const lookup1 = {};
 	const lookup2 = {};
@@ -7337,7 +7355,7 @@ function findStringsInProximity(stringOne, stringTwo)
 		const paraText = para.textContent.toLowerCase().replace(/\s+/g, " ");
 		if(~paraText.indexOf(stringOneLower))
 		{
-			const bracket = 'p' + round(i);
+			const bracket = 'p' + createBracketKey(i);
 			if(!lookup1[bracket])
 				lookup1[bracket] = i;
 			Nimbus.highlightTagName = "markgreen";
@@ -7345,13 +7363,15 @@ function findStringsInProximity(stringOne, stringTwo)
 		}
 		if(~paraText.indexOf(stringTwoLower))
 		{
-			const bracket = 'p' + round(i);
+			const bracket = 'p' + createBracketKey(i);
 			if(!lookup2[bracket])
 				lookup2[bracket] = i;
 			Nimbus.highlightTagName = "markblue";
 			highlightTextAcrossTags(para, stringTwo);
 		}
 	}
+
+	Nimbus.highlightTagName = "mark";
 
 	const keys = Object.keys(lookup1);
 	if(!keys.length)
@@ -7363,8 +7383,8 @@ function findStringsInProximity(stringOne, stringTwo)
 	{
 		const key = keys[i];
 		const stringOneParagraphIndex = lookup1[key];
-		const keyPrev = "p" + round(stringOneParagraphIndex - DISTANCE);
-		const keyNext = "p" + round(stringOneParagraphIndex + DISTANCE);
+		const keyPrev = "p" + createBracketKey(stringOneParagraphIndex - DISTANCE);
+		const keyNext = "p" + createBracketKey(stringOneParagraphIndex + DISTANCE);
 		let stringTwoParagraphIndex = lookup2[key] || lookup2[keyPrev] || lookup2[keyNext];
 		if(stringTwoParagraphIndex)
 		{
@@ -7484,10 +7504,8 @@ function removeHighlightsFromMarkedElements()
 function inject()
 {
 	document.body.classList.add("nimbusDark");
-	// document.body.removeAttribute("style");
 	document.addEventListener("keydown", handleKeyDown, false);
 	getBestImageSrc();
-	showPassword();
 	removeAccessKeys();
 	insertStyleHighlight();
 	insertStyleAnnotations();
