@@ -2574,7 +2574,16 @@ function inlineFootnotes()
 			const refLink = ref.querySelector("a");
 			let footnote;
 			if(refLink)
-				footnote = getFirstParentOfType(getOne(refLink.getAttribute("href")), FOOTNOTE_TAGNAME);
+			{
+				const refTarget = getOne(refLink.getAttribute("href"));
+				if(refTarget)
+				{
+					if(refTarget.tagName === "A")
+						footnote = getFirstParentOfType(refTarget, FOOTNOTE_TAGNAME);
+					else if(refTarget.tagName === FOOTNOTE_TAGNAME)
+						footnote = refTarget;
+				}
+			}
 			if(footnote)
 				para.insertAdjacentElement("afterend", footnote);
 		}
