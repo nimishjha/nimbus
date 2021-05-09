@@ -2553,16 +2553,17 @@ function fixInternalReferences()
 }
 
 //	Takes footnotes from the end of the document and puts them inline after the paragraph that references them.
-//	Requirement: the footnotes have to be in <footnote> elements, and references in <reference> elements.
+//	Requirement: the footnotes have to be in <footnote> elements, references in <reference> elements, and
+//	the references have to be numeric.
 function inlineFootnotes()
 {
-	const FOOTNOTE_TAGNAME = "footnote";
-	const REFERENCE_TAGNAME = "reference";
-	const paras = get("p");
+	const FOOTNOTE_TAGNAME = "FOOTNOTE";
+	const REFERENCE_TAGNAME = "REFERENCE";
+	const paras = get("p, quote, quoteauthor");
 	for(let i = 0, ii = paras.length; i < ii; i++)
 	{
 		const para = paras[i];
-		const paraRefs = para.querySelectorAll(REFERENCE_TAGNAME);
+		const paraRefs = para.querySelectorAll(REFERENCE_TAGNAME + " a");
 		if(!paraRefs.length)
 			continue;
 		let j = paraRefs.length;
@@ -2571,18 +2572,14 @@ function inlineFootnotes()
 			const ref = paraRefs[j];
 			if(isNaN(Number(ref.textContent)))
 				continue;
-			const refLink = ref.querySelector("a");
 			let footnote;
-			if(refLink)
+			const refTarget = getOne(ref.getAttribute("href"));
+			if(refTarget)
 			{
-				const refTarget = getOne(refLink.getAttribute("href"));
-				if(refTarget)
-				{
-					if(refTarget.tagName === "A")
-						footnote = getFirstParentOfType(refTarget, FOOTNOTE_TAGNAME);
-					else if(refTarget.tagName === FOOTNOTE_TAGNAME)
-						footnote = refTarget;
-				}
+				if(refTarget.tagName === "A")
+					footnote = getFirstParentOfType(refTarget, FOOTNOTE_TAGNAME);
+				else if(refTarget.tagName === FOOTNOTE_TAGNAME)
+					footnote = refTarget;
 			}
 			if(footnote)
 				para.insertAdjacentElement("afterend", footnote);
