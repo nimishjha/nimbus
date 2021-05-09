@@ -4938,6 +4938,20 @@ function joinMarkedElements()
 	deleteMessage();
 }
 
+//	Takes two marked elements, and appends the second one to the first
+function makeChildOf()
+{
+	const marked = getMarkedElements();
+	if(marked.length < 2)
+	{
+		showMessageBig("Expected at least 2 marked elements, found " + marked.length);
+		return;
+	}
+	for(let i = 1, ii = marked.length; i < ii; i++)
+		marked[0].appendChild(marked[i]);
+	unmarkAll();
+}
+
 //	I find it hard to believe the number of website creators who think a logout button should be hidden behind two or more clicks.
 function logout()
 {
@@ -7619,7 +7633,7 @@ function handleKeyDown(e)
 			case KEYCODES.E: resetHighlightTag(); break;
 			case KEYCODES.G: callFunctionWithArgs("Retrieve elements by selector (optionally containing text)", retrieveBySelectorAndText); break;
 			case KEYCODES.J: joinMarkedElements(); break;
-			case KEYCODES.K: showPrintLink(); break;
+			case KEYCODES.K: makeChildOf(); break;
 			case KEYCODES.L: logout(); break;
 			case KEYCODES.N: callFunctionWithArgs("Delete numbered divs in range", delRange); break;
 			case KEYCODES.P: getPagerLinks(); break;
