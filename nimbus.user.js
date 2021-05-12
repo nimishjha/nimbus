@@ -231,6 +231,7 @@ const Nimbus = {
 		markByCssRule: markByCssRule,
 		markElementsWithSetWidths: markElementsWithSetWidths,
 		markNavigationalLists: markNavigationalLists,
+		markNodesBetweenMarkers: markNodesBetweenMarkers,
 		markNumericElements: markNumericElements,
 		markOverlays: markOverlays,
 		highlightQuotes: highlightQuotes,
@@ -1812,11 +1813,11 @@ function getAllClassesFor(selector)
 	return result;
 }
 
-function isIncorrectType(x, type)
+function isIncorrectType(x, expectedType)
 {
-	if(typeof x === type)
+	if(typeof x === expectedType)
 		return false;
-	console.warn("Expected " + x + " to be " + type + "; got " + typeof x);
+	console.warn("Expected " + x + " to be " + expectedType + "; got " + typeof x);
 	return true;
 }
 
@@ -2547,7 +2548,9 @@ function fixInternalReferences()
 	for(let i = 0, ii = refLinks.length; i < ii; i++)
 	{
 		const refLink = refLinks[i];
-		refLink.textContent = refLink.textContent.replace(/[\[\]\{\}]/g, "");
+		refLink.textContent = refLink.textContent.replace(/[\*\[\]\{\}]/g, "");
+		if(!refLink.textContent.length)
+			refLink.textContent = "0" + i;
 	}
 	replaceElements(select("sup", "hasChildrenOfType", "reference"), "span");
 }
@@ -2559,7 +2562,7 @@ function inlineFootnotes()
 {
 	const FOOTNOTE_TAGNAME = "FOOTNOTE";
 	const REFERENCE_TAGNAME = "REFERENCE";
-	const paras = get("p, quote, quoteauthor");
+	const paras = get("p, blockquote, quote, quoteauthor");
 	for(let i = 0, ii = paras.length; i < ii; i++)
 	{
 		const para = paras[i];
@@ -4935,7 +4938,7 @@ function joinMarkedElements()
 	deleteMessage();
 }
 
-//	Takes two marked elements, and appends the second one to the first
+//	Takes two or more marked elements, and appends all but the first to the first
 function makeChildOf()
 {
 	const marked = getMarkedElements();
@@ -5505,7 +5508,7 @@ function deleteNodesRelativeToSelected(predicate = "after")
 	}
 }
 
-function deleteNodesBetweenMarkers(selector = "div, ol, ul, p")
+function selectNodesBetweenMarkers(selector)
 {
 	const marked = getMarkedElements();
 	if(marked.length !== 2)
@@ -5515,6 +5518,7 @@ function deleteNodesBetweenMarkers(selector = "div, ol, ul, p")
 	}
 	unmarkAll();
 	const nodes = get(selector);
+	const selected = [];
 	let i = nodes.length;
 	while(i--)
 	{
@@ -5528,9 +5532,20 @@ function deleteNodesBetweenMarkers(selector = "div, ol, ul, p")
 			!(positionRelativeToSecond & Node.DOCUMENT_POSITION_CONTAINS)
 		)
 		{
-			node.remove();
+			selected.push(node);
 		}
 	}
+	return selected;
+}
+
+function markNodesBetweenMarkers(selector = "div, ol, ul, p")
+{
+	markElements(selectNodesBetweenMarkers(selector));
+}
+
+function deleteNodesBetweenMarkers(selector = "div, ol, ul, p")
+{
+	deleteElements(selectNodesBetweenMarkers(selector));
 }
 
 //	Removes all attributes from all elements, excluding the essential ones. It's surprising how
