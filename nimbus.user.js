@@ -896,7 +896,7 @@ function splitByBrs(sel, strParentTagName)
 		elemHtml = elemHtml.replace(/<br [^>]+/g, "<br");
 		const splat = elemHtml.split("<br>");
 		const replacement = document.createElement(parentTagName);
-		replacement.className = Nimbus.markerClass;
+		replacement.classList.add(Nimbus.markerClass);
 		for(let j = 0, jj = splat.length; j < jj; j++)
 		{
 			replacement.appendChild(createElement(tagName, { textContent: splat[j].replace(/<[^<>]+>/g, "") }));
@@ -2592,17 +2592,18 @@ function inlineFootnotes()
 
 function markUppercaseElements(selector)
 {
-	const e = get(selector);
-	let i = e.length;
+	const elems = get(selector);
+	let i = elems.length;
 	while(i--)
 	{
-		let s = e[i].textContent;
+		const elem = elems[i];
+		let s = elem.textContent;
 		let cUpper = 0;
 		let cLower = 0;
 		cUpper = s.match(/[A-Z]/g);
 		cLower = s.match(/[a-z]/g);
 		if(cUpper && (!cLower || cUpper.length > cLower.length))
-			e[i].className = Nimbus.markerClass;
+			elem.classList.add(Nimbus.markerClass);
 	}
 	insertStyleHighlight();
 }
@@ -2616,7 +2617,7 @@ function markNumericElements(selector)
 		const elem = elements[i];
 		let elemText = elem.textContent;
 		if(elemText && !isNaN(Number(elemText)))
-			elem.className = Nimbus.markerClass;
+			elem.classList.add(Nimbus.markerClass);
 	}
 	insertStyleHighlight();
 }
