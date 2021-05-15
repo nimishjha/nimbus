@@ -1610,9 +1610,9 @@ function createListsFromBulletedParagraphs()
 	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "li");
 }
 
-function hasChildrenOfType(elem, tagName)
+function hasChildrenOfType(elem, selector)
 {
-	return elem.getElementsByTagName(tagName).length ? true : false;
+	return elem.querySelector(selector).length ? true : false;
 }
 
 function removeClassFromAll(className)
@@ -2877,7 +2877,7 @@ function filterNodesWithChildrenOfType(nodes, selector)
 	while(i--)
 	{
 		const node = nodes[i];
-		if(node.querySelectorAll(selector).length)
+		if(node.querySelector(selector))
 			result.push(node);
 	}
 	return result;
@@ -2890,59 +2890,62 @@ function filterNodesWithoutChildrenOfType(nodes, selector)
 	while(i--)
 	{
 		const node = nodes[i];
-		if(!node.querySelectorAll(selector).length)
+		if(!node.querySelector(selector))
 			result.push(node);
 	}
 	return result;
 }
 
-function filterNodesWithParentOfType(nodes, tagName)
+function filterNodesWithoutParentOfType(nodes, tagNameOrClass)
 {
+	const MAX_DEPTH = 20;
 	const result = [];
-	const tagNameUpper = tagName.toUpperCase();
 	let i = nodes.length;
-	while(i--)
+	if(tagNameOrClass.indexOf(".") === -1)
 	{
-		const node = nodes[i];
-		let count = 0;
-		let currentNode = node;
-		while(currentNode.parentNode && count < 20)
+		const tagNameUpper = tagName.toUpperCase();
+		while(i--)
 		{
-			count++;
-			currentNode = currentNode.parentNode;
-			if(currentNode.tagName && currentNode.tagName.toUpperCase() === tagNameUpper)
+			const node = nodes[i];
+			let hasParentOfType = false;
+			let depth = 0;
+			let currentNode = node;
+			while(currentNode.parentNode && depth < MAX_DEPTH)
 			{
+				depth++;
+				currentNode = currentNode.parentNode;
+				if(currentNode.tagName && currentNode.tagName === tagNameUpper)
+				{
+					hasParentOfType = true;
+					break;
+				}
+			}
+			if(!hasParentOfType)
 				result.push(node);
-				break;
-			}
 		}
 	}
-	return result;
-}
-
-function filterNodesWithoutParentOfType(nodes, tagName)
-{
-	const result = [];
-	const tagNameUpper = tagName.toUpperCase();
-	let i = nodes.length;
-	while(i--)
+	else
 	{
-		const node = nodes[i];
-		let hasParentOfType = false;
-		let depth = 0;
-		let currentNode = node;
-		while(currentNode.parentNode && depth < 20)
+		const classSelector = tagNameOrClass;
+		while(i--)
 		{
-			depth++;
-			currentNode = currentNode.parentNode;
-			if(currentNode.tagName && currentNode.tagName.toUpperCase() === tagNameUpper)
+			const node = nodes[i];
+			let hasParentOfType = false;
+			let depth = 0;
+			let currentNode = node;
+			while(currentNode.parentNode && depth < MAX_DEPTH)
 			{
-				hasParentOfType = true;
-				break;
+				depth++;
+				currentNode = currentNode.parentNode;
+				if(currentNode.classList.includes(classSelector))
+				{
+					hasParentOfType = true;
+					break;
+				}
 			}
+			if(!hasParentOfType)
+				result.push(node);
 		}
-		if(!hasParentOfType)
-			result.push(node);
 	}
 	return result;
 }
@@ -2973,31 +2976,31 @@ function filterNodesWithTextLengthOver(nodes, maxLength)
 	return result;
 }
 
-function filterNodesFollowingNodesOfType(nodes, tagName)
+function filterNodesFollowingNodesOfType(nodes, selector)
 {
 	const result = [];
-	const tagNameUpper = tagName.toUpperCase();
+	const selected = get(selector);
 	let i = nodes.length;
 	while(i--)
 	{
 		const node = nodes[i];
 		const prevElement = node.previousElementSibling;
-		if(prevElement && prevElement.tagName === tagNameUpper)
+		if(prevElement && selected.includes(prevElement))
 			result.push(node);
 	}
 	return result;
 }
 
-function filterNodesPrecedingNodesOfType(nodes, tagName)
+function filterNodesPrecedingNodesOfType(nodes, selector)
 {
 	const result = [];
-	const tagNameUpper = tagName.toUpperCase();
+	const selected = get(selector);
 	let i = nodes.length;
 	while(i--)
 	{
 		const node = nodes[i];
 		const nextElement = node.nextElementSibling;
-		if(nextElement && nextElement.tagName === tagNameUpper)
+		if(nextElement && selected.includes(nextElement))
 			result.push(node);
 	}
 	return result;
