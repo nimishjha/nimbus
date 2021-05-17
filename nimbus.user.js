@@ -664,18 +664,10 @@ function getMarkedElements()
 
 function forAllMarked(func)
 {
-	// const func = Nimbus.availableFunctions[callbackName];
-	// if(!func)
-	// {
-	// 	showMessageError("callback is " + func);
-	// 	return;
-	// }
 	const elements = getMarkedElements();
 	for(let i = 0, ii = elements.length; i < ii; i++)
-	{
 		if(elements[i])
 			func.call(null, elements[i]);
-	}
 }
 
 function setAttributeOrProperty(element, key, value)
@@ -899,8 +891,11 @@ function splitByBrs(sel, strParentTagName)
 		replacement.classList.add(Nimbus.markerClass);
 		for(let j = 0, jj = splat.length; j < jj; j++)
 		{
-			replacement.appendChild(createElement(tagName, { textContent: splat[j].replace(/<[^<>]+>/g, "") }));
+			const child = createElement(tagName, { textContent: splat[j].replace(/<[^<>]+>/g, "") })
+			replacement.appendChild(child);
 		}
+		if(elem.id)
+			replacement.id = elem.id;
 		elem.parentNode.replaceChild(replacement, elem);
 	}
 }
@@ -1657,6 +1652,7 @@ function insertStyle(str, identifier, important)
 		del("#" + identifier);
 	if(important)
 		str = str.replace(/!important/g, " ").replace(/;/g, " !important;");
+	str = "\n" + str;
 	const head = getOne("head");
 	const style = document.createElement("style");
 	const rules = document.createTextNode(str);
@@ -1862,25 +1858,24 @@ function makeClassSelector(className)
 
 function simplifyClassNames()
 {
-	const elems = get("div, p, span");
+	const elems = get("div, p, span, h1, h2, h3, h4, h5, h6, ol, ul, li");
 	const classMap = {};
 	const baseClassName = "class";
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
-		const oldClass = elem.tagName.toLowerCase() + "_" + elem.className.replace(/[^a-zA-Z]+/g, "");
+		const tagName = elem.tagName.toLowerCase();
+		const oldClass = tagName + "_" + elem.className.replace(/[^a-zA-Z0-9]+/g, "");
 		if(!oldClass.length)
 			continue;
 		elem.className = oldClass;
-		classMap[oldClass] = true;
+		classMap[oldClass] = tagName;
 	}
 	let keys = Object.keys(classMap);
 	for(let i = 0, ii = keys.length; i < ii; i++)
 	{
 		const key = keys[i];
-		const oldClass = key;
-		const newClass = baseClassName + i;
-		replaceClass(oldClass, newClass);
+		replaceClass(key, classMap[key] + i);
 	}
 }
 
@@ -2015,8 +2010,6 @@ function handleConsoleInput(evt, consoleType)
 	if(!userInputElement)
 		return;
 	const inputText = userInputElement.value;
-	// if(!inputText || !inputText.length)
-	// 	return;
 	if(consoleType === "js")
 		Nimbus.jsConsoleText = inputText;
 	else if(consoleType === "css")
@@ -3705,9 +3698,9 @@ function fixParagraphs()
 
 function createTagsByClassName()
 {
-	replaceElementsBySelector(".calibre", "section");
+	replaceElementsBySelector("div.calibre", "section");
 	replaceElementsBySelector(".indent, .tx, .fmtx, .fmtx1", "p");
-	replaceElementsBySelector(".cn, .ct, .cst", "h2");
+	replaceElementsBySelector(".cn, .ct, .chap-number, .chap-title, .chapter-number, .chapter-title, .chapternumer, .chaptertitle", "h1");
 	replaceElementsBySelector(".atx", "blockquote");
 	const e = document.querySelectorAll("div, p");
 	let i = e.length;
@@ -4537,6 +4530,11 @@ function humanizeUrl(url)
 
 function revealEmptyLinksAndSpans()
 {
+	if(get("#styleRevealEmptyLinksAndSpans"))
+	{
+		del("#styleRevealEmptyLinksAndSpans");
+		return;
+	}
 	const links = get("a");
 	let countLinks = 0;
 	let countSpans = 0;
@@ -4742,8 +4740,6 @@ function setReplacementTag(tagName)
 	Nimbus.replacementTagName = tagName;
 }
 
-//	This function is for the use case where a document contains adjacent elements that should
-//	be grouped inside a parent element, like a list or a blockquote.
 function groupMarkedElements(tagName)
 {
 	const parentTagName = tagName || "ul";
@@ -5103,7 +5099,7 @@ function toggleStyleSimpleNegative()
 		a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #048; }
 		button[class], input[class], textarea[class] { border: 2px solid #09F; }
 		button[class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 2px solid #FFF; }
-		img { opacity: 0.25; }
+		img { opacity: 0.5; }
 		`;
 	toggleStyle(s, "styleSimpleNegative", true);
 }
@@ -5323,8 +5319,8 @@ function toggleStyleShowClasses2()
 function toggleShowDocumentStructureWithNames()
 {
 	const style = `
-		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 10px; padding: 10px; }
-		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #F90; background: #000; padding: 2px 5px; font-size: 22px; }
+		header, footer, article, aside, section, div, blockquote, h1, h2, h3, h4 { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 10px; padding: 10px; }
+		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before, h1::before, h2::before, h3::before, h4::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #F90; background: #000; padding: 2px 5px; font-size: 22px; }
 		p::before { content: attr(tag)"#"attr(id)" ."attr(class); color: #F0F; background: #000; padding: 2px 5px; }
 		span { box-shadow: inset 0 -100px rgba(0,128,0,0.5); }
 		span::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #0F0; background: #000; padding: 2px 5px; }
@@ -5499,7 +5495,7 @@ function deleteNodesRelativeToSelected(predicate = "after")
 	const anchorNode = getNodeContainingSelection();
 	if(!anchorNode)
 		return;
-	const nodes = get("ol, ul, p, div");
+	const nodes = get("ol, ul, p, div, aside, section, h1, h2, h3");
 	let i = nodes.length;
 	while(i--)
 	{
