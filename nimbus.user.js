@@ -253,6 +253,7 @@ const Nimbus = {
 		removeInlineStyles: removeInlineStyles,
 		removeQueryStringFromImageSources: removeQueryStringFromImageSources,
 		removeQueryStringFromLinks: removeQueryStringFromLinks,
+		removeRedundantNumberingFromLists: removeRedundantNumberingFromLists,
 		removeSpanTags: removeSpanTags,
 		replaceAudio: replaceAudio,
 		replaceClass: replaceClass,
@@ -5449,6 +5450,14 @@ function getFirstParentOfType(node, tagName)
 	return false;
 }
 
+function getFirstTextChild(elem)
+{
+	let child = elem.firstChild;
+	while(child.nodeType !== 3)
+		child = child.firstChild;
+	return child;
+}
+
 function selectBlockElementsContainingText(text)
 {
 	const textNodes = getTextNodesAsArray();
@@ -6127,6 +6136,17 @@ function deleteNonContentLists()
 		const listText = list.textContent;
 		if(listText && (containsAllOfTheStrings(listText, ["witter", "acebook"]) || containsAllOfTheStrings(listText, ["hare", "weet"])))
 			list.remove();
+	}
+}
+
+function removeRedundantNumberingFromLists()
+{
+	const lis = get("ol li");
+	for(let i = 0, ii = lis.length; i < ii; i++)
+	{
+		const firstTextChild = getFirstTextChild(lis[i]);
+		if(firstTextChild)
+			firstTextChild.textContent = firstTextChild.textContent.trim().replace(/^[0-9]+[\.\)]?/, "") + " ";
 	}
 }
 
