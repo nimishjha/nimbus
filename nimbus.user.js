@@ -274,7 +274,7 @@ const Nimbus = {
 		rescueOrphanedTextNodes: rescueOrphanedTextNodes,
 		restorePres: restorePres,
 		retrieve: retrieve,
-		revealEmptyLinksAndSpans: revealEmptyLinksAndSpans,
+		toggleShowEmptyLinksAndSpans: toggleShowEmptyLinksAndSpans,
 		revealLinkHrefs: revealLinkHrefs,
 		sanitizeTitle: sanitizeTitle,
 		setAttributeOf: setAttributeOf,
@@ -940,8 +940,8 @@ function replaceSpecialCharacters()
 {
 	const replacements = {
 		"\xa0": " ",
-		"\xa9": "(c)",
-		"\xae": "(r)",
+		// "\xa9": "(c)",
+		// "\xae": "(r)",
 		"\xb7": "*",
 		"\u2018": "'",
 		"\u2019": "'",
@@ -1428,6 +1428,7 @@ function replaceElementsBySelector(selector, tagName)
 	if(toReplace.length)
 	{
 		showMessageBig(`Replacing <b>${toReplace.length} ${selector}</b> with <b>${tagName}</b>`);
+		let deletedTextLength = 0;
 		let i = toReplace.length;
 		if(tagName === "hr")
 		{
@@ -4529,11 +4530,12 @@ function humanizeUrl(url)
 	return longestMatch;
 }
 
-function revealEmptyLinksAndSpans()
+function toggleShowEmptyLinksAndSpans()
 {
-	if(get("#styleRevealEmptyLinksAndSpans"))
+	if(get("#styletoggleShowEmptyLinksAndSpans"))
 	{
-		del("#styleRevealEmptyLinksAndSpans");
+		del("#styletoggleShowEmptyLinksAndSpans");
+		unmarkAll();
 		return;
 	}
 	const links = get("a");
@@ -4565,7 +4567,7 @@ function revealEmptyLinksAndSpans()
 		span.nimbushl { padding: 0 10px; }
 		span.nimbushl::before { content: attr(id); color: #0F0; }
 	`;
-	insertStyle(style, 'styleRevealEmptyLinksAndSpans', true);
+	insertStyle(style, 'styletoggleShowEmptyLinksAndSpans', true);
 	showMessageBig(`Revealed ${countLinks} empty links and ${countSpans} empty spans`);
 }
 
@@ -5937,7 +5939,9 @@ function logHrefsOnClick(evt)
 	const href = link.href;
 	if(href)
 	{
-		ylog(href);
+		const link = createElement("a", { textContent: href, href: href });
+		const linkWrapper = createElementWithChildren("h6", link);
+		document.body.appendChild(linkWrapper);
 		showMessageBig(href);
 	}
 	return false;
@@ -6019,6 +6023,7 @@ function consolidateAnchors()
 	}
 	showMessageBig(`${toDelete.length} anchors consolidated`);
 	del(toDelete);
+	deleteEmptyElements("cite");
 }
 
 function replaceElementsWithTextNodes(selector)
@@ -7699,7 +7704,7 @@ function handleKeyDown(e)
 			case KEYCODES.THREE: toggleStyleGrey(); break;
 			case KEYCODES.FOUR: toggleStyleWhite(); break;
 			case KEYCODES.FIVE: toggleStyleShowClasses2(); break;
-			case KEYCODES.A: revealEmptyLinksAndSpans(); break;
+			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
 			case KEYCODES.B: toggleShowDocumentStructureWithNames(); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
 			case KEYCODES.F: del(["object", "embed", "video", "iframe"]); break;
