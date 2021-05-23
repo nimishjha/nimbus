@@ -170,6 +170,7 @@ const Nimbus = {
 		fixBrsInHeadings: fixBrsInHeadings,
 		fixCdnImages: fixCdnImages,
 		replaceEmptyAnchors: replaceEmptyAnchors,
+		replaceElementsOfMarkedTypeWith: replaceElementsOfMarkedTypeWith,
 		replaceQueryParameter: replaceQueryParameter,
 		findStringsInProximity: findStringsInProximity,
 		fixHeadings: fixHeadings,
@@ -1494,6 +1495,24 @@ function replaceElementKeepingId(elem, tagName)
 	// if(elemClass)
 	// 	replacement.className = elemClass;
 	elem.parentNode.replaceChild(replacement, elem);
+}
+
+function replaceElementsOfMarkedTypeWith(tagName)
+{
+	const marked = getMarkedElements();
+	if(marked.length !== 1)
+	{
+		showMessageBig(`Expected 1 marked element; found ${marked.length}`);
+		return;
+	}
+	if(!tagName)
+	{
+		showMessageBig('tagName is required');
+		return;
+	}
+	const elem = marked[0];
+	const className = "." + elem.className.replace(Nimbus.markerClass, "").trim();
+	replaceElementsBySelector(className, tagName);
 }
 
 function replaceElements(toReplace, tagName)
@@ -7619,7 +7638,7 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD0: deleteResources(); break;
 			case KEYCODES.F1: customPrompt("Enter replacement tag name").then(setReplacementTag); break;
 			case KEYCODES.F2: replaceSelectedElement("h2"); break;
-			case KEYCODES.F3: replaceSelectedElement("h3"); break;
+			case KEYCODES.F3: customPrompt("Enter tag name to replace elements of the marked type with").then(replaceElementsOfMarkedTypeWith); break;
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.ONE: cleanupGeneral(); break;
 			case KEYCODES.TWO: deleteImages(); break;
