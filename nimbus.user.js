@@ -1435,7 +1435,18 @@ function replaceElementsBySelector(selector, tagName)
 			while(i--)
 			{
 				const elem = toReplace[i];
+				const textLength = getTextLength(elem);
+				if(textLength !== 0)
+				{
+					deletedTextLength += textLength;
+					xlog(elem.textContent);
+				}
 				elem.parentNode.replaceChild(createElement(tagName), elem);
+			}
+			if(deletedTextLength)
+			{
+				showMessageError(`${deletedTextLength} characters of text were lost`);
+				setTimeout(showLog, 100);
 			}
 		}
 		else
