@@ -2355,12 +2355,12 @@ function autoCompleteInputBox()
 
 	function open()
 	{
-		const style = 'autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2000000000; font-family: "Swis721 Cn BT"; }' +
-			'autocompleteinputwrapper input { width: 100%; height: 3rem; font-size: 32px; background: #000; color: #FFF; border: 0; outline: 0; display: block; font-family: inherit; }' +
-			'autocompleteinputwrapper matches { display: block; background: #222; color: #CCC; }' +
-			'autocompleteinputwrapper match { display: block; padding: 2px 10px; font-size: 24px; }' +
-			'autocompleteinputwrapper match.current { background: #303030; color: #FFF; }' +
-			'autocompleteinputwrapper em { display: inline-block; width: 200px; }';
+		const style = `autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2000000000; font-family: "Swis721 Cn BT"; }
+			autocompleteinputwrapper input { width: 100%; height: 3rem; font-size: 32px; background: #000; color: #FFF; border: 0; outline: 0; display: block; font-family: inherit; }
+			autocompleteinputwrapper matches { display: block; background: #222; color: #CCC; }
+			autocompleteinputwrapper match { display: block; padding: 2px 10px; font-size: 24px; }
+			autocompleteinputwrapper match.current { background: #303030; color: #FFF; }
+			autocompleteinputwrapper em { display: inline-block; width: 200px; }`;
 		insertStyle(style, "styleAutoCompleteInputBox", true);
 		const dialogWrapper = createElement("autocompleteinputwrapper", { id: "autoCompleteInputWrapper" });
 		const inputElement = createElement("input", { id: "autoCompleteInput", autocomplete: "randomstring" });
@@ -2573,11 +2573,14 @@ function fixInternalReferences()
 	for(let i = 0, ii = refLinks.length; i < ii; i++)
 	{
 		const refLink = refLinks[i];
-		refLink.textContent = refLink.textContent.replace(/[\*\[\]\{\}]/g, "");
-		if(!refLink.textContent.length)
-			refLink.textContent = "0" + i;
+		let refText = refLink.textContent.trim();
+		refText = refText.replace(/[\*\[\]\{\}\.]/g, "");
+		if(!refText.length)
+			refText = "0" + i;
+		refLink.textContent = refText;
 	}
 	replaceElements(select("sup", "hasChildrenOfType", "reference"), "span");
+	replaceElementsBySelector("h1 reference, h2 reference, h3 reference", "span");
 }
 
 //	Takes footnotes from the end of the document and puts them inline after the paragraph that references them.
@@ -2586,6 +2589,7 @@ function fixInternalReferences()
 function inlineFootnotes()
 {
 	const FOOTNOTE_TAGNAME = "FOOTNOTE";
+	const FOOTNOTE_TAGNAMES = [FOOTNOTE_TAGNAME, "DIV"];
 	const REFERENCE_TAGNAME = "REFERENCE";
 	const paras = get("p, blockquote, quote, quoteauthor");
 	for(let i = 0, ii = paras.length; i < ii; i++)
@@ -2606,7 +2610,7 @@ function inlineFootnotes()
 			{
 				if(refTarget.tagName === "A")
 					footnote = getFirstParentOfType(refTarget, FOOTNOTE_TAGNAME);
-				else if(refTarget.tagName === FOOTNOTE_TAGNAME)
+				else if(FOOTNOTE_TAGNAMES.includes(refTarget.tagName))
 					footnote = refTarget;
 			}
 			if(footnote)
@@ -4562,9 +4566,9 @@ function humanizeUrl(url)
 
 function toggleShowEmptyLinksAndSpans()
 {
-	if(get("#styletoggleShowEmptyLinksAndSpans"))
+	if(get("#styleToggleShowEmptyLinksAndSpans"))
 	{
-		del("#styletoggleShowEmptyLinksAndSpans");
+		del("#styleToggleShowEmptyLinksAndSpans");
 		unmarkAll();
 		return;
 	}
@@ -4595,9 +4599,9 @@ function toggleShowEmptyLinksAndSpans()
 		a.nimbushl::before { content: attr(id); color: #FF0; }
 		a.nimbushl::after { content: attr(href); color: #55F; }
 		span.nimbushl { padding: 0 10px; }
-		span.nimbushl::before { content: attr(id); color: #0F0; }
+		span.nimbushl::before { content: attr(id)" "; color: #0F0; }
 	`;
-	insertStyle(style, 'styletoggleShowEmptyLinksAndSpans', true);
+	insertStyle(style, 'styleToggleShowEmptyLinksAndSpans', true);
 	showMessageBig(`Revealed ${countLinks} empty links and ${countSpans} empty spans`);
 }
 
@@ -6365,7 +6369,7 @@ function cleanupStackOverflow()
 	{
 		for(let i = 0, ii = mutations.length; i < ii; i++)
 			if(mutations[i].addedNodes.length)
-				del(["link", "script"]);
+				del(["link", "script", "iframe"]);
 	}
 
 	const sites = ["stackexchange", "stackoverflow", "superuser", "serverfault"];
@@ -7089,14 +7093,16 @@ function generateTableOfContents()
 	for (let i = 0, ii = headings.length; i < ii; i++)
 	{
 		const heading = headings[i];
+		if(!isNaN(Number(heading.textContent)))
+			continue;
 		const id = createUUID();
 		heading.id = id;
 		const tocEntryLink = createElement("a", { textContent: heading.textContent, href: "#" + id } );
-		const tocEntryHeading = createElement("h5");
+		const indentLevel = parseInt(heading.tagName.substring(1), 10);
+		const tocEntryHeading = createElement("h" + indentLevel);
 		const tocEntryWrapper = document.createElement("div");
 		tocEntryHeading.appendChild(tocEntryLink);
 		tocEntryWrapper.appendChild(tocEntryHeading);
-		const indentLevel = parseInt(heading.tagName.substring(1), 10);
 		indentByDepth(tocEntryWrapper, indentLevel, "ind");
 		toc.appendChild(tocEntryWrapper);
 	}
