@@ -1074,6 +1074,24 @@ function parseObject(o, indentLevel, parent)
 	return s;
 }
 
+//	Takes an object and a string, iterates recursively over all properties of that object,
+//	and prints out all key-value pairs for which the key name matches the given string.
+function logPropertiesMatching(obj, str, path = "")
+{
+	str = str.toLowerCase();
+	const keys = Object.keys(obj);
+	for(let i = 0, ii = keys.length; i < ii; i++)
+	{
+		const key = keys[i];
+		const value = obj[key];
+		const type = Object.prototype.toString.call(value);
+		if(type === "[object Object]")
+			logPropertiesMatching(value, str, (path.length ? path + "." : "") + key);
+		else if(key.toLowerCase().indexOf(str) !== -1)
+			console.log(path + "." + key + ": [", value, "]");
+	}
+}
+
 function parseQueryString(url)
 {
 	const index = url.indexOf("?");
