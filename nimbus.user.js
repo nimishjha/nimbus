@@ -704,13 +704,6 @@ function removeLineBreaks(str)
 	return str.replace(/[\r\n\s]+/g, " ");
 }
 
-function trim(str)
-{
-	if(!str)
-		return null;
-	return str.replace(/^\s+/, '').replace(/\s+$/, '');
-}
-
 function trimNonAlphanumeric(str)
 {
 	if(!str)
@@ -893,7 +886,7 @@ function splitByBrs(sel, strParentTagName)
 		replacement.classList.add(Nimbus.markerClass);
 		for(let j = 0, jj = splat.length; j < jj; j++)
 		{
-			const child = createElement(tagName, { textContent: splat[j].replace(/<[^<>]+>/g, "") })
+			const child = createElement(tagName, { textContent: splat[j].replace(/<[^<>]+>/g, "") });
 			replacement.appendChild(child);
 		}
 		if(elem.id)
@@ -1742,8 +1735,8 @@ function toNumber(str)
 {
 	if(!(typeof str === "string" && str.length))
 		return false;
-	const noCommas = str.replace(/,/g, "");
-	const n = Number(trim(noCommas));
+	const noCommas = str.replace(/,/g, "").trim();
+	const n = Number(noCommas);
 	return !isNaN(n) ? n : false;
 }
 
@@ -1902,8 +1895,8 @@ function isCurrentDomainLink(url)
 function makeClassSelector(className)
 {
 	if(className.indexOf(".") !== 0)
-		return "." + trim(className);
-	return trim(className);
+		return "." + className.trim();
+	return className.trim();
 }
 
 function simplifyClassNames()
@@ -2132,7 +2125,7 @@ function parseCommand(commandString)
 {
 	const args = [];
 	let arg = '';
-	let cleanCommandString = trim(commandString.replace(/\s+/g, ' '));
+	let cleanCommandString = commandString.replace(/\s+/g, ' ').trim();
 	for(let i = 0, ii = cleanCommandString.length; i < ii; i++)
 	{
 		switch(cleanCommandString[i])
@@ -2738,7 +2731,7 @@ function filterNodesByAttributeEqualTo(nodes, attribute, value)
 		while(i--)
 		{
 			const node = nodes[i];
-			if(trim(node.textContent) === value)
+			if(node.textContent.trim() === value)
 				result.push(node);
 		}
 	}
@@ -2763,7 +2756,7 @@ function filterNodesByAttributeNotEqualTo(nodes, attribute, value)
 		while(i--)
 		{
 			const node = nodes[i];
-			if(trim(node.textContent) !== value)
+			if(node.textContent.trim() !== value)
 				result.push(node);
 		}
 	}
@@ -2950,7 +2943,7 @@ function filterNodesWithoutParentOfType(nodes, tagNameOrClass)
 	let i = nodes.length;
 	if(tagNameOrClass.indexOf(".") === -1)
 	{
-		const tagNameUpper = tagName.toUpperCase();
+		const tagNameUpper = tagNameOrClass.toUpperCase();
 		while(i--)
 		{
 			const node = nodes[i];
@@ -3228,7 +3221,7 @@ function getBestImageSrc()
 			let sourcesArray = [];
 			for(let j = 0, jj = sources.length; j < jj; j++)
 			{
-				const splat = trim(sources[j]).split(' ');
+				const splat = sources[j].trim().split(' ');
 				const src = splat[0];
 				const size = parseInt(splat[1], 10);
 				if(!isNaN(size))
@@ -3898,7 +3891,7 @@ function setDocTitleSimple(newTitle)
 {
 	document.title = newTitle;
 	const firstHeading = getOne("h1");
-	if(!(firstHeading && trim(firstHeading.textContent) === newTitle))
+	if(!(firstHeading && firstHeading.textContent.trim() === newTitle))
 	{
 		const newHeading = createElement("h1", { textContent: newTitle });
 		document.body.insertBefore(newHeading, document.body.firstChild);
@@ -3950,7 +3943,7 @@ function editDocumentTitle()
 
 function chooseDocumentHeading()
 {
-	Nimbus.currentHeadingText = trim( document.title.replace(getBestDomainSegment(location.hostname), "") );
+	Nimbus.currentHeadingText = document.title.replace(getBestDomainSegment(location.hostname), "").trim();
 	return Nimbus.currentHeadingText;
 }
 
@@ -3958,7 +3951,7 @@ function cycleThroughDocumentHeadings()
 {
 	const MAX_HEADINGS = 5;
 	deleteEmptyHeadings();
-	Nimbus.currentHeadingText = trim( document.title.replace(getBestDomainSegment(location.hostname), "") );
+	Nimbus.currentHeadingText = document.title.replace(getBestDomainSegment(location.hostname), "").trim();
 	del(Nimbus.HEADING_CONTAINER_TAGNAME + " h1");
 	const headings = filterHeadings(get("h1, h2"));
 	const candidateHeadingTexts = [];
@@ -4138,7 +4131,7 @@ function getPagerLinks()
 	{
 		const link = links[i];
 		let linkText = link.textContent;
-		if(linkText && trim(linkText).length && !isNaN(Number(linkText)))
+		if(linkText && linkText.trim().length && !isNaN(Number(linkText)))
 		{
 			count++;
 			pagerWrapper.appendChild(createElement("a", { href: link.href, textContent: link.textContent || "[no text]" }));
@@ -4930,7 +4923,7 @@ function joinParagraphsByLastChar()
 	while(i--)
 	{
 		const para = paras[i];
-		const paraText = trim(para.textContent);
+		const paraText = para.textContent.trim();
 		if(!paraText || paraText.length < MINLENGTH)
 			continue;
 		if(paraText[paraText.length - 1].match(/[a-z,\-]/i))
@@ -5669,8 +5662,8 @@ function cleanupHeadings()
 		let headingHTML = heading.innerHTML;
 		headingHTML = headingHTML.replace(/<[^as\/][a-z0-9]*>/g, " ")
 			.replace(/<\/[^as][a-z0-9]*>/g, " ");
-		heading.innerHTML = trim(headingHTML);
-		if(heading.textContent && trim(heading.textContent).length === 0)
+		heading.innerHTML = headingHTML.trim();
+		if(heading.textContent && heading.textContent.trim().length === 0)
 			heading.remove();
 	}
 }
@@ -7169,7 +7162,7 @@ function highlightSelection()
 	if(!selection.toString().length)
 		return;
 	let node = selection.anchorNode;
-	let selectionText = trim(removeLineBreaks(selection.toString()));
+	let selectionText = removeLineBreaks(selection.toString()).trim();
 	while(node.parentNode && (node.textContent.length < selectionText.length || node.nodeType !== 1))
 		node = node.parentNode;
 	node.innerHTML = normalizeHTML(node.innerHTML);
@@ -7267,7 +7260,7 @@ function expandSelectionToWordBoundaries(node, selection)
 		index1--;
 	while(text[index2] && text[index2].match(regexRight) && index2 < text.length)
 		index2++;
-	const expanded = trim(text.substring(index1, index2).replace(/\s+/g, " "));
+	const expanded = text.substring(index1, index2).replace(/\s+/g, " ").trim();
 	consoleLog("expanded: " + expanded);
 	return expanded;
 }
@@ -7296,7 +7289,7 @@ function expandSelectionToSentenceBoundaries(node, selection)
 		index2++;
 	if(index2 > text.length - 10)
 		index2 = text.length;
-	const expanded = trim(text.substring(index1, index2).replace(/\s+/g, " "));
+	const expanded = text.substring(index1, index2).replace(/\s+/g, " ").trim();
 	consoleLog("expanded: " + expanded);
 	return expanded;
 }
