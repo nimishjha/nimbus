@@ -171,6 +171,7 @@ const Nimbus = {
 		fixCdnImages: fixCdnImages,
 		replaceEmptyAnchors: replaceEmptyAnchors,
 		replaceElementsOfMarkedTypeWith: replaceElementsOfMarkedTypeWith,
+		replaceInTextNodes: replaceInTextNodes,
 		replaceQueryParameter: replaceQueryParameter,
 		findStringsInProximity: findStringsInProximity,
 		fixHeadings: fixHeadings,
@@ -1938,6 +1939,7 @@ function showMessage(messageHtml, msgClass, persist)
 {
 	clearTimeout(Nimbus.messageTimeout);
 	let messageContainer;
+	let messageInner;
 	msgClass = msgClass || "";
 	const strStyle = `
 		message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; }
@@ -1948,6 +1950,8 @@ function showMessage(messageHtml, msgClass, persist)
 	if(!get("message"))
 	{
 		messageContainer = createElement("message", { className: msgClass });
+		messageInner = document.createElement("messageinner");
+		messageContainer.appendChild(messageInner);
 		document.body.appendChild(messageContainer);
 		if(!getOne("#styleMessage"))
 			insertStyle(strStyle, "styleMessage", true);
@@ -1956,21 +1960,22 @@ function showMessage(messageHtml, msgClass, persist)
 	{
 		messageContainer = getOne("message");
 		messageContainer.className = msgClass;
+		messageInner = getOne("messageinner");
 	}
-	messageContainer.innerHTML = "<messageinner>" + messageHtml + "</messageinner>";
-	console.log("Nimbus: \t " + messageContainer.textContent);
+	messageInner.innerHTML = messageHtml;
+	console.log("Nimbus: \t " + messageHtml);
 	if(!persist)
 		Nimbus.messageTimeout = setTimeout(deleteMessage, 2000);
 }
 
-function showMessageBig(messageHtml)
+function showMessageBig(messageHtml, persist = false)
 {
-	showMessage(messageHtml, "messagebig");
+	showMessage(messageHtml, "messagebig", persist);
 }
 
-function showMessageError(messageHtml)
+function showMessageError(messageHtml, persist = false)
 {
-	showMessage(messageHtml, "messagebig messageerror");
+	showMessage(messageHtml, "messagebig messageerror", persist);
 }
 
 function deleteMessage()
@@ -2166,8 +2171,9 @@ function runCommand(commandString)
 				args.push(commandSegments[i]);
 			else args.push(n);
 		}
-		showMessageBig(funcName + "(" + arrayToStringTyped(args, ", ") + ")");
+		const argsString = arrayToStringTyped(args, ", ");
 		Nimbus.availableFunctions[funcName].apply(this, args);
+		console.log(funcName + "(" + argsString + ")");
 	}
 	else
 	{
@@ -7509,6 +7515,24 @@ function findStringsInProximity(stringOne, stringTwo)
 	resultsWrapper.appendChild(resultsList);
 	document.body.insertBefore(resultsWrapper, document.body.firstChild);
 	window.scrollTo(0, 0);
+}
+
+function replaceInTextNodes(searchString, replacement)
+{
+	const textNodes = getTextNodesAsArray();
+	let regex = new RegExp(escapeForRegExp(searchString), "g");
+	let replCount = 0;
+	for(let i = 0, ii = textNodes.length; i < ii; i++)
+	{
+		const textNode = textNodes[i];
+		if(textNode.data.match(regex))
+		{
+			replCount++;
+			textNode.data = textNode.data.replace(regex, replacement);
+		}
+	}
+	if(replCount)
+		showMessageBig(`${replCount} occurrences of "${searchString}" replaced with "${replacement}"`);
 }
 
 function highlightAllMatches(str)
