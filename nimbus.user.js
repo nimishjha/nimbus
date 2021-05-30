@@ -273,6 +273,7 @@ const Nimbus = {
 		normalizeAllWhitespace: normalizeAllWhitespace,
 		normaliseWhitespaceForParagraphs: normaliseWhitespaceForParagraphs,
 		replaceSpecialCharacters:replaceSpecialCharacters,
+		rescueOrphanedElements: rescueOrphanedElements,
 		rescueOrphanedTextNodes: rescueOrphanedTextNodes,
 		restorePres: restorePres,
 		retrieve: retrieve,
@@ -1614,6 +1615,41 @@ function rescueOrphanedTextNodes()
 		}
 	}
 	insertStyleHighlight();
+}
+
+function rescueOrphanedElements()
+{
+	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE"];
+	const NON_BLOCK_ELEMENTS = ["A", "B", "STRONG", "I", "EM"];
+	const nodes = get(NON_BLOCK_ELEMENTS);
+	const orphans = [];
+	for(let i = 0, ii = nodes.length; i < ii; i++)
+	{
+		let hasBlockParent = false;
+		let node = nodes[i];
+		const nodeText = node.data;
+		let nodeParent = node;
+		while(nodeParent.parentNode)
+		{
+			nodeParent = nodeParent.parentNode;
+			if(BLOCK_ELEMENTS.includes(nodeParent.tagName))
+			{
+				hasBlockParent = true;
+				break;
+			}
+		}
+		if(!hasBlockParent)
+			orphans.push(node);
+	}
+	for(let i = 0, ii = orphans.length; i < ii; i++)
+	{
+		let parent = orphans[i];
+		while(parent.parentNode && parent.parentNode.parentNode && NON_BLOCK_ELEMENTS.includes(parent.parentNode.tagName))
+		{
+			parent = parent.parentNode;
+		}
+		wrapElement(parent, "h6");
+	}
 }
 
 function createListsFromBulletedParagraphs()
@@ -7745,7 +7781,7 @@ function handleKeyDown(e)
 			case KEYCODES.L: logout(); break;
 			case KEYCODES.N: callFunctionWithArgs("Delete numbered divs in range", delRange); break;
 			case KEYCODES.P: getPagerLinks(); break;
-			case KEYCODES.Q: rescueOrphanedTextNodes(); break;
+			case KEYCODES.Q: rescueOrphanedElements(); break;
 			case KEYCODES.R: wrapMarkedElement(); break;
 			case KEYCODES.W: cleanupAttributes(); break;
 			case KEYCODES.Y: callFunctionWithArgs("Highlight elements by tag name containing text", highlightByTagNameAndText, 2); break;
