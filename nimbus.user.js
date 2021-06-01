@@ -5181,7 +5181,7 @@ function toggleStyleSimpleNegative()
 {
 	const s = `
 		html, body, body[class] {background: #000; }
-		*, *[class] { background-color: rgba(0,0,0,0.4); color: #CCC; border-color: transparent; }
+		*, *[class] { background: rgba(0,0,0,0.4); color: #CCC; border-color: transparent; }
 		h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #FFF; }
 		mark {color: #FF0; }
 		a, a[class] *, * a[class] {color: #09F; }
@@ -5398,8 +5398,8 @@ function toggleStyleShowClasses()
 function toggleStyleShowClasses2()
 {
 	const style = `
-		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before, h1::before, h2::before, h3::before, h4::before, td::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #F90; background: #000; padding: 2px 5px; font-size: 22px; }
-		p::before { content: attr(tag)"#"attr(id)" ."attr(class); color: #F0F; background: #000; padding: 2px 5px; font-size: 22px; }
+		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before, h1::before, h2::before, h3::before, h4::before, td::before { content: "#"attr(id)" ."attr(class) ; color: #C60; background: #000; padding: 2px 5px; font-size: 22px; }
+		p::before { content: "#"attr(id)" ."attr(class); color: #C0C; background: #000; padding: 2px 5px; font-size: 22px; }
 		span { box-shadow: inset 0 -100px rgba(0,128,0,0.5); }
 		span::before { content: attr(class); color: #0F0; background: #000; padding: 2px 5px; }
 	`;
@@ -5410,10 +5410,10 @@ function toggleShowDocumentStructureWithNames()
 {
 	const style = `
 		header, footer, article, aside, section, div, blockquote, h1, h2, h3, h4 { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 10px; padding: 10px; }
-		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before, h1::before, h2::before, h3::before, h4::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #F90; background: #000; padding: 2px 5px; font-size: 22px; }
-		p::before { content: attr(tag)"#"attr(id)" ."attr(class); color: #F0F; background: #000; padding: 2px 5px; }
+		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before, h1::before, h2::before, h3::before, h4::before { content: "#"attr(id)" ."attr(class) ; color: #C60; background: #000; padding: 2px 5px; font-size: 22px; }
+		p::before { content: "#"attr(id)" ."attr(class); color: #C0C; background: #000; padding: 2px 5px; }
 		span { box-shadow: inset 0 -100px rgba(0,128,0,0.5); }
-		span::before { content: attr(tag)"#"attr(id)" ."attr(class) ; color: #0F0; background: #000; padding: 2px 5px; }
+		span::before { content: "#"attr(id)" ."attr(class) ; color: #0B0; background: #000; padding: 2px 5px; }
 		`;
 	toggleStyle(style, "styleShowDocumentStructureWithNames", true);
 }
@@ -6603,15 +6603,15 @@ function toggleShowDocumentStructure()
 		return;
 	}
 	const style = `
-		header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #09F, inset -2px -2px #09F; }
-		form, input, button, label { box-shadow: inset 2px 2px #F90, inset -2px -2px #F90; background: rgba(255, 150, 0, 0.2); }
-		table, tr, td { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }
-		ul, ol { box-shadow: inset 2px 2px #0F0, inset -2px -2px #0F0; }
-		li { box-shadow: inset 2px 2px #080, inset -2px -2px #080; }
-		font, small, span, abbr, cite { box-shadow: inset 2px 2px #C50, inset -2px -2px #C50; }
-		h1, h2, h3, h4, h5, h6 { box-shadow: inset 2px 2px #F0F, inset -2px -2px #F0F; }
-		p { box-shadow: inset 2px 2px #F0F, inset -2px -2px #F0F; }
-		mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 2px 2px #FF0, inset -2px -2px #FF0; }
+		header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
+		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
+		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
+		ul, ol { box-shadow: inset 2px 2px #0A0, inset -2px -2px #0A0; }
+		li { box-shadow: inset 2px 2px #070, inset -2px -2px #070; }
+		font, small, span, abbr, cite { box-shadow: inset 2px 2px #AA0, inset -2px -2px #AA0; }
+		h1, h2, h3, h4, h5, h6 { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; }
+		p { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; }
+		mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 2px 2px #888, inset -2px -2px #888; }
 		a, a * { background: rgba(180, 255, 0, 0.25); }
 		img { background: #800; padding: 2px; box-sizing: border-box; }
 	`;
