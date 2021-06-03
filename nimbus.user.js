@@ -296,7 +296,6 @@ const Nimbus = {
 		toggleHighlightSelectionMode: toggleHighlightSelectionMode,
 		toggleMutationObserver: toggleMutationObserver,
 		toggleScreenRefresh: toggleScreenRefresh,
-		toggleShowDocumentBlockStructure: toggleShowDocumentBlockStructure,
 		toggleShowDocumentStructure: toggleShowDocumentStructure,
 		toggleShowDocumentStructureWithNames: toggleShowDocumentStructureWithNames,
 		toggleStyleGrey: toggleStyleGrey,
@@ -855,12 +854,13 @@ function fixBrsInHeadings()
 
 function fixLineBreaks()
 {
-	var spans = get("span");
+	const spans = get("span");
 	for(let i = 0, ii = spans.length; i < ii; i++)
 	{
 		const span = spans[i];
-		if(span.textContent === "\n")
-			replaceElement(span, "br");
+		if(span.textContent.match(/\n$/))
+			span.appendChild(document.createElement("br"));
+
 	}
 	var e = getOne(".nimbushl");
 	if(e)
@@ -1256,6 +1256,13 @@ function createSelector(elem)
 	return s;
 }
 
+function createClassSelector(elem)
+{
+	if(elem.className)
+		return "." + Array.from(elem.classList).join('.').replace(".nimbushl", "");
+	return false;
+}
+
 function emptyElement(elem)
 {
 	if(elem)
@@ -1524,8 +1531,16 @@ function replaceElementsOfMarkedTypeWith(tagName)
 		return;
 	}
 	const elem = marked[0];
-	const className = "." + elem.className.replace(Nimbus.markerClass, "").trim();
-	replaceElementsBySelector(className, tagName);
+	const classSelector = createClassSelector(elem);
+	if(classSelector.length)
+	{
+		const selector = elem.tagName + classSelector;
+		replaceElementsBySelector(selector, tagName);
+	}
+	else
+	{
+		showMessageBig("Selected node has no classes");
+	}
 }
 
 function replaceElements(toReplace, tagName)
@@ -1620,7 +1635,7 @@ function rescueOrphanedTextNodes()
 function rescueOrphanedElements()
 {
 	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE"];
-	const NON_BLOCK_ELEMENTS = ["A", "B", "STRONG", "I", "EM"];
+	const NON_BLOCK_ELEMENTS = ["A", "B", "STRONG", "I", "EM", "SPAN"];
 	const nodes = get(NON_BLOCK_ELEMENTS);
 	const orphans = [];
 	for(let i = 0, ii = nodes.length; i < ii; i++)
@@ -1696,7 +1711,11 @@ function removeClassFromAll(className)
 	let i = e.length;
 	let count = i ? i : 0;
 	while(i--)
+	{
 		e[i].classList.remove(className);
+		if(e[i].className === "")
+			e[i].removeAttribute("class");
+	}
 	return count;
 }
 
@@ -2584,9 +2603,14 @@ function markNavigationalLists()
 function markSelectionAnchorNode()
 {
 	const node = getNodeContainingSelection();
+	const classSelector = createClassSelector(node);
+	let selector;
+	let numSimilarNodes = 0;
+	if(classSelector)
+		numSimilarNodes = get(node.tagName + classSelector).length;
 	node.classList.add(Nimbus.markerClass);
 	insertStyleHighlight();
-	showMessage(createSelector(node), "messagebig", true);
+	showMessage(createSelector(node) + ": " + numSimilarNodes + " matching nodes", "messagebig", true);
 }
 
 function highlightUserLinks()
@@ -3788,9 +3812,9 @@ function fixParagraphs()
 function createTagsByClassName()
 {
 	replaceElementsBySelector("div.calibre", "section");
+	replaceElementsBySelector(".atx", "blockquote");
 	replaceElementsBySelector(".indent, .tx, .fmtx, .fmtx1", "p");
 	replaceElementsBySelector(".cn, .ct, .chap-number, .chap-title, .chapter-number, .chapter-title, .chapternumer, .chaptertitle", "h1");
-	replaceElementsBySelector(".atx", "blockquote");
 	const e = document.querySelectorAll("div, p");
 	let i = e.length;
 	let numReplaced = 0;
@@ -5181,11 +5205,11 @@ function toggleStyleSimpleNegative()
 {
 	const s = `
 		html, body, body[class] {background: #000; }
-		*, *[class] { background: rgba(0,0,0,0.4); color: #CCC; border-color: transparent; }
-		h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #FFF; }
+		*, *[class] { background: rgba(0,0,0,0.4); color: #888; border-color: transparent; }
+		h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #CCC; }
 		mark {color: #FF0; }
 		a, a[class] *, * a[class] {color: #09F; }
-		a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #FFF; }
+		a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #CCC; }
 		a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #048; }
 		button[class], input[class], textarea[class] { border: 2px solid #09F; }
 		button[class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 2px solid #FFF; }
@@ -5395,21 +5419,44 @@ function toggleStyleShowClasses()
 	toggleStyle(s, "styleShowClasses", true);
 }
 
-function toggleStyleShowClasses2()
+function toggleStyleShowIdsAndClasses()
 {
 	const style = `
-		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before, h1::before, h2::before, h3::before, h4::before, td::before { content: "#"attr(id)" ."attr(class) ; color: #C60; background: #000; padding: 2px 5px; font-size: 22px; }
-		p::before { content: "#"attr(id)" ."attr(class); color: #C0C; background: #000; padding: 2px 5px; font-size: 22px; }
-		span { box-shadow: inset 0 -100px rgba(0,128,0,0.5); }
-		span::before { content: attr(class); color: #0F0; background: #000; padding: 2px 5px; }
+		div[class]::before, blockquote[class]::before, article[class]::before, section[class]::before, aside[class]::before { content: "."attr(class); color: #C60; padding: 2px 5px; background: #000; }
+ 		div[id]::after, blockquote[id]::after, article[id]::after, section[id]::after, aside[id]::after { content: "#"attr(id); color: #C0C; padding: 2px 5px; background: #000; }
+ 		h1[class]::before, h2[class]::before, h3[class]::before, h4[class]::before, h5[class]::before, h6[class]::before, td[class]::before, p[class]::before { content: "."attr(class); color: #C60; padding: 2px 5px; background: #000; }
+ 		h1[id]::after, h2[id]::after, h3[id]::after, h4[id]::after, h5[id]::after, h6[id]::after, td[id]::after, p[id]::after { content: "#"attr(id); color: #C0C; padding: 2px 5px; background: #000; }
+		span[class]::before { content: "."attr(class); color: #C60; padding: 2px 5px; background: #040; }
+		span[id]::after { content: "#"attr(id); color: #C0C; padding: 2px 5px; background: #040; }
+		span { box-shadow: inset 0 -100px #040; padding: 2px; border: 2px solid #0A0; }
+		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; padding: 10px; }
+		h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #000, inset -4px -4px #808; }
 	`;
-	toggleStyle(style, "styleShowClasses2", true);
+	toggleStyle(style, "toggleStyleShowIdsAndClasses", true);
+}
+
+function toggleShowDocumentStructure()
+{
+	const style = `
+		header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
+		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
+		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
+		ul, ol { box-shadow: inset 2px 2px #0A0, inset -2px -2px #0A0; }
+		li { box-shadow: inset 2px 2px #070, inset -2px -2px #070; }
+		font, small, span, abbr, cite { box-shadow: inset 2px 2px #AA0, inset -2px -2px #AA0; }
+		h1, h2, h3, h4, h5, h6 { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; }
+		p { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; }
+		mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 2px 2px #888, inset -2px -2px #888; }
+		a, a * { background: rgba(180, 255, 0, 0.25); }
+		img { background: #800; padding: 2px; box-sizing: border-box; }
+	`;
+	toggleStyle(style, "viewDocumentStructure", true);
 }
 
 function toggleShowDocumentStructureWithNames()
 {
 	const style = `
-		header, footer, article, aside, section, div, blockquote, h1, h2, h3, h4 { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 10px; padding: 10px; }
+		header, footer, article, aside, section, div, blockquote, h1, h2, h3, h4, h5, h6 { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 10px; padding: 10px; }
 		header::before, footer::before, article::before, aside::before, section::before, div::before, blockquote::before, h1::before, h2::before, h3::before, h4::before { content: "#"attr(id)" ."attr(class) ; color: #C60; background: #000; padding: 2px 5px; font-size: 22px; }
 		p::before { content: "#"attr(id)" ."attr(class); color: #C0C; background: #000; padding: 2px 5px; }
 		span { box-shadow: inset 0 -100px rgba(0,128,0,0.5); }
@@ -6594,48 +6641,6 @@ function toggleBlockEditMode()
 	}
 }
 
-function toggleShowDocumentStructure()
-{
-	const styleId = "viewDocumentStructure";
-	if(get("#" + styleId))
-	{
-		del("#" + styleId);
-		return;
-	}
-	const style = `
-		header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
-		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
-		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
-		ul, ol { box-shadow: inset 2px 2px #0A0, inset -2px -2px #0A0; }
-		li { box-shadow: inset 2px 2px #070, inset -2px -2px #070; }
-		font, small, span, abbr, cite { box-shadow: inset 2px 2px #AA0, inset -2px -2px #AA0; }
-		h1, h2, h3, h4, h5, h6 { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; }
-		p { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; }
-		mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 2px 2px #888, inset -2px -2px #888; }
-		a, a * { background: rgba(180, 255, 0, 0.25); }
-		img { background: #800; padding: 2px; box-sizing: border-box; }
-	`;
-	insertStyle(style, styleId, true);
-}
-
-function toggleShowDocumentBlockStructure()
-{
-	const styleId = "viewDocumentStructure2";
-	if(get("#" + styleId))
-	{
-		del("#" + styleId);
-		return;
-	}
-	const style = `
-		div { background: linear-gradient(135deg, black, white); }
-		h1, h2, h3, h4, h5, h6 { background: #F00; }
-		p { background: #09F; }
-		ol, ul { background: #00F; }
-		table { background: #080; }
-	`;
-	insertStyle(style, styleId, true);
-}
-
 function getAttributes(targ)
 {
 	const divText = document.createElement('div');
@@ -7810,9 +7815,9 @@ function handleKeyDown(e)
 			case KEYCODES.TWO: toggleStyleSimpleNegative(); break;
 			case KEYCODES.THREE: toggleStyleGrey(); break;
 			case KEYCODES.FOUR: toggleStyleWhite(); break;
-			case KEYCODES.FIVE: toggleStyleShowClasses2(); break;
+			case KEYCODES.FIVE: toggleStyleShowIdsAndClasses(); break;
 			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
-			case KEYCODES.B: toggleShowDocumentStructureWithNames(); break;
+			case KEYCODES.B: toggleStyleShowIdsAndClasses(); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
 			case KEYCODES.F: del(["object", "embed", "video", "iframe"]); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements with class or id containing the string", deleteByClassOrIdContaining); break;
@@ -7820,9 +7825,7 @@ function handleKeyDown(e)
 			case KEYCODES.J: deleteNodesBeforeSelected(); break;
 			case KEYCODES.K: deleteNodesAfterSelected(); break;
 			case KEYCODES.L: deleteNodesBetweenMarkers(); break;
-			// case KEYCODES.L: callFunctionWithArgs("Mark elements by CSS property value", markByCssRule, 2); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
-			case KEYCODES.N: toggleShowDocumentBlockStructure(); break;
 			case KEYCODES.O: customPrompt("Highlight first parent with text matching").then(highlightFirstBlockParentByText); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
 			case KEYCODES.S: callFunctionWithArgs("Mark block elements containing text", markBlockElementsContainingText, 1); break;
