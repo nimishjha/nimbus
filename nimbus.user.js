@@ -163,6 +163,7 @@ const Nimbus = {
 		disableConsoleLogs: disableConsoleLogs,
 		edit: toggleContentEditable,
 		editDocumentTitle: editDocumentTitle,
+		emptyTextNodes: emptyTextNodes,
 		enableConsoleLogs: enableConsoleLogs,
 		enableClickToCollectUrls: enableClickToCollectUrls,
 		disableClickToCollectUrls: disableClickToCollectUrls,
@@ -227,6 +228,7 @@ const Nimbus = {
 		makePlainText: makePlainText,
 		fixInternalReferences: fixInternalReferences,
 		mark: mark,
+		showAttributes: showAttributes,
 		showDivDepth: showDivDepth,
 		markBySelector: markBySelector,
 		markBlockElementsContainingText: markBlockElementsContainingText,
@@ -1267,6 +1269,13 @@ function emptyElement(elem)
 {
 	if(elem)
 		elem.textContent = '';
+}
+
+function emptyTextNodes()
+{
+	const e = getTextNodesAsArray();
+	for(let i = 0, ii = e.length; i < ii; i++)
+		e[i].data = "";
 }
 
 function isArray(o)
@@ -6732,6 +6741,26 @@ function inspect_clickHandler(e)
 	e.stopPropagation();
 	if(e.shiftKey && get("#inspector"))
 		prompt("", get("#inspector").textContent);
+}
+
+function showAttributes()
+{
+	const elems = Array.from( document.body.getElementsByTagName("*") );
+	const SPECIAL_ELEMS = ["A", "INPUT", "TEXTAREA"];
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+		const attrs = elem.attributes;
+		let attributesAndValues = elem.tagName + "\n";
+		for(let j = 0, jj = attrs.length; j < jj; j++)
+			attributesAndValues += "\t" + attrs[j].name + ": " + attrs[j].value + "\n";
+		const tag = createElement("pre", { textContent: attributesAndValues });
+		elem.insertBefore(tag, elem.firstChild);
+		if(SPECIAL_ELEMS.includes(elem.tagName))
+			replaceElement(elem, "div");
+	}
+	const style = "div { padding: 5px 20px; box-shadow: inset 10px 0 #555; }"
+	insertStyle(style, "styleShowAttributes", true);
 }
 
 //	Takes an element and an integer depth, and wraps that element in that many levels of elements of type <tag>
