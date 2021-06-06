@@ -7484,7 +7484,15 @@ function highlightTextAcrossTags(node, searchString)
 		let partialSearchString;
 		let isMatch = false;
 		if(["I", "B", "EM", "STRONG", "REFERENCE", "CITE"].includes(childNode.tagName))
+		{
+			if(
+				index1 >= childNodeStart && index1 < childNodeEnd
+				|| index1 < childNodeStart && index2 > childNodeEnd
+				|| index2 > childNodeStart && index2 <= childNodeEnd
+			)
+				wrapElement(childNode, Nimbus.highlightTagName);
 			continue;
+		}
 		//	The childNode contains the beginning of the search string
 		if(index1 >= childNodeStart && index1 < childNodeEnd)
 		{
