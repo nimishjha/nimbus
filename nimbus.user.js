@@ -1588,7 +1588,8 @@ function markByClassOrIdContaining(str)
 function rescueOrphanedTextNodes()
 {
 	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE"];
-	const REPLACEMENT_TAGNAME = "h2";
+	const NON_BLOCK_ELEMENTS = ["A", "B", "STRONG", "I", "EM", "SPAN", "MARK", "MARKYELLOW", "MARKRED", "MARKGREEN", "MARKBLUE", "MARKPURPLE", "MARKWHITE"];
+	const REPLACEMENT_TAGNAME = "h5";
 	const textNodes = getTextNodesAsArray();
 	const nodeItems = [];
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
@@ -1621,21 +1622,22 @@ function rescueOrphanedTextNodes()
 			{
 				const parent = document.createElement(REPLACEMENT_TAGNAME);
 				for(let j = 0, jj = consecutiveOrphans.length; j < jj; j++)
-				{
-					parent.appendChild(consecutiveOrphans[j].cloneNode());
-				}
+					parent.appendChild(consecutiveOrphans[j].cloneNode(true));
 				parent.className = Nimbus.markerClass;
 				consecutiveOrphans[0].parentNode.insertBefore(parent, consecutiveOrphans[0]);
 				for(let j = 0, jj = consecutiveOrphans.length; j < jj; j++)
-				{
 					consecutiveOrphans[j].remove();
-				}
 				consecutiveOrphans = [];
 			}
 		}
 		else
 		{
-			consecutiveOrphans.push(nodeItem.node);
+			const node = nodeItem.node;
+			if(node.parentNode && NON_BLOCK_ELEMENTS.includes(node.parentNode.tagName))
+				consecutiveOrphans.push(node.parentNode);
+			else
+				consecutiveOrphans.push(node);
+			console.log(consecutiveOrphans);
 		}
 	}
 	insertStyleHighlight();
@@ -6759,7 +6761,7 @@ function showAttributes()
 		if(SPECIAL_ELEMS.includes(elem.tagName))
 			replaceElement(elem, "div");
 	}
-	const style = "div { padding: 5px 20px; box-shadow: inset 10px 0 #555; }"
+	const style = "div { padding: 5px 20px; box-shadow: inset 10px 0 #555; }";
 	insertStyle(style, "styleShowAttributes", true);
 }
 
@@ -7815,7 +7817,7 @@ function handleKeyDown(e)
 			case KEYCODES.L: logout(); break;
 			case KEYCODES.N: callFunctionWithArgs("Delete numbered divs in range", delRange); break;
 			case KEYCODES.P: getPagerLinks(); break;
-			case KEYCODES.Q: rescueOrphanedElements(); break;
+			case KEYCODES.Q: rescueOrphanedTextNodes(); break;
 			case KEYCODES.R: wrapMarkedElement(); break;
 			case KEYCODES.W: cleanupAttributes(); break;
 			case KEYCODES.Y: callFunctionWithArgs("Highlight elements by tag name containing text", highlightByTagNameAndText, 2); break;
