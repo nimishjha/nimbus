@@ -223,6 +223,8 @@ const Nimbus = {
 		makeButtonsReadable: makeButtonsReadable,
 		makeFileLinksRelative: makeFileLinksRelative,
 		makeHeadings: makeHeadings,
+		makeOL: makeOL,
+		makeUL: makeUL,
 		splitByBrs: splitByBrs,
 		replaceHeadingClassesByTextLength: replaceHeadingClassesByTextLength,
 		makePlainText: makePlainText,
@@ -257,7 +259,7 @@ const Nimbus = {
 		removeInlineStyles: removeInlineStyles,
 		removeQueryStringFromImageSources: removeQueryStringFromImageSources,
 		removeQueryStringFromLinks: removeQueryStringFromLinks,
-		removeRedundantNumberingFromLists: removeRedundantNumberingFromLists,
+		cleanupLists: cleanupLists,
 		removeSpanTags: removeSpanTags,
 		replaceAudio: replaceAudio,
 		replaceClass: replaceClass,
@@ -862,13 +864,12 @@ function fixLineBreaks()
 		const span = spans[i];
 		if(span.textContent.match(/\n$/))
 			span.appendChild(document.createElement("br"));
-
 	}
-	var e = getOne(".nimbushl");
-	if(e)
+	var marked = getOne(makeClassSelector(Nimbus.markerClass));
+	if(marked)
 	{
-		e.innerHTML = e.innerHTML.replace(/\n+/g, "<br>");
-		e.classList.remove("nimbushl");
+		marked.innerHTML = marked.innerHTML.replace(/\n+/g, "<br>");
+		splitByBrs(makeClassSelector(Nimbus.markerClass));
 	}
 }
 
@@ -876,11 +877,11 @@ function splitByBrs(sel, strParentTagName)
 {
 	const selector = sel || makeClassSelector(Nimbus.markerClass);
 	const parentTagName =  strParentTagName || "blockquote";
+	const childTagName = "p";
 	const elems = get(selector);
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
-		const tagName = elem.tagName;
 		let elemHtml = elem.innerHTML;
 		if(elemHtml.indexOf("<br") === -1)
 			continue;
@@ -890,7 +891,7 @@ function splitByBrs(sel, strParentTagName)
 		replacement.classList.add(Nimbus.markerClass);
 		for(let j = 0, jj = splat.length; j < jj; j++)
 		{
-			const child = createElement(tagName, { textContent: splat[j].replace(/<[^<>]+>/g, "") });
+			const child = createElement(childTagName, { textContent: splat[j].replace(/<[^<>]+>/g, "") });
 			replacement.appendChild(child);
 		}
 		if(elem.id)
@@ -1211,7 +1212,7 @@ function printPropsContaining(obj, arrStrings)
 
 function logElements(elements)
 {
-	if(!isArray(elements))
+	if(!Array.isArray(elements))
 	{
 		showMessageError("Expected array, got " + elements);
 		return;
@@ -1261,7 +1262,7 @@ function createSelector(elem)
 function createClassSelector(elem)
 {
 	if(elem.className)
-		return "." + Array.from(elem.classList).join('.').replace(".nimbushl", "");
+		return "." + Array.from(elem.classList).join('.').replace(makeClassSelector(Nimbus.markerClass), "");
 	return false;
 }
 
@@ -1276,11 +1277,6 @@ function emptyTextNodes()
 	const e = getTextNodesAsArray();
 	for(let i = 0, ii = e.length; i < ii; i++)
 		e[i].data = "";
-}
-
-function isArray(o)
-{
-	return Object.prototype.toString.call(o) === '[object Array]';
 }
 
 function toggleClass(element, className)
@@ -1465,7 +1461,7 @@ function replaceElementsBySelector(selector, tagName)
 			while(i--)
 			{
 				const elem = toReplace[i];
-				const textLength = getTextLength(elem);
+				const textLength = getAlphaNumericTextLength(elem);
 				if(textLength !== 0)
 				{
 					deletedTextLength += textLength;
@@ -1587,7 +1583,7 @@ function markByClassOrIdContaining(str)
 
 function rescueOrphanedTextNodes()
 {
-	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE"];
+	const BLOCK_ELEMENTS = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV"];
 	const NON_BLOCK_ELEMENTS = ["A", "B", "STRONG", "I", "EM", "SPAN", "MARK", "MARKYELLOW", "MARKRED", "MARKGREEN", "MARKBLUE", "MARKPURPLE", "MARKWHITE"];
 	const REPLACEMENT_TAGNAME = "h5";
 	const textNodes = getTextNodesAsArray();
@@ -1820,7 +1816,7 @@ function debugVars(params)
 	{
 		const key = keys[i];
 		const value = params[key];
-		if(isArray(value))
+		if(Array.isArray(value))
 			console.log(key, '\n', arrayToString(value, "\n"));
 		else
 			console.log(key, '\n\t', value);
@@ -3621,16 +3617,11 @@ function replaceEmptyParagraphsWithHr()
 	}
 }
 
-function makePlainText(metaSelector)
+function makePlainText(selector)
 {
-	let selector = metaSelector.toLowerCase();
-	switch(metaSelector)
-	{
-		case "h": selector = "h1, h2, h3, h4, h5, h6"; break;
-	}
 	const elements = get(selector);
 	let i = elements.length;
-	if(selector === "a")
+	if(selector.toLowerCase() === "a")
 	{
 		while(i--)
 		{
@@ -3931,10 +3922,8 @@ function formatEbook()
 	cleanupHead();
 	createTagsByClassName();
 	replaceEmptyParagraphsWithHr();
-	groupAdjacentElements("hr");
 	replaceEmptyAnchors();
 	fixInternalReferences();
-	// document.body.classList.add("ebook");
 }
 
 function looksLikeUrl(str)
@@ -4936,6 +4925,16 @@ function groupAdjacentElements(selector, parentTag, childTag)
 		}
 		elem.parentNode.replaceChild(parent, elem);
 	}
+}
+
+function makeUL()
+{
+	groupAdjacentElements(makeClassSelector(Nimbus.markerClass), "ul", "li");
+}
+
+function makeOL()
+{
+	groupAdjacentElements(makeClassSelector(Nimbus.markerClass), "ol", "li");
 }
 
 function groupUnderHeading()
@@ -6289,14 +6288,23 @@ function deleteNonContentLists()
 	}
 }
 
-function removeRedundantNumberingFromLists()
+//	After converting numbered or bulleted paragraphs to lists, we need
+//	to remove the redundant numbering or bullets from the list items.
+function cleanupLists()
 {
-	const lis = get("ol li");
+	const lis = get("ol > li");
 	for(let i = 0, ii = lis.length; i < ii; i++)
 	{
 		const firstTextChild = getFirstTextChild(lis[i]);
 		if(firstTextChild)
 			firstTextChild.textContent = firstTextChild.textContent.trim().replace(/^[0-9]+[\.\)]?/, "") + " ";
+	}
+	const ulis = get("ul > li");
+	for(let i = 0, ii = ulis.length; i < ii; i++)
+	{
+		const firstTextChild = getFirstTextChild(ulis[i]);
+		if(firstTextChild)
+			firstTextChild.textContent = firstTextChild.textContent.trim().replace(/^\u2022/, "") + " ";
 	}
 }
 
@@ -6362,7 +6370,7 @@ function deleteIframes()
 
 function deleteImages()
 {
-	del(["svg", "canvas"]);
+	del(["svg", "canvas", "picture"]);
 	const images = get("img");
 	const imagePlaceholders = get("rt");
 	if(images.length)
@@ -7214,6 +7222,13 @@ function getTextLength(elem)
 	if(!elem.textContent)
 		return 0;
 	return elem.textContent.replace(/[^\u0021-\u007e]/g, "").length;
+}
+
+function getAlphaNumericTextLength(elem)
+{
+	if(!elem.textContent)
+		return 0;
+	return elem.textContent.replace(/[^a-zA-Z0-9]+/g, "").length;
 }
 
 function containsOnlyPlainText(element)
