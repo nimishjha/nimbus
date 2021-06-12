@@ -2693,7 +2693,7 @@ function inlineFootnotes()
 			if(refTarget)
 			{
 				if(refTarget.tagName === "A")
-					footnote = getFirstParentOfType(refTarget, FOOTNOTE_TAGNAME);
+					footnote = refTarget.closest(FOOTNOTE_TAGNAME);
 				else if(FOOTNOTE_TAGNAMES.includes(refTarget.tagName))
 					footnote = refTarget;
 			}
@@ -3092,13 +3092,12 @@ function filterNodesWithTextLengthOver(nodes, maxLength)
 function filterNodesFollowingNodesOfType(nodes, selector)
 {
 	const result = [];
-	const selected = get(selector);
 	let i = nodes.length;
 	while(i--)
 	{
 		const node = nodes[i];
 		const prevElement = node.previousElementSibling;
-		if(prevElement && selected.includes(prevElement))
+		if(prevElement && prevElement.matches(selector))
 			result.push(node);
 	}
 	return result;
@@ -3107,13 +3106,12 @@ function filterNodesFollowingNodesOfType(nodes, selector)
 function filterNodesPrecedingNodesOfType(nodes, selector)
 {
 	const result = [];
-	const selected = get(selector);
 	let i = nodes.length;
 	while(i--)
 	{
 		const node = nodes[i];
 		const nextElement = node.nextElementSibling;
-		if(nextElement && selected.includes(nextElement))
+		if(nextElement && nextElement.matches(selector))
 			result.push(node);
 	}
 	return result;
@@ -5578,24 +5576,6 @@ function getFirstBlockParent(node)
 		return false;
 }
 
-function getFirstParentOfType(node, tagName)
-{
-	const MAX_DEPTH = 20;
-	const tagNameUpper = tagName.toUpperCase();
-	let found = false;
-	let parent = node.parentNode;
-	let depth = 0;
-	if(!parent.nodeType)
-		parent = parent.parentNode;
-	while(parent.parentNode && ++depth < MAX_DEPTH)
-	{
-		if(parent.tagName === tagNameUpper)
-			return parent;
-		parent = parent.parentNode;
-	}
-	return false;
-}
-
 function getFirstTextChild(elem)
 {
 	let child = elem.firstChild;
@@ -7501,9 +7481,9 @@ function highlightTextAcrossTags(node, searchString)
 		if(["I", "B", "EM", "STRONG", "REFERENCE", "CITE"].includes(childNode.tagName))
 		{
 			if(
-				index1 >= childNodeStart && index1 < childNodeEnd
-				|| index1 < childNodeStart && index2 > childNodeEnd
-				|| index2 > childNodeStart && index2 <= childNodeEnd
+				index1 >= childNodeStart && index1 < childNodeEnd ||
+				index1 < childNodeStart && index2 > childNodeEnd ||
+				index2 > childNodeStart && index2 <= childNodeEnd
 			)
 				wrapElement(childNode, Nimbus.highlightTagName);
 			continue;
@@ -7530,8 +7510,6 @@ function highlightTextAcrossTags(node, searchString)
 			//	If the childNode is an element node
 			if(childNode.nodeType === 1)
 			{
-				consoleLog("childNode is an element node");
-				consoleLog(childNode);
 				wrapElementInner(childNode, Nimbus.highlightTagName);
 			}
 			else
@@ -7911,7 +7889,6 @@ function handleKeyDown(e)
 			case KEYCODES.F: formatEbook(); break;
 			case KEYCODES.H: unmarkAll(); break;
 			case KEYCODES.M: markOverlays(); break;
-			case KEYCODES.R: rescueOrphanedTextNodes(); break;
 			case KEYCODES.S: forceReloadCss(); break;
 			case KEYCODES.F12: inspect(true); break;
 			case KEYCODES.UPARROW: modifyMark("expand", true); break;
