@@ -3009,6 +3009,34 @@ function filterNodesWithoutChildrenOfType(nodes, selector)
 	return result;
 }
 
+function filterNodesWithFirstChildOfType(nodes, selector)
+{
+	const result = [];
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		const firstChild = node.firstElementChild;
+		if(firstChild && firstChild.matches(selector))
+			result.push(node);
+	}
+	return result;
+}
+
+function filterNodesWithLastChildOfType(nodes, selector)
+{
+	const result = [];
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		const lastChild = node.lastElementChild;
+		if(lastChild && lastChild.matches(selector))
+			result.push(node);
+	}
+	return result;
+}
+
 function filterNodesWithoutParentOfType(nodes, tagNameOrClass)
 {
 	const MAX_DEPTH = 20;
@@ -3165,6 +3193,8 @@ function select(...args)
 			{
 				case "hasChildrenOfType": return filterNodesWithChildrenOfType(elems, value);
 				case "doesNotHaveChildrenOfType": return filterNodesWithoutChildrenOfType(elems, value);
+				case "hasFirstChildOfType": return filterNodesWithFirstChildOfType(elems, value);
+				case "hasLastChildOfType": return filterNodesWithLastChildOfType(elems, value);
 				case "hasParentOfType": return get(value + " " + selector);
 				case "doesNotHaveParentOfType": return filterNodesWithoutParentOfType(elems, value);
 				case "hasTextLengthUnder": return filterNodesWithTextLengthUnder(elems, value);
