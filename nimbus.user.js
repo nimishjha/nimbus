@@ -1085,7 +1085,7 @@ function logPropertiesMatching(obj, str, path = "")
 		const type = Object.prototype.toString.call(value);
 		if(type === "[object Object]")
 			logPropertiesMatching(value, str, (path.length ? path + "." : "") + key);
-		else if(key.toLowerCase().indexOf(str) !== -1)
+		else if(path.toLowerCase().indexOf(str) !== -1)
 			console.log(path + "." + key + ": [", value, "]");
 	}
 }
@@ -1633,7 +1633,6 @@ function rescueOrphanedTextNodes()
 				consecutiveOrphans.push(node.parentNode);
 			else
 				consecutiveOrphans.push(node);
-			console.log(consecutiveOrphans);
 		}
 	}
 	insertStyleHighlight();
@@ -3017,7 +3016,7 @@ function filterNodesWithFirstChildOfType(nodes, selector)
 	{
 		const node = nodes[i];
 		const firstChild = node.firstElementChild;
-		if(firstChild && firstChild.matches(selector))
+		if(firstChild && firstChild === node.firstChild && firstChild.matches(selector))
 			result.push(node);
 	}
 	return result;
@@ -3031,7 +3030,7 @@ function filterNodesWithLastChildOfType(nodes, selector)
 	{
 		const node = nodes[i];
 		const lastChild = node.lastElementChild;
-		if(lastChild && lastChild.matches(selector))
+		if(lastChild && lastChild === node.lastChild && lastChild.matches(selector))
 			result.push(node);
 	}
 	return result;
@@ -4873,6 +4872,8 @@ function cycleHighlightTag()
 function resetHighlightTag()
 {
 	const nextTag = Nimbus.highlightTagNameList[0];
+	if(Nimbus.highlightTagName === nextTag)
+		return;
 	showMessageBig(`<${nextTag}>Highlight tag is ${nextTag}</${nextTag}>`);
 	Nimbus.highlightTagName = nextTag;
 }
@@ -5162,9 +5163,7 @@ function logout()
 		}
 	}
 	if(!found)
-	{
 		showMessageBig("Logout link not found");
-	}
 }
 
 function showPrintLink()
@@ -5185,9 +5184,7 @@ function showPrintLink()
 		}
 	}
 	if(!found)
-	{
 		showMessageBig("Print link not found");
-	}
 }
 
 function insertStyleHighlight()
@@ -5696,9 +5693,7 @@ function selectNodesBetweenMarkers(selector)
 			!(positionRelativeToFirst & Node.DOCUMENT_POSITION_CONTAINS) &&
 			!(positionRelativeToSecond & Node.DOCUMENT_POSITION_CONTAINS)
 		)
-		{
 			selected.push(node);
-		}
 	}
 	return selected;
 }
@@ -5779,37 +5774,9 @@ function cleanupHeadings()
 
 function deleteNonContentImages()
 {
-	const srcSubstrings = [
-		"transparent.",
-		"pixel.",
-		"spacer.",
-		"nbb.org",
-		"qm.gif",
-		"avatar",
-		"doubleclick",
-		"bookmarking",
-		"adbrite",
-		"blogger.com",
-		"style_images",
-		"smilies",
-		"smiley",
-		"badges",
-		"adriver",
-		"/ads/",
-		"/delivery/",
-		"profile_images",
-		"reputation_",
-		"statusicons",
-		"mt-static",
-		"feed.",
-		"twitter.",
-		"bluesaint",
-		"board/images"
-	];
+	const srcSubstrings = ["transparent.", "pixel.", "spacer.", "nbb.org", "qm.gif", "avatar", "doubleclick", "bookmarking", "adbrite", "blogger.com", "style_images", "smilies", "smiley", "badges", "adriver", "/ads/", "/delivery/", "profile_images", "reputation_", "statusicons", "mt-static", "feed.", "twitter.", "bluesaint", "board/images"	];
 	for(let i = 0, ii = srcSubstrings.length; i < ii; i++)
-	{
 		deleteBySelectorAndTextMatching("img", srcSubstrings[i]);
-	}
 }
 
 //	This function "cleans up" a webpage and optimises it for saving locally.
@@ -6425,7 +6392,7 @@ function getContentByParagraphCount()
 		deleteEmptyBlockElements();
 		return;
 	}
-	del(["nav", "footer"]);
+	del("nav");
 	deleteNonContentLists();
 	insertStyleHighlight();
 	const paragraphs = get("p");
@@ -6469,9 +6436,7 @@ function getContentByParagraphCount()
 		contentDiv.parentNode.tagName !== "BODY" &&
 		contentDiv.getElementsByClassName("longParagraph").length < longParagraphs.length * 0.8
 	)
-	{
 		contentDiv = contentDiv.parentNode;
-	}
 	const HEADINGS_SELECTOR = "h1, h2";
 	if(document.querySelectorAll(HEADINGS_SELECTOR).length > 0 && contentDiv.querySelectorAll(HEADINGS_SELECTOR).length === 0)
 	{
@@ -7461,9 +7426,7 @@ function consolidateMarksInNode(node)
 			{
 				const prevPrevElem = prevElem.previousElementSibling;
 				if(prevPrevElem && prevPrevElem === prevElem.previousSibling && prevPrevElem.tagName.toLowerCase() === MARK_TAG)
-				{
 					mark.insertBefore(prevElem, mark.firstChild);
-				}
 			}
 		}
 	}
@@ -7535,17 +7498,12 @@ function highlightTextAcrossTags(node, searchString)
 			isMatch = true;
 			partialSearchString = childNodeText.substring(0, index2 - childNodeStart);
 		}
-		if(isMatch && partialSearchString.length > 5)
+		if(isMatch && partialSearchString.length > 2)
 		{
-			//	If the childNode is an element node
 			if(childNode.nodeType === 1)
-			{
 				wrapElementInner(childNode, Nimbus.highlightTagName);
-			}
 			else
-			{
 				splitMatches.push(partialSearchString);
-			}
 		}
 	}
 	highlightAllMatchesInNode(node, splitMatches);
