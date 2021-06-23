@@ -3484,19 +3484,32 @@ function addLinksToLargerImages()
 	}
 }
 
+function tagLargeImages(threshold = 500)
+{
+	const images = get("img");
+	for(let i = 0, ii = images.length; i < ii; i++)
+	{
+		const image = images[i];
+		if(image.naturalWidth > threshold || image.naturalHeight > threshold)
+			image.classList.add("large");
+	}
+}
+
 function forceImageWidth(width)
 {
+	tagLargeImages();
 	if(width < 20)
 		width *= 100;
-	const s = "img { width: " + width + "px; height: auto; }";
+	const s = "img.large { width: " + width + "px; height: auto; }";
 	insertStyle(s, "styleImageWidth", true);
 }
 
 function forceImageHeight(height)
 {
+	tagLargeImages();
 	if(height < 20)
 		height *= 100;
-	const s = "img { height: " + height + "px; width: auto; }";
+	const s = "img.large { height: " + height + "px; width: auto; }";
 	insertStyle(s, "styleImageHeight", true);
 }
 
@@ -5062,6 +5075,42 @@ function saveIdsToElement(element, ids)
 		for(let j = 0, jj = ids.length; j < jj; j++)
 			element.appendChild(createBulletAnchor(ids[j]));
 	}
+}
+
+function selectNodesContainingSelection()
+{
+	const sel = window.getSelection();
+	let firstNode = getFirstBlockParent(sel.anchorNode);
+	let lastNode = getFirstBlockParent(sel.focusNode);
+	if(firstNode === lastNode)
+	{
+		showMessageBig("Selection is contained within one node, it needs to span at least two");
+		return;
+	}
+	const result = [];
+	const relativePosition = lastNode.compareDocumentPosition(firstNode);
+	if(relativePosition & Node.DOCUMENT_POSITION_FOLLOWING)
+	{
+		const temp = firstNode;
+		firstNode = lastNode;
+		lastNode = temp;
+	}
+	firstNode.classList.add(Nimbus.markerClass);
+	let sibling = firstNode.nextElementSibling;
+	while(sibling)
+	{
+		result.push(sibling);
+		if(sibling === lastNode)
+			break;
+		sibling = sibling.nextElementSibling;
+	}
+	return result;
+}
+
+function joinNodesContainingSelection()
+{
+	markElements(selectNodesContainingSelection());
+	joinMarkedElements();
 }
 
 //	This function fixes the problem where two adjacent elements should in fact be one element.
@@ -7768,6 +7817,7 @@ function handleKeyDown(e)
 			case KEYCODES.Q: resetHighlightTag(); break;
 			case KEYCODES.R: toggleHighlight(); break;
 			case KEYCODES.U: del("ul"); del("dl"); break;
+			case KEYCODES.V: joinNodesContainingSelection(); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
 			case KEYCODES.X: removeEmojis(); break;
 			case KEYCODES.Y: callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
