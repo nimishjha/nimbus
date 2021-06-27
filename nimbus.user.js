@@ -2003,7 +2003,7 @@ function showMessage(messageHtml, msgClass, persist)
 	let messageInner;
 	msgClass = msgClass || "";
 	const strStyle = `
-		message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2000000000; }
+		message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2147483647; }
 		messageinner { display: block; max-width: 1200px; margin: 0 auto; text-align: left; }
 		message.messagebig { font: 32px "Swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }
 		message.messageerror { color: #FFF; background: #500; }
@@ -2433,7 +2433,7 @@ function autoCompleteInputBox()
 
 	function open()
 	{
-		const style = `autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2000000000; font-family: "Swis721 Cn BT"; }
+		const style = `autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2147483647; font-family: "Swis721 Cn BT"; }
 			autocompleteinputwrapper input { width: 100%; height: 3rem; font-size: 32px; background: #000; color: #FFF; border: 0; outline: 0; display: block; font-family: inherit; }
 			autocompleteinputwrapper matches { display: block; background: #222; color: #CCC; }
 			autocompleteinputwrapper match { display: block; padding: 2px 10px; font-size: 24px; }
@@ -3437,7 +3437,7 @@ function persistStreamingImages(minWidth)
 	{
 		imageContainer = createElement("div", { id: "nimbusStreamingImageContainer" });
 		document.body.appendChild(imageContainer);
-		const style = `#nimbusStreamingImageContainer { z-index: 2000000000; position: fixed; bottom: 90px; left: 10px; width: 100%; height: 20vh; background: #000; overflow: auto; }
+		const style = `#nimbusStreamingImageContainer { z-index: 2147483647; position: fixed; bottom: 90px; left: 10px; width: 100%; height: 20vh; background: #000; overflow: auto; }
 			#nimbusStreamingImageContainer img { height: 50px; width: auto; float: left; margin: 0 1px 1px 0; }`;
 		insertStyle(style, "stylePersistStreamingImages", true);
 	}
@@ -3558,7 +3558,7 @@ function buildSlideshow()
 		return;
 	const s = 'body { margin: 0; padding: 0; }' +
 	'#nimbusGallery { width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; z-index: 1999999999; }' +
-	'#nimbusGallery img { position: absolute; top: -1000em; left: -1000em; z-index: 2000000000; }' +
+	'#nimbusGallery img { position: absolute; top: -1000em; left: -1000em; z-index: 2147483647; }' +
 	'#nimbusGallery img.currentImage { margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; }' +
 	'#nimbusGallery img.currentImage.aspectRatioPortrait { height: 100vh; width: auto; }' +
 	'#nimbusGallery img.currentImage.aspectRatioLandscape { width: 100vw; height: auto; }' +
@@ -6225,7 +6225,7 @@ function removeSpanTags(boolIgnoreIds)
 		return;
 	}
 	let s = document.body.innerHTML;
-	s = s.replace(/<\/{0,}span[^>]*>/g, "");
+	s = s.replace(/<\/{0,}span[^>]*>/g, " ");
 	document.body.innerHTML = s;
 	showMessageBig(numSpans + " span tags removed");
 }
@@ -6603,7 +6603,7 @@ function showResources()
 		}
 	}
 	ylog(count + " styles", "h3", true);
-	const s = '.xlog { background: #000; color: #FFF; margin: 0; padding: 5px 10px; z-index: 2000000000; font: 12px verdana; text-align: left; }' +
+	const s = '.xlog { background: #000; color: #FFF; margin: 0; padding: 5px 10px; z-index: 2147483647; font: 12px verdana; text-align: left; }' +
 	'.xlog a { text-decoration: none; letter-spacing: 0; font: 12px verdana; text-transform: none; color: #09F; }' +
 	'.xlog a:visited { color: #059; }' +
 	'.xlog a:hover { color: #FFF; } h3.xlog:nth-of-type(1) {margin-top: 50px;}';
@@ -6749,7 +6749,7 @@ function inspect(onTop)
 		document.body.classList.add("inspector");
 
 		const s = 'body.inspector { padding-bottom: 300px; }' +
-		'#inspector { padding: 5px 10px; position:fixed; left:0; bottom: 0; width: 50%; min-width: 500px; height: 200px; overflow: hidden; background:#000; color:#aaa; text-align:left; z-index: 2000000000; font:12px verdana; letter-spacing: 0; }' +
+		'#inspector { padding: 5px 10px; position:fixed; left:0; bottom: 0; width: 50%; min-width: 500px; height: 200px; overflow: hidden; background:#000; color:#aaa; text-align:left; z-index: 2147483647; font:12px verdana; letter-spacing: 0; }' +
 		'#inspector.onTop { bottom: auto; top: 0; }' +
 		'#inspector b { color:#09f; }' +
 		'#inspector em { font-style:normal; color:#F80; }' +
