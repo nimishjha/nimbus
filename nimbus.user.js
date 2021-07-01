@@ -5289,7 +5289,7 @@ function toggleStyleSimpleNegative()
 {
 	const s = `
 		html, body, body[class] {background: #000; }
-		*, *[class] { background: rgba(0,0,0,0.4); color: #888; border-color: transparent; }
+		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #888; border-color: transparent; background-image: none; border-radius: 0; }
 		h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #CCC; }
 		mark {color: #FF0; }
 		a, a[class] *, * a[class] {color: #09F; }
@@ -5300,6 +5300,39 @@ function toggleStyleSimpleNegative()
 		img { opacity: 0.5; }
 		`;
 	toggleStyle(s, "styleSimpleNegative", true);
+}
+
+function toggleStyleSimpleNegative2()
+{
+	const s = `
+		html { background: #000; }
+		body { background: #181818; color: #777; font-family: "Swis721 Cn BT"; }
+		* { box-shadow: none; background-image: none; font-family: inherit; border-radius: 0; }
+		*::before, *::after { opacity: 0.25; }
+		table { border-collapse: collapse; }
+		nav, header, footer { background: #111; }
+		div { background: #181818; }
+		td { background: #1C1C1C; }
+		ol, ul, li { background: transparent; }
+		div, tr, td { border: 0; }
+		a:link { color: #05C; background: #111; }
+		a:visited { color: #C55; background: #111; }
+		a:hover, a:focus { color: #0CC; background: #222; }
+		span, input, button { border-radius: 0; }
+		span { border: 0; color: inherit; }
+		input { background: #111; border: 1px solid #333; }
+		button { background: #111; border: 1px solid #555; }
+		img, svg { opacity: 0.5; }
+	`;
+	toggleStyle(s, "styleSimpleNegative", true);
+}
+
+function toggleStyleGrayscale()
+{
+	const s = `
+		a, img, svg, video { filter: saturate(0); }
+	`;
+	toggleStyle(s, "styleGrayscale", true);
 }
 
 function toggleStyleGrey()
@@ -7882,10 +7915,10 @@ function handleKeyDown(e)
 			case KEYCODES.LEFTARROW: modifyMark("previous"); break;
 			case KEYCODES.RIGHTARROW: modifyMark("next"); break;
 			case KEYCODES.ONE: toggleStyleNegative(); break;
-			case KEYCODES.TWO: toggleStyleSimpleNegative(); break;
+			case KEYCODES.TWO: toggleStyleSimpleNegative2(); break;
 			case KEYCODES.THREE: toggleStyleGrey(); break;
 			case KEYCODES.FOUR: toggleStyleWhite(); break;
-			case KEYCODES.FIVE: toggleStyleShowIdsAndClasses(); break;
+			case KEYCODES.FIVE: toggleStyleGrayscale(); break;
 			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
 			case KEYCODES.B: toggleStyleShowIdsAndClasses(); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
