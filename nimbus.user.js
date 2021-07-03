@@ -2175,7 +2175,7 @@ function toggleConsole(consoleType)
 	let dialogStyle;
 	const consoleBackgroundColor = consoleType === "css" ? "#036" : "#000";
 	dialogStyle = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; }' +
-		'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: bold 24px Consolas, monospace; width: 100%; height: 100%; padding: 10px; border: 0; outline: 0; }';
+		'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: bold 12px Consolas, monospace; width: 100%; height: 100%; padding: 10px; border: 0; outline: 0; }';
 	insertStyle(dialogStyle, "styleUserInputWrapper", true);
 
 	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
@@ -5288,16 +5288,19 @@ function toggleScreenRefresh()
 function toggleStyleSimpleNegative()
 {
 	const s = `
-		html, body, body[class] {background: #000; }
+		html, body, body[class] {background: #000; font-family: "Swis721 Cn BT"; }
 		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #888; border-color: transparent; background-image: none; border-radius: 0; }
+		*::before, *::after { opacity: 0.25; }
+		span, input, button { border-radius: 0; }
 		h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #CCC; }
 		mark {color: #FF0; }
-		a, a[class] *, * a[class] {color: #09F; }
+		a, a[class] *, * a[class] {color: #05C; }
 		a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #CCC; }
-		a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #048; }
-		button[class], input[class], textarea[class] { border: 2px solid #09F; }
-		button[class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 2px solid #FFF; }
-		img { opacity: 0.5; }
+		a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #C55; }
+		button[class], input[class], textarea[class] { border: 1px solid #333; }
+		button[class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 1px solid #CCC; }
+		img, svg { opacity: 0.5; }
+		img:hover, a:hover img { opacity: 1; }
 		`;
 	toggleStyle(s, "styleSimpleNegative", true);
 }
@@ -7915,7 +7918,7 @@ function handleKeyDown(e)
 			case KEYCODES.LEFTARROW: modifyMark("previous"); break;
 			case KEYCODES.RIGHTARROW: modifyMark("next"); break;
 			case KEYCODES.ONE: toggleStyleNegative(); break;
-			case KEYCODES.TWO: toggleStyleSimpleNegative2(); break;
+			case KEYCODES.TWO: toggleStyleSimpleNegative(); break;
 			case KEYCODES.THREE: toggleStyleGrey(); break;
 			case KEYCODES.FOUR: toggleStyleWhite(); break;
 			case KEYCODES.FIVE: toggleStyleGrayscale(); break;
