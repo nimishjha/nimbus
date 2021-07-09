@@ -6825,7 +6825,7 @@ function showAttributes()
 		for(let j = 0, jj = attrs.length; j < jj; j++)
 			attributesAndValues += "\t" + attrs[j].name + ": " + attrs[j].value + "\n";
 		const tag = createElement("pre", { textContent: attributesAndValues });
-		elem.insertBefore(tag, elem.firstChild);
+		elem.insertAdjacentElement("beforebegin", tag);
 		if(SPECIAL_ELEMS.includes(elem.tagName))
 			replaceElement(elem, "div");
 	}
@@ -7313,7 +7313,10 @@ function highlightSelection()
 {
 	const selection = window.getSelection();
 	if(!selection.toString().length)
+	{
+		showMessageBig("Nothing selected");
 		return;
+	}
 	let node = selection.anchorNode;
 	let selectionText = removeLineBreaks(selection.toString()).trim();
 	while(node.parentNode && (node.textContent.length < selectionText.length || node.nodeType !== 1))
@@ -7414,7 +7417,7 @@ function expandSelectionToWordBoundaries(node, selection)
 	while(text[index2] && text[index2].match(regexRight) && index2 < text.length)
 		index2++;
 	const expanded = text.substring(index1, index2).replace(/\s+/g, " ").trim();
-	consoleLog("expanded: " + expanded);
+	consoleLog("expanded: \n" + expanded);
 	return expanded;
 }
 
@@ -7443,7 +7446,7 @@ function expandSelectionToSentenceBoundaries(node, selection)
 	if(index2 > text.length - 10)
 		index2 = text.length;
 	const expanded = text.substring(index1, index2).replace(/\s+/g, " ").trim();
-	consoleLog("expanded: " + expanded);
+	consoleLog("expanded: \n" + expanded);
 	return expanded;
 }
 
@@ -7458,7 +7461,7 @@ function highlightAllMatchesInNode(node, splitMatches)
 	{
 		let htmlToSearch = "";
 		let index;
-		const textToReplace = splitMatches[i];
+		const textToReplace = escapeHTML(splitMatches[i]);
 		if(lastIndex)
 		{
 			htmlToSearch = nodeHTML.substring(lastIndex);
@@ -7482,6 +7485,13 @@ function highlightAllMatchesInNode(node, splitMatches)
 			{
 				nodeHTML = nodeHTML.replace(textToReplace, replacementHtml);
 			}
+		}
+		else
+		{
+			showMessageError("Partial match not found in node text");
+			consoleLog("nodeHTML: \n", nodeHTML);
+			consoleLog("textToReplace: \n", textToReplace);
+			return;
 		}
 	}
 	node.innerHTML = nodeHTML;
@@ -7525,13 +7535,14 @@ function consolidateMarksInNode(node)
 //	element's childNodes. We can then highlight each split substring inside the childNodes.
 function highlightTextAcrossTags(node, searchString)
 {
-	searchString = escapeHTML(searchString.replace(/\s+/g, " "));
+	searchString = searchString.replace(/\s+/g, " ");
+	const searchStringEscaped = escapeHTML(searchString);
 	const nodeHTML = node.innerHTML;
 	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
 	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
-	if(~nodeHTML.indexOf(searchString))
+	if(~nodeHTML.indexOf(searchStringEscaped))
 	{
-		node.innerHTML = nodeHTML.replace(searchString, highlightTagOpen + searchString + highlightTagClose);
+		node.innerHTML = nodeHTML.replace(searchStringEscaped, highlightTagOpen + searchStringEscaped + highlightTagClose);
 		return;
 	}
 	//	Sometimes cleaning up whitespace in the HTML still leaves multiple spaces in the textContent
