@@ -197,7 +197,7 @@ const Nimbus = {
 		getPagerLinks: getPagerLinks,
 		listSelectorsWithLightBackgrounds: listSelectorsWithLightBackgrounds,
 		persistStreamingImages: persistStreamingImages,
-		highlightAllMatches: highlightAllMatches,
+		highlightAllMatchesInDocument: highlightAllMatchesInDocument,
 		highlightCode: highlightCode,
 		highlightFirstParentByText: highlightFirstParentByText,
 		highlightLinksInPres: highlightLinksInPres,
@@ -7351,27 +7351,23 @@ function highlightFirstParentByText(str)
 	}
 }
 
-function highlightFirstBlockParentByText(str)
+function highlightAllTextNodesMatching(str)
 {
-	const highlightTagName = Nimbus.highlightTagName;
 	const textNodes = getTextNodesAsArray();
-	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
-	let regex = new RegExp(escapedString, "gi");
 	let count = 0;
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
 		const textNode = textNodes[i];
-		if(textNode.data.match(regex))
+		const nodeText = textNode.data;
+		const parentNode = textNode.parentNode;
+		if(~nodeText.toLowerCase().indexOf(str) && parentNode)
 		{
-			const blockParent = getFirstBlockParent(textNode);
-			if(blockParent)
-			{
-				wrapElement(blockParent, highlightTagName);
-				count++;
-			}
+			parentNode.replaceChild(createElement(Nimbus.highlightTagName, { textContent: nodeText }), textNode);
+			count++;
 		}
 	}
-	showMessageBig(count + " occurrences highlighted");
+	if(count)
+		showMessageBig(count + " occurrences of " + str + " highlighted");
 }
 
 function highlightBySelectorAndText(selector, str)
@@ -7611,6 +7607,12 @@ function highlightTextAcrossTags(node, searchString)
 function findStringsInProximity(stringOne, stringTwo)
 {
 	insertStyleHighlight();
+	Nimbus.highlightTagName = "markgreen";
+	highlightAllMatchesInDocument(stringOne);
+	Nimbus.highlightTagName = "markblue";
+	highlightAllMatchesInDocument(stringTwo);
+	resetHighlightTag();
+
 	const stringOneLower = stringOne.toLowerCase();
 	const stringTwoLower = stringTwo.toLowerCase();
 	const DISTANCE = 5;
@@ -7628,16 +7630,12 @@ function findStringsInProximity(stringOne, stringTwo)
 			const bracket = 'p' + createBracketKey(i);
 			if(!lookup1[bracket])
 				lookup1[bracket] = i;
-			Nimbus.highlightTagName = "markgreen";
-			highlightTextAcrossTags(para, stringOne);
 		}
 		if(~paraText.indexOf(stringTwoLower))
 		{
 			const bracket = 'p' + createBracketKey(i);
 			if(!lookup2[bracket])
 				lookup2[bracket] = i;
-			Nimbus.highlightTagName = "markblue";
-			highlightTextAcrossTags(para, stringTwo);
 		}
 	}
 
@@ -7692,34 +7690,40 @@ function replaceInTextNodes(searchString, replacement)
 		showMessageBig(`${replCount} occurrences of "${searchString}" replaced with "${replacement}"`);
 }
 
-function highlightAllMatches(str)
+function highlightInTextNode(textNode, regex)
 {
-	if(!(str && str.length))
+	const nodeText = textNode.data;
+	if(!nodeText.match(regex))
 		return;
+	const parentNode = textNode.parentNode;
+	if(!parentNode)
+		return;
+	const matches = nodeText.matchAll(regex);
+	const replacementNodes = [];
+	let lastIndex = 0;
+	for(const match of matches)
+	{
+		const matchedString = match[0];
+		const matchIndex = match.index;
+		if(matchIndex > lastIndex)
+			replacementNodes.push(document.createTextNode(nodeText.substring(lastIndex, matchIndex)));
+		replacementNodes.push(createElement(Nimbus.highlightTagName, { textContent: matchedString }));
+		lastIndex = matchIndex + matchedString.length;
+	}
+	if(lastIndex < nodeText.length)
+		replacementNodes.push(document.createTextNode(nodeText.substring(lastIndex)));
+	const frag = document.createDocumentFragment();
+	for(const node of replacementNodes)
+		frag.appendChild(node);
+	parentNode.replaceChild(frag, textNode);
+}
 
-	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
-	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
-	const linkHrefs = [];
-	let links = get("a");
-	for(let i = 0, ii = links.length; i < ii; i++)
-		linkHrefs.push(links[i].href);
-	const imageSources = [];
-	let images = get("img");
-	for(let i = 0, ii = images.length; i < ii; i++)
-		imageSources.push(images[i].src);
-
-	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
-	let regex = new RegExp(escapedString, "gi");
-	let tempHTML = document.body.innerHTML;
-	tempHTML = tempHTML.replace(regex, `${highlightTagOpen}$1${highlightTagClose}`);
-	document.body.innerHTML = tempHTML;
-
-	links = get("a");
-	for(let i = 0, ii = links.length; i < ii; i++)
-		links[i].href = linkHrefs[i];
-	images = get("img");
-	for(let i = 0, ii = images.length; i < ii; i++)
-		images[i].src = imageSources[i];
+function highlightAllMatchesInDocument(str)
+{
+	const textNodes = getTextNodesAsArray();
+	const regex = new RegExp(str, "gi");
+	for(let i = 0, ii = textNodes.length; i < ii; i++)
+		highlightInTextNode(textNodes[i], regex);
 }
 
 function highlightWithinPreformattedBlocks(str)
@@ -7859,7 +7863,7 @@ function handleKeyDown(e)
 			case KEYCODES.L: showLog(); break;
 			case KEYCODES.M: customPrompt("Enter command").then(runCommand); break;
 			case KEYCODES.N: numberDivs(); break;
-			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatches, true); break;
+			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatchesInDocument, true); break;
 			case KEYCODES.P: fixParagraphs(); break;
 			case KEYCODES.Q: resetHighlightTag(); break;
 			case KEYCODES.R: toggleHighlight(); break;
@@ -7943,7 +7947,7 @@ function handleKeyDown(e)
 			case KEYCODES.K: deleteNodesAfterSelected(); break;
 			case KEYCODES.L: deleteNodesBetweenMarkers(); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
-			case KEYCODES.O: customPrompt("Highlight first parent with text matching").then(highlightFirstBlockParentByText); break;
+			case KEYCODES.O: customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
 			case KEYCODES.S: callFunctionWithArgs("Mark block elements containing text", markBlockElementsContainingText, 1); break;
 			case KEYCODES.T: numberTableRowsAndColumns(); break;
