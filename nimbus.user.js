@@ -2024,7 +2024,7 @@ function showMessage(messageHtml, msgClass, persist)
 		messageInner = getOne("messageinner");
 	}
 	messageInner.innerHTML = messageHtml;
-	console.log("Nimbus: \t " + messageHtml);
+	console.log("Nimbus: \t " + messageInner.textContent);
 	if(!persist)
 		Nimbus.messageTimeout = setTimeout(deleteMessage, 2000);
 }
@@ -2175,7 +2175,7 @@ function toggleConsole(consoleType)
 	let dialogStyle;
 	const consoleBackgroundColor = consoleType === "css" ? "#036" : "#000";
 	dialogStyle = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; }' +
-		'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: bold 12px Consolas, monospace; width: 100%; height: 100%; padding: 10px; border: 0; outline: 0; }';
+		'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: 22px "Swis721 Cn BT", Verdana; width: 100%; height: 100%; padding: 10px; border: 0; outline: 0; }';
 	insertStyle(dialogStyle, "styleUserInputWrapper", true);
 
 	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
@@ -5245,7 +5245,7 @@ function insertStyleHighlight()
 		.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
 		a.nimbushl::after, span.nimbushl::after { content: ""; display: inline; clear: none; }
 		mark { background: #420; color: #F90; padding: 2px 0; line-height: inherit; }
-		markgreen { background: #040; color: #0F0; padding: 2px 0; line-height: inherit; }
+		markgreen { background: #040; color: #8F0; padding: 2px 0; line-height: inherit; }
 		markred { background: #400; color: #F00; padding: 2px 0; line-height: inherit; }
 		markblue { background: #036; color: #09F; padding: 2px 0; line-height: inherit; }
 		markpurple { background: #404; color: #F0F; padding: 2px 0; line-height: inherit; }
@@ -6813,9 +6813,9 @@ function inspect_clickHandler(e)
 		prompt("", get("#inspector").textContent);
 }
 
-function showAttributes()
+function showAttributes(selector = "*")
 {
-	const elems = Array.from( document.body.getElementsByTagName("*") );
+	const elems = Array.from( document.body.getElementsByTagName(selector) );
 	const SPECIAL_ELEMS = ["A", "INPUT", "TEXTAREA"];
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
@@ -7718,12 +7718,18 @@ function highlightInTextNode(textNode, regex)
 	parentNode.replaceChild(frag, textNode);
 }
 
-function highlightAllMatchesInDocument(str)
+function highlightAllMatchesInDocument(str, isCaseSensitive = false)
 {
 	const textNodes = getTextNodesAsArray();
-	const regex = new RegExp(str, "gi");
+	const regexFlags = isCaseSensitive ? "g" : "gi";
+	const regex = new RegExp(str, regexFlags);
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 		highlightInTextNode(textNodes[i], regex);
+}
+
+function highlightAllMatchesInDocumentCaseSensitive(str)
+{
+	highlightAllMatchesInDocument(str, true);
 }
 
 function highlightWithinPreformattedBlocks(str)
@@ -7906,6 +7912,7 @@ function handleKeyDown(e)
 			case KEYCODES.K: makeChildOf(); break;
 			case KEYCODES.L: logout(); break;
 			case KEYCODES.N: callFunctionWithArgs("Delete numbered divs in range", delRange); break;
+			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string (case-sensitive)", highlightAllMatchesInDocumentCaseSensitive, true); break;
 			case KEYCODES.P: getPagerLinks(); break;
 			case KEYCODES.Q: rescueOrphanedTextNodes(); break;
 			case KEYCODES.R: wrapMarkedElement(); break;
