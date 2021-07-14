@@ -6907,6 +6907,8 @@ function logMutations(mutations)
 	for(i = 0, ii = mutations.length; i < ii; i++)
 	{
 		const mutation = mutations[i];
+		if(Nimbus.mutationFilterSelector && !mutation.target.matches(Nimbus.mutationFilterSelector))
+			continue;
 		if(mutation.type === "childList")
 		{
 			if(mutation.addedNodes.length)
@@ -6927,7 +6929,7 @@ function logMutations(mutations)
 	}
 }
 
-function toggleMutationObserver(watchAttributes)
+function toggleMutationObserver(watchAttributes, mutationFilterSelector = null)
 {
 	if(Nimbus.isObservingMutations)
 	{
@@ -6936,6 +6938,7 @@ function toggleMutationObserver(watchAttributes)
 		showMessageBig("Stopped observing mutations");
 		return;
 	}
+	Nimbus.mutationFilterSelector = mutationFilterSelector;
 	Nimbus.observer = new MutationObserver(logMutations);
 	let config = { childList: true };
 	let message = "Observing mutations";
@@ -6945,6 +6948,8 @@ function toggleMutationObserver(watchAttributes)
 		config.subtree = true;
 		message += " with attributes";
 	}
+	if(mutationFilterSelector)
+		message += ` for elements matching <b>${mutationFilterSelector}</b>`;
 	Nimbus.observer.observe(getOne("body"), config);
 	showMessageBig(message);
 	Nimbus.isObservingMutations = true;
