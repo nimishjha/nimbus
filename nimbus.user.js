@@ -152,9 +152,7 @@ const Nimbus = {
 		deleteImagesSmallerThan: deleteImagesSmallerThan,
 		deleteMessage: deleteMessage,
 		deleteNodesBetweenMarkers: deleteNodesBetweenMarkers,
-		deleteNonContentClasses: deleteNonContentClasses,
 		deleteNonContentElements: deleteNonContentElements,
-		deleteNonContentImages: deleteNonContentImages,
 		deleteNonContentLists: deleteNonContentLists,
 		deleteSmallImages: deleteSmallImages,
 		deleteEmptyBlockElements: deleteEmptyBlockElements,
@@ -318,7 +316,7 @@ const Nimbus = {
 		currentIndex: -1,
 	},
 	highlightTagName: "mark",
-	highlightTagNameList: ["mark", "markyellow", "markred", "markgreen", "markblue", "markpurple", "markwhite"],
+	highlightTagNameList: ["mark", "markyellow", "markred", "markgreen", "markblue", "markpurple", "markwhite", "em", "bold"],
 	smallImageThreshold: 50,
 	smallImageThresholdList: [100, 200, 300, 400, 500, 600],
 	trHighlightClass: {
@@ -873,10 +871,9 @@ function fixLineBreaks()
 	}
 }
 
-function splitByBrs(sel, strParentTagName)
+function splitByBrs(sel)
 {
 	const selector = sel || makeClassSelector(Nimbus.markerClass);
-	const parentTagName =  strParentTagName || "blockquote";
 	const childTagName = "p";
 	const elems = get(selector);
 	for(let i = 0, ii = elems.length; i < ii; i++)
@@ -887,8 +884,7 @@ function splitByBrs(sel, strParentTagName)
 			continue;
 		elemHtml = elemHtml.replace(/<br [^>]+/g, "<br");
 		const splat = elemHtml.split("<br>");
-		const replacement = document.createElement(parentTagName);
-		replacement.classList.add(Nimbus.markerClass);
+		const replacement = document.createDocumentFragment();
 		for(let j = 0, jj = splat.length; j < jj; j++)
 		{
 			const child = createElement(childTagName, { textContent: splat[j].replace(/<[^<>]+>/g, "") });
@@ -2227,7 +2223,7 @@ function runCommand(commandString)
 		const args = [];
 		for(let i = 1, ii = commandSegments.length; i < ii; i++)
 		{
-			const n = parseInt(commandSegments[i], 10);
+			const n = Number(commandSegments[i]);
 			if(isNaN(n))
 				args.push(commandSegments[i]);
 			else args.push(n);
@@ -3471,15 +3467,18 @@ function showSavedStreamingImages()
 
 function addLinksToLargerImages()
 {
-	if(get("rt"))
-		return;
+	const imageLinks = [];
+	const images = get("img");
+	const imagePlaceholders = get("rt a");
+	for(let i = 0, ii = images.length; i < ii; i++)
+		imageLinks.push(images[i].src);
+	for(let i = 0, ii = imagePlaceholders.length; i < ii; i++)
+		imageLinks.push(imagePlaceholders[i].href);
 	const links = get("a");
-	let i = links.length;
-	while(i--)
+	for(const link of links)
 	{
-		const link = links[i];
 		const linkHref = link.href;
-		if(containsAnyOfTheStrings(linkHref.toLowerCase(), [".png", ".jpg", ".jpeg", ".gif"]))
+		if( linkHref.match(/(\.png|\.jpg|\.jpeg|\.gif)/i) && !imageLinks.includes(linkHref) )
 			link.parentNode.insertBefore(createElementWithChildren("rt", createElement("a", { href: linkHref, textContent: shortenImageSrc(linkHref) })), link);
 	}
 }
@@ -5010,12 +5009,13 @@ function groupUnderHeading()
 function joinAdjacentElements(selector)
 {
 	const idsToSave = [];
+	deleteEmptyTextNodes();
 	const elems = get(selector);
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
 		let nextElem = elem.nextElementSibling;
-		while(nextElem && elems.includes(nextElem) && nextElem === elem.nextSibling)
+		while(nextElem && nextElem === elem.nextSibling && nextElem.matches(selector))
 		{
 			i++;
 			while(nextElem.firstChild)
@@ -5442,7 +5442,8 @@ function toggleStyleNegative()
 		pre xh { color: #57F; }
 		pre xv { color: #F47; }
 
-		markgreen { background: #040; color: #0F0; padding: 2px 0; line-height: inherit; }
+		mark { background: #420; color: #F90; padding: 2px 0; line-height: inherit; }
+		markgreen { background: #040; color: #8F0; padding: 2px 0; line-height: inherit; }
 		markred { background: #400; color: #F00; padding: 2px 0; line-height: inherit; }
 		markblue { background: #036; color: #09F; padding: 2px 0; line-height: inherit; }
 		markpurple { background: #404; color: #F0F; padding: 2px 0; line-height: inherit; }
@@ -5460,10 +5461,7 @@ function toggleStyleNegative()
 		hr { height: 2px; background: #999; border-style: solid; border-color: #999; border-width: 0; margin: 20px 0; }
 		legend { background: #181818; }
 		textarea, textarea div { font-family: Verdcode, Consolas, sans-serif; }
-		samp, mark, hl, kbd { background: #420; color: #F90; padding: 2px 0; }
 		container { border: 2px solid #F00; margin: 10px; display: block; padding: 10px; }
-		samp a:link, mark a:link, a:link samp, a:link mark { background: #331500; color: #F90; }
-		samp a:visited, mark a:visited, a:visited samp, a:visited mark { color: #e68a00; }
 		mark a:hover, a:hover mark, samp a:hover, a:hover samp { background-color: #4d2000; color: #FFF; }
 		samp, mark mark { font: 24px "Swis721 Cn BT", Calibri, sans-serif; }
 		figure { border: 0; background: #181818; padding: 20px; }
@@ -5583,6 +5581,15 @@ function toggleShowDocumentStructureWithNames()
 		span::before { content: "#"attr(id)" ."attr(class) ; color: #0B0; background: #000; padding: 2px 5px; }
 		`;
 	toggleStyle(style, "styleShowDocumentStructureWithNames", true);
+}
+
+function toggleStyleShowTableStructure()
+{
+	const s = `
+		th { background-image: linear-gradient(45deg, #000, #888); }
+		td { background-image: linear-gradient(45deg, #000, #555); }
+		`;
+	toggleStyle(s, "styleShowTableStructure", true);
 }
 
 //	Returns an array of elements matching a selector and also containing or not containing the specified text.
@@ -5742,7 +5749,7 @@ function deleteNodesRelativeToSelected(predicate = "after")
 	const anchorNode = getNodeContainingSelection();
 	if(!anchorNode)
 		return;
-	const nodes = get("ol, ul, p, div, aside, section, h1, h2, h3");
+	const nodes = get("ol, ul, p, div, aside, section, h1, h2, h3, table, img");
 	let i = nodes.length;
 	while(i--)
 	{
@@ -5857,13 +5864,6 @@ function cleanupHeadings()
 	}
 }
 
-function deleteNonContentImages()
-{
-	const srcSubstrings = ["transparent.", "pixel.", "spacer.", "nbb.org", "qm.gif", "avatar", "doubleclick", "bookmarking", "adbrite", "blogger.com", "style_images", "smilies", "smiley", "badges", "adriver", "/ads/", "/delivery/", "profile_images", "reputation_", "statusicons", "mt-static", "feed.", "twitter.", "bluesaint", "board/images"	];
-	for(let i = 0, ii = srcSubstrings.length; i < ii; i++)
-		deleteBySelectorAndTextMatching("img", srcSubstrings[i]);
-}
-
 //	This function "cleans up" a webpage and optimises it for saving locally.
 function cleanupGeneral()
 {
@@ -5872,7 +5872,6 @@ function cleanupGeneral()
 	cleanupTitle();
 	document.body.removeAttribute("style");
 	replaceIframes();
-	deleteNonContentImages();
 	addLinksToLargerImages();
 	replaceIncorrectHeading();
 	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet", "message"]);
@@ -6261,7 +6260,7 @@ function removeSpanTags(boolIgnoreIds)
 		return;
 	}
 	let s = document.body.innerHTML;
-	s = s.replace(/<\/{0,}span[^>]*>/g, " ");
+	s = s.replace(/<\/{0,}span[^>]*>/g, "");
 	document.body.innerHTML = s;
 	showMessageBig(numSpans + " span tags removed");
 }
@@ -6370,26 +6369,6 @@ function cleanupLists()
 	}
 }
 
-function deleteNonContentClasses()
-{
-	const nonContentClassSubstrings = [
-		"social",
-		"related",
-		"sponsor",
-		"recomm",
-		"sidebar",
-		"follow",
-		"share",
-		"sharing",
-		"float",
-		"overlay",
-		"modal",
-		"signup",
-	];
-	for(let i = 0, ii = nonContentClassSubstrings.length; i < ii; i++)
-		deleteByClassOrIdContaining(nonContentClassSubstrings[i]);
-}
-
 function deleteNonContentElements()
 {
 	if(get(Nimbus.markerClassSelector).length)
@@ -6399,9 +6378,7 @@ function deleteNonContentElements()
 		return;
 	}
 	replaceElementsBySelector("article", "div");
-	deleteNonContentClasses();
 	markNavigationalLists();
-	deleteNonContentImages();
 	deleteNonContentLists();
 	deleteEmptyElements("p");
 	deleteEmptyElements("div");
@@ -7418,7 +7395,7 @@ function expandSelectionToWordBoundaries(node, selection)
 	while(text[index2] && text[index2].match(regexRight) && index2 < text.length)
 		index2++;
 	const expanded = text.substring(index1, index2).replace(/\s+/g, " ").trim();
-	consoleLog("expanded: \n" + expanded);
+	consoleLog("expanded to word boundaries: \n" + expanded);
 	return expanded;
 }
 
@@ -7447,7 +7424,7 @@ function expandSelectionToSentenceBoundaries(node, selection)
 	if(index2 > text.length - 10)
 		index2 = text.length;
 	const expanded = text.substring(index1, index2).replace(/\s+/g, " ").trim();
-	consoleLog("expanded: \n" + expanded);
+	consoleLog("expanded to sentence boundaries: \n" + expanded);
 	return expanded;
 }
 
@@ -7568,6 +7545,7 @@ function highlightTextAcrossTags(node, searchString)
 		childNodeEnd += childNodeText.length;
 		let partialSearchString;
 		let isMatch = false;
+		//	If any part of the selection is contained in an element of these types, highlight the entire element
 		if(["I", "B", "EM", "STRONG", "REFERENCE", "CITE"].includes(childNode.tagName))
 		{
 			if(
@@ -7962,7 +7940,7 @@ function handleKeyDown(e)
 			case KEYCODES.O: customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
 			case KEYCODES.S: callFunctionWithArgs("Mark block elements containing text", markBlockElementsContainingText, 1); break;
-			case KEYCODES.T: numberTableRowsAndColumns(); break;
+			case KEYCODES.T: toggleStyleShowTableStructure(); break;
 			case KEYCODES.V: toggleShowDocumentStructure(); break;
 			case KEYCODES.X: customPrompt("Enter xPath").then(xPathMark); break;
 			case KEYCODES.Y: replaceElementsByTagNameMatching("ytd"); break;
