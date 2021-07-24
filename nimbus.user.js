@@ -875,11 +875,11 @@ function fixLineBreaks()
 function splitByBrs(sel)
 {
 	const selector = sel || makeClassSelector(Nimbus.markerClass);
-	const childTagName = "p";
 	const elems = get(selector);
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
+		const childTagName = elem.tagName;
 		let elemHtml = elem.innerHTML;
 		if(elemHtml.indexOf("<br") === -1)
 			continue;
@@ -2021,7 +2021,8 @@ function showMessage(messageHtml, msgClass, persist)
 		messageInner = getOne("messageinner");
 	}
 	messageInner.innerHTML = messageHtml;
-	console.log("Nimbus: \t " + messageInner.textContent);
+	if(msgClass)
+		console.log("Nimbus: \t " + messageInner.textContent);
 	if(!persist)
 		Nimbus.messageTimeout = setTimeout(deleteMessage, 2000);
 }
@@ -4287,11 +4288,6 @@ function cycleFocusOverFormFields()
 	for(let i = 0; i < len; i++)
 	{
 		const input = inputs[i];
-		if(input.name && input.name === "q")
-		{
-			focusField(input);
-			return;
-		}
 		if(input.type)
 		{
 			if(!["hidden", "submit", "reset", "button", "radio", "checkbox", "image"].includes(input.type))
@@ -4574,6 +4570,7 @@ function toggleContentEditable()
 	else
 	{
 		showMessageBig("contentEditable OFF");
+		selectedNode.removeAttribute("contentEditable");
 	}
 }
 
@@ -6762,23 +6759,24 @@ function inspect(onTop)
 		document.body.addEventListener('click', inspect_clickHandler, false);
 		document.body.classList.add("inspector");
 
-		const s = 'body.inspector { padding-bottom: 300px; }' +
-		'#inspector { padding: 5px 10px; position:fixed; left:0; bottom: 0; width: 50%; min-width: 500px; height: 200px; overflow: hidden; background:#000; color:#aaa; text-align:left; z-index: 2147483647; font:12px verdana; letter-spacing: 0; }' +
-		'#inspector.onTop { bottom: auto; top: 0; }' +
-		'#inspector b { color:#09f; }' +
-		'#inspector em { font-style:normal; color:#F80; }' +
-		'.hovered { background: rgba(0, 0, 0, 0.5); color: #FFF; }' +
-		'div#inspector { box-shadow: none; min-height: 200px; margin: 0; }' +
-		'#inspector div { box-shadow: none; margin: 0; padding: 0; }';
-
-		insertStyle(s, "inspector-style", true);
+		const s = `
+			body.inspector { padding-bottom: 30vh; }
+			div#inspector { padding: 5px 10px; position: fixed; left: 0; bottom: 0; width: 50%; min-width: 500px; height: 30vh; overflow: hidden; background:#000; color: #AAA; text-align:left; z-index: 2147483647; font: 12px verdana; letter-spacing: 0; box-shadow: none; min-height: 30vh; margin: 0; }
+			#inspector.onTop { bottom: auto; top: 0; }
+			#inspector b { color:#09F; }
+			#inspector em { font-style:normal; color:#F90; }
+			.hovered { box-shadow: inset -2px -2px #999, inset 2px 2px #999; }
+			#inspector div { box-shadow: none; margin: 0; padding: 0; }
+			#inspector::after, #inspector div::after { display: none; }
+		`;
+		insertStyle(s, "styleInspector", true);
 	}
 	else
 	{
 		document.body.removeEventListener('mouseover', inspect_mouseoverHandler, false);
 		document.body.removeEventListener('click', inspect_clickHandler, false);
 		del('#inspector');
-		del('#inspector-style');
+		del('#styleInspector');
 		document.body.classList.remove("inspector");
 		removeClassFromAll("hovered");
 	}
@@ -7882,6 +7880,7 @@ function handleKeyDown(e)
 			case KEYCODES.P: fixParagraphs(); break;
 			case KEYCODES.Q: resetHighlightTag(); break;
 			case KEYCODES.R: toggleHighlight(); break;
+			case KEYCODES.S: toggleContentEditable(); break;
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.V: joinNodesContainingSelection(); break;
 			case KEYCODES.W: cleanupGeneral_light(); break;
