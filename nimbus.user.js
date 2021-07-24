@@ -105,6 +105,7 @@ const Nimbus = {
 		NUMPAD_DECIMAL_POINT: 110,
 		NUMPAD_DIVIDE: 111,
 		FORWARD_SLASH: 191,
+		BACK_SLASH: 220,
 		MINUS: 173,
 		TILDE: 192,
 		SPACE: 32,
@@ -7319,6 +7320,31 @@ function highlightSelection()
 	}
 }
 
+function italicize()
+{
+	const selection = window.getSelection();
+	if(!selection.toString().length)
+	{
+		showMessageBig("Nothing selected");
+		return;
+	}
+	const node = selection.anchorNode;
+	const selectionText = removeLineBreaks(selection.toString()).trim();
+	const index1 = Math.min(selection.anchorOffset, selection.focusOffset);
+	const index2 = Math.max(selection.anchorOffset, selection.focusOffset);
+	let textBeforeSelection = node.textContent.substring(0, index1);
+	let textAfterSelection = node.textContent.substring(index2);
+	if(textBeforeSelection[textBeforeSelection.length - 1].match(/[a-zA-Z]/))
+		textBeforeSelection += " ";
+	if(textAfterSelection[0].match(/[a-zA-Z]/))
+		textAfterSelection = " " + textAfterSelection;
+	const frag = document.createDocumentFragment();
+	frag.appendChild(document.createTextNode(textBeforeSelection));
+	frag.appendChild(createElement("i", { textContent: selectionText }));
+	frag.appendChild(document.createTextNode(textAfterSelection));
+	node.parentNode.replaceChild(frag, node);
+}
+
 function highlightFirstParentByText(str)
 {
 	const highlightTagName = Nimbus.highlightTagName;
@@ -7867,6 +7893,7 @@ function handleKeyDown(e)
 			case KEYCODES.SQUARE_BRACKET_OPEN: modifyMark("previous"); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: modifyMark("next"); break;
 			case KEYCODES.MINUS: insertElementBeforeSelectionAnchor(); break;
+			case KEYCODES.BACK_SLASH: italicize(); break;
 			default: shouldPreventDefault = false;
 		}
 		if(shouldPreventDefault)
