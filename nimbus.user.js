@@ -436,6 +436,21 @@ function xPathMark(xpath)
 		showMessageBig("No matches found");
 }
 
+function markElement(elem)
+{
+	const markerAttribute = "data-marklevel";
+	elem.classList.add(Nimbus.markerClass);
+	const markLevel = elem.hasAttribute(markerAttribute) ? Number(elem.getAttribute(markerAttribute)) : 0;
+	elem.setAttribute(markerAttribute, markLevel + 1);
+}
+
+function unmarkElement(elem)
+{
+	const markerAttribute = "data-marklevel";
+	elem.classList.remove(Nimbus.markerClass);
+	elem.removeAttribute(markerAttribute);
+}
+
 function markElements(elems)
 {
 	markOrUnmarkElements(elems, "mark");
@@ -609,7 +624,7 @@ function markByChildrenHavingTheExactText(...args)
 		let i = elems.length;
 		showMessageBig(`Found ${i} elements`);
 		while(i--)
-			elems[i].classList.add(Nimbus.markerClass);
+			markElement(elems[i]);
 		insertStyleHighlight();
 	}
 }
@@ -631,7 +646,7 @@ function markElementsWithChildSpanning(parentSelector, childSelector)
 		{
 			const childText = children[0].textContent;
 			if(childText && childText.replace(/\s+/g, '').length === textLength)
-				parent.classList.add(Nimbus.markerClass);
+				markElement(parent);
 		}
 	}
 }
@@ -1679,7 +1694,7 @@ function createListsFromBulletedParagraphs()
 		const para = paras[i];
 		if(para.textContent.match(/\u2022/))
 		{
-			para.classList.add(Nimbus.markerClass);
+			markElement(para);
 			para.innerHTML = para.innerHTML.replace(/\u2022/, "");
 		}
 	}
@@ -2478,7 +2493,7 @@ function markByCssRule(prop, val)
 			const propertyValue = computedStyle.getPropertyValue(prop);
 			if(propertyValue === val)
 			{
-				e[i].classList.add(Nimbus.markerClass);
+				markElement(e[i]);
 				count++;
 			}
 		}
@@ -2567,7 +2582,7 @@ function markElementsWithSetWidths()
 		{
 			if(cssRules[j].match(/width:[^;]*px/) !== null)
 			{
-				elem.classList.add(Nimbus.markerClass);
+				markElement(elem);
 				elem.innerHTML = "<x>#" + elem.id + " ." + elem.className + " " + getComputedStyle(elem, null).getPropertyValue("width") + "</x>" + elem.innerHTML;
 				ylog(cssRules[j]);
 			}
@@ -2599,7 +2614,7 @@ function markNavigationalLists()
 		}
 		const listTextLength = list.textContent.replace(/[^A-Za-z]+/g, "").length;
 		if(listTextLength === linkText.length)
-			list.classList.add(Nimbus.markerClass);
+			markElement(list);
 	}
 	insertStyleHighlight();
 }
@@ -2612,7 +2627,7 @@ function markSelectionAnchorNode()
 	let numSimilarNodes = 0;
 	if(classSelector)
 		numSimilarNodes = get(node.tagName + classSelector).length;
-	node.classList.add(Nimbus.markerClass);
+	markElement(node);
 	insertStyleHighlight();
 	showMessage(createSelector(node) + ": " + numSimilarNodes + " matching nodes", "messagebig", true);
 }
@@ -2713,7 +2728,7 @@ function markUppercaseElements(selector)
 		cUpper = s.match(/[A-Z]/g);
 		cLower = s.match(/[a-z]/g);
 		if(cUpper && (!cLower || cUpper.length > cLower.length))
-			elem.classList.add(Nimbus.markerClass);
+			markElement(elem);
 	}
 	insertStyleHighlight();
 }
@@ -2727,7 +2742,7 @@ function markNumericElements(selector)
 		const elem = elements[i];
 		let elemText = elem.textContent;
 		if(elemText && !isNaN(Number(elemText)))
-			elem.classList.add(Nimbus.markerClass);
+			markElement(elem);
 	}
 	insertStyleHighlight();
 }
@@ -2794,6 +2809,8 @@ function unmarkAll()
 
 function filterNodesByAttributeEqualTo(nodes, attribute, value)
 {
+	if(typeof value === "number")
+		value += "";
 	let i = nodes.length;
 	const result = [];
 	if(attribute === "text" || attribute === "textContent")
@@ -3210,7 +3227,7 @@ function mark(...args)
 	let i = e.length;
 	showMessageBig("Found " + i + " elements");
 	while(i--)
-		e[i].classList.add(Nimbus.markerClass);
+		markElement(e[i]);
 	insertStyleHighlight();
 }
 
@@ -3222,7 +3239,7 @@ function unmark(...args)
 	let i = e.length;
 	showMessageBig("Found " + i + " elements");
 	while(i--)
-		e[i].classList.remove(Nimbus.markerClass);
+		unmarkElement(e[i]);
 	insertStyleHighlight();
 }
 
@@ -4166,11 +4183,11 @@ function cycleThroughTopLevelElements(boolReverse)
 			if(e.classList.contains(Nimbus.markerClass))
 			{
 				found = true;
-				e.classList.remove(Nimbus.markerClass);
+				unmarkElement(e);
 				if(i > 0)
-					candidateElements[i - 1].classList.add(Nimbus.markerClass);
+					markElement(candidateElements[i - 1]);
 				else
-					candidateElements[ii - 1].classList.add(Nimbus.markerClass);
+					markElement(candidateElements[ii - 1]);
 				break;
 			}
 		}
@@ -4183,17 +4200,17 @@ function cycleThroughTopLevelElements(boolReverse)
 			if(e.classList.contains(Nimbus.markerClass))
 			{
 				found = true;
-				e.classList.remove(Nimbus.markerClass);
+				unmarkElement(e);
 				if(i < ii - 1)
-					candidateElements[i + 1].classList.add(Nimbus.markerClass);
+					markElement(candidateElements[i + 1]);
 				else
-					candidateElements[0].classList.add(Nimbus.markerClass);
+					markElement(candidateElements[0]);
 				break;
 			}
 		}
 	}
 	if(!found)
-		candidateElements[0].classList.add(Nimbus.markerClass);
+		markElement(candidateElements[0]);
 }
 
 function deselect()
@@ -4695,7 +4712,7 @@ function toggleShowEmptyLinksAndSpans()
 		if(!(link.textContent.length || link.getElementsByTagName("img").length))
 		{
 			countLinks++;
-			link.classList.add(Nimbus.markerClass);
+			markElement(link);
 		}
 	}
 	const spans = get("span");
@@ -4705,7 +4722,7 @@ function toggleShowEmptyLinksAndSpans()
 		if(!(span.textContent.length || span.getElementsByTagName("img").length))
 		{
 			countSpans++;
-			span.classList.add(Nimbus.markerClass);
+			markElement(span);
 		}
 	}
 	const style = `
@@ -5047,7 +5064,7 @@ function joinParagraphsByLastChar()
 			const nextPara = para.nextElementSibling;
 			if(nextPara && nextPara.tagName === "P")
 			{
-				para.classList.add(Nimbus.markerClass);
+				markElement(para);
 				para.appendChild(document.createTextNode(" "));
 				while(nextPara.firstChild)
 					para.appendChild(nextPara.firstChild);
@@ -5093,7 +5110,7 @@ function selectNodesContainingSelection()
 		firstNode = lastNode;
 		lastNode = temp;
 	}
-	firstNode.classList.add(Nimbus.markerClass);
+	markElement(firstNode);
 	let sibling = firstNode.nextElementSibling;
 	while(sibling)
 	{
@@ -5174,7 +5191,7 @@ function logout()
 			{
 				found = true;
 				showMessageBig(node.href);
-				node.classList.add(Nimbus.markerClass);
+				markElement(node);
 				node.click();
 				break;
 			}
@@ -5186,7 +5203,7 @@ function logout()
 			{
 				found = true;
 				showMessageBig(node.href);
-				node.classList.add(Nimbus.markerClass);
+				markElement(node);
 				node.click();
 				break;
 			}
@@ -5203,7 +5220,7 @@ function logout()
 			{
 				found = true;
 				showMessageBig("Logging out...");
-				element.classList.add(Nimbus.markerClass);
+				markElement(element);
 				element.click();
 				break;
 			}
@@ -6511,7 +6528,7 @@ function getContentByParagraphCount()
 		}
 	}
 	if(contentDiv)
-		contentDiv.classList.add(Nimbus.markerClass);
+		markElement(contentDiv);
 	else
 		showMessageError("Could not find content");
 }
@@ -6759,17 +6776,20 @@ function inspect(onTop)
 		document.body.addEventListener('click', inspect_clickHandler, false);
 		document.body.classList.add("inspector");
 
-		const s = `
-			body.inspector { padding-bottom: 30vh; }
-			div#inspector { padding: 5px 10px; position: fixed; left: 0; bottom: 0; width: 50%; min-width: 500px; height: 30vh; overflow: hidden; background:#000; color: #AAA; text-align:left; z-index: 2147483647; font: 12px verdana; letter-spacing: 0; box-shadow: none; min-height: 30vh; margin: 0; }
-			#inspector.onTop { bottom: auto; top: 0; }
-			#inspector b { color:#09F; }
-			#inspector em { font-style:normal; color:#F90; }
-			.hovered { box-shadow: inset -2px -2px #999, inset 2px 2px #999; }
-			#inspector div { box-shadow: none; margin: 0; padding: 0; }
-			#inspector::after, #inspector div::after { display: none; }
-		`;
-		insertStyle(s, "styleInspector", true);
+		if(navigator.userAgent.indexOf("Mozilla") === -1)
+		{
+			const s = `
+				body.inspector { padding-bottom: 30vh; }
+				div#inspector { padding: 5px 10px; position: fixed; left: 0; bottom: 0; width: 50%; min-width: 500px; height: 30vh; overflow: hidden; background:#000; color: #AAA; text-align:left; z-index: 2147483647; font: 12px verdana; letter-spacing: 0; box-shadow: none; min-height: 30vh; margin: 0; }
+				#inspector.onTop { bottom: auto; top: 0; }
+				#inspector b { color:#09F; }
+				#inspector em { font-style:normal; color:#F90; }
+				.hovered { filter: contrast(1.5); }
+				#inspector div { box-shadow: none; margin: 0; padding: 0; }
+				#inspector::after, #inspector div::after { display: none; }
+			`;
+			insertStyle(s, "styleInspector", true);
+		}
 	}
 	else
 	{
@@ -7069,8 +7089,8 @@ function modifyMark(direction, keepSelection)
 	if(nextElement.tagName === 'BODY')
 		nextElement = nextElement.firstElementChild;
 	if(!keepSelection || direction === "expand" || direction === "contract")
-		currentElement.classList.remove(Nimbus.markerClass);
-	nextElement.classList.add(Nimbus.markerClass);
+		unmarkElement(currentElement);
+	markElement(nextElement);
 	showMessage(createSelector(nextElement), "messagebig", true);
 }
 
@@ -7359,6 +7379,7 @@ function highlightFirstParentByText(str)
 
 function highlightAllTextNodesMatching(str)
 {
+	str = str.toLowerCase();
 	const textNodes = getTextNodesAsArray();
 	let count = 0;
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
