@@ -13,7 +13,7 @@
 
 //
 //	Nimbus
-//	Copyright (C) 2008-2020 Nimish Jha
+//	Copyright (C) 2008-2021 Nimish Jha
 //
 //	This program is free software: you can redistribute it and/or modify
 //	it under the terms of the GNU General Public License as published by
@@ -3307,6 +3307,26 @@ function deleteSmallImages()
 
 function getBestImageSrc()
 {
+	Nimbus.bestImagesData = [];
+
+	function getBestImages()
+	{
+		const imageData = Nimbus.bestImagesData.pop();
+		if(imageData)
+		{
+			const img = imageData.image;
+			if(img.src !== imageData.bestSource)
+			{
+				const newImage = document.createElement("img");
+				newImage.src = imageData.bestSource;
+				markElement(newImage);
+				img.parentNode.replaceChild(newImage, img);
+			}
+		}
+		if(Nimbus.bestImagesData.length)
+			setTimeout(getBestImages, 1000);
+	}
+
 	function sortSources(a, b)
 	{
 		if(a.size > b.size) return 1;
@@ -3314,16 +3334,16 @@ function getBestImageSrc()
 		return 0;
 	}
 
-	const images = get("img");
+	const images = document.querySelectorAll("img");
 	if(!images)
 		return;
 	let i = images.length;
 	let count = 0;
 	while(i--)
 	{
-		const elem = images[i];
-		const set1 = typeof elem.srcset === "string" && elem.srcset.length ? elem.srcset : null;
-		const set2 = elem.getAttribute("data-srcset");
+		const image = images[i];
+		const set1 = typeof image.srcset === "string" && image.srcset.length ? image.srcset : null;
+		const set2 = image.getAttribute("data-srcset");
 		let srcset = set1 || set2;
 		if(!srcset)
 			continue;
@@ -3346,13 +3366,11 @@ function getBestImageSrc()
 			{
 				sourcesArray = sourcesArray.sort(sortSources);
 				bestSource = sourcesArray[sourcesArray.length - 1].src;
-				elem.src = bestSource;
-				elem.removeAttribute("srcset");
-				elem.removeAttribute("data-srcset");
+				Nimbus.bestImagesData.push({ image, bestSource });
 			}
 		}
 	}
-	xlog(`Switched to best image source for ${count} images`);
+	getBestImages();
 }
 
 function shortenImageSrc(src)
@@ -5304,7 +5322,7 @@ function toggleStyleSimpleNegative()
 {
 	const s = `
 		html, body, body[class] {background: #000; font-family: "Swis721 Cn BT"; }
-		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #888; border-color: transparent; background-image: none; border-radius: 0; }
+		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #888; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(22px + 0.00001vh); }
 		*::before, *::after { opacity: 0.25; }
 		span, input, button { border-radius: 0; }
 		h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #CCC; }
@@ -7394,7 +7412,7 @@ function highlightAllTextNodesMatching(str)
 		}
 	}
 	if(count)
-		showMessageBig(count + " occurrences of " + str + " highlighted");
+		showMessageBig(count + " text nodes containing " + str + " highlighted");
 }
 
 function highlightBySelectorAndText(selector, str)
@@ -7831,7 +7849,7 @@ function inject()
 {
 	document.body.classList.add("nimbusDark");
 	document.addEventListener("keydown", handleKeyDown, false);
-	getBestImageSrc();
+	// getBestImageSrc();
 	removeAccessKeys();
 	insertStyleHighlight();
 	insertStyleAnnotations();
