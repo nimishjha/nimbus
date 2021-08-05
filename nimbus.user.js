@@ -162,6 +162,7 @@ const Nimbus = {
 		disableConsoleLogs: disableConsoleLogs,
 		edit: toggleContentEditable,
 		editDocumentTitle: editDocumentTitle,
+		editStyleById: editStyleById,
 		emptyTextNodes: emptyTextNodes,
 		enableConsoleLogs: enableConsoleLogs,
 		enableClickToCollectUrls: enableClickToCollectUrls,
@@ -1973,6 +1974,13 @@ function makeClassSelector(className)
 	return className.trim();
 }
 
+function makeIdSelector(id)
+{
+	if(id.indexOf("#") !== 0)
+		return "#" + id.trim();
+	return id.trim();
+}
+
 function simplifyClassNames()
 {
 	const elems = get("div, p, span, h1, h2, h3, h4, h5, h6, ol, ul, li");
@@ -2170,6 +2178,24 @@ function getConsoleHistory(consoleType)
 		case "js": return Nimbus.jsConsoleText || "";
 		default: return "";
 	}
+}
+
+function editStyleById(styleId)
+{
+	if(!typeof styleId === "string" && styleId.length)
+	{
+		showMessageBig("Style ID is required");
+		return;
+	}
+	styleId = makeIdSelector(styleId);
+	const styleElem = get(styleId);
+	if(!styleElem)
+	{
+		showMessageBig("Could not get style with id " + styleId);
+		return;
+	}
+	toggleConsole("css");
+	getOne("#userInput").value = styleElem.textContent;
 }
 
 function toggleConsole(consoleType)
