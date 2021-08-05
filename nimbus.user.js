@@ -406,12 +406,12 @@ function getOrCreate(tagName, id, parent)
 
 function getTextNodes()
 {
-	return document.evaluate("//text()", document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+	return document.evaluate("//body//text()", document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
 }
 
 function getTextNodesAsArray()
 {
-	const nodes = document.evaluate("//text()", document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+	const nodes = document.evaluate("//body//text()", document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
 	let selected = new Array(nodes.snapshotLength);
 	for(let i = 0, ii = selected.length; i < ii; i++)
 		selected[i] = nodes.snapshotItem(i);
@@ -7394,16 +7394,22 @@ function italicize()
 	const selectionText = removeLineBreaks(selection.toString()).trim();
 	const index1 = Math.min(selection.anchorOffset, selection.focusOffset);
 	const index2 = Math.max(selection.anchorOffset, selection.focusOffset);
-	let textBeforeSelection = node.textContent.substring(0, index1);
-	let textAfterSelection = node.textContent.substring(index2);
-	if(textBeforeSelection[textBeforeSelection.length - 1].match(/[a-zA-Z]/))
-		textBeforeSelection += " ";
-	if(textAfterSelection[0].match(/[a-zA-Z]/))
-		textAfterSelection = " " + textAfterSelection;
 	const frag = document.createDocumentFragment();
-	frag.appendChild(document.createTextNode(textBeforeSelection));
+	if(index1 > 0)
+	{
+		let textBeforeSelection = node.textContent.substring(0, index1);
+		if(textBeforeSelection[textBeforeSelection.length - 1].match(/[a-zA-Z]/))
+			textBeforeSelection += " ";
+		frag.appendChild(document.createTextNode(textBeforeSelection));
+	}
 	frag.appendChild(createElement("i", { textContent: selectionText }));
-	frag.appendChild(document.createTextNode(textAfterSelection));
+	if(index2 < node.textContent.length - 1)
+	{
+		let textAfterSelection = node.textContent.substring(index2);
+		if(textAfterSelection[0].match(/[a-zA-Z]/))
+			textAfterSelection = " " + textAfterSelection;
+		frag.appendChild(document.createTextNode(textAfterSelection));
+	}
 	node.parentNode.replaceChild(frag, node);
 }
 
