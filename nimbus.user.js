@@ -140,7 +140,6 @@ const Nimbus = {
 		groupMarkedElements: groupMarkedElements,
 		copyAttribute: copyAttribute,
 		createPagerFromSelect: createPagerFromSelect,
-		createTagsByClassName: createTagsByClassName,
 		cycleFocusOverFormFields: cycleFocusOverFormFields,
 		del: del,
 		deleteBySelectorAndText: deleteBySelectorAndText,
@@ -168,7 +167,6 @@ const Nimbus = {
 		enableClickToCollectUrls: enableClickToCollectUrls,
 		disableClickToCollectUrls: disableClickToCollectUrls,
 		fillForms: fillForms,
-		fixBrsInHeadings: fixBrsInHeadings,
 		fixCdnImages: fixCdnImages,
 		replaceEmptyAnchors: replaceEmptyAnchors,
 		replaceElementsOfMarkedTypeWith: replaceElementsOfMarkedTypeWith,
@@ -183,7 +181,6 @@ const Nimbus = {
 		forAll: forAll,
 		forAllMarked: forAllMarked,
 		forceReloadCss: forceReloadCss,
-		formatEbook: formatEbook,
 		generateTableOfContents: generateTableOfContents,
 		getAllCssRulesMatching: getAllCssRulesMatching,
 		getBestImageSrc: getBestImageSrc,
@@ -226,7 +223,6 @@ const Nimbus = {
 		makeOL: makeOL,
 		makeUL: makeUL,
 		splitByBrs: splitByBrs,
-		replaceHeadingClassesByTextLength: replaceHeadingClassesByTextLength,
 		makePlainText: makePlainText,
 		fixInternalReferences: fixInternalReferences,
 		mark: mark,
@@ -864,11 +860,6 @@ function startsWithAnyOfTheStrings(s, arrStrings)
 function removeNonAlpha(str)
 {
 	return str.replace(/[^A-Za-z]/g, '');
-}
-
-function fixBrsInHeadings()
-{
-	splitByBrs("h1, h2, h3", "div");
 }
 
 function fixLineBreaks()
@@ -2182,7 +2173,7 @@ function getConsoleHistory(consoleType)
 
 function editStyleById(styleId)
 {
-	if(!typeof styleId === "string" && styleId.length)
+	if(typeof styleId !== "string" || !styleId.length)
 	{
 		showMessageBig("Style ID is required");
 		return;
@@ -3913,146 +3904,12 @@ function fixParagraphs()
 	cleanupHeadings();
 }
 
-function createTagsByClassName()
-{
-	replaceElementsBySelector("div.calibre", "section");
-	replaceElementsBySelector(".atx", "blockquote");
-	replaceElementsBySelector(".indent, .tx, .fmtx, .fmtx1", "p");
-	replaceElementsBySelector(".cn, .ct, .chap-number, .chap-title, .chapter-number, .chapter-title, .chapternumer, .chaptertitle", "h1");
-	const e = document.querySelectorAll("div, p");
-	let i = e.length;
-	let numReplaced = 0;
-	const tagsCreated = {};
-	while(i--)
-	{
-		const element = e[i];
-		let replacementTagName = null;
-		switch(true)
-		{
-			case hasClassesStartingWith(element, ["h1", "partno", "partnum", "parttitle", "part-title"]): replacementTagName = "h1"; break;
-			case hasClassesStartingWith(element, ["chap", "fmtitle", "fmh", "h2"]): replacementTagName = "h2"; break;
-			case hasClassesStartingWith(element, ["h3"]): replacementTagName = "h3"; break;
-			case hasClassesStartingWith(element, ["ded", "epi"]): replacementTagName = "h4"; break;
-			case looksLikeHeading(element): replacementTagName = "h2"; break;
-			case looksLikeComment(element): replacementTagName = "comment"; break;
-			case looksLikeExtract(element): replacementTagName = "blockquote"; break;
-			case hasClassesContaining(element, ["image"]): replacementTagName = "figure"; break;
-			case hasClassesContaining(element, ["caption"]): replacementTagName = "figcaption"; break;
-		}
-		if(replacementTagName)
-		{
-			if(tagsCreated[replacementTagName])
-				tagsCreated[replacementTagName]++;
-			else
-				tagsCreated[replacementTagName] = 1;
-			numReplaced++;
-			replaceElement(element, replacementTagName);
-		}
-	}
-	const elements = get("span");
-	i = elements.length;
-	while(i--)
-	{
-		const element = elements[i];
-		let replacementTagName = null;
-		switch(true)
-		{
-			case hasClassesStartingWith(element, ["ital"]): replacementTagName = "i"; break;
-			case hasClassesContaining(element, ["bold", "txbf", "epub-b"]): replacementTagName = "b"; break;
-			case hasClassesContaining(element, ["italic", "txit", "epub-i"]): replacementTagName = "i"; break;
-			case hasClassesContaining(element, ["epub-sc, small"]): replacementTagName = "small"; break;
-		}
-		if(replacementTagName)
-		{
-			if(tagsCreated[replacementTagName])
-				tagsCreated[replacementTagName]++;
-			else
-				tagsCreated[replacementTagName] = 1;
-			numReplaced++;
-			replaceElement(element, replacementTagName);
-		}
-	}
-	showMessageBig(`createTagsByClassName: replaced <b>${numReplaced}</b> elements`);
-	console.log(tagsCreated);
-}
-
-function replaceHeadingClassesByTextLength()
-{
-	let e = get("div, p");
-	const classes = getAllClassesFor("div, p");
-	let headingClasses = [];
-	let strClass;
-	let selector;
-	let averageTextLength;
-	for(let j = 0, jj = classes.length; j < jj; j++)
-	{
-		const className = classes[j];
-		selector = "." + className;
-		if(selector.length < 2) continue;
-		let textLength = 0;
-		e = get(selector);
-		let i = e.length;
-		while(i--)
-		{
-			if(e[i].textContent.length)
-				textLength += e[i].textContent.length;
-		}
-		averageTextLength = Math.floor(textLength / e.length);
-		if(averageTextLength < 80 && averageTextLength > 2 && e.length > 4)
-		{
-			headingClasses.push({
-				className: className,
-				averageTextLength: averageTextLength
-			});
-		}
-	}
-	console.table(headingClasses);
-	headingClasses = headingClasses.sort(function(a, b){
-		if(a.averageTextLength > b.averageTextLength) return 1;
-		else if(a.averageTextLength < b.averageTextLength) return -1;
-		else return 0;
-	});
-	let headingLevel = 1;
-	for(let i = 0, ii = 6; i < ii; i++)
-		replaceElementsBySelector("." + headingClasses[i].className, "h" + headingLevel++);
-	for(let i = 6, ii = headingClasses.length; i < ii; i++)
-		replaceElementsBySelector("." + headingClasses[i].className, "h3");
-}
-
-function formatEbook()
-{
-	cleanupHead();
-	createTagsByClassName();
-	replaceEmptyParagraphsWithHr();
-	replaceEmptyAnchors();
-	fixInternalReferences();
-}
-
 function looksLikeUrl(str)
 {
 	if(str.indexOf("http") === 0)
 		return true;
 	if(~str.indexOf("/"))
 		return true;
-}
-
-function looksLikeHeading(element)
-{
-	if(element.innerHTML.length > 80) return false;
-	if(hasClassesStartingWith(element, ["chap", "cn", "ct", "fmh", "title", "h1", "h2"])) return true;
-	if(hasClassesContaining(element, ["heading", "chapternumber", "chaptertitle", "h1", "h2"])) return true;
-}
-
-function looksLikeComment(element)
-{
-	if(hasClassesContaining(element, ["omment"])) return true;
-}
-
-function looksLikeExtract(element)
-{
-	if(element.querySelectorAll("div, p").length > 5) return false;
-	if(hasClassesStartingWith(element, ["block", "quote", "extract"])) return true;
-	if(hasClassesContaining(element, ["quote", "extract"])) return true;
 }
 
 function setDocTitleSimple(newTitle)
@@ -6756,41 +6613,36 @@ function toggleBlockEditMode()
 	}
 }
 
-function getAttributes(targ)
+function getAttributes(elem)
 {
-	const divText = document.createElement('div');
-	if(targ.tagName)
-		divText.innerHTML = "\r\n<b>" + targ.tagName.toLowerCase() + "</b>";
-	if(targ.attributes)
+	const inspectorPanel = document.createElement('div');
+	if(elem.tagName)
+		inspectorPanel.appendChild(createElement("b", { textContent: elem.tagName.toLowerCase() }) );
+	if(elem.attributes)
 	{
-		const ta = targ.attributes;
-		let str = ' ';
-		for(let i = 0; i < ta.length; i++)
+		const attrs = elem.attributes;
+		const frag = document.createDocumentFragment();
+		for(let i = 0; i < attrs.length; i++)
 		{
-			if(ta[i])
+			const attr = attrs[i];
+			if(attr)
 			{
-				str += "<em>" + ta[i].name + "</em> ";
-				if(removeWhitespace(ta[i].value) !== "hovered")
-				{
-					str += '="' + ta[i].value + '" ';
-					str = str.replace(/hovered/g, '');
-				}
+				frag.appendChild(createElement("em", { textContent: " " + attr.name + "="}));
+				frag.appendChild(document.createTextNode('"' + attr.value + '"'));
 			}
 		}
-		divText.innerHTML += str;
-		str = '';
-		const keys = Object.keys(targ);
+		inspectorPanel.appendChild(frag);
+		const keys = Object.keys(elem);
+		const elemKeys = document.createElement("em");
 		for(let i = 0, ii = keys.length; i < ii; i++)
-			str += keys[i] + ' ';
-		const events = document.createElement('em');
-		events.appendChild(document.createTextNode(str));
-		divText.appendChild(events);
+			elemKeys.appendChild(document.createTextNode(keys[i] + " "));
+		inspectorPanel.appendChild(elemKeys);
 		const inspectordiv = document.getElementById("inspector");
-		inspectordiv.appendChild(divText);
+		inspectordiv.appendChild(inspectorPanel);
 	}
 }
 
-function inspect_mouseoverHandler(evt)
+function inspectMouseoverHandler(evt)
 {
 	const inspectorElem = document.getElementById("inspector");
 	emptyElement(inspectorElem);
@@ -6816,7 +6668,7 @@ function inspect(onTop)
 		if(onTop)
 			b.className = "onTop";
 		document.body.insertBefore(b, document.body.firstChild);
-		document.body.addEventListener('mouseover', inspect_mouseoverHandler, false);
+		document.body.addEventListener('mouseover', inspectMouseoverHandler, false);
 		document.body.addEventListener('click', inspect_clickHandler, false);
 		document.body.classList.add("inspector");
 
@@ -6837,7 +6689,7 @@ function inspect(onTop)
 	}
 	else
 	{
-		document.body.removeEventListener('mouseover', inspect_mouseoverHandler, false);
+		document.body.removeEventListener('mouseover', inspectMouseoverHandler, false);
 		document.body.removeEventListener('click', inspect_clickHandler, false);
 		del('#inspector');
 		del('#styleInspector');
@@ -8062,7 +7914,6 @@ function handleKeyDown(e)
 			case KEYCODES.G: callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
 			case KEYCODES.Z: deselect(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by class or id containing", replaceByClassOrIdContaining, 2); break;
-			case KEYCODES.F: formatEbook(); break;
 			case KEYCODES.H: unmarkAll(); break;
 			case KEYCODES.M: markOverlays(); break;
 			case KEYCODES.S: forceReloadCss(); break;
