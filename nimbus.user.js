@@ -255,7 +255,7 @@ const Nimbus = {
 		removeInlineStyles: removeInlineStyles,
 		removeQueryStringFromImageSources: removeQueryStringFromImageSources,
 		removeQueryStringFromLinks: removeQueryStringFromLinks,
-		cleanupLists: cleanupLists,
+		fixBullets: fixBullets,
 		removeSpanTags: removeSpanTags,
 		replaceAudio: replaceAudio,
 		replaceClass: replaceClass,
@@ -448,29 +448,18 @@ function unmarkElement(elem)
 	elem.removeAttribute(markerAttribute);
 }
 
-function markElements(elems)
+function markElements(elements)
 {
-	markOrUnmarkElements(elems, "mark");
-}
-
-function unmarkElements(elems)
-{
-	markOrUnmarkElements(elems, "unmark");
-}
-
-function markOrUnmarkElements(elems, action = "mark")
-{
-	const elements = elems.nodeType ? [elems] : elems;
-	const func = action === "mark" ? "add" : "remove";
-	if(!(elements && elements.length))
-	{
-		showMessageBig("No elements given");
-		return;
-	}
+	if(!elements) return;
 	for(let i = 0, ii = elements.length; i < ii; i++)
-		elements[i].classList[func](Nimbus.markerClass);
+		markElement(elements[i]);
+}
 
-	showMessageBig(`${action}ed <b>${elements.length}</b> elements`);
+function unmarkElements(elements)
+{
+	if(!elements) return;
+	for(let i = 0, ii = elements.length; i < ii; i++)
+		unmarkElement(elements[i]);
 }
 
 function highlightElements(elems)
@@ -883,10 +872,19 @@ function splitByBrs(sel)
 {
 	const selector = sel || makeClassSelector(Nimbus.markerClass);
 	const elems = get(selector);
+	const tagMap = {
+		"H1": "H1",
+		"H2": "H2",
+		"H3": "H3",
+		"H4": "H4",
+		"H5": "H5",
+		"H6": "H6",
+		default: "P",
+	};
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
-		const childTagName = elem.tagName;
+		const childTagName = tagMap[elem.tagName];
 		let elemHtml = elem.innerHTML;
 		if(elemHtml.indexOf("<br") === -1)
 			continue;
@@ -2817,10 +2815,10 @@ function showTags()
 
 function unmarkAll()
 {
-	let count = 0;
-	count += removeClassFromAll(Nimbus.markerClass);
-	count += removeClassFromAll("error");
-	del(["annotationinfo", "annotationwarning", "annotationerror"]);
+	const marked = getMarkedElements();
+	if(!marked) return;
+	const count = marked.length;
+	unmarkElements(marked);
 	showMessageBig(`Unmarked <b>${count}</b> elements`);
 }
 
@@ -4996,6 +4994,7 @@ function saveIdsToElement(element, ids)
 function selectNodesContainingSelection()
 {
 	const sel = window.getSelection();
+	if(!window.getSelection().toString().length) return false;
 	let firstNode = getFirstBlockParent(sel.anchorNode);
 	let lastNode = getFirstBlockParent(sel.focusNode);
 	if(firstNode === lastNode)
@@ -5025,18 +5024,27 @@ function selectNodesContainingSelection()
 
 function joinNodesContainingSelection()
 {
-	markElements(selectNodesContainingSelection());
+	const elems = selectNodesContainingSelection();
+	if(!elems) return;
+	markElements(elems);
 	joinMarkedElements();
 }
 
-//	This function fixes the problem where two adjacent elements should in fact be one element.
-//	Useful for joining, say, a paragraph that has erroneously been split into two paragraphs.
 function joinMarkedElements()
 {
-	const idsToSave = [];
-	const elemsToJoin = getMarkedElements();
+	const marked = getMarkedElements();
+	if(marked)
+	{
+		unmarkAll();
+		joinElements(marked);
+	}
+}
+
+function joinElements(elemsToJoin)
+{
 	if(!elemsToJoin.length)
 		return;
+	const idsToSave = [];
 	const wrapperTagName = elemsToJoin[0].tagName;
 	const wrapper = document.createElement(wrapperTagName);
 	for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
@@ -5052,7 +5060,7 @@ function joinMarkedElements()
 	}
 	saveIdsToElement(wrapper, idsToSave);
 	insertBefore(elemsToJoin[0], wrapper);
-	del(Nimbus.markerClassSelector);
+	del(elemsToJoin);
 	deleteMessage();
 }
 
@@ -5205,10 +5213,10 @@ function toggleStyleSimpleNegative()
 {
 	const s = `
 		html, body, body[class] {background: #000; font-family: "Swis721 Cn BT"; }
-		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #888; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(22px + 0.00001vh); }
+		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "Swis721 Cn BT"; }
 		*::before, *::after { opacity: 0.25; }
 		span, input, button { border-radius: 0; }
-		h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #CCC; }
+		h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #EEE; }
 		mark {color: #FF0; }
 		a, a[class] *, * a[class] {color: #05C; }
 		a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #CCC; }
@@ -6267,7 +6275,7 @@ function deleteNonContentLists()
 
 //	After converting numbered or bulleted paragraphs to lists, we need
 //	to remove the redundant numbering or bullets from the list items.
-function cleanupLists()
+function fixBullets()
 {
 	const lis = get("ol > li");
 	for(let i = 0, ii = lis.length; i < ii; i++)
@@ -6671,21 +6679,17 @@ function inspect(onTop)
 		document.body.addEventListener('mouseover', inspectMouseoverHandler, false);
 		document.body.addEventListener('click', inspect_clickHandler, false);
 		document.body.classList.add("inspector");
-
-		if(navigator.userAgent.indexOf("Mozilla") === -1)
-		{
-			const s = `
-				body.inspector { padding-bottom: 30vh; }
-				div#inspector { padding: 5px 10px; position: fixed; left: 0; bottom: 0; width: 50%; min-width: 500px; height: 30vh; overflow: hidden; background:#000; color: #AAA; text-align:left; z-index: 2147483647; font: 12px verdana; letter-spacing: 0; box-shadow: none; min-height: 30vh; margin: 0; }
-				#inspector.onTop { bottom: auto; top: 0; }
-				#inspector b { color:#09F; }
-				#inspector em { font-style:normal; color:#F90; }
-				.hovered { filter: contrast(1.5); }
-				#inspector div { box-shadow: none; margin: 0; padding: 0; }
-				#inspector::after, #inspector div::after { display: none; }
-			`;
-			insertStyle(s, "styleInspector", true);
-		}
+		const s = `
+			body.inspector { padding-bottom: 30vh; }
+			div#inspector { padding: 5px 10px; position: fixed; left: 0; bottom: 0; width: 50%; min-width: 500px; height: 30vh; overflow: hidden; background:#000; color: #AAA; text-align:left; z-index: 2147483647; font: 12px verdana; letter-spacing: 0; box-shadow: none; min-height: 30vh; margin: 0; }
+			#inspector.onTop { bottom: auto; top: 0; }
+			#inspector b { color:#09F; }
+			#inspector em { font-style:normal; color:#F90; }
+			.hovered { filter: contrast(1.5); }
+			#inspector div { box-shadow: none; margin: 0; padding: 0; }
+			#inspector::after, #inspector div::after { display: none; }
+		`;
+		insertStyle(s, "styleInspector", true);
 	}
 	else
 	{
@@ -7731,9 +7735,7 @@ function removeHighlightsFromMarkedElements()
 
 function inject()
 {
-	document.body.classList.add("nimbusDark");
 	document.addEventListener("keydown", handleKeyDown, false);
-	// getBestImageSrc();
 	removeAccessKeys();
 	insertStyleHighlight();
 	insertStyleAnnotations();
