@@ -170,6 +170,7 @@ const Nimbus = {
 		fixCdnImages: fixCdnImages,
 		replaceEmptyAnchors: replaceEmptyAnchors,
 		replaceElementsOfMarkedTypeWith: replaceElementsOfMarkedTypeWith,
+		replaceInlineStylesWithClasses: replaceInlineStylesWithClasses,
 		replaceInTextNodes: replaceInTextNodes,
 		replaceQueryParameter: replaceQueryParameter,
 		findStringsInProximity: findStringsInProximity,
@@ -5865,6 +5866,20 @@ function removeInlineStyles()
 	let i = e.length;
 	while(i--)
 		e[i].removeAttribute("style");
+}
+
+function replaceInlineStylesWithClasses(selector = "span[style]")
+{
+	const elems = get(selector);
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+		if(elem.hasAttribute("style"))
+		{
+			elem.className = elem.getAttribute("style").replace(/[^A-Za-z0-9]/g, "");
+			elem.removeAttribute(style);
+		}
+	}
 }
 
 function deleteBySelectorAndTextMatching(selector, str)
