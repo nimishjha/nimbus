@@ -260,7 +260,7 @@ const Nimbus = {
 		removeSpanTags: removeSpanTags,
 		replaceAudio: replaceAudio,
 		replaceClass: replaceClass,
-		replaceCommentsWithPres: replaceCommentsWithPres,
+		showHtmlComments: showHtmlComments,
 		replaceDiacritics: replaceDiacritics,
 		replaceByClassOrIdContaining: replaceByClassOrIdContaining,
 		replaceElementsBySelector: replaceElementsBySelector,
@@ -408,7 +408,13 @@ function getTextNodes()
 
 function getTextNodesAsArray()
 {
-	const nodes = document.evaluate("//body//text()", document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+	return getXpathResultAsArray("//body//text()");
+}
+
+function getXpathResultAsArray(xpath)
+{
+	const nodes = document.evaluate(xpath, document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+	if(!nodes.snapshotLength) return;
 	let selected = new Array(nodes.snapshotLength);
 	for(let i = 0, ii = selected.length; i < ii; i++)
 		selected[i] = nodes.snapshotItem(i);
@@ -6202,13 +6208,16 @@ function removeSpanTags(boolIgnoreIds)
 	showMessageBig(numSpans + " span tags removed");
 }
 
-//	You'll be amazed at some of the things people put in HTML comments.
-function replaceCommentsWithPres()
+function showHtmlComments()
 {
-	let s = document.body.innerHTML;
-	s = s.replace(/<!--/g, '<pre>');
-	s = s.replace(/-->/g, '</pre>');
-	document.body.innerHTML = s;
+	const comments = getXpathResultAsArray("//body//comment()");
+	for(let i = 0, ii = comments.length; i < ii; i++)
+	{
+		const comment = comments[i];
+		const replacement = createElement("div", { className: Nimbus.markerClass });
+		replacement.innerHTML = comment.data;
+		comment.parentNode.replaceChild(replacement, comment);
+	}
 }
 
 function replaceAudio()
@@ -7816,7 +7825,7 @@ function handleKeyDown(e)
 			case KEYCODES.FOUR: deleteSmallImages(); break;
 			case KEYCODES.FIVE: buildGallery(); break;
 			case KEYCODES.SIX: deleteIframes(); break;
-			case KEYCODES.SEVEN: replaceCommentsWithPres(); break;
+			case KEYCODES.SEVEN: showHtmlComments(); break;
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
 			case KEYCODES.NINE: toggleStyleShowClasses(); break;
 			case KEYCODES.ZERO: cycleThroughDocumentHeadings(); break;
