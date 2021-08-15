@@ -7007,23 +7007,31 @@ function modifyMark(direction, keepSelection)
 	showMessage(createSelector(nextElement), "messagebig", true);
 }
 
-function wrapElement(node, tagName)
+function wrapElement(elem, tagName)
 {
 	const wrapper = createElement(tagName);
-	const newNode = node.cloneNode(true);
-	wrapper.appendChild(newNode);
-	node.parentNode.replaceChild(wrapper, node);
+	const newElem = elem.cloneNode(true);
+	wrapper.appendChild(newElem);
+	elem.parentNode.replaceChild(wrapper, elem);
 }
 
-function wrapElementInner(node, tagName)
+function wrapElementInner(elem, tagName)
 {
 	const wrapper = createElement(tagName);
-	const newNode = document.createElement(node.tagName);
-	if(node.tagName === "A" && node.href && node.href.length)
-		newNode.href = node.href;
-	while(node.firstChild)
-		wrapper.appendChild(node.firstChild);
-	node.appendChild(wrapper);
+	const newElem = document.createElement(elem.tagName);
+	if(elem.tagName === "A" && elem.href && elem.href.length)
+		newElem.href = elem.href;
+	while(elem.firstChild)
+		wrapper.appendChild(elem.firstChild);
+	elem.appendChild(wrapper);
+}
+
+function unwrapElement(elem)
+{
+	const frag = document.createDocumentFragment();
+	while(elem.firstChild)
+		frag.appendChild(elem.firstChild);
+	elem.parentNode.replaceChild(frag, elem);
 }
 
 function makeButtonsReadable()
