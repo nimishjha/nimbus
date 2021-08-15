@@ -6194,20 +6194,24 @@ function replaceElementsWithTextNodes(selector)
 }
 
 //	This function does a brute-force removal of all <span> tags in a document.
-function removeSpanTags(boolIgnoreIds)
+function removeSpanTags(isOkToLoseIds)
 {
-	if(!boolIgnoreIds)
+	if(!isOkToLoseIds)
 		replaceSupSpanAnchors();
-	const numSpans = get("span").length;
-	if(!numSpans)
+	const spans = get("span");
+	if(!spans.length)
 	{
 		showMessageBig("No span tags found");
 		return;
 	}
-	let s = document.body.innerHTML;
-	s = s.replace(/<\/{0,}span[^>]*>/g, "");
-	document.body.innerHTML = s;
-	showMessageBig(numSpans + " span tags removed");
+	for(let i = 0, ii = spans.length; i < ii; i++)
+	{
+		const span = spans[i];
+		const frag = document.createDocumentFragment();
+		while(span.firstChild)
+			frag.appendChild(span.firstChild);
+		span.parentNode.replaceChild(frag, span);
+	}
 }
 
 function showHtmlComments()
