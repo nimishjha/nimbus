@@ -7112,14 +7112,14 @@ function annotate(position = "before")
 	let node = getNodeContainingSelection();
 	if(node && node.parentNode)
 	{
-		customPrompt("Enter annotation text").then(function(result) {
-			const annotation = document.createElement("annotation");
-			annotation.textContent = result;
-			if(annotation.textContent.length)
-				if(position === "after")
-					insertAfter(node, annotation);
-				else
-					insertBefore(node, annotation);
+		customPrompt("Enter annotation tag").then(function(result) {
+			const annotation = result.length ? document.createElement(result) : document.createElement("annotation");
+			if(position === "after")
+				insertAfter(node, annotation);
+			else
+				insertBefore(node, annotation);
+			annotation.setAttribute("contenteditable", "true");
+			annotation.focus();
 		});
 	}
 }
