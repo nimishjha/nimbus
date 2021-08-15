@@ -5226,8 +5226,10 @@ function toggleStyleSimpleNegative()
 		a, a[class] *, * a[class] {color: #05C; }
 		a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #CCC; }
 		a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #C55; }
-		button[class], input[class], textarea[class] { border: 1px solid #333; }
-		button[class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 1px solid #CCC; }
+		*[class*=stock][class] { background: #080; }
+		*[class*=hover][class] { background: #000; }
+		button[class], button[class][class], input[class], textarea[class] { border: 1px solid #333; background: #333; }
+		button[class]:focus, button[class][class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 1px solid #CCC; }
 		img, svg { opacity: 0.5; }
 		img:hover, a:hover img { opacity: 1; }
 		`;
@@ -5881,7 +5883,7 @@ function replaceInlineStylesWithClasses(selector = "span[style]")
 		if(elem.hasAttribute("style"))
 		{
 			elem.className = elem.getAttribute("style").replace(/[^A-Za-z0-9]/g, "");
-			elem.removeAttribute(style);
+			elem.removeAttribute("style");
 		}
 	}
 }
