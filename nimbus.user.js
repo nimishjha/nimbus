@@ -7746,12 +7746,21 @@ function removeHighlightsFromMarkedElements()
 	unmarkAll();
 }
 
+function isChrome()
+{
+	return navigator.userAgent.indexOf("Chrome/") !== -1;
+}
+
 function inject()
 {
 	document.addEventListener("keydown", handleKeyDown, false);
 	removeAccessKeys();
-	insertStyleHighlight();
-	insertStyleAnnotations();
+	// On Firefox we don't need this, as we have userContent.css
+	if(isChrome())
+	{
+		insertStyleHighlight();
+		insertStyleAnnotations();
+	}
 	xlog("Referrer: " + document.referrer);
 	xlog("Page loaded at " + getTimestamp());
 	cleanupStackOverflow();
