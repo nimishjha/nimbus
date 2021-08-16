@@ -5731,6 +5731,18 @@ function deleteNodesBetweenMarkers(selector = "div, ol, ul, p")
 	deleteElements(selectNodesBetweenMarkers(selector));
 }
 
+function removeAllAttributesOf(elem)
+{
+	const attrs = elem.attributes;
+	let i = attrs.length;
+	while(i--)
+	{
+		const attr = attrs[i];
+		if(attr)
+			elem.removeAttribute(attr.name);
+	}
+}
+
 //	Removes all attributes from all elements, excluding the essential ones. It's surprising how
 //	much a page's file size can be reduced simply by removing classes and other attributes.
 function cleanupAttributes()
@@ -5801,7 +5813,8 @@ function cleanupGeneral()
 	const t1 = performance.now();
 	cleanupHead();
 	cleanupTitle();
-	document.body.removeAttribute("style");
+	removeAllAttributesOf(document.documentElement);
+	removeAllAttributesOf(document.body);
 	replaceIframes();
 	addLinksToLargerImages();
 	replaceIncorrectHeading();
@@ -7049,6 +7062,14 @@ function unwrapElement(elem)
 	elem.parentNode.replaceChild(frag, elem);
 }
 
+function convertToFragment(elem)
+{
+	const frag = document.createDocumentFragment();
+	while(elem.firstChild)
+		frag.appendChild(elem.firstChild);
+	return frag;
+}
+
 function makeButtonsReadable()
 {
 	const buttons = get("button");
@@ -7461,7 +7482,6 @@ function highlightAllMatchesInNode(node, splitMatches)
 	}
 	node.innerHTML = nodeHTML;
 	consolidateMarksInNode(node);
-	node.innerHTML = node.innerHTML.replace(/<\/{0,}segment[^>]*>/g, "");
 }
 
 function consolidateMarksInNode(node)
@@ -7479,10 +7499,10 @@ function consolidateMarksInNode(node)
 			count++;
 			if(prevElem.tagName.toLowerCase() === MARK_TAG)
 			{
-				mark.insertBefore(convertElement(mark.previousElementSibling, "segment"), mark.firstChild);
+				mark.insertBefore(convertToFragment(mark.previousElementSibling), mark.firstChild);
 				mark.previousElementSibling.remove();
 			}
-			else
+			else // tags that are between two <mark>s, e.g. <b> or <reference>
 			{
 				const prevPrevElem = prevElem.previousElementSibling;
 				if(prevPrevElem && prevPrevElem === prevElem.previousSibling && prevPrevElem.tagName.toLowerCase() === MARK_TAG)
