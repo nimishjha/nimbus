@@ -172,6 +172,7 @@ const Nimbus = {
 		replaceElementsOfMarkedTypeWith: replaceElementsOfMarkedTypeWith,
 		replaceInlineStylesWithClasses: replaceInlineStylesWithClasses,
 		replaceInTextNodes: replaceInTextNodes,
+		replaceNonStandardElements: replaceNonStandardElements,
 		replaceQueryParameter: replaceQueryParameter,
 		findStringsInProximity: findStringsInProximity,
 		fixHeadings: fixHeadings,
@@ -989,6 +990,26 @@ function replaceSpecialCharacters()
 function replaceTables()
 {
 	replaceElementsBySelector("table, tbody, tr, td, th, thead", "div");
+}
+
+function replaceNonStandardElements()
+{
+	const elems = get("body *");
+	const standardElements = Nimbus.BLOCK_ELEMENTS.concat(["SPAN", "FONT", "EM", "I", "STRONG", "B", "A", "HEAD", "STYLE", "TIME"]);
+	let i = elems.length;
+	while(i--)
+	{
+		const elem = elems[i];
+		if(!elem.tagName)
+			continue;
+		if(!standardElements.includes(elem.tagName))
+		{
+			const replacement = convertElement(elem, "div");
+			replacement.className = elem.tagName;
+			if(elem.parentNode)
+				elem.parentNode.replaceChild(replacement, elem);
+		}
+	}
 }
 
 function sanitizeTitle(titleString)
