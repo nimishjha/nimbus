@@ -4508,11 +4508,13 @@ function toggleContentEditable()
 	{
 		showMessageBig("contentEditable ON");
 		selectedNode.focus();
+		Nimbus.isEditing = true;
 	}
 	else
 	{
 		showMessageBig("contentEditable OFF");
 		selectedNode.removeAttribute("contentEditable");
+		Nimbus.isEditing = false;
 	}
 }
 
@@ -7184,6 +7186,7 @@ function annotate(position = "before")
 			else
 				insertBefore(node, annotation);
 			annotation.setAttribute("contenteditable", "true");
+			Nimbus.isEditing = true;
 			annotation.focus();
 		});
 	}
@@ -7910,11 +7913,30 @@ function handleKeyDown(e)
 			e.preventDefault();
 	}
 	//
+	//	Ctrl
+	//
+	else if(!e.altKey && !e.shiftKey && e[ctrlOrMeta])
+	{
+		shouldPreventDefault = true;
+		switch(k)
+		{
+			case KEYCODES.ENTER:
+				if(Nimbus.isEditing)
+					toggleContentEditable();
+				else
+					shouldPreventDefault = false;
+				break;
+			default: shouldPreventDefault = false; break;
+		}
+		if(shouldPreventDefault)
+			e.preventDefault();
+	}
+	//
 	//	Alt-Shift
 	//
 	else if(e.altKey && e.shiftKey && !e[ctrlOrMeta])
 	{
-		e.preventDefault();
+		shouldPreventDefault = true;
 		switch(k)
 		{
 			case KEYCODES.TILDE: highlightSelectionRed(); break;
@@ -7943,7 +7965,10 @@ function handleKeyDown(e)
 			case KEYCODES.MINUS: callFunctionWithArgs("Insert HR before all (selector)", insertHrBeforeAll); break;
 			case KEYCODES.SQUARE_BRACKET_OPEN: slideshowChangeSlide("previous"); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: slideshowChangeSlide("next"); break;
+			default: shouldPreventDefault = false; break;
 		}
+		if(shouldPreventDefault)
+			e.preventDefault();
 	}
 	//
 	//	Ctrl-Alt or Meta-Alt
