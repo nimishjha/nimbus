@@ -338,6 +338,10 @@ const Nimbus = {
 
 const KEYCODES = Nimbus.KEYCODES;
 
+const STYLES = {
+	FONT_01: '* { font-family: "Swis721 Cn BT"; } b, em, strong, i { color: #DDD; }',
+};
+
 //	Useful wrapper around document.querySelector() and document.querySelectorAll()
 //	Returns an array of nodes except when the selector is an id selector, in which case it
 //	returns a single node.
@@ -1115,7 +1119,7 @@ function logPropertiesMatching(obj, str, path = "")
 		const type = Object.prototype.toString.call(value);
 		if(type === "[object Object]")
 			logPropertiesMatching(value, str, (path.length ? path + "." : "") + key);
-		else if(path.toLowerCase().indexOf(str) !== -1)
+		else if((path + key).toLowerCase().indexOf(str) !== -1)
 			console.log(path + "." + key + ": [", value, "]");
 	}
 }
@@ -3553,8 +3557,9 @@ function addLinksToLargerImages()
 	for(let i = 0, ii = imagePlaceholders.length; i < ii; i++)
 		imageLinks.push(imagePlaceholders[i].href);
 	const links = get("a");
-	for(const link of links)
+	for(let i = 0, ii = links.length; i < ii; i++)
 	{
+		const link = links[i];
 		const linkHref = link.href;
 		if( linkHref.match(/(\.png|\.jpg|\.jpeg|\.gif)/i) && !imageLinks.includes(linkHref) )
 			link.parentNode.insertBefore(createElementWithChildren("rt", createElement("a", { href: linkHref, textContent: shortenImageSrc(linkHref) })), link);
@@ -7792,7 +7797,7 @@ function removeAllHighlights()
 {
 	const markerSelectors = Nimbus.highlightTagNameList.join(",");
 	replaceElementsBySelector(markerSelectors, "span");
-	removeSpanTags();
+	removeSpanTags(true);
 	removeClassFromAll("trMark");
 	removeClassFromAll("trMarkYellow");
 	removeClassFromAll("trMarkRed");
@@ -7986,7 +7991,7 @@ function handleKeyDown(e)
 			case KEYCODES.RIGHTARROW: modifyMark("next"); break;
 			case KEYCODES.ONE: toggleStyleNegative(); break;
 			case KEYCODES.TWO: toggleStyleSimpleNegative(); break;
-			case KEYCODES.THREE: toggleStyleGrey(); break;
+			case KEYCODES.THREE: toggleStyle(STYLES.FONT_01, "styleFont01", true); break;
 			case KEYCODES.FOUR: toggleStyleWhite(); break;
 			case KEYCODES.FIVE: toggleStyleGrayscale(); break;
 			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
