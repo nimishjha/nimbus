@@ -197,6 +197,7 @@ const Nimbus = {
 		listSelectorsWithLightBackgrounds: listSelectorsWithLightBackgrounds,
 		persistStreamingImages: persistStreamingImages,
 		highlightAllMatchesInDocument: highlightAllMatchesInDocument,
+		highlightAllStrings: highlightAllStrings,
 		highlightCode: highlightCode,
 		highlightFirstParentByText: highlightFirstParentByText,
 		highlightLinksInPres: highlightLinksInPres,
@@ -2273,6 +2274,14 @@ function parseCommand(commandString)
 	return args;
 }
 
+function isNumber(s)
+{
+	const str = s.trim();
+	if(!str.length || str.match(/[^0-9\.\-]/))
+		return false;
+	return Number(str);
+}
+
 function runCommand(commandString)
 {
 	if(typeof commandString === "undefined" || !commandString.length)
@@ -2287,8 +2296,8 @@ function runCommand(commandString)
 		const args = [];
 		for(let i = 1, ii = commandSegments.length; i < ii; i++)
 		{
-			const n = Number(commandSegments[i]);
-			if(isNaN(n))
+			const n = isNumber(commandSegments[i]);
+			if(n === false)
 				args.push(commandSegments[i]);
 			else args.push(n);
 		}
@@ -7735,6 +7744,12 @@ function highlightInTextNode(textNode, regex)
 	for(const node of replacementNodes)
 		frag.appendChild(node);
 	parentNode.replaceChild(frag, textNode);
+}
+
+function highlightAllStrings(...args)
+{
+	for(const arg of args)
+		highlightAllMatchesInDocument(arg);
 }
 
 function highlightAllMatchesInDocument(str, isCaseSensitive = false)
