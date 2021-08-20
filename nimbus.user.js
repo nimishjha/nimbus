@@ -39,86 +39,7 @@ let consoleError = noop;
 const Nimbus = {
 	logString: "",
 	messageTimeout: null,
-	KEYCODES: {
-		DELETE: 46,
-		ZERO: 48,
-		ONE: 49,
-		TWO: 50,
-		THREE: 51,
-		FOUR: 52,
-		FIVE: 53,
-		SIX: 54,
-		SEVEN: 55,
-		EIGHT: 56,
-		NINE: 57,
-		A: 65,
-		B: 66,
-		C: 67,
-		D: 68,
-		E: 69,
-		F: 70,
-		G: 71,
-		H: 72,
-		I: 73,
-		J: 74,
-		K: 75,
-		L: 76,
-		M: 77,
-		N: 78,
-		O: 79,
-		P: 80,
-		Q: 81,
-		R: 82,
-		S: 83,
-		T: 84,
-		U: 85,
-		V: 86,
-		W: 87,
-		X: 88,
-		Y: 89,
-		Z: 90,
-		F1: 112,
-		F2: 113,
-		F3: 114,
-		F4: 115,
-		F5: 116,
-		F6: 117,
-		F7: 118,
-		F8: 119,
-		F9: 120,
-		F10: 121,
-		F11: 122,
-		F12: 123,
-		NUMPAD0: 96,
-		NUMPAD1: 97,
-		NUMPAD2: 98,
-		NUMPAD3: 99,
-		NUMPAD4: 100,
-		NUMPAD5: 101,
-		NUMPAD6: 102,
-		NUMPAD7: 103,
-		NUMPAD8: 104,
-		NUMPAD9: 105,
-		NUMPAD_MULTIPLY: 106,
-		NUMPAD_ADD: 107,
-		NUMPAD_SUBTRACT: 109,
-		NUMPAD_DECIMAL_POINT: 110,
-		NUMPAD_DIVIDE: 111,
-		FORWARD_SLASH: 191,
-		BACK_SLASH: 220,
-		MINUS: 173,
-		TILDE: 192,
-		SPACE: 32,
-		UPARROW: 38,
-		DOWNARROW: 40,
-		LEFTARROW: 37,
-		RIGHTARROW: 39,
-		TAB: 9,
-		ENTER: 13,
-		ESCAPE: 27,
-		SQUARE_BRACKET_OPEN: 219,
-		SQUARE_BRACKET_CLOSE: 221
-	},
+	KEYCODES: { DELETE: 46, ZERO: 48, ONE: 49, TWO: 50, THREE: 51, FOUR: 52, FIVE: 53, SIX: 54, SEVEN: 55, EIGHT: 56, NINE: 57, A: 65, B: 66, C: 67, D: 68, E: 69, F: 70, G: 71, H: 72, I: 73, J: 74, K: 75, L: 76, M: 77, N: 78, O: 79, P: 80, Q: 81, R: 82, S: 83, T: 84, U: 85, V: 86, W: 87, X: 88, Y: 89, Z: 90, F1: 112, F2: 113, F3: 114, F4: 115, F5: 116, F6: 117, F7: 118, F8: 119, F9: 120, F10: 121, F11: 122, F12: 123, NUMPAD0: 96, NUMPAD1: 97, NUMPAD2: 98, NUMPAD3: 99, NUMPAD4: 100, NUMPAD5: 101, NUMPAD6: 102, NUMPAD7: 103, NUMPAD8: 104, NUMPAD9: 105, NUMPAD_MULTIPLY: 106, NUMPAD_ADD: 107, NUMPAD_SUBTRACT: 109, NUMPAD_DECIMAL_POINT: 110, NUMPAD_DIVIDE: 111, FORWARD_SLASH: 191, BACK_SLASH: 220, MINUS: 173, TILDE: 192, SPACE: 32, UPARROW: 38, DOWNARROW: 40, LEFTARROW: 37, RIGHTARROW: 39, TAB: 9, ENTER: 13, ESCAPE: 27, SQUARE_BRACKET_OPEN: 219, SQUARE_BRACKET_CLOSE: 221 },
 	availableFunctions: {
 		addLinksToLargerImages: addLinksToLargerImages,
 		annotate: annotate,
@@ -301,12 +222,12 @@ const Nimbus = {
 		toggleScreenRefresh: toggleScreenRefresh,
 		toggleShowDocumentStructure: toggleShowDocumentStructure,
 		toggleShowDocumentStructureWithNames: toggleShowDocumentStructureWithNames,
-		toggleStyleGrey: toggleStyleGrey,
 		toggleStyleNegative: toggleStyleNegative,
 		toggleStyleShowClasses: toggleStyleShowClasses,
 		toggleStyleWhite: toggleStyleWhite,
 		unmark: unmark,
 		unmarkAll: unmarkAll,
+		unwrapAll: unwrapAll,
 		wrapAnchorNodeInTag: wrapAnchorNodeInTag,
 		xlog: xlog,
 		xPathMark: xPathMark,
@@ -330,7 +251,7 @@ const Nimbus = {
 		"markwhite": "trMarkWhite",
 	},
 	replacementTagName: "blockquote",
-	markerClass: "nimbushl",
+	markerClass: "markd",
 	minPersistWidth: 1000,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
@@ -341,6 +262,9 @@ const KEYCODES = Nimbus.KEYCODES;
 
 const STYLES = {
 	FONT_01: '* { font-family: "Swis721 Cn BT"; } b, em, strong, i { color: #DDD; }',
+	SIMPLE_NEGATIVE: 'html, body, body[class] {background: #000; font-family: "Swis721 Cn BT"; font-size: 22px; } *, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "Swis721 Cn BT"; } *::before, *::after { opacity: 0.25; } span, input, button { border-radius: 0; } h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #EEE; } mark {color: #FF0; } a, a[class] *, * a[class] {color: #05C; } a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #CCC; } a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #C55; } *[class*=stock][class] { background: #080; } *[class*=hover][class] { background: #000; } button[class], button[class][class], input[class], textarea[class] { border: 1px solid #333; background: #333; } button[class]:focus, button[class][class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 1px solid #CCC; } img, svg { opacity: 0.5; } img:hover, a:hover img { opacity: 1; }',
+	SIMPLE_NEGATIVE_2: 'html { background: #000; } body { background: #181818; color: #777; font-family: "Swis721 Cn BT"; } * { box-shadow: none; background-image: none; font-family: inherit; border-radius: 0; } *::before, *::after { opacity: 0.25; } table { border-collapse: collapse; } nav, header, footer { background: #111; } div { background: #181818; } td { background: #1C1C1C; } ol, ul, li { background: transparent; } div, tr, td { border: 0; } a:link { color: #05C; background: #111; } a:visited { color: #C55; background: #111; } a:hover, a:focus { color: #0CC; background: #222; } span, input, button { border-radius: 0; } span { border: 0; color: inherit; } input { background: #111; border: 1px solid #333; } button { background: #111; border: 1px solid #555; } img, svg { opacity: 0.5; }',
+	GRAYSCALE: 'html { filter: saturate(0); }',
 };
 
 //	Useful wrapper around document.querySelector() and document.querySelectorAll()
@@ -405,11 +329,6 @@ function getOrCreate(tagName, id, parent)
 	const newElem = createElement(tagName, { id: id });
 	container.appendChild(newElem);
 	return newElem;
-}
-
-function getTextNodes()
-{
-	return document.evaluate("//body//text()", document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
 }
 
 function getTextNodesAsArray()
@@ -892,12 +811,11 @@ function splitByBrs(sel)
 		"H4": "H4",
 		"H5": "H5",
 		"H6": "H6",
-		default: "P",
 	};
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
-		const childTagName = tagMap[elem.tagName];
+		const childTagName = tagMap[elem.tagName] || "P";
 		let elemHtml = elem.innerHTML;
 		if(elemHtml.indexOf("<br") === -1)
 			continue;
@@ -1551,9 +1469,6 @@ function replaceElementKeepingId(elem, tagName)
 	const elemId = elem.id;
 	if(elemId)
 		replacement.id = elemId;
-	// const elemClass = elem.className.replace(/nimbushl/, " ");
-	// if(elemClass)
-	// 	replacement.className = elemClass;
 	elem.parentNode.replaceChild(replacement, elem);
 }
 
@@ -2236,7 +2151,7 @@ function toggleConsole(consoleType)
 	let dialogStyle;
 	const consoleBackgroundColor = consoleType === "css" ? "#036" : "#000";
 	dialogStyle = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; }' +
-		'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: 22px "Swis721 Cn BT", Verdana; width: 100%; height: 100%; padding: 10px; border: 0; outline: 0; }';
+		'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: 22px "Swis721 Cn BT", Verdana; width: 100%; height: 100%; padding: 10px 40px; border: 0; outline: 0; }';
 	insertStyle(dialogStyle, "styleUserInputWrapper", true);
 
 	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
@@ -2252,7 +2167,7 @@ function parseCommand(commandString)
 {
 	const args = [];
 	let arg = '';
-	let cleanCommandString = commandString.replace(/\s+/g, ' ').trim();
+	const cleanCommandString = commandString.replace(/\s+/g, ' ').trim();
 	for(let i = 0, ii = cleanCommandString.length; i < ii; i++)
 	{
 		switch(cleanCommandString[i])
@@ -2279,7 +2194,10 @@ function isNumber(s)
 	const str = s.trim();
 	if(!str.length || str.match(/[^0-9\.\-]/))
 		return false;
-	return Number(str);
+	const num = Number(str);
+	if(isNaN(num))
+		return false;
+	return num;
 }
 
 function runCommand(commandString)
@@ -3606,6 +3524,8 @@ function forceImageHeight(height)
 
 function buildGallery()
 {
+	const MIN_WIDTH = 500;
+	const MIN_HEIGHT = 500;
 	const images = get("img");
 	if(!(images && images.length))
 	{
@@ -3621,6 +3541,8 @@ function buildGallery()
 			continue;
 		let w = image.naturalWidth;
 		let h = image.naturalHeight;
+		if(w < MIN_WIDTH || h < MIN_HEIGHT)
+			continue;
 		let aspectRatioClass;
 		if(w && h)
 			aspectRatioClass = w / h > 16 / 9 ? "aspectRatioLandscape" : "aspectRatioPortrait";
@@ -3752,22 +3674,32 @@ function makePlainText(selector)
 {
 	const elements = get(selector);
 	let i = elements.length;
-	if(selector.toLowerCase() === "a")
+	if(!i) return;
+	const sel = elements[0].tagName.toLowerCase();
+	switch(sel)
 	{
-		while(i--)
-		{
-			const elem = elements[i];
-			if(!elem.getElementsByTagName("img").length)
+		case "a":
+			while(i--)
+			{
+				const elem = elements[i];
+				if(!elem.getElementsByTagName("img").length)
+					elem.textContent = removeLineBreaks(elem.textContent);
+			}
+			break;
+		case "pre":
+			while(i--)
+			{
+				const elem = elements[i];
+				elem.textContent = elem.textContent;
+			}
+			break;
+		default:
+			while(i--)
+			{
+				const elem = elements[i];
 				elem.textContent = removeLineBreaks(elem.textContent);
-		}
-	}
-	else
-	{
-		while(i--)
-		{
-			const elem = elements[i];
-			elem.textContent = removeLineBreaks(elem.textContent);
-		}
+			}
+			break;
 	}
 }
 
@@ -3845,13 +3777,13 @@ function reindentPreformatted(pre)
 function tabifySpaces(s)
 {
 	if(s.match("\n  [^ ]")) {
-		s = s.replace(/ {2}/g, "\t");
+		s = s.replace(/^ {2}/g, "\t");
 	} else if(s.match("\n   [^ ]")) {
-		s = s.replace(/ {3}/g, "\t");
+		s = s.replace(/^ {3}/g, "\t");
 	} else if(s.match("\n    [^ ]")) {
-		s = s.replace(/ {4}/g, "\t");
+		s = s.replace(/^ {4}/g, "\t");
 	} else {
-		s = s.replace(/ {4}/g, "\t");
+		s = s.replace(/^ {4}/g, "\t");
 	}
 	return s;
 }
@@ -4467,14 +4399,14 @@ function highlightCode(shouldHighlightKeywords)
 		if(shouldHighlightKeywords === true)
 		{
 			const keywords = [
-				"abstract", "addEventListener", "appendChild",
+				"abstract", "addEventListener", "appendChild", "arguments", "await",
 				"break", "byte",
 				"case", "catch", "char", "class", "const", "continue", "createElement", "createTextNode",
 				"debugger", "default", "delete", "do", "document", "documentElement", "double",
-				"else", "enum", "export", "extends",
+				"else", "enum", "export", "extends", "eval",
 				"false", "final", "finally", "firstChild", "float", "for", "function",
 				"getElementsByClassName", "getElementsByID", "getElementsByTagName", "goto",
-				"if", "implements", "import", "in", "insertBefore", "int",
+				"if", "implements", "import", "in", "Infinity", "insertBefore", "instanceof", "int", "interface",
 				"let", "long",
 				"NaN", "native", "new", "npm", "null",
 				"object", "onclick", "onload", "onmouseover",
@@ -4485,7 +4417,7 @@ function highlightCode(shouldHighlightKeywords)
 				"this", "throw", "throws", "transient", "true", "try", "type", "typeof",
 				"undefined",
 				"var", "void", "volatile",
-				"yarn",
+				"yarn", "yield",
 				"while", "window", "with"
 			];
 			let j = keywords.length;
@@ -4667,11 +4599,11 @@ function toggleShowEmptyLinksAndSpans()
 		}
 	}
 	const style = `
-		a.nimbushl { padding: 0 5px; }
-		a.nimbushl::before { content: attr(id); color: #FF0; }
-		a.nimbushl::after { content: attr(href); color: #55F; }
-		span.nimbushl { padding: 0 10px; }
-		span.nimbushl::before { content: attr(id)" "; color: #0F0; }
+		a.${Nimbus.markerClass} { padding: 0 5px; }
+		a.${Nimbus.markerClass}::before { content: attr(id); color: #FF0; }
+		a.${Nimbus.markerClass}::after { content: attr(href); color: #55F; }
+		span.${Nimbus.markerClass} { padding: 0 10px; }
+		span.${Nimbus.markerClass}::before { content: attr(id)" "; color: #0F0; }
 	`;
 	insertStyle(style, 'styleToggleShowEmptyLinksAndSpans', true);
 	showMessageBig(`Revealed ${countLinks} empty links and ${countSpans} empty spans`);
@@ -5204,12 +5136,13 @@ function showPrintLink()
 
 function insertStyleHighlight()
 {
+	if(get("#styleHighlight")) return;
 	const s = `
-		.nimbushl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }
+		.${Nimbus.markerClass} { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }
 		.focused { box-shadow: inset 0px 1000px #000; color: #FFF; }
-		.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }
-		.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
-		a.nimbushl::after, span.nimbushl::after { content: ""; display: inline; clear: none; }
+		.${Nimbus.markerClass}2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }
+		.${Nimbus.markerClass}::after, .${Nimbus.markerClass}2::after { content: " "; display: block; clear: both; }
+		a.${Nimbus.markerClass}::after, span.${Nimbus.markerClass}::after { content: ""; display: inline; clear: none; }
 		mark { background: #420; color: #F90; padding: 2px 0; line-height: inherit; }
 		markgreen { background: #040; color: #8F0; padding: 2px 0; line-height: inherit; }
 		markred { background: #400; color: #F00; padding: 2px 0; line-height: inherit; }
@@ -5253,85 +5186,17 @@ function toggleScreenRefresh()
 
 function toggleStyleSimpleNegative()
 {
-	const s = `
-		html, body, body[class] {background: #000; font-family: "Swis721 Cn BT"; }
-		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "Swis721 Cn BT"; }
-		*::before, *::after { opacity: 0.25; }
-		span, input, button { border-radius: 0; }
-		h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #EEE; }
-		mark {color: #FF0; }
-		a, a[class] *, * a[class] {color: #05C; }
-		a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #CCC; }
-		a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #C55; }
-		*[class*=stock][class] { background: #080; }
-		*[class*=hover][class] { background: #000; }
-		button[class], button[class][class], input[class], textarea[class] { border: 1px solid #333; background: #333; }
-		button[class]:focus, button[class][class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 1px solid #CCC; }
-		img, svg { opacity: 0.5; }
-		img:hover, a:hover img { opacity: 1; }
-		`;
-	toggleStyle(s, "styleSimpleNegative", true);
+	toggleStyle(STYLES.SIMPLE_NEGATIVE, "styleSimpleNegative", true);
 }
 
 function toggleStyleSimpleNegative2()
 {
-	const s = `
-		html { background: #000; }
-		body { background: #181818; color: #777; font-family: "Swis721 Cn BT"; }
-		* { box-shadow: none; background-image: none; font-family: inherit; border-radius: 0; }
-		*::before, *::after { opacity: 0.25; }
-		table { border-collapse: collapse; }
-		nav, header, footer { background: #111; }
-		div { background: #181818; }
-		td { background: #1C1C1C; }
-		ol, ul, li { background: transparent; }
-		div, tr, td { border: 0; }
-		a:link { color: #05C; background: #111; }
-		a:visited { color: #C55; background: #111; }
-		a:hover, a:focus { color: #0CC; background: #222; }
-		span, input, button { border-radius: 0; }
-		span { border: 0; color: inherit; }
-		input { background: #111; border: 1px solid #333; }
-		button { background: #111; border: 1px solid #555; }
-		img, svg { opacity: 0.5; }
-	`;
-	toggleStyle(s, "styleSimpleNegative", true);
+	toggleStyle(STYLES.SIMPLE_NEGATIVE_2, "styleSimpleNegative", true);
 }
 
 function toggleStyleGrayscale()
 {
-	const s = `
-		a, img, svg, video { filter: saturate(0); }
-	`;
-	toggleStyle(s, "styleGrayscale", true);
-}
-
-function toggleStyleGrey()
-{
-	const s = `
-		body { background: #203040; color: #ABC; font: 24px "swis721 cn bt"; }
-		h1, h2, h3, h4, h5, h6 { background: #123; padding: 0.35em 10px; font-weight: normal; }
-		body.pad100 { padding: 100px; }
-		body.xwrap { width: 1000px; margin: 0 auto; }
-		mark { background: #049; color: #7CF; padding: 4px 2px; }
-		p { line-height: 135%; text-align: justify; }
-		blockquote { margin: 0 0 0 40px; padding: 10px 20px; border-left: 10px solid #123; }
-		a { text-decoration: none; color: #09F; }
-		em, i, strong, b { font-style: normal; font-weight: normal; color: #FFF; }
-		code { background: #012; color: #ABC; }
-		pre { background: #012; color: #ABC; padding: 20px; }
-		pre q1 { color: #57F; background: #024; }
-		pre q2 { color: #C7F; background: #214; }
-		pre c1 { font-style: normal; color: #F90; background: #331500; }
-		pre c2 { color: #F00; background: #400; }
-		pre b1 { color: #0F0; }
-		pre b2 { color: #FFF; }
-		pre b3 { color: #F90; }
-		pre xk { color: #29F; }
-		pre xh { color: #57F; }
-		pre xv { color: #F47; }
-	`;
-	toggleStyle(s, "styleGrey", true);
+	toggleStyle(STYLES.GRAYSCALE, "styleGrayscale", true);
 }
 
 function toggleStyleNegative()
@@ -5441,12 +5306,12 @@ function toggleStyleNegative()
 		body.nimbusTheme1 a, body.nimbusTheme1 a *, body.nimbusTheme1 a:link { color: inherit; text-decoration: none; }
 		body.nimbusTheme1 a:visited *, body.nimbusTheme1 a:visited { color: inherit; text-decoration: none; }
 		body.nimbusTheme1 a:hover *, body.nimbusTheme1 a:focus *, body.nimbusTheme1 a:hover, body.nimbusTheme1 a:focus { color: #FFF; text-decoration: none; }
-		.nimbushl { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }
-		.nimbushl2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }
-		.nimbushl::after, .nimbushl2::after { content: " "; display: block; clear: both; }
-		a.nimbushl::after, span.nimbushl::after { content: ""; display: inline; clear: none; }
-		table.nimbushl { outline: 2px solid red; }
-		tr.nimbushl td, tr.nimbushl th { box-shadow: inset 0 -1000px #700; }
+		.markd { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; }
+		.markd2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; }
+		.markd::after, .markd2::after { content: " "; display: block; clear: both; }
+		a.markd::after, span.markd::after { content: ""; display: inline; clear: none; }
+		table.markd { outline: 2px solid red; }
+		tr.markd td, tr.markd th { box-shadow: inset 0 -1000px #700; }
 		tr.trMark td, tr.trMark th { box-shadow: inset 0 -1000px #F90; }
 		tr.trMarkYellow td, tr.trMarkYellow th { box-shadow: inset 0 -1000px #FF0; }
 		tr.trMarkRed td, tr.trMarkRed th { box-shadow: inset 0 -1000px #800; }
@@ -5508,12 +5373,12 @@ function toggleStyleShowClasses()
 function toggleStyleShowIdsAndClasses()
 {
 	const style = `
-		div[class]::before, blockquote[class]::before, article[class]::before, section[class]::before, aside[class]::before { content: "."attr(class); color: #C60; padding: 2px 5px; background: #000; }
- 		div[id]::after, blockquote[id]::after, article[id]::after, section[id]::after, aside[id]::after { content: "#"attr(id); color: #C0C; padding: 2px 5px; background: #000; }
+ 		div[id]::before, blockquote[id]::before, article[id]::before, section[id]::before, aside[id]::before { content: "#"attr(id); color: #D0D; padding: 2px 5px; background: #000; }
+		div[class]::before, blockquote[class]::before, article[class]::before, section[class]::before, aside[class]::before { content: "."attr(class); color: #F90; padding: 2px 5px; background: #000; }
  		h1[class]::before, h2[class]::before, h3[class]::before, h4[class]::before, h5[class]::before, h6[class]::before, td[class]::before, p[class]::before { content: "."attr(class); color: #C60; padding: 2px 5px; background: #000; }
- 		h1[id]::after, h2[id]::after, h3[id]::after, h4[id]::after, h5[id]::after, h6[id]::after, td[id]::after, p[id]::after { content: "#"attr(id); color: #C0C; padding: 2px 5px; background: #000; }
+ 		h1[id]::before, h2[id]::before, h3[id]::before, h4[id]::before, h5[id]::before, h6[id]::before, td[id]::before, p[id]::before { content: "#"attr(id); color: #C0C; padding: 2px 5px; background: #000; }
 		span[class]::before { content: "."attr(class); color: #C60; padding: 2px 5px; background: #040; }
-		span[id]::after { content: "#"attr(id); color: #C0C; padding: 2px 5px; background: #040; }
+		span[id]::before { content: "#"attr(id); color: #C0C; padding: 2px 5px; background: #040; }
 		span { box-shadow: inset 0 -100px #040; padding: 2px; border: 2px solid #0A0; }
 		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; padding: 10px; }
 		h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #000, inset -4px -4px #808; }
@@ -5638,30 +5503,31 @@ function selectByTagNameAndText(tagName, text)
 
 function getFirstBlockParent(node)
 {
-	const BLOCK_ELEMENTS = Nimbus.BLOCK_ELEMENTS;
-	const MAX_DEPTH = 10;
-	let found = false;
-	let parent = node;
-	let depth = 0;
-	if(!parent.nodeType)
-		parent = node.parentNode;
-	while(parent.parentNode && ++depth < MAX_DEPTH)
-	{
-		if(BLOCK_ELEMENTS.includes(parent.tagName))
-		{
-			found = true;
-			break;
-		}
-		else
-		{
-			parent = parent.parentNode;
-		}
-	}
-	if(found)
-		return parent;
-	else
-		return false;
+       const BLOCK_ELEMENTS = Nimbus.BLOCK_ELEMENTS;
+       const MAX_DEPTH = 10;
+       let found = false;
+       let parent = node;
+       let depth = 0;
+       if(!parent.nodeType)
+               parent = node.parentNode;
+       while(parent.parentNode && ++depth < MAX_DEPTH)
+       {
+               if(BLOCK_ELEMENTS.includes(parent.tagName))
+               {
+                       found = true;
+                       break;
+               }
+               else
+               {
+                       parent = parent.parentNode;
+               }
+       }
+       if(found)
+               return parent;
+       else
+               return false;
 }
+
 
 function getFirstTextChild(elem)
 {
@@ -6305,9 +6171,9 @@ function getMetadata()
 
 	const fields = headings4.splice(len - 3);
 	const domain = fields[0].textContent;
-	const pageUrl = fields[1].textContent;
+	const pageUrl = fields[1].querySelector("a").textContent;
 	const saveTimestamp = fields[2].textContent;
-	return {
+	Nimbus.pageMetadata = {
 		domain,
 		pageUrl,
 		saveTimestamp
@@ -6519,7 +6385,6 @@ function getContentByParagraphCount()
 	else
 		showMessageError("Could not find content");
 }
-
 
 function cleanupStackOverflow()
 {
@@ -7089,6 +6954,13 @@ function wrapElementInner(elem, tagName)
 	while(elem.firstChild)
 		wrapper.appendChild(elem.firstChild);
 	elem.appendChild(wrapper);
+}
+
+function unwrapAll(selector)
+{
+	const elems = get(selector);
+	for(let i = 0, ii = elems.length; i < ii; i++)
+		unwrapElement(elems[i]);
 }
 
 function unwrapElement(elem)
@@ -7842,7 +7714,6 @@ function inject()
 {
 	document.addEventListener("keydown", handleKeyDown, false);
 	removeAccessKeys();
-	// On Firefox we don't need this, as we have userContent.css
 	if(isChrome())
 	{
 		insertStyleHighlight();
@@ -7851,6 +7722,7 @@ function inject()
 	xlog("Referrer: " + document.referrer);
 	xlog("Page loaded at " + getTimestamp());
 	cleanupStackOverflow();
+	getMetadata();
 	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
 	Nimbus.markerClassSelector = makeClassSelector(Nimbus.markerClass);
 }
@@ -8039,7 +7911,7 @@ function handleKeyDown(e)
 	//
 	else if(e.altKey && e[ctrlOrMeta] && e.shiftKey)
 	{
-		e.preventDefault();
+		shouldPreventDefault = true;
 		switch(k)
 		{
 			case KEYCODES.A: annotate("after"); break;
@@ -8055,7 +7927,10 @@ function handleKeyDown(e)
 			case KEYCODES.DOWNARROW: modifyMark("contract", true); break;
 			case KEYCODES.LEFTARROW: modifyMark("previous", true); break;
 			case KEYCODES.RIGHTARROW: modifyMark("next", true); break;
+			default: shouldPreventDefault = false; break;
 		}
+		if(shouldPreventDefault)
+			e.preventDefault();
 	}
 	window.focus();
 }
