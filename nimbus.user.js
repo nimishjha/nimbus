@@ -5503,31 +5503,10 @@ function selectByTagNameAndText(tagName, text)
 
 function getFirstBlockParent(node)
 {
-       const BLOCK_ELEMENTS = Nimbus.BLOCK_ELEMENTS;
-       const MAX_DEPTH = 10;
-       let found = false;
-       let parent = node;
-       let depth = 0;
-       if(!parent.nodeType)
-               parent = node.parentNode;
-       while(parent.parentNode && ++depth < MAX_DEPTH)
-       {
-               if(BLOCK_ELEMENTS.includes(parent.tagName))
-               {
-                       found = true;
-                       break;
-               }
-               else
-               {
-                       parent = parent.parentNode;
-               }
-       }
-       if(found)
-               return parent;
-       else
-               return false;
+       const blockSelector = Nimbus.BLOCK_ELEMENTS.join();
+       const elem = node.nodeType === 1 ? node : node.parentNode;
+       return elem.closest(blockSelector);
 }
-
 
 function getFirstTextChild(elem)
 {
