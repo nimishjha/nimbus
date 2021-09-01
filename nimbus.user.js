@@ -89,6 +89,7 @@ const Nimbus = {
 		disableClickToCollectUrls: disableClickToCollectUrls,
 		fillForms: fillForms,
 		fixCdnImages: fixCdnImages,
+		fixDashes: fixDashes,
 		replaceEmptyAnchors: replaceEmptyAnchors,
 		replaceElementsOfMarkedTypeWith: replaceElementsOfMarkedTypeWith,
 		replaceInlineStylesWithClasses: replaceInlineStylesWithClasses,
@@ -3897,6 +3898,14 @@ function fixParagraphs()
 	restorePres();
 	deleteEmptyElements("p");
 	cleanupHeadings();
+}
+
+function fixDashes()
+{
+	replaceInTextNodes("--", "—");
+	replaceInTextNodes(" - ", "—");
+	replaceInTextNodes(" -", "—");
+	replaceInTextNodes("- ", "—");
 }
 
 function looksLikeUrl(str)
