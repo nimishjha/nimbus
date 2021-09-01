@@ -4470,7 +4470,10 @@ function getNodeContainingSelection()
 function toggleContentEditable()
 {
 	const selectedNode = getNodeContainingSelection();
+	const MAX_TEXT_LENGTH = 10000;
 	if(!selectedNode)
+		return;
+	if(selectedNode.textContent.length > MAX_TEXT_LENGTH)
 		return;
 	let isEditable = selectedNode.getAttribute("contenteditable") === "true";
 	selectedNode.setAttribute("contenteditable", isEditable ? "false" : "true");
