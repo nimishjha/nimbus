@@ -222,7 +222,6 @@ const Nimbus = {
 		toggleHighlightSelectionMode: toggleHighlightSelectionMode,
 		toggleMutationObserver: toggleMutationObserver,
 		toggleStyleNegative: toggleStyleNegative,
-		toggleStyleWhite: toggleStyleWhite,
 		unmark: unmark,
 		unmarkAll: unmarkAll,
 		unwrapAll: unwrapAll,
@@ -260,6 +259,7 @@ const KEYCODES = Nimbus.KEYCODES;
 
 const STYLES = {
 	FONT_01: '* { font-family: "Swis721 Cn BT"; } b, em, strong, i { color: #DDD; }',
+	COLORS_01: 'html, body { background: #202020; color: #AAA; } div { background: inherit; color: inherit; }',
 	SIMPLE_NEGATIVE: 'html, body, body[class] {background: #000; font-family: "Swis721 Cn BT"; font-size: 22px; } *, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "Swis721 Cn BT"; } *::before, *::after { opacity: 0.25; } span, input, button { border-radius: 0; } h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #EEE; } mark {color: #FF0; } a, a[class] *, * a[class] {color: #05C; } a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #CCC; } a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #C55; } *[class*=stock][class] { background: #080; } *[class*=hover][class] { background: #000; } button[class], button[class][class], input[class], textarea[class] { border: 1px solid #333; background: #333; } button[class]:focus, button[class][class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 1px solid #CCC; } img, svg { opacity: 0.5; } img:hover, a:hover img { opacity: 1; }',
 	SIMPLE_NEGATIVE_2: 'html { background: #000; } body { background: #181818; color: #777; font-family: "Swis721 Cn BT"; } * { box-shadow: none; background-image: none; font-family: inherit; border-radius: 0; } *::before, *::after { opacity: 0.25; } table { border-collapse: collapse; } nav, header, footer { background: #111; } div { background: #181818; } td { background: #1C1C1C; } ol, ul, li { background: transparent; } div, tr, td { border: 0; } a:link { color: #05C; background: #111; } a:visited { color: #C55; background: #111; } a:hover, a:focus { color: #0CC; background: #222; } span, input, button { border-radius: 0; } span { border: 0; color: inherit; } input { background: #111; border: 1px solid #333; } button { background: #111; border: 1px solid #555; } img, svg { opacity: 0.5; }',
 	GRAYSCALE: 'html { filter: saturate(0); }',
@@ -4777,9 +4777,9 @@ function changePage(direction)
 	const links = get("a");
 	let matchStrings = [];
 	if(direction === "previous")
-		matchStrings = ["previous", "previous", "previouspage", "\u00AB"];
+		matchStrings = ["previous", "previous", "previouspage", "\u00AB", "\u2190"];
 	else if(direction === "next")
-		matchStrings = ["next", "nextpage", "\u00BB", "\u25BA"];
+		matchStrings = ["next", "nextpage", "\u00BB", "\u25BA", "\u2192"];
 
 	let i = links.length;
 	while(i--)
@@ -5207,7 +5207,7 @@ function toggleStyleNegative()
 	const s = `
 		html { background: #181818; }
 		html body { margin: 0; }
-		html body, html body[class] { color: #888; background: #242424; font-weight: normal; }
+		html body, html body[class] { color: #888; background: #242424; font-weight: normal; font-family: "Swis721 Cn BT"; }
 		body.pad100 { padding: 100px 100px; }
 		body.pad100 table { width: 100%; }
 		body.pad100 td, body.pad100 th { padding: 3px 10px; }
@@ -5338,13 +5338,6 @@ function toggleStyleNegative()
 	`;
 
 	toggleStyle(s, "styleNegative");
-}
-
-function toggleStyleWhite()
-{
-	const s = 'body, input, select, textarea { background: #FFF; color: #000; }' +
-	'input, select, textarea { font: 12px verdana; }';
-	toggleStyle(s, "styleWhite", true);
 }
 
 //	Returns an array of elements matching a selector and also containing or not containing the specified text.
@@ -6007,28 +6000,14 @@ function replaceElementsWithTextNodes(selector)
 			elem.parentNode.replaceChild(document.createTextNode(elem.textContent || ""), elem);
 		}
 	}
-	showMessageBig(`Replaced ${count} elements with text nodes`);
+	showMessageBig(`Replaced ${count} ${selector} elements with text nodes`);
 }
 
-//	This function does a brute-force removal of all <span> tags in a document.
 function removeSpanTags(isOkToLoseIds)
 {
 	if(!isOkToLoseIds)
 		replaceSupSpanAnchors();
-	const spans = get("span");
-	if(!spans.length)
-	{
-		showMessageBig("No span tags found");
-		return;
-	}
-	for(let i = 0, ii = spans.length; i < ii; i++)
-	{
-		const span = spans[i];
-		const frag = document.createDocumentFragment();
-		while(span.firstChild)
-			frag.appendChild(span.firstChild);
-		span.parentNode.replaceChild(frag, span);
-	}
+	unwrapAll("span");
 }
 
 function showHtmlComments()
@@ -7748,7 +7727,7 @@ function handleKeyDown(e)
 			case KEYCODES.ONE: toggleStyleNegative(); break;
 			case KEYCODES.TWO: toggleStyle(STYLES.SIMPLE_NEGATIVE, "styleSimpleNegative", true); break;
 			case KEYCODES.THREE: toggleStyle(STYLES.FONT_01, "styleFont01", true); break;
-			case KEYCODES.FOUR: toggleStyleWhite(); break;
+			case KEYCODES.FOUR: toggleStyle(STYLES.COLORS_01, "styleColors01", true); break;
 			case KEYCODES.FIVE: toggleStyleGrayscale(); break;
 			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
 			case KEYCODES.B: toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
