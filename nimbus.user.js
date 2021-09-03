@@ -206,6 +206,8 @@ const Nimbus = {
 		toggleShowEmptyLinksAndSpans: toggleShowEmptyLinksAndSpans,
 		revealLinkHrefs: revealLinkHrefs,
 		sanitizeTitle: sanitizeTitle,
+		selectElementsStartingWithText: selectElementsStartingWithText,
+		selectElementsEndingWithText: selectElementsEndingWithText,
 		setAttributeOf: setAttributeOf,
 		setDocTitle: setDocTitle,
 		setQueryParameter: setQueryParameter,
@@ -452,6 +454,33 @@ function retrieveElements(elems)
 	document.body.appendChild(wrapper);
 	document.title = docTitle;
 	showMessageBig(`Retrieved <b>${elements.length}</b> elements`);
+}
+
+function selectElementsStartingWithText(selector, text)
+{
+	const elems = get(selector);
+	const selected = [];
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+		if(elem.textContent && elem.textContent.indexOf(text) === 0)
+			selected.push(elem);
+	}
+	return selected;
+}
+
+function selectElementsEndingWithText(selector, text)
+{
+	const elems = get(selector);
+	const textLength = text.length;
+	const selected = [];
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+		if(elem.textContent && elem.textContent.length && elem.textContent.indexOf(text) === elem.textContent.length - textLength)
+			selected.push(elem);
+	}
+	return selected;
 }
 
 function selectByTagNameMatching(text)
