@@ -271,6 +271,8 @@ const STYLES = {
 	INSPECTOR: 'body.inspector { padding-bottom: 30vh; } div#inspector { padding: 5px 10px; position: fixed; left: 0; bottom: 0; width: 50%; min-width: 500px; height: 30vh; overflow: hidden; background:#000; color: #AAA; text-align:left; z-index: 2147483647; font: 12px verdana; letter-spacing: 0; box-shadow: none; min-height: 30vh; margin: 0; } #inspector.onTop { bottom: auto; top: 0; } #inspector b { color:#09F; } #inspector em { font-style:normal; color:#F90; } .hovered { filter: contrast(1.5); } #inspector div { box-shadow: none; margin: 0; padding: 0; } #inspector::after, #inspector div::after { display: none; }',
 };
 
+const MARKER_CLASS_SELECTOR = makeClassSelector(Nimbus.markerClass);
+
 //	Useful wrapper around document.querySelector() and document.querySelectorAll()
 //	Returns an array of nodes except when the selector is an id selector, in which case it
 //	returns a single node.
@@ -632,7 +634,7 @@ function forAll(selector, callback)
 
 function getMarkedElements()
 {
-	const markedElements = get(Nimbus.markerClassSelector);
+	const markedElements = get(MARKER_CLASS_SELECTOR);
 	return markedElements ? markedElements : [];
 }
 
@@ -834,17 +836,17 @@ function fixLineBreaks()
 		if(span.textContent.match(/\n$/))
 			span.appendChild(document.createElement("br"));
 	}
-	var marked = getOne(makeClassSelector(Nimbus.markerClass));
+	var marked = getOne(MARKER_CLASS_SELECTOR);
 	if(marked)
 	{
 		marked.innerHTML = marked.innerHTML.replace(/\n+/g, "<br>");
-		splitByBrs(makeClassSelector(Nimbus.markerClass));
+		splitByBrs(MARKER_CLASS_SELECTOR);
 	}
 }
 
 function splitByBrs(sel)
 {
-	const selector = sel || makeClassSelector(Nimbus.markerClass);
+	const selector = sel || MARKER_CLASS_SELECTOR;
 	const elems = get(selector);
 	const tagMap = {
 		"H1": "H1",
@@ -853,6 +855,7 @@ function splitByBrs(sel)
 		"H4": "H4",
 		"H5": "H5",
 		"H6": "H6",
+		"BLOCKQUOTE": "BLOCKQUOTE",
 	};
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
@@ -1257,7 +1260,7 @@ function createSelector(elem)
 function createClassSelector(elem)
 {
 	if(elem.className)
-		return "." + Array.from(elem.classList).join('.').replace(makeClassSelector(Nimbus.markerClass), "");
+		return "." + Array.from(elem.classList).join('.').replace(MARKER_CLASS_SELECTOR, "");
 	return false;
 }
 
@@ -1438,7 +1441,7 @@ function replaceElementsByTagNameMatching(text, tagName)
 function replaceElementsBySelectorHelper()
 {
 	if(getMarkedElements().length)
-		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2, Nimbus.markerClassSelector + " ");
+		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2, MARKER_CLASS_SELECTOR + " ");
 	else
 		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2);
 }
@@ -1695,7 +1698,7 @@ function createListsFromBulletedParagraphs()
 			nextElem = nextElemTemp;
 		}
 	}
-	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "li");
+	replaceElementsBySelector(MARKER_CLASS_SELECTOR, "li");
 }
 
 function hasChildrenOfType(elem, selector)
@@ -2668,7 +2671,7 @@ function highlightAuthors()
 	replaceByClassOrIdContaining("author", "author");
 	replaceByClassOrIdContaining("byline", "author");
 	mark("author", "hasChildrenOfType", "author");
-	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "div");
+	replaceElementsBySelector(MARKER_CLASS_SELECTOR, "div");
 }
 
 function fixInternalReferences()
@@ -4872,7 +4875,7 @@ function groupMarkedElements(tagName)
 		wrapper.appendChild(child);
 	}
 	insertBefore(elemsToJoin[0], wrapper);
-	del(makeClassSelector(Nimbus.markerClass));
+	del(MARKER_CLASS_SELECTOR);
 	deleteMessage();
 }
 
@@ -4924,12 +4927,12 @@ function groupAdjacentElements(selector, parentTag, childTag)
 
 function makeUL()
 {
-	groupAdjacentElements(makeClassSelector(Nimbus.markerClass), "ul", "li");
+	groupAdjacentElements(MARKER_CLASS_SELECTOR, "ul", "li");
 }
 
 function makeOL()
 {
-	groupAdjacentElements(makeClassSelector(Nimbus.markerClass), "ol", "li");
+	groupAdjacentElements(MARKER_CLASS_SELECTOR, "ol", "li");
 }
 
 function groupUnderHeading()
@@ -6148,9 +6151,9 @@ function fixBullets()
 
 function deleteNonContentElements()
 {
-	if(get(Nimbus.markerClassSelector).length)
+	if(get(MARKER_CLASS_SELECTOR).length)
 	{
-		del(Nimbus.markerClassSelector);
+		del(MARKER_CLASS_SELECTOR);
 		cleanupGeneral();
 		return;
 	}
@@ -6220,10 +6223,10 @@ function retrieveBySelectorAndText(selector, text)
 function getContentByParagraphCount()
 {
 	const LONG_PARAGRAPH_THRESHOLD = 100;
-	if(get(Nimbus.markerClassSelector).length)
+	if(get(MARKER_CLASS_SELECTOR).length)
 	{
 		const title = document.title;
-		retrieve(Nimbus.markerClassSelector);
+		retrieve(MARKER_CLASS_SELECTOR);
 		if(title)
 			setDocTitleSimple(title);
 		cleanupGeneral();
@@ -7602,7 +7605,6 @@ function inject()
 	cleanupStackOverflow();
 	getMetadata();
 	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
-	Nimbus.markerClassSelector = makeClassSelector(Nimbus.markerClass);
 }
 
 function handleKeyDown(e)
@@ -7635,6 +7637,7 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD8: groupUnderHeading(); break;
 			case KEYCODES.NUMPAD9: refreshScreen(); break;
 			case KEYCODES.NUMPAD0: deleteResources(); break;
+			case KEYCODES.NUMPAD_ADD: persistStreamingImages(); break;
 			case KEYCODES.F1: customPrompt("Enter replacement tag name").then(setReplacementTag); break;
 			case KEYCODES.F2: replaceSelectedElement("h2"); break;
 			case KEYCODES.F3: customPrompt("Enter tag name to replace elements of the marked type with").then(replaceElementsOfMarkedTypeWith); break;
