@@ -6967,15 +6967,25 @@ function annotate(position = "before")
 	let node = getNodeContainingSelection();
 	if(node && node.parentNode)
 	{
-		customPrompt("Enter annotation tag").then(function(result) {
-			const annotation = result.length ? document.createElement(result) : document.createElement("annotation");
+		customPrompt("Enter annotation tag").then(function(userInput) {
+			const annotationText = userInput.indexOf(" ") !== -1 ? userInput : undefined;
+			const annotation = userInput.length && !annotationText ?
+				document.createElement(userInput) :
+				document.createElement("annotation");
 			if(position === "after")
 				insertAfter(node, annotation);
 			else
 				insertBefore(node, annotation);
-			annotation.setAttribute("contenteditable", "true");
-			Nimbus.isEditing = true;
-			annotation.focus();
+			if(annotationText)
+			{
+				annotation.textContent = annotationText;
+			}
+			else
+			{
+				annotation.setAttribute("contenteditable", "true");
+				Nimbus.isEditing = true;
+				annotation.focus();
+			}
 		});
 	}
 }
