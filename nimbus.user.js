@@ -172,6 +172,8 @@ const Nimbus = {
 		removeAccessKeys: removeAccessKeys,
 		removeAllHighlights: removeAllHighlights,
 		removeAttributeOf: removeAttributeOf,
+		removeAllAttributesOf: removeAllAttributesOf,
+		removeAllAttributesExcept: removeAllAttributesExcept,
 		removeClassFromAll: removeClassFromAll,
 		removeColorsFromInlineStyles: removeColorsFromInlineStyles,
 		removeEmojis: removeEmojis,
@@ -5568,6 +5570,19 @@ function removeAllAttributesOf(elem)
 	{
 		const attr = attrs[i];
 		if(attr)
+			elem.removeAttribute(attr.name);
+	}
+}
+
+function removeAllAttributesExcept(elem, attrToKeep)
+{
+	const attrToKeepLower = attrToKeep.toLowerCase();
+	const attrs = elem.attributes;
+	let i = attrs.length;
+	while(i--)
+	{
+		const attr = attrs[i];
+		if(attr && attr.name.toLowerCase() !== attrToKeep)
 			elem.removeAttribute(attr.name);
 	}
 }
