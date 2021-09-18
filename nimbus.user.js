@@ -255,7 +255,7 @@ const Nimbus = {
 	},
 	replacementTagName: "blockquote",
 	markerClass: "markd",
-	minPersistWidth: 1000,
+	minPersistSize: 1000,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
 	BLOCK_ELEMENTS: ["DIV", "P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE"],
@@ -3509,10 +3509,11 @@ function getImageHeight(image)
 	return image.naturalHeight || image.clientHeight;
 }
 
-function persistStreamingImages(minWidth)
+function persistStreamingImages(minSize)
 {
-	if(minWidth)
-		Nimbus.minPersistWidth = minWidth;
+	if(minSize)
+		Nimbus.minPersistSize = minSize;
+	const minArea = Nimbus.minPersistSize * Nimbus.minPersistSize;
 	let imageContainer = getOne("#nimbusStreamingImageContainer");
 	if(!imageContainer)
 	{
@@ -3530,13 +3531,13 @@ function persistStreamingImages(minWidth)
 	{
 		const image = unsavedImages[i];
 		const imgSrc = image.src;
-		if(images.includes(imgSrc) || (getImageWidth(image) < Nimbus.minPersistWidth && getImageHeight(image) < Nimbus.minPersistWidth))
+		if(images.includes(imgSrc) || (getImageWidth(image) * getImageHeight(image) < minArea))
 			continue;
 		images.push(imgSrc);
 		imageContainer.appendChild(createElement("img", { src: imgSrc, className: "alreadySaved" }));
 	}
 	let numImages = get(".alreadySaved").length;
-	showMessage(`${numImages} unique images larger than ${Nimbus.minPersistWidth}px so far`, "messagebig", true);
+	showMessage(`${numImages} unique images larger than ${Nimbus.minPersistSize}px so far`, "messagebig", true);
 	Nimbus.persistStreamingImagesTimeout = setTimeout(persistStreamingImages, 250);
 }
 
