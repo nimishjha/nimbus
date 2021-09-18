@@ -90,6 +90,7 @@ const Nimbus = {
 		fillForms: fillForms,
 		fixCdnImages: fixCdnImages,
 		fixDashes: fixDashes,
+		replaceClassesWithCustomElements: replaceClassesWithCustomElements,
 		replaceEmptyAnchors: replaceEmptyAnchors,
 		replaceElementsOfMarkedTypeWith: replaceElementsOfMarkedTypeWith,
 		replaceInlineStylesWithClasses: replaceInlineStylesWithClasses,
@@ -5751,6 +5752,29 @@ function replaceInlineStylesWithClasses(selector = "span[style]")
 			elem.className = elem.getAttribute("style").replace(/[^A-Za-z0-9]/g, "");
 			elem.removeAttribute("style");
 		}
+	}
+}
+
+function replaceClassesWithCustomElements(selector, baseTagName)
+{
+	if(!typeof selector === "string") return;
+	const classes = getAllClassesFor(selector);
+	for(let i = 0, ii = classes.length; i < ii; i++)
+	{
+		const className = classes[i];
+		let replacementTagName;
+		if(typeof baseTagName === "string" && baseTagName.length)
+		{
+			replacementTagName = baseTagName + i;
+		}
+		else
+		{
+			const elem = getOne(makeClassSelector(className));
+			if(!elem) continue;
+			const tagName = elem.tagName;
+			replacementTagName = tagName.toLowerCase() + i;
+		}
+		replaceElementsBySelector(makeClassSelector(classes[i]), replacementTagName);
 	}
 }
 
