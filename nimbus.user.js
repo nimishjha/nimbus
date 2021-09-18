@@ -119,6 +119,7 @@ const Nimbus = {
 		getPagerLinks: getPagerLinks,
 		listSelectorsWithLightBackgrounds: listSelectorsWithLightBackgrounds,
 		persistStreamingImages: persistStreamingImages,
+		stopPersistingImages: stopPersistingImages,
 		highlightAllMatchesInDocument: highlightAllMatchesInDocument,
 		highlightAllStrings: highlightAllStrings,
 		highlightCode: highlightCode,
@@ -3539,9 +3540,16 @@ function persistStreamingImages(minWidth)
 	Nimbus.persistStreamingImagesTimeout = setTimeout(persistStreamingImages, 250);
 }
 
-function showSavedStreamingImages()
+function stopPersistingImages()
 {
 	clearTimeout(Nimbus.persistStreamingImagesTimeout);
+	const container = get("#nimbusStreamingImageContainer");
+	if(container) container.classList.add(Nimbus.markerClass);
+}
+
+function showSavedStreamingImages()
+{
+	stopPersistingImages();
 	deleteImagesSmallerThan(100, 100);
 	insertStyle("#nimbusStreamingImageContainer { height: 80vh; }", "temp", true);
 	retrieve("#nimbusStreamingImageContainer");
