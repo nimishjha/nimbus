@@ -2037,6 +2037,10 @@ function showMessage(messageHtml, msgClass, persist)
 		messageContainer.className = msgClass;
 		messageInner = getOne("messageinner");
 	}
+	if(!messageInner)
+	{
+		return;
+	}
 	messageInner.innerHTML = messageHtml;
 	if(msgClass)
 		console.log("Nimbus: \t " + messageInner.textContent);
