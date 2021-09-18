@@ -239,7 +239,7 @@ const Nimbus = {
 		currentIndex: -1,
 	},
 	highlightTagName: "mark",
-	highlightTagNameList: ["mark", "markyellow", "markred", "markgreen", "markblue", "markpurple", "markwhite", "em", "bold"],
+	highlightTagNameList: ["mark", "markyellow", "markred", "markgreen", "markblue", "markpurple", "markwhite", "em", "b"],
 	smallImageThreshold: 50,
 	smallImageThresholdList: [100, 200, 300, 400, 500, 600],
 	trHighlightClass: {
@@ -262,8 +262,12 @@ const Nimbus = {
 const KEYCODES = Nimbus.KEYCODES;
 
 const STYLES = {
-	FONT_01: '* { font-family: "Swis721 Cn BT"; } b, em, strong, i { color: #DDD; }',
-	COLORS_01: 'html, body { background: #202020; color: #AAA; } div { background: inherit; color: inherit; }',
+	FONT_01: `
+		html, body, div, blockquote, p, table, td, h1, h2, h3, h4, h5, h6, ul, ol, dl, header, nav, footer, article, section, aside { font-family: "Swis721 Cn BT"; }
+		b, em, strong, i { color: #DDD; },
+		a { text-decoration: none; }
+	`,
+	COLORS_01: 'html, body { background: #202020; color: #AAA; } div, table, tr, td, tbody, th, article, section, header, footer { background: inherit; color: inherit; }',
 	SIMPLE_NEGATIVE: 'html, body, body[class] {background: #000; font-family: "Swis721 Cn BT"; font-size: 22px; } *, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "Swis721 Cn BT"; } *::before, *::after { opacity: 0.25; } span, input, button { border-radius: 0; } h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #EEE; } mark {color: #FF0; } a, a[class] *, * a[class] {color: #05C; } a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #CCC; } a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #C55; } *[class*=stock][class] { background: #080; } *[class*=hover][class] { background: #000; } button[class], button[class][class], input[class], textarea[class] { border: 1px solid #333; background: #333; } button[class]:focus, button[class][class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 1px solid #CCC; } img, svg { opacity: 0.5; } img:hover, a:hover img { opacity: 1; }',
 	SIMPLE_NEGATIVE_2: 'html { background: #000; } body { background: #181818; color: #777; font-family: "Swis721 Cn BT"; } * { box-shadow: none; background-image: none; font-family: inherit; border-radius: 0; } *::before, *::after { opacity: 0.25; } table { border-collapse: collapse; } nav, header, footer { background: #111; } div { background: #181818; } td { background: #1C1C1C; } ol, ul, li { background: transparent; } div, tr, td { border: 0; } a:link { color: #05C; background: #111; } a:visited { color: #C55; background: #111; } a:hover, a:focus { color: #0CC; background: #222; } span, input, button { border-radius: 0; } span { border: 0; color: inherit; } input { background: #111; border: 1px solid #333; } button { background: #111; border: 1px solid #555; } img, svg { opacity: 0.5; }',
 	GRAYSCALE: 'html { filter: saturate(0); }',
@@ -481,7 +485,7 @@ function selectElementsEndingWithText(selector, text)
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
-		if(elem.textContent && elem.textContent.length && elem.textContent.indexOf(text) === elem.textContent.length - textLength)
+		if(elem.textContent && elem.textContent.length && elem.textContent.lastIndexOf(text) === elem.textContent.length - textLength)
 			selected.push(elem);
 	}
 	return selected;
@@ -1965,10 +1969,12 @@ function makeIdSelector(id)
 	return id.trim();
 }
 
-function simplifyClassNames()
+function simplifyClassNames(selector)
 {
-	const elems = get("div, p, span, h1, h2, h3, h4, h5, h6, ol, ul, li");
+	const sel = selector ||  "div, p, span, h1, h2, h3, h4, h5, h6, ol, ul, li";
+	const elems = get(sel);
 	const classMap = {};
+	const tagTable = {};
 	const baseClassName = "class";
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
@@ -1979,12 +1985,15 @@ function simplifyClassNames()
 			continue;
 		elem.className = oldClass;
 		classMap[oldClass] = tagName;
+		tagTable[tagName] = 0;
 	}
 	let keys = Object.keys(classMap);
 	for(let i = 0, ii = keys.length; i < ii; i++)
 	{
 		const key = keys[i];
-		replaceClass(key, classMap[key] + i);
+		const tagName = classMap[key];
+		const index = tagTable[tagName]++;
+		replaceClass(key, tagName + index);
 	}
 }
 
@@ -3415,7 +3424,7 @@ function replaceImagesWithAltText()
 		const img = imgs[i];
 		const altText = img.alt;
 		if(altText && altText.length)
-			img.parentNode.replaceChild(createElementWithText("small", altText));
+			img.parentNode.replaceChild(createElementWithText("small", altText), img);
 		else
 			img.remove();
 	}
@@ -5209,7 +5218,7 @@ function insertStyleHighlight()
 {
 	if(get("#styleHighlight")) return;
 	const s = `
-		.${Nimbus.markerClass} { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; }
+		.${Nimbus.markerClass} { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; background: #000; }
 		.focused { box-shadow: inset 0px 1000px #000; color: #FFF; }
 		.${Nimbus.markerClass}2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }
 		.${Nimbus.markerClass}::after, .${Nimbus.markerClass}2::after { content: " "; display: block; clear: both; }
@@ -5812,8 +5821,7 @@ function deleteEmptyTextNodes()
 	for(let i = 0, ii = nodes.length; i < ii; i++)
 	{
 		const node = nodes[i];
-		let nodeText = node.data;
-		if(nodeText.replace(/\s+/g, "").length === 0)
+		if(node.data.replace(/\s+/g, "").length === 0)
 		{
 			count++;
 			node.remove();
@@ -6017,7 +6025,7 @@ function consolidateAnchors()
 		const linkedElement = document.getElementById(linkHref.substring(1));
 		if(!linkedElement)
 			continue;
-		if(linkedElement && linkedElement.tagName && linkedElement.tagName === "CITE")
+		if(linkedElement && linkedElement.tagName && ["CITE", "SPAN", "A"].includes(linkedElement.tagName))
 		{
 			const parent = getFirstBlockParent(linkedElement);
 			if(!parent)
@@ -7135,7 +7143,7 @@ function italicize()
 		frag.appendChild(document.createTextNode(textBeforeSelection));
 	}
 	frag.appendChild(createElement("i", { textContent: selectionText }));
-	if(index2 < node.textContent.length - 1)
+	if(index2 < node.textContent.length)
 	{
 		let textAfterSelection = node.textContent.substring(index2);
 		if(textAfterSelection[0].match(/[a-zA-Z]/))
@@ -7424,7 +7432,7 @@ function findStringsInProximity(stringOne, stringTwo)
 
 	const stringOneLower = stringOne.toLowerCase();
 	const stringTwoLower = stringTwo.toLowerCase();
-	const DISTANCE = 5;
+	const DISTANCE = 2;
 	const createBracketKey = (n) => Math.round(n / DISTANCE) * DISTANCE;
 	const paras = get("p");
 	const lookup1 = {};
