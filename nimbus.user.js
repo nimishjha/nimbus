@@ -75,6 +75,7 @@ const Nimbus = {
 		deleteNodesBetweenMarkers: deleteNodesBetweenMarkers,
 		deleteNonContentElements: deleteNonContentElements,
 		deleteNonContentLists: deleteNonContentLists,
+		deleteResources: deleteResources,
 		deleteSmallImages: deleteSmallImages,
 		deleteEmptyBlockElements: deleteEmptyBlockElements,
 		delRange: delRange,
@@ -119,7 +120,7 @@ const Nimbus = {
 		getPagerLinks: getPagerLinks,
 		listSelectorsWithLightBackgrounds: listSelectorsWithLightBackgrounds,
 		persistStreamingImages: persistStreamingImages,
-		stopPersistingImages: stopPersistingImages,
+		deletePersistedImages: deletePersistedImages,
 		highlightAllMatchesInDocument: highlightAllMatchesInDocument,
 		highlightAllStrings: highlightAllStrings,
 		highlightCode: highlightCode,
@@ -145,6 +146,7 @@ const Nimbus = {
 		logAllClassesFor: logAllClassesFor,
 		logAllClassesForCommonElements: logAllClassesForCommonElements,
 		makeButtonsReadable: makeButtonsReadable,
+		replaceCommonClasses: replaceCommonClasses,
 		makeFileLinksRelative: makeFileLinksRelative,
 		makeHeadings: makeHeadings,
 		makeOL: makeOL,
@@ -255,7 +257,7 @@ const Nimbus = {
 	},
 	replacementTagName: "blockquote",
 	markerClass: "markd",
-	minPersistSize: 1000,
+	minPersistSize: 800,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
 	BLOCK_ELEMENTS: ["DIV", "P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE"],
@@ -314,7 +316,9 @@ function getOne(selector)
 
 function count(selector)
 {
-	showMessageBig(get(selector).length + " elements matching " + selector);
+	const elems = get(selector);
+	const count = elems ? elems.length : 0;
+	showMessageBig(count + " elements matching " + selector);
 }
 
 //	This function is an ideal candidate for overloading, because deletion is a universal operation.
@@ -1760,8 +1764,13 @@ function insertStyle(str, identifier, important)
 		del("#" + identifier);
 	if(important)
 		str = str.replace(/!important/g, " ").replace(/;/g, " !important;");
-	str = "\n" + str;
-	const head = getOne("head");
+	str = "\n" + str.replace(/\n\t+/g, "\n");
+	let head = getOne("head");
+	if(!head)
+	{
+		head = document.createElement("head");
+		document.documentElement.insertBefore(head. document.documentElement.firstChild);
+	}
 	const style = document.createElement("style");
 	const rules = document.createTextNode(str);
 	style.type = "text/css";
@@ -1876,7 +1885,11 @@ function log2(str)
 function logAllClassesForCommonElements()
 {
 	logAllClassesFor("div");
+	logAllClassesFor("h1");
+	logAllClassesFor("h2");
+	logAllClassesFor("h3");
 	logAllClassesFor("p");
+	logAllClassesFor("blockquote");
 	logAllClassesFor("span");
 }
 
@@ -1929,7 +1942,6 @@ function replaceClass(class1, class2)
 {
 	const e = document.querySelectorAll(makeClassSelector(class1));
 	let i = e.length;
-	showMessageBig(`Replacing <b>${class1}</b> with <b>${class2}</b> on <b>${i}</b> elements`);
 	while(i--)
 	{
 		e[i].classList.remove(class1);
@@ -1995,7 +2007,10 @@ function simplifyClassNames(selector)
 		const key = keys[i];
 		const tagName = classMap[key];
 		const index = tagTable[tagName]++;
-		replaceClass(key, tagName + index);
+		if(tagName.match(/h\d/))
+			replaceClass(key, tagName + "_" + index);
+		else
+			replaceClass(key, tagName + index);
 	}
 }
 
@@ -3327,7 +3342,7 @@ function deleteImagesSmallerThan(pixelArea)
 			count++;
 		}
 	}
-	showMessageBig(`Deleted <b>${count}</b> images smaller than <b>${pixelArea}</b>`);
+	showMessageBig(`Deleted <b>${count}</b> images smaller than <b>${pixelArea}</b> pixels`);
 }
 
 function deleteSmallImages()
@@ -3401,6 +3416,7 @@ function getBestImageSrc()
 				sourcesArray = sourcesArray.sort(sortSources);
 				bestSource = sourcesArray[sourcesArray.length - 1].src;
 				Nimbus.bestImagesData.push({ image, bestSource });
+				removeAllAttributesExcept(image, "src");
 			}
 		}
 	}
@@ -3541,21 +3557,26 @@ function persistStreamingImages(minSize)
 	Nimbus.persistStreamingImagesTimeout = setTimeout(persistStreamingImages, 250);
 }
 
-function stopPersistingImages()
+function deletePersistedImages()
 {
 	clearTimeout(Nimbus.persistStreamingImagesTimeout);
-	const container = get("#nimbusStreamingImageContainer");
-	if(container) container.classList.add(Nimbus.markerClass);
+	del("#nimbusStreamingImageContainer");
 }
 
 function showSavedStreamingImages()
 {
-	stopPersistingImages();
+	clearTimeout(Nimbus.persistStreamingImagesTimeout);
 	deleteImagesSmallerThan(100, 100);
 	insertStyle("#nimbusStreamingImageContainer { height: 80vh; }", "temp", true);
 	retrieve("#nimbusStreamingImageContainer");
 	removeClassFromAll("alreadySaved");
-	ylog(get("img").length + " images", "h2");
+	const images = get("img");
+	for(let i = 0, ii = images.length; i < ii; i++)
+	{
+		const image = images[i];
+		removeAllAttributesExcept(image, "src");
+	}
+	ylog(images.length + " images", "h2");
 }
 
 function addLinksToLargerImages()
@@ -3658,7 +3679,8 @@ function buildSlideshow()
 	'#nimbusGallery img.currentImage { margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; }' +
 	'#nimbusGallery img.currentImage.aspectRatioPortrait { height: 100vh; width: auto; }' +
 	'#nimbusGallery img.currentImage.aspectRatioLandscape { width: 100vw; height: auto; }' +
-	'#nimbusGallery a { color: #000; }';
+	'#nimbusGallery a { color: #000; }' +
+	'slideshow::after { content: ""; display: block; clear: both; }';
 	insertStyle(s, 'styleSlideshow', true);
 	images[0].classList.add("currentImage");
 	window.scrollTo(0, 0);
@@ -3823,6 +3845,15 @@ function makeHeadings()
 			}
 		}
 	}
+}
+
+function replaceCommonClasses()
+{
+	replaceByClassOrIdContaining("txit", "i");
+	replaceByClassOrIdContaining("txbd", "b");
+	replaceByClassOrIdContaining("small", "small");
+	replaceByClassOrIdContaining("quote", "blockquote");
+	replaceElementsBySelector("div.calibre", "section");
 }
 
 function fixHeadings()
@@ -4012,7 +4043,12 @@ function cleanupTitle()
 			const headingText = sanitizeTitle(heading.textContent);
 			if(removeWhitespace(headingText).length === 0)
 				continue;
-			if(~titleText.indexOf(headingText) && headingText.length < titleText.length)
+			if(!titleText)
+			{
+				document.title = headingText;
+				return;
+			}
+			else if(~titleText.indexOf(headingText) && headingText.length < titleText.length)
 			{
 				document.title = headingText;
 				return;
@@ -5350,6 +5386,8 @@ function toggleStyleNegative()
 		markyellow { background: #440; color: #FF0; padding: 2px 0; line-height: inherit; }
 		markwhite { background: #000; color: #FFF; padding: 2px 0; line-height: inherit; }
 
+		slideshow::after { content: " "; clear: both; display: block; }
+
 		a img { border: none; }
 		button img, input img { display: none; }
 		table { border-collapse: collapse; background: #141414; border: 0; }
@@ -5851,9 +5889,10 @@ function normaliseWhitespaceForParagraphs()
 	}
 }
 
-function deleteEmptyTextNodes()
+function deleteEmptyTextNodes(parentTagName)
 {
-	const nodes = getTextNodesAsArray();
+	const parent = parentTagName || "body";
+	const nodes = getXpathResultAsArray(`//${parent}//text()`);
 	let count = 0;
 	for(let i = 0, ii = nodes.length; i < ii; i++)
 	{
@@ -6145,7 +6184,7 @@ function getMetadata()
 	const domain = fields[0].textContent;
 	const pageUrl = fields[1].querySelector("a").textContent;
 	const saveTimestamp = fields[2].textContent;
-	Nimbus.pageMetadata = {
+	return {
 		domain,
 		pageUrl,
 		saveTimestamp
@@ -7432,6 +7471,7 @@ function highlightTextAcrossTags(node, searchString)
 		{
 			isMatch = true;
 			partialSearchString = childNodeText.substring(index1 - childNodeStart, index1 - childNodeStart + searchString.length);
+			consoleLog('childnode contains beginning; partialSearchString:', partialSearchString);
 		}
 		//	The childNode is entirely contained within the search string
 		else if(index1 < childNodeStart && index2 > childNodeEnd)
@@ -7443,6 +7483,9 @@ function highlightTextAcrossTags(node, searchString)
 		{
 			isMatch = true;
 			partialSearchString = childNodeText.substring(0, index2 - childNodeStart);
+			if(childNodeText.length - partialSearchString.length < 10)
+				partialSearchString = childNodeText;
+			consoleLog('childnode contains end; partialSearchString:', partialSearchString);
 		}
 		if(isMatch && partialSearchString.length > 2)
 		{
@@ -7452,6 +7495,7 @@ function highlightTextAcrossTags(node, searchString)
 				splitMatches.push(partialSearchString);
 		}
 	}
+	consoleLog('highlightTextAcrossTags: splitMatches:', splitMatches);
 	highlightAllMatchesInNode(node, splitMatches);
 }
 
@@ -7612,8 +7656,9 @@ function toggleHighlight()
 
 function highlightSelectedElement(tag)
 {
+	const MAX_LENGTH = 2000;
 	let node = getNodeContainingSelection();
-	if(node && node.parentNode && node.tagName !== "BODY")
+	if(node && node.parentNode && node.tagName !== "BODY" && node.textContent.length < MAX_LENGTH)
 	{
 		const highlightTag = tag ? tag : Nimbus.highlightTagName;
 		wrapElementInner(getFirstBlockParent(node), highlightTag);
@@ -7673,7 +7718,7 @@ function inject()
 	xlog("Referrer: " + document.referrer);
 	xlog("Page loaded at " + getTimestamp());
 	cleanupStackOverflow();
-	getMetadata();
+	Nimbus.pageMetadata = getMetadata();
 	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
 }
 
@@ -7708,6 +7753,8 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD9: refreshScreen(); break;
 			case KEYCODES.NUMPAD0: deleteResources(); break;
 			case KEYCODES.NUMPAD_ADD: persistStreamingImages(); break;
+			case KEYCODES.NUMPAD_SUBTRACT: deletePersistedImages(); break;
+			case KEYCODES.NUMPAD_MULTIPLY: showSavedStreamingImages(); break;
 			case KEYCODES.F1: customPrompt("Enter replacement tag name").then(setReplacementTag); break;
 			case KEYCODES.F2: replaceSelectedElement("h2"); break;
 			case KEYCODES.F3: customPrompt("Enter tag name to replace elements of the marked type with").then(replaceElementsOfMarkedTypeWith); break;
