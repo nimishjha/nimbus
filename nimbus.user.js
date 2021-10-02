@@ -4996,24 +4996,30 @@ function makeOL()
 	groupAdjacentElements(MARKER_CLASS_SELECTOR, "ol", "li");
 }
 
-function groupUnderHeading()
+function makeDocumentHierarchical()
+{
+	const headingSelectors = ["h6", "h5", "h4", "h3", "h2", "h1"];
+	for(let i = 0, ii = headingSelectors.length; i < ii; i++)
+		groupUnderHeadings(headingSelectors[i]);
+}
+
+function groupUnderHeadings(selector)
+{
+	const headings = get(selector);
+	for(let i = 0, ii = headings.length; i < ii; i++)
+		groupUnderHeading(headings[i]);
+}
+
+function groupUnderHeading(heading)
 {
 	const WRAPPER_ELEMENT_TAGNAME = "section";
-	const ELEMENTS_TO_BREAK_ON = ["H1", "H2", "H3", "H4", "H5", "H6", "SECTION"];
-	const heading = getMarkedElements()[0];
-	if(!heading)
-	{
-		showMessageBig("Nothing is marked");
-		return;
-	}
-	unmarkAll();
 	const headingTagName = heading.tagName;
 	const wrapperElem = document.createElement(WRAPPER_ELEMENT_TAGNAME);
 	const toDelete = [];
 	wrapperElem.appendChild(heading.cloneNode(true));
 	let nextElem = heading.nextElementSibling;
 	let count = 0;
-	while(nextElem && !ELEMENTS_TO_BREAK_ON.includes(nextElem.tagName) && count < 1000)
+	while(nextElem && nextElem.tagName !== headingTagName && count < 1000)
 	{
 		count++;
 		wrapperElem.appendChild(nextElem.cloneNode(true));
