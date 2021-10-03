@@ -278,7 +278,14 @@ const STYLES = {
 	SIMPLE_NEGATIVE_2: 'html { background: #000; } body { background: #181818; color: #777; font-family: "Swis721 Cn BT"; } * { box-shadow: none; background-image: none; font-family: inherit; border-radius: 0; } *::before, *::after { opacity: 0.25; } table { border-collapse: collapse; } nav, header, footer { background: #111; } div { background: #181818; } td { background: #1C1C1C; } ol, ul, li { background: transparent; } div, tr, td { border: 0; } a:link { color: #05C; background: #111; } a:visited { color: #C55; background: #111; } a:hover, a:focus { color: #0CC; background: #222; } span, input, button { border-radius: 0; } span { border: 0; color: inherit; } input { background: #111; border: 1px solid #333; } button { background: #111; border: 1px solid #555; } img, svg { opacity: 0.5; }',
 	GRAYSCALE: 'html { filter: saturate(0); }',
 	OUTLINE_ELEMENTS: 'header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; } form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); } table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; } ul, ol { box-shadow: inset 2px 2px #0A0, inset -2px -2px #0A0; } li { box-shadow: inset 2px 2px #070, inset -2px -2px #070; } font, small, span, abbr, cite { box-shadow: inset 2px 2px #AA0, inset -2px -2px #AA0; } h1, h2, h3, h4, h5, h6 { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; } p { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; } mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 2px 2px #888, inset -2px -2px #888; } a, a * { background: rgba(180, 255, 0, 0.25); } img { background: #800; padding: 2px; box-sizing: border-box; }',
-	SHOW_SELECTORS: 'div[id]::before, blockquote[id]::before, article[id]::before, section[id]::before, aside[id]::before { content: "#"attr(id); color: #D0D; padding: 2px 5px; background: #000; } div[class]::before, blockquote[class]::before, article[class]::before, section[class]::before, aside[class]::before { content: "."attr(class); color: #F90; padding: 2px 5px; background: #000; } h1[class]::before, h2[class]::before, h3[class]::before, h4[class]::before, h5[class]::before, h6[class]::before, td[class]::before, p[class]::before { content: "."attr(class); color: #C60; padding: 2px 5px; background: #000; } h1[id]::before, h2[id]::before, h3[id]::before, h4[id]::before, h5[id]::before, h6[id]::before, td[id]::before, p[id]::before { content: "#"attr(id); color: #C0C; padding: 2px 5px; background: #000; } span[class]::before { content: "."attr(class); color: #C60; padding: 2px 5px; background: #040; } span[id]::before { content: "#"attr(id); color: #C0C; padding: 2px 5px; background: #040; } span { box-shadow: inset 0 -100px #040; padding: 2px; border: 2px solid #0A0; } header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; padding: 10px; } h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #000, inset -4px -4px #808; }',
+	SHOW_SELECTORS: `
+		div[class]::before, p[class]::before, h1[class]::before, h2[class]::before, h3[class]::before, blockquote[class]::before, span[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px; }
+		div[id]::before, p[id]::before, h1[id]::before, h2[id]::before, h3[id]::before, blockquote[id]::before, span[id]::before { content: attr(id); color: #F0F; background: #000; padding: 2px; }
+		div[id][class]::before, p[id][class]::before, h1[id][class]::before, h2[id][class]::before, h3[id][class]::before, blockquote[id][class]::before, span[id][class]::before { content: "#"attr(id) "."attr(class); color: #0DD; background: #000; padding: 2px; }
+		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; padding: 10px; }
+		h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #000, inset -4px -4px #000; }
+		span { box-shadow: inset 0 -100px #040; padding: 2px; border: 2px solid #0A0; }
+	`,
 	SHOW_TABLE_STRUCTURE: 'th { background-image: linear-gradient(45deg, #000, #888); } td { background-image: linear-gradient(45deg, #000, #555); } th *, td * { background: transparent; color: #FFF; fill: #999; }',
 	INSPECTOR: 'body.inspector { padding-bottom: 30vh; } div#inspector { padding: 5px 10px; position: fixed; left: 0; bottom: 0; width: 50%; min-width: 500px; height: 30vh; overflow: hidden; background:#000; color: #AAA; text-align:left; z-index: 2147483647; font: 12px verdana; letter-spacing: 0; box-shadow: none; min-height: 30vh; margin: 0; } #inspector.onTop { bottom: auto; top: 0; } #inspector b { color:#09F; } #inspector em { font-style:normal; color:#F90; } .hovered { filter: contrast(1.5); } #inspector div { box-shadow: none; margin: 0; padding: 0; } #inspector::after, #inspector div::after { display: none; }',
 };
@@ -3349,7 +3356,7 @@ function deleteImagesSmallerThan(pixelArea)
 
 function deleteSmallImages()
 {
-	deleteBySelectorAndTextMatching("img", "data");
+	deleteBySelectorAndTextMatching("img", "data:");
 	const images = get("img");
 	const nextThreshold = getNext(Nimbus.smallImageThreshold, Nimbus.smallImageThresholdList);
 	Nimbus.smallImageThreshold = nextThreshold;
@@ -3853,6 +3860,8 @@ function replaceCommonClasses()
 {
 	replaceByClassOrIdContaining("txit", "i");
 	replaceByClassOrIdContaining("txbd", "b");
+	replaceByClassOrIdContaining("ital", "i");
+	replaceByClassOrIdContaining("bold", "b");
 	replaceByClassOrIdContaining("small", "small");
 	replaceByClassOrIdContaining("quote", "blockquote");
 	replaceElementsBySelector("div.calibre", "section");
@@ -5675,7 +5684,6 @@ function cleanupAttributes()
 				const attr = attrs[j];
 				switch(attr.name)
 				{
-					//	These attributes are essential
 					case "href":
 					case "src":
 					case "srcset":
@@ -5683,6 +5691,7 @@ function cleanupAttributes()
 					case "colspan":
 					case "rowspan":
 					case "id":
+					case "class":
 						break;
 					default:
 						elem.removeAttribute(attr.name);
@@ -6337,6 +6346,7 @@ function getContentByParagraphCount()
 		if(title)
 			setDocTitleSimple(title);
 		cleanupGeneral();
+		unmarkAll();
 		deleteIframes();
 		deleteEmptyBlockElements();
 		return;
