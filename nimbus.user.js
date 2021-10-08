@@ -865,10 +865,23 @@ function fixLineBreaks()
 	}
 }
 
-function splitByBrs(sel)
+function splitByBrs(selectorOrElement)
 {
-	const selector = sel || MARKER_CLASS_SELECTOR;
-	const elems = get(selector);
+	let selector;
+	let elems;
+	if(typeof selectorOrElement === "string")
+	{
+		selector = sel || MARKER_CLASS_SELECTOR;
+	 	elems = get(selector);
+	 }
+	 else if(selectorOrElement.nodeType)
+	 {
+	 	elems = [selectorOrElement];
+	 }
+	 else
+	 {
+	 	return;
+	 }
 	const tagMap = {
 		"H1": "H1",
 		"H2": "H2",
@@ -4601,6 +4614,7 @@ function toggleContentEditable()
 	{
 		showMessageBig("contentEditable OFF");
 		selectedNode.removeAttribute("contentEditable");
+		splitByBrs(selectedNode);
 		Nimbus.isEditing = false;
 	}
 }
