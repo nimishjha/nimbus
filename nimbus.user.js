@@ -2551,20 +2551,23 @@ function autoCompleteInputBox()
 	return { open, close };
 }
 
-function markByCssRule(prop, val)
+function markByCssRule(prop, value, selector)
 {
-	const e = document.getElementsByTagName("*");
-	let i = e.length;
+	const sel = selector || "*";
+	const val = value.toLowerCase();
+	const elems = get(sel);
+	let i = elems.length;
 	let count = 0;
 	while(i--)
 	{
-		const computedStyle = getComputedStyle(e[i], null);
+		const elem = elems[i];
+		const computedStyle = getComputedStyle(elem, null);
 		if(computedStyle)
 		{
 			const propertyValue = computedStyle.getPropertyValue(prop);
-			if(propertyValue === val)
+			if(propertyValue.toLowerCase() === val)
 			{
-				markElement(e[i]);
+				markElement(elem);
 				count++;
 			}
 		}
@@ -3677,7 +3680,7 @@ function buildGallery()
 	}
 	del("img");
 	cleanupHead();
-	insertStyle("img { display: block; float: left; max-height: 300px; }", "styleGallery", true);
+	insertStyle("img { display: block; float: left; max-height: 300px; } slideshow::after { content: ''; display: block; clear: both; }", "styleGallery", true);
 	document.body.insertBefore(galleryElement, document.body.firstChild);
 }
 
