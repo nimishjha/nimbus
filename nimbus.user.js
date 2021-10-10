@@ -39,7 +39,13 @@ let consoleError = noop;
 const Nimbus = {
 	logString: "",
 	messageTimeout: null,
-	KEYCODES: { DELETE: 46, ZERO: 48, ONE: 49, TWO: 50, THREE: 51, FOUR: 52, FIVE: 53, SIX: 54, SEVEN: 55, EIGHT: 56, NINE: 57, A: 65, B: 66, C: 67, D: 68, E: 69, F: 70, G: 71, H: 72, I: 73, J: 74, K: 75, L: 76, M: 77, N: 78, O: 79, P: 80, Q: 81, R: 82, S: 83, T: 84, U: 85, V: 86, W: 87, X: 88, Y: 89, Z: 90, F1: 112, F2: 113, F3: 114, F4: 115, F5: 116, F6: 117, F7: 118, F8: 119, F9: 120, F10: 121, F11: 122, F12: 123, NUMPAD0: 96, NUMPAD1: 97, NUMPAD2: 98, NUMPAD3: 99, NUMPAD4: 100, NUMPAD5: 101, NUMPAD6: 102, NUMPAD7: 103, NUMPAD8: 104, NUMPAD9: 105, NUMPAD_MULTIPLY: 106, NUMPAD_ADD: 107, NUMPAD_SUBTRACT: 109, NUMPAD_DECIMAL_POINT: 110, NUMPAD_DIVIDE: 111, FORWARD_SLASH: 191, BACK_SLASH: 220, MINUS: 173, TILDE: 192, SPACE: 32, UPARROW: 38, DOWNARROW: 40, LEFTARROW: 37, RIGHTARROW: 39, TAB: 9, ENTER: 13, ESCAPE: 27, SQUARE_BRACKET_OPEN: 219, SQUARE_BRACKET_CLOSE: 221 },
+	KEYCODES: {
+		DELETE: 46, ZERO: 48, ONE: 49, TWO: 50, THREE: 51, FOUR: 52, FIVE: 53, SIX: 54, SEVEN: 55, EIGHT: 56, NINE: 57,
+		A: 65, B: 66, C: 67, D: 68, E: 69, F: 70, G: 71, H: 72, I: 73, J: 74, K: 75, L: 76, M: 77, N: 78, O: 79, P: 80, Q: 81, R: 82, S: 83, T: 84, U: 85, V: 86, W: 87, X: 88, Y: 89, Z: 90,
+		F1: 112, F2: 113, F3: 114, F4: 115, F5: 116, F6: 117, F7: 118, F8: 119, F9: 120, F10: 121, F11: 122, F12: 123,
+		NUMPAD0: 96, NUMPAD1: 97, NUMPAD2: 98, NUMPAD3: 99, NUMPAD4: 100, NUMPAD5: 101, NUMPAD6: 102, NUMPAD7: 103, NUMPAD8: 104, NUMPAD9: 105, NUMPAD_MULTIPLY: 106, NUMPAD_ADD: 107, NUMPAD_SUBTRACT: 109, NUMPAD_DECIMAL_POINT: 110, NUMPAD_DIVIDE: 111,
+		FORWARD_SLASH: 191, BACK_SLASH: 220, MINUS: 173, TILDE: 192, SPACE: 32, UPARROW: 38, DOWNARROW: 40, LEFTARROW: 37, RIGHTARROW: 39, TAB: 9, ENTER: 13, ESCAPE: 27, SQUARE_BRACKET_OPEN: 219, SQUARE_BRACKET_CLOSE: 221
+	},
 	availableFunctions: {
 		addLinksToLargerImages: addLinksToLargerImages,
 		annotate: annotate,
@@ -214,6 +220,7 @@ const Nimbus = {
 		selectElementsStartingWithText: selectElementsStartingWithText,
 		setAttributeOf: setAttributeOf,
 		setDocTitle: setDocTitle,
+		setMarkerClass: setMarkerClass,
 		setQueryParameter: setQueryParameter,
 		setReplacementTag: setReplacementTag,
 		showAttributes: showAttributes,
@@ -274,10 +281,56 @@ const STYLES = {
 		a { text-decoration: none; }
 	`,
 	COLORS_01: 'html, body { background: #202020; color: #AAA; } div, table, tr, td, tbody, th, article, section, header, footer { background: inherit; color: inherit; }',
-	SIMPLE_NEGATIVE: 'html, body, body[class] {background: #000; font-family: "Swis721 Cn BT"; font-size: 22px; } *, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "Swis721 Cn BT"; } *::before, *::after { opacity: 0.25; } span, input, button { border-radius: 0; } h1, h2, h3, h4, h5, h6, b, strong, em, i {color: #EEE; } mark {color: #FF0; } a, a[class] *, * a[class] {color: #05C; } a:hover, a:hover *, a[class]:hover *, * a[class]:hover {color: #CCC; } a:visited, a:visited *, a[class]:visited *, * a[class]:visited {color: #C55; } *[class*=stock][class] { background: #080; } *[class*=hover][class] { background: #000; } button[class], button[class][class], input[class], textarea[class] { border: 1px solid #333; background: #333; } button[class]:focus, button[class][class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 1px solid #CCC; } img, svg { opacity: 0.5; } img:hover, a:hover img { opacity: 1; }',
-	SIMPLE_NEGATIVE_2: 'html { background: #000; } body { background: #181818; color: #777; font-family: "Swis721 Cn BT"; } * { box-shadow: none; background-image: none; font-family: inherit; border-radius: 0; } *::before, *::after { opacity: 0.25; } table { border-collapse: collapse; } nav, header, footer { background: #111; } div { background: #181818; } td { background: #1C1C1C; } ol, ul, li { background: transparent; } div, tr, td { border: 0; } a:link { color: #05C; background: #111; } a:visited { color: #C55; background: #111; } a:hover, a:focus { color: #0CC; background: #222; } span, input, button { border-radius: 0; } span { border: 0; color: inherit; } input { background: #111; border: 1px solid #333; } button { background: #111; border: 1px solid #555; } img, svg { opacity: 0.5; }',
+	SIMPLE_NEGATIVE: `
+		html, body, body[class] { background: #000; font-family: "Swis721 Cn BT"; font-size: 22px; }
+		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "Swis721 Cn BT"; }
+		*::before, *::after { opacity: 0.25; }
+		span, input, button { border-radius: 0; }
+		h1, h2, h3, h4, h5, h6, b, strong, em, i { color: #EEE; }
+		mark { color: #FF0; }
+		a, a[class] *, * a[class] { color: #05C; }
+		a:hover, a:hover *, a[class]:hover *, * a[class]:hover { color: #CCC; }
+		a:visited, a:visited *, a[class]:visited *, * a[class]:visited { color: #C55; }
+		*[class*=stock][class] { background: #080; }
+		*[class*=hover][class] { background: #000; }
+		button[class], button[class][class], input[class], textarea[class] { border: 1px solid #333; background: #333; color: #AAA; }
+		button[class]:focus, button[class][class]:focus, input[class]:focus, textarea[class]:focus, button[class]:hover, input[class]:hover, textarea[class]:hover { border: 1px solid #CCC; color: #FFF; }
+		img, svg { opacity: 0.5; }
+		img:hover, a:hover img { opacity: 1; }
+	`,
+	SIMPLE_NEGATIVE_2: `
+		html { background: #000; }
+		body { background: #181818; color: #777; font-family: "Swis721 Cn BT"; }
+		* { box-shadow: none; background-image: none; font-family: inherit; border-radius: 0; }
+		*::before, *::after { opacity: 0.25; }
+		table { border-collapse: collapse; }
+		nav, header, footer { background: #111; }
+		div { background: #181818; }
+		td { background: #1C1C1C; }
+		ol, ul, li { background: transparent; }
+		div, tr, td { border: 0; }
+		a:link { color: #05C; background: #111; }
+		a:visited { color: #C55; background: #111; }
+		a:hover, a:focus { color: #0CC; background: #222; }
+		span, input, button { border-radius: 0; }
+		span { border: 0; color: inherit; }
+		input { background: #111; border: 1px solid #333; }
+		button { background: #111; border: 1px solid #555; }
+		img, svg { opacity: 0.5; }
+	`,
 	GRAYSCALE: 'html { filter: saturate(0); }',
-	OUTLINE_ELEMENTS: 'header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; } form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); } table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; } ul, ol { box-shadow: inset 2px 2px #0A0, inset -2px -2px #0A0; } li { box-shadow: inset 2px 2px #070, inset -2px -2px #070; } font, small, span, abbr, cite { box-shadow: inset 2px 2px #AA0, inset -2px -2px #AA0; } h1, h2, h3, h4, h5, h6 { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; } p { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; } mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 2px 2px #888, inset -2px -2px #888; } a, a * { background: rgba(180, 255, 0, 0.25); } img { background: #800; padding: 2px; box-sizing: border-box; }',
+	OUTLINE_ELEMENTS: `header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
+		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
+		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
+		ul, ol { box-shadow: inset 2px 2px #0A0, inset -2px -2px #0A0; }
+		li { box-shadow: inset 2px 2px #070, inset -2px -2px #070; }
+		font, small, span, abbr, cite { box-shadow: inset 2px 2px #AA0, inset -2px -2px #AA0; }
+		h1, h2, h3, h4, h5, h6 { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; }
+		p { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; }
+		mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 2px 2px #888, inset -2px -2px #888; }
+		a, a * { background: rgba(180, 255, 0, 0.25); }
+		img { background: #800; padding: 2px; box-sizing: border-box; }
+	`,
 	SHOW_SELECTORS: `
 		div[class]::before, p[class]::before, h1[class]::before, h2[class]::before, h3[class]::before, blockquote[class]::before, span[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px; }
 		div[id]::before, p[id]::before, h1[id]::before, h2[id]::before, h3[id]::before, blockquote[id]::before, span[id]::before { content: attr(id); color: #F0F; background: #000; padding: 2px; }
@@ -287,10 +340,17 @@ const STYLES = {
 		span { box-shadow: inset 0 -100px #040; padding: 2px; border: 2px solid #0A0; }
 	`,
 	SHOW_TABLE_STRUCTURE: 'th { background-image: linear-gradient(45deg, #000, #888); } td { background-image: linear-gradient(45deg, #000, #555); } th *, td * { background: transparent; color: #FFF; fill: #999; }',
-	INSPECTOR: 'body.inspector { padding-bottom: 30vh; } div#inspector { padding: 5px 10px; position: fixed; left: 0; bottom: 0; width: 50%; min-width: 500px; height: 30vh; overflow: hidden; background:#000; color: #AAA; text-align:left; z-index: 2147483647; font: 12px verdana; letter-spacing: 0; box-shadow: none; min-height: 30vh; margin: 0; } #inspector.onTop { bottom: auto; top: 0; } #inspector b { color:#09F; } #inspector em { font-style:normal; color:#F90; } .hovered { filter: contrast(1.5); } #inspector div { box-shadow: none; margin: 0; padding: 0; } #inspector::after, #inspector div::after { display: none; }',
+	INSPECTOR: `
+		body.inspector { padding-bottom: 30vh; }
+		div#inspector { padding: 5px 10px; position: fixed; left: 0; bottom: 0; width: 50%; min-width: 500px; height: 30vh; overflow: hidden; background:#000; color: #AAA; text-align:left; z-index: 2147483647; font: 12px verdana; letter-spacing: 0; box-shadow: none; min-height: 30vh; margin: 0; }
+		#inspector.onTop { bottom: auto; top: 0; }
+		#inspector b { color:#09F; }
+		#inspector em { font-style:normal; color:#F90; }
+		.hovered { filter: contrast(1.5); }
+		#inspector div { box-shadow: none; margin: 0; padding: 0; }
+		#inspector::after, #inspector div::after { display: none; }
+	`,
 };
-
-const MARKER_CLASS_SELECTOR = makeClassSelector(Nimbus.markerClass);
 
 //	Useful wrapper around document.querySelector() and document.querySelectorAll()
 //	Returns an array of nodes except when the selector is an id selector, in which case it
@@ -655,7 +715,7 @@ function forAll(selector, callback)
 
 function getMarkedElements()
 {
-	const markedElements = get(MARKER_CLASS_SELECTOR);
+	const markedElements = get(makeClassSelector(Nimbus.markerClass));
 	return markedElements ? markedElements : [];
 }
 
@@ -857,11 +917,11 @@ function fixLineBreaks()
 		if(span.textContent.match(/\n$/))
 			span.appendChild(document.createElement("br"));
 	}
-	var marked = getOne(MARKER_CLASS_SELECTOR);
+	var marked = getOne(makeClassSelector(Nimbus.markerClass));
 	if(marked)
 	{
 		marked.innerHTML = marked.innerHTML.replace(/\n+/g, "<br>");
-		splitByBrs(MARKER_CLASS_SELECTOR);
+		splitByBrs(makeClassSelector(Nimbus.markerClass));
 	}
 }
 
@@ -871,8 +931,7 @@ function splitByBrs(selectorOrElement)
 	let elems;
 	if(typeof selectorOrElement === "string")
 	{
-		selector = sel || MARKER_CLASS_SELECTOR;
-	 	elems = get(selector);
+	 	elems = get(selectorOrElement);
 	 }
 	 else if(selectorOrElement.nodeType)
 	 {
@@ -1294,7 +1353,7 @@ function createSelector(elem)
 function createClassSelector(elem)
 {
 	if(elem.className)
-		return "." + Array.from(elem.classList).join('.').replace(MARKER_CLASS_SELECTOR, "");
+		return "." + Array.from(elem.classList).join('.').replace(makeClassSelector(Nimbus.markerClass), "");
 	return false;
 }
 
@@ -1475,7 +1534,7 @@ function replaceElementsByTagNameMatching(text, tagName)
 function replaceElementsBySelectorHelper()
 {
 	if(getMarkedElements().length)
-		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2, MARKER_CLASS_SELECTOR + " ");
+		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2, makeClassSelector(Nimbus.markerClass) + " ");
 	else
 		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2);
 }
@@ -1732,7 +1791,7 @@ function createListsFromBulletedParagraphs()
 			nextElem = nextElemTemp;
 		}
 	}
-	replaceElementsBySelector(MARKER_CLASS_SELECTOR, "li");
+	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "li");
 }
 
 function hasChildrenOfType(elem, selector)
@@ -2188,7 +2247,14 @@ function handleConsoleInput(evt, consoleType)
 			{
 				if(consoleType === "js")
 				{
-					eval(inputText);
+					try
+					{
+						eval(inputText);
+					}
+					catch(err)
+					{
+						console.log(err);
+					}
 					return;
 				}
 				else if(consoleType === "css")
@@ -2728,7 +2794,7 @@ function highlightAuthors()
 	replaceByClassOrIdContaining("author", "author");
 	replaceByClassOrIdContaining("byline", "author");
 	mark("author", "hasChildrenOfType", "author");
-	replaceElementsBySelector(MARKER_CLASS_SELECTOR, "div");
+	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "div");
 }
 
 function fixInternalReferences()
@@ -4920,6 +4986,11 @@ function changePage(direction)
 	}
 }
 
+function setMarkerClass(str)
+{
+	Nimbus.markerClass = str;
+}
+
 function cycleHighlightTag()
 {
 	const nextTag = getNext(Nimbus.highlightTagName, Nimbus.highlightTagNameList);
@@ -4964,7 +5035,7 @@ function groupMarkedElements(tagName)
 		wrapper.appendChild(child);
 	}
 	insertBefore(elemsToJoin[0], wrapper);
-	del(MARKER_CLASS_SELECTOR);
+	del(makeClassSelector(Nimbus.markerClass));
 	deleteMessage();
 }
 
@@ -5016,12 +5087,12 @@ function groupAdjacentElements(selector, parentTag, childTag)
 
 function makeUL()
 {
-	groupAdjacentElements(MARKER_CLASS_SELECTOR, "ul", "li");
+	groupAdjacentElements(makeClassSelector(Nimbus.markerClass), "ul", "li");
 }
 
 function makeOL()
 {
-	groupAdjacentElements(MARKER_CLASS_SELECTOR, "ol", "li");
+	groupAdjacentElements(makeClassSelector(Nimbus.markerClass), "ol", "li");
 }
 
 function makeDocumentHierarchical()
@@ -6284,9 +6355,9 @@ function fixBullets()
 
 function deleteNonContentElements()
 {
-	if(get(MARKER_CLASS_SELECTOR).length)
+	if(get(makeClassSelector(Nimbus.markerClass)).length)
 	{
-		del(MARKER_CLASS_SELECTOR);
+		del(makeClassSelector(Nimbus.markerClass));
 		cleanupGeneral();
 		return;
 	}
@@ -6356,10 +6427,10 @@ function retrieveBySelectorAndText(selector, text)
 function getContentByParagraphCount()
 {
 	const LONG_PARAGRAPH_THRESHOLD = 100;
-	if(get(MARKER_CLASS_SELECTOR).length)
+	if(get(makeClassSelector(Nimbus.markerClass)).length)
 	{
 		const title = document.title;
-		retrieve(MARKER_CLASS_SELECTOR);
+		retrieve(makeClassSelector(Nimbus.markerClass));
 		if(title)
 			setDocTitleSimple(title);
 		cleanupGeneral();
@@ -6958,15 +7029,11 @@ function modifyMark(direction, keepSelection)
 		case "previous": nextElement = currentElement.previousElementSibling; break;
 		case "next": nextElement = currentElement.nextElementSibling; break;
 	}
-	if(nextElement && (nextElement.nodeType !== 1 || nextElement.tagName === "MESSAGE"))
-		nextElement = document.body.firstElementChild;
-	if(!nextElement)
+	if(!nextElement || (nextElement.tagName === 'MESSAGE' || nextElement.tagName === 'BODY'))
 	{
 		showMessageError("Couldn't get next element");
 		return;
 	}
-	if(nextElement.tagName === 'BODY')
-		nextElement = nextElement.firstElementChild;
 	if(!keepSelection || direction === "expand" || direction === "contract")
 		unmarkElement(currentElement);
 	markElement(nextElement);
@@ -7691,7 +7758,7 @@ function toggleHighlight()
 
 function highlightSelectedElement(tag)
 {
-	const MAX_LENGTH = 2000;
+	const MAX_LENGTH = 4000;
 	let node = getNodeContainingSelection();
 	if(node && node.parentNode && node.tagName !== "BODY" && node.textContent.length < MAX_LENGTH)
 	{
@@ -7745,6 +7812,8 @@ function isChrome()
 function inject()
 {
 	document.addEventListener("keydown", handleKeyDown, false);
+	document.documentElement.id = document.documentElement.id || "nimbus";
+	document.body.id = document.body.id || "nimbus";
 	removeAccessKeys();
 	if(isChrome())
 	{
