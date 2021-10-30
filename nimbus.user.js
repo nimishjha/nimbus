@@ -4792,6 +4792,11 @@ function humanizeUrl(url)
 	return longestMatch;
 }
 
+function isEmptyLink(link)
+{
+	return !(getTextLength(link) || link.getElementsByTagName("img").length)
+}
+
 function toggleShowEmptyLinksAndSpans()
 {
 	if(get("#styleToggleShowEmptyLinksAndSpans"))
@@ -6222,7 +6227,13 @@ function consolidateAnchors()
 		const linkedElement = document.getElementById(linkHref.substring(1));
 		if(!linkedElement)
 			continue;
-		if(linkedElement && linkedElement.tagName && ["CITE", "SPAN", "A"].includes(linkedElement.tagName))
+		if(
+			linkedElement && linkedElement.tagName &&
+			(
+				["CITE", "SPAN"].includes(linkedElement.tagName) ||
+				( linkedElement.tagName === "A" && isEmptyLink(linkedElement) )
+			)
+		)
 		{
 			const parent = getFirstBlockParent(linkedElement);
 			if(!parent)
