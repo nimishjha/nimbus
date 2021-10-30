@@ -6194,6 +6194,22 @@ function makeFileLinksRelative()
 	}
 }
 
+function countReferencesTo(idString)
+{
+	let idSelector = idString;
+	if(idSelector.indexOf("#") !== 0)
+		idSelector = "#" + idString;
+	const links = get('a[href^="#"]');
+	let count = 0;
+	for(let i = 0, ii = links.length; i < ii; i++)
+	{
+		const link = links[i];
+		if(link.hasAttribute("href") && link.getAttribute("href") === idSelector)
+			count++;
+	}
+	return count;
+}
+
 function consolidateAnchors()
 {
 	makeFileLinksRelative();
