@@ -4776,7 +4776,7 @@ function fillForms()
 function revealLinkHrefs()
 {
 	const style = "a::after { content: attr(href); background: #000; color: #F90; padding: 2px 10px; }";
-	insertStyle(style, "styleShowLinkHrefs", true);
+	insertStyle(style, "styleRevealLinkHrefs", true);
 }
 
 function humanizeUrl(url)
@@ -4811,7 +4811,7 @@ function toggleShowEmptyLinksAndSpans()
 	for(let i = 0, ii = links.length; i < ii; i++)
 	{
 		const link = links[i];
-		if(!(link.textContent.length || link.getElementsByTagName("img").length))
+		if(isEmptyLink(link))
 		{
 			countLinks++;
 			markElement(link);
@@ -6931,7 +6931,7 @@ function toggleMutationObserver(watchAttributes, mutationFilterSelector = null)
 //	Useful when, say, you want to see the classes and ids for all <input> elements
 function showSelectorsFor(tagName)
 {
-	const styleId = 'styleShowClassesBySelector';
+	const styleId = 'styleShowSelectorsFor';
 	del("#" + styleId);
 	let style = `${tagName}::before { content: attr(id); background: #000; color: #FF0; }` +
 		`${tagName}::after { content: attr(class); background: #000; color: #F90; }` +
