@@ -61,6 +61,7 @@ const Nimbus = {
 		cleanupLinks: cleanupLinks,
 		consolidateAnchors: consolidateAnchors,
 		convertDivsToParagraphs: convertDivsToParagraphs,
+		convertOrphanedTextNodesToParagraphs: convertOrphanedTextNodesToParagraphs,
 		copyAttribute: copyAttribute,
 		count: count,
 		createListsFromBulletedParagraphs: createListsFromBulletedParagraphs,
@@ -1667,6 +1668,32 @@ function deleteByClassOrIdContaining(str)
 function markByClassOrIdContaining(str)
 {
 	markElements(selectByClassOrIdContaining(str));
+}
+
+function hasAdjacentBlockElement(node)
+{
+	const prevSib = node.previousSibling;
+	const prevElemSib = node.previousElementSibling;
+	const nextSib = node.nextSibling;
+	const nextElemSib = node.nextElementSibling;
+	if(prevSib && prevElemSib && prevSib === prevElemSib && Nimbus.BLOCK_ELEMENTS.includes(prevElemSib.tagName))
+		return true;
+	if(nextSib && nextElemSib && nextSib === nextElemSib && Nimbus.BLOCK_ELEMENTS.includes(nextElemSib.tagName))
+		return true;
+	return false;
+}
+
+function convertOrphanedTextNodesToParagraphs()
+{
+	const textNodes = getTextNodesAsArray();
+	let i = textNodes.length;
+	while(i--)
+	{
+		const textNode = textNodes[i];
+		if(!textNode.data.replace(/\s+/g, "").length) continue;
+		if(hasAdjacentBlockElement(textNode))
+			wrapElement(textNode, "p");
+	}
 }
 
 function rescueOrphanedTextNodes()
