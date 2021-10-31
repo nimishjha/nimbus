@@ -333,9 +333,9 @@ const STYLES = {
 		img { background: #800; padding: 2px; box-sizing: border-box; }
 	`,
 	SHOW_SELECTORS: `
-		div[class]::before, p[class]::before, h1[class]::before, h2[class]::before, h3[class]::before, blockquote[class]::before, span[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px; }
-		div[id]::before, p[id]::before, h1[id]::before, h2[id]::before, h3[id]::before, blockquote[id]::before, span[id]::before { content: attr(id); color: #F0F; background: #000; padding: 2px; }
-		div[id][class]::before, p[id][class]::before, h1[id][class]::before, h2[id][class]::before, h3[id][class]::before, blockquote[id][class]::before, span[id][class]::before { content: "#"attr(id) "."attr(class); color: #0DD; background: #000; padding: 2px; }
+		div[class]::before, p[class]::before, h1[class]::before, h2[class]::before, h3[class]::before, blockquote[class]::before, span[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px 6px; }
+		div[id]::before, p[id]::before, h1[id]::before, h2[id]::before, h3[id]::before, blockquote[id]::before, span[id]::before { content: attr(id); color: #F0F; background: #000; padding: 2px 6px; }
+		div[id][class]::before, p[id][class]::before, h1[id][class]::before, h2[id][class]::before, h3[id][class]::before, blockquote[id][class]::before, span[id][class]::before { content: "#"attr(id) "."attr(class); color: #0DD; background: #000; padding: 2px 6px; }
 		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; padding: 10px; }
 		h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #000, inset -4px -4px #000; }
 		span { box-shadow: inset 0 -100px #040; padding: 2px; border: 2px solid #0A0; }
@@ -3974,6 +3974,9 @@ function replaceCommonClasses()
 	replaceByClassOrIdContaining("small", "small");
 	replaceByClassOrIdContaining("quote", "blockquote");
 	replaceElementsBySelector("div.calibre", "section");
+	replaceElementsBySelector(".epub-i", "i");
+	replaceElementsBySelector(".epub-b", "b");
+	replaceElementsBySelector(".epub-sc", "small");
 }
 
 function fixHeadings()
