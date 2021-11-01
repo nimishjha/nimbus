@@ -7357,6 +7357,21 @@ function highlightSelection()
 	}
 }
 
+//	When an entire paragraph is italicized, text that would be in italics is rendered normally instead.
+//	This function inverts the italicization.
+function invertItalics(elem)
+{
+	const nodes = elem.childNodes;
+	for(let i = 0, ii = nodes.length; i < ii; i++)
+	{
+		const node = nodes[i];
+		if(node.nodeType === 1 && (node.tagName === "I" || node.tagName === "EM"))
+			unwrapElement(node);
+		else
+			wrapElement(node, "i");
+	}
+}
+
 function italicize()
 {
 	const selection = window.getSelection();
