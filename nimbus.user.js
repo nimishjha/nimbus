@@ -7372,7 +7372,7 @@ function invertItalics(elem)
 	}
 }
 
-function italicize()
+function italicizeSelection()
 {
 	const selection = window.getSelection();
 	if(!selection.toString().length)
@@ -7381,9 +7381,14 @@ function italicize()
 		return;
 	}
 	const node = selection.anchorNode;
-	const selectionText = removeLineBreaks(selection.toString()).trim();
-	const index1 = Math.min(selection.anchorOffset, selection.focusOffset);
-	const index2 = Math.max(selection.anchorOffset, selection.focusOffset);
+	let selectionText = removeLineBreaks(selection.toString());
+	let index1 = Math.min(selection.anchorOffset, selection.focusOffset);
+	let index2 = Math.max(selection.anchorOffset, selection.focusOffset);
+	const precedingSpaces = selectionText.match(/^\s/);
+	const trailingSpaces = selectionText.match(/\s$/);
+	if(precedingSpaces) index1 += precedingSpaces.length;
+	if(trailingSpaces) index2 -= trailingSpaces.length;
+	selectionText = selectionText.trim();
 	const frag = document.createDocumentFragment();
 	if(index1 > 0)
 	{
@@ -7971,7 +7976,7 @@ function handleKeyDown(e)
 			case KEYCODES.SQUARE_BRACKET_OPEN: modifyMark("previous"); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: modifyMark("next"); break;
 			case KEYCODES.MINUS: insertElementBeforeSelectionAnchor(); break;
-			case KEYCODES.BACK_SLASH: italicize(); break;
+			case KEYCODES.BACK_SLASH: italicizeSelection(); break;
 			default: shouldPreventDefault = false;
 		}
 		if(shouldPreventDefault)
