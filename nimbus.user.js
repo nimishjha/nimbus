@@ -720,6 +720,12 @@ function getMarkedElements()
 	return markedElements ? markedElements : [];
 }
 
+function getFirstMarkedElement()
+{
+	const markedElement = getOne(makeClassSelector(Nimbus.markerClass));
+	return markedElement ? markedElement : false;
+}
+
 function forAllMarked(func)
 {
 	const elements = getMarkedElements();
@@ -5047,6 +5053,22 @@ function setReplacementTag(tagName)
 	Nimbus.replacementTagName = tagName;
 }
 
+function moveElementUp(position)
+{
+	const elem = getFirstMarkedElement();
+	if(!elem)
+	{
+		showMessageBig("Nothing marked");
+		return;
+	}
+	const currentParent = elem.parentNode;
+	if(currentParent)
+	{
+		if(position === "before") currentParent.insertAdjacentElement("beforebegin", elem);
+		else if(position === "after") currentParent.insertAdjacentElement("afterend", elem);
+	}
+}
+
 function groupMarkedElements(tagName)
 {
 	const parentTagName = tagName || "ul";
@@ -8018,7 +8040,6 @@ function handleKeyDown(e)
 			case KEYCODES.FIVE: buildSlideshow(); break;
 			case KEYCODES.A: annotate(); break;
 			case KEYCODES.C: deleteNonContentElements(); break;
-			case KEYCODES.D: del("log"); break;
 			case KEYCODES.E: resetHighlightTag(); break;
 			case KEYCODES.G: callFunctionWithArgs("Retrieve elements by selector (optionally containing text)", retrieveBySelectorAndText); break;
 			case KEYCODES.J: joinMarkedElements(); break;
@@ -8029,6 +8050,8 @@ function handleKeyDown(e)
 			case KEYCODES.P: getPagerLinks(); break;
 			case KEYCODES.Q: rescueOrphanedTextNodes(); break;
 			case KEYCODES.R: wrapMarkedElement(); break;
+			case KEYCODES.U: moveElementUp("before"); break;
+			case KEYCODES.D: moveElementUp("after"); break;
 			case KEYCODES.W: cleanupAttributes(); break;
 			case KEYCODES.Y: callFunctionWithArgs("Highlight elements by tag name containing text", highlightByTagNameAndText, 2); break;
 			case KEYCODES.FORWARD_SLASH: focusButton(); break;
