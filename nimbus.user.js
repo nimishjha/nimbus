@@ -6343,7 +6343,7 @@ function getMetadata()
 		return false;
 
 	const fields = headings4.splice(len - 3);
-	const domain = fields[0].textContent;
+	const domain = fields[0].querySelector("a").textContent;
 	const pageUrl = fields[1].querySelector("a").textContent;
 	const saveTimestamp = fields[2].textContent;
 	return {
@@ -6356,7 +6356,7 @@ function getMetadata()
 //	Append useful information to a webpage, including a link to the parent domain, a link to the webpage URL, and a timestamp
 function appendMetadata()
 {
-	const existingMetadata = getMetadata();
+	const existingMetadata = Nimbus.pageMetadata;
 	const loc = window.location;
 	if(loc.protocol === "file:" || existingMetadata)
 		return;
@@ -6554,6 +6554,7 @@ function getContentByParagraphCount()
 			contentDiv = contentDiv.parentNode;
 		}
 	}
+	removeClassFromAll("longParagraph");
 	if(contentDiv)
 		markElement(contentDiv);
 	else
