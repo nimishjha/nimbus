@@ -5891,7 +5891,6 @@ function cleanupGeneral()
 	replaceElementsBySelector("center", "div");
 	setDocTitle();
 	cleanupAttributes();
-	replaceElementsWithTextNodes("span");
 	replaceAudio();
 	highlightUserLinks();
 	appendMetadata();
@@ -6300,23 +6299,6 @@ function consolidateAnchors()
 	showMessageBig(`${toDelete.length} anchors consolidated`);
 	del(toDelete);
 	deleteEmptyElements("cite");
-}
-
-function replaceElementsWithTextNodes(selector)
-{
-	const elems = get(selector);
-	let count = 0;
-	let i = elems.length;
-	while(i--)
-	{
-		const elem = elems[i];
-		if(elem.innerHTML.indexOf("<") === -1)
-		{
-			count++;
-			elem.parentNode.replaceChild(document.createTextNode(elem.textContent || ""), elem);
-		}
-	}
-	showMessageBig(`Replaced ${count} ${selector} elements with text nodes`);
 }
 
 function removeSpanTags(isOkToLoseIds)
