@@ -231,6 +231,7 @@ const Nimbus = {
 		showResources: showResources,
 		showSavedStreamingImages: showSavedStreamingImages,
 		showSelectorsFor: showSelectorsFor,
+		showSelectorsHeavy: showSelectorsHeavy,
 		showTags: showTags,
 		simplifyClassNames: simplifyClassNames,
 		splitByBrs: splitByBrs,
@@ -6990,6 +6991,32 @@ function showSelectorsFor(tagName)
 		`${tagName}::after { content: attr(class); background: #000; color: #F90; }` +
 		`${tagName} { border: 2px solid #000; }`;
 	insertStyle(style, styleId, true);
+}
+
+function showSelectorsHeavy()
+{
+	if(get("#styleShowSelectorsHeavy"))
+	{
+		del("#styleShowSelectorsHeavy")	;
+		return;
+	}
+	const elems = get("*");
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+		if(elem.id && !elem.className)
+			elem.setAttribute("data-id", elem.tagName.toLowerCase() + "#" + elem.id);
+		else if(elem.id && elem.className)
+			elem.setAttribute("data-idclass", elem.tagName.toLowerCase() + "#" + elem.id + "." + elem.className);
+		else if(elem.className)
+			elem.setAttribute("data-class", elem.tagName.toLowerCase() + "." + elem.className);
+	}
+	const style = `
+		*[data-id]::before { content: attr(data-id); color: #F0F; background: #000; padding: 2px 5px; }
+		*[data-idclass]::before { content: attr(data-idclass); color: #0FF; background: #000; padding: 2px 5px; }
+		*[data-class]::before { content: attr(data-class); color: #F90; background: #000; padding: 2px 5px; }
+	`;
+	insertStyle(style, "styleShowSelectorsHeavy", true);
 }
 
 function removeEventListenerAttributes()
