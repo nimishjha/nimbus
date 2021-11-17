@@ -970,11 +970,14 @@ function splitByBrs(selectorOrElement)
 		const replacement = document.createDocumentFragment();
 		for(let j = 0, jj = splat.length; j < jj; j++)
 		{
-			const child = createElement(childTagName, { textContent: splat[j].replace(/<[^<>]+>/g, "") });
+			const str = splat[j];
+			if(!removeWhitespace(str).length)
+				continue;
+			const child = createElement(childTagName, { textContent: str.replace(/<[^<>]+>/g, "") });
+			if(j === 0 && elem.id)
+				child.id = elem.id;
 			replacement.appendChild(child);
 		}
-		if(elem.id)
-			replacement.id = elem.id;
 		elem.parentNode.replaceChild(replacement, elem);
 	}
 }
