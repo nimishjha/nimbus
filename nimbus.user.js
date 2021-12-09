@@ -210,6 +210,7 @@ const Nimbus = {
 		replaceSupSpanAnchors: replaceSupSpanAnchors,
 		replaceTables: replaceTables,
 		rescueOrphanedElements: rescueOrphanedElements,
+		rescueOrphanedElements2: rescueOrphanedElements2,
 		rescueOrphanedTextNodes: rescueOrphanedTextNodes,
 		restorePres: restorePres,
 		retrieve: retrieve,
@@ -272,6 +273,7 @@ const Nimbus = {
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
 	BLOCK_ELEMENTS: ["DIV", "P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE"],
+	italicTag: "i",
 };
 
 const KEYCODES = Nimbus.KEYCODES;
@@ -282,6 +284,7 @@ const STYLES = {
 		b, em, strong, i { color: #DDD; },
 		a { text-decoration: none; }
 	`,
+	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); }`,
 	COLORS_01: 'html, body { background: #202020; color: #AAA; } div, table, tr, td, tbody, th, article, section, header, footer { background: inherit; color: inherit; }',
 	SIMPLE_NEGATIVE: `
 		html, body, body[class] { background: #000; font-family: "Swis721 Cn BT"; font-size: 22px; }
@@ -334,11 +337,11 @@ const STYLES = {
 		img { background: #800; padding: 2px; box-sizing: border-box; }
 	`,
 	SHOW_SELECTORS: `
-		div[class]::before, p[class]::before, h1[class]::before, h2[class]::before, h3[class]::before, blockquote[class]::before, span[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px 6px; }
-		div[id]::before, p[id]::before, h1[id]::before, h2[id]::before, h3[id]::before, blockquote[id]::before, span[id]::before { content: attr(id); color: #F0F; background: #000; padding: 2px 6px; }
-		div[id][class]::before, p[id][class]::before, h1[id][class]::before, h2[id][class]::before, h3[id][class]::before, blockquote[id][class]::before, span[id][class]::before { content: "#"attr(id) "."attr(class); color: #0DD; background: #000; padding: 2px 6px; }
-		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; padding: 10px; }
-		h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #000, inset -4px -4px #000; }
+		*[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px 6px; font: 22px "Swis721 Cn BT"; }
+		*[id]::before { content: attr(id); color: #F0F; background: #000; padding: 2px 6px; font: 22px "Swis721 Cn BT"; }
+		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #0DD; background: #000; padding: 2px 6px; font: 22px "Swis721 Cn BT"; }
+		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; }
+		h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #A0A, inset -4px -4px #404; }
 		span { box-shadow: inset 0 -100px #040; padding: 2px; border: 2px solid #0A0; }
 	`,
 	SHOW_TABLE_STRUCTURE: 'th { background-image: linear-gradient(45deg, #000, #888); } td { background-image: linear-gradient(45deg, #000, #555); } th *, td * { background: transparent; color: #FFF; fill: #999; }',
@@ -392,9 +395,8 @@ function count(selector)
 	showMessageBig(count + " elements matching " + selector);
 }
 
-//	This function is an ideal candidate for overloading, because deletion is a universal operation.
-//	It will delete from the DOM tree anything that's passed to it, whether that's a node, an array of nodes,
-//	a selector, or an array of selectors.
+//	This function will delete from the DOM tree anything that's passed to it,
+//	whether that's a node, an array of nodes, a selector, or an array of selectors.
 function del(arg)
 {
 	if(!arg)
@@ -961,11 +963,12 @@ function splitByBrs(selectorOrElement)
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
-		const childTagName = tagMap[elem.tagName] || "P";
+		const elemTagName = elem.tagName;
+		const childTagName = tagMap[elemTagName] || "P";
 		let elemHtml = elem.innerHTML;
 		if(elemHtml.indexOf("<br") === -1)
 			continue;
-		elemHtml = elemHtml.replace(/<br [^>]+/g, "<br");
+		elemHtml = elemHtml.replace(/<br[^>]*>/g, '<br>');
 		const splat = elemHtml.split("<br>");
 		const replacement = document.createDocumentFragment();
 		for(let j = 0, jj = splat.length; j < jj; j++)
@@ -1702,7 +1705,7 @@ function convertOrphanedTextNodesToParagraphs()
 		const textNode = textNodes[i];
 		if(!textNode.data.replace(/\s+/g, "").length) continue;
 		if(hasAdjacentBlockElement(textNode))
-			wrapElement(textNode, "p");
+			wrapElement(textNode, "p", Nimbus.markerClass);
 	}
 }
 
@@ -1767,13 +1770,12 @@ function rescueOrphanedElements()
 {
 	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE"];
 	const NON_BLOCK_ELEMENTS = ["A", "B", "STRONG", "I", "EM", "SPAN"];
-	const nodes = get(NON_BLOCK_ELEMENTS);
+	const nodes = get(NON_BLOCK_ELEMENTS.join());
 	const orphans = [];
 	for(let i = 0, ii = nodes.length; i < ii; i++)
 	{
 		let hasBlockParent = false;
 		let node = nodes[i];
-		const nodeText = node.data;
 		let nodeParent = node;
 		while(nodeParent.parentNode)
 		{
@@ -1795,6 +1797,24 @@ function rescueOrphanedElements()
 			parent = parent.parentNode;
 		}
 		wrapElement(parent, "h6");
+	}
+}
+
+function rescueOrphanedElements2()
+{
+	const NON_BLOCK_ELEMENTS = ["A", "B", "STRONG", "I", "EM", "SPAN"];
+	const nodes = get(NON_BLOCK_ELEMENTS.join());
+	const orphans = [];
+	for(let i = 0, ii = nodes.length; i < ii; i++)
+	{
+		const node = nodes[i];
+		if(hasAdjacentBlockElement(node))
+			orphans.push(node);
+	}
+	for(let i = 0, ii = orphans.length; i < ii; i++)
+	{
+		let orphan = orphans[i];
+		wrapElement(orphan, "h6", Nimbus.markerClass);
 	}
 }
 
@@ -2103,7 +2123,7 @@ function makeIdSelector(id)
 
 function simplifyClassNames(selector)
 {
-	const sel = selector ||  "div, p, span, h1, h2, h3, h4, h5, h6, ol, ul, li";
+	const sel = selector ||  "body *";
 	const elems = get(sel);
 	const classMap = {};
 	const tagTable = {};
@@ -2139,9 +2159,22 @@ function showStatus(id, str)
 
 function refreshScreen()
 {
-	const elem = document.createElement("screenrefresh");
-	document.body.appendChild(elem);
-	setTimeout(function(){ elem.remove(); }, 500);
+	const style = `
+	@keyframes fade {
+		0% { opacity: 0.2; }
+		50% { opacity: 1; }
+		100% { opacity: 0.2; }
+	}
+	@keyframes fade2 {
+		0% { opacity: 0.2; }
+		89% { opacity: 0.2; }
+		90% { opacity: 1; }
+		91% { opacity: 0.2; }
+		100% { opacity: 0.2; }
+	}
+	html::after { content: " "; display: block; width: 100px; height: 100px; position: fixed; top: 45vh; left: 10vh; animation: fade 20s linear infinite; background: #777; }
+	html::before { content: " "; display: block; width: 100px; height: 100px; position: fixed; top: 65vh; left: 10vh; animation: fade2 120s linear infinite; background: #777; }`;
+	toggleStyle(style, "styleScreenRefresh");
 }
 
 function showMessage(messageHtml, msgClass, persist)
@@ -2620,6 +2653,8 @@ function autoCompleteInputBox()
 
 	function open()
 	{
+		if(get("#autoCompleteInputWrapper"))
+			return;
 		const style = `autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2147483647; font-family: "Swis721 Cn BT"; }
 			autocompleteinputwrapper input { width: 100%; height: 3rem; font-size: 32px; background: #000; color: #FFF; border: 0; outline: 0; display: block; font-family: inherit; }
 			autocompleteinputwrapper matches { display: block; background: #222; color: #CCC; }
@@ -2735,6 +2770,8 @@ function markOverlays()
 
 function highlightQuotes()
 {
+	const UTF8_SINGLEQUOTEOPEN = '\u2018';
+	const UTF8_SINGLEQUOTECLOSE = '\u2019';
 	document.body.innerHTML = document.body.innerHTML.replace(/\u201C/g, '<markwhite>"').replace(/\u201D/g, '"</markwhite>');
 }
 
@@ -2800,13 +2837,13 @@ function markSelectionAnchorNode()
 {
 	const node = getNodeContainingSelection();
 	const classSelector = createClassSelector(node);
-	let selector;
 	let numSimilarNodes = 0;
-	if(classSelector)
-		numSimilarNodes = get(node.tagName + classSelector).length;
 	markElement(node);
 	insertStyleHighlight();
-	showMessage(createSelector(node) + ": " + numSimilarNodes + " matching nodes", "messagebig", true);
+	if(classSelector)
+		numSimilarNodes = get(node.tagName + classSelector).length;
+	if(numSimilarNodes)
+		showMessage(createSelector(node) + ": " + numSimilarNodes + " matching nodes", "messagebig", true);
 }
 
 function highlightUserLinks()
@@ -2847,7 +2884,8 @@ function fixInternalReferences()
 	{
 		const refLink = refLinks[i];
 		let refText = refLink.textContent.trim();
-		refText = refText.replace(/[\*\[\]\{\}\.]/g, "");
+		// refText = refText.replace(/[\*\[\]\{\}\.]/g, "");
+		refText = refText.replace(/[^A-Za-z0-9\s\-:]+/g, "");
 		if(!refText.length)
 			refText = "0" + i;
 		refLink.textContent = refText;
@@ -3891,13 +3929,11 @@ function replaceEmptyParagraphsWithHr()
 	while(i--)
 	{
 		const para = paras[i];
-		if(removeWhitespace(para.textContent).length === 0)
+		if(getTextLength(para) === 0)
 		{
 			let nextPara = paras[i - 1];
-			while(nextPara && removeWhitespace(nextPara.textContent).length === 0 && i > 0)
-			{
+			while(nextPara && getTextLength(nextPara) === 0 && i > 0)
 				nextPara = paras[--i];
-			}
 			para.parentNode.replaceChild(document.createElement("hr"), para);
 		}
 	}
@@ -3908,8 +3944,8 @@ function makePlainText(selector)
 	const elements = get(selector);
 	let i = elements.length;
 	if(!i) return;
-	const sel = elements[0].tagName.toLowerCase();
-	switch(sel)
+	const tagName = elements[0].tagName.toLowerCase();
+	switch(tagName)
 	{
 		case "a":
 			while(i--)
@@ -3984,6 +4020,7 @@ function replaceCommonClasses()
 	replaceByClassOrIdContaining("small", "small");
 	replaceByClassOrIdContaining("quote", "blockquote");
 	replaceElementsBySelector("div.calibre", "section");
+	deleteEmptyElements("section");
 	replaceElementsBySelector(".epub-i", "i");
 	replaceElementsBySelector(".epub-b", "b");
 	replaceElementsBySelector(".epub-sc", "small");
@@ -4659,24 +4696,25 @@ function highlightCode(shouldHighlightKeywords)
 		if(shouldHighlightKeywords === true)
 		{
 			const keywords = [
-				"abstract", "addEventListener", "appendChild", "arguments", "await",
+				"abstract", "addEventListener", "appendChild", "arguments", "await", "abs",
 				"break", "byte",
 				"case", "catch", "char", "class", "const", "continue", "createElement", "createTextNode",
 				"debugger", "default", "delete", "do", "document", "documentElement", "double",
 				"else", "enum", "export", "extends", "eval",
-				"false", "final", "finally", "firstChild", "float", "for", "function",
+				"false", "final", "finally", "firstChild", "float", "for", "function", "float2", "float3", "float4",
 				"getElementsByClassName", "getElementsByID", "getElementsByTagName", "goto",
 				"if", "implements", "import", "in", "Infinity", "insertBefore", "instanceof", "int", "interface",
-				"let", "long",
+				"let", "long", "lerp",
+				"mediump",
 				"NaN", "native", "new", "npm", "null",
 				"object", "onclick", "onload", "onmouseover",
-				"package", "private", "protected", "prototype", "public",
+				"package", "private", "protected", "prototype", "public", "precision",
 				"querySelector", "querySelectorAll",
-				"return",
-				"script", "src", "static", "String", "struct", "switch", "synchronized",
-				"this", "throw", "throws", "transient", "true", "try", "type", "typeof",
-				"undefined",
-				"var", "void", "volatile",
+				"return", "register",
+				"script", "src", "static", "String", "struct", "switch", "synchronized", "sampler",
+				"this", "throw", "throws", "transient", "true", "try", "type", "typeof", "texture2D",
+				"undefined", "uniform",
+				"var", "void", "volatile", "vec4", "varying",
 				"yarn", "yield",
 				"while", "window", "with"
 			];
@@ -5475,14 +5513,16 @@ function toggleStyleNegative()
 		body.xdark { background: #111; }
 		body.xblack { background: #000; }
 		body.xwrap { width: 1400px; margin: 0 auto; padding: 100px 300px; }
-		html h1, html h2, html h3, html h4, html h5, html h6, html h1[class], html h2[class], html h3[class], html h4[class], html h5[class], html h6[class] { color: #AAA; padding: 10px 20px; line-height: 160%; margin: 2px 0; background: #141414; border: 0; }
-		html h1, html h1[class], div[class] h1 { font: 40px "Swis721 Cn BT", Calibri, sans-serif; color: #FFF; }
-		html h2, html h2[class], div[class] h2 { font: 28px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
-		html h3, html h3[class], div[class] h3 { font: 24px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
-		html h4, html h4[class], div[class] h4 { font: 20px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
-		html h5, html h5[class], div[class] h5 { font: 16px "Swis721 Cn BT", Calibri, sans-serif; color: #AAA; }
-		html h6, html h6[class], div[class] h6 { font: 14px Verdana, sans-serif; color: #999; }
-		html h5, html h6 { padding: 0.5em 10px; }
+
+		h1, h1[class], h2, h2[class], h3, h3[class], h4, h4[class], h5, h5[class], h6, h6[class] { color: var(--colorHeadings) !important; border: 0 !important; font-family: "Swis721 Cn BT", Calibri, sans-serif !important; font-weight: normal !important; line-height: inherit !important; background: var(--backgroundHeadings) !important; }
+		body.pad100 h1, body.pad100 h1[class], body.pad100 h2, body.pad100 h2[class], body.pad100 h3, body.pad100 h3[class], body.pad100 h4, body.pad100 h4[class], body.pad100 h5, body.pad100 h5[class], body.pad100 h6, body.pad100 h6[class] { padding: 10px 1rem !important; margin: 2px 0 !important; }
+		h1, #nimbus h1 { font-size: 2.4rem !important; }
+		h2, #nimbus h2 { font-size: 2.0rem !important; }
+		h3, #nimbus h3 { font-size: 1.6rem !important; }
+		h4, #nimbus h4 { font-size: 1.4rem !important; }
+		h5, #nimbus h5 { font-size: 1.2rem !important; }
+		h6, #nimbus h6 { font-size: 1.0rem !important; }
+
 		dl { border-left: 20px solid #111; }
 		dt { color: inherit; padding: 0.5em 10px; line-height: 160%; margin: 2px 0; background: #111; border: 0; border-left: 20px solid #0C0C0C; color: #AAA; }
 		dd { color: inherit; padding: 0.25em 10px; line-height: 160%; margin: 2px 0; background: #141414; border: 0; border-left: 20px solid #0C0C0C; }
@@ -5529,20 +5569,37 @@ function toggleStyleNegative()
 		pre * { font: inherit !important; text-recoration: none !important; }
 
 		pre em { color: #00AAFF; }
-		pre i { color: #DDEEFF; }
+		pre i { color: #0088CC; }
 		pre b { color: #44EEFF; }
 		pre u { color: #6677EE; }
 		pre dfn { color: #8888CC; }
 		pre s { color: #6677CC; }
-		pre q1 { color: #BBDDCC; }
-		pre q2 { color: #BBAADD; }
-		pre c1 { color: #00CCEE; }
-		pre c2 { color: #EEAAFF; }
-		pre b1 { color: #CCAACC; }
-		pre b2 { color: #66CCDD; }
+		pre q1 { color: #0CF; background: #003040; }
+		pre q2 { color: #57F; background: #203040; }
+		pre c1 { color: #AABBCC; background: #303840; }
+		pre c2 { color: #88BBEE; background: #304050; }
+		pre b1 { color: #00FF00; }
+		pre b2 { color: #00FFFF; }
 		pre b3 { color: #EEAAFF; }
-		pre xk { color: #AACCDD; }
+		pre xk { color: #0099FF; }
 		pre xh { color: #AADDCC; }
+
+		X0 { color: #00AACC; }
+		X1 { color: #00FFFF; }
+		X2 { color: #0099CC; }
+		X3 { color: #00EEEE; }
+		X4 { color: #0088DD; }
+		X5 { color: #00CCDD; }
+		X6 { color: #00FFEE; }
+		X7 { color: #0088CC; }
+		X8 { color: #00BBDD; }
+		X9 { color: #00FFCC; }
+		X10 { color: #00FF88; }
+		X11 { color: #00DD66; }
+		X12 { color: #00FF22; }
+		X13 { color: #00DD44; }
+		X14 { color: #0099EE; }
+		X15 { color: #00FFAA; }
 
 		mark { background: #420; color: #F90; padding: 2px 0; line-height: inherit; }
 		markgreen { background: #040; color: #8F0; padding: 2px 0; line-height: inherit; }
@@ -5938,7 +5995,7 @@ function cleanupHead()
 function regressivelyUnenhance()
 {
 	cleanupHead();
-	del(["link", "style", "script"]);
+	del(["link", "style", "script", "message"]);
 	removeInlineStyles();
 	cleanupLinks();
 }
@@ -7132,9 +7189,10 @@ function modifyMark(direction, keepSelection)
 	showMessage(createSelector(nextElement), "messagebig", true);
 }
 
-function wrapElement(elem, tagName)
+function wrapElement(elem, tagName, className)
 {
 	const wrapper = createElement(tagName);
+	if(className) wrapper.className = className;
 	const newElem = elem.cloneNode(true);
 	wrapper.appendChild(newElem);
 	elem.parentNode.replaceChild(wrapper, elem);
@@ -7410,6 +7468,7 @@ function invertItalics(elem)
 function italicizeSelection()
 {
 	const selection = window.getSelection();
+	const tagName = Nimbus.italicTag || "i";
 	if(!selection.toString().length)
 	{
 		showMessageBig("Nothing selected");
@@ -7432,7 +7491,7 @@ function italicizeSelection()
 			textBeforeSelection += " ";
 		frag.appendChild(document.createTextNode(textBeforeSelection));
 	}
-	frag.appendChild(createElement("i", { textContent: selectionText }));
+	frag.appendChild(createElement(tagName, { textContent: selectionText }));
 	if(index2 < node.textContent.length)
 	{
 		let textAfterSelection = node.textContent.substring(index2);
@@ -8095,6 +8154,7 @@ function handleKeyDown(e)
 			case KEYCODES.THREE: toggleStyle(STYLES.FONT_01, "styleFont01", true); break;
 			case KEYCODES.FOUR: toggleStyle(STYLES.COLORS_01, "styleColors01", true); break;
 			case KEYCODES.FIVE: toggleStyleGrayscale(); break;
+			case KEYCODES.SIX: toggleStyle(STYLES.MIN_FONT_SIZE, "styleMinFontSize", true); break;
 			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
 			case KEYCODES.B: toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
