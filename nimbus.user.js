@@ -95,7 +95,6 @@ const Nimbus = {
 		emptyTextNodes: emptyTextNodes,
 		enableClickToCollectUrls: enableClickToCollectUrls,
 		enableConsoleLogs: enableConsoleLogs,
-		fillForms: fillForms,
 		findStringsInProximity: findStringsInProximity,
 		fixBullets: fixBullets,
 		fixCdnImages: fixCdnImages,
@@ -285,7 +284,7 @@ const STYLES = {
 		b, em, strong, i { color: #DDD; },
 		a { text-decoration: none; }
 	`,
-	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); }`,
+	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); line-height: 1.4; }`,
 	COLORS_01: 'html, body { background: #202020; color: #AAA; } div, table, tr, td, tbody, th, article, section, header, footer { background: inherit; color: inherit; }',
 	SIMPLE_NEGATIVE: `
 		html, body, body[class] { background: #000; font-family: "Swis721 Cn BT"; font-size: 22px; }
@@ -4265,7 +4264,7 @@ function cycleThroughDocumentHeadings()
 
 	const pageNumberStrings = document.body.textContent.match(/Page [0-9]+ of [0-9]+/);
 	if(pageNumberStrings && !Nimbus.currentHeadingText.match(/Page [0-9]+/i))
-			Nimbus.currentHeadingText = Nimbus.currentHeadingText + " - " + pageNumberStrings[0];
+		Nimbus.currentHeadingText = Nimbus.currentHeadingText + " - " + pageNumberStrings[0];
 	setDocTitle(Nimbus.currentHeadingText);
 	return Nimbus.currentHeadingText;
 }
@@ -4329,57 +4328,6 @@ function removeColorsFromInlineStyles()
 			elem.setAttribute("style", styleText);
 		}
 	}
-}
-
-function cycleThroughTopLevelElements(boolReverse)
-{
-	const hl = getMarkedElements();
-	consoleLog(hl);
-	if(hl.length && hl.length > 1)
-	{
-		showMessageError("More than one element is marked");
-		return;
-	}
-	insertStyleHighlight();
-	const candidateElements = get("body > div, body > section, body > main, body > nav, body > h1, body > h2");
-	printPropOfObjectArray(candidateElements, "tagName");
-	let found = false;
-	if(boolReverse)
-	{
-		for(let i = 0, ii = candidateElements.length; i < ii; i++)
-		{
-			const e = candidateElements[i];
-			if(e.classList.contains(Nimbus.markerClass))
-			{
-				found = true;
-				unmarkElement(e);
-				if(i > 0)
-					markElement(candidateElements[i - 1]);
-				else
-					markElement(candidateElements[ii - 1]);
-				break;
-			}
-		}
-	}
-	else
-	{
-		for(let i = 0, ii = candidateElements.length; i < ii; i++)
-		{
-			const e = candidateElements[i];
-			if(e.classList.contains(Nimbus.markerClass))
-			{
-				found = true;
-				unmarkElement(e);
-				if(i < ii - 1)
-					markElement(candidateElements[i + 1]);
-				else
-					markElement(candidateElements[0]);
-				break;
-			}
-		}
-	}
-	if(!found)
-		markElement(candidateElements[0]);
 }
 
 function deselect()
@@ -4764,91 +4712,6 @@ function toggleContentEditable()
 		selectedNode.removeAttribute("contentEditable");
 		splitByBrs(selectedNode);
 		Nimbus.isEditing = false;
-	}
-}
-
-function fillForms()
-{
-	let i, j, jj, e, f, inputType, inputName;
-	//
-	//	Inputs
-	//
-	e = get("input");
-	i = e.length;
-	while(i--)
-	{
-		const field = e[i];
-		if(field.hasAttribute("type"))
-		{
-			inputType = field.type;
-			if(inputType !== "button" && inputType !== "submit" && inputType !== "image" && inputType !== "hidden" && inputType !== "checkbox" && inputType !== "radio")
-			{
-				inputName = field.getAttribute("name") || field.getAttribute("id");
-				inputName = inputName.toLowerCase();
-				if(inputName)
-				{
-					if(inputName === "companyname") field.value = "";
-					else if(inputName.indexOf("first") >= 0) field.value = "John";
-					else if(inputName.indexOf("last") >= 0) field.value = "Doe";
-					else if(inputName.indexOf("name") >= 0) field.value = "John Doe";
-					else if(inputName.indexOf("email") >= 0) field.value = "test@test.com";
-					else if(inputName.indexOf("day") >= 0) field.value = Math.floor(Math.random() * 28);
-					else if(inputName.indexOf("year") >= 0) field.value = 1980 + Math.floor(Math.random() * 20);
-					else if(inputName.indexOf("phone") >= 0) field.value = "(00) 0000 0000";
-					else if(inputName.indexOf("mobile") >= 0) field.value = "0400222333";
-					else if(inputName.indexOf("date") >= 0) field.value = "23/08/1991";
-					else if(inputName.indexOf("suburb") >= 0) field.value = "Melbourne";
-					else if(inputName.indexOf("postcode") >= 0) field.value = "3000";
-					else if(inputName.indexOf("state") >= 0) field.value = "VIC";
-					else if(inputType === "number") field.value = 42;
-					else if(inputType === "text") field.value = field.name.replace(/_/g, ' ');
-					else if(inputType === "checkbox") field.checked = true;
-					else if(inputType === "radio") field.checked = true;
-					else if(inputType !== 'file') field.value = inputName.replace(/_/g, ' ');
-				}
-			}
-		}
-	}
-
-	//
-	//	Textareas
-	//
-	e = get("textarea");
-	i = e.length;
-	while(i--)
-	{
-		e[i].value = "Line 1\r\nLine 2";
-	}
-
-	//
-	//	Selects
-	//
-	e = get("select");
-	i = e.length;
-	while(i--)
-	{
-		f = e[i].getElementsByTagName("option");
-		for(j = 0, jj = f.length; j < jj; j++)
-		{
-			f[j].removeAttribute("selected");
-		}
-		const optionIndex = 1 + Math.floor(Math.random() * (j - 1));
-		if(f[optionIndex])
-			f[optionIndex].setAttribute("selected", "selected");
-	}
-
-	//
-	//	Focus submit button
-	//
-	e = document.getElementsByTagName("input");
-	i = e.length;
-	while(i--)
-	{
-		if(e[i].getAttribute("type") === "submit")
-		{
-			e[i].focus();
-			break;
-		}
 	}
 }
 
@@ -5958,6 +5821,8 @@ function cleanupGeneral()
 	getBestImageSrc();
 	forceImageWidth(1200);
 	document.body.className = "pad100 xwrap";
+	document.documentElement.id = "nimbus";
+	document.body.id = "nimbus";
 	if(~navigator.userAgent.indexOf("Chrome"))
 	{
 		toggleStyleNegative();
@@ -8049,7 +7914,6 @@ function handleKeyDown(e)
 		switch(k)
 		{
 			case KEYCODES.TILDE: highlightSelection(); break;
-			case KEYCODES.NUMPAD1: fillForms(); break;
 			case KEYCODES.NUMPAD3: toggleContentEditable(); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.NUMPAD5: toggleHighlightSelectionMode(); break;
