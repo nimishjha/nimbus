@@ -119,6 +119,7 @@ const Nimbus = {
 		groupMarkedElements: groupMarkedElements,
 		groupUnderHeadings: groupUnderHeadings,
 		highlightAllMatchesInDocument: highlightAllMatchesInDocument,
+		highlightAllMatchesInDocument_innerHTML: highlightAllMatchesInDocument_innerHTML,
 		highlightAllStrings: highlightAllStrings,
 		highlightBySelectorAndText: highlightBySelectorAndText,
 		highlightCode: highlightCode,
@@ -7907,6 +7908,36 @@ function highlightAllMatchesInDocument(str, isCaseSensitive = false)
 function highlightAllMatchesInDocumentCaseSensitive(str)
 {
 	highlightAllMatchesInDocument(str, true);
+}
+
+function highlightAllMatchesInDocument_innerHTML(str)
+{
+	if(!(str && str.length))
+		return;
+
+	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
+	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
+	const linkHrefs = [];
+	let links = get("a");
+	for(let i = 0, ii = links.length; i < ii; i++)
+		linkHrefs.push(links[i].href);
+	const imageSources = [];
+	let images = get("img");
+	for(let i = 0, ii = images.length; i < ii; i++)
+		imageSources.push(images[i].src);
+
+	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
+	let regex = new RegExp(escapedString, "gi");
+	let tempHTML = document.body.innerHTML;
+	tempHTML = tempHTML.replace(regex, `${highlightTagOpen}$1${highlightTagClose}`);
+	document.body.innerHTML = tempHTML;
+
+	links = get("a");
+	for(let i = 0, ii = links.length; i < ii; i++)
+		links[i].href = linkHrefs[i];
+	images = get("img");
+	for(let i = 0, ii = images.length; i < ii; i++)
+		images[i].src = imageSources[i];
 }
 
 function highlightWithinPreformattedBlocks(str)
