@@ -13,7 +13,7 @@
 
 //
 //	Nimbus
-//	Copyright (C) 2008-2021 Nimish Jha
+//	Copyright (C) 2008-2022 Nimish Jha
 //
 //	This program is free software: you can redistribute it and/or modify
 //	it under the terms of the GNU General Public License as published by
@@ -82,6 +82,7 @@ const Nimbus = {
 		deleteNodesBetweenMarkers: deleteNodesBetweenMarkers,
 		deleteNonContentElements: deleteNonContentElements,
 		deleteNonContentLists: deleteNonContentLists,
+		deleteNonContentLinks: deleteNonContentLinks,
 		deletePersistedImages: deletePersistedImages,
 		deleteResources: deleteResources,
 		deleteSmallImages: deleteSmallImages,
@@ -92,7 +93,6 @@ const Nimbus = {
 		edit: toggleContentEditable,
 		editDocumentTitle: editDocumentTitle,
 		editStyleById: editStyleById,
-		emptyTextNodes: emptyTextNodes,
 		enableClickToCollectUrls: enableClickToCollectUrls,
 		enableConsoleLogs: enableConsoleLogs,
 		findStringsInProximity: findStringsInProximity,
@@ -138,6 +138,7 @@ const Nimbus = {
 		insertStyleHighlight: insertStyleHighlight,
 		iw: forceImageWidth,
 		joinAdjacentElements: joinAdjacentElements,
+		joinByBrs: joinByBrs,
 		joinMarkedElements: joinMarkedElements,
 		joinParagraphsByLastChar: joinParagraphsByLastChar,
 		listSelectorsWithLightBackgrounds: listSelectorsWithLightBackgrounds,
@@ -176,6 +177,7 @@ const Nimbus = {
 		removeAccessKeys: removeAccessKeys,
 		removeAllAttributesExcept: removeAllAttributesExcept,
 		removeAllAttributesOf: removeAllAttributesOf,
+		removeAllAttributesOfType: removeAllAttributesOfType,
 		removeAllHighlights: removeAllHighlights,
 		removeAttributeOf: removeAttributeOf,
 		removeClassFromAll: removeClassFromAll,
@@ -245,6 +247,7 @@ const Nimbus = {
 		unmark: unmark,
 		unmarkAll: unmarkAll,
 		unwrapAll: unwrapAll,
+		wrapAll: wrapAll,
 		wrapAnchorNodeInTag: wrapAnchorNodeInTag,
 		xlog: xlog,
 		xPathMark: xPathMark,
@@ -255,7 +258,7 @@ const Nimbus = {
 		currentIndex: -1,
 	},
 	highlightTagName: "mark",
-	highlightTagNameList: ["mark", "markyellow", "markred", "markgreen", "markblue", "markpurple", "markwhite", "em", "b"],
+	highlightTagNameList: ["mark", "markyellow", "markred", "markgreen", "markblue", "markpurple", "markwhite"],
 	smallImageThreshold: 50,
 	smallImageThresholdList: [100, 200, 300, 400, 500, 600],
 	trHighlightClass: {
@@ -935,22 +938,20 @@ function fixLineBreaks()
 	}
 }
 
+function joinByBrs(selector)
+{
+	const brs = get(selector + " br");
+	for(let i = 0, ii = brs.length; i < ii; i++)
+	{
+		const br = brs[i];
+		br.parentNode.replaceChild(document.createTextNode(" "), br);
+	}
+}
+
 function splitByBrs(selectorOrElement)
 {
 	let selector;
-	let elems;
-	if(typeof selectorOrElement === "string")
-	{
-	 	elems = get(selectorOrElement);
-	 }
-	 else if(selectorOrElement.nodeType)
-	 {
-	 	elems = [selectorOrElement];
-	 }
-	 else
-	 {
-	 	return;
-	 }
+	const elems = typeof selectorOrElement === "string" ? get(selectorOrElement) : [selectorOrElement];
 	const tagMap = {
 		"H1": "H1",
 		"H2": "H2",
@@ -1104,6 +1105,7 @@ function sanitizeTitle(titleString)
 		.replace(/[\/]/g, "_")
 		.replace(/[^\+\.\(\)0-9A-Za-z_!@\[\]\-\(\)'",]/g, " ")
 		.replace(/_+/g, " - ")
+		.replace(/\.+/g, "")
 		.replace(/\s+/g, " ");
 
 	return trimSpecialChars(sanitizedTitle);
@@ -1377,13 +1379,6 @@ function emptyElement(elem)
 		elem.textContent = '';
 }
 
-function emptyTextNodes()
-{
-	const e = getTextNodesAsArray();
-	for(let i = 0, ii = e.length; i < ii; i++)
-		e[i].data = "";
-}
-
 function toggleClass(element, className)
 {
 	const classList = element.classList;
@@ -1595,6 +1590,11 @@ function replaceElementsBySelector(selector, tagName)
 	}
 }
 
+function cloneElement(elem)
+{
+	return convertElement(elem, elem.tagName);
+}
+
 function convertElement(elem, tagName)
 {
 	const replacement = document.createElement(tagName);
@@ -1689,6 +1689,7 @@ function hasAdjacentBlockElement(node)
 	const prevElemSib = node.previousElementSibling;
 	const nextSib = node.nextSibling;
 	const nextElemSib = node.nextElementSibling;
+	// console.log(prevSib, prevElemSib, nextSib, nextElemSib);
 	if(prevSib && prevElemSib && prevSib === prevElemSib && Nimbus.BLOCK_ELEMENTS.includes(prevElemSib.tagName))
 		return true;
 	if(nextSib && nextElemSib && nextSib === nextElemSib && Nimbus.BLOCK_ELEMENTS.includes(nextElemSib.tagName))
@@ -1696,16 +1697,17 @@ function hasAdjacentBlockElement(node)
 	return false;
 }
 
-function convertOrphanedTextNodesToParagraphs()
+function convertOrphanedTextNodesToParagraphs(mark = true)
 {
 	const textNodes = getTextNodesAsArray();
+	const className = mark ? Nimbus.markerClass : null;
 	let i = textNodes.length;
 	while(i--)
 	{
 		const textNode = textNodes[i];
 		if(!textNode.data.replace(/\s+/g, "").length) continue;
 		if(hasAdjacentBlockElement(textNode))
-			wrapElement(textNode, "p", Nimbus.markerClass);
+			wrapElement(textNode, "p", className);
 	}
 }
 
@@ -2254,22 +2256,20 @@ function getSelectionOrUserInput(promptMessage, callback, isUnary)
 		customPrompt(promptMessage).then(callback);
 		return;
 	}
-	customPrompt(promptMessage).then(function(userInput) {
+	function callFunctionWithUserInput(userInput)
+	{
 		if(~userInput.indexOf(" ") || ~userInput.indexOf('"'))
-		{
-			const args = parseCommand(userInput);
-			callback.apply(null, args);
-		}
+			callback.apply(null, parseCommand(userInput));
 		else
-		{
 			callback.call(null, userInput);
-		}
-	});
+	}
+	customPrompt(promptMessage).then(callFunctionWithUserInput);
 }
 
 function callFunctionWithArgs(promptMessage, callback, numArgs, initialValue)
 {
-	customPrompt(promptMessage, initialValue).then(function(userInput) {
+	function callFunctionWithArgsHelper(userInput)
+	{
 		if(!numArgs || numArgs > 1)
 		{
 			const args = parseCommand(userInput);
@@ -2285,7 +2285,8 @@ function callFunctionWithArgs(promptMessage, callback, numArgs, initialValue)
 		{
 			callback.call(null, userInput);
 		}
-	});
+	}
+	customPrompt(promptMessage, initialValue).then(callFunctionWithArgsHelper);
 }
 
 function handleConsoleInput(evt, consoleType)
@@ -2844,6 +2845,8 @@ function markSelectionAnchorNode()
 		numSimilarNodes = get(node.tagName + classSelector).length;
 	if(numSimilarNodes)
 		showMessage(createSelector(node) + ": " + numSimilarNodes + " matching nodes", "messagebig", true);
+	else
+		showMessage(createSelector(node), "messagebig", true);
 }
 
 function highlightUserLinks()
@@ -2884,7 +2887,6 @@ function fixInternalReferences()
 	{
 		const refLink = refLinks[i];
 		let refText = refLink.textContent.trim();
-		// refText = refText.replace(/[\*\[\]\{\}\.]/g, "");
 		refText = refText.replace(/[^A-Za-z0-9\s\-:]+/g, "");
 		if(!refText.length)
 			refText = "0" + i;
@@ -3582,8 +3584,8 @@ function getBestImageSrc()
 				sourcesArray = sourcesArray.sort(sortSources);
 				bestSource = sourcesArray[sourcesArray.length - 1].src;
 				Nimbus.bestImagesData.push({ image, bestSource });
-				removeAllAttributesExcept(image, "src");
 			}
+			removeAllAttributesExcept(image, "src");
 		}
 	}
 	getBestImages();
@@ -3775,21 +3777,23 @@ function tagLargeImages(threshold = 500)
 	}
 }
 
-function forceImageWidth(width)
+function forceImageWidth(width, largeImagesOnly)
 {
 	tagLargeImages();
 	if(width < 20)
 		width *= 100;
-	const s = "img.large { width: " + width + "px; height: auto; }";
+	const className = largeImagesOnly ? ".large" : "";
+	const s = `img${className} { width: ${width}px; height: auto; }`;
 	insertStyle(s, "styleImageWidth", true);
 }
 
-function forceImageHeight(height)
+function forceImageHeight(height, largeImagesOnly)
 {
 	tagLargeImages();
 	if(height < 20)
 		height *= 100;
-	const s = "img.large { height: " + height + "px; width: auto; }";
+	const className = largeImagesOnly ? ".large" : "";
+	const s = `img${className} { height: ${height}px; width: auto; }`;
 	insertStyle(s, "styleImageHeight", true);
 }
 
@@ -3924,12 +3928,16 @@ function replaceIncorrectHeading()
 
 function replaceEmptyParagraphsWithHr()
 {
+	function containsOnlyAsterisks(elem)
+	{
+		return (~elem.textContent.indexOf("*") && elem.textContent.replace(/[\*\s]+/g, "").length === 0);
+	}
 	const paras = get("p");
 	let i = paras.length;
 	while(i--)
 	{
 		const para = paras[i];
-		if(getTextLength(para) === 0)
+		if(getTextLength(para) === 0 || containsOnlyAsterisks(para))
 		{
 			let nextPara = paras[i - 1];
 			while(nextPara && getTextLength(nextPara) === 0 && i > 0)
@@ -4156,6 +4164,7 @@ function fixParagraphs()
 	restorePres();
 	deleteEmptyElements("p");
 	cleanupHeadings();
+	convertOrphanedTextNodesToParagraphs(false);
 }
 
 function fixDashes()
@@ -4290,7 +4299,7 @@ function getBestDomainSegment(hostname)
 {
 	if(!hostname || !hostname.length)
 		return "";
-	const segmentsToReplace = ["www.", "developer.", ".com", ".org", ".net", ".wordpress"];
+	const segmentsToReplace = ["www.", "developer.", ".com", ".org", ".net", ".wordpress", ".blogspot"];
 	let hostnameSanitized = hostname;
 	for(let i = 0, ii = segmentsToReplace.length; i < ii; i++)
 		hostnameSanitized = hostnameSanitized.replace(segmentsToReplace[i], "");
@@ -4780,11 +4789,35 @@ function toggleShowEmptyLinksAndSpans()
 	showMessageBig(`Revealed ${countLinks} empty links and ${countSpans} empty spans`);
 }
 
+function createBackLink(id)
+{
+	const idLink = "#" + id;
+	const linksToId = get(`a[href="${idLink}"]`);
+	const backLinkContainer = document.createElement("reference");
+	for(let i = 0, ii = linksToId.length; i < ii; i++)
+	{
+		const link = linksToId[i];
+		const linkText = link.textContent;
+		const linkId = link.id || createUUID();
+		if(!link.id) link.id = linkId;
+		const backLink = createElement("a", { href: "#" + linkId, textContent: linkText });
+		backLinkContainer.appendChild(backLink);
+	}
+	if(linksToId.length)
+		return backLinkContainer;
+	else
+		return createBulletAnchor(id);
+}
+
 //	Replaces empty, invisible anchor links by taking their IDs and
 //	applying the IDs to either an adjacent link if one exists, or to a
 //	<cite> element that is appended to the block parent
 function replaceEmptyAnchors()
 {
+	function canSetIdOnElement(elem)
+	{
+		return !!(elem.tagName && elem.tagName === "A" && elem.textContent.length && !elem.hasAttribute("id"));
+	}
 	const links = get("a");
 	const emptyLinksToDelete = [];
 	let i = links.length;
@@ -4797,11 +4830,11 @@ function replaceEmptyAnchors()
 				continue;
 			const prevElem = link.previousElementSibling;
 			const nextElem = link.nextElementSibling;
-			if(prevElem && prevElem.tagName && prevElem.tagName === "A" && prevElem.textContent.length && !prevElem.hasAttribute("id"))
+			if(prevElem && canSetIdOnElement(prevElem))
 			{
 				prevElem.id = link.id;
 			}
-			else if(nextElem && nextElem.tagName && nextElem.tagName === "A" && nextElem.textContent.length && !nextElem.hasAttribute("id"))
+			else if(nextElem && canSetIdOnElement(nextElem))
 			{
 				nextElem.id = link.id;
 			}
@@ -5005,12 +5038,12 @@ function groupMarkedElements(tagName)
 function groupAdjacentElements(selector, parentTag, childTag)
 {
 	const elems = get(selector);
-	const tagName = elems[0].tagName;
+	const firstElemTagName = elems[0].tagName;
 	let parentTagName = parentTag || "";
 	let childTagName = childTag || "";
 	if(!(parentTagName && childTagName))
 	{
-		switch(tagName)
+		switch(firstElemTagName)
 		{
 			case "BLOCKQUOTE":
 				parentTagName = "blockquote";
@@ -5026,7 +5059,7 @@ function groupAdjacentElements(selector, parentTag, childTag)
 				break;
 			default:
 				parentTagName = "blockquote";
-				childTagName = tagName;
+				childTagName = firstElemTagName;
 				break;
 		}
 	}
@@ -5034,13 +5067,19 @@ function groupAdjacentElements(selector, parentTag, childTag)
 	{
 		const elem = elems[i];
 		const parent = document.createElement(parentTagName);
-		parent.appendChild(convertElement(elem, childTagName));
+		if(childTagName === "same")
+			parent.appendChild(cloneElement(elem));
+		else
+			parent.appendChild(convertElement(elem, childTagName));
 		let nextElem = elem.nextElementSibling;
 		while(nextElem && elems.includes(nextElem))
 		{
 			i++;
 			const nextElemTemp = nextElem.nextElementSibling;
-			parent.appendChild(convertElement(nextElem, childTagName));
+			if(childTagName === "same")
+				parent.appendChild(convertElement(nextElem, nextElem.tagName));
+			else
+				parent.appendChild(convertElement(nextElem, childTagName));
 			nextElem.remove();
 			nextElem = nextElemTemp;
 		}
@@ -5130,13 +5169,23 @@ function joinParagraphsByLastChar()
 		const paraText = para.textContent.trim();
 		if(!paraText || paraText.length < MINLENGTH)
 			continue;
-		if(paraText[paraText.length - 1].match(/[a-z,\-]/i))
+		if(paraText[paraText.length - 1].match(/[a-z,]/))
 		{
 			const nextPara = para.nextElementSibling;
 			if(nextPara && nextPara.tagName === "P")
 			{
 				markElement(para);
 				para.appendChild(document.createTextNode(" "));
+				while(nextPara.firstChild)
+					para.appendChild(nextPara.firstChild);
+			}
+		}
+		else if(paraText[paraText.length - 1].match(/\-/))
+		{
+			const nextPara = para.nextElementSibling;
+			if(nextPara && nextPara.tagName === "P")
+			{
+				markElement(para);
 				while(nextPara.firstChild)
 					para.appendChild(nextPara.firstChild);
 			}
@@ -5378,7 +5427,7 @@ function toggleStyleNegative()
 		body.xblack { background: #000; }
 		body.xwrap { width: 1400px; margin: 0 auto; padding: 100px 300px; }
 
-		h1, h1[class], h2, h2[class], h3, h3[class], h4, h4[class], h5, h5[class], h6, h6[class] { color: var(--colorHeadings) !important; border: 0 !important; font-family: "Swis721 Cn BT", Calibri, sans-serif !important; font-weight: normal !important; line-height: inherit !important; background: var(--backgroundHeadings) !important; }
+		h1, h1[class], h2, h2[class], h3, h3[class], h4, h4[class], h5, h5[class], h6, h6[class] { color: #AAA !important; border: 0 !important; font-family: "Swis721 Cn BT", Calibri, sans-serif !important; font-weight: normal !important; line-height: inherit !important; background: #111 !important; }
 		body.pad100 h1, body.pad100 h1[class], body.pad100 h2, body.pad100 h2[class], body.pad100 h3, body.pad100 h3[class], body.pad100 h4, body.pad100 h4[class], body.pad100 h5, body.pad100 h5[class], body.pad100 h6, body.pad100 h6[class] { padding: 10px 1rem !important; margin: 2px 0 !important; }
 		h1, #nimbus h1 { font-size: 2.4rem !important; }
 		h2, #nimbus h2 { font-size: 2.0rem !important; }
@@ -5805,6 +5854,7 @@ function cleanupGeneral()
 	const t1 = performance.now();
 	cleanupHead();
 	cleanupTitle();
+	deleteHtmlComments();
 	removeAllAttributesOf(document.documentElement);
 	removeAllAttributesOf(document.body);
 	replaceIframes();
@@ -5819,7 +5869,7 @@ function cleanupGeneral()
 	highlightUserLinks();
 	appendMetadata();
 	getBestImageSrc();
-	forceImageWidth(1200);
+	forceImageWidth(1200, true);
 	document.body.className = "pad100 xwrap";
 	document.documentElement.id = "nimbus";
 	document.body.id = "nimbus";
@@ -6038,7 +6088,7 @@ function deleteEmptyBlockElements()
 {
 	// deleteEmptyTextNodes();
 	del("noscript");
-	const SELECTOR = "div, p, blockquote, h1, h2, h3, h4, h5, h6, li, figure, figcaption, pre, dt, dd, message, annotation, quote, quoteauthor, partheading, aside, section, article, nav, ul, ol";
+	const SELECTOR = "div, p, blockquote, h1, h2, h3, h4, h5, h6, li, figure, figcaption, pre, dt, dd, message, annotation, quote, quoteauthor, partheading, aside, section, article, nav, ul, ol, fieldset";
 	deleteEmptyElements(SELECTOR);
 }
 
@@ -6246,6 +6296,11 @@ function showHtmlComments()
 	}
 }
 
+function deleteHtmlComments()
+{
+	del(getXpathResultAsArray("//body//comment()"));
+}
+
 function replaceAudio()
 {
 	let sources = get("source");
@@ -6287,16 +6342,17 @@ function getMetadata()
 //	Append useful information to a webpage, including a link to the parent domain, a link to the webpage URL, and a timestamp
 function appendMetadata()
 {
-	const existingMetadata = Nimbus.pageMetadata;
-	const loc = window.location;
-	if(loc.protocol === "file:" || existingMetadata)
-		return;
+	if(getMetadata()) return;
 
-	const urlWithoutHash = loc.protocol + "//" + loc.hostname + loc.pathname + loc.search;
+	const existingMetadata = Nimbus.pageMetadata;
+	const { protocol, hostname, pathname, search } = window.location;
+	if(!existingMetadata && protocol === "file:") return;
+
+	const urlWithoutHash = protocol + "//" + hostname + pathname + search;
 	const documentUrl = removeQueryParameter(urlWithoutHash, "utm_source");
 
 	const domainLinkWrapper = createElement("h4", { textContent: "Domain: " });
-	const domainLink = createElement("a", { textContent: loc.hostname, href: loc.protocol + "//" + loc.hostname });
+	const domainLink = createElement("a", { textContent: hostname, href: protocol + "//" + hostname });
 	domainLinkWrapper.appendChild(domainLink);
 	document.body.appendChild(domainLinkWrapper);
 
@@ -6311,7 +6367,7 @@ function appendMetadata()
 
 function deleteNonContentLists()
 {
-	const lists = get("ul");
+	const lists = select("ul", "doesNotHaveChildrenOfType", "ul");
 	for(let i = 0, ii = lists.length; i < ii; i++)
 	{
 		const list = lists[i];
@@ -6321,24 +6377,44 @@ function deleteNonContentLists()
 	}
 }
 
+function deleteNonContentLinks()
+{
+	del(select("a", "text", "=", "Reply"));
+	del(select("a", "text", "=", "Share"));
+	del(select("a", "text", "=", "Tweet"));
+	del(select("a", "text", "=", "Delete"));
+	del(select("a", "text", "=", "Replies"));
+}
+
 //	After converting numbered or bulleted paragraphs to lists, we need
 //	to remove the redundant numbering or bullets from the list items.
 function fixBullets()
 {
+	const BULLET_REGEX = /^\u2022/;
+	const NUMERICBULLET_REGEX = /^[0-9]+[\.\)]?/;
+	let ulCount = 0;
+	let olCount = 0;
 	const lis = get("ol > li");
 	for(let i = 0, ii = lis.length; i < ii; i++)
 	{
 		const firstTextChild = getFirstTextChild(lis[i]);
-		if(firstTextChild)
-			firstTextChild.textContent = firstTextChild.textContent.trim().replace(/^[0-9]+[\.\)]?/, "") + " ";
+		if(firstTextChild && firstTextChild.textContent.match(NUMERICBULLET_REGEX))
+		{
+			olCount++;
+			firstTextChild.textContent = firstTextChild.textContent.trim().replace(NUMERICBULLET_REGEX, "");
+		}
 	}
 	const ulis = get("ul > li");
 	for(let i = 0, ii = ulis.length; i < ii; i++)
 	{
 		const firstTextChild = getFirstTextChild(ulis[i]);
-		if(firstTextChild)
-			firstTextChild.textContent = firstTextChild.textContent.trim().replace(/^\u2022/, "") + " ";
+		if(firstTextChild && firstTextChild.textContent.match(BULLET_REGEX))
+		{
+			ulCount++;
+			firstTextChild.textContent = firstTextChild.textContent.trim().replace(BULLET_REGEX, "");
+		}
 	}
+	showMessageBig(`${olCount} ordered and ${ulCount} unordered list items fixed`);
 }
 
 function deleteNonContentElements()
@@ -6429,6 +6505,7 @@ function getContentByParagraphCount()
 	}
 	del("nav");
 	deleteNonContentLists();
+	deleteNonContentLinks();
 	insertStyleHighlight();
 	const paragraphs = get("p");
 	if(!paragraphs)
@@ -6834,8 +6911,6 @@ function numberTableRowsAndColumns(tableElement)
 		tables[i].classList.add("numbered");
 }
 
-//	Logs all mutations. Useful for things like finding out what's changing in the DOM when, for instance,
-//	you hover over an element and a popup appears, or similar things that regular developer tools are no good for.
 function logMutations(mutations)
 {
 	let i, ii;
@@ -6864,6 +6939,8 @@ function logMutations(mutations)
 	}
 }
 
+//	Useful for finding out what's changing in the DOM when, for instance, you hover over an element
+//	and a popup appears, or similar things that regular developer tools are no good for.
 function toggleMutationObserver(watchAttributes, mutationFilterSelector = null)
 {
 	if(Nimbus.isObservingMutations)
@@ -6890,14 +6967,14 @@ function toggleMutationObserver(watchAttributes, mutationFilterSelector = null)
 	Nimbus.isObservingMutations = true;
 }
 
-//	Useful when, say, you want to see the classes and ids for all <input> elements
+//	When you want to see the classes and ids for all elements of a given type
 function showSelectorsFor(tagName)
 {
 	const styleId = 'styleShowSelectorsFor';
 	del("#" + styleId);
-	let style = `${tagName}::before { content: attr(id); background: #000; color: #FF0; }` +
-		`${tagName}::after { content: attr(class); background: #000; color: #F90; }` +
-		`${tagName} { border: 2px solid #000; }`;
+	const style = `${tagName}::before { content: attr(id); background: #000; color: #FF0; }
+		${tagName}::after { content: attr(class); background: #000; color: #F90; }
+		${tagName} { border: 2px solid #000; }`;
 	insertStyle(style, styleId, true);
 }
 
@@ -7075,6 +7152,13 @@ function wrapElementInner(elem, tagName)
 	elem.appendChild(wrapper);
 }
 
+function wrapAll(selector, tagName)
+{
+	const elems = get(selector);
+	for(let i = 0, ii = elems.length; i < ii; i++)
+		wrapElement(elems[i], tagName);
+}
+
 function unwrapAll(selector)
 {
 	const elems = get(selector);
@@ -7149,6 +7233,11 @@ function removeAttributeOf(selector, attribute)
 		e[i].removeAttribute(attribute);
 }
 
+function removeAllAttributesOfType(type)
+{
+	removeAttributeOf("*", type);
+}
+
 function insertElementNextToAnchor(tagName, position)
 {
 	const tag = tagName || "hr";
@@ -7182,44 +7271,41 @@ function insertElementAfterSelectionAnchor(tagName)
 function annotate(position = "before")
 {
 	let node = getNodeContainingSelection();
-	if(node && node.parentNode)
+	function annotateFunc(userInput)
 	{
-		customPrompt("Enter annotation tag").then(function(userInput) {
-			const annotationText = userInput.indexOf(" ") !== -1 ? userInput : undefined;
-			const annotation = userInput.length && !annotationText ?
-				document.createElement(userInput) :
-				document.createElement("annotation");
-			if(position === "after")
-				insertAfter(node, annotation);
-			else
-				insertBefore(node, annotation);
-			if(annotationText)
-			{
-				annotation.textContent = annotationText;
-			}
-			else
-			{
-				annotation.setAttribute("contenteditable", "true");
-				Nimbus.isEditing = true;
-				annotation.focus();
-			}
-		});
+		const annotationText = userInput.indexOf(" ") !== -1 ? userInput : undefined;
+		const annotation = userInput.length && !annotationText ?
+			document.createElement(userInput) :
+			document.createElement("annotation");
+		if(position === "after")
+			insertAfter(node, annotation);
+		else
+			insertBefore(node, annotation);
+		if(annotationText)
+		{
+			annotation.textContent = annotationText;
+		}
+		else
+		{
+			annotation.setAttribute("contenteditable", "true");
+			Nimbus.isEditing = true;
+			annotation.focus();
+		}
 	}
+	if(node && node.parentNode)
+		customPrompt("Enter annotation tag").then(annotateFunc);
 }
 
-function wrapAnchorNodeInTagHelper(tagName)
-{
-	if(tagName && tagName.length)
-		wrapElement(Nimbus.currentNode, tagName);
-}
 
 function wrapAnchorNodeInTag()
 {
 	const node = getNodeContainingSelection();
-	if(!node)
-		return;
-	Nimbus.currentNode = node;
-	customPrompt("Enter tagName to wrap this node in").then(wrapAnchorNodeInTagHelper);
+	if(!node) return;
+	function wrapFunc(tagName)
+	{
+		wrapElement(node, tagName);
+	}
+	customPrompt("Enter tagName to wrap this node in").then(wrapFunc);
 }
 
 function generateTableOfContents()
@@ -7709,10 +7795,11 @@ function findStringsInProximity(stringOne, stringTwo)
 	window.scrollTo(0, 0);
 }
 
-function replaceInTextNodes(searchString, replacement)
+function replaceInTextNodes(searchString, replacement, isRegex)
 {
 	const textNodes = getTextNodesAsArray();
-	let regex = new RegExp(escapeForRegExp(searchString), "g");
+	const str = isRegex ? searchString : escapeForRegExp(searchString);
+	const regex = new RegExp(str, "g");
 	let replCount = 0;
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
@@ -7866,7 +7953,10 @@ function removeHighlightsFromMarkedElements()
 	for(let i = 0, ii = markedElements.length; i < ii; i++)
 	{
 		const element = getFirstBlockParent(markedElements[i]);
-		element.innerHTML = element.innerHTML.replace(/<\/?mark[^>]*>/g, "");
+		// element.innerHTML = element.innerHTML.replace(/<\/?mark[^>]*>/g, "");
+		const marks = element.querySelectorAll("mark, markyellow, markred, markgreen, markblue, markpurple, markwhite");
+		for(let j = 0, jj = marks.length; j < jj; j++)
+			unwrapElement(marks[j]);
 	}
 	unmarkAll();
 }
@@ -7937,6 +8027,7 @@ function handleKeyDown(e)
 			case KEYCODES.SIX: deleteIframes(); break;
 			case KEYCODES.SEVEN: showHtmlComments(); break;
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
+			case KEYCODES.NINE: removeAllAttributesOfType("class"); break;
 			case KEYCODES.ZERO: cycleThroughDocumentHeadings(); break;
 			case KEYCODES.A: cycleClass(db, ["nimbusTheme1", "nimbusTheme2", "none"]); dh.className = db.className; break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
