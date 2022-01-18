@@ -1898,10 +1898,10 @@ function hasClassesStartingWith(element, arrStr)
 	return false;
 }
 
-function insertStyle(str, identifier, important)
+function insertStyle(str, id, important)
 {
-	if(identifier && identifier.length && get("#" + identifier))
-		del("#" + identifier);
+	if(id && id.length && get("#" + id))
+		del("#" + id);
 	if(important)
 		str = str.replace(/!important/g, " ").replace(/;/g, " !important;");
 	str = "\n" + str.replace(/\n\t+/g, "\n");
@@ -1918,19 +1918,19 @@ function insertStyle(str, identifier, important)
 		style.styleSheet.cssText = rules.nodeValue;
 	else
 		style.appendChild(rules);
-	if(identifier && identifier.length)
-		style.id = identifier;
+	if(id && id.length)
+		style.id = id;
 	head.appendChild(style);
 }
 
-function toggleStyle(str, identifier, important)
+function toggleStyle(str, id, important)
 {
-	if(identifier && identifier.length && get("#" + identifier))
+	if(id && id.length && get("#" + id))
 	{
-		del("#" + identifier);
+		del("#" + id);
 		return;
 	}
-	insertStyle(str, identifier, important);
+	insertStyle(str, id, important);
 }
 
 function getTimestamp()
