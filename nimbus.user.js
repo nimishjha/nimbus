@@ -279,6 +279,11 @@ const Nimbus = {
 	italicTag: "i",
 };
 
+const MATCH_TYPE = {
+	CONTAINS_BEGINNING: 1,
+	CONTAINS_END: 2
+};
+
 const KEYCODES = Nimbus.KEYCODES;
 
 const STYLES = {
@@ -2020,6 +2025,14 @@ function ylog(str, tag, prepend)
 function log2(str)
 {
 	document.body.appendChild(createElement("h2", { className: "xlog", innerHTML: str }));
+}
+
+function logStringShowingSpaces(str, varName)
+{
+	if(varName)
+		console.log("\t" + varName + ":", str.replace(/\s/g, "_"));
+	else
+		console.log("\t" + str.replace(/\s/g, "_"));
 }
 
 function logAllClassesForCommonElements()
@@ -5465,6 +5478,7 @@ function toggleStyleNegative()
 		p { margin: 0; padding: 5px 0; font-style: normal; font-weight: normal; line-height: 150%; color: inherit; background: inherit; border: 0; }
 		blockquote { margin: 0 0 0 20px; padding: 10px 0 10px 20px; border-style: solid; border-width: 10px 0 0 10px; border-color: #0C0C0C; }
 		blockquote blockquote { margin: 0 0 0 20px; padding: 0 0 0 20px; border-width: 0 0 0 10px; }
+		aside { background-color: #333; color: #888; padding: 10px; }
 
 		@media (min-width: 2048px)
 		{
@@ -7641,7 +7655,7 @@ function consolidateMarksInNode(node)
 }
 
 //	This function solves the problem of highlighting text in an HTML element when that text
-//	spans other HTML elements, such as span, b, or em tags. The way it works is by finding the
+//	spans other HTML elements, such as span, b, or em tags. It works by finding the
 //	starting and ending indices of the search string in the textContent of the parent element,
 //	then comparing those indices to the indices of each childNode of the parent element. Using
 //	this, we can split the search string into substrings that are fully contained by the parent
@@ -7664,8 +7678,8 @@ function highlightTextAcrossTags(node, searchString)
 	if(index1 === -1)
 	{
 		showMessageError("highlightTextAcrossTags: string not found in text");
-		console.log(searchString.replace(/\s/g, "_"));
-		console.log(nodeText.replace(/\s/g, "_"));
+		logStringShowingSpaces(searchString, "searchString");
+		logStringShowingSpaces(nodeText, "nodeText");
 		return;
 	}
 	let index2 = index1 + searchString.length;
@@ -7680,6 +7694,7 @@ function highlightTextAcrossTags(node, searchString)
 		childNodeEnd += childNodeText.length;
 		let partialSearchString;
 		let isMatch = false;
+		let matchType = null;
 		//	If any part of the selection is contained in an element of these types, highlight the entire element
 		if(["I", "B", "EM", "STRONG", "REFERENCE", "CITE"].includes(childNode.tagName))
 		{
@@ -7696,6 +7711,7 @@ function highlightTextAcrossTags(node, searchString)
 		{
 			isMatch = true;
 			partialSearchString = childNodeText.substring(index1 - childNodeStart, index1 - childNodeStart + searchString.length);
+			matchType = MATCH_TYPE.CONTAINS_BEGINNING;
 			consoleLog('childnode contains beginning; partialSearchString:', partialSearchString);
 		}
 		//	The childNode is entirely contained within the search string
@@ -7710,6 +7726,7 @@ function highlightTextAcrossTags(node, searchString)
 			partialSearchString = childNodeText.substring(0, index2 - childNodeStart);
 			if(childNodeText.length - partialSearchString.length < 10)
 				partialSearchString = childNodeText;
+			matchType = MATCH_TYPE.CONTAINS_END;
 			consoleLog('childnode contains end; partialSearchString:', partialSearchString);
 		}
 		if(isMatch && partialSearchString.length > 2)
@@ -7717,16 +7734,53 @@ function highlightTextAcrossTags(node, searchString)
 			if(childNode.nodeType === 1)
 				wrapElementInner(childNode, Nimbus.highlightTagName);
 			else
-				splitMatches.push(partialSearchString);
+				splitMatches.push({ searchString: partialSearchString, node: childNode, matchType });
 		}
 	}
-	consoleLog('highlightTextAcrossTags: splitMatches:', splitMatches);
-	highlightAllMatchesInNode(node, splitMatches);
+	highlightSplitMatches(splitMatches);
+	consolidateMarksInNode(node);
+}
+
+function highlightSplitMatches(splitMatches)
+{
+	for(let i = 0, ii = splitMatches.length; i < ii; i++)
+	{
+		const splitMatch = splitMatches[i];
+		const node = splitMatch.node;
+		const nodeText = node.data;
+		const searchString = splitMatch.searchString;
+		const replacement = document.createDocumentFragment();
+		if(splitMatch.matchType === MATCH_TYPE.CONTAINS_BEGINNING)
+		{
+			const splitIndex = nodeText.lastIndexOf(searchString);
+			const textBeforeMatch = nodeText.substring(0, splitIndex);
+			const textOfMatch = nodeText.substring(splitIndex, nodeText.length);
+			const textNode = document.createTextNode(textBeforeMatch);
+			const markNode = createElement(Nimbus.highlightTagName, { textContent: textOfMatch });
+			replacement.appendChild(textNode);
+			replacement.appendChild(markNode);
+		}
+		else if(splitMatch.matchType === MATCH_TYPE.CONTAINS_END)
+		{
+			const splitIndex = searchString.length;
+			const textOfMatch = nodeText.substring(0, splitIndex);
+			const textAfterMatch = nodeText.substring(splitIndex);
+			const markNode = createElement(Nimbus.highlightTagName, { textContent: textOfMatch });
+			const textNode = document.createTextNode(textAfterMatch);
+			replacement.appendChild(markNode);
+			replacement.appendChild(textNode);
+		}
+		const parentNode = node.parentNode;
+		if(!parentNode)
+			return;
+		parentNode.replaceChild(replacement, node);
+	}
 }
 
 //	Fast search for two strings occurring in close proximity in a document.
 //	Only paragraphs are scanned. The document is modified: most importantly,
 //	paragraph IDs are replaced, so existing internal references will be destroyed.
+// 	The advantage of this approach is that as the distance goes up, the cost goes down.
 function findStringsInProximity(stringOne, stringTwo)
 {
 	insertStyleHighlight();
