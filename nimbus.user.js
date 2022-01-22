@@ -348,7 +348,7 @@ const STYLES = {
 		*[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px 6px; font: 22px "Swis721 Cn BT"; }
 		*[id]::before { content: attr(id); color: #F0F; background: #000; padding: 2px 6px; font: 22px "Swis721 Cn BT"; }
 		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #0DD; background: #000; padding: 2px 6px; font: 22px "Swis721 Cn BT"; }
-		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; }
+		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 2px; padding: 2px; }
 		h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #A0A, inset -4px -4px #404; }
 		span { box-shadow: inset 0 -100px #040; padding: 2px; border: 2px solid #0A0; }
 	`,
@@ -7249,7 +7249,7 @@ function removeAttributeOf(selector, attribute)
 
 function removeAllAttributesOfType(type)
 {
-	removeAttributeOf("*", type);
+	removeAttributeOf("body *", type);
 }
 
 function insertElementNextToAnchor(tagName, position)
@@ -7578,54 +7578,6 @@ function expandSelectionToSentenceBoundaries(node, selection)
 	return expanded;
 }
 
-function highlightAllMatchesInNode(node, splitMatches)
-{
-	let nodeHTML = node.innerHTML;
-	nodeHTML = nodeHTML.replace(/\s+/g, " ");
-	let lastIndex = 0;
-	const highlightTagOpen = "<" + Nimbus.highlightTagName + ">";
-	const highlightTagClose = "</" + Nimbus.highlightTagName + ">";
-	for(let i = 0, ii = splitMatches.length; i < ii; i++)
-	{
-		let htmlToSearch = "";
-		let index;
-		const textToReplace = escapeHTML(splitMatches[i]);
-		if(lastIndex)
-		{
-			htmlToSearch = nodeHTML.substring(lastIndex);
-			index = htmlToSearch.indexOf(textToReplace) + lastIndex;
-		}
-		else
-		{
-			index = nodeHTML.indexOf(textToReplace);
-		}
-		if(~index)
-		{
-			const replacementHtml = highlightTagOpen + textToReplace + highlightTagClose;
-			lastIndex = index;
-			if(htmlToSearch.length)
-			{
-				let htmlToSkip = nodeHTML.substring(0, lastIndex);
-				let htmlToReplace = nodeHTML.substring(lastIndex).replace(textToReplace, replacementHtml);
-				nodeHTML = htmlToSkip + htmlToReplace;
-			}
-			else
-			{
-				nodeHTML = nodeHTML.replace(textToReplace, replacementHtml);
-			}
-		}
-		else
-		{
-			showMessageError("Partial match not found in node text");
-			consoleLog("nodeHTML: \n", nodeHTML);
-			consoleLog("textToReplace: \n", textToReplace);
-			return;
-		}
-	}
-	node.innerHTML = nodeHTML;
-	consolidateMarksInNode(node);
-}
-
 function consolidateMarksInNode(node)
 {
 	const MARK_TAG = Nimbus.highlightTagName;
@@ -7693,8 +7645,9 @@ function highlightTextAcrossTags(node, searchString)
 		const childNodeText = childNode.textContent;
 		childNodeEnd += childNodeText.length;
 		let partialSearchString;
-		let isMatch = false;
+		let isPartialMatch = false;
 		let matchType = null;
+
 		//	If any part of the selection is contained in an element of these types, highlight the entire element
 		if(["I", "B", "EM", "STRONG", "REFERENCE", "CITE"].includes(childNode.tagName))
 		{
@@ -7706,30 +7659,27 @@ function highlightTextAcrossTags(node, searchString)
 				wrapElement(childNode, Nimbus.highlightTagName);
 			continue;
 		}
-		//	The childNode contains the beginning of the search string
+
 		if(index1 >= childNodeStart && index1 < childNodeEnd)
 		{
-			isMatch = true;
+			isPartialMatch = true;
 			partialSearchString = childNodeText.substring(index1 - childNodeStart, index1 - childNodeStart + searchString.length);
 			matchType = MATCH_TYPE.CONTAINS_BEGINNING;
-			consoleLog('childnode contains beginning; partialSearchString:', partialSearchString);
 		}
-		//	The childNode is entirely contained within the search string
 		else if(index1 < childNodeStart && index2 > childNodeEnd)
 		{
 			wrapElement(childNode, Nimbus.highlightTagName);
 		}
-		//	The childNode contains the end of the search string
 		else if(index2 > childNodeStart && index2 <= childNodeEnd)
 		{
-			isMatch = true;
+			isPartialMatch = true;
 			partialSearchString = childNodeText.substring(0, index2 - childNodeStart);
 			if(childNodeText.length - partialSearchString.length < 10)
 				partialSearchString = childNodeText;
 			matchType = MATCH_TYPE.CONTAINS_END;
-			consoleLog('childnode contains end; partialSearchString:', partialSearchString);
 		}
-		if(isMatch && partialSearchString.length > 2)
+
+		if(isPartialMatch && partialSearchString.length > 2)
 		{
 			if(childNode.nodeType === 1)
 				wrapElementInner(childNode, Nimbus.highlightTagName);
@@ -7754,20 +7704,20 @@ function highlightSplitMatches(splitMatches)
 		{
 			const splitIndex = nodeText.lastIndexOf(searchString);
 			const textBeforeMatch = nodeText.substring(0, splitIndex);
-			const textOfMatch = nodeText.substring(splitIndex, nodeText.length);
+			const textOfMatch = nodeText.substring(splitIndex);
 			const textNode = document.createTextNode(textBeforeMatch);
-			const markNode = createElement(Nimbus.highlightTagName, { textContent: textOfMatch });
+			const highlightNode = createElement(Nimbus.highlightTagName, { textContent: textOfMatch });
 			replacement.appendChild(textNode);
-			replacement.appendChild(markNode);
+			replacement.appendChild(highlightNode);
 		}
 		else if(splitMatch.matchType === MATCH_TYPE.CONTAINS_END)
 		{
 			const splitIndex = searchString.length;
 			const textOfMatch = nodeText.substring(0, splitIndex);
 			const textAfterMatch = nodeText.substring(splitIndex);
-			const markNode = createElement(Nimbus.highlightTagName, { textContent: textOfMatch });
+			const highlightNode = createElement(Nimbus.highlightTagName, { textContent: textOfMatch });
 			const textNode = document.createTextNode(textAfterMatch);
-			replacement.appendChild(markNode);
+			replacement.appendChild(highlightNode);
 			replacement.appendChild(textNode);
 		}
 		const parentNode = node.parentNode;
@@ -8007,7 +7957,6 @@ function removeHighlightsFromMarkedElements()
 	for(let i = 0, ii = markedElements.length; i < ii; i++)
 	{
 		const element = getFirstBlockParent(markedElements[i]);
-		// element.innerHTML = element.innerHTML.replace(/<\/?mark[^>]*>/g, "");
 		const marks = element.querySelectorAll("mark, markyellow, markred, markgreen, markblue, markpurple, markwhite");
 		for(let j = 0, jj = marks.length; j < jj; j++)
 			unwrapElement(marks[j]);
