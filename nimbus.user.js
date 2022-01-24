@@ -61,7 +61,6 @@ const Nimbus = {
 		cleanupLinks: cleanupLinks,
 		consolidateAnchors: consolidateAnchors,
 		convertDivsToParagraphs: convertDivsToParagraphs,
-		convertOrphanedTextNodesToParagraphs: convertOrphanedTextNodesToParagraphs,
 		copyAttribute: copyAttribute,
 		count: count,
 		createListsFromBulletedParagraphs: createListsFromBulletedParagraphs,
@@ -211,9 +210,7 @@ const Nimbus = {
 		replaceSpecialCharacters:replaceSpecialCharacters,
 		replaceSupSpanAnchors: replaceSupSpanAnchors,
 		replaceTables: replaceTables,
-		rescueOrphanedElements: rescueOrphanedElements,
-		rescueOrphanedElements2: rescueOrphanedElements2,
-		rescueOrphanedTextNodes: rescueOrphanedTextNodes,
+		rescueOrphanedNodes: rescueOrphanedNodes,
 		restorePres: restorePres,
 		retrieve: retrieve,
 		retrieveBySelectorAndText: retrieveBySelectorAndText,
@@ -1702,6 +1699,64 @@ function hasAdjacentBlockElement(node)
 	return false;
 }
 
+function isBlockElement(node)
+{
+	const NON_BLOCK_ELEMENTS = ["A", "B", "STRONG", "I", "EM", "SPAN", "MARK", "MARKYELLOW", "MARKRED", "MARKGREEN", "MARKBLUE", "MARKPURPLE", "MARKWHITE"];
+	if(node.nodeType !== 1) return false;
+	if(NON_BLOCK_ELEMENTS.includes(node.tagName)) return false;
+	return true;
+}
+
+//	If any text nodes or inline elements have a block element as a sibling,
+//	they need to be wrapped in a block container.
+function rescueOrphanedNodes()
+{
+	deleteEmptyTextNodes();
+	const WRAPPER_TAGNAME = "aside";
+	const nodes = get("*");
+	const numNodes = nodes.length;
+	let count = 0;
+	const nodeItems = [];
+	let node, nodeParent;
+	for(let i = 0, ii = nodes.length; i < ii; i++)
+	{
+		node = nodes[i];
+		if(isBlockElement(node))
+			continue;
+
+		if(hasAdjacentBlockElement(node))
+		{
+			nodeParent = node.parentNode;
+			const orphanedNodes = [];
+			orphanedNodes.push(node);
+			while(node.nextSibling && count < numNodes)
+			{
+				count++;
+				node = node.nextSibling;
+				if(!isBlockElement(node))
+				{
+					orphanedNodes.push(node);
+					i++;
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			if(orphanedNodes.length)
+			{
+				const wrapper = document.createElement(WRAPPER_TAGNAME);
+				for(const orphan of orphanedNodes)
+					wrapper.appendChild(orphan.cloneNode(true));
+				nodeParent.insertBefore(wrapper, orphanedNodes[0]);
+				del(orphanedNodes);
+			}
+		}
+	}
+	convertOrphanedTextNodesToParagraphs();
+}
+
 function convertOrphanedTextNodesToParagraphs(mark = true)
 {
 	const textNodes = getTextNodesAsArray();
@@ -1713,115 +1768,6 @@ function convertOrphanedTextNodesToParagraphs(mark = true)
 		if(!textNode.data.replace(/\s+/g, "").length) continue;
 		if(hasAdjacentBlockElement(textNode))
 			wrapElement(textNode, "p", className);
-	}
-}
-
-function rescueOrphanedTextNodes()
-{
-	const BLOCK_ELEMENTS = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV"];
-	const NON_BLOCK_ELEMENTS = ["A", "B", "STRONG", "I", "EM", "SPAN", "MARK", "MARKYELLOW", "MARKRED", "MARKGREEN", "MARKBLUE", "MARKPURPLE", "MARKWHITE"];
-	const REPLACEMENT_TAGNAME = "h5";
-	const textNodes = getTextNodesAsArray();
-	const nodeItems = [];
-	for(let i = 0, ii = textNodes.length; i < ii; i++)
-	{
-		let hasBlockParent = false;
-		const node = textNodes[i];
-		const nodeText = node.data;
-		if(removeWhitespace(nodeText).length)
-		{
-			let nodeParent = node;
-			while(nodeParent.parentNode)
-			{
-				nodeParent = nodeParent.parentNode;
-				if(BLOCK_ELEMENTS.includes(nodeParent.tagName))
-				{
-					hasBlockParent = true;
-					break;
-				}
-			}
-			nodeItems.push({ node, hasBlockParent });
-		}
-	}
-	let consecutiveOrphans = [];
-	for(let i = 0, ii = nodeItems.length; i < ii; i++)
-	{
-		const nodeItem = nodeItems[i];
-		if(nodeItem.hasBlockParent)
-		{
-			if(consecutiveOrphans.length)
-			{
-				const parent = document.createElement(REPLACEMENT_TAGNAME);
-				for(let j = 0, jj = consecutiveOrphans.length; j < jj; j++)
-					parent.appendChild(consecutiveOrphans[j].cloneNode(true));
-				parent.className = Nimbus.markerClass;
-				consecutiveOrphans[0].parentNode.insertBefore(parent, consecutiveOrphans[0]);
-				for(let j = 0, jj = consecutiveOrphans.length; j < jj; j++)
-					consecutiveOrphans[j].remove();
-				consecutiveOrphans = [];
-			}
-		}
-		else
-		{
-			const node = nodeItem.node;
-			if(node.parentNode && NON_BLOCK_ELEMENTS.includes(node.parentNode.tagName))
-				consecutiveOrphans.push(node.parentNode);
-			else
-				consecutiveOrphans.push(node);
-		}
-	}
-	insertStyleHighlight();
-}
-
-function rescueOrphanedElements()
-{
-	const BLOCK_ELEMENTS = ["P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE"];
-	const NON_BLOCK_ELEMENTS = ["A", "B", "STRONG", "I", "EM", "SPAN"];
-	const nodes = get(NON_BLOCK_ELEMENTS.join());
-	const orphans = [];
-	for(let i = 0, ii = nodes.length; i < ii; i++)
-	{
-		let hasBlockParent = false;
-		let node = nodes[i];
-		let nodeParent = node;
-		while(nodeParent.parentNode)
-		{
-			nodeParent = nodeParent.parentNode;
-			if(BLOCK_ELEMENTS.includes(nodeParent.tagName))
-			{
-				hasBlockParent = true;
-				break;
-			}
-		}
-		if(!hasBlockParent)
-			orphans.push(node);
-	}
-	for(let i = 0, ii = orphans.length; i < ii; i++)
-	{
-		let parent = orphans[i];
-		while(parent.parentNode && parent.parentNode.parentNode && NON_BLOCK_ELEMENTS.includes(parent.parentNode.tagName))
-		{
-			parent = parent.parentNode;
-		}
-		wrapElement(parent, "h6");
-	}
-}
-
-function rescueOrphanedElements2()
-{
-	const NON_BLOCK_ELEMENTS = ["A", "B", "STRONG", "I", "EM", "SPAN"];
-	const nodes = get(NON_BLOCK_ELEMENTS.join());
-	const orphans = [];
-	for(let i = 0, ii = nodes.length; i < ii; i++)
-	{
-		const node = nodes[i];
-		if(hasAdjacentBlockElement(node))
-			orphans.push(node);
-	}
-	for(let i = 0, ii = orphans.length; i < ii; i++)
-	{
-		let orphan = orphans[i];
-		wrapElement(orphan, "h6", Nimbus.markerClass);
 	}
 }
 
