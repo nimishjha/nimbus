@@ -273,7 +273,7 @@ const Nimbus = {
 	minPersistSize: 800,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
-	BLOCK_ELEMENTS: ["DIV", "P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE"],
+	BLOCK_ELEMENTS: ["DIV", "P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE", "HR"],
 	italicTag: "i",
 };
 
@@ -346,7 +346,7 @@ const STYLES = {
 		*[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px 6px; font: 22px "Swis721 Cn BT"; }
 		*[id]::before { content: attr(id); color: #F0F; background: #000; padding: 2px 6px; font: 22px "Swis721 Cn BT"; }
 		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #0DD; background: #000; padding: 2px 6px; font: 22px "Swis721 Cn BT"; }
-		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 2px; padding: 2px; }
+		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 2px; padding: 4px; }
 		h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #A0A, inset -4px -4px #404; }
 		span { box-shadow: inset 0 -100px #040; padding: 2px; border: 2px solid #0A0; }
 	`,
@@ -1698,7 +1698,7 @@ function hasAdjacentBlockElement(node)
 
 function isBlockElement(node)
 {
-	const NON_BLOCK_ELEMENTS = ["A", "B", "STRONG", "I", "EM", "SPAN", "MARK", "MARKYELLOW", "MARKRED", "MARKGREEN", "MARKBLUE", "MARKPURPLE", "MARKWHITE"];
+	const NON_BLOCK_ELEMENTS = ["A", "B", "STRONG", "I", "EM", "SPAN", "TIME", "MARK", "MARKYELLOW", "MARKRED", "MARKGREEN", "MARKBLUE", "MARKPURPLE", "MARKWHITE"];
 	if(node.nodeType !== 1) return false;
 	if(NON_BLOCK_ELEMENTS.includes(node.tagName)) return false;
 	return true;
@@ -1751,7 +1751,7 @@ function rescueOrphanedNodes()
 			}
 		}
 	}
-	convertOrphanedTextNodesToParagraphs();
+	convertOrphanedTextNodesToParagraphs(false);
 }
 
 function convertOrphanedTextNodesToParagraphs(mark = true)
@@ -3356,7 +3356,7 @@ function select(...args)
 				case "contains": return filterNodesByAttributeContaining(elems, attribute, value);
 				case "doesNotContain": return filterNodesByAttributeNotContaining(elems, attribute, value);
 				case "matches": return filterNodesByAttributeMatching(elems, attribute, value);
-				default: return false;
+				default: return [];
 			}
 		}
 		else if(args.length === 3 && ["hasAttribute", "doesNotHaveAttribute", "following", "preceding"].includes(args[1]))
@@ -3369,7 +3369,7 @@ function select(...args)
 				case "doesNotHaveAttribute": return filterNodesByAttributeNonExistence(elems, attribute);
 				case "following": return filterNodesFollowingNodesOfType(elems, attribute);
 				case "preceding": return filterNodesPrecedingNodesOfType(elems, attribute);
-				default: return false;
+				default: return [];
 			}
 		}
 		else if(args.length === 3)
@@ -3386,7 +3386,7 @@ function select(...args)
 				case "doesNotHaveParentOfType": return filterNodesWithoutParentOfType(elems, value);
 				case "hasTextLengthUnder": return filterNodesWithTextLengthUnder(elems, value);
 				case "hasTextLengthOver": return filterNodesWithTextLengthOver(elems, value);
-				default: return false;
+				default: return [];
 			}
 		}
 	}
@@ -5013,6 +5013,7 @@ function groupAdjacentElements(selector, parentTag, childTag)
 		switch(firstElemTagName)
 		{
 			case "BLOCKQUOTE":
+			case "P":
 				parentTagName = "blockquote";
 				childTagName = "p";
 				break;
@@ -5020,37 +5021,35 @@ function groupAdjacentElements(selector, parentTag, childTag)
 				parentTagName = "ul";
 				childTagName = "li";
 				break;
-			case "P":
-				parentTagName = "blockquote";
-				childTagName = "p";
-				break;
 			default:
 				parentTagName = "blockquote";
-				childTagName = firstElemTagName;
+				childTagName = "same";
 				break;
 		}
 	}
+	const copyOrClone = childTagName === "same" ? cloneElement : convertElement;
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
-		const parent = document.createElement(parentTagName);
+		const group = document.createElement(parentTagName);
 		if(childTagName === "same")
-			parent.appendChild(cloneElement(elem));
+			group.appendChild(cloneElement(elem));
 		else
-			parent.appendChild(convertElement(elem, childTagName));
+			group.appendChild(convertElement(elem, childTagName));
 		let nextElem = elem.nextElementSibling;
 		while(nextElem && elems.includes(nextElem))
 		{
 			i++;
 			const nextElemTemp = nextElem.nextElementSibling;
 			if(childTagName === "same")
-				parent.appendChild(convertElement(nextElem, nextElem.tagName));
+				group.appendChild(cloneElement(nextElem));
 			else
-				parent.appendChild(convertElement(nextElem, childTagName));
+				group.appendChild(convertElement(nextElem, childTagName));
 			nextElem.remove();
 			nextElem = nextElemTemp;
 		}
-		elem.parentNode.replaceChild(parent, elem);
+		if(elem.parentNode)
+			elem.parentNode.replaceChild(group, elem);
 	}
 }
 
@@ -6336,6 +6335,7 @@ function appendMetadata()
 function deleteNonContentLists()
 {
 	const lists = select("ul", "doesNotHaveChildrenOfType", "ul");
+	if(!lists) return;
 	for(let i = 0, ii = lists.length; i < ii; i++)
 	{
 		const list = lists[i];
@@ -7998,8 +7998,8 @@ function handleKeyDown(e)
 			case KEYCODES.M: customPrompt("Enter command").then(runCommand); break;
 			case KEYCODES.N: numberDivs(); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatchesInDocument, true); break;
-			case KEYCODES.P: fixParagraphs(); break;
-			case KEYCODES.Q: resetHighlightTag(); break;
+			case KEYCODES.P: fixParagraphs(); rescueOrphanedNodes(); break;
+			case KEYCODES.Q: resetHighlightTag(); Nimbus.selectionHighlightMode = "sentence"; break;
 			case KEYCODES.R: toggleHighlight(); break;
 			case KEYCODES.S: toggleContentEditable(); break;
 			case KEYCODES.U: del("ul"); del("dl"); break;
