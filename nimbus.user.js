@@ -159,7 +159,7 @@ const Nimbus = {
 		markBySelector: markBySelector,
 		markBySelectorAndRegex: markBySelectorAndRegex,
 		markByTagNameAndText: markByTagNameAndText,
-		markElementsWithChildSpanning: markElementsWithChildSpanning,
+		markElementsWithChildrenSpanning: markElementsWithChildrenSpanning,
 		markElementsWithSetWidths: markElementsWithSetWidths,
 		markNavigationalLists: markNavigationalLists,
 		markNodesBetweenMarkers: markNodesBetweenMarkers,
@@ -675,9 +675,8 @@ function markByChildrenHavingTheExactText(...args)
 	}
 }
 
-//	Marks elements that contain exactly one child element of a given type
-//	that contains the entire text of the parent
-function markElementsWithChildSpanning(parentSelector, childSelector)
+//	Marks elements that have children of a given type that contain all the parent's text
+function markElementsWithChildrenSpanning(parentSelector, childSelector)
 {
 	const parents = get(parentSelector);
 	let i = parents.length;
@@ -686,14 +685,11 @@ function markElementsWithChildSpanning(parentSelector, childSelector)
 		const parent = parents[i];
 		if(!parent.textContent)
 			continue;
-		let textLength = parent.textContent.replace(/\s+/g, '').length;
-		const children = parent.querySelectorAll(childSelector);
-		if(children.length === 1)
-		{
-			const childText = children[0].textContent;
-			if(childText && childText.replace(/\s+/g, '').length === textLength)
-				markElement(parent);
-		}
+		const children = Array.from(parent.querySelectorAll(childSelector));
+		let parentTextLength = getTextLength(parent);
+		const childrenTextLength = children.reduce((acc, child) => acc + getTextLength(child), 0);
+		if(parentTextLength === childrenTextLength)
+			markElement(parent);
 	}
 }
 
