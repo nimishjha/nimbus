@@ -50,6 +50,7 @@ const Nimbus = {
 		addLinksToLargerImages: addLinksToLargerImages,
 		annotate: annotate,
 		appendMetadata: appendMetadata,
+		boldInlineColonHeadings: boldInlineColonHeadings,
 		buildGallery: buildGallery,
 		buildSlideshow: buildSlideshow,
 		cleanupAttributes: cleanupAttributes,
@@ -3936,6 +3937,17 @@ function makePlainText(selector)
 				elem.textContent = removeLineBreaks(elem.textContent);
 			}
 			break;
+	}
+}
+
+function boldInlineColonHeadings()
+{
+	const paras = get("p, li");
+	for(let i = 0, ii = paras.length; i < ii; i++)
+	{
+		const para = paras[i];
+		if(para.innerHTML.match(/^[\w\d\.\s\-,"]+:.+/))
+			para.innerHTML = para.innerHTML.replace(/(^[\w\d\.\s\-,"]+:)/, "<b>$1</b>");
 	}
 }
 
