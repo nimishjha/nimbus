@@ -947,9 +947,8 @@ function joinByBrs(selector)
 	}
 }
 
-function splitByBrs(selectorOrElement)
+function splitByBrs(selectorOrElement, shouldGroup = true)
 {
-	let selector;
 	const elems = typeof selectorOrElement === "string" ? get(selectorOrElement) : [selectorOrElement];
 	const tagMap = {
 		"H1": "H1",
@@ -970,7 +969,7 @@ function splitByBrs(selectorOrElement)
 			continue;
 		elemHtml = elemHtml.replace(/<br[^>]*>/g, '<br>');
 		const splat = elemHtml.split("<br>");
-		const replacement = document.createDocumentFragment();
+		const replacement = shouldGroup ? document.createElement("blockquote") : document.createDocumentFragment();
 		for(let j = 0, jj = splat.length; j < jj; j++)
 		{
 			const str = splat[j];
@@ -1713,7 +1712,6 @@ function rescueOrphanedNodes()
 	const nodes = get("*");
 	const numNodes = nodes.length;
 	let count = 0;
-	const nodeItems = [];
 	let node, nodeParent;
 	for(let i = 0, ii = nodes.length; i < ii; i++)
 	{
@@ -2026,14 +2024,6 @@ function getAllClassesFor(selector)
 	return result;
 }
 
-function isIncorrectType(x, expectedType)
-{
-	if(typeof x === expectedType)
-		return false;
-	console.warn("Expected " + x + " to be " + expectedType + "; got " + typeof x);
-	return true;
-}
-
 function replaceClass(class1, class2)
 {
 	const e = document.querySelectorAll(makeClassSelector(class1));
@@ -2085,7 +2075,6 @@ function simplifyClassNames(selector)
 	const elems = get(sel);
 	const classMap = {};
 	const tagTable = {};
-	const baseClassName = "class";
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
@@ -2951,7 +2940,6 @@ function numberDivs()
 function showTags()
 {
 	const e = Array.from( document.body.getElementsByTagName("*") );
-	const tags = {};
 	for(let i = 0, ii = e.length; i < ii; i++)
 	{
 		const elem = e[i];
@@ -3472,7 +3460,6 @@ function deleteImagesSmallerThan(pixelArea)
 function deleteSmallImages()
 {
 	deleteBySelectorAndTextMatching("img", "data:");
-	const images = get("img");
 	const nextThreshold = getNext(Nimbus.smallImageThreshold, Nimbus.smallImageThresholdList);
 	Nimbus.smallImageThreshold = nextThreshold;
 	deleteImagesSmallerThan(nextThreshold * nextThreshold);
@@ -3511,7 +3498,6 @@ function getBestImageSrc()
 	if(!images)
 		return;
 	let i = images.length;
-	let count = 0;
 	while(i--)
 	{
 		const image = images[i];
@@ -3520,7 +3506,6 @@ function getBestImageSrc()
 		let srcset = set1 || set2;
 		if(!srcset)
 			continue;
-		count++;
 		srcset = srcset.replace(/, /g, "|");
 		if(srcset)
 		{
@@ -3671,7 +3656,7 @@ function persistStreamingImages(minSize)
 	{
 		const image = unsavedImages[i];
 		const imgSrc = image.src;
-		if(images.includes(imgSrc) || (getImageWidth(image) * getImageHeight(image) < minArea))
+		if(images.includes(imgSrc) || getImageWidth(image) * getImageHeight(image) < minArea)
 			continue;
 		images.push(imgSrc);
 		imageContainer.appendChild(createElement("img", { src: imgSrc, className: "alreadySaved" }));
@@ -3886,7 +3871,7 @@ function replaceEmptyParagraphsWithHr()
 {
 	function containsOnlyAsterisks(elem)
 	{
-		return (~elem.textContent.indexOf("*") && elem.textContent.replace(/[\*\s]+/g, "").length === 0);
+		return ~elem.textContent.indexOf("*") && elem.textContent.replace(/[\*\s]+/g, "").length === 0;
 	}
 	const paras = get("p");
 	let i = paras.length;
@@ -4686,7 +4671,7 @@ function toggleContentEditable()
 	{
 		showMessageBig("contentEditable OFF");
 		selectedNode.removeAttribute("contentEditable");
-		splitByBrs(selectedNode);
+		splitByBrs(selectedNode, false);
 		Nimbus.isEditing = false;
 	}
 }
@@ -4712,7 +4697,7 @@ function humanizeUrl(url)
 
 function isEmptyLink(link)
 {
-	return !(getTextLength(link) || link.getElementsByTagName("img").length)
+	return !(getTextLength(link) || link.getElementsByTagName("img").length);
 }
 
 function toggleShowEmptyLinksAndSpans()
@@ -5027,7 +5012,6 @@ function groupAdjacentElements(selector, parentTag, childTag)
 				break;
 		}
 	}
-	const copyOrClone = childTagName === "same" ? cloneElement : convertElement;
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
@@ -5283,7 +5267,7 @@ function logout()
 		if(node.href)
 		{
 			const s = normalizeString(node.href);
-			if((~s.indexOf("logout") && s.indexOf("logout_gear") === -1) || ~s.indexOf("signout"))
+			if(~s.indexOf("logout") && s.indexOf("logout_gear") === -1 || ~s.indexOf("signout"))
 			{
 				found = true;
 				showMessageBig(node.href);
@@ -5584,7 +5568,7 @@ function selectByTagNameAndText(tagName, text)
 	tagName = tagName.toUpperCase();
 
 	if(tagName === "A" || tagName === "IMG")
-		return(selectBySelectorAndText(tagName, text));
+		return selectBySelectorAndText(tagName, text);
 
 	text = text.toLowerCase();
 	const MAX_DEPTH = 5;
@@ -5746,7 +5730,7 @@ function removeAllAttributesExcept(elem, attrToKeep)
 	while(i--)
 	{
 		const attr = attrs[i];
-		if(attr && attr.name.toLowerCase() !== attrToKeep)
+		if(attr && attr.name.toLowerCase() !== attrToKeepLower)
 			elem.removeAttribute(attr.name);
 	}
 }
@@ -5761,7 +5745,6 @@ function cleanupAttributes()
 	for(let i = 0; i < elems.length; i++)
 	{
 		const elem = elems[i];
-		const tagName = elem.tagName.toLowerCase();
 		if(elem.attributes)
 		{
 			const attrs = elem.attributes;
@@ -6062,9 +6045,9 @@ function deleteEmptyBlockElements()
 //	For those ancient webpages that still use <font size...> tags to denote headings.
 function replaceFontTags()
 {
-	const fontElements = get("font");
 	const replacements = [];
 	let replacementHeading;
+	const fontElements = get("font");
 	for(let i = 0, ii = fontElements.length; i < ii; i++)
 	{
 		const fontElem = fontElements[i];
@@ -6194,7 +6177,7 @@ function makeFileLinksRelative()
 	}
 }
 
-function countReferencesTo(idString)
+function countReferencesToId(idString)
 {
 	let idSelector = idString;
 	if(idSelector.indexOf("#") !== 0)
@@ -6226,7 +6209,7 @@ function consolidateAnchors()
 			linkedElement && linkedElement.tagName &&
 			(
 				["CITE", "SPAN"].includes(linkedElement.tagName) ||
-				( linkedElement.tagName === "A" && isEmptyLink(linkedElement) )
+				 linkedElement.tagName === "A" && isEmptyLink(linkedElement)
 			)
 		)
 		{
@@ -7458,15 +7441,15 @@ function highlightAllTextNodesMatching(str)
 
 function highlightBySelectorAndText(selector, str)
 {
-	const elements = selectBySelectorAndText(selector, str);
 	const highlightTagName = Nimbus.highlightTagName;
+	const elements = selectBySelectorAndText(selector, str);
 	let i = elements.length;
 	showMessageBig(`Found ${i} elements`);
 	if(!i)
 		return;
 	if(elements[0].tagName === "TR")
 		while(i--)
-			elements[i].classList.add(Nimbus.trHighlightClass[Nimbus.highlightTagName]);
+			elements[i].classList.add(Nimbus.trHighlightClass[highlightTagName]);
 	else
 		highlightElements(elements);
 	insertStyleHighlight();
@@ -7599,7 +7582,6 @@ function highlightTextAcrossTags(node, searchString)
 		const childNodeText = childNode.textContent;
 		childNodeEnd += childNodeText.length;
 		let partialSearchString;
-		let isPartialMatch = false;
 		let matchType = null;
 
 		//	If any part of the selection is contained in an element of these types, highlight the entire element
@@ -7616,9 +7598,8 @@ function highlightTextAcrossTags(node, searchString)
 
 		if(index1 >= childNodeStart && index1 < childNodeEnd)
 		{
-			isPartialMatch = true;
 			partialSearchString = childNodeText.substring(index1 - childNodeStart, index1 - childNodeStart + searchString.length);
-			matchType = MATCH_TYPE.CONTAINS_BEGINNING;
+			splitMatches.push({ searchString: partialSearchString, node: childNode, matchType: MATCH_TYPE.CONTAINS_BEGINNING });
 		}
 		else if(index1 < childNodeStart && index2 > childNodeEnd)
 		{
@@ -7626,19 +7607,8 @@ function highlightTextAcrossTags(node, searchString)
 		}
 		else if(index2 > childNodeStart && index2 <= childNodeEnd)
 		{
-			isPartialMatch = true;
 			partialSearchString = childNodeText.substring(0, index2 - childNodeStart);
-			if(childNodeText.length - partialSearchString.length < 10)
-				partialSearchString = childNodeText;
-			matchType = MATCH_TYPE.CONTAINS_END;
-		}
-
-		if(isPartialMatch && partialSearchString.length > 2)
-		{
-			if(childNode.nodeType === 1)
-				wrapElementInner(childNode, Nimbus.highlightTagName);
-			else
-				splitMatches.push({ searchString: partialSearchString, node: childNode, matchType });
+			splitMatches.push({ searchString: partialSearchString, node: childNode, matchType: MATCH_TYPE.CONTAINS_END });
 		}
 	}
 	highlightSplitMatches(splitMatches);
@@ -8062,7 +8032,6 @@ function handleKeyDown(e)
 			case KEYCODES.N: callFunctionWithArgs("Delete numbered divs in range", delRange); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string (case-sensitive)", highlightAllMatchesInDocumentCaseSensitive, true); break;
 			case KEYCODES.P: getPagerLinks(); break;
-			case KEYCODES.Q: rescueOrphanedTextNodes(); break;
 			case KEYCODES.R: wrapMarkedElement(); break;
 			case KEYCODES.U: moveElementUp("before"); break;
 			case KEYCODES.D: moveElementUp("after"); break;
