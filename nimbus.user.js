@@ -61,7 +61,6 @@ const Nimbus = {
 		cleanupHeadings: cleanupHeadings,
 		cleanupLinks: cleanupLinks,
 		consolidateAnchors: consolidateAnchors,
-		convertDivsToParagraphs: convertDivsToParagraphs,
 		copyAttribute: copyAttribute,
 		count: count,
 		createListsFromBulletedParagraphs: createListsFromBulletedParagraphs,
@@ -222,6 +221,7 @@ const Nimbus = {
 		selectElementsStartingWithText: selectElementsStartingWithText,
 		setAttributeOf: setAttributeOf,
 		setDocTitle: setDocTitle,
+		setItalicTag: setItalicTag,
 		setMarkerClass: setMarkerClass,
 		setQueryParameter: setQueryParameter,
 		setReplacementTag: setReplacementTag,
@@ -273,7 +273,7 @@ const Nimbus = {
 	minPersistSize: 800,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
-	BLOCK_ELEMENTS: ["DIV", "P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE", "HR"],
+	BLOCK_ELEMENTS: ["DIV", "P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "OL", "UL", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE", "HR"],
 	italicTag: "i",
 };
 
@@ -335,7 +335,10 @@ const STYLES = {
 		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
 		ul, ol { box-shadow: inset 2px 2px #0A0, inset -2px -2px #0A0; }
 		li { box-shadow: inset 2px 2px #070, inset -2px -2px #070; }
-		font, small, span, abbr, cite { box-shadow: inset 2px 2px #AA0, inset -2px -2px #AA0; }
+		span { box-shadow: inset 2px 2px #AA0, inset -2px -2px #AA0; }
+		font { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; }
+		abbr { box-shadow: inset 2px 2px #A00, inset -2px -2px #A00; }
+		cite { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0C0; }
 		h1, h2, h3, h4, h5, h6 { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; }
 		p { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; }
 		mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 2px 2px #888, inset -2px -2px #888; }
@@ -846,25 +849,11 @@ function padRight(str, width)
 	return str + spaces;
 }
 
-function normalizeWhitespace(str)
-{
-	return str.replace(/\s+/g, " ");
-}
-
-function removeWhitespace(str)
-{
-	return str.replace(/\s+/g, '');
-}
-
-function normalizeString(str)
-{
-	return removeWhitespace(str.toLowerCase());
-}
-
-function normalizeHTML(html)
-{
-	return html.replace(/&nbsp;/g, " ").replace(/\s+/g, " ");
-}
+function normalizeWhitespace(str) { return str.replace(/\s+/g, " "); }
+function removeWhitespace(str) { return str.replace(/\s+/g, ''); }
+function normalizeString(str) { return removeWhitespace(str.toLowerCase()); }
+function normalizeHTML(html) { return html.replace(/&nbsp;/g, " ").replace(/\s+/g, " "); }
+function removeNonAlpha(str) { return str.replace(/[^A-Za-z]/g, ''); }
 
 function escapeHTML(html)
 {
@@ -915,11 +904,6 @@ function startsWithAnyOfTheStrings(s, arrStrings)
 	return false;
 }
 
-function removeNonAlpha(str)
-{
-	return str.replace(/[^A-Za-z]/g, '');
-}
-
 function fixLineBreaks()
 {
 	const spans = get("span");
@@ -947,40 +931,41 @@ function joinByBrs(selector)
 	}
 }
 
-function splitByBrs(selectorOrElement, shouldGroup = true)
+function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 {
 	const elems = typeof selectorOrElement === "string" ? get(selectorOrElement) : [selectorOrElement];
-	const tagMap = {
-		"H1": "H1",
-		"H2": "H2",
-		"H3": "H3",
-		"H4": "H4",
-		"H5": "H5",
-		"H6": "H6",
-		"BLOCKQUOTE": "BLOCKQUOTE",
-	};
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
-		const elemTagName = elem.tagName;
-		const childTagName = tagMap[elemTagName] || "P";
-		let elemHtml = elem.innerHTML;
-		if(elemHtml.indexOf("<br") === -1)
-			continue;
-		elemHtml = elemHtml.replace(/<br[^>]*>/g, '<br>');
-		const splat = elemHtml.split("<br>");
-		const replacement = shouldGroup ? document.createElement("blockquote") : document.createDocumentFragment();
-		for(let j = 0, jj = splat.length; j < jj; j++)
+		const WRAPPER_TAGNAME = (wrapperTagName || elem.tagName).toUpperCase();
+		const CHILD_TAGNAME = (childTagName || "P").toUpperCase();
+		const elemChildNodes = elem.childNodes;
+		const groups = [];
+		let nodeGroup = [];
+		for(let i = 0, ii = elemChildNodes.length; i < ii; i++)
 		{
-			const str = splat[j];
-			if(!removeWhitespace(str).length)
-				continue;
-			const child = createElement(childTagName, { textContent: str.replace(/<[^<>]+>/g, "") });
-			if(j === 0 && elem.id)
-				child.id = elem.id;
-			replacement.appendChild(child);
+			let node = elemChildNodes[i];
+			if(node.nodeType === 1 && node.tagName === "BR")
+			{
+				if(nodeGroup.length)
+				{
+					groups.push(nodeGroup.slice());
+					nodeGroup = [];
+				}
+			}
+			else if(getTextLength(node))
+			{
+				nodeGroup.push(node);
+			}
 		}
-		elem.parentNode.replaceChild(replacement, elem);
+		groups.push(nodeGroup);
+		if(groups.length > 1)
+		{
+			const replacementWrapper = WRAPPER_TAGNAME === "P" ? document.createDocumentFragment() : document.createElement(WRAPPER_TAGNAME);
+			for(let i = 0, ii = groups.length; i < ii; i++)
+				replacementWrapper.appendChild(createElementWithChildren(CHILD_TAGNAME, ...groups[i]));
+			elem.parentNode.replaceChild(replacementWrapper, elem);
+		}
 	}
 }
 
@@ -1061,10 +1046,7 @@ function replaceSpecialCharacters()
 	}
 }
 
-function replaceTables()
-{
-	replaceElementsBySelector("table, tbody, tr, td, th, thead", "div");
-}
+function replaceTables() { replaceElementsBySelector("table, tbody, tr, td, th, thead", "div"); }
 
 function replaceNonStandardElements()
 {
@@ -1347,10 +1329,8 @@ function showLog(prepend)
 	}
 }
 
-function htmlToText(elem)
-{
-	elem.textContent = elem.textContent;
-}
+function htmlToText(elem) { elem.textContent = elem.textContent; }
+function emptyElement(elem) { if(elem) elem.textContent = ''; }
 
 function createSelector(elem)
 {
@@ -1369,12 +1349,6 @@ function createClassSelector(elem)
 	if(elem.className)
 		return "." + Array.from(elem.classList).join('.').replace(makeClassSelector(Nimbus.markerClass), "");
 	return false;
-}
-
-function emptyElement(elem)
-{
-	if(elem)
-		elem.textContent = '';
 }
 
 function toggleClass(element, className)
@@ -1402,30 +1376,13 @@ function cycleClass(elem, arrClasses)
 		}
 	}
 	if(!found)
-	{
 		elem.classList.add(arrClasses[0]);
-	}
 }
 
-function insertBefore(anchorElement, elementToInsert)
-{
-	anchorElement.insertAdjacentElement("beforebegin", elementToInsert);
-}
-
-function insertAfter(anchorElement, elementToInsert)
-{
-	anchorElement.insertAdjacentElement("afterend", elementToInsert);
-}
-
-function insertAsFirstChild(anchorElement, elementToInsert)
-{
-	anchorElement.insertAdjacentElement("afterbegin", elementToInsert);
-}
-
-function insertAsLastChild(anchorElement, elementToInsert)
-{
-	anchorElement.insertAdjacentElement("beforeend", elementToInsert);
-}
+function insertBefore(anchorElement, elementToInsert) { anchorElement.insertAdjacentElement("beforebegin", elementToInsert); }
+function insertAfter(anchorElement, elementToInsert) { anchorElement.insertAdjacentElement("afterend", elementToInsert); }
+function insertAsFirstChild(anchorElement, elementToInsert) { anchorElement.insertAdjacentElement("afterbegin", elementToInsert); }
+function insertAsLastChild(anchorElement, elementToInsert) { anchorElement.insertAdjacentElement("beforeend", elementToInsert); }
 
 function createElementWithChildren(tagName, ...children)
 {
@@ -1588,11 +1545,6 @@ function replaceElementsBySelector(selector, tagName)
 	}
 }
 
-function cloneElement(elem)
-{
-	return convertElement(elem, elem.tagName);
-}
-
 function convertElement(elem, tagName)
 {
 	const replacement = document.createElement(tagName);
@@ -1602,6 +1554,8 @@ function convertElement(elem, tagName)
 	replacement.id = elem.id;
 	return replacement;
 }
+
+function cloneElement(elem) { return convertElement(elem, elem.tagName); }
 
 function replaceElement(elem, tagName)
 {
@@ -1799,10 +1753,7 @@ function createListsFromBulletedParagraphs()
 	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "li");
 }
 
-function hasChildrenOfType(elem, selector)
-{
-	return elem.querySelector(selector).length ? true : false;
-}
+function hasChildrenOfType(elem, selector) { return elem.querySelector(selector).length ? true : false; }
 
 function removeClassFromAll(className)
 {
@@ -1902,7 +1853,7 @@ function toNumber(str)
 
 function selectRandom(arr)
 {
-	if(!(arr && arr.length)) return;
+	if(!(arr && arr.length)) throw new Error(arr);
 	return arr[Math.floor(Math.random() * arr.length)];
 }
 
@@ -1922,7 +1873,6 @@ function debugVars(params)
 
 function getNext(item, arr)
 {
-	// debugVars({ item, arr });
 	let nextItem = arr[0];
 	const index = arr.indexOf(item);
 	if(~index)
@@ -3826,29 +3776,6 @@ function slideshowChangeSlide(direction)
 	}
 }
 
-function convertDivsToParagraphs()
-{
-	const divs = get("div");
-	let i = divs.length;
-	while(i--)
-	{
-		const div = divs[i];
-		if(div.getElementsByTagName("div").length)
-			continue;
-		let s = div.innerHTML;
-		s = s.replace(/&nbsp;/g, ' ').replace(/\s+/g, '');
-		if(s.length)
-		{
-			if(! (s[0] === '<' && s[1].toLowerCase() === "p"))
-				div.innerHTML = '<p>' + div.innerHTML + '</p>';
-		}
-		else
-		{
-			div.remove();
-		}
-	}
-}
-
 function replaceIncorrectHeading()
 {
 	let heading1, heading1link, temp;
@@ -4097,23 +4024,6 @@ function restorePres()
 
 function fixParagraphs()
 {
-	fixPres();
-	convertDivsToParagraphs();
-	let s = document.body.innerHTML;
-	s = s.replace(/\s*<br>\s*/g, "<br>");
-	s = s.replace(/<br>([a-z])/g, " $1");
-	s = s.replace(/\s*<p>\s*/g, "<p>");
-	s = s.replace(/\s*<\/p>\s*/g, "</p>");
-	s = s.replace(/([a-z\-0-9,])<\/p>\s*<p>([A-Za-z0-9])/g, "$1 $2");
-	s = s.replace(/<br>/g, "</p><p>");
-	s = s.replace(/&nbsp;/g, " ");
-	s = s.replace(/\s+/g, " ");
-	//s = s.replace(/<p>\s*<\/p>/g, "");
-	//s = s.replace(/<\/p>\s*<p>/g, "</p>\r\n<p>");
-	s = s.replace(/<p/g, "\r\n<p");
-	s = s.replace(/<div/g, "\r\n<div");
-	document.body.innerHTML = s;
-	restorePres();
 	deleteEmptyElements("p");
 	cleanupHeadings();
 	convertOrphanedTextNodesToParagraphs(false);
@@ -4671,7 +4581,7 @@ function toggleContentEditable()
 	{
 		showMessageBig("contentEditable OFF");
 		selectedNode.removeAttribute("contentEditable");
-		splitByBrs(selectedNode, false);
+		splitByBrs(selectedNode);
 		Nimbus.isEditing = false;
 	}
 }
@@ -4918,11 +4828,6 @@ function changePage(direction)
 	}
 }
 
-function setMarkerClass(str)
-{
-	Nimbus.markerClass = str;
-}
-
 function cycleHighlightTag()
 {
 	const nextTag = getNext(Nimbus.highlightTagName, Nimbus.highlightTagNameList);
@@ -4939,10 +4844,9 @@ function resetHighlightTag()
 	Nimbus.highlightTagName = nextTag;
 }
 
-function setReplacementTag(tagName)
-{
-	Nimbus.replacementTagName = tagName;
-}
+function setMarkerClass(str) { Nimbus.markerClass = str; }
+function setReplacementTag(tagName) { Nimbus.replacementTagName = tagName; }
+function setItalicTag(tagName) { Nimbus.italicTag = tagName; }
 
 function moveElementUp(position)
 {
@@ -5037,15 +4941,8 @@ function groupAdjacentElements(selector, parentTag, childTag)
 	}
 }
 
-function makeUL()
-{
-	groupAdjacentElements(makeClassSelector(Nimbus.markerClass), "ul", "li");
-}
-
-function makeOL()
-{
-	groupAdjacentElements(makeClassSelector(Nimbus.markerClass), "ol", "li");
-}
+function makeUL() { groupAdjacentElements(makeClassSelector(Nimbus.markerClass), "ul", "li"); }
+function makeOL() { groupAdjacentElements(makeClassSelector(Nimbus.markerClass), "ol", "li"); }
 
 function makeDocumentHierarchical()
 {
@@ -5600,9 +5497,12 @@ function selectByTagNameAndText(tagName, text)
 
 function getFirstBlockParent(node)
 {
-       const blockSelector = Nimbus.BLOCK_ELEMENTS.join();
-       const elem = node.nodeType === 1 ? node : node.parentNode;
-       return elem.closest(blockSelector);
+	const t1 = new Date();
+	const blockSelector = Nimbus.BLOCK_ELEMENTS.join();
+	const elem = node.nodeType === 1 ? node : node.parentNode;
+	return elem.closest(blockSelector);
+	const t2 = new Date();
+	console.log(t2 - t1);
 }
 
 function getFirstTextChild(elem)
@@ -6341,8 +6241,8 @@ function deleteNonContentLinks()
 //	to remove the redundant numbering or bullets from the list items.
 function fixBullets()
 {
-	const BULLET_REGEX = /^\u2022/;
-	const NUMERICBULLET_REGEX = /^[0-9]+[\.\)]?/;
+	const BULLET_REGEX = /^\s*\u2022/;
+	const NUMERICBULLET_REGEX = /^\s*[0-9]+[\.\)]?/;
 	let ulCount = 0;
 	let olCount = 0;
 	const lis = get("ol > li");
@@ -7293,11 +7193,10 @@ function insertHrBeforeAll(selector)
 		insertBefore(elems[i], document.createElement("hr"));
 }
 
-function getTextLength(elem)
+function getTextLength(node)
 {
-	if(!elem.textContent)
-		return 0;
-	return elem.textContent.replace(/[^\u0021-\u007e]/g, "").length;
+	const text = node.nodeType === 1 ? node.textContent : node.data;
+	return text.replace(/[^\u0021-\u007e]/g, "").length;
 }
 
 function getAlphaNumericTextLength(elem)
