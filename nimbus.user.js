@@ -931,12 +931,23 @@ function joinByBrs(selector)
 	}
 }
 
+function hasDirectChildrenOfType(elem, tagName)
+{
+	const children = elem.children;
+	if(!children.length) return false;
+	for(let i = 0, ii = children.length; i < ii; i++)
+		if(children[i].tagName === tagName) return true;
+	return false;
+}
+
 function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 {
 	const elems = typeof selectorOrElement === "string" ? get(selectorOrElement) : [selectorOrElement];
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
+		if(!hasDirectChildrenOfType(elem, "BR"))
+			continue;
 		const WRAPPER_TAGNAME = (wrapperTagName || elem.tagName).toUpperCase();
 		const CHILD_TAGNAME = (childTagName || "P").toUpperCase();
 		const elemChildNodes = elem.childNodes;
@@ -967,6 +978,19 @@ function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 			elem.parentNode.replaceChild(replacementWrapper, elem);
 		}
 	}
+}
+
+function replaceBrs()
+{
+	const brs = get("br");
+	for(let i = 0, ii = brs.length; i < ii; i++)
+	{
+		const parent = getFirstBlockParent(brs[i]);
+		if(parent) parent.classList.add("hasBrs");
+	}
+	const elems = get(".hasBrs");
+	for(let i = 0, ii = elems.length; i < ii; i++)
+		splitByBrs(elems[i]);
 }
 
 function replaceDiacritics(str)
@@ -4024,6 +4048,7 @@ function restorePres()
 
 function fixParagraphs()
 {
+	replaceBrs();
 	deleteEmptyElements("p");
 	cleanupHeadings();
 	convertOrphanedTextNodesToParagraphs(false);
@@ -5497,12 +5522,9 @@ function selectByTagNameAndText(tagName, text)
 
 function getFirstBlockParent(node)
 {
-	const t1 = new Date();
 	const blockSelector = Nimbus.BLOCK_ELEMENTS.join();
 	const elem = node.nodeType === 1 ? node : node.parentNode;
 	return elem.closest(blockSelector);
-	const t2 = new Date();
-	console.log(t2 - t1);
 }
 
 function getFirstTextChild(elem)
