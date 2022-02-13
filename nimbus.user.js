@@ -964,7 +964,7 @@ function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 					nodeGroup = [];
 				}
 			}
-			else if(getTextLength(node))
+			else if(getTextLength(node) || ( node.nodeType === 1 && node.getElementsByTagName("img").length ) )
 			{
 				nodeGroup.push(node);
 			}
