@@ -36,6 +36,8 @@ let consoleLog = noop;
 let consoleWarn = noop;
 let consoleError = noop;
 
+const isDebugMode = true;
+
 const Nimbus = {
 	logString: "",
 	messageTimeout: null,
@@ -189,6 +191,7 @@ const Nimbus = {
 		removeQueryStringFromLinks: removeQueryStringFromLinks,
 		removeSpanTags: removeSpanTags,
 		replaceAudio: replaceAudio,
+		replaceBrs: replaceBrs,
 		replaceByClassOrIdContaining: replaceByClassOrIdContaining,
 		replaceClass: replaceClass,
 		replaceClassesWithCustomElements: replaceClassesWithCustomElements,
@@ -256,7 +259,7 @@ const Nimbus = {
 		currentIndex: -1,
 	},
 	highlightTagName: "mark",
-	highlightTagNameList: ["mark", "markyellow", "markred", "markgreen", "markblue", "markpurple", "markwhite"],
+	highlightTagNameList: ["mark", "markyellow", "markpurple", "markgreen", "markblue", "markred", "markwhite"],
 	smallImageThreshold: 50,
 	smallImageThresholdList: [100, 200, 300, 400, 500, 600],
 	trHighlightClass: {
@@ -273,7 +276,7 @@ const Nimbus = {
 	minPersistSize: 800,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
-	BLOCK_ELEMENTS: ["DIV", "P", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "OL", "UL", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE", "HR"],
+	BLOCK_ELEMENTS: ["DIV", "P", "BLOCKQUOTE", "HGROUP", "H1", "H2", "H3", "H4", "H5", "H6", "OL", "UL", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE", "HR"],
 	italicTag: "i",
 };
 
@@ -329,7 +332,7 @@ const STYLES = {
 		button { background: #111; border: 1px solid #555; }
 		img, svg { opacity: 0.5; }
 	`,
-	GRAYSCALE: 'html { filter: saturate(0); }',
+	GRAYSCALE: 'body * { filter: saturate(0); }',
 	OUTLINE_ELEMENTS: `header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
 		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
 		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
@@ -964,7 +967,7 @@ function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 					nodeGroup = [];
 				}
 			}
-			else if(getTextLength(node) || ( node.nodeType === 1 && node.getElementsByTagName("img").length ) )
+			else if(getTextLength(node) || ( node.nodeType === 1 && (node.tagName === "IMG" || node.getElementsByTagName("img").length) ) )
 			{
 				nodeGroup.push(node);
 			}
@@ -1661,14 +1664,14 @@ function markByClassOrIdContaining(str)
 
 function hasAdjacentBlockElement(node)
 {
+	const blockElements = Nimbus.BLOCK_ELEMENTS;
 	const prevSib = node.previousSibling;
 	const prevElemSib = node.previousElementSibling;
 	const nextSib = node.nextSibling;
 	const nextElemSib = node.nextElementSibling;
-	// console.log(prevSib, prevElemSib, nextSib, nextElemSib);
-	if(prevSib && prevElemSib && prevSib === prevElemSib && Nimbus.BLOCK_ELEMENTS.includes(prevElemSib.tagName))
+	if(prevSib && prevElemSib && prevSib === prevElemSib && blockElements.includes(prevElemSib.tagName))
 		return true;
-	if(nextSib && nextElemSib && nextSib === nextElemSib && Nimbus.BLOCK_ELEMENTS.includes(nextElemSib.tagName))
+	if(nextSib && nextElemSib && nextSib === nextElemSib && blockElements.includes(nextElemSib.tagName))
 		return true;
 	return false;
 }
@@ -1942,12 +1945,10 @@ function log2(str)
 	document.body.appendChild(createElement("h2", { className: "xlog", innerHTML: str }));
 }
 
-function logStringShowingSpaces(str, varName)
+function logString(str, varName)
 {
-	if(varName)
-		console.log("\t" + varName + ":", str.replace(/\s/g, "_"));
-	else
-		console.log("\t" + str.replace(/\s/g, "_"));
+	if(varName) consoleLog(`%c${varName}`, "color: #AAA; background: #008;");
+	consoleLog(`%c${str}`, "color: #AAA; background: #555;");
 }
 
 function logAllClassesForCommonElements()
@@ -2100,12 +2101,13 @@ function refreshScreen()
 
 function showMessage(messageHtml, msgClass, persist)
 {
+	const MESSAGE_TIMEOUT = 2000;
 	clearTimeout(Nimbus.messageTimeout);
 	let messageContainer;
 	let messageInner;
 	msgClass = msgClass || "";
 	const strStyle = `
-		message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; height: 30px; line-height: 30px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2147483647; }
+		message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; height: 30px; line-height: 30px; position: fixed; top: calc(100vh - 60px); left: 0; width: 100%; z-index: 2147483647; }
 		messageinner { display: block; max-width: 1200px; margin: 0 auto; text-align: left; }
 		message.messagebig { font: 32px "Swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }
 		message.messageerror { color: #FFF; background: #500; }
@@ -2133,7 +2135,7 @@ function showMessage(messageHtml, msgClass, persist)
 	if(msgClass)
 		console.log("Nimbus: \t " + messageInner.textContent);
 	if(!persist)
-		Nimbus.messageTimeout = setTimeout(deleteMessage, 2000);
+		Nimbus.messageTimeout = setTimeout(deleteMessage, MESSAGE_TIMEOUT);
 }
 
 function showMessageBig(messageHtml, persist = false)
@@ -3273,8 +3275,9 @@ function filterNodesFollowingNodesOfType(nodes, selector)
 	while(i--)
 	{
 		const node = nodes[i];
+		const prevSibling = node.previousSibling;
 		const prevElement = node.previousElementSibling;
-		if(prevElement && prevElement.matches(selector))
+		if(prevElement && prevElement === prevSibling && prevElement.matches(selector))
 			result.push(node);
 	}
 	return result;
@@ -3287,8 +3290,9 @@ function filterNodesPrecedingNodesOfType(nodes, selector)
 	while(i--)
 	{
 		const node = nodes[i];
+		const nextSibling = node.nextSibling;
 		const nextElement = node.nextElementSibling;
-		if(nextElement && nextElement.matches(selector))
+		if(nextElement && nextElement === nextSibling && nextElement.matches(selector))
 			result.push(node);
 	}
 	return result;
@@ -6131,7 +6135,7 @@ function consolidateAnchors()
 			linkedElement && linkedElement.tagName &&
 			(
 				["CITE", "SPAN"].includes(linkedElement.tagName) ||
-				 linkedElement.tagName === "A" && isEmptyLink(linkedElement)
+				linkedElement.tagName === "A" && isEmptyLink(linkedElement)
 			)
 		)
 		{
@@ -7403,7 +7407,6 @@ function expandSelectionToWordBoundaries(node, selection)
 	while(text[index2] && text[index2].match(regexRight) && index2 < text.length)
 		index2++;
 	const expanded = text.substring(index1, index2).replace(/\s+/g, " ").trim();
-	consoleLog("expanded to word boundaries: \n" + expanded);
 	return expanded;
 }
 
@@ -7432,7 +7435,6 @@ function expandSelectionToSentenceBoundaries(node, selection)
 	if(index2 > text.length - 10)
 		index2 = text.length;
 	const expanded = text.substring(index1, index2).replace(/\s+/g, " ").trim();
-	consoleLog("expanded to sentence boundaries: \n" + expanded);
 	return expanded;
 }
 
@@ -7464,6 +7466,14 @@ function consolidateMarksInNode(node)
 	}
 }
 
+function getNodeText(node)
+{
+	if(!node.nodeType)
+		throw new Error(node);
+	if(node.nodeType === 1) return node.textContent;
+	if(node.nodeType === 3) return node.data;
+}
+
 //	This function solves the problem of highlighting text in an HTML element when that text
 //	spans other HTML elements, such as span, b, or em tags. It works by finding the
 //	starting and ending indices of the search string in the textContent of the parent element,
@@ -7472,6 +7482,7 @@ function consolidateMarksInNode(node)
 //	element's childNodes. We can then highlight each split substring inside the childNodes.
 function highlightTextAcrossTags(node, searchString)
 {
+	logString(searchString, "highlightTextAcrossTags: searchString");
 	searchString = searchString.replace(/\s+/g, " ");
 	const searchStringEscaped = escapeHTML(searchString);
 	const nodeHTML = node.innerHTML;
@@ -7488,11 +7499,12 @@ function highlightTextAcrossTags(node, searchString)
 	if(index1 === -1)
 	{
 		showMessageError("highlightTextAcrossTags: string not found in text");
-		logStringShowingSpaces(searchString, "searchString");
-		logStringShowingSpaces(nodeText, "nodeText");
+		logString(searchString, "searchString");
+		logString(nodeText, "nodeText");
 		return;
 	}
 	let index2 = index1 + searchString.length;
+	consoleLog('Search string spans', index1, '-', index2);
 	const childNodes = node.childNodes;
 	let childNodeEnd = 0;
 	const splitMatches = [];
@@ -7500,39 +7512,45 @@ function highlightTextAcrossTags(node, searchString)
 	{
 		const childNode = childNodes[j];
 		const childNodeStart = childNodeEnd;
-		const childNodeText = childNode.textContent;
+		const childNodeText = getNodeText(childNode);
+		const childNodeTagName = childNode.nodeType === 1 ? childNode.tagName : "text node";
 		childNodeEnd += childNodeText.length;
-		let partialSearchString;
-		let matchType = null;
 
 		//	If any part of the selection is contained in an element of these types, highlight the entire element
 		if(["I", "B", "EM", "STRONG", "REFERENCE", "CITE"].includes(childNode.tagName))
 		{
 			if(
 				index1 >= childNodeStart && index1 < childNodeEnd ||
-				index1 < childNodeStart && index2 > childNodeEnd ||
-				index2 > childNodeStart && index2 <= childNodeEnd
+				index1 <= childNodeStart && index2 >= childNodeEnd ||
+				index2 >= childNodeStart && index2 <= childNodeEnd
 			)
 				wrapElement(childNode, Nimbus.highlightTagName);
 			continue;
 		}
 
-		if(index1 >= childNodeStart && index1 < childNodeEnd)
+		consoleLog(childNodeStart, '-', childNodeEnd);
+		if(index1 <= childNodeStart && index2 >= childNodeEnd)
 		{
-			partialSearchString = childNodeText.substring(index1 - childNodeStart, index1 - childNodeStart + searchString.length);
-			splitMatches.push({ searchString: partialSearchString, node: childNode, matchType: MATCH_TYPE.CONTAINS_BEGINNING });
-		}
-		else if(index1 < childNodeStart && index2 > childNodeEnd)
-		{
+			consoleLog(`%c${getNodeText(childNode)}`, "color: #ABD; background: #008;", "is contained in the search string");
 			wrapElement(childNode, Nimbus.highlightTagName);
+		}
+		else if(index1 > childNodeStart && index1 <= childNodeEnd)
+		{
+			consoleLog(`%c${getNodeText(childNode)}`, "color: #ABD; background: #008;", "contains the beginning of the search string");
+			const partialSearchString = childNodeText.substring(index1 - childNodeStart, index1 - childNodeStart + searchString.length);
+			if(partialSearchString.length)
+				splitMatches.push({ searchString: partialSearchString, node: childNode, matchType: MATCH_TYPE.CONTAINS_BEGINNING });
 		}
 		else if(index2 > childNodeStart && index2 <= childNodeEnd)
 		{
-			partialSearchString = childNodeText.substring(0, index2 - childNodeStart);
-			splitMatches.push({ searchString: partialSearchString, node: childNode, matchType: MATCH_TYPE.CONTAINS_END });
+			consoleLog(`%c${getNodeText(childNode)}`, "color: #ABD; background: #008;", "contains the end of the search string");
+			const partialSearchString = childNodeText.substring(0, index2 - childNodeStart);
+			if(partialSearchString.length)
+				splitMatches.push({ searchString: partialSearchString, node: childNode, matchType: MATCH_TYPE.CONTAINS_END });
 		}
 	}
-	highlightSplitMatches(splitMatches);
+	if(splitMatches.length)
+		highlightSplitMatches(splitMatches);
 	consolidateMarksInNode(node);
 }
 
@@ -7542,7 +7560,7 @@ function highlightSplitMatches(splitMatches)
 	{
 		const splitMatch = splitMatches[i];
 		const node = splitMatch.node;
-		const nodeText = node.data;
+		const nodeText = node.textContent || node.data;
 		const searchString = splitMatch.searchString;
 		const replacement = document.createDocumentFragment();
 		if(splitMatch.matchType === MATCH_TYPE.CONTAINS_BEGINNING)
@@ -7663,8 +7681,9 @@ function replaceInTextNodes(searchString, replacement, isRegex)
 		showMessageBig(`${replCount} occurrences of "${searchString}" replaced with "${replacement}"`);
 }
 
-function highlightInTextNode(textNode, regex)
+function highlightInTextNode(textNode, regex, highlightTagName)
 {
+	const tagName = highlightTagName || Nimbus.highlightTagName;
 	const nodeText = textNode.data;
 	if(!nodeText.match(regex))
 		return;
@@ -7680,7 +7699,7 @@ function highlightInTextNode(textNode, regex)
 		const matchIndex = match.index;
 		if(matchIndex > lastIndex)
 			replacementNodes.push(document.createTextNode(nodeText.substring(lastIndex, matchIndex)));
-		replacementNodes.push(createElement(Nimbus.highlightTagName, { textContent: matchedString }));
+		replacementNodes.push(createElement(tagName, { textContent: matchedString }));
 		lastIndex = matchIndex + matchedString.length;
 	}
 	if(lastIndex < nodeText.length)
@@ -7695,6 +7714,14 @@ function highlightAllStrings(...args)
 {
 	for(const arg of args)
 		highlightAllMatchesInDocument(arg);
+}
+
+function highlightCodePunctuation()
+{
+	const preTextNodes = getXpathResultAsArray("//pre//text()");
+	const regex = /[\{\}\[\]\(\)]/g;
+	for(let i = 0, ii = preTextNodes.length; i < ii; i++)
+		highlightInTextNode(preTextNodes[i], regex, "xp");
 }
 
 function highlightAllMatchesInDocument(str, isCaseSensitive = false)
@@ -7829,6 +7856,8 @@ function inject()
 	cleanupStackOverflow();
 	Nimbus.pageMetadata = getMetadata();
 	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
+	if(isDebugMode)
+		enableConsoleLogs();
 }
 
 function handleKeyDown(e)
