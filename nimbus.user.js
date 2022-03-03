@@ -6360,6 +6360,35 @@ function retrieve(selector)
 	retrieveElements(get(selector));
 }
 
+//	Given an array of selectors, retrieve the corresponding elements, grouping them by index.
+function retrieveGrouped(selectors, wrapperTagName = "section", groupTagName = "hgroup")
+{
+	const nodeLists = new Array(selectors.length);
+	for(let i = 0, ii = selectors.length; i < ii; i++)
+	{
+		const selector = selectors[i];
+		nodeLists[i] = get(selector);
+	}
+	const numGroups = nodeLists[0].length;
+	for(let i = 1; i < numGroups; i++)
+	{
+		if(nodeLists[i].length !== numGroups)
+		{
+			showMessageError("retrieveGrouped: number of elements doesn't match");
+			return;
+		}
+	}
+	const wrapper = document.createElement(wrapperTagName);
+	for(let i = 0, ii = numGroups; i < ii; i++)
+	{
+		const group = document.createElement(groupTagName);
+		for(let j = 0, jj = nodeLists.length; j < jj; j++)
+			group.appendChild(nodeLists[j][i]);
+		wrapper.appendChild(group);
+	}
+	document.body.appendChild(wrapper);
+}
+
 function retrieveBySelectorAndText(selector, text)
 {
 	retrieveElements(selectBySelectorAndText(selector, text));
