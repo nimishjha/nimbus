@@ -175,7 +175,6 @@ const Nimbus = {
 		persistStreamingImages: persistStreamingImages,
 		regressivelyUnenhance: regressivelyUnenhance,
 		remove: remove,
-		removeAccessKeys: removeAccessKeys,
 		removeAllAttributesExcept: removeAllAttributesExcept,
 		removeAllAttributesOf: removeAllAttributesOf,
 		removeAllAttributesOfType: removeAllAttributesOfType,
@@ -3275,7 +3274,7 @@ function filterNodesFollowingNodesOfType(nodes, selector)
 	while(i--)
 	{
 		const node = nodes[i];
-		const prevSibling = node.previousSibling;
+		const prevSibling = node.previousSibling; // asd
 		const prevElement = node.previousElementSibling;
 		if(prevElement && prevElement === prevSibling && prevElement.matches(selector))
 			result.push(node);
@@ -4064,6 +4063,8 @@ function fixDashes()
 	replaceInTextNodes(" - ", "—");
 	replaceInTextNodes(" -", "—");
 	replaceInTextNodes("- ", "—");
+	replaceInTextNodes("— ", "—");
+	replaceInTextNodes(" —", "—");
 }
 
 function looksLikeUrl(str)
@@ -4233,14 +4234,6 @@ function removeColorsFromInlineStyles()
 function deselect()
 {
 	window.getSelection().removeAllRanges();
-}
-
-function removeAccessKeys()
-{
-	const e = get("a");
-	let i = e.length;
-	while(i--)
-		e[i].removeAttribute("accesskey");
 }
 
 function showPassword()
@@ -5903,6 +5896,11 @@ function normaliseWhitespaceForParagraphs()
 	}
 }
 
+function isEmptyTextNode(node)
+{
+	return node.data.replace(/\s+/g, "").length === 0;
+}
+
 function deleteEmptyTextNodes(parentTagName)
 {
 	const parent = parentTagName || "body";
@@ -5911,7 +5909,7 @@ function deleteEmptyTextNodes(parentTagName)
 	for(let i = 0, ii = nodes.length; i < ii; i++)
 	{
 		const node = nodes[i];
-		if(node.data.replace(/\s+/g, "").length === 0)
+		if(isEmptyTextNode(node))
 		{
 			count++;
 			node.remove();
@@ -6375,7 +6373,7 @@ function retrieveGrouped(selectors, wrapperTagName = "section", groupTagName = "
 		if(nodeLists[i].length !== numGroups)
 		{
 			showMessageError("retrieveGrouped: number of elements doesn't match");
-			return;
+			return false;
 		}
 	}
 	const wrapper = document.createElement(wrapperTagName);
@@ -6387,6 +6385,7 @@ function retrieveGrouped(selectors, wrapperTagName = "section", groupTagName = "
 		wrapper.appendChild(group);
 	}
 	document.body.appendChild(wrapper);
+	return true;
 }
 
 function retrieveBySelectorAndText(selector, text)
@@ -7873,9 +7872,8 @@ function isChrome()
 function inject()
 {
 	document.addEventListener("keydown", handleKeyDown, false);
-	document.documentElement.id = document.documentElement.id || "nimbus";
-	document.body.id = document.body.id || "nimbus";
-	removeAccessKeys();
+	// document.documentElement.id = document.documentElement.id || "nimbus";
+	// document.body.id = document.body.id || "nimbus";
 	if(isChrome())
 	{
 		insertStyleHighlight();
@@ -7956,7 +7954,7 @@ function handleKeyDown(e)
 			case KEYCODES.W: cleanupGeneral_light(); break;
 			case KEYCODES.X: removeEmojis(); break;
 			case KEYCODES.Y: callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
-			case KEYCODES.Z: replaceSpecialCharacters(); break;
+			case KEYCODES.Z: replaceSpecialCharacters(); fixDashes(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); cycleFocusOverFormFields(); break;
 			case KEYCODES.DELETE: deleteMarkedElements(); break;
 			case KEYCODES.SQUARE_BRACKET_OPEN: modifyMark("previous"); break;
