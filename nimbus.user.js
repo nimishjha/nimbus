@@ -4508,6 +4508,19 @@ function parseCode(s)
 
 function highlightCode(shouldHighlightKeywords)
 {
+	if(get("pre span[class]").length)
+	{
+		replaceClassesWithCustomElements("pre span", "x");
+		unwrapAll("pre span");
+		return;
+	}
+	else if(get("pre code[class]").length)
+	{
+		replaceClassesWithCustomElements("pre code", "x");
+		unwrapAll("pre code");
+		return;
+	}
+
 	splitByBrsInPres();
 	fixPres();
 	restorePres();
