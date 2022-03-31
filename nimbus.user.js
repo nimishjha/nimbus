@@ -114,7 +114,7 @@ const Nimbus = {
 		getAllCssRulesMatching: getAllCssRulesMatching,
 		getBestImageSrc: getBestImageSrc,
 		getContentByParagraphCount: getContentByParagraphCount,
-		getPagerLinks: getPagerLinks,
+		getPageNavLinks: getPageNavLinks,
 		groupAdjacentElements: groupAdjacentElements,
 		groupMarkedElements: groupMarkedElements,
 		groupUnderHeadings: groupUnderHeadings,
@@ -144,7 +144,6 @@ const Nimbus = {
 		joinParagraphsByLastChar: joinParagraphsByLastChar,
 		listSelectorsWithLightBackgrounds: listSelectorsWithLightBackgrounds,
 		logAllClassesFor: logAllClassesFor,
-		logAllClassesForCommonElements: logAllClassesForCommonElements,
 		makeButtonsReadable: makeButtonsReadable,
 		makeDocumentHierarchical: makeDocumentHierarchical,
 		makeFileLinksRelative: makeFileLinksRelative,
@@ -331,7 +330,7 @@ const STYLES = {
 		button { background: #111; border: 1px solid #555; }
 		img, svg { opacity: 0.5; }
 	`,
-	GRAYSCALE: 'body * { filter: saturate(0); }',
+	GRAYSCALE: 'body * { filter: saturate(0); } img { filter: brightness(0.5); }',
 	OUTLINE_ELEMENTS: `header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
 		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
 		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
@@ -341,7 +340,7 @@ const STYLES = {
 		font { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; }
 		abbr { box-shadow: inset 2px 2px #A00, inset -2px -2px #A00; }
 		cite { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0C0; }
-		h1, h2, h3, h4, h5, h6 { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; }
+		code { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0C0; }
 		p { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; }
 		mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 2px 2px #888, inset -2px -2px #888; }
 		a, a * { background: rgba(180, 255, 0, 0.25); }
@@ -966,7 +965,7 @@ function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 					nodeGroup = [];
 				}
 			}
-			else if(getTextLength(node) || ( node.nodeType === 1 && (node.tagName === "IMG" || node.getElementsByTagName("img").length) ) )
+			else
 			{
 				nodeGroup.push(node);
 			}
@@ -987,7 +986,7 @@ function replaceBrs()
 	const brs = get("br");
 	for(let i = 0, ii = brs.length; i < ii; i++)
 	{
-		const parent = getFirstBlockParent(brs[i]);
+		const parent = brs[i].parentNode;
 		if(parent) parent.classList.add("hasBrs");
 	}
 	const elems = get(".hasBrs");
@@ -1107,11 +1106,11 @@ function sanitizeTitle(titleString)
 		.replace(/\u0142/g, "'l")
 		.replace(/\u2018/g, "'")
 		.replace(/\u2019/g, "'")
-		.replace(/[:|\?]/g, "_")
+		.replace(/[|\?]/g, "")
 		.replace(/[\/]/g, "_")
-		.replace(/[^\+\.\(\)0-9A-Za-z_!@\[\]\-\(\)'",]/g, " ")
-		.replace(/_+/g, " - ")
-		.replace(/\.+/g, "")
+		.replace(/:/g, " - ")
+		.replace(/[^\+\.\(\)0-9A-Za-z_!,@%\[\]\-\(\)']/g, " ")
+		.replace(/_+/g, "-")
 		.replace(/\s+/g, " ");
 
 	return trimSpecialChars(sanitizedTitle);
@@ -1688,7 +1687,7 @@ function isBlockElement(node)
 function rescueOrphanedNodes()
 {
 	deleteEmptyTextNodes();
-	const WRAPPER_TAGNAME = "aside";
+	const WRAPPER_TAGNAME = "P";
 	const nodes = get("*");
 	const numNodes = nodes.length;
 	let count = 0;
@@ -1950,26 +1949,27 @@ function logString(str, varName)
 	consoleLog(`%c${str}`, "color: #AAA; background: #555;");
 }
 
-function logAllClassesForCommonElements()
-{
-	logAllClassesFor("div");
-	logAllClassesFor("h1");
-	logAllClassesFor("h2");
-	logAllClassesFor("h3");
-	logAllClassesFor("p");
-	logAllClassesFor("blockquote");
-	logAllClassesFor("span");
-}
-
 function logAllClassesFor(selector)
 {
-	console.log(selector);
-	console.log("\t" + getAllClassesFor(selector).join("\n\t"));
+	if(typeof selector === "string" && selector.length)
+	{
+		console.log(selector);
+		console.log("\t" + getAllClassesFor(selector).join("\n\t"));
+	}
+	else
+	{
+		logAllClassesFor("div");
+		logAllClassesFor("h1");
+		logAllClassesFor("h2");
+		logAllClassesFor("h3");
+		logAllClassesFor("p");
+		logAllClassesFor("blockquote");
+		logAllClassesFor("span");
+	}
 }
 
 function getAllClassesFor(selector)
 {
-	const t1 = performance.now();
 	let sel = "*";
 	if(selector && selector.length)
 		sel = selector;
@@ -1980,9 +1980,7 @@ function getAllClassesFor(selector)
 	{
 		const classList = Array.from(nodes[i].classList);
 		if(!classList.length)
-		{
 			continue;
-		}
 		const elementClasses = classList.join('.');
 		const elementClassesSanitized = elementClasses.replace(/[^a-zA-Z0-9]+/g, '');
 		classes[elementClassesSanitized] = elementClasses;
@@ -1990,11 +1988,7 @@ function getAllClassesFor(selector)
 	const keys = Object.keys(classes);
 	const result = [];
 	for(let i = 0, ii = keys.length; i < ii; i++)
-	{
 		result.push(classes[keys[i]]);
-	}
-	const t2 = performance.now();
-	consoleLog(t2 - t1 + " ms: getAllClassesFor");
 	return result;
 }
 
@@ -2045,7 +2039,7 @@ function makeIdSelector(id)
 
 function simplifyClassNames(selector)
 {
-	const sel = selector ||  "body *";
+	const sel = selector ||  "div, p, span";
 	const elems = get(sel);
 	const classMap = {};
 	const tagTable = {};
@@ -2786,14 +2780,6 @@ function highlightUserLinks()
 	}
 }
 
-function highlightAuthors()
-{
-	replaceByClassOrIdContaining("author", "author");
-	replaceByClassOrIdContaining("byline", "author");
-	mark("author", "hasChildrenOfType", "author");
-	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "div");
-}
-
 function fixInternalReferences()
 {
 	replaceSupSpanAnchors();
@@ -2807,7 +2793,8 @@ function fixInternalReferences()
 	{
 		const refLink = refLinks[i];
 		let refText = refLink.textContent.trim();
-		refText = refText.replace(/[^A-Za-z0-9\s\-:]+/g, "");
+		if(refText.match(/^\[/))
+			refText = refText.replace(/[^A-Za-z0-9\s\-:,\(\)]+/g, "");
 		if(!refText.length)
 			refText = "0" + i;
 		refLink.textContent = refText;
@@ -3274,9 +3261,10 @@ function filterNodesFollowingNodesOfType(nodes, selector)
 	while(i--)
 	{
 		const node = nodes[i];
-		const prevSibling = node.previousSibling; // asd
+		// const prevSibling = node.previousSibling;
 		const prevElement = node.previousElementSibling;
-		if(prevElement && prevElement === prevSibling && prevElement.matches(selector))
+		// if(prevElement && prevElement === prevSibling && prevElement.matches(selector))
+		if(prevElement && prevElement.matches(selector))
 			result.push(node);
 	}
 	return result;
@@ -3289,9 +3277,10 @@ function filterNodesPrecedingNodesOfType(nodes, selector)
 	while(i--)
 	{
 		const node = nodes[i];
-		const nextSibling = node.nextSibling;
+		// const nextSibling = node.nextSibling;
 		const nextElement = node.nextElementSibling;
-		if(nextElement && nextElement === nextSibling && nextElement.matches(selector))
+		// if(nextElement && nextElement === nextSibling && nextElement.matches(selector))
+		if(nextElement && nextElement.matches(selector))
 			result.push(node);
 	}
 	return result;
@@ -3425,7 +3414,15 @@ function deleteImagesSmallerThan(pixelArea)
 	while(i--)
 	{
 		const image = images[i];
-		if(image.naturalWidth * image.naturalHeight < pixelArea)
+		if(image.src.includes(".svg"))
+		{
+			if(image.width * image.height < pixelArea)
+			{
+				image.remove();
+				count++;
+			}
+		}
+		else if(image.naturalWidth * image.naturalHeight < pixelArea)
 		{
 			image.remove();
 			count++;
@@ -3517,7 +3514,7 @@ function shortenImageSrc(src)
 	if(splat.length && splat.length > 2)
 	{
 		domain = splat[2];
-		imageFileName = splat[splat.length - 1];
+		imageFileName = unescape(splat[splat.length - 1]);
 	}
 	if(domain.length)
 		return domain + " | " + imageFileName;
@@ -3927,17 +3924,28 @@ function makeHeadings()
 
 function replaceCommonClasses()
 {
-	replaceByClassOrIdContaining("txit", "i");
-	replaceByClassOrIdContaining("txbd", "b");
-	replaceByClassOrIdContaining("ital", "i");
-	replaceByClassOrIdContaining("bold", "b");
-	replaceByClassOrIdContaining("small", "small");
-	replaceByClassOrIdContaining("quote", "blockquote");
+	replaceElementsBySelector(".cn, .ct, .chapnum, .chaptitle, .chap-num, .chap-title, .fmh", "h2");
+	replaceElementsBySelector(".cst", "h3");
 	replaceElementsBySelector("div.calibre", "section");
-	deleteEmptyElements("section");
-	replaceElementsBySelector(".epub-i", "i");
-	replaceElementsBySelector(".epub-b", "b");
-	replaceElementsBySelector(".epub-sc", "small");
+	replaceElementsBySelector(".epub-i, .i", "i");
+	replaceElementsBySelector(".epub-b, .b", "b");
+	replaceElementsBySelector(".epub-sc, .small", "small");
+	replaceElementsBySelector("div.block, .afmtx, .afmtx1", "blockquote");
+
+	replaceElementsBySelector("div[class*=sidebar]", "aside");
+	replaceElementsBySelector("div[class*=social]", "aside");
+	replaceElementsBySelector("p[class*=subtitle], div[class*=subtitle], p[class*=subhead], div[class*=subhead]", "h3");
+	replaceElementsBySelector("p[class*=title], div[class*=title]", "h2");
+	replaceElementsBySelector("p[class*=image], div[class*=image]", "figure");
+	replaceElementsBySelector("p[class*=caption], div[class*=caption]", "figcaption");
+	replaceElementsBySelector("p[class*=quote], div[class*=quote]", "blockquote");
+	replaceElementsBySelector("p[class*=author], div[class*=author]", "h4");
+	replaceElementsBySelector("p[class*=date], div[class*=date]", "h5");
+	replaceElementsBySelector("p[class*=quote], div[class*=quote]", "blockquote");
+
+	replaceElementsBySelector("span[class*=ital], span[class*=txit]", "i");
+	replaceElementsBySelector("span[class*=bold], span[class*=txbd]", "b");
+	replaceElementsBySelector("span[class*=small]", "small");
 }
 
 function fixHeadings()
@@ -4256,7 +4264,7 @@ function echoPassword(e)
 	showMessage(e.target.value, "none", true);
 }
 
-function getPagerLinks()
+function getPageNavLinks()
 {
 	const links = get("a");
 	const pagerWrapper = createElement("h1", { textContent: "Pages: " });
@@ -4278,7 +4286,7 @@ function getPagerLinks()
 		pagerWrapper.querySelector("a").focus();
 	}
 	else
-		showMessageBig("No pager links found");
+		showMessageBig("No page nav links found");
 	createPagerFromSelect();
 }
 
@@ -4616,7 +4624,8 @@ function toggleContentEditable()
 	{
 		showMessageBig("contentEditable OFF");
 		selectedNode.removeAttribute("contentEditable");
-		splitByBrs(selectedNode);
+		if(selectedNode.tagName !== "PRE")
+			splitByBrs(selectedNode);
 		Nimbus.isEditing = false;
 	}
 }
@@ -5106,6 +5115,7 @@ function selectNodesContainingSelection()
 		return;
 	}
 	const result = [];
+	// swap first and last nodes if the user selected text backwards
 	const relativePosition = lastNode.compareDocumentPosition(firstNode);
 	if(relativePosition & Node.DOCUMENT_POSITION_FOLLOWING)
 	{
@@ -5113,7 +5123,7 @@ function selectNodesContainingSelection()
 		firstNode = lastNode;
 		lastNode = temp;
 	}
-	markElement(firstNode);
+	result.push(firstNode);
 	let sibling = firstNode.nextElementSibling;
 	while(sibling)
 	{
@@ -5129,8 +5139,7 @@ function joinNodesContainingSelection()
 {
 	const elems = selectNodesContainingSelection();
 	if(!elems) return;
-	markElements(elems);
-	joinMarkedElements();
+	joinElements(elems);
 }
 
 function joinMarkedElements()
@@ -5143,12 +5152,25 @@ function joinMarkedElements()
 	}
 }
 
+function logStringPair(str1, str2)
+{
+	console.log(`%c${str1}`, "color: #ACE; background: #008", str2);
+}
+
+function logElementsWithText(elems)
+{
+	for(const elem of elems)
+		logStringPair(elem.tagName || "text node", getNodeText(elem));
+}
+
 function joinElements(elemsToJoin)
 {
 	if(!elemsToJoin.length)
+	{
 		return;
+	}
 	const idsToSave = [];
-	const wrapperTagName = elemsToJoin[0].tagName;
+	const wrapperTagName = elemsToJoin[0].tagName || "P";
 	const wrapper = document.createElement(wrapperTagName);
 	for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
 	{
@@ -5475,6 +5497,7 @@ function toggleStyleNegative()
 	comment { display: block; padding: 20px 40px; border-left: 10px solid #555; background: #181818; margin-bottom: 2px; }
 	ind { display: block; padding-left: 50px; }
 
+	.markd { box-shadow: inset 2px 2px #C00, inset -2px -2px #C00 !important; background: #000 !important; }
 	`;
 
 	toggleStyle(s, "styleNegative");
@@ -5560,7 +5583,10 @@ function getFirstBlockParent(node)
 {
 	const blockSelector = Nimbus.BLOCK_ELEMENTS.join();
 	const elem = node.nodeType === 1 ? node : node.parentNode;
-	return elem.closest(blockSelector);
+	if(Nimbus.BLOCK_ELEMENTS.includes(elem.tagName))
+		return elem;
+	else
+		return elem.closest(blockSelector);
 }
 
 function getFirstTextChild(elem)
@@ -5773,6 +5799,8 @@ function cleanupGeneral()
 	replaceElementsBySelector("center", "div");
 	setDocTitle();
 	cleanupAttributes();
+	replaceElementsBySelector("strong", "b");
+	replaceElementsBySelector("em", "i");
 	replaceAudio();
 	highlightUserLinks();
 	appendMetadata();
@@ -5826,7 +5854,7 @@ function regressivelyUnenhance()
 
 function deleteResources()
 {
-	del(["link", "style", "script", "message"]);
+	del(["link", "style", "script", "message", "iframe"]);
 	document.body.className = "xwrap pad100";
 }
 
@@ -6187,7 +6215,7 @@ function consolidateAnchors()
 	}
 	showMessageBig(`${toDelete.length} anchors consolidated`);
 	del(toDelete);
-	deleteEmptyElements("cite");
+	del(select("cite", "text", "=", "\u2022"));
 }
 
 function removeSpanTags(isOkToLoseIds)
@@ -6376,7 +6404,7 @@ function deleteImages()
 	const imagePlaceholders = get("rt");
 	if(images.length)
 	{
-		del("img");
+		del(["img", "slideshow"]);
 		showMessageBig("Deleted " + images.length + " images");
 	}
 	else if(imagePlaceholders.length)
@@ -6400,14 +6428,15 @@ function retrieve(selector)
 //	Given an array of selectors, retrieve the corresponding elements, grouping them by index.
 function retrieveGrouped(selectors, wrapperTagName = "section", groupTagName = "hgroup")
 {
-	const nodeLists = new Array(selectors.length);
+	const numSelectors = selectors.length;
+	const nodeLists = new Array(numSelectors);
 	for(let i = 0, ii = selectors.length; i < ii; i++)
 	{
 		const selector = selectors[i];
 		nodeLists[i] = get(selector);
 	}
 	const numGroups = nodeLists[0].length;
-	for(let i = 1; i < numGroups; i++)
+	for(let i = 1; i < numSelectors; i++)
 	{
 		if(nodeLists[i].length !== numGroups)
 		{
@@ -6416,6 +6445,7 @@ function retrieveGrouped(selectors, wrapperTagName = "section", groupTagName = "
 		}
 	}
 	const wrapper = document.createElement(wrapperTagName);
+	wrapper.className = Nimbus.markerClass;
 	for(let i = 0, ii = numGroups; i < ii; i++)
 	{
 		const group = document.createElement(groupTagName);
@@ -6437,10 +6467,10 @@ function getContentByParagraphCount()
 	const LONG_PARAGRAPH_THRESHOLD = 100;
 	if(get(makeClassSelector(Nimbus.markerClass)).length)
 	{
-		const title = document.title;
+		// const title = document.title;
 		retrieve(makeClassSelector(Nimbus.markerClass));
-		if(title)
-			setDocTitleSimple(title);
+		// if(title)
+		// 	setDocTitleSimple(title);
 		cleanupGeneral();
 		unmarkAll();
 		deleteIframes();
@@ -6448,6 +6478,7 @@ function getContentByParagraphCount()
 		return;
 	}
 	del("nav");
+	del("svg[class*=icon]");
 	deleteNonContentLists();
 	deleteNonContentLinks();
 	insertStyleHighlight();
@@ -7182,6 +7213,13 @@ function removeAllAttributesOfType(type)
 	removeAttributeOf("body *", type);
 }
 
+function removeClassStyleAlign()
+{
+	removeAllAttributesOfType("class");
+	removeAllAttributesOfType("style");
+	removeAllAttributesOfType("align");
+}
+
 function insertElementNextToAnchor(tagName, position)
 {
 	const tag = tagName || "hr";
@@ -7289,7 +7327,8 @@ function insertHrBeforeAll(selector)
 function getTextLength(node)
 {
 	const text = node.nodeType === 1 ? node.textContent : node.data;
-	return text.replace(/[^\u0021-\u007e]/g, "").length;
+	// return text.replace(/[^\u0021-\u007e]/g, "").length;
+	return text.replace(/\s+/g, "").length;
 }
 
 function getAlphaNumericTextLength(elem)
@@ -7317,7 +7356,7 @@ function highlightSelectionRed()
 	Nimbus.highlightTagName = "mark";
 }
 
-function highlightSelection()
+function highlightSelection(mode = "sentence")
 {
 	const selection = window.getSelection();
 	if(!selection.toString().length)
@@ -7337,7 +7376,7 @@ function highlightSelection()
 	}
 	if(selectionText.length)
 	{
-		if(Nimbus.selectionHighlightMode === "sentence")
+		if(Nimbus.selectionHighlightMode === "sentence" && mode !== "word")
 			selectionText = expandSelectionToSentenceBoundaries(node, selectionText);
 		else
 			selectionText = expandSelectionToWordBoundaries(node, selectionText);
@@ -7970,7 +8009,7 @@ function handleKeyDown(e)
 			case KEYCODES.SIX: deleteIframes(); break;
 			case KEYCODES.SEVEN: showHtmlComments(); break;
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
-			case KEYCODES.NINE: removeAllAttributesOfType("class"); break;
+			case KEYCODES.NINE: removeClassStyleAlign(); break;
 			case KEYCODES.ZERO: cycleThroughDocumentHeadings(); break;
 			case KEYCODES.A: cycleClass(db, ["nimbusTheme1", "nimbusTheme2", "none"]); dh.className = db.className; break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
@@ -7990,10 +8029,10 @@ function handleKeyDown(e)
 			case KEYCODES.S: toggleContentEditable(); break;
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.V: joinNodesContainingSelection(); break;
-			case KEYCODES.W: cleanupGeneral_light(); break;
+			case KEYCODES.W: highlightSelection("word"); break;
 			case KEYCODES.X: removeEmojis(); break;
 			case KEYCODES.Y: callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
-			case KEYCODES.Z: replaceSpecialCharacters(); fixDashes(); break;
+			case KEYCODES.Z: replaceSpecialCharacters(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); cycleFocusOverFormFields(); break;
 			case KEYCODES.DELETE: deleteMarkedElements(); break;
 			case KEYCODES.SQUARE_BRACKET_OPEN: modifyMark("previous"); break;
@@ -8047,7 +8086,7 @@ function handleKeyDown(e)
 			case KEYCODES.L: logout(); break;
 			case KEYCODES.N: callFunctionWithArgs("Delete numbered divs in range", delRange); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string (case-sensitive)", highlightAllMatchesInDocumentCaseSensitive, true); break;
-			case KEYCODES.P: getPagerLinks(); break;
+			case KEYCODES.P: getPageNavLinks(); break;
 			case KEYCODES.R: wrapMarkedElement(); break;
 			case KEYCODES.U: moveElementUp("before"); break;
 			case KEYCODES.D: moveElementUp("after"); break;
