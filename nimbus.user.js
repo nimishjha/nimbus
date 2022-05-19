@@ -173,7 +173,6 @@ const Nimbus = {
 		numberTableRowsAndColumns: numberTableRowsAndColumns,
 		om: toggleMutationObserver,
 		persistStreamingImages: persistStreamingImages,
-		regressivelyUnenhance: regressivelyUnenhance,
 		remove: remove,
 		removeAllAttributesExcept: removeAllAttributesExcept,
 		removeAllAttributesOf: removeAllAttributesOf,
@@ -270,12 +269,16 @@ const Nimbus = {
 		"markpurple": "trMarkPurple",
 		"markwhite": "trMarkWhite",
 	},
-	replacementTagName: "blockquote",
+	replacementTagName: "h2",
 	markerClass: "markd",
 	minPersistSize: 800,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
-	BLOCK_ELEMENTS: ["DIV", "P", "BLOCKQUOTE", "HGROUP", "H1", "H2", "H3", "H4", "H5", "H6", "OL", "UL", "LI", "HEAD", "FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR", "PARTHEADING", "ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE", "HR"],
+	BLOCK_ELEMENTS: [
+		"DIV", "P", "BLOCKQUOTE", "HGROUP", "H1", "H2", "H3", "H4", "H5", "H6", "OL", "UL", "LI", "HEAD",
+		"FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR",
+		"ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE", "HEADER", "FOOTER", "HR"
+	],
 	italicTag: "i",
 };
 
@@ -471,15 +474,18 @@ function markElement(elem)
 {
 	const markerAttribute = "data-marklevel";
 	elem.classList.add(Nimbus.markerClass);
-	const markLevel = elem.hasAttribute(markerAttribute) ? Number(elem.getAttribute(markerAttribute)) : 0;
-	elem.setAttribute(markerAttribute, markLevel + 1);
+	// const markLevel = elem.hasAttribute(markerAttribute) ? Number(elem.getAttribute(markerAttribute)) : 0;
+	// elem.setAttribute(markerAttribute, markLevel + 1);
+	const marked = get(makeClassSelector(Nimbus.markerClass));
+	if(marked && marked.length === 1)
+		showMessage(createSelector(elem), "messagebig", true);
 }
 
 function unmarkElement(elem)
 {
-	const markerAttribute = "data-marklevel";
 	elem.classList.remove(Nimbus.markerClass);
-	elem.removeAttribute(markerAttribute);
+	// const markerAttribute = "data-marklevel";
+	// elem.removeAttribute(markerAttribute);
 }
 
 function markElements(elements)
@@ -997,7 +1003,7 @@ function replaceBrs()
 
 function replaceDiacritics(str)
 {
-	const diacritics = {
+	const diacriticRegexesByLetter = {
 		A: /[\u0100\u0102\u0104\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5]/g,
 		a: /[\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u0105\u0101\u0103]/g,
 		B: /[\u00df]/g,
@@ -1021,11 +1027,11 @@ function replaceDiacritics(str)
 		Z: /[\u0179\u017b\u017d]/g,
 		z: /[\u017a\u017c\u017e]/g,
 	};
-	const keys = Object.keys(diacritics);
-	for(let i = 0, ii = keys.length; i < ii; i++)
+	const letters = Object.keys(diacriticRegexesByLetter);
+	for(let i = 0, ii = letters.length; i < ii; i++)
 	{
-		const key = keys[i];
-		str = str.replace(diacritics[key], key);
+		const letter = letters[i];
+		str = str.replace(diacriticRegexesByLetter[letter], letter);
 	}
 	return str;
 }
@@ -1094,6 +1100,14 @@ function replaceNonStandardElements()
 	}
 }
 
+function setDocTitle(newTitle)
+{
+	let headingText = sanitizeTitle(newTitle || chooseDocumentHeading());
+	setDocumentHeading(headingText);
+	const domainSegment = getBestDomainSegment(location.hostname);
+	document.title = headingText + domainSegment;
+}
+
 function sanitizeTitle(titleString)
 {
 	if(titleString === undefined || titleString === null)
@@ -1111,15 +1125,20 @@ function sanitizeTitle(titleString)
 		.replace(/[\/]/g, "_")
 		.replace(/:/g, " - ")
 		.replace(/[^\+\.\(\)0-9A-Za-z_!,@%\[\]\-\(\)']/g, " ")
-		.replace(/_+/g, "-")
+		.replace(/ , /g, ", ")
 		.replace(/\s+/g, " ");
+
+	const tagline = sanitizedTitle.match(/by[ \w]{5,30}$/);
+	const authorName = tagline ? tagline[0].replace(/by /i, "").trim() : null;
+	if(authorName)
+		sanitizedTitle = authorName + " - " + sanitizedTitle.replace(tagline[0], "");
 
 	return trimSpecialChars(sanitizedTitle);
 }
 
 function escapeForRegExp(str)
 {
-	const specials = new RegExp("[.*+?|()\\[\\]{}\\\\]", "g");
+	const specials = /[.*+?|()\\[\\]{}\\\\]/g;
 	return str.replace(specials, "\\$&");
 }
 
@@ -1531,9 +1550,9 @@ function wrapMarkedElement(tagName)
 function replaceElementsByTagNameMatching(text, tagName)
 {
 	const replacementTagName = tagName || "blockquote";
-	const e = selectByTagNameMatching(text);
-	for(let i = 0, ii = e.length; i < ii; i++)
-		replaceElement(e[i], replacementTagName);
+	const elems = selectByTagNameMatching(text);
+	for(let i = 0, ii = elems.length; i < ii; i++)
+		replaceElement(elems[i], replacementTagName);
 }
 
 function replaceElementsBySelectorHelper()
@@ -2055,7 +2074,7 @@ function makeIdSelector(id)
 
 function simplifyClassNames(selector)
 {
-	const sel = selector ||  "div, p, span";
+	const sel = selector ||  "div, p, span, h1, h2, h3, h4, h5, h6";
 	const elems = get(sel);
 	const classMap = {};
 	const tagTable = {};
@@ -2317,11 +2336,11 @@ function toggleConsole(consoleType)
 	let dialogStyle;
 	const consoleBackgroundColor = consoleType === "css" ? "#036" : "#000";
 	dialogStyle = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; }' +
-		'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: 22px "Swis721 Cn BT", Verdana; width: 100%; height: 100%; padding: 10px 40px; border: 0; outline: 0; }';
+		'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: 22px Consolas, Verdana; width: 100%; height: 100%; padding: 10px 40px; border: 0; outline: 0; }';
 	insertStyle(dialogStyle, "styleUserInputWrapper", true);
 
 	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
-	const inputTextarea = createElement("textarea", { id: "userInput", value: getConsoleHistory(consoleType) });
+	const inputTextarea = createElement("textarea", { id: "userInput", class: "monospace", value: getConsoleHistory(consoleType) });
 	const handleKeyDown = function(event){ handleConsoleInput(event, consoleType); };
 	inputTextarea.addEventListener("keydown", handleKeyDown);
 	inputTextareaWrapper.appendChild(inputTextarea);
@@ -3858,34 +3877,33 @@ function replaceEmptyParagraphsWithHr()
 function makePlainText(selector)
 {
 	const elements = get(selector);
-	let i = elements.length;
-	if(!i) return;
-	const tagName = elements[0].tagName.toLowerCase();
+	for(let i = 0, ii = elements.length; i < ii; i++)
+		makeElementPlainText(elements[i]);
+}
+
+function makeElementPlainText(elem)
+{
+	const tagName = elem.tagName.toLowerCase();
 	switch(tagName)
 	{
 		case "a":
-			while(i--)
-			{
-				const elem = elements[i];
-				if(!elem.getElementsByTagName("img").length)
-					elem.textContent = removeLineBreaks(elem.textContent);
-			}
+			if(!elem.getElementsByTagName("img").length)
+				elem.textContent = removeLineBreaks(elem.textContent);
 			break;
 		case "pre":
-			while(i--)
-			{
-				const elem = elements[i];
-				elem.textContent = elem.textContent;
-			}
+			elem.textContent = elem.textContent;
 			break;
 		default:
-			while(i--)
-			{
-				const elem = elements[i];
-				elem.textContent = removeLineBreaks(elem.textContent);
-			}
+			elem.textContent = removeLineBreaks(elem.textContent);
 			break;
 	}
+}
+
+function makeAnchorNodePlainText()
+{
+	const anchorNode = getNodeContainingSelection();
+	if(anchorNode)
+		makeElementPlainText(anchorNode);
 }
 
 function boldInlineColonHeadings()
@@ -3940,7 +3958,7 @@ function makeHeadings()
 
 function replaceCommonClasses()
 {
-	replaceElementsBySelector(".cn, .ct, .chapnum, .chaptitle, .chap-num, .chap-title, .fmh", "h2");
+	replaceElementsBySelector(".cn, .ct, .chapnum, .chaptitle, .chap-num, .chap-title, .fmh, .fmht", "h2");
 	replaceElementsBySelector(".cst", "h3");
 	replaceElementsBySelector("div.calibre", "section");
 	replaceElementsBySelector(".epub-i, .i", "i");
@@ -4099,17 +4117,6 @@ function looksLikeUrl(str)
 		return true;
 }
 
-function setDocTitleSimple(newTitle)
-{
-	document.title = newTitle;
-	const firstHeading = getOne("h1");
-	if(!(firstHeading && firstHeading.textContent.trim() === newTitle))
-	{
-		const newHeading = createElement("h1", { textContent: newTitle });
-		document.body.insertBefore(newHeading, document.body.firstChild);
-	}
-}
-
 function filterHeadings(headings)
 {
 	if(!headings.length)
@@ -4229,14 +4236,6 @@ function getBestDomainSegment(hostname)
 			longestSegment = segment;
 	}
 	return " [" + longestSegment + "]";
-}
-
-function setDocTitle(newTitle)
-{
-	let headingText = sanitizeTitle(newTitle || chooseDocumentHeading());
-	setDocumentHeading(headingText);
-	const domainSegment = getBestDomainSegment(location.hostname);
-	document.title = headingText + domainSegment;
 }
 
 function removeColorsFromInlineStyles()
@@ -5817,6 +5816,10 @@ function cleanupGeneral()
 	cleanupAttributes();
 	replaceElementsBySelector("strong", "b");
 	replaceElementsBySelector("em", "i");
+	if(get("footer").length > 1)
+	{
+		replaceElementsBySelector("footer", "h6");
+	}
 	replaceAudio();
 	highlightUserLinks();
 	appendMetadata();
@@ -5858,14 +5861,6 @@ function cleanupHead()
 	const tempTitle = document.title;
 	emptyElement(head);
 	document.title = tempTitle;
-}
-
-function regressivelyUnenhance()
-{
-	cleanupHead();
-	del(["link", "style", "script", "message"]);
-	removeInlineStyles();
-	cleanupLinks();
 }
 
 function deleteResources()
@@ -6485,8 +6480,6 @@ function getContentByParagraphCount()
 	{
 		// const title = document.title;
 		retrieve(makeClassSelector(Nimbus.markerClass));
-		// if(title)
-		// 	setDocTitleSimple(title);
 		cleanupGeneral();
 		unmarkAll();
 		deleteIframes();
@@ -7153,8 +7146,13 @@ function wrapAll(selector, tagName)
 function unwrapAll(selector)
 {
 	const elems = get(selector);
-	for(let i = 0, ii = elems.length; i < ii; i++)
-		unwrapElement(elems[i]);
+	const numElems = elems.length || 0;
+	if(numElems)
+	{
+		for(let i = 0, ii = elems.length; i < ii; i++)
+			unwrapElement(elems[i]);
+		showMessageBig(`${numElems} ${selector} unwrapped`);
+	}
 }
 
 function unwrapElement(elem)
@@ -7229,11 +7227,10 @@ function removeAllAttributesOfType(type)
 	removeAttributeOf("body *", type);
 }
 
-function removeClassStyleAlign()
+function removeAllAttributesOfTypes(attrNames)
 {
-	removeAllAttributesOfType("class");
-	removeAllAttributesOfType("style");
-	removeAllAttributesOfType("align");
+	for(const attrName of attrNames)
+	removeAllAttributesOfType(attrName);
 }
 
 function insertElementNextToAnchor(tagName, position)
@@ -7363,13 +7360,6 @@ function toggleHighlightSelectionMode()
 {
 	Nimbus.selectionHighlightMode = Nimbus.selectionHighlightMode === "sentence" ? "word" : "sentence";
 	showMessageBig(`Highlight mode is <b>${Nimbus.selectionHighlightMode}</b>`);
-}
-
-function highlightSelectionRed()
-{
-	Nimbus.highlightTagName = "markred";
-	highlightSelection();
-	Nimbus.highlightTagName = "mark";
 }
 
 function highlightSelection(mode = "sentence")
@@ -7784,11 +7774,10 @@ function findStringsInProximity(stringOne, stringTwo)
 	window.scrollTo(0, 0);
 }
 
-function replaceInTextNodes(searchString, replacement, isRegex)
+function replaceInTextNodes(searchString, replacement)
 {
 	const textNodes = getTextNodesAsArray();
-	const str = isRegex ? searchString : escapeForRegExp(searchString);
-	const regex = new RegExp(str, "g");
+	const regex = new RegExp(escapeForRegExp(searchString), "g");
 	let replCount = 0;
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
@@ -7801,6 +7790,23 @@ function replaceInTextNodes(searchString, replacement, isRegex)
 	}
 	if(replCount)
 		showMessageBig(`${replCount} occurrences of "${searchString}" replaced with "${replacement}"`);
+}
+
+function replaceInTextNodesRegex(regex, replacement)
+{
+	const textNodes = getTextNodesAsArray();
+	let replCount = 0;
+	for(let i = 0, ii = textNodes.length; i < ii; i++)
+	{
+		const textNode = textNodes[i];
+		if(textNode.data.match(regex))
+		{
+			replCount++;
+			textNode.data = textNode.data.replace(regex, replacement);
+		}
+	}
+	if(replCount)
+		showMessageBig(`${replCount} occurrences of "${regex}" replaced with "${replacement}"`);
 }
 
 function highlightInTextNode(textNode, regex, highlightTagName)
@@ -8014,7 +8020,7 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD_SUBTRACT: deletePersistedImages(); break;
 			case KEYCODES.NUMPAD_MULTIPLY: showSavedStreamingImages(); break;
 			case KEYCODES.F1: customPrompt("Enter replacement tag name").then(setReplacementTag); break;
-			case KEYCODES.F2: replaceSelectedElement("h2"); break;
+			case KEYCODES.F2: replaceSelectedElement(); break;
 			case KEYCODES.F3: customPrompt("Enter tag name to replace elements of the marked type with").then(replaceElementsOfMarkedTypeWith); break;
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.ONE: cleanupGeneral(); break;
@@ -8025,7 +8031,7 @@ function handleKeyDown(e)
 			case KEYCODES.SIX: deleteIframes(); break;
 			case KEYCODES.SEVEN: showHtmlComments(); break;
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
-			case KEYCODES.NINE: removeClassStyleAlign(); break;
+			case KEYCODES.NINE: removeAllAttributesOfTypes(["class", "style", "align"]); break;
 			case KEYCODES.ZERO: cycleThroughDocumentHeadings(); break;
 			case KEYCODES.A: cycleClass(db, ["nimbusTheme1", "nimbusTheme2", "none"]); dh.className = db.className; break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
@@ -8033,7 +8039,7 @@ function handleKeyDown(e)
 			case KEYCODES.E: cycleHighlightTag(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteBySelectorAndTextMatching); break;
 			case KEYCODES.I: toggleConsole("css"); break;
-			case KEYCODES.J: regressivelyUnenhance(); break;
+			case KEYCODES.J: joinNodesContainingSelection(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.L: showLog(); break;
 			case KEYCODES.M: customPrompt("Enter command").then(runCommand); break;
@@ -8044,7 +8050,7 @@ function handleKeyDown(e)
 			case KEYCODES.R: toggleHighlight(); break;
 			case KEYCODES.S: toggleContentEditable(); break;
 			case KEYCODES.U: del("ul"); del("dl"); break;
-			case KEYCODES.V: joinNodesContainingSelection(); break;
+			case KEYCODES.V: removeAllAttributesOfTypes(["class", "style", "align"]); break;
 			case KEYCODES.W: highlightSelection("word"); break;
 			case KEYCODES.X: removeEmojis(); break;
 			case KEYCODES.Y: callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
@@ -8087,7 +8093,6 @@ function handleKeyDown(e)
 		shouldPreventDefault = true;
 		switch(k)
 		{
-			case KEYCODES.TILDE: highlightSelectionRed(); break;
 			case KEYCODES.ZERO: editDocumentTitle(); break;
 			case KEYCODES.ONE: showResources(); break;
 			case KEYCODES.TWO: replaceImagesWithTextLinks(); break;
@@ -8149,6 +8154,7 @@ function handleKeyDown(e)
 			case KEYCODES.L: deleteNodesBetweenMarkers(); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
 			case KEYCODES.O: customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
+			case KEYCODES.P: makeAnchorNodePlainText(); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
 			case KEYCODES.S: callFunctionWithArgs("Mark block elements containing text", markBlockElementsContainingText, 1); break;
 			case KEYCODES.T: toggleStyle(STYLES.SHOW_TABLE_STRUCTURE, "styleShowTableStructure", true); break;
