@@ -133,6 +133,7 @@ const Nimbus = {
 		htmlToText: htmlToText,
 		ih: forceImageHeight,
 		inlineFootnotes: inlineFootnotes,
+		insertAroundAll: insertAroundAll,
 		insertElementBeforeSelectionAnchor: insertElementBeforeSelectionAnchor,
 		insertHrBeforeAll: insertHrBeforeAll,
 		insertStyle: insertStyle,
@@ -1408,6 +1409,21 @@ function insertBefore(anchorElement, elementToInsert) { anchorElement.insertAdja
 function insertAfter(anchorElement, elementToInsert) { anchorElement.insertAdjacentElement("afterend", elementToInsert); }
 function insertAsFirstChild(anchorElement, elementToInsert) { anchorElement.insertAdjacentElement("afterbegin", elementToInsert); }
 function insertAsLastChild(anchorElement, elementToInsert) { anchorElement.insertAdjacentElement("beforeend", elementToInsert); }
+
+function insertAroundAll(selector, position, elemType, textContent)
+{
+	const elems = get(selector);
+	const where = position === "after" ? "afterend" : "beforebegin";
+	const tagName = elemType === "text" ? "span" : elemType;
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+		const elemToInsert = createElementWithText(tagName, textContent);
+		elem.insertAdjacentElement(where, elemToInsert);
+		if(elemType === "text")
+			unwrapElement(elemToInsert);
+	}
+}
 
 function createElementWithChildren(tagName, ...children)
 {
