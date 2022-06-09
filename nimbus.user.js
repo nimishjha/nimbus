@@ -291,15 +291,15 @@ const KEYCODES = Nimbus.KEYCODES;
 
 const STYLES = {
 	FONT_01: `
-		html, body, div, blockquote, p, table, td, h1, h2, h3, h4, h5, h6, ul, ol, dl, header, nav, footer, article, section, aside { font-family: "Swis721 Cn BT"; }
+		html, body, div, blockquote, p, table, td, h1, h2, h3, h4, h5, h6, ul, ol, dl, header, nav, footer, article, section, aside { font-family: "swis721 cn bt"; }
 		b, em, strong, i { color: #DDD; },
 		a { text-decoration: none; }
 	`,
 	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); line-height: 1.4; }`,
 	COLORS_01: 'html, body { background: #202020; color: #AAA; } div, table, tr, td, tbody, th, article, section, header, footer { background: inherit; color: inherit; }',
 	SIMPLE_NEGATIVE: `
-		html, body, body[class] { background: #000; font-family: "Swis721 Cn BT"; font-size: 22px; }
-		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "Swis721 Cn BT"; }
+		html, body, body[class] { background: #000; font-family: "swis721 cn bt"; font-size: 22px; }
+		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "swis721 cn bt"; }
 		*::before, *::after { opacity: 0.25; }
 		span, input, button { border-radius: 0; }
 		h1, h2, h3, h4, h5, h6, b, strong, em, i { color: #EEE; }
@@ -316,7 +316,7 @@ const STYLES = {
 	`,
 	SIMPLE_NEGATIVE_2: `
 		html { background: #000; }
-		body { background: #181818; color: #777; font-family: "Swis721 Cn BT"; }
+		body { background: #181818; color: #777; font-family: "swis721 cn bt"; }
 		* { box-shadow: none; background-image: none; font-family: inherit; border-radius: 0; }
 		*::before, *::after { opacity: 0.25; }
 		table { border-collapse: collapse; }
@@ -351,9 +351,9 @@ const STYLES = {
 		img { background: #800; padding: 2px; box-sizing: border-box; }
 	`,
 	SHOW_SELECTORS: `
-		*[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px 6px; font: 22px "Swis721 Cn BT"; }
-		*[id]::before { content: attr(id); color: #F0F; background: #000; padding: 2px 6px; font: 22px "Swis721 Cn BT"; }
-		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #0DD; background: #000; padding: 2px 6px; font: 22px "Swis721 Cn BT"; }
+		*[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
+		*[id]::before { content: attr(id); color: #F0F; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
+		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #0DD; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
 		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 2px; padding: 4px; }
 		h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #A0A, inset -4px -4px #404; }
 		span { box-shadow: inset 0 -100px #040; padding: 2px; border: 2px solid #0A0; }
@@ -2137,7 +2137,7 @@ function showMessage(messageHtml, msgClass, persist)
 	const strStyle = `
 		message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; height: 30px; line-height: 30px; position: fixed; top: calc(100vh - 60px); left: 0; width: 100%; z-index: 2147483647; }
 		messageinner { display: block; max-width: 1200px; margin: 0 auto; text-align: left; }
-		message.messagebig { font: 32px "Swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }
+		message.messagebig { font: 32px "swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }
 		message.messageerror { color: #FFF; background: #500; }
 	`;
 	if(!get("message"))
@@ -2605,7 +2605,7 @@ function autoCompleteInputBox()
 	{
 		if(get("#autoCompleteInputWrapper"))
 			return;
-		const style = `autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2147483647; font-family: "Swis721 Cn BT"; }
+		const style = `autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2147483647; font-family: "swis721 cn bt"; }
 			autocompleteinputwrapper input { width: 100%; height: 3rem; font-size: 32px; background: #000; color: #FFF; border: 0; outline: 0; display: block; font-family: inherit; }
 			autocompleteinputwrapper matches { display: block; background: #222; color: #CCC; }
 			autocompleteinputwrapper match { display: block; padding: 2px 10px; font-size: 24px; }
@@ -5336,7 +5336,7 @@ function toggleStyleNegative()
 {
 	const s = `
 	html { background: #000; font-size: 22px; }
-	html body, #nimbus body { background: #202020; color: #808080; border: 0; font-size: 22px; font-family: "Swis721 Cn BT"; font-style: normal; line-height: 1.35; }
+	html body, #nimbus body { background: #202020; color: #808080; border: 0; font-size: 22px; font-family: "swis721 cn bt"; font-style: normal; line-height: 1.35; }
 	form { font-family: inherit; font-size: 22px; }
 
 	body.pad100 { padding: 100px 200px; }
@@ -5352,7 +5352,7 @@ function toggleStyleNegative()
 	body.xwrap { width: 1200px; margin: 0 auto; padding: 100px 200px; }
 
 	h1, h1[class], h2, h2[class], h3, h3[class], h4, h4[class], h5, h5[class], h6, h6[class]
-		{ color: #A0A0A0; margin-top: 2px; margin-bottom:  2px; border: 0; font-family: "Swis721 Cn BT", Calibri, sans-serif; font-weight: normal; line-height: inherit; background: #111; }
+		{ color: #A0A0A0; margin-top: 2px; margin-bottom:  2px; border: 0; font-family: "swis721 cn bt", Calibri, sans-serif; font-weight: normal; line-height: inherit; background: #111; }
 	body.pad100 h1, body.pad100 h1[class], body.pad100 h2, body.pad100 h2[class], body.pad100 h3, body.pad100 h3[class], body.pad100 h4, body.pad100 h4[class], body.pad100 h5, body.pad100 h5[class], body.pad100 h6, body.pad100 h6[class]
 		{ padding: 10px 1rem; margin: 2px 0 2px -1rem; }
 
@@ -5380,7 +5380,7 @@ function toggleStyleNegative()
 		background: transparent;
 		color: inherit;
 		border: none;
-		font-family: "Swis721 Cn BT";
+		font-family: "swis721 cn bt";
 		font-size: inherit;
 		font-style: normal;
 		line-height: inherit;
@@ -5406,7 +5406,7 @@ function toggleStyleNegative()
 	figcaption { background: #111; color: #AAA; padding: 10px 20px; margin-left: 20px; }
 	annotation { margin: 10px 0; background: #333; color: #999; padding: 20px 30px; display: block; font-size: 22px; border-left: 10px solid #888; }
 	ruby { margin: 10px 0; background: #F90; color: #FFF; padding: 20px 30px; display: block; font-size: 22px; border-left: 10px solid #F90; }
-	rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 22px "Swis721 Cn BT", Calibri, sans-serif; border-top: 50px solid #000; border-bottom: 50px solid #000; }
+	rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 22px "swis721 cn bt", Calibri, sans-serif; border-top: 50px solid #000; border-bottom: 50px solid #000; }
 	rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px Verdana; }
 	rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }
 
@@ -5427,14 +5427,14 @@ function toggleStyleNegative()
 	button[class*="active"], a[class*="active"], a[class*="selected"] { outline: 2px solid #6F0; }
 	a:visited, a:visited * { color: #37A; text-decoration: none; }
 	a:active, a:hover, a:focus, a:hover *, a:focus * { color: #09F; text-decoration: none; outline: 0; }
-	.pagination a:link { font: bold 30px "Swis721 Cn BT"; border: 0; background: #111; padding: 10px; }
+	.pagination a:link { font: bold 30px "swis721 cn bt"; border: 0; background: #111; padding: 10px; }
 
 	p { margin: 0; padding: 5px 0; }
 	blockquote { margin: 0 0 6px 0; padding: 20px 40px; border-left: 10px solid #111;  }
 	blockquote blockquote { padding: 0 0 0 40px; }
 
 	table { border-collapse: collapse; }
-	table, tr, td, th { margin: 0; padding: 0; line-height: inherit; font: 22px/1.4 "Swis721 cn bt"; color: inherit; border: 0; }
+	table, tr, td, th { margin: 0; padding: 0; line-height: inherit; font: 22px/1.4 "swis721 cn bt"; color: inherit; border: 0; }
 	table, tbody, tr, td { background: inherit; }
 	thead, th { background: #111; }
 	tr:nth-child(odd) td , tr:nth-child(odd) th { background-color: #181818; }
