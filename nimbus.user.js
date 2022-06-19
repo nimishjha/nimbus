@@ -177,6 +177,7 @@ const Nimbus = {
 		removeAllAttributesExcept: removeAllAttributesExcept,
 		removeAllAttributesOf: removeAllAttributesOf,
 		removeAllAttributesOfType: removeAllAttributesOfType,
+		removeAllEmphasis: removeAllEmphasis,
 		removeAllHighlights: removeAllHighlights,
 		removeAttributeOf: removeAttributeOf,
 		removeClassFromAll: removeClassFromAll,
@@ -477,8 +478,6 @@ function markElement(elem)
 	// const markLevel = elem.hasAttribute(markerAttribute) ? Number(elem.getAttribute(markerAttribute)) : 0;
 	// elem.setAttribute(markerAttribute, markLevel + 1);
 	const marked = get(makeClassSelector(Nimbus.markerClass));
-	if(marked && marked.length === 1)
-		showMessage(createSelector(elem), "messagebig", true);
 }
 
 function unmarkElement(elem)
@@ -6040,7 +6039,7 @@ function deleteEmptyBlockElements()
 {
 	// deleteEmptyTextNodes();
 	del("noscript");
-	const SELECTOR = "div, p, blockquote, h1, h2, h3, h4, h5, h6, li, figure, figcaption, pre, dt, dd, message, annotation, quote, quoteauthor, partheading, aside, section, article, nav, ul, ol, fieldset";
+	const SELECTOR = "div, p, blockquote, h1, h2, h3, h4, h5, h6, li, figure, figcaption, pre, dt, dd, message, annotation, quote, quoteauthor, partheading, aside, section, article, nav, ul, ol, fieldset, figure";
 	deleteEmptyElements(SELECTOR);
 }
 
@@ -7939,6 +7938,11 @@ function highlightLinksInPres()
 	}
 }
 
+function removeAllEmphasis()
+{
+	unwrapAll("b, strong, i, em, u");
+}
+
 function removeAllHighlights()
 {
 	unwrapAll("mark, markyellow, markred, markgreen, markblue, markpurple, markwhite");
@@ -8031,7 +8035,7 @@ function handleKeyDown(e)
 			case KEYCODES.SIX: deleteIframes(); break;
 			case KEYCODES.SEVEN: showHtmlComments(); break;
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
-			case KEYCODES.NINE: removeAllAttributesOfTypes(["class", "style", "align"]); break;
+			case KEYCODES.NINE: removeAllAttributesOfTypes(["class", "style", "align"]); unwrapAll("span"); break;
 			case KEYCODES.ZERO: cycleThroughDocumentHeadings(); break;
 			case KEYCODES.A: cycleClass(db, ["nimbusTheme1", "nimbusTheme2", "none"]); dh.className = db.className; break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
@@ -8050,7 +8054,7 @@ function handleKeyDown(e)
 			case KEYCODES.R: toggleHighlight(); break;
 			case KEYCODES.S: toggleContentEditable(); break;
 			case KEYCODES.U: del("ul"); del("dl"); break;
-			case KEYCODES.V: removeAllAttributesOfTypes(["class", "style", "align"]); break;
+			case KEYCODES.V: removeAllAttributesOfTypes(["class", "style", "align"]); unwrapAll("span"); break;
 			case KEYCODES.W: highlightSelection("word"); break;
 			case KEYCODES.X: removeEmojis(); break;
 			case KEYCODES.Y: callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
