@@ -292,7 +292,7 @@ const KEYCODES = Nimbus.KEYCODES;
 
 const STYLES = {
 	FONT_01: `
-		html, body, div, blockquote, p, table, td, h1, h2, h3, h4, h5, h6, ul, ol, dl, header, nav, footer, article, section, aside { font-family: "swis721 cn bt"; }
+		html, body, div, blockquote, p, table, td, h1, h2, h3, h4, h5, h6, ul, ol, li, dl, dt, dd, eader, nav, footer, article, section, aside, font, span { font-family: "swis721 cn bt"; }
 		b, em, strong, i { color: #DDD; },
 		a { text-decoration: none; }
 	`,
@@ -4106,6 +4106,18 @@ function fixDashes()
 	replaceInTextNodes("- ", "—");
 	replaceInTextNodes("— ", "—");
 	replaceInTextNodes(" —", "—");
+}
+
+function toggleDashes()
+{
+	const node = getNodeContainingSelection();
+	if(node)
+	{
+		if(node.textContent.indexOf('-') !== -1)
+			node.textContent = node.textContent.replace(/-/g, "\u2014");
+		else
+			node.textContent = node.textContent.replaceAll("\u2014", "-");
+	}
 }
 
 function looksLikeUrl(str)
@@ -8012,6 +8024,7 @@ function handleKeyDown(e)
 		switch(k)
 		{
 			case KEYCODES.TILDE: highlightSelection(); break;
+			case KEYCODES.NUMPAD1: toggleDashes(); break;
 			case KEYCODES.NUMPAD3: toggleContentEditable(); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.NUMPAD5: toggleHighlightSelectionMode(); break;
