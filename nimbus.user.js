@@ -339,6 +339,7 @@ const STYLES = {
 	OUTLINE_ELEMENTS: `header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
 		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
 		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
+		th { box-shadow: inset 2px 2px #048, inset -2px -2px #048; }
 		ul, ol { box-shadow: inset 2px 2px #0A0, inset -2px -2px #0A0; }
 		li { box-shadow: inset 2px 2px #070, inset -2px -2px #070; }
 		span { box-shadow: inset 2px 2px #AA0, inset -2px -2px #AA0; }
@@ -3901,6 +3902,7 @@ function makeElementPlainText(elem)
 function makeAnchorNodePlainText()
 {
 	const anchorNode = getNodeContainingSelection();
+	console.log('anchorNode:', anchorNode);
 	if(anchorNode)
 		makeElementPlainText(anchorNode);
 }
@@ -6576,7 +6578,7 @@ function cleanupStackOverflow()
 	const sites = ["stackexchange", "stackoverflow", "superuser", "serverfault"];
 	if(containsAnyOfTheStrings(location.hostname, sites) && location.href.match(/questions\/[0-9]+/) !== null)
 	{
-		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair"]);
+		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair", "#launch-popover"]);
 		replaceElementsBySelector(".user-details", "h2");
 		replaceElementsBySelector(".answercell", "dt");
 		replaceElementsBySelector(".votecell", "h6");
@@ -6584,6 +6586,8 @@ function cleanupStackOverflow()
 		retrieve("#content");
 		cleanupGeneral();
 		highlightCode(true);
+		removeAllAttributesOfTypes(["class", "style", "align"]);
+		unwrapAll("span");
 		const observer = new MutationObserver(handleMutations);
 		observer.observe(getOne("head"), { childList: true });
 	}
