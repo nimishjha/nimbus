@@ -7989,15 +7989,19 @@ function isChrome()
 	return navigator.userAgent.indexOf("Chrome/") !== -1;
 }
 
+function doWebsiteSpecificTasks()
+{
+	const commandElems = get("#website-specific-commands li");
+	if(!commandElems) return;
+	for(const commandElem of commandElems)
+		runCommand(commandElem.textContent);
+}
+
 function inject()
 {
 	document.addEventListener("keydown", handleKeyDown, false);
-	// document.documentElement.id = document.documentElement.id || "nimbus";
-	// document.body.id = document.body.id || "nimbus";
 	if(isChrome())
-	{
 		insertStyleHighlight();
-	}
 	xlog("Referrer: " + document.referrer);
 	xlog("Page loaded at " + getTimestamp());
 	cleanupStackOverflow();
@@ -8005,6 +8009,7 @@ function inject()
 	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
 	if(isDebugMode)
 		enableConsoleLogs();
+	setTimeout(doWebsiteSpecificTasks, 1000);
 }
 
 function handleKeyDown(e)
