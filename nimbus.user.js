@@ -55,6 +55,7 @@ const Nimbus = {
 		boldInlineColonHeadings: boldInlineColonHeadings,
 		buildGallery: buildGallery,
 		buildSlideshow: buildSlideshow,
+		capitalizeTitle: capitalizeTitle,
 		cleanupAttributes: cleanupAttributes,
 		cleanupAttributes_regex: cleanupAttributes_regex,
 		cleanupGeneral: cleanupGeneral,
@@ -292,11 +293,11 @@ const KEYCODES = Nimbus.KEYCODES;
 
 const STYLES = {
 	FONT_01: `
-		html, body, div, blockquote, p, table, td, h1, h2, h3, h4, h5, h6, ul, ol, li, dl, dt, dd, eader, nav, footer, article, section, aside, font, span { font-family: "swis721 cn bt"; }
+		* { font-family: "swis721 cn bt"; }
 		b, em, strong, i { color: #DDD; },
 		a { text-decoration: none; }
 	`,
-	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); line-height: 1.4; }`,
+	MIN_FONT_SIZE: `* { font-size: calc(18px + 0.0001vh); line-height: 1.4; }`,
 	COLORS_01: 'html, body { background: #202020; color: #AAA; } div, table, tr, td, tbody, th, article, section, header, footer { background: inherit; color: inherit; }',
 	SIMPLE_NEGATIVE: `
 		html, body, body[class] { background: #000; font-family: "swis721 cn bt"; font-size: 22px; }
@@ -862,6 +863,7 @@ function removeWhitespace(str) { return str.replace(/\s+/g, ''); }
 function normalizeString(str) { return removeWhitespace(str.toLowerCase()); }
 function normalizeHTML(html) { return html.replace(/&nbsp;/g, " ").replace(/\s+/g, " "); }
 function removeNonAlpha(str) { return str.replace(/[^A-Za-z]/g, ''); }
+function capitalize(str) { return str[0].toUpperCase() + str.slice(1).toLowerCase(); }
 
 function escapeHTML(html)
 {
@@ -1100,6 +1102,15 @@ function replaceNonStandardElements()
 	}
 }
 
+function capitalizeTitle()
+{
+	if(typeof document.title === "string" && document.title.length)
+	{
+		document.title = capitalize(document.title);
+		setDocTitle(document.title);
+	}
+}
+
 function setDocTitle(newTitle)
 {
 	let headingText = sanitizeTitle(newTitle || chooseDocumentHeading());
@@ -1127,11 +1138,6 @@ function sanitizeTitle(titleString)
 		.replace(/[^\+\.\(\)0-9A-Za-z_!,@%\[\]\-\(\)']/g, " ")
 		.replace(/ , /g, ", ")
 		.replace(/\s+/g, " ");
-
-	const tagline = sanitizedTitle.match(/by[ \w]{5,30}$/);
-	const authorName = tagline ? tagline[0].replace(/by /i, "").trim() : null;
-	if(authorName)
-		sanitizedTitle = authorName + " - " + sanitizedTitle.replace(tagline[0], "");
 
 	return trimSpecialChars(sanitizedTitle);
 }
@@ -2669,7 +2675,10 @@ function markByCssRule(prop, value, selector)
 
 function markBySelector(selector)
 {
-	markElements(get(selector));
+	const elems = get(selector);
+	if(!elems) return;
+	const elemsArray = Array.isArray(elems) ? elems : [elems];
+	markElements(elemsArray);
 }
 
 function markBySelectorAndText(selector, str)
@@ -5365,7 +5374,7 @@ function toggleStyleNegative()
 	body.xwrap { width: 1200px; margin: 0 auto; padding: 100px 200px; }
 
 	h1, h1[class], h2, h2[class], h3, h3[class], h4, h4[class], h5, h5[class], h6, h6[class]
-		{ color: #A0A0A0; margin-top: 2px; margin-bottom:  2px; border: 0; font-family: "swis721 cn bt", Calibri, sans-serif; font-weight: normal; line-height: inherit; background: #111; }
+		{ color: inherit; margin-top: 2px; margin-bottom:  2px; border: 0; font-family: "swis721 cn bt", Calibri, sans-serif; font-weight: normal; line-height: inherit; background: #111; }
 	body.pad100 h1, body.pad100 h1[class], body.pad100 h2, body.pad100 h2[class], body.pad100 h3, body.pad100 h3[class], body.pad100 h4, body.pad100 h4[class], body.pad100 h5, body.pad100 h5[class], body.pad100 h6, body.pad100 h6[class]
 		{ padding: 10px 1rem; margin: 2px 0 2px -1rem; }
 
@@ -5829,6 +5838,9 @@ function cleanupGeneral()
 	cleanupAttributes();
 	replaceElementsBySelector("strong", "b");
 	replaceElementsBySelector("em", "i");
+	replaceElementsBySelector("details", "div");
+	replaceElementsBySelector("summary", "h3");
+	deleteEmptyBlockElements();
 	if(get("footer").length > 1)
 	{
 		replaceElementsBySelector("footer", "h6");
@@ -6051,9 +6063,8 @@ function deleteEmptyHeadings()
 
 function deleteEmptyBlockElements()
 {
-	// deleteEmptyTextNodes();
 	del("noscript");
-	const SELECTOR = "div, p, blockquote, h1, h2, h3, h4, h5, h6, li, figure, figcaption, pre, dt, dd, message, annotation, quote, quoteauthor, partheading, aside, section, article, nav, ul, ol, fieldset, figure";
+	const SELECTOR = "div, p, blockquote, h1, h2, h3, h4, h5, h6, li, figure, figcaption, pre, dt, dd, message, annotation, quote, quoteauthor, partheading, aside, section, article, nav, ul, ol, fieldset, figure, header, footer";
 	deleteEmptyElements(SELECTOR);
 }
 
@@ -6423,7 +6434,8 @@ function deleteIframes()
 
 function deleteImages()
 {
-	del(["svg", "canvas", "picture"]);
+	del(["svg", "canvas"]);
+	deleteEmptyElements("picture");
 	const images = get("img");
 	const imagePlaceholders = get("rt");
 	if(images.length)
@@ -6665,7 +6677,7 @@ function showResources()
 		}
 	}
 	ylog(count + " styles", "h3", true);
-	const s = '.xlog { background: #000; color: #FFF; margin: 0; padding: 5px 10px; z-index: 2147483647; font: 12px verdana; text-align: left; }' +
+	const s = '.xlog { background: #000; color: #FFF; margin: 0; padding: 5px 10px; z-index: 2147483647; font: 12px verdana; text-align: left; position: relative; }' +
 	'.xlog a { text-decoration: none; letter-spacing: 0; font: 12px verdana; text-transform: none; color: #09F; }' +
 	'.xlog a:visited { color: #059; }' +
 	'.xlog a:hover { color: #FFF; } h3.xlog:nth-of-type(1) {margin-top: 50px;}';
@@ -7995,6 +8007,7 @@ function doWebsiteSpecificTasks()
 	if(!commandElems) return;
 	for(const commandElem of commandElems)
 		runCommand(commandElem.textContent);
+	del("#website-specific-commands");
 }
 
 function inject()
@@ -8211,6 +8224,8 @@ function handleKeyDown(e)
 			case KEYCODES.H: unmarkAll(); break;
 			case KEYCODES.M: markOverlays(); break;
 			case KEYCODES.S: forceReloadCss(); break;
+			case KEYCODES.V: replaceCommonClasses(); break;
+			case KEYCODES.ZERO: capitalizeTitle(); break;
 			case KEYCODES.F12: inspect(true); break;
 			case KEYCODES.UPARROW: modifyMark("expand", true); break;
 			case KEYCODES.DOWNARROW: modifyMark("contract", true); break;
