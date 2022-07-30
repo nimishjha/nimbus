@@ -82,6 +82,7 @@ const Nimbus = {
 		deleteImagesSmallerThan: deleteImagesSmallerThan,
 		deleteMessage: deleteMessage,
 		deleteNodesBetweenMarkers: deleteNodesBetweenMarkers,
+		deleteNodesRelativeToSelectedNode: deleteNodesRelativeToSelectedNode,
 		deleteNonContentElements: deleteNonContentElements,
 		deleteNonContentLists: deleteNonContentLists,
 		deleteNonContentLinks: deleteNonContentLinks,
@@ -5664,22 +5665,50 @@ function delRange(m, n)
 		del(`#i${i}`);
 }
 
-function deleteNodesBeforeSelected()
+function deleteNodesBeforeAnchorNode()
 {
-	deleteNodesRelativeToSelected("before");
+	deleteNodesRelativeToAnchorNode("before");
 }
 
-function deleteNodesAfterSelected()
+function deleteNodesAfterAnchorNode()
 {
-	deleteNodesRelativeToSelected("after");
+	deleteNodesRelativeToAnchorNode("after");
 }
 
-function deleteNodesRelativeToSelected(predicate = "after")
+function deleteNodesRelativeToAnchorNode(predicate = "after")
+{
+	const anchorNode = getNodeContainingSelection();
+	if(anchorNode)
+		deleteNodesByRelativePosition(anchorNode, predicate);
+}
+
+function deleteNodesRelativeToSelectedNode(selector, predicate)
+{
+	if(!["before", "after"].includes(predicate))
+	{
+		showMessageError("Predicate needs to be either 'before' or 'after'");
+		return;
+	}
+	const selected = get(selector);
+	if(!selected)
+	{
+		showMessageError("No elements found matching '" + selector + "'");
+		return;
+	}
+	else if(selected.length > 1)
+	{
+		showMessageError("Selector needs to match one element, found " + selected.length);
+		return;
+	}
+	else if(selected.length === 1)
+	{
+		deleteNodesByRelativePosition(selected[0], predicate);
+	}
+}
+
+function deleteNodesByRelativePosition(anchorNode, predicate)
 {
 	const condition = predicate === "after" ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
-	const anchorNode = getNodeContainingSelection();
-	if(!anchorNode)
-		return;
 	const nodes = get("ol, ul, p, div, aside, section, h1, h2, h3, table, img");
 	let i = nodes.length;
 	while(i--)
@@ -5687,9 +5716,7 @@ function deleteNodesRelativeToSelected(predicate = "after")
 		const node = nodes[i];
 		const relativePosition = anchorNode.compareDocumentPosition(node);
 		if(relativePosition & condition && !(relativePosition & Node.DOCUMENT_POSITION_CONTAINS))
-		{
 			node.remove();
-		}
 	}
 }
 
@@ -8195,8 +8222,8 @@ function handleKeyDown(e)
 			case KEYCODES.F: del(["object", "embed", "video", "iframe"]); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements with class or id containing the string", deleteByClassOrIdContaining); break;
 			case KEYCODES.H: callFunctionWithArgs("Mark elements by selector", markBySelector, 1); break;
-			case KEYCODES.J: deleteNodesBeforeSelected(); break;
-			case KEYCODES.K: deleteNodesAfterSelected(); break;
+			case KEYCODES.J: deleteNodesBeforeAnchorNode(); break;
+			case KEYCODES.K: deleteNodesAfterAnchorNode(); break;
 			case KEYCODES.L: deleteNodesBetweenMarkers(); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
 			case KEYCODES.O: customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
