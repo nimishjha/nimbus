@@ -6558,7 +6558,14 @@ function getContentByParagraphCount()
 		contentDiv.getElementsByClassName("longParagraph").length < longParagraphs.length * 0.8
 	)
 		contentDiv = contentDiv.parentNode;
-	const HEADINGS_SELECTOR = "h1, h2";
+
+	let HEADINGS_SELECTOR = "h1, h2";
+	if(get("h1").length)
+		HEADINGS_SELECTOR = "h1";
+	else if(get("h2").length)
+		HEADINGS_SELECTOR = "h2";
+	else if(get("h3").length)
+		HEADINGS_SELECTOR = "h3";
 	if(document.querySelectorAll(HEADINGS_SELECTOR).length > 0 && contentDiv.querySelectorAll(HEADINGS_SELECTOR).length === 0)
 	{
 		while(
