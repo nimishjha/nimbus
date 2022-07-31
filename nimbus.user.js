@@ -229,6 +229,7 @@ const Nimbus = {
 		setMarkerClass: setMarkerClass,
 		setQueryParameter: setQueryParameter,
 		setReplacementTag: setReplacementTag,
+		singleQuotesToDoubleQuotes: singleQuotesToDoubleQuotes,
 		showAttributes: showAttributes,
 		showDivDepth: showDivDepth,
 		showHtmlComments: showHtmlComments,
@@ -7449,6 +7450,14 @@ function highlightSelection(mode = "sentence")
 			selectionText = expandSelectionToWordBoundaries(node, selectionText);
 		highlightTextAcrossTags(node, selectionText);
 	}
+}
+
+function singleQuotesToDoubleQuotes()
+{
+	replaceInTextNodes("'", '"');
+	replaceInTextNodesRegex(/([a-zA-Z])"([a-zA-Z])/g, "$1'$2");
+	replaceInTextNodes(' d" ', " d' ");
+	replaceInTextNodes('s" ', "s' ");
 }
 
 //	When an entire paragraph is italicized, text that would be in italics is rendered normally instead.
