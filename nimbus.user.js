@@ -1237,6 +1237,24 @@ function logPropertiesMatching(obj, str, path = "")
 	}
 }
 
+function logValuesMatching(obj, str, path="")
+{
+	str = str.toLowerCase();
+	const keys = Object.keys(obj);
+	for(let i = 0, ii = keys.length; i < ii; i++)
+	{
+		const key = keys[i];
+		const value = obj[key];
+		const type = Object.prototype.toString.call(value);
+		if(type === "[object Object]")
+			logValuesMatching(value, str, (path.length ? path + "." : "") + key);
+		else if(typeof value === "string" && value.toLowerCase().indexOf(str) !== -1)
+			console.log(`%c${path}.${key}`, "color: #0F0;", value);
+		else if(typeof value === "number" && value.toString().indexOf(str) !== -1)
+			console.log(`%c${path}.${key}`, "color: #0F0;", value);
+	}
+}
+
 function parseQueryString(url)
 {
 	const index = url.indexOf("?");
