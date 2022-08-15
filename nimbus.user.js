@@ -1212,6 +1212,13 @@ function parseObject(o, indentLevel, parent)
 	return s;
 }
 
+function quoteIfString(arg)
+{
+	if(typeof arg === "string")
+		return '"' + arg + '"';
+	return arg;
+}
+
 //	Takes an object and a string, iterates recursively over all properties of that object,
 //	and prints out all key-value pairs for which the key name matches the given string.
 function logPropertiesMatching(obj, str, path = "")
@@ -1226,7 +1233,7 @@ function logPropertiesMatching(obj, str, path = "")
 		if(type === "[object Object]")
 			logPropertiesMatching(value, str, (path.length ? path + "." : "") + key);
 		else if((path + key).toLowerCase().indexOf(str) !== -1)
-			console.log(path + "." + key + ": [", value, "]");
+			console.log(`%c${path}.${key}`, "color: #0F0;", quoteIfString(value));
 	}
 }
 
@@ -3978,6 +3985,8 @@ function replaceCommonClasses()
 	replaceElementsBySelector(".epub-sc, .small", "small");
 	replaceElementsBySelector("div.block, .afmtx, .afmtx1", "blockquote");
 
+	replaceElementsBySelector("div[class*=comment-author]", "h5");
+	replaceElementsBySelector("div[class*=comment-meta]", "h6");
 	replaceElementsBySelector("div[class*=sidebar]", "aside");
 	replaceElementsBySelector("div[class*=social]", "aside");
 	replaceElementsBySelector("p[class*=subtitle], div[class*=subtitle], p[class*=subhead], div[class*=subhead]", "h3");
@@ -5906,6 +5915,14 @@ function cleanupGeneral_light()
 	xlog(Math.round(t2 - t1) + " ms: cleanupGeneral_light");
 }
 
+function cleanupBarebone()
+{
+	removeAllAttributesOfTypes(["class", "style", "align"]);
+	del("noscript");
+	unwrapAll("span");
+	deleteHtmlComments();
+}
+
 function cleanupHead()
 {
 	const head = getOne("head");
@@ -7029,6 +7046,9 @@ function showSelectorsHeavy()
 	if(get("#styleShowSelectorsHeavy"))
 	{
 		del("#styleShowSelectorsHeavy")	;
+		removeAttributeOf("body *", "data-id");
+		removeAttributeOf("body *", "data-idclass");
+		removeAttributeOf("body *", "data-class");
 		return;
 	}
 	const elems = get("*");
@@ -7353,7 +7373,6 @@ function annotate(position = "before")
 		customPrompt("Enter annotation tag").then(annotateFunc);
 }
 
-
 function wrapAnchorNodeInTag()
 {
 	const node = getNodeContainingSelection();
@@ -7368,7 +7387,7 @@ function wrapAnchorNodeInTag()
 function generateTableOfContents()
 {
 	const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
-	const toc = document.createElement('div');
+	const toc = document.createElement("div");
 	for (let i = 0, ii = headings.length; i < ii; i++)
 	{
 		const heading = headings[i];
@@ -7458,6 +7477,7 @@ function singleQuotesToDoubleQuotes()
 	replaceInTextNodesRegex(/([a-zA-Z])"([a-zA-Z])/g, "$1'$2");
 	replaceInTextNodes(' d" ', " d' ");
 	replaceInTextNodes('s" ', "s' ");
+	replaceInTextNodes('n" ', "n' ");
 }
 
 //	When an entire paragraph is italicized, text that would be in italics is rendered normally instead.
@@ -7844,22 +7864,11 @@ function findStringsInProximity(stringOne, stringTwo)
 	window.scrollTo(0, 0);
 }
 
-function replaceInTextNodes(searchString, replacement)
+function replaceInTextNodes(searchString, replacementString)
 {
 	const textNodes = getTextNodesAsArray();
-	const regex = new RegExp(escapeForRegExp(searchString), "g");
-	let replCount = 0;
-	for(let i = 0, ii = textNodes.length; i < ii; i++)
-	{
-		const textNode = textNodes[i];
-		if(textNode.data.match(regex))
-		{
-			replCount++;
-			textNode.data = textNode.data.replace(regex, replacement);
-		}
-	}
-	if(replCount)
-		showMessageBig(`${replCount} occurrences of "${searchString}" replaced with "${replacement}"`);
+	for(const textNode of textNodes)
+		textNode.data = textNode.data.replaceAll(searchString, replacementString);
 }
 
 function replaceInTextNodesRegex(regex, replacement)
@@ -8132,7 +8141,7 @@ function handleKeyDown(e)
 			case KEYCODES.R: toggleHighlight(); break;
 			case KEYCODES.S: toggleContentEditable(); break;
 			case KEYCODES.U: del("ul"); del("dl"); break;
-			case KEYCODES.V: removeAllAttributesOfTypes(["class", "style", "align"]); unwrapAll("span"); break;
+			case KEYCODES.V: cleanupBarebone(); break;
 			case KEYCODES.W: highlightSelection("word"); break;
 			case KEYCODES.X: removeEmojis(); break;
 			case KEYCODES.Y: callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
