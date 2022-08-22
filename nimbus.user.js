@@ -299,7 +299,7 @@ const STYLES = {
 		b, em, strong, i { color: #DDD; },
 		a { text-decoration: none; }
 	`,
-	MIN_FONT_SIZE: `* { font-size: calc(18px + 0.0001vh); line-height: 1.4; }`,
+	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); line-height: 1.4; }`,
 	COLORS_01: 'html, body { background: #202020; color: #AAA; } div, table, tr, td, tbody, th, article, section, header, footer { background: inherit; color: inherit; }',
 	SIMPLE_NEGATIVE: `
 		html, body, body[class] { background: #000; font-family: "swis721 cn bt"; font-size: 22px; }
@@ -994,6 +994,7 @@ function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 
 function replaceBrs()
 {
+	del("br:first-child");
 	const brs = get("br");
 	for(let i = 0, ii = brs.length; i < ii; i++)
 	{
@@ -1108,7 +1109,7 @@ function capitalizeTitle()
 {
 	if(typeof document.title === "string" && document.title.length)
 	{
-		document.title = capitalize(document.title);
+		document.title = capitalize(document.title.replace(/\[[\w\s]+\]/, ""));
 		setDocTitle(document.title);
 	}
 }
@@ -4008,7 +4009,7 @@ function replaceCommonClasses()
 	replaceElementsBySelector("div[class*=sidebar]", "aside");
 	replaceElementsBySelector("div[class*=social]", "aside");
 	replaceElementsBySelector("p[class*=subtitle], div[class*=subtitle], p[class*=subhead], div[class*=subhead]", "h3");
-	replaceElementsBySelector("p[class*=title], div[class*=title]", "h2");
+	// replaceElementsBySelector("p[class*=title], div[class*=title]", "h2");
 	replaceElementsBySelector("p[class*=image], div[class*=image]", "figure");
 	replaceElementsBySelector("p[class*=caption], div[class*=caption]", "figcaption");
 	replaceElementsBySelector("p[class*=quote], div[class*=quote]", "blockquote");
@@ -4016,8 +4017,8 @@ function replaceCommonClasses()
 	replaceElementsBySelector("p[class*=date], div[class*=date]", "h5");
 	replaceElementsBySelector("p[class*=quote], div[class*=quote]", "blockquote");
 
-	replaceElementsBySelector("span[class*=ital], span[class*=txit]", "i");
-	replaceElementsBySelector("span[class*=bold], span[class*=txbd]", "b");
+	replaceElementsBySelector("span[class*=ital], span[class*=txit], span[class*=epub-i]", "i");
+	replaceElementsBySelector("span[class*=bold], span[class*=txbd], span[class*=epub-b]", "b");
 	replaceElementsBySelector("span[class*=small]", "small");
 }
 
@@ -4143,7 +4144,7 @@ function fixDashes()
 	replaceInTextNodes("--", "—");
 	replaceInTextNodes(" - ", "—");
 	replaceInTextNodes(" -", "—");
-	replaceInTextNodes("- ", "—");
+	// replaceInTextNodes("- ", "—");
 	replaceInTextNodes("— ", "—");
 	replaceInTextNodes(" —", "—");
 }
@@ -5519,7 +5520,7 @@ function toggleStyleNegative()
 	pre q2 { color: #57F; background: #203040; }
 	pre c1 { color: #AABBCC; background: #303840; }
 	pre c2 { color: #88BBEE; background: #304050; }
-	pre b1 { color: #00FF00; }
+	pre b1 { color: #11FF00; }
 	pre b2 { color: #00FFFF; }
 	pre b3 { color: #EEAAFF; }
 	pre xk { color: #0099FF; }
@@ -5737,7 +5738,7 @@ function deleteNodesRelativeToSelectedNode(selector, predicate)
 function deleteNodesByRelativePosition(anchorNode, predicate)
 {
 	const condition = predicate === "after" ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
-	const nodes = get("ol, ul, p, div, aside, section, h1, h2, h3, table, img");
+	const nodes = get("ol, ul, p, div, aside, section, h1, h2, h3, table, img, header, footer");
 	let i = nodes.length;
 	while(i--)
 	{
@@ -8066,10 +8067,8 @@ function removeHighlightsFromMarkedElements()
 	unmarkAll();
 }
 
-function isChrome()
-{
-	return navigator.userAgent.indexOf("Chrome/") !== -1;
-}
+function isChrome() { return navigator.userAgent.indexOf("Chrome/") !== -1; }
+function isIframe() { return window !== window.top; }
 
 function doWebsiteSpecificTasks()
 {
