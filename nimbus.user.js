@@ -190,6 +190,7 @@ const Nimbus = {
 		removeInlineStyles: removeInlineStyles,
 		removeQueryStringFromImageSources: removeQueryStringFromImageSources,
 		removeQueryStringFromLinks: removeQueryStringFromLinks,
+		removeQueryStringFromLinksMatching: removeQueryStringFromLinksMatching,
 		removeSpanTags: removeSpanTags,
 		replaceAudio: replaceAudio,
 		replaceBrs: replaceBrs,
@@ -3474,6 +3475,17 @@ function removeQueryStringFromLinks()
 	for(let i = 0, ii = links.length; i < ii; i++)
 	{
 		const link = links[i];
+		link.href = trimAt(link.href, "?");
+	}
+}
+
+function removeQueryStringFromLinksMatching(text)
+{
+	const links = get(`a[href*=${text}]`);
+	if(!(links && links.length)) return;
+	for(const link of links)
+	{
+		if(!link.href) continue;
 		link.href = trimAt(link.href, "?");
 	}
 }
