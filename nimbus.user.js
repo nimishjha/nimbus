@@ -49,6 +49,7 @@ const Nimbus = {
 		FORWARD_SLASH: 191, BACK_SLASH: 220, MINUS: 173, TILDE: 192, SPACE: 32, UPARROW: 38, DOWNARROW: 40, LEFTARROW: 37, RIGHTARROW: 39, TAB: 9, ENTER: 13, ESCAPE: 27, SQUARE_BRACKET_OPEN: 219, SQUARE_BRACKET_CLOSE: 221
 	},
 	availableFunctions: {
+		addDateToTitle: addDateToTitle,
 		addLinksToLargerImages: addLinksToLargerImages,
 		annotate: annotate,
 		appendMetadata: appendMetadata,
@@ -64,6 +65,7 @@ const Nimbus = {
 		cleanupHeadings: cleanupHeadings,
 		cleanupLinks: cleanupLinks,
 		consolidateAnchors: consolidateAnchors,
+		convertOrphanedTextNodesToParagraphs: convertOrphanedTextNodesToParagraphs,
 		copyAttribute: copyAttribute,
 		count: count,
 		createListsFromBulletedParagraphs: createListsFromBulletedParagraphs,
@@ -995,7 +997,6 @@ function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 
 function replaceBrs()
 {
-	del("br:first-child");
 	const brs = get("br");
 	for(let i = 0, ii = brs.length; i < ii; i++)
 	{
@@ -1005,6 +1006,7 @@ function replaceBrs()
 	const elems = get(".hasBrs");
 	for(let i = 0, ii = elems.length; i < ii; i++)
 		splitByBrs(elems[i]);
+	replaceElementsBySelector("br", "brk");
 }
 
 function replaceDiacritics(str)
@@ -1113,6 +1115,12 @@ function capitalizeTitle()
 		document.title = capitalize(document.title.replace(/\[[\w\s]+\]/, ""));
 		setDocTitle(document.title);
 	}
+}
+
+function addDateToTitle()
+{
+	document.title = document.title + " " + getTimestamp("dateOnly");
+	setDocTitle(document.title);
 }
 
 function setDocTitle(newTitle)
@@ -1925,7 +1933,7 @@ function toggleStyle(str, id, important)
 	insertStyle(str, id, important);
 }
 
-function getTimestamp()
+function getTimestamp(mode = "dateAndTime")
 {
 	const d = new Date();
 	const YYYY = d.getFullYear();
@@ -1934,6 +1942,8 @@ function getTimestamp()
 	const HH = zeroPad(d.getHours());
 	const MM = zeroPad(d.getMinutes());
 	const SS = zeroPad(d.getSeconds());
+	if(mode === "dateOnly")
+		return `${YYYY}-${MO}-${DD}`;
 	return `${YYYY}/${MO}/${DD} ${HH}:${MM}:${SS}`;
 }
 
@@ -2024,7 +2034,7 @@ function logAllClassesFor(selector)
 	if(typeof selector === "string" && selector.length)
 	{
 		console.log(selector);
-		console.log("\t" + getAllClassesFor(selector).join("\n\t"));
+		console.log("\t" + getAllClassesFor(selector).sort().join("\n\t"));
 	}
 	else
 	{
@@ -2142,26 +2152,6 @@ function showStatus(id, str)
 	getOrCreate("h3", id).textContent = id + ": " + str;
 }
 
-function refreshScreen()
-{
-	const style = `
-	@keyframes fade {
-		0% { opacity: 0.2; }
-		50% { opacity: 1; }
-		100% { opacity: 0.2; }
-	}
-	@keyframes fade2 {
-		0% { opacity: 0.2; }
-		89% { opacity: 0.2; }
-		90% { opacity: 1; }
-		91% { opacity: 0.2; }
-		100% { opacity: 0.2; }
-	}
-	html::after { content: " "; display: block; width: 100px; height: 100px; position: fixed; top: 45vh; left: 10vh; animation: fade 20s linear infinite; background: #777; }
-	html::before { content: " "; display: block; width: 100px; height: 100px; position: fixed; top: 65vh; left: 10vh; animation: fade2 120s linear infinite; background: #777; }`;
-	toggleStyle(style, "styleScreenRefresh");
-}
-
 function showMessage(messageHtml, msgClass, persist)
 {
 	const MESSAGE_TIMEOUT = 2000;
@@ -2170,30 +2160,22 @@ function showMessage(messageHtml, msgClass, persist)
 	let messageInner;
 	msgClass = msgClass || "";
 	const strStyle = `
-		message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; height: 30px; line-height: 30px; position: fixed; top: calc(100vh - 60px); left: 0; width: 100%; z-index: 2147483647; }
+		message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; height: 60px; line-height: 60px; position: fixed; top: calc(100vh - 60px); left: 0; width: 100%; z-index: 2147483647; }
 		messageinner { display: block; max-width: 1200px; margin: 0 auto; text-align: left; }
-		message.messagebig { font: 32px "swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }
-		message.messageerror { color: #FFF; background: #500; }
+		messagebig { display: block; max-width: 1200px; margin: 0 auto; text-align: left; font: 32px "swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }
+		messageerror { display: block; max-width: 1200px; margin: 0 auto; text-align: left; font: 32px "swis721 cn bt"; color: #FFF; background: #500; height: 60px; line-height: 60px; font-weight: 500; }
 	`;
-	if(!get("message"))
+	const messageInnerTagName = msgClass ? msgClass : "messageinner";
+	if(get("message"))
 	{
-		messageContainer = createElement("message", { className: msgClass });
-		messageInner = document.createElement("messageinner");
-		messageContainer.appendChild(messageInner);
-		document.body.appendChild(messageContainer);
-		if(!getOne("#styleMessage"))
-			insertStyle(strStyle, "styleMessage", true);
+		del("message");
 	}
-	else
-	{
-		messageContainer = getOne("message");
-		messageContainer.className = msgClass;
-		messageInner = getOne("messageinner");
-	}
-	if(!messageInner)
-	{
-		return;
-	}
+	messageContainer = createElement("message");
+	messageInner = document.createElement(messageInnerTagName);
+	messageContainer.appendChild(messageInner);
+	document.body.appendChild(messageContainer);
+	if(!getOne("#styleMessage"))
+		insertStyle(strStyle, "styleMessage", true);
 	messageInner.innerHTML = messageHtml;
 	if(msgClass)
 		console.log("Nimbus: \t " + messageInner.textContent);
@@ -2208,7 +2190,7 @@ function showMessageBig(messageHtml, persist = false)
 
 function showMessageError(messageHtml, persist = false)
 {
-	showMessage(messageHtml, "messagebig messageerror", persist);
+	showMessage(messageHtml, "messageerror", persist);
 }
 
 function deleteMessage()
@@ -5435,7 +5417,6 @@ function toggleStyleNegative()
 	right { display: block; text-align: right; }
 	documentheading { display: block; margin: 0 0 100px 0; }
 	documentheading h1 { font-size: 2.8rem; }
-	screenrefresh, html.nimbusTheme2 screenrefresh { position: fixed; top: 0; left: 0; bottom: 0; right: 0; background: #777; display: block; }
 	slideshow { display: block; background: #111; padding: 10px; }
 	slideshow::after { content: " "; clear: both; display: block; }
 
@@ -5528,7 +5509,7 @@ function toggleStyleNegative()
 	pre u { color: #6677EE; }
 	pre dfn { color: #8888CC; }
 	pre s { color: #6677CC; }
-	pre q1 { color: #0CF; background: #003040; }
+	pre q1 { color: #1CF; background: #003040; }
 	pre q2 { color: #57F; background: #203040; }
 	pre c1 { color: #AABBCC; background: #303840; }
 	pre c2 { color: #88BBEE; background: #304050; }
@@ -5538,28 +5519,28 @@ function toggleStyleNegative()
 	pre xk { color: #0099FF; }
 	pre xh { color: #AADDCC; }
 
-	X0 { color: #00AACC; }
-	X1 { color: #00FFFF; }
-	X2 { color: #0099CC; }
-	X3 { color: #00EEEE; }
-	X4 { color: #0088DD; }
-	X5 { color: #00CCDD; }
-	X6 { color: #00FFEE; }
-	X7 { color: #0088CC; }
-	X8 { color: #00BBDD; }
-	X9 { color: #00FFCC; }
-	X10 { color: #00FF88; }
-	X11 { color: #00DD66; }
-	X12 { color: #00FF22; }
-	X13 { color: #00DD44; }
-	X14 { color: #0099EE; }
-	X15 { color: #00FFAA; }
+	X0 { color: #11AACC; }
+	X1 { color: #11FFFF; }
+	X2 { color: #1199CC; }
+	X3 { color: #11EEEE; }
+	X4 { color: #1188DD; }
+	X5 { color: #11CCDD; }
+	X6 { color: #11FFEE; }
+	X7 { color: #1188CC; }
+	X8 { color: #11BBDD; }
+	X9 { color: #11FFCC; }
+	X10 { color: #11FF88; }
+	X11 { color: #11DD66; }
+	X12 { color: #11FF22; }
+	X13 { color: #11DD44; }
+	X14 { color: #1199EE; }
+	X15 { color: #11FFAA; }
 
 	XC { color: #05C; background: #005; }
-	XK { color: #0077CC; }
-	XO { color: #00AACC; }
-	XP { color: #00CC00; }
-	XS { color: #0CF; background: #003060; }
+	XK { color: #1177CC; }
+	XO { color: #11AACC; }
+	XP { color: #11CC11; }
+	XS { color: #0CF; background: #113060; }
 
 	mark, markgreen, markred, markblue, markpurple, markyellow, markwhite { padding: 2px 0; line-height: inherit; }
 	mark { background: #048; color: #6CF; }
@@ -5579,7 +5560,7 @@ function toggleStyleNegative()
 	.markd { box-shadow: inset 2px 2px #C00, inset -2px -2px #C00 !important; background: #000 !important; }
 	`;
 
-	toggleStyle(s, "styleNegative");
+	toggleStyle(s, "styleNegative", true);
 }
 
 //	Returns an array of elements matching a selector and also containing or not containing the specified text.
@@ -5952,6 +5933,7 @@ function cleanupBarebone()
 	del("noscript");
 	unwrapAll("span");
 	deleteHtmlComments();
+	removeInlineStyles();
 }
 
 function cleanupHead()
@@ -6510,7 +6492,7 @@ function deleteIframes()
 
 function deleteImages()
 {
-	del(["svg", "canvas"]);
+	del(["svg", "canvas", "picture source"]);
 	deleteEmptyElements("picture");
 	const images = get("img");
 	const imagePlaceholders = get("rt");
@@ -7343,7 +7325,7 @@ function removeAllAttributesOfType(type)
 function removeAllAttributesOfTypes(attrNames)
 {
 	for(const attrName of attrNames)
-	removeAllAttributesOfType(attrName);
+		removeAllAttributesOfType(attrName);
 }
 
 function insertElementNextToAnchor(tagName, position)
@@ -7749,8 +7731,11 @@ function highlightTextAcrossTags(node, searchString)
 		const childNodeTagName = childNode.nodeType === 1 ? childNode.tagName : "text node";
 		childNodeEnd += childNodeText.length;
 
+		if(childNodeTagName === "REFERENCE")
+			continue;
+
 		//	If any part of the selection is contained in an element of these types, highlight the entire element
-		if(["I", "B", "EM", "STRONG", "REFERENCE", "CITE"].includes(childNode.tagName))
+		if(["I", "B", "EM", "STRONG", "CITE"].includes(childNode.tagName))
 		{
 			if(
 				index1 >= childNodeStart && index1 < childNodeEnd ||
@@ -7761,7 +7746,7 @@ function highlightTextAcrossTags(node, searchString)
 			continue;
 		}
 
-		consoleLog(childNodeStart, '-', childNodeEnd);
+		consoleLog('Child node start:', childNodeStart, '; child node end:', childNodeEnd);
 		if(index1 <= childNodeStart && index2 >= childNodeEnd)
 		{
 			consoleLog(`%c${getNodeText(childNode)}`, "color: #ABD; background: #008;", "is contained in the search string");
@@ -7774,7 +7759,7 @@ function highlightTextAcrossTags(node, searchString)
 			if(partialSearchString.length)
 				splitMatches.push({ searchString: partialSearchString, node: childNode, matchType: MATCH_TYPE.CONTAINS_BEGINNING });
 		}
-		else if(index2 > childNodeStart && index2 <= childNodeEnd)
+		else if(index2 >= childNodeStart && index2 <= childNodeEnd)
 		{
 			consoleLog(`%c${getNodeText(childNode)}`, "color: #ABD; background: #008;", "contains the end of the search string");
 			const partialSearchString = childNodeText.substring(0, index2 - childNodeStart);
@@ -8134,7 +8119,6 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD6: retrieveLargeImages(); break;
 			case KEYCODES.NUMPAD7: groupMarkedElements("blockquote"); break;
 			case KEYCODES.NUMPAD8: groupUnderHeading(); break;
-			case KEYCODES.NUMPAD9: refreshScreen(); break;
 			case KEYCODES.NUMPAD0: deleteResources(); break;
 			case KEYCODES.NUMPAD_ADD: persistStreamingImages(); break;
 			case KEYCODES.NUMPAD_SUBTRACT: deletePersistedImages(); break;
@@ -8159,7 +8143,7 @@ function handleKeyDown(e)
 			case KEYCODES.E: cycleHighlightTag(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteBySelectorAndTextMatching); break;
 			case KEYCODES.I: toggleConsole("css"); break;
-			case KEYCODES.J: joinNodesContainingSelection(); break;
+			case KEYCODES.J: removeEmojis(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.L: showLog(); break;
 			case KEYCODES.M: customPrompt("Enter command").then(runCommand); break;
@@ -8172,7 +8156,7 @@ function handleKeyDown(e)
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.V: cleanupBarebone(); break;
 			case KEYCODES.W: highlightSelection("word"); break;
-			case KEYCODES.X: removeEmojis(); break;
+			case KEYCODES.X: joinNodesContainingSelection(); break;
 			case KEYCODES.Y: callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
 			case KEYCODES.Z: replaceSpecialCharacters(); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); cycleFocusOverFormFields(); break;
