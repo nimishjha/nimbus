@@ -444,9 +444,16 @@ function getOrCreate(tagName, id, parent)
 	return newElem;
 }
 
-function getTextNodesAsArray()
+function getTextNodesUnderSelector(tagName, strClass)
 {
-	return getXpathResultAsArray("//body//text()");
+	let xpathString;
+	if(tagName && strClass)
+		xpathString = `//${tagName}[contains(@class, '${strClass}')]//text()`;
+	else if(tagName)
+		xpathString = `//${tagName}//text()`;
+	else if(strClass)
+		xpathString = `//*[contains(@class, '${strClass}')]//text()`;
+	return getXpathResultAsArray(xpathString);
 }
 
 function getXpathResultAsArray(xpath)
@@ -1072,7 +1079,7 @@ function replaceSpecialCharacters()
 		regularExpressions[key] = new RegExp(key, 'g');
 	}
 
-	const textNodes = getTextNodesAsArray();
+	const textNodes = getTextNodesUnderSelector("body");
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
 		const textNode = textNodes[i];
@@ -1811,7 +1818,7 @@ function rescueOrphanedNodes()
 
 function convertOrphanedTextNodesToParagraphs(mark = true)
 {
-	const textNodes = getTextNodesAsArray();
+	const textNodes = getTextNodesUnderSelector("body");
 	const className = mark ? Nimbus.markerClass : null;
 	let i = textNodes.length;
 	while(i--)
@@ -5613,7 +5620,7 @@ function selectByTagNameAndText(tagName, text)
 
 	text = text.toLowerCase();
 	const MAX_DEPTH = 5;
-	const textNodes = getTextNodesAsArray();
+	const textNodes = getTextNodesUnderSelector("body");
 	const selected = [];
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
@@ -5659,7 +5666,7 @@ function getFirstTextChild(elem)
 
 function selectBlockElementsContainingText(text)
 {
-	const textNodes = getTextNodesAsArray();
+	const textNodes = getTextNodesUnderSelector("body");
 	const escapedString = "(\\w*" + escapeForRegExp(text) + "\\w*)";
 	let regex = new RegExp(escapedString, "i");
 	const selected = [];
@@ -6027,7 +6034,7 @@ function deleteBySelectorAndText(selector, str, boolInvertSelection = false)
 function removeEmojis()
 {
 	const regex = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
-	const textNodes = getTextNodesAsArray();
+	const textNodes = getTextNodesUnderSelector("body");
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
 		const textNode = textNodes[i];
@@ -6037,7 +6044,7 @@ function removeEmojis()
 
 function normalizeAllWhitespace()
 {
-	const textNodes = getTextNodesAsArray();
+	const textNodes = getTextNodesUnderSelector("body");
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
 		const textNode = textNodes[i];
@@ -6047,7 +6054,7 @@ function normalizeAllWhitespace()
 
 function normaliseWhitespaceForParagraphs()
 {
-	const textNodes = getTextNodesAsArray();
+	const textNodes = getTextNodesUnderSelector("body");
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
 		const textNode = textNodes[i];
@@ -7548,7 +7555,7 @@ function italicizeSelection()
 function highlightFirstParentByText(str)
 {
 	const highlightTagName = Nimbus.highlightTagName;
-	const textNodes = getTextNodesAsArray();
+	const textNodes = getTextNodesUnderSelector("body");
 	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
 	let regex = new RegExp(escapedString, "gi");
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
@@ -7562,7 +7569,7 @@ function highlightFirstParentByText(str)
 function highlightAllTextNodesMatching(str)
 {
 	str = str.toLowerCase();
-	const textNodes = getTextNodesAsArray();
+	const textNodes = getTextNodesUnderSelector("body");
 	let count = 0;
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
@@ -7882,14 +7889,14 @@ function findStringsInProximity(stringOne, stringTwo)
 
 function replaceInTextNodes(searchString, replacementString)
 {
-	const textNodes = getTextNodesAsArray();
+	const textNodes = getTextNodesUnderSelector("body");
 	for(const textNode of textNodes)
 		textNode.data = textNode.data.replaceAll(searchString, replacementString);
 }
 
 function replaceInTextNodesRegex(regex, replacement)
 {
-	const textNodes = getTextNodesAsArray();
+	const textNodes = getTextNodesUnderSelector("body");
 	let replCount = 0;
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
@@ -7949,7 +7956,7 @@ function highlightCodePunctuation()
 
 function highlightAllMatchesInDocument(str, isCaseSensitive = false)
 {
-	const textNodes = getTextNodesAsArray();
+	const textNodes = getTextNodesUnderSelector("body");
 	const regexFlags = isCaseSensitive ? "g" : "gi";
 	const regex = new RegExp(str, regexFlags);
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
