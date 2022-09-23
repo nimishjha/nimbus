@@ -2126,7 +2126,7 @@ function makeIdSelector(id)
 
 function simplifyClassNames(selector)
 {
-	const sel = selector ||  "div, p, span, h1, h2, h3, h4, h5, h6";
+	const sel = selector ||  "div, p, span, h1, h2, h3, h4, h5, h6, em, i, b, strong, u, a";
 	const elems = get(sel);
 	const classMap = {};
 	const tagTable = {};
@@ -4479,25 +4479,25 @@ function parseCode(s)
 		{
 			// double quote strings
 			case '"':
-				t += '<q1>"';
+				t += '<xs>"';
 				i++;
 				while(s[i] && s[i]!== '"')
 				{
 					t += s[i];
 					i++;
 				}
-				t += '"</q1>';
+				t += '"</xs>';
 				break;
 			// single quote strings
 			case "'":
-				t += "<q2>'";
+				t += "<xs>'";
 				i++;
 				while(s[i] && s[i]!== "'")
 				{
 					t += s[i];
 					i++;
 				}
-				t += "'</q2>";
+				t += "'</xs>";
 				break;
 			// comments
 			case '/':
@@ -4507,25 +4507,25 @@ function parseCode(s)
 				}
 				else if(next === '/') // single-line comment
 				{
-					t += "<c1>/";
+					t += "<xc>/";
 					i++;
 					while(s[i] && s[i].match(/[\r\n]/) === null)
 					{
 						t += s[i];
 						i++;
 					}
-					t += '</c1>\r\n';
+					t += '</xc>\r\n';
 				}
 				else if(next === '*') // block comment
 				{
-					t += '<c2>' + cur;
+					t += '<xc>' + cur;
 					i++;
 					while(s[i] && !(s[i] === '*' && s[i+1] === '/'))
 					{
 						t += s[i];
 						i++;
 					}
-					t += '*/</c2>';
+					t += '*/</xc>';
 					i++;
 				}
 				else
@@ -4563,15 +4563,15 @@ function parseCode(s)
 			// brackets
 			case '{':
 			case '}':
-				t += '<b1>' + cur + '</b1>';
+				t += '<xp>' + cur + '</xp>';
 				break;
 			case '(':
 			case ')':
-				t += '<b2>' + cur + '</b2>';
+				t += '<xp>' + cur + '</xp>';
 				break;
 			case '[':
 			case ']':
-				t += '<b3>' + cur + '</b3>';
+				t += '<xp>' + cur + '</xp>';
 				break;
 			// no highlighting
 			default:
@@ -4598,8 +4598,9 @@ function highlightCode(shouldHighlightKeywords)
 	}
 
 	splitByBrsInPres();
-	fixPres();
-	restorePres();
+	makePlainText("pre");
+	// fixPres();
+	// restorePres();
 
 	const preBlocks = get("pre");
 	let i = preBlocks.length;
@@ -4614,8 +4615,8 @@ function highlightCode(shouldHighlightKeywords)
 		}
 
 		let nodeHTML = preElement.innerHTML;
-		nodeHTML = nodeHTML.replace(/<span[^>]*>/g, "");
-		nodeHTML = nodeHTML.replace(/<\/span>/g, "");
+		// nodeHTML = nodeHTML.replace(/<span[^>]*>/g, "");
+		// nodeHTML = nodeHTML.replace(/<\/span>/g, "");
 		nodeHTML = parseCode(nodeHTML);
 
 		// Everything between angle brackets
@@ -4627,7 +4628,7 @@ function highlightCode(shouldHighlightKeywords)
 		if(shouldHighlightKeywords === true)
 		{
 			const keywords = [
-				"abstract", "addEventListener", "appendChild", "arguments", "await", "abs",
+				"abstract", "addEventListener", "appendChild", "arguments", "async", "await", "abs",
 				"break", "byte",
 				"case", "catch", "char", "class", "const", "continue", "createElement", "createTextNode",
 				"debugger", "default", "delete", "do", "document", "documentElement", "double",
@@ -4658,6 +4659,8 @@ function highlightCode(shouldHighlightKeywords)
 		}
 		preElement.innerHTML = nodeHTML;
 	}
+	makePlainText("xc");
+	makePlainText("xs");
 }
 
 function getNodeContainingSelection()
@@ -4692,8 +4695,14 @@ function toggleContentEditable()
 	{
 		showMessageBig("contentEditable OFF");
 		selectedNode.removeAttribute("contentEditable");
-		if(selectedNode.tagName !== "PRE")
-			splitByBrs(selectedNode);
+		const tagName = selectedNode.tagName;
+		if(tagName !== "PRE")
+		{
+			if(["H1", "H2", "H3", "H4", "H5", "H6"].includes(tagName))
+				splitByBrs(selectedNode, "hgroup", tagName);
+			else
+				splitByBrs(selectedNode);
+		}
 		Nimbus.isEditing = false;
 	}
 }
@@ -5505,7 +5514,7 @@ function toggleStyleNegative()
 	tt { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #06C; }
 	kbd { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #0C0; }
 	samp { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #0CC; }
-	pre { background: #0C0C0C; color: #999; border-style: solid; border-width: 0 0 0 10px; border-color: #444; padding: 10px 20px; }
+	pre { background: #0C0C0C; color: #379; border-style: solid; border-width: 0 0 0 10px; border-color: #444; padding: 10px 20px; }
 	pre p { margin: 0; padding: 0; }
 	pre { font: bold 18px/1.2 Consolas, monospace; }
 	pre * { font: inherit; text-recoration: none; }
@@ -5543,11 +5552,11 @@ function toggleStyleNegative()
 	X14 { color: #1199EE; }
 	X15 { color: #11FFAA; }
 
-	XC { color: #05C; background: #005; }
+	XC { color: #1CF; background: #247; }
 	XK { color: #1177CC; }
 	XO { color: #11AACC; }
-	XP { color: #11CC11; }
-	XS { color: #0CF; background: #113060; }
+	XP { color: #11FF00; }
+	XS { color: #1CF; background: #113060; }
 
 	mark, markgreen, markred, markblue, markpurple, markyellow, markwhite { padding: 2px 0; line-height: inherit; }
 	mark { background: #048; color: #6CF; }
@@ -7417,7 +7426,8 @@ function generateTableOfContents()
 		heading.id = id;
 		const tocEntryLink = createElement("a", { textContent: heading.textContent, href: "#" + id } );
 		const indentLevel = parseInt(heading.tagName.substring(1), 10);
-		const tocEntryHeading = createElement("h" + indentLevel);
+		// const tocEntryHeading = createElement("h" + indentLevel);
+		const tocEntryHeading = createElement("h6");
 		const tocEntryWrapper = document.createElement("div");
 		tocEntryHeading.appendChild(tocEntryLink);
 		tocEntryWrapper.appendChild(tocEntryHeading);
