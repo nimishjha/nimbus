@@ -5072,31 +5072,31 @@ function makeDocumentHierarchical()
 		groupUnderHeadings(headingSelectors[i]);
 }
 
-function groupUnderHeadings(selector)
+function groupUnderHeadings(selector, selectorToBreakOn)
 {
 	const headings = get(selector);
 	for(let i = 0, ii = headings.length; i < ii; i++)
-		groupUnderHeading(headings[i]);
+		groupUnderHeading(headings[i], selectorToBreakOn);
 }
 
-function groupUnderHeading(heading)
+function groupUnderHeading(heading, selectorToBreakOn)
 {
 	const WRAPPER_ELEMENT_TAGNAME = "section";
 	const headingTagName = heading.tagName;
 	const wrapperElem = document.createElement(WRAPPER_ELEMENT_TAGNAME);
-	const toDelete = [];
+	const elemsToDelete = [];
 	wrapperElem.appendChild(heading.cloneNode(true));
 	let nextElem = heading.nextElementSibling;
 	let count = 0;
-	while(nextElem && nextElem.tagName !== headingTagName && count < 1000)
+	while(nextElem && nextElem.tagName !== headingTagName && !nextElem.matches(selectorToBreakOn) && count < 1000)
 	{
 		count++;
 		wrapperElem.appendChild(nextElem.cloneNode(true));
-		toDelete.push(nextElem);
+		elemsToDelete.push(nextElem);
 		nextElem = nextElem.nextElementSibling;
 	}
 	heading.parentNode.replaceChild(wrapperElem, heading);
-	del(toDelete);
+	del(elemsToDelete);
 }
 
 function joinAdjacentElements(selector)
