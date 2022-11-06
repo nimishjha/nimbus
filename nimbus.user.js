@@ -127,6 +127,9 @@ const Nimbus = {
 		highlightAllStrings: highlightAllStrings,
 		highlightBySelectorAndText: highlightBySelectorAndText,
 		highlightCode: highlightCode,
+		highlightCodeComments: highlightCodeComments,
+		highlightCodePunctuation: highlightCodePunctuation,
+		highlightCodeStrings: highlightCodeStrings,
 		highlightFirstParentByText: highlightFirstParentByText,
 		highlightLinksInPres: highlightLinksInPres,
 		highlightLinksWithHrefContaining: highlightLinksWithHrefContaining,
@@ -142,6 +145,7 @@ const Nimbus = {
 		insertHrBeforeAll: insertHrBeforeAll,
 		insertStyle: insertStyle,
 		insertStyleHighlight: insertStyleHighlight,
+		inspect: inspect,
 		iw: forceImageWidth,
 		joinAdjacentElements: joinAdjacentElements,
 		joinByBrs: joinByBrs,
@@ -222,6 +226,7 @@ const Nimbus = {
 		retrieve: retrieve,
 		retrieveBySelectorAndText: retrieveBySelectorAndText,
 		retrieveLargeImages: retrieveLargeImages,
+		revealEmptyLinks: revealEmptyLinks,
 		revealLinkHrefs: revealLinkHrefs,
 		sanitizeTitle: sanitizeTitle,
 		selectElementsEndingWithText: selectElementsEndingWithText,
@@ -362,7 +367,7 @@ const STYLES = {
 		*[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
 		*[id]::before { content: attr(id); color: #F0F; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
 		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #0DD; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
-		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 2px; padding: 4px; }
+		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 2px 2px 2px 10px; padding: 4px; }
 		h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #A0A, inset -4px -4px #404; }
 		span { box-shadow: inset 0 -100px #040; padding: 2px; border: 2px solid #0A0; }
 	`,
@@ -510,6 +515,7 @@ function markElements(elements)
 	}
 	for(let i = 0, ii = elements.length; i < ii; i++)
 		markElement(elements[i]);
+	showMessageBig("Marked " + elements.length + " elements");
 }
 
 function unmarkElements(elements)
@@ -1154,7 +1160,7 @@ function sanitizeTitle(titleString)
 		.replace(/[|\?]/g, "")
 		.replace(/[\/]/g, "_")
 		.replace(/:/g, " - ")
-		.replace(/[^\+\.\(\)0-9A-Za-z_!,@%\[\]\-\(\)']/g, " ")
+		.replace(/[^\+\(\)0-9A-Za-z_!,\[\]\-\(\)']/g, " ")
 		.replace(/ , /g, ", ")
 		.replace(/\s+/g, " ");
 
@@ -1163,7 +1169,7 @@ function sanitizeTitle(titleString)
 
 function escapeForRegExp(str)
 {
-	const specials = /[.*+?|()\\[\\]{}\\\\]/g;
+	const specials = /[.*+?|()\[\]{}\\]/g;
 	return str.replace(specials, "\\$&");
 }
 
@@ -1824,7 +1830,7 @@ function convertOrphanedTextNodesToParagraphs(mark = true)
 	while(i--)
 	{
 		const textNode = textNodes[i];
-		if(!textNode.data.replace(/\s+/g, "").length) continue;
+		if(!getTextLength(textNode)) continue;
 		if(hasAdjacentBlockElement(textNode))
 			wrapElement(textNode, "p", className);
 	}
@@ -2015,10 +2021,10 @@ function xlog(str, logTag)
 	Nimbus.logString += '<' + tag + ' class="xlog">' + str + '</' + tag + '>\r\n';
 }
 
-function ylog(str, tag, prepend)
+function ylog(str, tag, prepend, logClassName = "xlog")
 {
 	const tagName = tag || "h6";
-	const logElement = createElement(tagName, { className: "xlog", innerHTML: str });
+	const logElement = createElement(tagName, { className: logClassName, innerHTML: str });
 	if(prepend)
 		document.body.insertBefore(logElement, document.body.firstChild);
 	else
@@ -2034,6 +2040,16 @@ function logString(str, varName)
 {
 	if(varName) consoleLog(`%c${varName}`, "color: #AAA; background: #008;");
 	consoleLog(`%c${str}`, "color: #AAA; background: #555;");
+}
+
+function logTable(...args)
+{
+	const tableElem = document.createElement("table");
+	const trElem = document.createElement("tr");
+	for(const arg of args)
+		trElem.appendChild(createElement("td", { textContent: arg }));
+	tableElem.appendChild(trElem);
+	document.body.appendChild(tableElem);
 }
 
 function logAllClassesFor(selector)
@@ -2694,7 +2710,11 @@ function markByCssRule(prop, value, selector)
 function markBySelector(selector)
 {
 	const elems = get(selector);
-	if(!elems) return;
+	if(!elems)
+	{
+		showMessageError("No elements matching " + selector);
+		return;
+	}
 	const elemsArray = Array.isArray(elems) ? elems : [elems];
 	markElements(elemsArray);
 }
@@ -4659,8 +4679,8 @@ function highlightCode(shouldHighlightKeywords)
 		}
 		preElement.innerHTML = nodeHTML;
 	}
-	makePlainText("xc");
-	makePlainText("xs");
+	// makePlainText("xc");
+	// makePlainText("xs");
 }
 
 function getNodeContainingSelection()
@@ -4729,6 +4749,14 @@ function humanizeUrl(url)
 function isEmptyLink(link)
 {
 	return !(getTextLength(link) || link.getElementsByTagName("img").length);
+}
+
+function revealEmptyLinks()
+{
+	const links = get("a");
+	for(const link of links)
+		if(isEmptyLink(link))
+			link.textContent = link.href;
 }
 
 function toggleShowEmptyLinksAndSpans()
@@ -5373,7 +5401,7 @@ function insertStyleHighlight()
 		a.${Nimbus.markerClass}::after, span.${Nimbus.markerClass}::after { content: ""; display: inline; clear: none; }
 		mark, markgreen, markred, markblue, markpurple, markyellow, markwhite { padding: 2px 0; line-height: inherit; }
 		mark { background: #048; color: #6CF; }
-		markgreen { background: #150; color: #2C0; }
+		markgreen { background: #150; color: #4F0; }
 		markred { background: #500; color: #E33; }
 		markblue { background: #448; color: #99C; }
 		markpurple { background: #404; color: #C6C; }
@@ -5414,7 +5442,7 @@ function toggleStyleNegative()
 	body.xwrap { width: 1200px; margin: 0 auto; padding: 100px 200px; }
 
 	h1, h1[class], h2, h2[class], h3, h3[class], h4, h4[class], h5, h5[class], h6, h6[class]
-		{ color: inherit; margin-top: 2px; margin-bottom:  2px; border: 0; font-family: "swis721 cn bt", Calibri, sans-serif; font-weight: normal; line-height: inherit; background: #111; }
+		{ color: inherit; margin-top: 2px; margin-bottom: 2px; border: 0; font-family: "swis721 cn bt"; font-weight: normal; line-height: inherit; background: #111; }
 	body.pad100 h1, body.pad100 h1[class], body.pad100 h2, body.pad100 h2[class], body.pad100 h3, body.pad100 h3[class], body.pad100 h4, body.pad100 h4[class], body.pad100 h5, body.pad100 h5[class], body.pad100 h6, body.pad100 h6[class]
 		{ padding: 10px 1rem; margin: 2px 0 2px -1rem; }
 
@@ -5467,7 +5495,7 @@ function toggleStyleNegative()
 	figcaption { background: #111; color: #AAA; padding: 10px 20px; margin-left: 20px; }
 	annotation { margin: 10px 0; background: #333; color: #999; padding: 20px 30px; display: block; font-size: 22px; border-left: 10px solid #888; }
 	ruby { margin: 10px 0; background: #F90; color: #FFF; padding: 20px 30px; display: block; font-size: 22px; border-left: 10px solid #F90; }
-	rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 22px "swis721 cn bt", Calibri, sans-serif; border-top: 50px solid #000; border-bottom: 50px solid #000; }
+	rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 22px "swis721 cn bt"; border-top: 50px solid #000; border-bottom: 50px solid #000; }
 	rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px Verdana; }
 	rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }
 
@@ -5514,9 +5542,9 @@ function toggleStyleNegative()
 	tt { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #06C; }
 	kbd { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #0C0; }
 	samp { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #0CC; }
-	pre { background: #0C0C0C; color: #379; border-style: solid; border-width: 0 0 0 10px; border-color: #444; padding: 10px 20px; }
+	pre { background: #0C0C0C; color: #909090; border-style: solid; border-width: 0 0 0 10px; border-color: #444; padding: 10px 20px; }
 	pre p { margin: 0; padding: 0; }
-	pre { font: bold 18px/1.2 Consolas, monospace; }
+	pre { font: bold 22px/1.2 Swis721CnBtCode, Consolas, monospace; }
 	pre * { font: inherit; text-recoration: none; }
 
 	pre em { color: #00AAFF; }
@@ -5747,7 +5775,7 @@ function deleteNodesRelativeToSelectedNode(selector, predicate)
 function deleteNodesByRelativePosition(anchorNode, predicate)
 {
 	const condition = predicate === "after" ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
-	const nodes = get("ol, ul, p, div, aside, section, h1, h2, h3, table, img, header, footer");
+	const nodes = get("div, aside, section, article, ol, ul, p, h1, h2, h3, table, img, header, footer, blockquote, pre, hr");
 	let i = nodes.length;
 	while(i--)
 	{
@@ -5808,16 +5836,20 @@ function removeAllAttributesOf(elem)
 	}
 }
 
-function removeAllAttributesExcept(elem, attrToKeep)
+function removeAllAttributesExcept(selectorOrElement, attrToKeep)
 {
-	const attrToKeepLower = attrToKeep.toLowerCase();
-	const attrs = elem.attributes;
-	let i = attrs.length;
-	while(i--)
+	const elems = typeof selectorOrElement === "string" ? get(selectorOrElement) : [selectorOrElement];
+	for(const elem of elems)
 	{
-		const attr = attrs[i];
-		if(attr && attr.name.toLowerCase() !== attrToKeepLower)
-			elem.removeAttribute(attr.name);
+		const attrToKeepLower = attrToKeep.toLowerCase();
+		const attrs = elem.attributes;
+		let i = attrs.length;
+		while(i--)
+		{
+			const attr = attrs[i];
+			if(attr && attr.name.toLowerCase() !== attrToKeepLower)
+				elem.removeAttribute(attr.name);
+		}
 	}
 }
 
@@ -5825,7 +5857,6 @@ function removeAllAttributesExcept(elem, attrToKeep)
 //	much a page's file size can be reduced simply by removing classes and other attributes.
 function cleanupAttributes()
 {
-	const t1 = performance.now();
 	const elems = document.getElementsByTagName('*');
 	document.body.removeAttribute("background");
 	for(let i = 0; i < elems.length; i++)
@@ -5855,8 +5886,6 @@ function cleanupAttributes()
 			}
 		}
 	}
-	const t2 = performance.now();
-	xlog(t2 - t1 + "ms: cleanupAttributes");
 }
 
 function cleanupAttributes_regex()
@@ -5887,16 +5916,15 @@ function cleanupHeadings()
 //	This function "cleans up" a webpage and optimises it for saving locally.
 function cleanupGeneral()
 {
-	const t1 = performance.now();
 	cleanupHead();
 	cleanupTitle();
+	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet", "message"]);
 	deleteHtmlComments();
 	removeAllAttributesOf(document.documentElement);
 	removeAllAttributesOf(document.body);
 	replaceIframes();
 	addLinksToLargerImages();
 	replaceIncorrectHeading();
-	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet", "message"]);
 	replaceSpecialCharacters();
 	replaceElementsBySelector("center", "div");
 	setDocTitle();
@@ -5914,7 +5942,6 @@ function cleanupGeneral()
 	highlightUserLinks();
 	appendMetadata();
 	getBestImageSrc();
-	forceImageWidth(1200, true);
 	document.body.className = "pad100 xwrap";
 	document.documentElement.id = "nimbus";
 	document.body.id = "nimbus";
@@ -5922,8 +5949,6 @@ function cleanupGeneral()
 	{
 		toggleStyleNegative();
 	}
-	const t2 = performance.now();
-	xlog(Math.round(t2 - t1) + " ms: cleanupGeneral");
 }
 
 function cleanupGeneral_light()
@@ -6120,7 +6145,7 @@ function deleteEmptyElements(selector)
 			}
 		}
 	}
-	showMessageBig(`Deleted ${count} empty elements`);
+	// showMessageBig(`Deleted ${count} empty elements`);
 }
 
 function deleteEmptyHeadings()
@@ -6668,10 +6693,16 @@ function cleanupStackOverflow()
 				del(["link", "script", "iframe"]);
 	}
 
-	const sites = ["stackexchange", "stackoverflow", "superuser", "serverfault"];
+	const sites = ["stackexchange", "stackoverflow", "superuser", "serverfault", "askubuntu"];
 	if(containsAnyOfTheStrings(location.hostname, sites) && location.href.match(/questions\/[0-9]+/) !== null)
 	{
-		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair", "#launch-popover"]);
+		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair", "#launch-popover", ".comments-link", ".aside-cta", ".js-post-menu"]);
+		deleteByClassOrIdContaining("comments-link");
+		replaceElementsBySelector(".post-tag", "tag");
+		unwrapAll(".js-post-tag-list-item");
+		replaceElementsBySelector(".js-post-tag-list-wrapper", "footer");
+
+		replaceElementsBySelector(".user-action-time", "h5");
 		replaceElementsBySelector(".user-details", "h2");
 		replaceElementsBySelector(".answercell", "dt");
 		replaceElementsBySelector(".votecell", "h6");
@@ -6679,18 +6710,18 @@ function cleanupStackOverflow()
 		retrieve("#content");
 		cleanupGeneral();
 		highlightCode(true);
-		removeAllAttributesOfTypes(["class", "style", "align"]);
+		removeAllAttributesOfTypes(["class", "style", "align", "id"]);
 		unwrapAll("span");
 		const observer = new MutationObserver(handleMutations);
 		observer.observe(getOne("head"), { childList: true });
 	}
 }
 
-function showResource(str, uuid)
+function renderResourceInfo(str, uuid)
 {
 	let strSanitized = trimAt(str, "?");
 	const resourceLink = createElement("a", { textContent: strSanitized, href: str });
-	const resourceLinkWrapper = createElement("h6", { className: "xlog", id: "link" + uuid });
+	const resourceLinkWrapper = createElement("h3", { id: "link" + uuid });
 	const resourceDelete = createElement("span", { textContent: "[Delete]" });
 	resourceDelete.setAttribute("data-delete", uuid);
 	document.body.addEventListener('mouseup', deleteResource, false);
@@ -6701,7 +6732,7 @@ function showResource(str, uuid)
 
 function deleteResource(evt)
 {
-	if(!["h6", "span"].includes(evt.target.parentNode.tagName.toLowerCase()))
+	if(!["h3", "span"].includes(evt.target.parentNode.tagName.toLowerCase()))
 		return;
 	evt.stopPropagation();
 	evt.preventDefault();
@@ -6710,59 +6741,102 @@ function deleteResource(evt)
 	del("#link" + idToDelete);
 }
 
-//	Displays a list of all external resources at the top of the page, and lets you delete the
-//	resources you don't want. Useful if you want to save a page with some JS/CSS files but not others.
-function showResources()
+function showImageCount()
 {
-	if(get(".xlog").length)
-	{
-		del(".xlog");
-		del("#styleShowResources");
-		return;
-	}
 	const images = get("img");
 	const numImages = images ? images.length : 0;
-	ylog(numImages + " images", "h3", true);
+	if(numImages)
+		ylog(numImages + " images", "h2", true);
+}
+
+function showIframeCount()
+{
 	const iframes = get("iframe");
 	const numIframes = iframes ? iframes.length : 0;
-	ylog(numIframes + " iframes", "h3", true);
+	if(numIframes)
+		ylog(numIframes + " iframes", "h2", true);
+}
 
-	let count, uuid;
-	let e = get("script");
-	let i = e.length;
-	count = 0;
-	while(i--)
+function showScripts()
+{
+	let numScripts = 0;
+	const scripts = get("script");
+	for(let i = 0, ii = scripts.length; i < ii; i++)
 	{
-		const elem = e[i];
-		if(elem.src)
+		const script = scripts[i];
+		if(script.src)
 		{
-			uuid = createUUID();
-			elem.id = uuid;
-			showResource(elem.src, uuid);
-			count++;
+			numScripts++;
+			const uuid = createUUID();
+			script.id = uuid;
+			renderResourceInfo(script.src, uuid);
 		}
 	}
-	ylog(count + " scripts", "h3", true);
-	e = get("link");
-	i = e.length;
-	count = 0;
-	while(i--)
+	if(numScripts)
+		ylog(numScripts + " scripts", "h2", true);
+}
+
+function showExternalStyles()
+{
+	let numLinks = 0;
+	const links = get("link");
+	for(let i = 0, ii = links.length; i < ii; i++)
 	{
-		const elem = e[i];
-		if(elem.href && ~elem.href.indexOf("css") || elem.type && elem.type === "text/css")
+		const link = links[i];
+		if(link.href && ~link.href.indexOf("css"))
 		{
-			uuid = createUUID();
-			elem.id = uuid;
-			showResource(elem.href, uuid);
-			count++;
+			numLinks++;
+			const uuid = createUUID();
+			link.id = uuid;
+			renderResourceInfo(link.href, uuid);
 		}
 	}
-	ylog(count + " styles", "h3", true);
-	const s = '.xlog { background: #000; color: #FFF; margin: 0; padding: 5px 10px; z-index: 2147483647; font: 12px verdana; text-align: left; position: relative; }' +
-	'.xlog a { text-decoration: none; letter-spacing: 0; font: 12px verdana; text-transform: none; color: #09F; }' +
-	'.xlog a:visited { color: #059; }' +
-	'.xlog a:hover { color: #FFF; } h3.xlog:nth-of-type(1) {margin-top: 50px;}';
-	insertStyle(s, "styleShowResources", true);
+	if(numLinks)
+		ylog(numLinks + " external styles", "h2", true);
+}
+
+function showInlineStyles()
+{
+	const styles = get("style");
+	if(styles && styles.length)
+	{
+		for(const style of styles)
+		{
+			const styleId = style.id;
+			if(styleId)
+				ylog(styleId, "dd", true);
+		}
+		ylog(styles.length + " inline styles", "h2", true);
+	}
+}
+
+function showHtmlTextRatio()
+{
+	const bytesHtml = document.documentElement.innerHTML.length;
+	const bytesText = document.body.textContent.length;
+	const kilobytesHtml = Math.round(bytesHtml / 100) / 10;
+	const kilobytesText = Math.round(bytesText / 100) / 10;
+	const textToHtmlRatio = (Math.round((bytesText / bytesHtml) * 100)) / 100;
+	const str = `${kilobytesHtml} KB : ${kilobytesText} KB (${textToHtmlRatio})`;
+	ylog(str, "h2", true);
+	xlog(str);
+}
+
+function showResources()
+{
+	if(get(".xlog"))
+	{
+		del(".xlog");
+		return;
+	}
+
+	showImageCount();
+	showIframeCount();
+	showScripts();
+	showExternalStyles();
+	showInlineStyles();
+	showHtmlTextRatio();
+
 	window.scrollTo(0, 0);
 }
 
@@ -7066,7 +7140,7 @@ function showSelectorsFor(tagName)
 	del("#" + styleId);
 	const style = `${tagName}::before { content: attr(id); background: #000; color: #FF0; }
 		${tagName}::after { content: attr(class); background: #000; color: #F90; }
-		${tagName} { border: 2px solid #000; }`;
+		${tagName} { border: 2px solid #000; box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 2px 2px 2px 10px; padding: 4px; }`;
 	insertStyle(style, styleId, true);
 }
 
@@ -7451,8 +7525,7 @@ function insertHrBeforeAll(selector)
 function getTextLength(node)
 {
 	const text = node.nodeType === 1 ? node.textContent : node.data;
-	// return text.replace(/[^\u0021-\u007e]/g, "").length;
-	return text.replace(/\s+/g, "").length;
+	return text.replace(/[\s\u200B]+/g, "").length;
 }
 
 function getAlphaNumericTextLength(elem)
@@ -7956,19 +8029,54 @@ function highlightAllStrings(...args)
 		highlightAllMatchesInDocument(arg);
 }
 
+function getPreTextNodes(directDescendantsOnly, markedOnly)
+{
+	const selectorPre = markedOnly ? "pre[contains(@class, 'markd')]" : "pre";
+	if(directDescendantsOnly) return getXpathResultAsArray(`//${selectorPre}/text()`);
+	return getXpathResultAsArray(`//${selectorPre}//text()`);
+}
+
+function highlightCodeInTextNodes(regex, tagName)
+{
+	const nodes = getPreTextNodes();
+	if(!nodes) return;
+	for(const node of nodes)
+		highlightInTextNode(node, regex, tagName);
+}
+
 function highlightCodePunctuation()
 {
-	const preTextNodes = getXpathResultAsArray("//pre//text()");
-	const regex = /[\{\}\[\]\(\)]/g;
-	for(let i = 0, ii = preTextNodes.length; i < ii; i++)
-		highlightInTextNode(preTextNodes[i], regex, "xp");
+	highlightCodeInTextNodes(/[\{\}]/g, "xp");
+	highlightCodeInTextNodes(/[\[\]]/g, "x13");
+	highlightCodeInTextNodes(/[\(\)]/g, "x14");
+	highlightCodeInTextNodes(/\|\|/g, "x15");
+}
+
+function highlightCodeStrings()
+{
+	highlightCodeInTextNodes(/''/g, "xs");
+	highlightCodeInTextNodes(/""/g, "xs");
+	highlightCodeInTextNodes(/'[^']+'/g, "xs");
+	highlightCodeInTextNodes(/"[^"]+"/g, "xs");
+}
+
+function highlightCodeKeywords(keywords)
+{
+	const keywordClause = '(' + keywords.join('|') + ')';
+	const regex = new RegExp("\\b" + keywordClause + "\\b", "g");
+	highlightCodeInTextNodes(regex, "xk");
+}
+
+function highlightCodeComments()
+{
+	highlightCodeInTextNodes(/\b\/\/[^\n]+/g, "xc");
 }
 
 function highlightAllMatchesInDocument(str, isCaseSensitive = false)
 {
 	const textNodes = getTextNodesUnderSelector("body");
 	const regexFlags = isCaseSensitive ? "g" : "gi";
-	const regex = new RegExp(str, regexFlags);
+	const regex = new RegExp(escapeForRegExp(str), regexFlags);
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 		highlightInTextNode(textNodes[i], regex);
 }
@@ -8129,8 +8237,8 @@ function handleKeyDown(e)
 		switch(k)
 		{
 			case KEYCODES.TILDE: highlightSelection(); break;
-			case KEYCODES.NUMPAD1: toggleDashes(); break;
-			case KEYCODES.NUMPAD3: toggleContentEditable(); break;
+			case KEYCODES.NUMPAD1: removeAttributeOf("body *", "class"); break;
+			case KEYCODES.NUMPAD2: removeAttributeOf("body *", "id"); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.NUMPAD5: toggleHighlightSelectionMode(); break;
 			case KEYCODES.NUMPAD6: retrieveLargeImages(); break;
@@ -8143,6 +8251,7 @@ function handleKeyDown(e)
 			case KEYCODES.F1: customPrompt("Enter replacement tag name").then(setReplacementTag); break;
 			case KEYCODES.F2: replaceSelectedElement(); break;
 			case KEYCODES.F3: customPrompt("Enter tag name to replace elements of the marked type with").then(replaceElementsOfMarkedTypeWith); break;
+			case KEYCODES.F11: inspect(); break;
 			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.ONE: cleanupGeneral(); break;
 			case KEYCODES.TWO: deleteImages(); break;
@@ -8170,6 +8279,7 @@ function handleKeyDown(e)
 			case KEYCODES.Q: resetHighlightTag(); Nimbus.selectionHighlightMode = "sentence"; break;
 			case KEYCODES.R: toggleHighlight(); break;
 			case KEYCODES.S: toggleContentEditable(); break;
+			case KEYCODES.T: capitalizeTitle(); break;
 			case KEYCODES.U: del("ul"); del("dl"); break;
 			case KEYCODES.V: cleanupBarebone(); break;
 			case KEYCODES.W: highlightSelection("word"); break;
