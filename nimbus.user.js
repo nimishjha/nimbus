@@ -215,6 +215,7 @@ const Nimbus = {
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
 		replaceInlineStylesWithClasses: replaceInlineStylesWithClasses,
 		replaceInTextNodes: replaceInTextNodes,
+		replaceLongTextLinks: replaceLongTextLinks,
 		replaceMarkedElements: replaceMarkedElements,
 		replaceNonStandardElements: replaceNonStandardElements,
 		replaceQueryParameter: replaceQueryParameter,
@@ -1117,6 +1118,22 @@ function replaceNonStandardElements()
 			replacement.className = elem.tagName;
 			if(elem.parentNode)
 				elem.parentNode.replaceChild(replacement, elem);
+		}
+	}
+}
+
+function replaceLongTextLinks()
+{
+	const links = get("a");
+	for(const link of links)
+	{
+		if(link.getElementsByTagName("img").length)
+			continue;
+		if(link.textContent && link.textContent.length > 500)
+		{
+			const newLink = createElement("a", { textContent: "[link]", href: link.href });
+			insertAfter(link, newLink);
+			unwrapElement(link);
 		}
 	}
 }
@@ -5453,13 +5470,11 @@ function toggleStyleNegative()
 	.pad100 h5 { font-size: 1.2rem; }
 	.pad100 h6 { font-size: 1.0rem; }
 
-	p + h1, p + h2, p + h3 { margin-top: 100px; }
-
 	quote { display: block; padding: 1rem 2rem; margin: 2px 0; background: #181818; border-width: 0 0 0 20px; border-style: solid; border-color: #0C0C0C; color: #808080; font-size: 1rem; }
 	quoteauthor { display: block;  padding: 0.5rem 2rem; margin: 2px 0; background: #202020; border-width: 0 0 0 20px; border-style: solid; border-color: #0C0C0C; font-size: 1rem; text-align: right; }
 	footnote { display: block; padding: 0.5em 10px; margin: 2px 0; background: #222; border-width: 0 0 0 10px; border-style: solid; border-color: #181818; color: #808080; }
 	right { display: block; text-align: right; }
-	documentheading { display: block; margin: 0 0 100px 0; }
+	documentheading { display: block; margin: 0 0 100px 0; padding: 10px 0; border-top: 10px solid #141414; border-bottom: 10px solid #141414; }
 	documentheading h1 { font-size: 2.8rem; }
 	slideshow { display: block; background: #111; padding: 10px; }
 	slideshow::after { content: " "; clear: both; display: block; }
@@ -8069,7 +8084,7 @@ function highlightCodeKeywords(keywords)
 
 function highlightCodeComments()
 {
-	highlightCodeInTextNodes(/\b\/\/[^\n]+/g, "xc");
+	highlightCodeInTextNodes(/[\b\s]?\/\/[^\n]+/g, "xc");
 }
 
 function highlightAllMatchesInDocument(str, isCaseSensitive = false)
