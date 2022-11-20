@@ -491,21 +491,8 @@ function xPathMark(xpath)
 		showMessageBig("No matches found");
 }
 
-function markElement(elem)
-{
-	const markerAttribute = "data-marklevel";
-	elem.classList.add(Nimbus.markerClass);
-	// const markLevel = elem.hasAttribute(markerAttribute) ? Number(elem.getAttribute(markerAttribute)) : 0;
-	// elem.setAttribute(markerAttribute, markLevel + 1);
-	const marked = get(makeClassSelector(Nimbus.markerClass));
-}
-
-function unmarkElement(elem)
-{
-	elem.classList.remove(Nimbus.markerClass);
-	// const markerAttribute = "data-marklevel";
-	// elem.removeAttribute(markerAttribute);
-}
+function markElement(elem) { elem.classList.add(Nimbus.markerClass); }
+function unmarkElement(elem) { elem.classList.remove(Nimbus.markerClass); }
 
 function markElements(elements)
 {
@@ -1455,18 +1442,18 @@ function createSelector(elem)
 	let s = elem.tagName ? elem.tagName.toLowerCase() : "";
 	if(elem.id)
 		s += "#" + elem.id + " ";
-	if(elem.className)
-		s += "." + Array.from(elem.classList).join('.');
+	if(elem.className && elem.className !== Nimbus.markerClass)
+		s += createClassSelector(elem);
 	if(elem.name)
-		s += " name: " + elem.name;
+		s += " <b>name:</b> " + elem.name;
 	return s;
 }
 
 function createClassSelector(elem)
 {
-	if(elem.className)
+	if(elem.className && elem.className !== Nimbus.markerClass)
 		return "." + Array.from(elem.classList).join('.').replace(makeClassSelector(Nimbus.markerClass), "");
-	return false;
+	return "";
 }
 
 function toggleClass(element, className)
@@ -2201,9 +2188,9 @@ function showMessage(messageHtml, msgClass, persist)
 	msgClass = msgClass || "";
 	const strStyle = `
 		message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; height: 60px; line-height: 60px; position: fixed; top: calc(100vh - 60px); left: 0; width: 100%; z-index: 2147483647; }
-		messageinner { display: block; max-width: 1200px; margin: 0 auto; text-align: left; }
-		messagebig { display: block; max-width: 1200px; margin: 0 auto; text-align: left; font: 32px "swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }
-		messageerror { display: block; max-width: 1200px; margin: 0 auto; text-align: left; font: 32px "swis721 cn bt"; color: #FFF; background: #500; height: 60px; line-height: 60px; font-weight: 500; }
+		messageinner { display: block; max-width: 90vw; margin: 0 auto; text-align: left; }
+		messagebig { display: block; max-width: 90vw; margin: 0 auto; text-align: left; font: 32px "swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }
+		messageerror { display: block; max-width: 90vw; margin: 0 auto; text-align: left; font: 32px "swis721 cn bt"; color: #FFF; background: #500; height: 60px; line-height: 60px; font-weight: 500; }
 	`;
 	const messageInnerTagName = msgClass ? msgClass : "messageinner";
 	if(get("message"))
@@ -2850,16 +2837,25 @@ function markNavigationalLists()
 function markSelectionAnchorNode()
 {
 	const node = getNodeContainingSelection();
-	const classSelector = createClassSelector(node);
-	let numSimilarNodes = 0;
 	markElement(node);
 	insertStyleHighlight();
-	if(classSelector)
-		numSimilarNodes = get(node.tagName + classSelector).length;
-	if(numSimilarNodes)
-		showMessage(createSelector(node) + ": " + numSimilarNodes + " matching nodes", "messagebig", true);
-	else
-		showMessage(createSelector(node), "messagebig", true);
+	showMarkedElementInfo(node);
+}
+
+function showMarkedElementInfo(node)
+{
+	const classSelector = createClassSelector(node);
+	const fullSelector = createSelector(node);
+	const tagName = node.tagName.toLowerCase();
+	const elems = classSelector ? get(classSelector) : get(tagName);
+	if(elems)
+	{
+		const count = elems.length;
+		if(count === 1)
+			showMessage(`${fullSelector}: unique`, "messagebig", true);
+		else
+			showMessage(`${fullSelector}: ${count} instances`, "messagebig", true);
+	}
 }
 
 function highlightUserLinks()
@@ -6716,7 +6712,6 @@ function cleanupStackOverflow()
 		replaceElementsBySelector(".post-tag", "tag");
 		unwrapAll(".js-post-tag-list-item");
 		replaceElementsBySelector(".js-post-tag-list-wrapper", "footer");
-
 		replaceElementsBySelector(".user-action-time", "h5");
 		replaceElementsBySelector(".user-details", "h2");
 		replaceElementsBySelector(".answercell", "dt");
@@ -6736,7 +6731,7 @@ function renderResourceInfo(str, uuid)
 {
 	let strSanitized = trimAt(str, "?");
 	const resourceLink = createElement("a", { textContent: strSanitized, href: str });
-	const resourceLinkWrapper = createElement("h3", { id: "link" + uuid });
+	const resourceLinkWrapper = createElement("h3", { id: "link" + uuid, className: "xlog" });
 	const resourceDelete = createElement("span", { textContent: "[Delete]" });
 	resourceDelete.setAttribute("data-delete", uuid);
 	document.body.addEventListener('mouseup', deleteResource, false);
@@ -7313,7 +7308,7 @@ function modifyMark(direction, keepSelection)
 	if(!keepSelection || direction === "expand" || direction === "contract")
 		unmarkElement(currentElement);
 	markElement(nextElement);
-	showMessage(createSelector(nextElement), "messagebig", true);
+	showMarkedElementInfo(nextElement);
 }
 
 function wrapElement(elem, tagName, className)
