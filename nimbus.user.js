@@ -7719,6 +7719,8 @@ function expandSelectionToWordBoundaries(node, selection)
 	const regexRight = /[\w\.\?!,'"\(\)\u2019\u201D]/;
 	while(text[index1].match(regexLeft) && index1 > 0)
 		index1--;
+	if(text[index1] === "\u2014") // em dash
+		index1++;
 	while(text[index2] && text[index2].match(regexRight) && index2 < text.length)
 		index2++;
 	const expanded = text.substring(index1, index2).replace(/\s+/g, " ").trim();
