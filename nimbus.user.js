@@ -869,7 +869,21 @@ function removeWhitespace(str) { return str.replace(/\s+/g, ''); }
 function normalizeString(str) { return removeWhitespace(str.toLowerCase()); }
 function normalizeHTML(html) { return html.replace(/&nbsp;/g, " ").replace(/\s+/g, " "); }
 function removeNonAlpha(str) { return str.replace(/[^A-Za-z]/g, ''); }
-function capitalize(str) { return str[0].toUpperCase() + str.slice(1).toLowerCase(); }
+
+function capitalize(text)
+{
+	const words = text.split(" ");
+	let str = "";
+	for(const word of words)
+	{
+		if(word.match(/[a-z]+/) === null || word.match(/^[A-Z]+'\w+$/))
+			str += word + " ";
+		else
+			str += word.toLowerCase() + " ";
+	}
+	str = str.trim();
+	return str[0].toUpperCase() + str.slice(1);
+}
 
 function escapeHTML(html)
 {
@@ -1636,7 +1650,7 @@ function replaceElementsBySelector(selector, tagName)
 			while(i--)
 			{
 				const elem = toReplace[i];
-				const textLength = getAlphaNumericTextLength(elem);
+				const textLength = getAlphanumericTextLength(elem);
 				if(textLength !== 0)
 				{
 					deletedTextLength += textLength;
@@ -7538,7 +7552,7 @@ function getTextLength(node)
 	return text.replace(/[\s\u200B]+/g, "").length;
 }
 
-function getAlphaNumericTextLength(elem)
+function getAlphanumericTextLength(elem)
 {
 	if(!elem.textContent)
 		return 0;
