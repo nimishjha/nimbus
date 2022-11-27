@@ -290,7 +290,7 @@ const Nimbus = {
 	BLOCK_ELEMENTS: [
 		"DIV", "P", "BLOCKQUOTE", "HGROUP", "H1", "H2", "H3", "H4", "H5", "H6", "OL", "UL", "LI", "HEAD",
 		"FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR",
-		"ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE", "HEADER", "FOOTER", "HR"
+		"ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE", "HEADER", "FOOTER", "HR", "RT"
 	],
 	italicTag: "i",
 };
@@ -876,7 +876,7 @@ function capitalize(text)
 	let str = "";
 	for(const word of words)
 	{
-		if(word.match(/[a-z]+/) === null || word.match(/^[A-Z]+'\w+$/))
+		if(word.length > 1 && ( word.match(/[a-z]+/) === null || word.match(/^[A-Z]+'\w+$/) ) || word === "I")
 			str += word + " ";
 		else
 			str += word.toLowerCase() + " ";
@@ -2463,8 +2463,8 @@ function runCommand(commandString)
 			else args.push(n);
 		}
 		const argsString = arrayToStringTyped(args, ", ");
+		console.log(`%c${funcName}(${argsString})`, 'color: #FF0');
 		Nimbus.availableFunctions[funcName].apply(this, args);
-		console.log(funcName + "(" + argsString + ")");
 	}
 	else
 	{
@@ -3553,7 +3553,8 @@ function deleteImagesSmallerThan(pixelArea)
 
 function deleteSmallImages()
 {
-	deleteBySelectorAndTextMatching("img", "data:");
+	deleteBySelectorAndText("img", "data:");
+	deleteBySelectorAndText("img", "emoji");
 	const nextThreshold = getNext(Nimbus.smallImageThreshold, Nimbus.smallImageThresholdList);
 	Nimbus.smallImageThreshold = nextThreshold;
 	deleteImagesSmallerThan(nextThreshold * nextThreshold);
@@ -3860,7 +3861,7 @@ function buildGallery()
 	}
 	del("img");
 	cleanupHead();
-	insertStyle("img { display: block; float: left; max-height: 300px; } slideshow::after { content: ''; display: block; clear: both; }", "styleGallery", true);
+	insertStyle("img { display: block; float: left; max-height: 500px; } slideshow::after { content: ''; display: block; clear: both; }", "styleGallery", true);
 	document.body.insertBefore(galleryElement, document.body.firstChild);
 }
 
@@ -5943,7 +5944,7 @@ function cleanupGeneral()
 {
 	cleanupHead();
 	cleanupTitle();
-	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet", "message"]);
+	del(["link", "style", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet", "message"]);
 	deleteHtmlComments();
 	removeAllAttributesOf(document.documentElement);
 	removeAllAttributesOf(document.body);
@@ -5962,7 +5963,9 @@ function cleanupGeneral()
 	if(get("footer").length > 1)
 	{
 		replaceElementsBySelector("footer", "h6");
+		makePlainText("h6");
 	}
+	makePlainText("li header");
 	replaceAudio();
 	highlightUserLinks();
 	appendMetadata();
@@ -7442,7 +7445,7 @@ function removeAllAttributesOfTypes(attrNames)
 		removeAllAttributesOfType(attrName);
 }
 
-function insertElementNextToAnchor(tagName, position)
+function insertElementNextToAnchorNode(tagName, position)
 {
 	const tag = tagName || "hr";
 	const node = getNodeContainingSelection();
@@ -8230,8 +8233,8 @@ function doWebsiteSpecificTasks()
 function inject()
 {
 	document.addEventListener("keydown", handleKeyDown, false);
-	if(isChrome())
-		insertStyleHighlight();
+	// if(isChrome())
+	// 	insertStyleHighlight();
 	xlog("Referrer: " + document.referrer);
 	xlog("Page loaded at " + getTimestamp());
 	cleanupStackOverflow();
