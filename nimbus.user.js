@@ -6001,6 +6001,8 @@ function cleanupBarebone()
 {
 	removeAllAttributesOfTypes(["class", "style", "align"]);
 	del("noscript");
+	if(get("span[id]") !== false)
+		fixInternalReferences();
 	unwrapAll("span");
 	deleteHtmlComments();
 	removeInlineStyles();
