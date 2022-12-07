@@ -4725,6 +4725,7 @@ function getNodeContainingSelection()
 
 function toggleContentEditable()
 {
+	function makeNonEditable(elem) { elem.removeAttribute("contenteditable"); }
 	const selectedNode = getNodeContainingSelection();
 	const MAX_TEXT_LENGTH = 10000;
 	if(!selectedNode)
@@ -4743,7 +4744,8 @@ function toggleContentEditable()
 	else
 	{
 		showMessageBig("contentEditable OFF");
-		selectedNode.removeAttribute("contentEditable");
+		// selectedNode.removeAttribute("contentEditable");
+		forAll("*[contenteditable]", makeNonEditable);
 		const tagName = selectedNode.tagName;
 		if(tagName !== "PRE")
 		{
