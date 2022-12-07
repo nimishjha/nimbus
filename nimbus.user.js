@@ -2910,6 +2910,7 @@ function fixInternalReferences()
 	}
 	replaceElements(select("sup", "hasChildrenOfType", "reference"), "span");
 	replaceElementsBySelector("h1 reference, h2 reference, h3 reference", "span");
+	consolidateAnchors();
 }
 
 //	Takes footnotes from the end of the document and puts them inline after the paragraph that references them.
