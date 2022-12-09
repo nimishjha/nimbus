@@ -2673,18 +2673,21 @@ function autoCompleteInputBox()
 		if(get("#autoCompleteInputWrapper"))
 			return;
 		const style = `autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2147483647; font-family: "swis721 cn bt"; }
-			autocompleteinputwrapper input { width: 100%; height: 3rem; font-size: 32px; background: #000; color: #FFF; border: 0; outline: 0; display: block; font-family: inherit; }
+			inputelementwrapper { display: block; border: 2px solid #07C; }
+			autocompleteinputwrapper input { width: 100%; height: 3rem; font-size: 32px; background: #000; color: #DDD; outline: 0; display: block; font-family: inherit; }
 			autocompleteinputwrapper matches { display: block; background: #222; color: #CCC; }
 			autocompleteinputwrapper match { display: block; padding: 2px 10px; font-size: 24px; }
 			autocompleteinputwrapper match.current { background: #303030; color: #FFF; }
 			autocompleteinputwrapper em { display: inline-block; width: 200px; }`;
 		insertStyle(style, "styleAutoCompleteInputBox", true);
 		const dialogWrapper = createElement("autocompleteinputwrapper", { id: "autoCompleteInputWrapper" });
+		const inputElementWrapper = createElement("inputelementwrapper");
 		const inputElement = createElement("input", { id: "autoCompleteInput", autocomplete: "randomstring" });
 		const optionsList = createElement("matches", { id: "autoCompleteMatches" });
 		inputElement.addEventListener("keyup", onAutoCompleteInputKeyUp);
 		inputElement.addEventListener("keydown", onAutoCompleteInputKeyDown);
-		dialogWrapper.appendChild(inputElement);
+		inputElementWrapper.appendChild(inputElement);
+		dialogWrapper.appendChild(inputElementWrapper);
 		dialogWrapper.appendChild(optionsList);
 		document.body.appendChild(dialogWrapper);
 		inputElement.focus();
