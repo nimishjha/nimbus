@@ -2901,11 +2901,40 @@ function highlightUserLinks()
 	}
 }
 
+function consolidateAnchors()
+{
+	// makeFileLinksRelative();
+	const internalLinks = get('a[href^="#"]');
+	const toDelete = [];
+	for(let i = 0, ii = internalLinks.length; i < ii; i++)
+	{
+		const link = internalLinks[i];
+		const linkHref = link.getAttribute("href");
+		const linkedElement = document.getElementById(linkHref.substring(1));
+		if(!(linkedElement && linkedElement.tagName))
+			continue;
+ 		if( ["CITE", "SPAN"].includes(linkedElement.tagName) || linkedElement.tagName === "A" && isEmptyLink(linkedElement) )
+		{
+			const parent = getFirstBlockParent(linkedElement);
+			if(!parent)
+				continue;
+			if(!parent.id)
+				parent.id = "ref" + i;
+			link.setAttribute("href", "#" + parent.id);
+			toDelete.push(linkedElement);
+		}
+	}
+	showMessageBig(`${toDelete.length} anchors consolidated`);
+	del(toDelete);
+	del(select("cite", "text", "=", "\u2022"));
+}
+
 function fixInternalReferences()
 {
 	replaceSupSpanAnchors();
 	replaceEmptyAnchors();
 	makeFileLinksRelative();
+	const sanitizeNumericRef = (text) => text.replace(/[^A-Za-z0-9\s\-:,\(\)]+/g, "");
 	const internalLinks = get('a[href^="#"]');
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
 		wrapElement(internalLinks[i], "reference");
@@ -2915,13 +2944,15 @@ function fixInternalReferences()
 		const refLink = refLinks[i];
 		let refText = refLink.textContent.trim();
 		if(refText.match(/^\[/))
-			refText = refText.replace(/[^A-Za-z0-9\s\-:,\(\)]+/g, "");
+			refText = sanitizeNumericRef(refText);
 		if(!refText.length)
 			refText = "0" + i;
 		refLink.textContent = refText;
 	}
-	replaceElements(select("sup", "hasChildrenOfType", "reference"), "span");
-	replaceElementsBySelector("h1 reference, h2 reference, h3 reference", "span");
+	const redundantSups = select("sup", "hasChildrenOfType", "reference");
+	for(const elem of redundantSups)
+		unwrapElement(elem);
+	unwrapAll("h1 reference, h2 reference, h3 reference");
 	consolidateAnchors();
 }
 
@@ -6361,40 +6392,6 @@ function countReferencesToId(idString)
 			count++;
 	}
 	return count;
-}
-
-function consolidateAnchors()
-{
-	makeFileLinksRelative();
-	const internalLinks = get('a[href^="#"]');
-	const toDelete = [];
-	for(let i = 0, ii = internalLinks.length; i < ii; i++)
-	{
-		const link = internalLinks[i];
-		const linkHref = link.getAttribute("href");
-		const linkedElement = document.getElementById(linkHref.substring(1));
-		if(!linkedElement)
-			continue;
-		if(
-			linkedElement && linkedElement.tagName &&
-			(
-				["CITE", "SPAN"].includes(linkedElement.tagName) ||
-				linkedElement.tagName === "A" && isEmptyLink(linkedElement)
-			)
-		)
-		{
-			const parent = getFirstBlockParent(linkedElement);
-			if(!parent)
-				continue;
-			if(!parent.id)
-				parent.id = "ref" + i;
-			link.setAttribute("href", "#" + parent.id);
-			toDelete.push(linkedElement);
-		}
-	}
-	showMessageBig(`${toDelete.length} anchors consolidated`);
-	del(toDelete);
-	del(select("cite", "text", "=", "\u2022"));
 }
 
 function removeSpanTags(isOkToLoseIds)
