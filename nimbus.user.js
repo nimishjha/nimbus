@@ -1139,11 +1139,18 @@ function replaceLongTextLinks()
 	}
 }
 
+function getTitleWithoutDomainTag()
+{
+	if(document.title)
+		return document.title.replace(getBestDomainSegment(location.hostname), "").trim()	;
+}
+
 function capitalizeTitle()
 {
 	if(typeof document.title === "string" && document.title.length)
 	{
-		document.title = capitalize(document.title.replace(/\[[\w\s]+\]/, ""));
+		const title = getTitleWithoutDomainTag();
+		document.title = capitalize(title);
 		setDocTitle(document.title);
 	}
 }
@@ -2286,10 +2293,12 @@ function callFunctionWithArgs(promptMessage, callback, numArgs, initialValue)
 				callFunctionWithArgs(promptMessage, callback, numArgs);
 				return;
 			}
+			console.log(`%c${promptMessage}: ${args.join()}`, 'color: #FF0');
 			callback.apply(null, args);
 		}
 		else
 		{
+			console.log(`%c${promptMessage}`, 'color: #FF0');
 			callback.call(null, userInput);
 		}
 	}
@@ -4269,7 +4278,7 @@ function editDocumentTitle()
 
 function chooseDocumentHeading()
 {
-	Nimbus.currentHeadingText = document.title.replace(getBestDomainSegment(location.hostname), "").trim();
+	Nimbus.currentHeadingText = getTitleWithoutDomainTag();
 	return Nimbus.currentHeadingText;
 }
 
@@ -4277,7 +4286,7 @@ function cycleThroughDocumentHeadings()
 {
 	const MAX_HEADINGS = 5;
 	deleteEmptyHeadings();
-	Nimbus.currentHeadingText = document.title.replace(getBestDomainSegment(location.hostname), "").trim();
+	Nimbus.currentHeadingText = getTitleWithoutDomainTag();
 	del(Nimbus.HEADING_CONTAINER_TAGNAME + " h1");
 	const headings = filterHeadings(get("h1, h2"));
 	const candidateHeadingTexts = [];
