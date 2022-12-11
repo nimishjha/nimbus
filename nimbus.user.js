@@ -959,9 +959,12 @@ function joinByBrs(selector)
 	}
 }
 
+function hasChildrenOfType(elem, selector) { return elem.querySelector(selector) === null ? false: true; }
+
 function hasDirectChildrenOfType(elem, tagName)
 {
 	const children = elem.children;
+	tagName = tagName.toUpperCase();
 	if(!children.length) return false;
 	for(let i = 0, ii = children.length; i < ii; i++)
 		if(children[i].tagName === tagName) return true;
@@ -1891,8 +1894,6 @@ function createListsFromBulletedParagraphs()
 	}
 	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "li");
 }
-
-function hasChildrenOfType(elem, selector) { return elem.querySelector(selector).length ? true : false; }
 
 function removeClassFromAll(className)
 {
@@ -3297,6 +3298,32 @@ function filterNodesWithoutChildrenOfType(nodes, selector)
 	return result;
 }
 
+function filterNodesWithDirectChildrenOfType(nodes, selector)
+{
+	const result = [];
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		if(hasDirectChildrenOfType(node, selector))
+			result.push(node);
+	}
+	return result;
+}
+
+function filterNodesWithoutDirectChildrenOfType(nodes, selector)
+{
+	const result = [];
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		if(!hasDirectChildrenOfType(node, selector))
+			result.push(node);
+	}
+	return result;
+}
+
 function filterNodesWithFirstChildOfType(nodes, selector)
 {
 	const result = [];
@@ -3484,7 +3511,9 @@ function select(...args)
 			switch(operator)
 			{
 				case "hasChildrenOfType": return filterNodesWithChildrenOfType(elems, value);
+				case "hasDirectChildrenOfType": return filterNodesWithDirectChildrenOfType(elems, value);
 				case "doesNotHaveChildrenOfType": return filterNodesWithoutChildrenOfType(elems, value);
+				case "doesNotHaveDirectChildrenOfType": return filterNodesWithoutDirectChildrenOfType(elems, value);
 				case "hasFirstChildOfType": return filterNodesWithFirstChildOfType(elems, value);
 				case "hasLastChildOfType": return filterNodesWithLastChildOfType(elems, value);
 				case "hasParentOfType": return get(value + " " + selector);
