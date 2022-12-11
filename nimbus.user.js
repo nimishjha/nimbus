@@ -108,7 +108,6 @@ const Nimbus = {
 		fixInternalReferences: fixInternalReferences,
 		fixLineBreaks: fixLineBreaks,
 		fixParagraphs: fixParagraphs,
-		fixPres: fixPres,
 		focusButton: focusButton,
 		forAll: forAll,
 		forAllMarked: forAllMarked,
@@ -223,7 +222,6 @@ const Nimbus = {
 		replaceSupSpanAnchors: replaceSupSpanAnchors,
 		replaceTables: replaceTables,
 		rescueOrphanedNodes: rescueOrphanedNodes,
-		restorePres: restorePres,
 		retrieve: retrieve,
 		retrieveBySelectorAndText: retrieveBySelectorAndText,
 		retrieveLargeImages: retrieveLargeImages,
@@ -4173,57 +4171,6 @@ function splitByBrsInPres()
 	}
 }
 
-function fixPres()
-{
-	replaceElementsBySelector('font', 'span');
-	let s, temp;
-	const codeElements = get("code");
-	let i = codeElements.length;
-	while(i--)
-	{
-		const codeElement = codeElements[i];
-		if(~codeElement.innerHTML.toLowerCase().indexOf("<br>"))
-		{
-			temp = document.createElement("pre");
-			temp.innerHTML = codeElement.innerHTML;
-			codeElement.parentNode.replaceChild(temp, codeElement);
-		}
-	}
-	const preElements = get("pre");
-	i = preElements.length;
-	while(i--)
-	{
-		const pre = preElements[i];
-		// Remove any HTML code within the PREs
-		s = pre.innerHTML;
-		s = s.replace(/&nbsp;/g, " ");
-		s = s.replace(/<\/div>/g, "\r\n");
-		s = s.replace(/<\/p>/g, "\r\n");
-		//s = s.replace(/<br[^>]*>/g, "\r\n");
-		s = s.replace(/<br>/g, "\r\n");
-		s = s.replace(/<br\s*\/>/g, "\r\n");
-		s = s.replace(/<[^<>]+>/g, "");
-		s = tabifySpaces(s);
-		s = s.replace(/\t/g, "GYZYtab");
-		s = s.replace(/\r\n/g, "GYZYnl");
-		s = s.replace(/\n/g, "GYZYnl");
-		pre.innerHTML = s;
-	}
-}
-
-function restorePres()
-{
-	const pres = get("pre");
-	let i, ii;
-	for(i = 0, ii = pres.length; i < ii; i++)
-	{
-		const pre = pres[i];
-		pre.innerHTML = pre.innerHTML.replace(/GYZYtab/g, "\t");
-		pre.innerHTML = pre.innerHTML.replace(/GYZYnl/g, "\n");
-		pre.innerHTML = pre.innerHTML.replace(/\n+/g, "\n");
-	}
-}
-
 function fixParagraphs()
 {
 	replaceBrs();
@@ -4237,7 +4184,6 @@ function fixDashes()
 	replaceInTextNodes("--", "—");
 	replaceInTextNodes(" - ", "—");
 	replaceInTextNodes(" -", "—");
-	// replaceInTextNodes("- ", "—");
 	replaceInTextNodes("— ", "—");
 	replaceInTextNodes(" —", "—");
 }
@@ -4691,8 +4637,6 @@ function highlightCode(shouldHighlightKeywords)
 
 	splitByBrsInPres();
 	makePlainText("pre");
-	// fixPres();
-	// restorePres();
 
 	const preBlocks = get("pre");
 	let i = preBlocks.length;
@@ -8190,22 +8134,17 @@ function highlightSelectedElement(tag)
 
 function highlightLinksInPres()
 {
-	fixPres();
-	restorePres();
 	const pres = get("pre");
-	const regex = /(http[s]*:\/\/[^\s\r\n]+)/g;
+	const linkRegex = /(http[s]*:\/\/[^\s\r\n]+)/g;
 	for(let i = 0, ii = pres.length; i < ii; i++ )
 	{
 		const pre = pres[i];
-		if(pre.textContent.match(regex))
+		if(pre.textContent.match(linkRegex))
 			pre.innerHTML = pre.innerHTML.replace(regex, '<a href="' + "$1" + '">' + "$1" + '</a>');
 	}
 }
 
-function removeAllEmphasis()
-{
-	unwrapAll("b, strong, i, em, u");
-}
+function removeAllEmphasis() { unwrapAll("b, strong, i, em, u"); }
 
 function removeAllHighlights()
 {
