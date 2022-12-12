@@ -2902,7 +2902,6 @@ function highlightUserLinks()
 
 function consolidateAnchors()
 {
-	// makeFileLinksRelative();
 	const internalLinks = get('a[href^="#"]');
 	const toDelete = [];
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
@@ -2949,8 +2948,9 @@ function fixInternalReferences()
 		refLink.textContent = refText;
 	}
 	const redundantSups = select("sup", "hasChildrenOfType", "reference");
-	for(const elem of redundantSups)
-		unwrapElement(elem);
+	if(redundantSups)
+		for(let i = 0, ii = redundantSups.length; i < ii; i++)
+			unwrapElement(redundantSups[i]);
 	unwrapAll("h1 reference, h2 reference, h3 reference");
 	consolidateAnchors();
 }
