@@ -612,7 +612,7 @@ function selectByTagNameMatching(text)
 function selectByClassOrIdContaining(str)
 {
 	const strLower = str.toLowerCase();
-	const e = get("*");
+	const e = get("body *");
 	const selected = [];
 	for(let i = 0, ii = e.length; i < ii; i++)
 	{
@@ -1805,7 +1805,7 @@ function rescueOrphanedNodes()
 {
 	deleteEmptyTextNodes();
 	const WRAPPER_TAGNAME = "P";
-	const nodes = get("*");
+	const nodes = get("body *");
 	const numNodes = nodes.length;
 	let count = 0;
 	let node, nodeParent;
