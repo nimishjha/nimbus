@@ -227,7 +227,6 @@ const Nimbus = {
 		retrieveLargeImages: retrieveLargeImages,
 		revealEmptyLinks: revealEmptyLinks,
 		revealLinkHrefs: revealLinkHrefs,
-		sanitizeTitle: sanitizeTitle,
 		selectElementsEndingWithText: selectElementsEndingWithText,
 		selectElementsStartingWithText: selectElementsStartingWithText,
 		setAttributeOf: setAttributeOf,
@@ -1000,7 +999,8 @@ function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 				nodeGroup.push(node);
 			}
 		}
-		groups.push(nodeGroup);
+		if(nodeGroup.length)
+			groups.push(nodeGroup);
 		if(groups.length > 1)
 		{
 			const replacementWrapper = WRAPPER_TAGNAME === "P" ? document.createDocumentFragment() : document.createElement(WRAPPER_TAGNAME);
@@ -3086,6 +3086,7 @@ function filterNodesByAttributeEqualTo(nodes, attribute, value)
 {
 	if(typeof value === "number")
 		value += "";
+	value = value.trim();
 	let i = nodes.length;
 	const result = [];
 	if(attribute === "text" || attribute === "textContent")
