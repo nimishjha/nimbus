@@ -3865,12 +3865,17 @@ function addLinksToLargerImages()
 	for(let i = 0, ii = imagePlaceholders.length; i < ii; i++)
 		imageLinks.push(imagePlaceholders[i].href);
 	const links = get("a");
-	for(let i = 0, ii = links.length; i < ii; i++)
+	let i = links.length;
+	while(i--)
 	{
 		const link = links[i];
 		const linkHref = link.href;
 		if( linkHref.match(/(\.png|\.jpg|\.jpeg|\.gif)/i) && !imageLinks.includes(linkHref) )
+		{
 			link.parentNode.insertBefore(createElementWithChildren("rt", createElement("a", { href: linkHref, textContent: shortenImageSrc(linkHref) })), link);
+			if(isEmptyLink(link))
+				del(link);
+		}
 	}
 }
 
@@ -4794,10 +4799,7 @@ function humanizeUrl(url)
 	return longestMatch;
 }
 
-function isEmptyLink(link)
-{
-	return !(getTextLength(link) || link.getElementsByTagName("img").length);
-}
+function isEmptyLink(link) { return !(getTextLength(link) || link.getElementsByTagName("img").length); }
 
 function revealEmptyLinks()
 {
