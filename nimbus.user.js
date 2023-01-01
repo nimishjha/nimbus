@@ -13,7 +13,7 @@
 
 //
 //	Nimbus
-//	Copyright (C) 2008-2022 Nimish Jha
+//	Copyright (C) 2008-2023 Nimish Jha
 //
 //	This program is free software: you can redistribute it and/or modify
 //	it under the terms of the GNU General Public License as published by
@@ -122,7 +122,6 @@ const Nimbus = {
 		groupMarkedElements: groupMarkedElements,
 		groupUnderHeadings: groupUnderHeadings,
 		highlightAllMatchesInDocument: highlightAllMatchesInDocument,
-		highlightAllMatchesInDocument_innerHTML: highlightAllMatchesInDocument_innerHTML,
 		highlightAllStrings: highlightAllStrings,
 		highlightBySelectorAndText: highlightBySelectorAndText,
 		highlightCode: highlightCode,
@@ -7843,32 +7842,32 @@ function highlightTextAcrossTags(node, searchString)
 		if(childNodeTagName === "REFERENCE")
 			continue;
 
+		const isContained = index1 <= childNodeStart && index2 >= childNodeEnd;
+		const containsTheBeginning = index1 > childNodeStart && index1 <= childNodeEnd;
+		const containsTheEnd = index2 >= childNodeStart && index2 <= childNodeEnd;
+
 		//	If any part of the selection is contained in an element of these types, highlight the entire element
 		if(["I", "B", "EM", "STRONG", "CITE"].includes(childNode.tagName))
 		{
-			if(
-				index1 >= childNodeStart && index1 < childNodeEnd ||
-				index1 <= childNodeStart && index2 >= childNodeEnd ||
-				index2 >= childNodeStart && index2 <= childNodeEnd
-			)
+			if(containsTheBeginning || isContained || containsTheEnd)
 				wrapElement(childNode, Nimbus.highlightTagName);
 			continue;
 		}
 
 		consoleLog('Child node start:', childNodeStart, '; child node end:', childNodeEnd);
-		if(index1 <= childNodeStart && index2 >= childNodeEnd)
+		if(isContained)
 		{
 			consoleLog(`%c${getNodeText(childNode)}`, "color: #ABD; background: #008;", "is contained in the search string");
 			wrapElement(childNode, Nimbus.highlightTagName);
 		}
-		else if(index1 > childNodeStart && index1 <= childNodeEnd)
+		else if(containsTheBeginning)
 		{
 			consoleLog(`%c${getNodeText(childNode)}`, "color: #ABD; background: #008;", "contains the beginning of the search string");
 			const partialSearchString = childNodeText.substring(index1 - childNodeStart, index1 - childNodeStart + searchString.length);
 			if(partialSearchString.length)
 				splitMatches.push({ searchString: partialSearchString, node: childNode, matchType: MATCH_TYPE.CONTAINS_BEGINNING });
 		}
-		else if(index2 >= childNodeStart && index2 <= childNodeEnd)
+		else if(containsTheEnd)
 		{
 			consoleLog(`%c${getNodeText(childNode)}`, "color: #ABD; background: #008;", "contains the end of the search string");
 			const partialSearchString = childNodeText.substring(0, index2 - childNodeStart);
