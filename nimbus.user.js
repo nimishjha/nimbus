@@ -211,6 +211,7 @@ const Nimbus = {
 		replaceIframes: replaceIframes,
 		replaceImagesWithAltText: replaceImagesWithAltText,
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
+		replaceInClassNames: replaceInClassNames,
 		replaceInlineStylesWithClasses: replaceInlineStylesWithClasses,
 		replaceInTextNodes: replaceInTextNodes,
 		replaceLongTextLinks: replaceLongTextLinks,
@@ -2126,6 +2127,16 @@ function replaceClass(class1, class2)
 	{
 		e[i].classList.remove(class1);
 		e[i].classList.add(class2);
+	}
+}
+
+function replaceInClassNames(str, repl)
+{
+	const elems = get("*");
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+		elem.className = elem.className.replaceAll(str, repl);
 	}
 }
 
