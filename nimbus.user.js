@@ -59,8 +59,8 @@ const Nimbus = {
 		capitalizeTitle: capitalizeTitle,
 		cleanupAttributes: cleanupAttributes,
 		cleanupAttributes_regex: cleanupAttributes_regex,
-		cleanupGeneral: cleanupGeneral,
-		cleanupGeneral_light: cleanupGeneral_light,
+		cleanupDocument: cleanupDocument,
+		cleanupAlt: cleanupAlt,
 		cleanupHead: cleanupHead,
 		cleanupHeadings: cleanupHeadings,
 		cleanupLinks: cleanupLinks,
@@ -80,6 +80,7 @@ const Nimbus = {
 		deleteEmptyHeadings: deleteEmptyHeadings,
 		deleteEmptyTextNodes: deleteEmptyTextNodes,
 		deleteIframes: deleteIframes,
+		deleteImageByNumber: deleteImageByNumber,
 		deleteImages: deleteImages,
 		deleteImagesSmallerThan: deleteImagesSmallerThan,
 		deleteMessage: deleteMessage,
@@ -372,7 +373,7 @@ const STYLES = {
 	SHOW_TABLE_STRUCTURE: 'th { background-image: linear-gradient(45deg, #000, #888); } td { background-image: linear-gradient(45deg, #000, #555); } th *, td * { background: transparent; color: #FFF; fill: #999; }',
 	INSPECTOR: `
 		body.inspector { padding-bottom: 30vh; }
-		div#inspector { padding: 5px 10px; position: fixed; left: 0; bottom: 0; width: 50%; min-width: 500px; height: 30vh; overflow: hidden; background:#000; color: #AAA; text-align:left; z-index: 2147483647; font: 12px verdana; letter-spacing: 0; box-shadow: none; min-height: 30vh; margin: 0; }
+		div#inspector { padding: 5px 10px; position: fixed; left: 0; bottom: 0; width: 50%; min-width: 500px; height: 30vh; overflow: hidden; background:#000; color: #AAA; text-align:left; z-index: 2147483647; font: 22px "swis721 cn bt", verdana; letter-spacing: 0; box-shadow: none; min-height: 30vh; margin: 0; }
 		#inspector.onTop { bottom: auto; top: 0; }
 		#inspector b { color:#09F; }
 		#inspector em { font-style:normal; color:#F90; }
@@ -1767,15 +1768,8 @@ function replaceByClassOrIdContaining(str, tagName)
 		replaceElementKeepingId(toReplace[i], tagName);
 }
 
-function deleteByClassOrIdContaining(str)
-{
-	deleteElements(selectByClassOrIdContaining(str));
-}
-
-function markByClassOrIdContaining(str)
-{
-	markElements(selectByClassOrIdContaining(str));
-}
+function deleteByClassOrIdContaining(str) { deleteElements(selectByClassOrIdContaining(str)); }
+function markByClassOrIdContaining(str) { markElements(selectByClassOrIdContaining(str)); }
 
 function hasAdjacentBlockElement(node)
 {
@@ -2136,7 +2130,8 @@ function replaceInClassNames(str, repl)
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
-		elem.className = elem.className.replaceAll(str, repl);
+		if(typeof elem.className === "string" && elem.className.length)
+			elem.className = elem.className.replaceAll(str, repl);
 	}
 }
 
@@ -2218,9 +2213,9 @@ function showMessage(messageHtml, msgClass, persist)
 	msgClass = msgClass || "";
 	const strStyle = `
 		message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; height: 60px; line-height: 60px; position: fixed; top: calc(100vh - 60px); left: 0; width: 100%; z-index: 2147483647; }
-		messageinner { display: block; max-width: 90vw; margin: 0 auto; text-align: left; }
-		messagebig { display: block; max-width: 90vw; margin: 0 auto; text-align: left; font: 32px "swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }
-		messageerror { display: block; max-width: 90vw; margin: 0 auto; text-align: left; font: 32px "swis721 cn bt"; color: #FFF; background: #500; height: 60px; line-height: 60px; font-weight: 500; }
+		messageinner { display: block; max-width: 1200px; margin: 0 auto; text-align: left; }
+		messagebig { display: block; max-width: 1200px; margin: 0 auto; text-align: left; font: 32px "swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }
+		messageerror { display: block; max-width: 1200px; margin: 0 auto; text-align: left; font: 32px "swis721 cn bt"; color: #FFF; background: #500; height: 60px; line-height: 60px; font-weight: 500; }
 	`;
 	const messageInnerTagName = msgClass ? msgClass : "messageinner";
 	if(get("message"))
@@ -2873,6 +2868,8 @@ function markSelectionAnchorNode()
 {
 	const node = getNodeContainingSelection();
 	markElement(node);
+	if(node.textContent.length < 200)
+		console.log(node.textContent);
 	insertStyleHighlight();
 	showMarkedElementInfo(node);
 }
@@ -3058,6 +3055,8 @@ function numberDivs()
 	let i = e.length;
 	while(i--)
 		e[i].id = "i" + i;
+	for(let i = 0, ii = document.images.length; i < ii; i++)
+		document.images[i].id = "img" + i;
 	toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true);
 }
 
@@ -3642,6 +3641,13 @@ function deleteSmallImages()
 	deleteImagesSmallerThan(nextThreshold * nextThreshold);
 }
 
+function deleteImageByNumber(num)
+{
+	if(!document.images) return;
+	if(document.images[num])
+		document.images[num].remove();
+}
+
 function getBestImageSrc()
 {
 	Nimbus.bestImagesData = [];
@@ -3771,7 +3777,7 @@ function replaceImagesWithTextLinks()
 			}
 		}
 		del("img");
-		const s = 'rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px verdana; }' +
+		const s = 'rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px verdana; text-align: left; }' +
 		'rt a { color: #FFF; }' +
 		'rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }';
 		insertStyle(s, "styleReplaceImages");
@@ -5459,11 +5465,11 @@ function insertStyleHighlight()
 		.${Nimbus.markerClass}2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }
 		.${Nimbus.markerClass}::after, .${Nimbus.markerClass}2::after { content: " "; display: block; clear: both; }
 		a.${Nimbus.markerClass}::after, span.${Nimbus.markerClass}::after { content: ""; display: inline; clear: none; }
-		mark, markgreen, markred, markblue, markpurple, markyellow, markwhite { padding: 2px 0; line-height: inherit; }
+		mark, markgreen, markred, markblue, markpurple, markyellow, markwhite { padding: 3px 0; line-height: inherit; }
 		mark { background: #048; color: #6CF; }
 		markgreen { background: #150; color: #4F0; }
 		markred { background: #500; color: #E33; }
-		markblue { background: #448; color: #99C; }
+		markblue { background: #005; color: #05D; }
 		markpurple { background: #404; color: #C6C; }
 		markyellow { background: #804800; color: #FF0; }
 		markwhite { background: #000; color: #DDD; }
@@ -5485,9 +5491,9 @@ function toggleStyleGrayscale()
 function toggleStyleNegative()
 {
 	const s = `
-	html { background: #000; font-size: 22px; }
-	html body, #nimbus body { background: #202020; color: #808080; border: 0; font-size: 22px; font-family: "swis721 cn bt"; font-style: normal; line-height: 1.35; }
-	form { font-family: inherit; font-size: 22px; }
+	html { background: #181818; font-size: 26px; }
+	html body, #nimbus body { background: #242424; color: #999; border: 0; font-size: 26px; font-family: "swis721 cn bt"; font-style: normal; line-height: 1.35; }
+	form { font-family: inherit; font-size: 26px; }
 
 	body.pad100 { padding: 100px 200px; }
 	body.pad100 table { width: 100%; }
@@ -5515,7 +5521,7 @@ function toggleStyleNegative()
 
 	quote { display: block; padding: 1rem 2rem; margin: 2px 0; background: #181818; border-width: 0 0 0 20px; border-style: solid; border-color: #0C0C0C; color: #808080; font-size: 1rem; }
 	quoteauthor { display: block;  padding: 0.5rem 2rem; margin: 2px 0; background: #202020; border-width: 0 0 0 20px; border-style: solid; border-color: #0C0C0C; font-size: 1rem; text-align: right; }
-	footnote { display: block; padding: 0.5em 10px; margin: 2px 0; background: #222; border-width: 0 0 0 10px; border-style: solid; border-color: #181818; color: #808080; }
+	footnote { display: block; padding: 0.5em 10px; margin: 2px 0; background: #181818; border-width: 0 0 0 10px; border-style: solid; border-color: #181818; color: #808080; }
 	right { display: block; text-align: right; }
 	documentheading { display: block; margin: 0 0 100px 0; padding: 10px 0; border-top: 10px solid #141414; border-bottom: 10px solid #141414; }
 	documentheading h1 { font-size: 2.8rem; }
@@ -5551,13 +5557,13 @@ function toggleStyleNegative()
 	container { border: 2px solid #F00; margin: 10px; display: block; padding: 10px; }
 	figure { border: 0; background: #111; padding: 10px 0; margin: 2px 0 0 0; }
 	figcaption { background: #111; color: #AAA; padding: 10px 20px; margin-left: 20px; }
-	annotation { margin: 10px 0; background: #333; color: #999; padding: 20px 30px; display: block; font-size: 22px; border-left: 10px solid #888; }
-	ruby { margin: 10px 0; background: #F90; color: #FFF; padding: 20px 30px; display: block; font-size: 22px; border-left: 10px solid #F90; }
-	rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 22px "swis721 cn bt"; border-top: 50px solid #000; border-bottom: 50px solid #000; }
-	rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px Verdana; }
+	annotation { background: #444; color: inherit; padding: 1rem 2rem; display: block; margin: 10px 0 10px -30px; border-style: solid; border-color: #AAA; border-width: 2px 2px 2px 20px; }
+	ruby { margin: 10px 0; background: #F90; color: #FFF; padding: 20px 30px; display: block; font-size: 26px; border-left: 10px solid #F90; }
+	rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 26px "swis721 cn bt"; border-top: 50px solid #000; border-bottom: 50px solid #000; }
+	rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px Verdana; text-align: left; }
 	rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }
 
-	button, select, textarea, input, input[class], input[type] { background: #151515; color: #909090; -moz-appearance: none; border-radius: 0; border: 0; font-family: inherit; font-size: 22px; }
+	button, select, textarea, input, input[class], input[type] { background: #151515; color: #909090; -moz-appearance: none; border-radius: 0; border: 0; font-family: inherit; font-size: 26px; }
 	select, textarea { border: 0; box-shadow: none; }
 	html input[type="checkbox"] { width: 24px; height: 24px; background: #242424; }
 	button:hover, button:focus, input[type="submit"]:hover, input[type="submit"]:focus, input[type="button"]:hover, input[type="button"]:focus { background: #090909; color: #CCC; border-color: #FFF; }
@@ -5581,7 +5587,7 @@ function toggleStyleNegative()
 	blockquote blockquote { padding: 0 0 0 40px; }
 
 	table { border-collapse: collapse; }
-	table, tr, td, th { margin: 0; padding: 0; line-height: inherit; font: 22px/1.4 "swis721 cn bt"; color: inherit; border: 0; }
+	table, tr, td, th { margin: 0; padding: 0; line-height: inherit; font: 26px/1.4 "swis721 cn bt"; color: inherit; border: 0; }
 	table, tbody, tr, td { background: inherit; }
 	thead, th { background: #111; }
 	tr:nth-child(odd) td , tr:nth-child(odd) th { background-color: #181818; }
@@ -5591,18 +5597,18 @@ function toggleStyleNegative()
 	dt, dt[class] { padding: 0.5em 10px; margin: 2px 0; background: #181818; border-width: 0 0 0 20px; border-style: solid; border-color: #0C0C0C; font: inherit; line-height: inherit; }
 	dd, dd[class] { padding: 0.25em 10px; margin: 2px 0; background: #202020; border-width: 0 0 0 60px; border-style: solid; border-color: #0C0C0C; font: inherit; line-height: inherit; }
 
-	cite, u, em, i { font-weight: normal; font-style: normal; text-decoration: none; color: #BBB; }
-	b, strong { font-weight: bold; font-style: normal; text-decoration: none; color: #BBB; }
+	cite, u, em, i { font-weight: normal; font-style: normal; text-decoration: none; color: #CCC; }
+	b, strong { font-weight: bold; font-style: normal; text-decoration: none; color: #CCC; }
 	a u, a em, a i, a b, a strong, a div, a span { color: inherit; }
 	small { font-size: 80%; }
 
 	code { font: inherit; padding: 1px 2px; background: #0C0C0C; color: #999; }
 	tt { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #06C; }
-	kbd { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #0C0; }
+	kbd { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #3E0; }
 	samp { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #0CC; }
-	pre { background: #0C0C0C; color: #909090; border-style: solid; border-width: 0 0 0 10px; border-color: #444; padding: 10px 20px; }
+	pre { background: #0C0C0C; color: #909090; border-style: solid; border-width: 0 0 0 10px; border-color: #444; padding: 10px 20px; overflow-x: auto; }
 	pre p { margin: 0; padding: 0; }
-	pre { font: bold 22px/1.2 Swis721CnBtCode, Consolas, monospace; }
+	pre { font: bold 26px/1.2 Swis721CnBtCode, Consolas, monospace; }
 	pre * { font: inherit; text-recoration: none; }
 
 	pre em { color: #00AAFF; }
@@ -5644,12 +5650,12 @@ function toggleStyleNegative()
 	XP { color: #11FF00; }
 	XS { color: #1CF; background: #113060; }
 
-	mark, markgreen, markred, markblue, markpurple, markyellow, markwhite { padding: 2px 0; line-height: inherit; }
+	mark, markgreen, markred, markblue, markpurple, markyellow, markwhite { padding: 3px 0; line-height: inherit; }
 	mark { background: #048; color: #6CF; }
-	markgreen { background: #150; color: #2C0; }
+	markgreen { background: #150; color: #3F0; }
 	markred { background: #500; color: #E33; }
-	markblue { background: #448; color: #99C; }
-	markpurple { background: #404; color: #C6C; }
+	markblue { background: #005; color: #05D; }
+	markpurple { background: #408; color: #C7F; }
 	markyellow { background: #804800; color: #FF0; }
 	markwhite { background: #000; color: #DDD; }
 
@@ -5658,6 +5664,11 @@ function toggleStyleNegative()
 	reference, internalref { background: #000; color: #AAA; padding: 1px 5px; }
 	comment { display: block; padding: 20px 40px; border-left: 10px solid #555; background: #181818; margin-bottom: 2px; }
 	ind { display: block; padding-left: 50px; }
+	warning, info, error { display: block; border-width: 2px 2px 2px 20px; border-style: solid; padding: 1rem 2rem; margin: 10px 0; }
+	warning { background: #420; border-color: #C70; }
+	info { background: #035; border-color: #07C; }
+	error { background: #600; border-color: #D40; }
+	tag { background: #333 !important; color: #888 !important; padding: 2px 4px !important; margin: 0 5px 0 0 !important; }
 
 	.markd { box-shadow: inset 2px 2px #C00, inset -2px -2px #C00 !important; background: #000 !important; }
 	`;
@@ -5972,7 +5983,7 @@ function cleanupHeadings()
 }
 
 //	This function "cleans up" a webpage and optimises it for saving locally.
-function cleanupGeneral()
+function cleanupDocument()
 {
 	cleanupHead();
 	cleanupTitle();
@@ -6011,7 +6022,7 @@ function cleanupGeneral()
 	}
 }
 
-function cleanupGeneral_light()
+function cleanupAlt()
 {
 	const t1 = performance.now();
 	deleteEmptyHeadings();
@@ -6025,7 +6036,7 @@ function cleanupGeneral_light()
 	appendMetadata();
 	document.body.className = "pad100 xShowImages";
 	const t2 = performance.now();
-	xlog(Math.round(t2 - t1) + " ms: cleanupGeneral_light");
+	xlog(Math.round(t2 - t1) + " ms: cleanupAlt");
 }
 
 function cleanupBarebone()
@@ -6350,7 +6361,7 @@ function makeFileLinksRelative()
 				if(splitHref.length)
 				{
 					const hash = "#" + splitHref[splitHref.length - 1];
-					link.href = hash;
+					link.setAttribute("href", hash);
 				}
 			}
 			else if(~linkHref.indexOf("/images/"))
@@ -6358,7 +6369,7 @@ function makeFileLinksRelative()
 				const splitHref = linkHref.split("/");
 				const folderName = splitHref[splitHref.length - 2];
 				const imageFileName = splitHref[splitHref.length - 1];
-				link.href = folderName + "/" + imageFileName;
+				link.setAttribute("href", folderName + "/" + imageFileName);
 			}
 		}
 	}
@@ -6526,7 +6537,7 @@ function deleteNonContentElements()
 	if(get(makeClassSelector(Nimbus.markerClass)).length)
 	{
 		del(makeClassSelector(Nimbus.markerClass));
-		cleanupGeneral();
+		cleanupDocument();
 		return;
 	}
 	replaceElementsBySelector("article", "div");
@@ -6632,7 +6643,7 @@ function getContentByParagraphCount()
 	{
 		// const title = document.title;
 		retrieve(makeClassSelector(Nimbus.markerClass));
-		cleanupGeneral();
+		cleanupDocument();
 		unmarkAll();
 		deleteIframes();
 		deleteEmptyBlockElements();
@@ -6732,10 +6743,11 @@ function cleanupStackOverflow()
 		replaceElementsBySelector(".user-action-time", "h5");
 		replaceElementsBySelector(".user-details", "h2");
 		replaceElementsBySelector(".answercell", "dt");
-		replaceElementsBySelector(".votecell", "h6");
+		// replaceElementsBySelector(".votecell", "h6");
+		del(".votecell");
 		deleteBySelectorAndTextMatching("h2", "Not the answer");
 		retrieve("#content");
-		cleanupGeneral();
+		cleanupDocument();
 		highlightCode(true);
 		removeAllAttributesOfTypes(["class", "style", "align", "id"]);
 		unwrapAll("span");
@@ -7678,6 +7690,7 @@ function highlightFirstParentByText(str)
 
 function highlightAllTextNodesMatching(str)
 {
+	insertStyleHighlight();
 	str = str.toLowerCase();
 	const textNodes = getTextNodesUnderSelector("body");
 	let count = 0;
@@ -8098,11 +8111,15 @@ function highlightCodeKeywords(keywords)
 
 function highlightCodeComments()
 {
-	highlightCodeInTextNodes(/[\b\s]?\/\/[^\n]+/g, "xc");
+	highlightCodeInTextNodes(/[^:]\/\/[^\n]+/g, "xc");
+	highlightCodeInTextNodes(/[\s]\/\/[^\n]+/g, "xc");
+	highlightCodeInTextNodes(/^\/\/[^\n]+/g, "xc");
+	makePlainText("xc");
 }
 
 function highlightAllMatchesInDocument(str, isCaseSensitive = false)
 {
+	insertStyleHighlight();
 	const textNodes = getTextNodesUnderSelector("body");
 	const regexFlags = isCaseSensitive ? "g" : "gi";
 	const regex = new RegExp(escapeForRegExp(str), regexFlags);
@@ -8205,8 +8222,8 @@ function doWebsiteSpecificTasks()
 function inject()
 {
 	document.addEventListener("keydown", handleKeyDown, false);
-	// if(isChrome())
-	// 	insertStyleHighlight();
+	if(isChrome())
+		insertStyleHighlight();
 	xlog("Referrer: " + document.referrer);
 	xlog("Page loaded at " + getTimestamp());
 	cleanupStackOverflow();
@@ -8254,7 +8271,7 @@ function handleKeyDown(e)
 			case KEYCODES.F3: customPrompt("Enter tag name to replace elements of the marked type with").then(replaceElementsOfMarkedTypeWith); break;
 			case KEYCODES.F11: inspect(); break;
 			case KEYCODES.F12: highlightCode(); break;
-			case KEYCODES.ONE: cleanupGeneral(); break;
+			case KEYCODES.ONE: cleanupDocument(); break;
 			case KEYCODES.TWO: deleteImages(); break;
 			case KEYCODES.THREE: toggleClass(db, "xwrap"); break;
 			case KEYCODES.FOUR: deleteSmallImages(); break;
@@ -8381,6 +8398,7 @@ function handleKeyDown(e)
 			case KEYCODES.F: del(["object", "embed", "video", "iframe"]); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements with class or id containing the string", deleteByClassOrIdContaining); break;
 			case KEYCODES.H: callFunctionWithArgs("Mark elements by selector", markBySelector, 1); break;
+			case KEYCODES.I: callFunctionWithArgs("Delete image by number", deleteImageByNumber, 1); break;
 			case KEYCODES.J: deleteNodesBeforeAnchorNode(); break;
 			case KEYCODES.K: deleteNodesAfterAnchorNode(); break;
 			case KEYCODES.L: deleteNodesBetweenMarkers(); break;
