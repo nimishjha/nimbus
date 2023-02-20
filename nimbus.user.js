@@ -4673,6 +4673,13 @@ function parseCode(s)
 
 function highlightCode(shouldHighlightKeywords)
 {
+	if(get("pre span[style]").length)
+	{
+		replaceInlineStylesWithClasses();
+		replaceClassesWithCustomElements("pre span", "x");
+		unwrapAll("pre span");
+		return;
+	}
 	if(get("pre span[class]").length)
 	{
 		replaceClassesWithCustomElements("pre span", "x");
