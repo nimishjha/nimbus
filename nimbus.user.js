@@ -6470,7 +6470,9 @@ function appendMetadata()
 	if(!existingMetadata && protocol === "file:") return;
 
 	const urlWithoutHash = protocol + "//" + hostname + pathname + search;
-	const documentUrl = removeQueryParameter(urlWithoutHash, "utm_source");
+	let documentUrl = removeQueryParameter(urlWithoutHash, "utm_source");
+	documentUrl = removeQueryParameter(documentUrl, "utm_medium");
+	documentUrl = removeQueryParameter(documentUrl, "utm_campaign");
 
 	const domainLinkWrapper = createElement("h4", { textContent: "Domain: " });
 	const domainLink = createElement("a", { textContent: hostname, href: protocol + "//" + hostname });
