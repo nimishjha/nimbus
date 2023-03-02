@@ -5138,10 +5138,12 @@ function groupAdjacentElements(selector, parentTag, childTag)
 				break;
 		}
 	}
+	const groups = [];
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
 		const group = document.createElement(parentTagName);
+		groups.push(group);
 		if(childTagName === "same")
 			group.appendChild(cloneElement(elem));
 		else
@@ -5161,10 +5163,25 @@ function groupAdjacentElements(selector, parentTag, childTag)
 		if(elem.parentNode)
 			elem.parentNode.replaceChild(group, elem);
 	}
+	return groups;
 }
 
-function makeUL() { groupAdjacentElements(makeClassSelector(Nimbus.markerClass), "ul", "li"); }
-function makeOL() { groupAdjacentElements(makeClassSelector(Nimbus.markerClass), "ol", "li"); }
+function makeUL() { makeList("ul"); }
+function makeOL() { makeList("ol"); }
+
+function makeList(listTagName)
+{
+	const groups = groupAdjacentElements(makeClassSelector(Nimbus.markerClass), listTagName, "li");
+	if(groups.length)
+	{
+		for(let i = 0, ii = groups.length; i < ii; i++)
+		{
+			const elems = groups[i].querySelectorAll("li");
+			if(elems)
+				fixBullets(elems);
+		}
+	}
+}
 
 function makeDocumentHierarchical()
 {
@@ -6512,13 +6529,13 @@ function deleteNonContentLinks()
 
 //	After converting numbered or bulleted paragraphs to lists, we need
 //	to remove the redundant numbering or bullets from the list items.
-function fixBullets()
+function fixBullets(elems)
 {
 	const BULLET_REGEX = /^\s*\u2022/;
 	const NUMERICBULLET_REGEX = /^\s*[0-9]+[\.\)]?/;
 	let ulCount = 0;
 	let olCount = 0;
-	const lis = get("ol > li");
+	const lis = elems || get("ol > li");
 	for(let i = 0, ii = lis.length; i < ii; i++)
 	{
 		const firstTextChild = getFirstTextChild(lis[i]);
