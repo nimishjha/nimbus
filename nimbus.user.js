@@ -1007,6 +1007,8 @@ function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 			const replacementWrapper = WRAPPER_TAGNAME === "P" ? document.createDocumentFragment() : document.createElement(WRAPPER_TAGNAME);
 			for(let i = 0, ii = groups.length; i < ii; i++)
 				replacementWrapper.appendChild(createElementWithChildren(CHILD_TAGNAME, ...groups[i]));
+			if(elem.id)
+				replacementWrapper.id = elem.id;
 			elem.parentNode.replaceChild(replacementWrapper, elem);
 		}
 	}
