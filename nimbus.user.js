@@ -307,7 +307,7 @@ const STYLES = {
 		a { text-decoration: none; }
 	`,
 	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); line-height: 1.4; }`,
-	COLORS_01: 'html, body { background: #202020; color: #AAA; } div, table, tr, td, tbody, th, article, section, header, footer { background: inherit; color: inherit; }',
+	COLORS_01: 'html, body { background: #202020; color: #AAA; } div, table, tr, td, tbody, th, article, section, header, footer { background: inherit; color: inherit; } body { opacity: 0.5; } ',
 	SIMPLE_NEGATIVE: `
 		html, body, body[class] { background: #000; font-family: "swis721 cn bt"; font-size: 22px; }
 		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "swis721 cn bt"; }
@@ -6550,7 +6550,7 @@ function fixBullets(elems)
 			firstTextChild.textContent = firstTextChild.textContent.trim().replace(NUMERICBULLET_REGEX, "");
 		}
 	}
-	const ulis = get("ul > li");
+	const ulis = elems || get("ul > li");
 	for(let i = 0, ii = ulis.length; i < ii; i++)
 	{
 		const firstTextChild = getFirstTextChild(ulis[i]);
