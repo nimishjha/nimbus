@@ -2419,6 +2419,9 @@ function toggleConsole(consoleType)
 	inputTextareaWrapper.appendChild(inputTextarea);
 	document.body.appendChild(inputTextareaWrapper);
 	inputTextarea.focus();
+	const userStyle = get("#userStyle");
+	if(userStyle)
+		inputTextarea.value = userStyle.textContent;
 }
 
 function parseCommand(commandString)
