@@ -5093,14 +5093,14 @@ function moveElementUp(position)
 function groupMarkedElements(tagName)
 {
 	const parentTagName = tagName || "ul";
-	let childTagName = "li";
-	switch(parentTagName)
-	{
-		case "blockquote": childTagName = "p"; break;
-		case "dl": childTagName = "dt"; break;
-		case "ol": childTagName = "li"; break;
-		case "ul": childTagName = "li"; break;
-	}
+	// let childTagName = "li";
+	// switch(parentTagName)
+	// {
+	// 	case "blockquote": childTagName = "p"; break;
+	// 	case "dl": childTagName = "dt"; break;
+	// 	case "ol": childTagName = "li"; break;
+	// 	case "ul": childTagName = "li"; break;
+	// }
 	const elemsToJoin = getMarkedElements();
 	if(!elemsToJoin.length)
 		return;
@@ -5108,7 +5108,8 @@ function groupMarkedElements(tagName)
 	for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
 	{
 		const elem = elemsToJoin[i];
-		const child = convertElement(elem, childTagName);
+		// const child = convertElement(elem, childTagName);
+		const child = convertElement(elem, elem.tagName);
 		child.id = elem.id;
 		wrapper.appendChild(child);
 	}
