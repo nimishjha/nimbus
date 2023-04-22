@@ -2947,17 +2947,16 @@ function fixInternalReferences()
 	const sanitizeNumericRef = (text) => text.replace(/[^A-Za-z0-9\s\-:,\(\)]+/g, "");
 	const internalLinks = get('a[href^="#"]');
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
-		wrapElement(internalLinks[i], "reference");
-	const refLinks = get("reference a");
-	for(let i = 0, ii = refLinks.length; i < ii; i++)
 	{
-		const refLink = refLinks[i];
-		let refText = refLink.textContent.trim();
+		const link = internalLinks[i];
+		if(link.parentNode && link.parentNode.tagName !== "REFERENCE")
+			wrapElement(link, "reference");
+		let refText = link.textContent.trim();
 		if(refText.match(/^\[/))
 			refText = sanitizeNumericRef(refText);
 		if(!refText.length)
 			refText = "0" + i;
-		refLink.textContent = refText;
+		link.textContent = refText;
 	}
 	const redundantSups = select("sup", "hasChildrenOfType", "reference");
 	if(redundantSups)
