@@ -307,7 +307,7 @@ const STYLES = {
 		a { text-decoration: none; }
 	`,
 	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); line-height: 1.4; }`,
-	COLORS_01: 'html, body { background: #202020; color: #AAA; } div, table, tr, td, tbody, th, article, section, header, footer { background: inherit; color: inherit; } body { opacity: 0.5; } ',
+	COLORS_01: 'html, body { background: #202020; color: #AAA; } div, table, tr, td, tbody, th, article, section, header, footer { background: inherit; color: inherit; } body { opacity: 0.7; } ',
 	SIMPLE_NEGATIVE: `
 		html, body, body[class] { background: #000; font-family: "swis721 cn bt"; font-size: 22px; }
 		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "swis721 cn bt"; }
@@ -2419,9 +2419,9 @@ function toggleConsole(consoleType)
 	inputTextareaWrapper.appendChild(inputTextarea);
 	document.body.appendChild(inputTextareaWrapper);
 	inputTextarea.focus();
-	const userStyle = get("#userStyle");
-	if(userStyle)
-		inputTextarea.value = userStyle.textContent;
+	const oldText = consoleType === "css" ? Nimbus.cssConsoleText : Nimbus.jsConsoleText;
+	if(oldText && consoleType === "css")
+		inputTextarea.value = oldText.textContent.replace(/!important/g, "");
 }
 
 function parseCommand(commandString)
@@ -2889,9 +2889,9 @@ function showMarkedElementInfo(node)
 	{
 		const count = elems.length;
 		if(count === 1)
-			showMessage(`${fullSelector}: unique`, "messagebig", true);
+			showMessage(`${fullSelector}: unique`, "messageinner", true);
 		else
-			showMessage(`${fullSelector}: ${count} instances`, "messagebig", true);
+			showMessage(`${fullSelector}: ${count} instances`, "messageinner", true);
 	}
 }
 
@@ -2965,7 +2965,7 @@ function fixInternalReferences()
 	if(redundantSups)
 		for(let i = 0, ii = redundantSups.length; i < ii; i++)
 			unwrapElement(redundantSups[i]);
-	unwrapAll("h1 reference, h2 reference, h3 reference");
+	// unwrapAll("h1 reference, h2 reference, h3 reference");
 	consolidateAnchors();
 }
 
@@ -5523,9 +5523,9 @@ function toggleStyleGrayscale()
 function toggleStyleNegative()
 {
 	const s = `
-	html { background: #181818; font-size: 26px; }
-	html body, #nimbus body { background: #242424; color: #999; border: 0; font-size: 26px; font-family: "swis721 cn bt"; font-style: normal; line-height: 1.35; }
-	form { font-family: inherit; font-size: 26px; }
+	html { background: #181818; font-size: 22px; }
+	html body, #nimbus body { background: #242424; color: #999; border: 0; font-size: 22px; font-family: "swis721 cn bt"; font-style: normal; line-height: 1.35; }
+	form { font-family: inherit; font-size: 22px; }
 
 	body.pad100 { padding: 100px 200px; }
 	body.pad100 table { width: 100%; }
@@ -5559,6 +5559,8 @@ function toggleStyleNegative()
 	documentheading h1 { font-size: 2.8rem; }
 	slideshow { display: block; background: #111; padding: 10px; }
 	slideshow::after { content: " "; clear: both; display: block; }
+	img { opacity: 0.5; }
+	img:hover { opacity: 1; }
 
 	hgroup, article, caption, blockquote, center, col, colgroup, div, div[class], form, li, main, noscript, ol, p, section, summary, ul, video
 	{
@@ -5590,12 +5592,12 @@ function toggleStyleNegative()
 	figure { border: 0; background: #111; padding: 10px 0; margin: 2px 0 0 0; }
 	figcaption { background: #111; color: #AAA; padding: 10px 20px; margin-left: 20px; }
 	annotation { background: #444; color: inherit; padding: 1rem 2rem; display: block; margin: 10px 0 10px -30px; border-style: solid; border-color: #AAA; border-width: 2px 2px 2px 20px; }
-	ruby { margin: 10px 0; background: #F90; color: #FFF; padding: 20px 30px; display: block; font-size: 26px; border-left: 10px solid #F90; }
-	rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 26px "swis721 cn bt"; border-top: 50px solid #000; border-bottom: 50px solid #000; }
+	ruby { margin: 10px 0; background: #F90; color: #FFF; padding: 20px 30px; display: block; font-size: 22px; border-left: 10px solid #F90; }
+	rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 22px "swis721 cn bt"; border-top: 50px solid #000; border-bottom: 50px solid #000; }
 	rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px Verdana; text-align: left; }
 	rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }
 
-	button, select, textarea, input, input[class], input[type] { background: #151515; color: #909090; -moz-appearance: none; border-radius: 0; border: 0; font-family: inherit; font-size: 26px; }
+	button, select, textarea, input, input[class], input[type] { background: #151515; color: #909090; -moz-appearance: none; border-radius: 0; border: 0; font-family: inherit; font-size: 22px; }
 	select, textarea { border: 0; box-shadow: none; }
 	html input[type="checkbox"] { width: 24px; height: 24px; background: #242424; }
 	button:hover, button:focus, input[type="submit"]:hover, input[type="submit"]:focus, input[type="button"]:hover, input[type="button"]:focus { background: #090909; color: #CCC; border-color: #FFF; }
@@ -5619,7 +5621,7 @@ function toggleStyleNegative()
 	blockquote blockquote { padding: 0 0 0 40px; }
 
 	table { border-collapse: collapse; }
-	table, tr, td, th { margin: 0; padding: 0; line-height: inherit; font: 26px/1.4 "swis721 cn bt"; color: inherit; border: 0; }
+	table, tr, td, th { margin: 0; padding: 0; line-height: inherit; font: 22px/1.4 "swis721 cn bt"; color: inherit; border: 0; }
 	table, tbody, tr, td { background: inherit; }
 	thead, th { background: #111; }
 	tr:nth-child(odd) td , tr:nth-child(odd) th { background-color: #181818; }
@@ -5640,7 +5642,7 @@ function toggleStyleNegative()
 	samp { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #0CC; }
 	pre { background: #0C0C0C; color: #909090; border-style: solid; border-width: 0 0 0 10px; border-color: #444; padding: 10px 20px; overflow-x: auto; }
 	pre p { margin: 0; padding: 0; }
-	pre { font: bold 26px/1.2 Swis721CnBtCode, Consolas, monospace; }
+	pre { font: bold 22px/1.2 Swis721CnBtCode, Consolas, monospace; }
 	pre * { font: inherit; text-recoration: none; }
 
 	pre em { color: #00AAFF; }
@@ -6681,6 +6683,7 @@ function getContentByParagraphCount()
 		unmarkAll();
 		deleteIframes();
 		deleteEmptyBlockElements();
+		document.body.innerHTML += "<h6>removeEventListeners</h6>";
 		return;
 	}
 	del("nav");
