@@ -2923,7 +2923,10 @@ function consolidateAnchors()
 		const linkedElement = document.getElementById(linkHref.substring(1));
 		if(!(linkedElement && linkedElement.tagName))
 			continue;
- 		if( ["CITE", "SPAN"].includes(linkedElement.tagName) || linkedElement.tagName === "A" && isEmptyLink(linkedElement) )
+		if(
+			(["CITE", "SPAN"].includes(linkedElement.tagName) && getTextLength(linkedElement) === 0) ||
+			linkedElement.tagName === "A" && isEmptyLink(linkedElement)
+		)
 		{
 			const parent = getFirstBlockParent(linkedElement);
 			if(!parent)
