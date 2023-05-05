@@ -2390,7 +2390,7 @@ function editStyleById(styleId)
 		return;
 	}
 	toggleConsole("css");
-	getOne("#userInput").value = styleElem.textContent;
+	getOne("#userInput").value = styleElem.textContent.replace(/!important/g, "");
 }
 
 function toggleConsole(consoleType)
