@@ -4164,6 +4164,7 @@ function makeHeadings()
 
 function replaceCommonClasses()
 {
+	replaceElementsBySelector(".pn, .pt", "h1");
 	replaceElementsBySelector(".cn, .ct, .chapnum, .chaptitle, .chap-num, .chap-title, .fmh, .fmht", "h2");
 	replaceElementsBySelector(".cst", "h3");
 	replaceElementsBySelector("div.calibre", "section");
@@ -4177,7 +4178,6 @@ function replaceCommonClasses()
 	replaceElementsBySelector("div[class*=sidebar]", "aside");
 	replaceElementsBySelector("div[class*=social]", "aside");
 	replaceElementsBySelector("p[class*=subtitle], div[class*=subtitle], p[class*=subhead], div[class*=subhead]", "h3");
-	// replaceElementsBySelector("p[class*=title], div[class*=title]", "h2");
 	replaceElementsBySelector("p[class*=image], div[class*=image]", "figure");
 	replaceElementsBySelector("p[class*=caption], div[class*=caption]", "figcaption");
 	replaceElementsBySelector("p[class*=quote], div[class*=quote]", "blockquote");
