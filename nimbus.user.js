@@ -7064,7 +7064,7 @@ function inspect(onTop)
 			b.className = "onTop";
 		document.body.insertBefore(b, document.body.firstChild);
 		document.body.addEventListener('mouseover', inspectMouseoverHandler, false);
-		document.body.addEventListener('click', inspect_clickHandler, false);
+		document.body.addEventListener('contextmenu', inspect_clickHandler, false);
 		document.body.classList.add("inspector");
 		insertStyle(STYLES.INSPECTOR, "styleInspector", true);
 	}
@@ -7082,8 +7082,7 @@ function inspect(onTop)
 function inspect_clickHandler(e)
 {
 	e.stopPropagation();
-	if(e.shiftKey && get("#inspector"))
-		prompt("", get("#inspector").textContent);
+	e.target.classList.add(Nimbus.markerClass);
 }
 
 function showAttributes(selector = "*")
