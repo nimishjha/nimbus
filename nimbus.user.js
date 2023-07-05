@@ -2177,6 +2177,10 @@ function simplifyClassNames(selector)
 	const elems = get(sel);
 	const classMap = {};
 	const tagTable = {};
+	const tagMap = {
+		div: "d",
+		span: "s"
+	};
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
@@ -2193,11 +2197,12 @@ function simplifyClassNames(selector)
 	{
 		const key = keys[i];
 		const tagName = classMap[key];
+		const tagNameMapped = tagMap[tagName] || tagName;
 		const index = tagTable[tagName]++;
 		if(tagName.match(/h\d/))
-			replaceClass(key, tagName + "_" + index);
+			replaceClass(key, tagNameMapped + "_" + index);
 		else
-			replaceClass(key, tagName + index);
+			replaceClass(key, tagNameMapped + index);
 	}
 }
 
