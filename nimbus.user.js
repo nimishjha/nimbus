@@ -2424,9 +2424,23 @@ function toggleConsole(consoleType)
 	inputTextareaWrapper.appendChild(inputTextarea);
 	document.body.appendChild(inputTextareaWrapper);
 	inputTextarea.focus();
-	const oldText = consoleType === "css" ? Nimbus.cssConsoleText : Nimbus.jsConsoleText;
-	if(oldText && consoleType === "css")
-		inputTextarea.value = oldText.textContent.replace(/!important/g, "");
+	let history;
+	if(consoleType === "css")
+	{
+		let userStyleText;
+		const userStyle = getOne("#userStyle");
+		if(userStyle)
+			userStyleText = userStyle.textContent;
+		history = Nimbus.cssConsoleText || userStyleText;
+		if(history)
+			inputTextarea.value = history.replace(/\s*!important/g, "");
+	}
+	else
+	{
+		history = Nimbus.jsConsoleText;
+		if(history)
+			inputTextarea.value = history;
+	}
 }
 
 function parseCommand(commandString)
