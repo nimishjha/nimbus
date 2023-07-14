@@ -2219,7 +2219,7 @@ function showMessage(messageHtml, msgClass, persist)
 	let messageInner;
 	msgClass = msgClass || "";
 	const strStyle = `
-		message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #555; height: 60px; line-height: 60px; position: fixed; top: calc(100vh - 60px); left: 0; width: 100%; z-index: 2147483647; }
+		message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #888; height: 60px; line-height: 60px; position: fixed; top: calc(100vh - 60px); left: 0; width: 100%; z-index: 2147483647; }
 		messageinner { display: block; max-width: 1200px; margin: 0 auto; text-align: left; }
 		messagebig { display: block; max-width: 1200px; margin: 0 auto; text-align: left; font: 32px "swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }
 		messageerror { display: block; max-width: 1200px; margin: 0 auto; text-align: left; font: 32px "swis721 cn bt"; color: #FFF; background: #500; height: 60px; line-height: 60px; font-weight: 500; }
@@ -6791,7 +6791,7 @@ function cleanupStackOverflow()
 	const sites = ["stackexchange", "stackoverflow", "superuser", "serverfault", "askubuntu"];
 	if(containsAnyOfTheStrings(location.hostname, sites) && location.href.match(/questions\/[0-9]+/) !== null)
 	{
-		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair", "#launch-popover", ".comments-link", ".aside-cta", ".js-post-menu"]);
+		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair", "#launch-popover", ".comments-link", ".aside-cta", ".js-post-menu", "iframe"]);
 		deleteByClassOrIdContaining("comments-link");
 		replaceElementsBySelector(".post-tag", "tag");
 		unwrapAll(".js-post-tag-list-item");
