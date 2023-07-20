@@ -7581,14 +7581,18 @@ function wrapAnchorNodeInTag()
 	customPrompt("Enter tagName to wrap this node in").then(wrapFunc);
 }
 
-function generateTableOfContents()
+function generateTableOfContents(optionalStringToMatch)
 {
 	const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
 	const toc = document.createElement("div");
+	const onlyIncludeHeadingsMatchingText = typeof optionalStringToMatch === "string";
+	const str = onlyIncludeHeadingsMatchingText ? optionalStringToMatch.toLowerCase() : null;
 	for (let i = 0, ii = headings.length; i < ii; i++)
 	{
 		const heading = headings[i];
 		if(!isNaN(Number(heading.textContent)))
+			continue;
+		if(onlyIncludeHeadingsMatchingText && heading.textContent.toLowerCase().indexOf(str) === -1)
 			continue;
 		const id = createUUID();
 		heading.id = id;
