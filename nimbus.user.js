@@ -85,7 +85,7 @@ const Nimbus = {
 		deleteImagesSmallerThan: deleteImagesSmallerThan,
 		deleteMessage: deleteMessage,
 		deleteNodesBetweenMarkers: deleteNodesBetweenMarkers,
-		deleteNodesRelativeToSelectedNode: deleteNodesRelativeToSelectedNode,
+		deleteNodesBySelectorAndRelativePosition: deleteNodesBySelectorAndRelativePosition,
 		deleteNonContentElements: deleteNonContentElements,
 		deleteNonContentLists: deleteNonContentLists,
 		deleteNonContentLinks: deleteNonContentLinks,
@@ -5863,40 +5863,37 @@ function deleteNodesAfterAnchorNode()
 	deleteNodesRelativeToAnchorNode("after");
 }
 
-function deleteNodesRelativeToAnchorNode(predicate = "after")
+function deleteNodesRelativeToAnchorNode(beforeOrAfter = "after")
 {
 	const anchorNode = getNodeContainingSelection();
 	if(anchorNode)
-		deleteNodesByRelativePosition(anchorNode, predicate);
+		deleteNodesByRelativePosition(anchorNode, beforeOrAfter);
 }
 
-function deleteNodesRelativeToSelectedNode(selector, predicate)
+function deleteNodesBySelectorAndRelativePosition(selector, beforeOrAfter)
 {
-	if(!["before", "after"].includes(predicate))
+	const marked = getMarkedElements();
+	if(marked.length !== 1)
 	{
-		showMessageError("Predicate needs to be either 'before' or 'after'");
-		return;
+		showMessageBig(`Expected 1 marked element; found ${marked.length}`);
+		return false;
 	}
-	const selected = get(selector);
-	if(!selected)
+	const anchorNode = marked[0];
+	const condition = beforeOrAfter === "after" ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
+	const nodes = get(selector);
+	let i = nodes.length;
+	while(i--)
 	{
-		showMessageError("No elements found matching '" + selector + "'");
-		return;
-	}
-	else if(selected.length > 1)
-	{
-		showMessageError("Selector needs to match one element, found " + selected.length);
-		return;
-	}
-	else if(selected.length === 1)
-	{
-		deleteNodesByRelativePosition(selected[0], predicate);
+		const node = nodes[i];
+		const relativePosition = anchorNode.compareDocumentPosition(node);
+		if(relativePosition & condition && !(relativePosition & Node.DOCUMENT_POSITION_CONTAINS))
+			node.remove();
 	}
 }
 
-function deleteNodesByRelativePosition(anchorNode, predicate)
+function deleteNodesByRelativePosition(anchorNode, beforeOrAfter)
 {
-	const condition = predicate === "after" ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
+	const condition = beforeOrAfter === "after" ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
 	const nodes = get("div, aside, section, article, ol, ul, p, h1, h2, h3, table, img, header, footer, blockquote, pre, hr");
 	let i = nodes.length;
 	while(i--)
