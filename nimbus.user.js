@@ -238,7 +238,7 @@ const Nimbus = {
 		setReplacementTag: setReplacementTag,
 		singleQuotesToDoubleQuotes: singleQuotesToDoubleQuotes,
 		showAttributes: showAttributes,
-		showDivDepth: showDivDepth,
+		setClassByDepth: setClassByDepth,
 		showHtmlComments: showHtmlComments,
 		showPrintLink: showPrintLink,
 		showResources: showResources,
@@ -3056,21 +3056,21 @@ function markNumericElements(selector)
 	insertStyleHighlight();
 }
 
-function showDivDepth()
+function setClassByDepth(selector = "div")
 {
-	const divs = get("div");
-	let i = divs.length;
+	const elems = get(selector);
+	let i = elems.length;
 	let node, level;
 	while(i--)
 	{
-		node = divs[i];
+		node = elems[i];
 		level = 0;
 		while(node.parentNode)
 		{
 			node = node.parentNode;
 			level++;
 		}
-		divs[i].className = "level" + level;
+		elems[i].className = "level" + level;
 	}
 	toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true);
 }
@@ -4165,7 +4165,8 @@ function makeHeadings()
 function replaceCommonClasses()
 {
 	replaceElementsBySelector(".pn, .pt", "h1");
-	replaceElementsBySelector(".cn, .ct, .chapnum, .chaptitle, .chap-num, .chap-title, .fmh, .fmht", "h2");
+	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle", "h1");
+	replaceElementsBySelector(".cn, .ct, .chapnum, .chaptitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle", "h2");
 	replaceElementsBySelector(".cst", "h3");
 	replaceElementsBySelector("div.calibre", "section");
 	replaceElementsBySelector(".epub-i, .i", "i");
@@ -5661,7 +5662,7 @@ function toggleStyleNegative()
 	samp { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #0CC; }
 	pre { background: #0C0C0C; color: #909090; border-style: solid; border-width: 0 0 0 10px; border-color: #444; padding: 10px 20px; overflow-x: auto; }
 	pre p { margin: 0; padding: 0; }
-	pre { font: bold 22px/1.2 Swis721CnBtCode, Consolas, monospace; }
+	pre { font: bold 18px/1.2 Swis721CnBtCode, Consolas, monospace; }
 	pre * { font: inherit; text-recoration: none; }
 
 	pre em { color: #00AAFF; }
@@ -5680,22 +5681,22 @@ function toggleStyleNegative()
 	pre xk { color: #0099FF; }
 	pre xh { color: #AADDCC; }
 
-	X0 { color: #11AACC; }
-	X1 { color: #11FFFF; }
-	X2 { color: #1199CC; }
-	X3 { color: #11EEEE; }
-	X4 { color: #1188DD; }
-	X5 { color: #11CCDD; }
-	X6 { color: #11FFEE; }
-	X7 { color: #1188CC; }
-	X8 { color: #11BBDD; }
-	X9 { color: #11FFCC; }
-	X10 { color: #11FF88; }
-	X11 { color: #11DD66; }
-	X12 { color: #11FF22; }
-	X13 { color: #11DD44; }
-	X14 { color: #1199EE; }
-	X15 { color: #11FFAA; }
+	X0 { color: #99AABB; }
+	X1 { color: #8899AA; }
+	X2 { color: #667788; }
+	X3 { color: #556677; }
+	X4 { color: #667788; }
+	X5 { color: #556677; }
+	X6 { color: #556677; }
+	X7 { color: #667788; }
+	X8 { color: #667788; }
+	X9 { color: #556677; }
+	X10 { color: #667788; }
+	X11 { color: #667788; }
+	X12 { color: #778899; }
+	X13 { color: #778899; }
+	X14 { color: #778899; }
+	X15 { color: #99AABB; }
 
 	XC { color: #1CF; background: #247; }
 	XK { color: #1177CC; }
@@ -7061,14 +7062,14 @@ function inspect(onTop)
 			b.className = "onTop";
 		document.body.insertBefore(b, document.body.firstChild);
 		document.body.addEventListener('mouseover', inspectMouseoverHandler, false);
-		document.body.addEventListener('contextmenu', inspect_clickHandler, false);
+		document.body.addEventListener('contextmenu', inspectClickHandler, false);
 		document.body.classList.add("inspector");
 		insertStyle(STYLES.INSPECTOR, "styleInspector", true);
 	}
 	else
 	{
 		document.body.removeEventListener('mouseover', inspectMouseoverHandler, false);
-		document.body.removeEventListener('click', inspect_clickHandler, false);
+		document.body.removeEventListener('click', inspectClickHandler, false);
 		del('#inspector');
 		del('#styleInspector');
 		document.body.classList.remove("inspector");
@@ -7076,7 +7077,7 @@ function inspect(onTop)
 	}
 }
 
-function inspect_clickHandler(e)
+function inspectClickHandler(e)
 {
 	e.stopPropagation();
 	e.target.classList.add(Nimbus.markerClass);
