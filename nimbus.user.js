@@ -248,6 +248,7 @@ const Nimbus = {
 		showTags: showTags,
 		simplifyClassNames: simplifyClassNames,
 		splitByBrs: splitByBrs,
+		splitByLineBreaks: splitByLineBreaks,
 		toggleBlockEditMode: toggleBlockEditMode,
 		toggleContentEditable: toggleContentEditable,
 		toggleHighlightSelectionMode: toggleHighlightSelectionMode,
@@ -969,6 +970,25 @@ function hasDirectChildrenOfType(elem, tagName)
 	for(let i = 0, ii = children.length; i < ii; i++)
 		if(children[i].tagName === tagName) return true;
 	return false;
+}
+
+function splitByLineBreaks(selector) {
+	const elems = get(selector);
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+		const splat = elem.textContent.split("\n");
+		const tempWrapper = document.createElement("div");
+		for(let i = 0, ii = splat.length; i < ii; i++)
+		{
+			const para = document.createElement("p");
+			para.textContent = splat[i];
+			tempWrapper.appendChild(para);
+		}
+		emptyElement(elem);
+		while(tempWrapper.firstChild)
+			elem.appendChild(tempWrapper.firstChild);
+	}
 }
 
 function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
@@ -4176,6 +4196,7 @@ function replaceCommonClasses()
 
 	replaceElementsBySelector("div[class*=comment-author]", "h5");
 	replaceElementsBySelector("div[class*=comment-meta]", "h6");
+	replaceElementsBySelector("div[class*=comment-footer]", "h6");
 	replaceElementsBySelector("div[class*=sidebar]", "aside");
 	replaceElementsBySelector("div[class*=social]", "aside");
 	replaceElementsBySelector("p[class*=subtitle], div[class*=subtitle], p[class*=subhead], div[class*=subhead]", "h3");
