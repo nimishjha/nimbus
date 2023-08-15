@@ -65,7 +65,7 @@ const Nimbus = {
 		cleanupHeadings: cleanupHeadings,
 		cleanupLinks: cleanupLinks,
 		consolidateAnchors: consolidateAnchors,
-		convertOrphanedTextNodesToParagraphs: convertOrphanedTextNodesToParagraphs,
+		rescueOrphanedTextNodes: rescueOrphanedTextNodes,
 		copyAttribute: copyAttribute,
 		count: count,
 		createListsFromBulletedParagraphs: createListsFromBulletedParagraphs,
@@ -222,7 +222,7 @@ const Nimbus = {
 		replaceSpecialCharacters:replaceSpecialCharacters,
 		replaceSupSpanAnchors: replaceSupSpanAnchors,
 		replaceTables: replaceTables,
-		rescueOrphanedNodes: rescueOrphanedNodes,
+		rescueOrphanedInlineElements: rescueOrphanedInlineElements,
 		retrieve: retrieve,
 		retrieveBySelectorAndText: retrieveBySelectorAndText,
 		retrieveLargeImages: retrieveLargeImages,
@@ -286,13 +286,57 @@ const Nimbus = {
 	minPersistSize: 800,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
-	BLOCK_ELEMENTS: [
-		"DIV", "P", "BLOCKQUOTE", "HGROUP", "H1", "H2", "H3", "H4", "H5", "H6", "OL", "UL", "LI", "HEAD",
-		"FIGURE", "FIGCAPTION", "PRE", "DT", "DD", "MESSAGE", "ANNOTATION", "TD", "QUOTE", "QUOTEAUTHOR",
-		"ASIDE", "SECTION", "ARTICLE", "NAV", "FOOTNOTE", "HEADER", "FOOTER", "HR", "RT"
-	],
+	BLOCK_ELEMENTS: {
+		DIV: true,
+		P: true,
+		BLOCKQUOTE: true,
+		HGROUP: true,
+		H1: true,
+		H2: true,
+		H3: true,
+		H4: true,
+		H5: true,
+		H6: true,
+		OL: true,
+		UL: true,
+		LI: true,
+		HEAD: true,
+		FIGURE: true,
+		FIGCAPTION: true,
+		PRE: true,
+		DT: true,
+		DD: true,
+		MESSAGE: true,
+		ANNOTATION: true,
+		TD: true,
+		QUOTE: true,
+		QUOTEAUTHOR: true,
+		ASIDE: true,
+		SECTION: true,
+		ARTICLE: true,
+		NAV: true,
+		FOOTNOTE: true,
+		HEADER: true,
+		FOOTER: true,
+		HR: true,
+		RT: true
+	},
+	INLINE_ELEMENTS: {
+		SPAN: true,
+		FONT: true,
+		EM: true,
+		I: true,
+		STRONG: true,
+		B: true,
+		A: true,
+		HEAD: true,
+		STYLE: true,
+		TIME: true
+	},
 	italicTag: "i",
 };
+
+Nimbus.blockElementSelector = Object.keys(Nimbus.BLOCK_ELEMENTS).join();
 
 const MATCH_TYPE = {
 	CONTAINS_BEGINNING: 1,
@@ -529,7 +573,7 @@ function highlightElements(elems)
 		highlightTableRows(elements);
 		return;
 	}
-	else if(BLOCK_ELEMENTS.includes(firstElement.tagName))
+	else if(BLOCK_ELEMENTS[firstElement.tagName])
 	{
 		for(let i = 0, ii = elements.length; i < ii; i++)
 			wrapElementInner(elements[i], highlightTagName);
@@ -1130,14 +1174,15 @@ function replaceTables() { replaceElementsBySelector("table, tbody, tr, td, th, 
 function replaceNonStandardElements()
 {
 	const elems = get("body *");
-	const standardElements = Nimbus.BLOCK_ELEMENTS.concat(["SPAN", "FONT", "EM", "I", "STRONG", "B", "A", "HEAD", "STYLE", "TIME"]);
+	const BLOCK_ELEMENTS = Nimbus.BLOCK_ELEMENTS;
+	const INLINE_ELEMENTS = Nimbus.INLINE_ELEMENTS;
 	let i = elems.length;
 	while(i--)
 	{
 		const elem = elems[i];
 		if(!elem.tagName)
 			continue;
-		if(!standardElements.includes(elem.tagName))
+		if(BLOCK_ELEMENTS[elem.tagName] || INLINE_ELEMENTS[elem.tagName])
 		{
 			const replacement = convertElement(elem, "div");
 			replacement.className = elem.tagName;
@@ -1795,32 +1840,48 @@ function markByClassOrIdContaining(str) { markElements(selectByClassOrIdContaini
 
 function hasAdjacentBlockElement(node)
 {
-	const blockElements = Nimbus.BLOCK_ELEMENTS;
+	const BLOCK_ELEMENTS = Nimbus.BLOCK_ELEMENTS;
 	const prevSib = node.previousSibling;
 	const prevElemSib = node.previousElementSibling;
 	const nextSib = node.nextSibling;
 	const nextElemSib = node.nextElementSibling;
-	if(prevSib && prevElemSib && prevSib === prevElemSib && blockElements.includes(prevElemSib.tagName))
+	if(prevSib && prevElemSib && prevSib === prevElemSib && BLOCK_ELEMENTS[prevElemSib.tagName])
 		return true;
-	if(nextSib && nextElemSib && nextSib === nextElemSib && blockElements.includes(nextElemSib.tagName))
+	if(nextSib && nextElemSib && nextSib === nextElemSib && BLOCK_ELEMENTS[nextElemSib.tagName])
 		return true;
 	return false;
 }
 
 function isBlockElement(node)
 {
-	const NON_BLOCK_ELEMENTS = ["A", "B", "STRONG", "I", "EM", "SPAN", "TIME", "MARK", "MARKYELLOW", "MARKRED", "MARKGREEN", "MARKBLUE", "MARKPURPLE", "MARKWHITE"];
+	const NON_BLOCK_ELEMENTS = {
+		A: true,
+		B: true,
+		STRONG: true,
+		I: true,
+		EM: true,
+		SPAN: true,
+		TIME: true,
+		MARK: true,
+		MARKYELLOW: true,
+		MARKRED: true,
+		MARKGREEN: true,
+		MARKBLUE: true,
+		MARKPURPLE: true,
+		MARKWHITE: true,
+		CODE: true,
+		USER: true
+	}
 	if(node.nodeType !== 1) return false;
-	if(NON_BLOCK_ELEMENTS.includes(node.tagName)) return false;
+	if(NON_BLOCK_ELEMENTS[node.tagName]) return false;
 	return true;
 }
 
-//	If any text nodes or inline elements have a block element as a sibling,
-//	they need to be wrapped in a block container.
-function rescueOrphanedNodes()
+//	If any text nodes or inline elements have a block element as a sibling, they need to be wrapped in a block container.
+function rescueOrphanedInlineElements()
 {
 	deleteEmptyTextNodes();
-	const WRAPPER_TAGNAME = "P";
+	const WRAPPER_TAGNAME = "comment";
 	const nodes = get("body *");
 	const numNodes = nodes.length;
 	let count = 0;
@@ -1854,6 +1915,7 @@ function rescueOrphanedNodes()
 			if(orphanedNodes.length)
 			{
 				const wrapper = document.createElement(WRAPPER_TAGNAME);
+				// wrapper.className = Nimbus.markerClass;
 				for(const orphan of orphanedNodes)
 					wrapper.appendChild(orphan.cloneNode(true));
 				nodeParent.insertBefore(wrapper, orphanedNodes[0]);
@@ -1861,20 +1923,63 @@ function rescueOrphanedNodes()
 			}
 		}
 	}
-	convertOrphanedTextNodesToParagraphs(false);
 }
 
-function convertOrphanedTextNodesToParagraphs(mark = true)
+function rescueOrphanedTextNodes()
 {
+	const WRAPPER_TAGNAME = "aside";
 	const textNodes = getTextNodesUnderSelector("body");
-	const className = mark ? Nimbus.markerClass : null;
-	let i = textNodes.length;
-	while(i--)
+	const numNodes = textNodes.length;
+	let count = 0;
+	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
-		const textNode = textNodes[i];
-		if(!getTextLength(textNode)) continue;
-		if(hasAdjacentBlockElement(textNode))
-			wrapElement(textNode, "p", className);
+		let node = textNodes[i];
+		if(!getTextLength(node)) continue;
+		if(hasAdjacentBlockElement(node))
+		{
+			console.log("orphan:", node.textContent);
+			const nodeParent = node.parentNode;
+			const orphanedNodes = [];
+			const orphanedNodesLeft = [];
+			orphanedNodes.push(node);
+			let nodeLeft = node.previousSibling;
+			while(nodeLeft)
+			{
+				if(!isBlockElement(nodeLeft))
+				{
+					orphanedNodesLeft.push(nodeLeft);
+					nodeLeft = nodeLeft.previousSibling;
+				}
+				else
+				{
+					break;
+				}
+			}
+			while(node.nextSibling)
+			{
+				node = node.nextSibling;
+				if(!isBlockElement(node))
+				{
+					orphanedNodes.push(node);
+					i++;
+				}
+				else
+				{
+					break;
+				}
+			}
+			const allOrphanedNodes = orphanedNodesLeft.reverse().concat(orphanedNodes);
+
+			if(allOrphanedNodes.length)
+			{
+				const wrapper = document.createElement(WRAPPER_TAGNAME);
+				// wrapper.className = Nimbus.markerClass;
+				for(const orphan of allOrphanedNodes)
+					wrapper.appendChild(orphan.cloneNode(true));
+				nodeParent.insertBefore(wrapper, orphanedNodes[0]);
+				del(allOrphanedNodes);
+			}
+		}
 	}
 }
 
@@ -4275,7 +4380,7 @@ function fixParagraphs()
 	replaceBrs();
 	deleteEmptyElements("p");
 	cleanupHeadings();
-	convertOrphanedTextNodesToParagraphs(false);
+	rescueOrphanedTextNodes();
 }
 
 function fixDashes()
@@ -4912,7 +5017,7 @@ function toggleShowEmptyLinksAndSpans()
 	}
 	const style = `
 		a.${Nimbus.markerClass} { padding: 0 5px; }
-		a.${Nimbus.markerClass}::before { content: attr(id); color: #FF0; }
+		a.${Nimbus.markerClass}::before { content: "id: "attr(id)"name: "attr(name); color: #FF0; }
 		a.${Nimbus.markerClass}::after { content: attr(href); color: #55F; }
 		span.${Nimbus.markerClass} { padding: 0 10px; }
 		span.${Nimbus.markerClass}::before { content: attr(id)" "; color: #0F0; }
@@ -5829,12 +5934,11 @@ function selectByTagNameAndText(tagName, text)
 
 function getFirstBlockParent(node)
 {
-	const blockSelector = Nimbus.BLOCK_ELEMENTS.join();
 	const elem = node.nodeType === 1 ? node : node.parentNode;
-	if(Nimbus.BLOCK_ELEMENTS.includes(elem.tagName))
+	if(Nimbus.BLOCK_ELEMENTS[elem.tagName])
 		return elem;
 	else
-		return elem.closest(blockSelector);
+		return elem.closest(Nimbus.blockElementSelector);
 }
 
 function getFirstTextChild(elem)
@@ -7090,7 +7194,7 @@ function inspect(onTop)
 	else
 	{
 		document.body.removeEventListener('mouseover', inspectMouseoverHandler, false);
-		document.body.removeEventListener('click', inspectClickHandler, false);
+		document.body.removeEventListener('contextmenu', inspectClickHandler, false);
 		del('#inspector');
 		del('#styleInspector');
 		document.body.classList.remove("inspector");
@@ -7602,6 +7706,7 @@ function wrapAnchorNodeInTag()
 
 function generateTableOfContents(optionalStringToMatch)
 {
+	const shouldUseHierarchicalHeadings = true;
 	const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
 	const toc = document.createElement("div");
 	const onlyIncludeHeadingsMatchingText = typeof optionalStringToMatch === "string";
@@ -7617,8 +7722,7 @@ function generateTableOfContents(optionalStringToMatch)
 		heading.id = id;
 		const tocEntryLink = createElement("a", { textContent: heading.textContent, href: "#" + id } );
 		const indentLevel = parseInt(heading.tagName.substring(1), 10);
-		// const tocEntryHeading = createElement("h" + indentLevel);
-		const tocEntryHeading = createElement("h6");
+		const tocEntryHeading = shouldUseHierarchicalHeadings ? createElement("h" + indentLevel) : createElement("h6");
 		const tocEntryWrapper = document.createElement("div");
 		tocEntryHeading.appendChild(tocEntryLink);
 		tocEntryWrapper.appendChild(tocEntryHeading);
@@ -8371,7 +8475,7 @@ function handleKeyDown(e)
 			case KEYCODES.M: customPrompt("Enter command").then(runCommand); break;
 			case KEYCODES.N: numberDivs(); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatchesInDocument, true); break;
-			case KEYCODES.P: fixParagraphs(); rescueOrphanedNodes(); break;
+			case KEYCODES.P: fixParagraphs(); break;
 			case KEYCODES.Q: resetHighlightTag(); Nimbus.selectionHighlightMode = "sentence"; break;
 			case KEYCODES.R: toggleHighlight(); break;
 			case KEYCODES.S: toggleContentEditable(); break;
