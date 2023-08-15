@@ -402,6 +402,7 @@ const STYLES = {
 		abbr { box-shadow: inset 2px 2px #A00, inset -2px -2px #A00; }
 		cite { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0C0; }
 		code { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0C0; }
+		small { box-shadow: inset 2px 2px #088, inset -2px -2px #088; }
 		p { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; }
 		mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 2px 2px #888, inset -2px -2px #888; }
 		a, a * { background: rgba(180, 255, 0, 0.25); }
@@ -1937,7 +1938,6 @@ function rescueOrphanedTextNodes()
 		if(!getTextLength(node)) continue;
 		if(hasAdjacentBlockElement(node))
 		{
-			console.log("orphan:", node.textContent);
 			const nodeParent = node.parentNode;
 			const orphanedNodes = [];
 			const orphanedNodesLeft = [];
@@ -6144,17 +6144,49 @@ function cleanupAttributes_regex()
 
 function cleanupHeadings()
 {
-	const headingElements = get("h1, h2, h3, h4, h5, h6");
-	let i = headingElements.length;
+	const headings = get("h1, h2, h3, h4, h5, h6");
+	let i = headings.length;
+	const toUnwrap = [];
 	while(i--)
 	{
-		const heading = headingElements[i];
-		let headingHTML = heading.innerHTML;
-		headingHTML = headingHTML.replace(/<[^as\/][a-z0-9]*>/g, " ")
-			.replace(/<\/[^as][a-z0-9]*>/g, " ");
-		heading.innerHTML = headingHTML.trim();
-		if(heading.textContent && heading.textContent.trim().length === 0)
+		const heading = headings[i];
+		if(!getTextLength(heading))
+		{
 			heading.remove();
+			continue;
+		}
+		const children = heading.getElementsByTagName("*");
+		if(!children) continue;
+		for(let i = 0, ii = children.length; i < ii; i++)
+		{
+			const child = children[i];
+			if(child.tagName === "SPAN")
+			{
+				if(child.id)
+					heading.id = child.id;
+				toUnwrap.push(child);
+			}
+			else if(child.tagName === "A")
+			{
+				if(!getTextLength(child))
+				{
+					if(child.id)
+						heading.id = child.id;
+					else if(child.name)
+						heading.id = child.name;
+					toUnwrap.push(child);
+				}
+			}
+			else
+			{
+				toUnwrap.push(child);
+			}
+		}
+	}
+	for(let i = 0, ii = toUnwrap.length; i < ii; i++)
+	{
+		if(toUnwrap[i])
+			unwrapElement(toUnwrap[i]);
 	}
 }
 
