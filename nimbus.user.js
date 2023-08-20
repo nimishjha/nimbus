@@ -7260,22 +7260,25 @@ function showAttributes(selector = "*")
 	insertStyle(style, "styleShowAttributes", true);
 }
 
-//	Takes an element and an integer depth, and wraps that element in that many levels of elements of type <tag>
-function indentByDepth(node, depth, tag)
+//	Takes an element, an integer depth, and a tagName, and wraps that element in that many levels of <tagName>
+function wrapElementInLayers(elem, depth, tag)
 {
+	const parent = elem.parentNode;
+	if(!parent) throw new Error("element has no parent");
+	if(depth < 1) throw new Error("depth must be 1 or greater");
 	const tagName = tag || "blockquote";
-	const indentTagOpen = `<${tagName}>`;
-	const indentTagClose = `</${tagName}>`;
-	let indentOpen = "";
-	let indentClose = "";
-	let i = -1;
-	while(++i < depth)
+	let wrapper, deepestChild;
+	wrapper = deepestChild = document.createElement(tagName);
+	for(let i = 1; i < depth; i++)
 	{
-		indentOpen += indentTagOpen;
-		indentClose += indentTagClose;
+		const layer = document.createElement(tagName);
+		deepestChild.appendChild(layer);
+		deepestChild = layer;
 	}
-	node.innerHTML = indentOpen + node.innerHTML + indentClose;
+	deepestChild.appendChild(elem.cloneNode(true));
+	parent.replaceChild(wrapper, elem);
 }
+
 
 function listSelectorsWithLightBackgrounds()
 {
@@ -7740,9 +7743,10 @@ function generateTableOfContents(optionalStringToMatch)
 {
 	const shouldUseHierarchicalHeadings = true;
 	const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
-	const toc = document.createElement("div");
+	const toc = document.createElement("header");
+	toc.id = "tableOfContents";
 	const onlyIncludeHeadingsMatchingText = typeof optionalStringToMatch === "string";
-	const str = onlyIncludeHeadingsMatchingText ? optionalStringToMatch.toLowerCase() : null;
+	const str = optionalStringToMatch.toLowerCase();
 	for (let i = 0, ii = headings.length; i < ii; i++)
 	{
 		const heading = headings[i];
@@ -7750,7 +7754,7 @@ function generateTableOfContents(optionalStringToMatch)
 			continue;
 		if(onlyIncludeHeadingsMatchingText && heading.textContent.toLowerCase().indexOf(str) === -1)
 			continue;
-		const id = createUUID();
+		const id = heading.tagName + "_" + i;
 		heading.id = id;
 		const tocEntryLink = createElement("a", { textContent: heading.textContent, href: "#" + id } );
 		const indentLevel = parseInt(heading.tagName.substring(1), 10);
@@ -7758,7 +7762,7 @@ function generateTableOfContents(optionalStringToMatch)
 		const tocEntryWrapper = document.createElement("div");
 		tocEntryHeading.appendChild(tocEntryLink);
 		tocEntryWrapper.appendChild(tocEntryHeading);
-		indentByDepth(tocEntryWrapper, indentLevel, "ind");
+		wrapElementInLayers(tocEntryHeading, indentLevel, "ind");
 		toc.appendChild(tocEntryWrapper);
 	}
 	const documentHeading = getOne("documentheading");
