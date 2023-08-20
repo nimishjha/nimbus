@@ -135,7 +135,7 @@ const Nimbus = {
 		highlightQuotes: highlightQuotes,
 		highlightSelection: highlightSelection,
 		highlightUserLinks: highlightUserLinks,
-		highlightWithinPreformattedBlocks: highlightWithinPreformattedBlocks,
+		highlightMatchesUnderSelector: highlightMatchesUnderSelector,
 		htmlToText: htmlToText,
 		ih: forceImageHeight,
 		inlineFootnotes: inlineFootnotes,
@@ -7242,7 +7242,7 @@ function inspectClickHandler(e)
 
 function showAttributes(selector = "*")
 {
-	const elems = Array.from( document.body.getElementsByTagName(selector) );
+	const elems = Array.from( document.body.querySelectorAll(selector) );
 	const SPECIAL_ELEMS = ["A", "INPUT", "TEXTAREA"];
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
@@ -8331,14 +8331,19 @@ function highlightCodeComments()
 	makePlainText("xc");
 }
 
-function highlightAllMatchesInDocument(str, isCaseSensitive = false)
+function highlightMatchesUnderSelector(selector, str, isCaseSensitive = false)
 {
 	insertStyleHighlight();
-	const textNodes = getTextNodesUnderSelector("body");
+	const textNodes = getTextNodesUnderSelector(selector);
 	const regexFlags = isCaseSensitive ? "g" : "gi";
 	const regex = new RegExp(escapeForRegExp(str), regexFlags);
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 		highlightInTextNode(textNodes[i], regex);
+}
+
+function highlightAllMatchesInDocument(str, isCaseSensitive = false)
+{
+	highlightMatchesUnderSelector("body", str, isCaseSensitive);
 }
 
 function highlightAllMatchesInDocumentCaseSensitive(str)
@@ -8351,15 +8356,6 @@ function highlightAllMatchesInDocumentRegex(regex)
 	const textNodes = getTextNodesUnderSelector("body");
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 		highlightInTextNode(textNodes[i], regex);
-}
-
-function highlightWithinPreformattedBlocks(str)
-{
-	const reg = new RegExp('([^\n]*' + str + '[^\n]+)', 'gi');
-	const pres = get("pre");
-	let i = pres.length;
-	while(i--)
-		pres[i].innerHTML = pres[i].innerHTML.replace(reg, "<mark>$1</mark>");
 }
 
 function toggleHighlight()
