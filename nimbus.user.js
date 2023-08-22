@@ -136,7 +136,6 @@ const Nimbus = {
 		highlightSelection: highlightSelection,
 		highlightUserLinks: highlightUserLinks,
 		highlightMatchesUnderSelector: highlightMatchesUnderSelector,
-		htmlToText: htmlToText,
 		ih: forceImageHeight,
 		inlineFootnotes: inlineFootnotes,
 		insertAroundAll: insertAroundAll,
@@ -352,7 +351,7 @@ const STYLES = {
 		a { text-decoration: none; }
 	`,
 	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); line-height: 1.4; }`,
-	COLORS_01: 'html, body { background: #202020; color: #AAA; } div, table, tr, td, tbody, th, article, section, header, footer { background: inherit; color: inherit; } body { opacity: 0.7; } ',
+	COLORS_01: 'html, body { background: #000; color: #AAA; } body { opacity: 0.7; } ',
 	SIMPLE_NEGATIVE: `
 		html, body, body[class] { background: #000; font-family: "swis721 cn bt"; font-size: 22px; }
 		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "swis721 cn bt"; }
@@ -618,7 +617,7 @@ function selectElementsStartingWithText(selector, text)
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
-		if(elem.textContent && elem.textContent.indexOf(text) === 0)
+		if(elem.textContent && elem.textContent.trim().indexOf(text) === 0)
 			selected.push(elem);
 	}
 	return selected;
@@ -632,7 +631,8 @@ function selectElementsEndingWithText(selector, text)
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
-		if(elem.textContent && elem.textContent.length && elem.textContent.lastIndexOf(text) === elem.textContent.length - textLength)
+		const elemText = elem.textContent.trim();
+		if(elemText && elemText.length && elemText.lastIndexOf(text) === elemText.length - textLength)
 			selected.push(elem);
 	}
 	return selected;
@@ -1284,18 +1284,18 @@ function parseObject(o, indentLevel, parent)
 {
 	if(typeof indentLevel === "undefined")
 		indentLevel = 0;
-	let i;
-	let s = "", type;
+	let s = "";
+	let type;
 	let indentString = "<dd>";
 	let indentStringParent = "<dd>";
 	let indentStringClose = "";
 	let indentStringParentClose = "";
-	for(i = 0; i < indentLevel; i++)
+	for(let i = 0; i < indentLevel; i++)
 	{
 		indentString += "<blockquote>";
 		indentStringClose += "</blockquote>";
 	}
-	for(i = 0; i < indentLevel - 1; i++)
+	for(let i = 0; i < indentLevel - 1; i++)
 	{
 		indentStringParent += "<blockquote>";
 		indentStringParentClose += "</blockquote>";
@@ -1525,7 +1525,6 @@ function showLog(prepend)
 	}
 }
 
-function htmlToText(elem) { elem.textContent = elem.textContent; }
 function emptyElement(elem) { if(elem) elem.textContent = ''; }
 
 function createSelector(elem)
@@ -2298,7 +2297,7 @@ function makeIdSelector(id)
 
 function simplifyClassNames(selector)
 {
-	const sel = selector ||  "div, p, span, h1, h2, h3, h4, h5, h6, em, i, b, strong, u, a";
+	const sel = selector ||  "body *";
 	const elems = get(sel);
 	const classMap = {};
 	const tagTable = {};
@@ -4365,7 +4364,7 @@ function tabifySpaces(s)
 
 //	Some people use <br> elements to create line breaks inside pres.
 //	"Only two things are infinite..."
-function splitByBrsInPres()
+function replaceBrsInPres()
 {
 	const brs = document.querySelectorAll("pre br");
 	for(let i = 0, ii = brs.length; i < ii; i++)
@@ -4846,7 +4845,7 @@ function highlightCode(shouldHighlightKeywords)
 		return;
 	}
 
-	splitByBrsInPres();
+	replaceBrsInPres();
 	makePlainText("pre");
 
 	const preBlocks = get("pre");
@@ -5669,9 +5668,9 @@ function toggleStyleGrayscale()
 function toggleStyleNegative()
 {
 	const s = `
-	html { background: #181818; font-size: 22px; }
-	html body, #nimbus body { background: #242424; color: #999; border: 0; font-size: 22px; font-family: "swis721 cn bt"; font-style: normal; line-height: 1.35; }
-	form { font-family: inherit; font-size: 22px; }
+	html { background: #181818; font-size: 20px; }
+	html body, #nimbus body { background: #242424; color: #999; border: 0; font-size: 20px; font-family: "swis721 cn bt"; font-style: normal; line-height: 1.35; }
+	form { font-family: inherit; font-size: 20px; }
 
 	body.pad100 { padding: 100px 200px; }
 	body.pad100 table { width: 100%; }
@@ -5738,12 +5737,12 @@ function toggleStyleNegative()
 	figure { border: 0; background: #111; padding: 10px 0; margin: 2px 0 0 0; }
 	figcaption { background: #111; color: #AAA; padding: 10px 20px; margin-left: 20px; }
 	annotation { background: #444; color: inherit; padding: 1rem 2rem; display: block; margin: 10px 0 10px -30px; border-style: solid; border-color: #AAA; border-width: 2px 2px 2px 20px; }
-	ruby { margin: 10px 0; background: #F90; color: #FFF; padding: 20px 30px; display: block; font-size: 22px; border-left: 10px solid #F90; }
-	rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 22px "swis721 cn bt"; border-top: 50px solid #000; border-bottom: 50px solid #000; }
+	ruby { margin: 10px 0; background: #F90; color: #FFF; padding: 20px 30px; display: block; font-size: 20px; border-left: 10px solid #F90; }
+	rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 20px "swis721 cn bt"; border-top: 50px solid #000; border-bottom: 50px solid #000; }
 	rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px Verdana; text-align: left; }
 	rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }
 
-	button, select, textarea, input, input[class], input[type] { background: #151515; color: #909090; -moz-appearance: none; border-radius: 0; border: 0; font-family: inherit; font-size: 22px; }
+	button, select, textarea, input, input[class], input[type] { background: #151515; color: #909090; -moz-appearance: none; border-radius: 0; border: 0; font-family: inherit; font-size: 20px; }
 	select, textarea { border: 0; box-shadow: none; }
 	html input[type="checkbox"] { width: 24px; height: 24px; background: #242424; }
 	button:hover, button:focus, input[type="submit"]:hover, input[type="submit"]:focus, input[type="button"]:hover, input[type="button"]:focus { background: #090909; color: #CCC; border-color: #FFF; }
@@ -5767,7 +5766,7 @@ function toggleStyleNegative()
 	blockquote blockquote { padding: 0 0 0 40px; }
 
 	table { border-collapse: collapse; }
-	table, tr, td, th { margin: 0; padding: 0; line-height: inherit; font: 22px/1.4 "swis721 cn bt"; color: inherit; border: 0; }
+	table, tr, td, th { margin: 0; padding: 0; line-height: inherit; font: 20px/1.4 "swis721 cn bt"; color: inherit; border: 0; }
 	table, tbody, tr, td { background: inherit; }
 	thead, th { background: #111; }
 	tr:nth-child(odd) td , tr:nth-child(odd) th { background-color: #181818; }
@@ -6889,7 +6888,7 @@ function getContentByParagraphCount()
 			candidateDivs.push(tempContainer);
 	}
 	let highestNumParagraphs = 0;
-	let contentDiv;
+	let contentDiv = candidateDivs.length ? candidateDivs[0] : paragraphs[0];
 	for(let i = 0, ii = candidateDivs.length; i < ii; i++)
 	{
 		const div = candidateDivs[i];
@@ -7331,8 +7330,7 @@ function numberTableRowsAndColumns(tableElement)
 
 function logMutations(mutations)
 {
-	let i, ii;
-	for(i = 0, ii = mutations.length; i < ii; i++)
+	for(let i = 0, ii = mutations.length; i < ii; i++)
 	{
 		const mutation = mutations[i];
 		if(Nimbus.mutationFilterSelector && !mutation.target.matches(Nimbus.mutationFilterSelector))
