@@ -1337,40 +1337,65 @@ function quoteIfString(arg)
 	return arg;
 }
 
-//	Takes an object and a string, iterates recursively over all properties of that object,
-//	and prints out all key-value pairs for which the key name matches the given string.
-function logPropertiesMatching(obj, str, path = "")
+//	Prints all properties of an object that match a string
+function logPropertiesMatching(obj, str)
 {
 	str = str.toLowerCase();
-	const keys = Object.keys(obj);
-	for(let i = 0, ii = keys.length; i < ii; i++)
+	const seen = new Set();
+	function traverse(object, str, path = [])
 	{
-		const key = keys[i];
-		const value = obj[key];
-		const type = Object.prototype.toString.call(value);
-		if(type === "[object Object]")
-			logPropertiesMatching(value, str, (path.length ? path + "." : "") + key);
-		else if((path + key).toLowerCase().indexOf(str) !== -1)
-			console.log(`%c${path}.${key}`, "color: #0F0;", quoteIfString(value));
+		if(seen.has(object))
+			return;
+		seen.add(object);
+		const keys = Object.keys(object);
+		for(let i = 0, ii = keys.length; i < ii; i++)
+		{
+			const key = keys[i];
+			const value = object[key];
+			const fullPath = path.length ? path.join(".") + "." + key : key;
+			const type = Object.prototype.toString.call(value);
+			const doesMatch = key.toLowerCase().indexOf(str) !== -1;
+			if(type === "[object Object]")
+			{
+				if(doesMatch)
+					console.log(`%c${fullPath}`, "color: #0F0;", type);
+				traverse(value, str, path.concat(key));
+			}
+			else if(doesMatch)
+			{
+				console.log(`%c${fullPath}`, "color: #0F0;", quoteIfString(value));
+			}
+		}
 	}
+	traverse(obj, str);
 }
 
-function logValuesMatching(obj, str, path="")
+//	Prints all property values of an object that match a string
+function logValuesMatching(obj, str)
 {
 	str = str.toLowerCase();
-	const keys = Object.keys(obj);
-	for(let i = 0, ii = keys.length; i < ii; i++)
+	const seen = new Set();
+	function traverse(object, str, path = [])
 	{
-		const key = keys[i];
-		const value = obj[key];
-		const type = Object.prototype.toString.call(value);
-		if(type === "[object Object]")
-			logValuesMatching(value, str, (path.length ? path + "." : "") + key);
-		else if(typeof value === "string" && value.toLowerCase().indexOf(str) !== -1)
-			console.log(`%c${path}.${key}`, "color: #0F0;", value);
-		else if(typeof value === "number" && value.toString().indexOf(str) !== -1)
-			console.log(`%c${path}.${key}`, "color: #0F0;", value);
+		if(seen.has(object))
+			return;
+		seen.add(object);
+		const keys = Object.keys(object);
+		for(let i = 0, ii = keys.length; i < ii; i++)
+		{
+			const key = keys[i];
+			const value = object[key];
+			const fullPath = path.length ? path.join(".") + "." + key : key;
+			const type = Object.prototype.toString.call(value);
+			if(type === "[object Object]")
+				traverse(value, str, path.concat(key));
+			else if(typeof value === "string" && value.toLowerCase().indexOf(str) !== -1)
+				console.log(`%c${fullPath}`, "color: #0F0;", quoteIfString(value));
+			else if(typeof value === "number" && value.toString().indexOf(str) !== -1)
+				console.log(`%c${fullPath}`, "color: #0F0;", value);
+		}
 	}
+	traverse(obj, str);
 }
 
 function parseQueryString(url)
