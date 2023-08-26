@@ -252,6 +252,7 @@ const Nimbus = {
 		toggleContentEditable: toggleContentEditable,
 		toggleHighlightSelectionMode: toggleHighlightSelectionMode,
 		toggleMutationObserver: toggleMutationObserver,
+		toggleNimbusStyles: toggleNimbusStyles,
 		toggleShowEmptyLinksAndSpans: toggleShowEmptyLinksAndSpans,
 		toggleStyleNegative: toggleStyleNegative,
 		unmark: unmark,
@@ -2103,6 +2104,18 @@ function insertStyle(str, id, important)
 	if(id && id.length)
 		style.id = id;
 	head.appendChild(style);
+}
+
+function toggleNimbusStyles()
+{
+	const styles = Array.from(document.querySelectorAll("style"));
+	function isNimbusStyle(item)
+	{
+		return item.id && item.id.indexOf("style") === 0;
+	}
+	const nimbusStyles = styles.filter(isNimbusStyle);
+	for(const style of nimbusStyles)
+		style.disabled = !style.disabled;
 }
 
 function toggleStyle(str, id, important)
