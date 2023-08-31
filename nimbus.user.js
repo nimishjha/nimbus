@@ -1008,13 +1008,12 @@ function joinByBrs(selector)
 
 function hasChildrenOfType(elem, selector) { return elem.querySelector(selector) === null ? false: true; }
 
-function hasDirectChildrenOfType(elem, tagName)
+function hasDirectChildrenOfType(elem, selector)
 {
 	const children = elem.children;
-	tagName = tagName.toUpperCase();
 	if(!children.length) return false;
 	for(let i = 0, ii = children.length; i < ii; i++)
-		if(children[i].tagName === tagName) return true;
+		if(children.matches(selector)) return true;
 	return false;
 }
 
@@ -1403,9 +1402,7 @@ function parseQueryString(url)
 {
 	const index = url.indexOf("?");
 	if(index === -1 || index > url.length - 4)
-	{
 		return;
-	}
 	const queryString = url.substring(index + 1);
 	let queryStringSplat = queryString.split("&");
 	const parsedParameters = [];
@@ -5825,7 +5822,7 @@ function toggleStyleNegative()
 	samp { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #0CC; }
 	pre { background: #0C0C0C; color: #909090; border-style: solid; border-width: 0 0 0 10px; border-color: #444; padding: 10px 20px; overflow-x: auto; }
 	pre p { margin: 0; padding: 0; }
-	pre { font: bold 18px/1.2 Swis721CnBtCode, Consolas, monospace; }
+	pre { font-family: "Swis721 Cn BT"; font-size: 18px; font-weight: bold; line-height: 1.2; }
 	pre * { font: inherit; text-recoration: none; }
 
 	pre em { color: #00AAFF; }
@@ -5844,22 +5841,22 @@ function toggleStyleNegative()
 	pre xk { color: #0099FF; }
 	pre xh { color: #AADDCC; }
 
-	X0 { color: #99AABB; }
-	X1 { color: #8899AA; }
-	X2 { color: #667788; }
-	X3 { color: #556677; }
-	X4 { color: #667788; }
-	X5 { color: #556677; }
-	X6 { color: #556677; }
-	X7 { color: #667788; }
-	X8 { color: #667788; }
-	X9 { color: #556677; }
-	X10 { color: #667788; }
-	X11 { color: #667788; }
-	X12 { color: #778899; }
-	X13 { color: #778899; }
-	X14 { color: #778899; }
-	X15 { color: #99AABB; }
+	X0 { color: #AA99BB; }
+	X1 { color: #BB7777; }
+	X2 { color: #9966BB; }
+	X3 { color: #AA77AA; }
+	X4 { color: #885566; }
+	X5 { color: #665577; }
+	X6 { color: #556699; }
+	X7 { color: #558866; }
+	X8 { color: #BB5588; }
+	X9 { color: #885577; }
+	X10 { color: #BB8866; }
+	X11 { color: #558866; }
+	X12 { color: #8888BB; }
+	X13 { color: #BB77AA; }
+	X14 { color: #5566AA; }
+	X15 { color: #4444AA; }
 
 	XC { color: #1CF; background: #247; }
 	XK { color: #1177CC; }
