@@ -102,6 +102,7 @@ const Nimbus = {
 		enableClickToCollectUrls: enableClickToCollectUrls,
 		enableConsoleLogs: enableConsoleLogs,
 		findStringsInProximity: findStringsInProximity,
+		fixBody: fixBody,
 		fixBullets: fixBullets,
 		fixCdnImages: fixCdnImages,
 		fixDashes: fixDashes,
@@ -185,11 +186,12 @@ const Nimbus = {
 		removeAllAttributesOfType: removeAllAttributesOfType,
 		removeAllEmphasis: removeAllEmphasis,
 		removeAllHighlights: removeAllHighlights,
+		unhighlightAll: removeAllHighlights,
 		removeAttributeOf: removeAttributeOf,
-		removeClassFromAll: removeClassFromAll,
+		deleteClass: deleteClass,
 		removeColorsFromInlineStyles: removeColorsFromInlineStyles,
 		removeEmojis: removeEmojis,
-		removeEventListenerAttributes: removeEventListenerAttributes,
+		removeEventListeners: removeEventListeners,
 		removeHighlightsFromMarkedElements: removeHighlightsFromMarkedElements,
 		removeInlineStyles: removeInlineStyles,
 		removeQueryStringFromImageSources: removeQueryStringFromImageSources,
@@ -1013,7 +1015,7 @@ function hasDirectChildrenOfType(elem, selector)
 	const children = elem.children;
 	if(!children.length) return false;
 	for(let i = 0, ii = children.length; i < ii; i++)
-		if(children.matches(selector)) return true;
+		if(children[i].matches(selector)) return true;
 	return false;
 }
 
@@ -2038,7 +2040,7 @@ function createListsFromBulletedParagraphs()
 	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "li");
 }
 
-function removeClassFromAll(className)
+function deleteClass(className)
 {
 	const e = get(makeClassSelector(className));
 	let i = e.length;
@@ -2089,7 +2091,7 @@ function insertStyle(str, id, important)
 	if(!head)
 	{
 		head = document.createElement("head");
-		document.documentElement.insertBefore(head. document.documentElement.firstChild);
+		document.documentElement.insertBefore(head, document.documentElement.firstChild);
 	}
 	const style = document.createElement("style");
 	const rules = document.createTextNode(str);
@@ -4046,7 +4048,7 @@ function showSavedStreamingImages()
 	deleteImagesSmallerThan(100, 100);
 	insertStyle("#nimbusStreamingImageContainer { height: 80vh; }", "temp", true);
 	retrieve("#nimbusStreamingImageContainer");
-	removeClassFromAll("alreadySaved");
+	deleteClass("alreadySaved");
 	const images = get("img");
 	for(let i = 0, ii = images.length; i < ii; i++)
 	{
@@ -4698,7 +4700,7 @@ function focusField(elem)
 {
 	if(!elem)
 		return;
-	removeClassFromAll("focused");
+	deleteClass("focused");
 	elem.focus();
 	elem.classList.add("focused");
 	showMessageBig(`Focused <b>${createSelector(elem)}</b>`);
@@ -6880,6 +6882,23 @@ function retrieveBySelectorAndText(selector, text)
 	retrieveElements(selectBySelectorAndText(selector, text));
 }
 
+function removeEventListeners()
+{
+	var newBody = document.createElement("newbody");
+	newBody.innerHTML = document.body.innerHTML;
+	document.documentElement.textContent = "";
+	document.documentElement.appendChild(newBody);
+}
+
+function fixBody()
+{
+	const newBody = getOne("newbody");
+	const replacement = document.createElement("body");
+	while(newBody.firstChild)
+		replacement.appendChild(newBody.firstChild);
+	newBody.parentNode.replaceChild(replacement, newBody);
+}
+
 function getContentByParagraphCount()
 {
 	const LONG_PARAGRAPH_THRESHOLD = 100;
@@ -6961,7 +6980,7 @@ function getContentByParagraphCount()
 			contentDiv = contentDiv.parentNode;
 		}
 	}
-	removeClassFromAll("longParagraph");
+	deleteClass("longParagraph");
 	if(contentDiv)
 		markElement(contentDiv);
 	else
@@ -7232,7 +7251,7 @@ function inspectMouseoverHandler(evt)
 	emptyElement(inspectorElem);
 	inspectorElem.appendChild(document.createTextNode(''));
 	evt.stopPropagation();
-	removeClassFromAll("hovered");
+	deleteClass("hovered");
 	let target = evt.target;
 	target.classList.add("hovered");
 	while(target)
@@ -7264,7 +7283,7 @@ function inspect(onTop)
 		del('#inspector');
 		del('#styleInspector');
 		document.body.classList.remove("inspector");
-		removeClassFromAll("hovered");
+		deleteClass("hovered");
 	}
 }
 
@@ -7456,24 +7475,6 @@ function showSelectorsHeavy()
 		*[data-class]::before { content: attr(data-class); color: #F90; background: #000; padding: 2px 5px; }
 	`;
 	insertStyle(style, "styleShowSelectorsHeavy", true);
-}
-
-function removeEventListenerAttributes()
-{
-	let db = document.body;
-	const tempBody = db.cloneNode(true);
-	db.parentNode.replaceChild(tempBody, db);
-
-	const elems = document.getElementsByTagName("*");
-	let i = elems.length;
-	while(i--)
-	{
-		const elem = elems[i];
-		elem.removeAttribute("onmousedown");
-		elem.removeAttribute("onmouseup");
-		elem.removeAttribute("onmouseover");
-		elem.removeAttribute("onclick");
-	}
 }
 
 function getAllInlineStyles()
@@ -8432,13 +8433,13 @@ function removeAllEmphasis() { unwrapAll("b, strong, i, em, u"); }
 function removeAllHighlights()
 {
 	unwrapAll("mark, markyellow, markred, markgreen, markblue, markpurple, markwhite");
-	removeClassFromAll("trMark");
-	removeClassFromAll("trMarkYellow");
-	removeClassFromAll("trMarkRed");
-	removeClassFromAll("trMarkGreen");
-	removeClassFromAll("trMarkBlue");
-	removeClassFromAll("trMarkPurple");
-	removeClassFromAll("trMarkWhite");
+	deleteClass("trMark");
+	deleteClass("trMarkYellow");
+	deleteClass("trMarkRed");
+	deleteClass("trMarkGreen");
+	deleteClass("trMarkBlue");
+	deleteClass("trMarkPurple");
+	deleteClass("trMarkWhite");
 }
 
 function removeHighlightsFromMarkedElements()
@@ -8674,6 +8675,7 @@ function handleKeyDown(e)
 		shouldPreventDefault = true;
 		switch(k)
 		{
+			case KEYCODES.ONE: fixBody(); break;
 			case KEYCODES.A: annotate("after"); break;
 			case KEYCODES.D: deselect(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
