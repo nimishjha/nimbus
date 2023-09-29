@@ -2801,9 +2801,11 @@ function autoCompleteInputBox()
 
 	function onAutoCompleteInputKeyUp(evt)
 	{
-		const inputText = getOne("#autoCompleteInput").value;
+		const inputText = evt.target.value;
 		if(!inputText)
 		{
+			if(evt.keyCode === KEYCODES.UPARROW)
+				restoreCustomPromptHistory(evt.target);
 			clearMatches();
 			return;
 		}
@@ -2905,6 +2907,7 @@ function autoCompleteInputBox()
 	function executeFunction()
 	{
 		const command = getOne("#autoCompleteInput").value;
+		Nimbus.lastCommand = command;
 		clearMatches();
 		close();
 		runCommand(command);
