@@ -36,7 +36,7 @@ let consoleLog = noop;
 let consoleWarn = noop;
 let consoleError = noop;
 
-const isDebugMode = true;
+const isDebugMode = false;
 
 const Nimbus = {
 	logString: "",
@@ -354,7 +354,7 @@ const STYLES = {
 		a { text-decoration: none; }
 	`,
 	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); line-height: 1.4; }`,
-	COLORS_01: 'html, body { background: #000; color: #AAA; } body { opacity: 0.7; } ',
+	DIM_BODY: 'html, body { background: #000; color: #AAA; } body { opacity: 0.7; } ',
 	SIMPLE_NEGATIVE: `
 		html, body, body[class] { background: #000; font-family: "swis721 cn bt"; font-size: 22px; }
 		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "swis721 cn bt"; }
@@ -391,6 +391,15 @@ const STYLES = {
 		input { background: #111; border: 1px solid #333; }
 		button { background: #111; border: 1px solid #555; }
 		img, svg { opacity: 0.5; }
+	`,
+	SIMPLE_NEGATIVE_3: `
+		html { background: #000; color: #999; font-size: 18px; }
+		body { background: #222; padding: 10rem; margin: 1rem 10rem; }
+		pre { padding: 1rem };
+		pre, code { background: #000; font-family: "swis721 cn bt"; font-weight: bold; }
+		h1, h2, h3, h4, h5, h6 { background: #111; color: #AAA; padding: 0.5rem 1rem; margin: 0 0 2px 0; font-weight: normal; }
+		p { background: #282828; padding: 0.5rem 1rem; margin: 0 0 2px 0; }
+		a { text-decoration: none; }
 	`,
 	GRAYSCALE: 'body * { filter: saturate(0); } img { filter: brightness(0.5); }',
 	OUTLINE_ELEMENTS: `header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
@@ -1786,7 +1795,8 @@ function convertElement(elem, tagName)
 	const temp = elem.cloneNode(true);
 	while(temp.firstChild)
 		replacement.appendChild(temp.firstChild);
-	replacement.id = elem.id;
+	if(elem.id)
+		replacement.id = elem.id;
 	return replacement;
 }
 
@@ -1882,6 +1892,8 @@ function isBlockElement(node)
 	const NON_BLOCK_ELEMENTS = {
 		A: true,
 		B: true,
+		BIG: true,
+		SMALL: true,
 		STRONG: true,
 		I: true,
 		EM: true,
@@ -2337,21 +2349,24 @@ function simplifyClassNames(selector)
 	const sel = selector ||  "body *";
 	const elems = get(sel);
 	const classMap = {};
-	const tagTable = {};
+	const numClassesByTagName = {};
 	const tagMap = {
 		div: "d",
-		span: "s"
+		span: "s",
+		blockquote: "bl",
+		reference: "r",
 	};
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
 		const tagName = elem.tagName.toLowerCase();
-		const oldClass = tagName + "_" + elem.className.replace(/[^a-zA-Z0-9]+/g, "");
+		const className = elem.className.toString() || "";
+		const oldClass = tagName + "_" + className.replace(/[^a-zA-Z0-9]+/g, "");
 		if(!oldClass.length)
 			continue;
-		elem.className = oldClass;
+		elem.setAttribute("class", oldClass);
 		classMap[oldClass] = tagName;
-		tagTable[tagName] = 0;
+		numClassesByTagName[tagName] = 0;
 	}
 	let keys = Object.keys(classMap);
 	for(let i = 0, ii = keys.length; i < ii; i++)
@@ -2359,7 +2374,7 @@ function simplifyClassNames(selector)
 		const key = keys[i];
 		const tagName = classMap[key];
 		const tagNameMapped = tagMap[tagName] || tagName;
-		const index = tagTable[tagName]++;
+		const index = numClassesByTagName[tagName]++;
 		if(tagName.match(/h\d/))
 			replaceClass(key, tagNameMapped + "_" + index);
 		else
@@ -3135,7 +3150,7 @@ function fixInternalReferences()
 		if(link.parentNode && link.parentNode.tagName !== "REFERENCE")
 			wrapElement(link, "reference");
 		let refText = link.textContent.trim();
-		if(refText.match(/^\[/))
+		if(refText.match(/^\[\{/))
 			refText = sanitizeNumericRef(refText);
 		if(!refText.length)
 			refText = "0" + i;
@@ -3145,7 +3160,6 @@ function fixInternalReferences()
 	if(redundantSups)
 		for(let i = 0, ii = redundantSups.length; i < ii; i++)
 			unwrapElement(redundantSups[i]);
-	// unwrapAll("h1 reference, h2 reference, h3 reference");
 	consolidateAnchors();
 }
 
@@ -4327,7 +4341,7 @@ function replaceCommonClasses()
 {
 	replaceElementsBySelector(".pn, .pt", "h1");
 	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle", "h1");
-	replaceElementsBySelector(".cn, .ct, .chapnum, .chaptitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle", "h2");
+	replaceElementsBySelector(".cn, .ct, .chapnum, .chaptitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .chno, .chtitle, .ch-num, .ch-title", "h2");
 	replaceElementsBySelector(".cst", "h3");
 	replaceElementsBySelector("div.calibre", "section");
 	replaceElementsBySelector(".epub-i, .i", "i");
@@ -4351,6 +4365,8 @@ function replaceCommonClasses()
 	replaceElementsBySelector("span[class*=ital], span[class*=txit], span[class*=epub-i]", "i");
 	replaceElementsBySelector("span[class*=bold], span[class*=txbd], span[class*=epub-b]", "b");
 	replaceElementsBySelector("span[class*=small]", "small");
+
+	document.body.innerHTML = document.body.innerHTML.replaceAll("calibre_link-", "l");
 }
 
 function fixHeadings()
@@ -4666,12 +4682,21 @@ function cycleFocusOverFormFields()
 		return;
 	}
 	const candidateInputs = [];
+	const excludedInputTypes = {
+		hidden: true,
+		submit: true,
+		reset: true,
+		button: true,
+		radio: true,
+		checkbox: true,
+		image: true
+	};
 	for(let i = 0; i < len; i++)
 	{
 		const input = inputs[i];
 		if(input.type)
 		{
-			if(!["hidden", "submit", "reset", "button", "radio", "checkbox", "image"].includes(input.type))
+			if(!excludedInputTypes[input.type])
 				candidateInputs.push(input);
 		}
 		else
@@ -6487,48 +6512,30 @@ function deleteEmptyBlockElements()
 //	For those ancient webpages that still use <font size...> tags to denote headings.
 function replaceFontTags()
 {
-	const replacements = [];
-	let replacementHeading;
 	const fontElements = get("font");
-	for(let i = 0, ii = fontElements.length; i < ii; i++)
+	function getTagName(fontSize)
 	{
-		const fontElem = fontElements[i];
-		if(fontElem.getAttribute("size"))
-		{
-			let headingLevel = fontElem.getAttribute("size");
-			if(headingLevel.indexOf("+") >= 0)
-			{
-				headingLevel = headingLevel[1];
-			}
-			switch(headingLevel)
-			{
-				case '7': replacementHeading = document.createElement("h1"); break;
-				case '6': replacementHeading = document.createElement("h2"); break;
-				case '5': replacementHeading = document.createElement("h3"); break;
-				case '4': replacementHeading = document.createElement("h4"); break;
-				case '3': replacementHeading = document.createElement("h5"); break;
-				case '2': replacementHeading = document.createElement("p"); break;
-				case '1': replacementHeading = document.createElement("p"); break;
-				default: replacementHeading = document.createElement("p"); break;
-			}
-			replacementHeading.innerHTML = fontElem.innerHTML;
-			replacements.push(replacementHeading);
-		}
-		else
-		{
-			replacementHeading = document.createElement("p");
-			replacementHeading.innerHTML = fontElem.innerHTML;
-			replacements.push(replacementHeading);
-		}
+		if(!fontSize) return "p";
+		const map = {
+			"1": "p",
+			"2": "h6",
+			"3": "h5",
+			"4": "h4",
+			"5": "h3",
+			"6": "h2",
+			"7": "h1"
+		};
+		return map[fontSize] || "p";
 	}
 	for(let i = 0, ii = fontElements.length; i < ii; i++)
 	{
 		const fontElem = fontElements[i];
-		fontElem.parentNode.replaceChild(replacements[i], fontElem);
+		const fontSize = fontElem.getAttribute("size");
+		const replacementHeading = convertElement(fontElem, getTagName(fontSize));
+		fontElem.parentNode.replaceChild(replacementHeading, fontElem);
 	}
 }
 
-//	This function replaces all links on a page with ones that are identical except that all event handlers have been removed.
 function cleanupLinks()
 {
 	const links = get("a");
@@ -6536,11 +6543,11 @@ function cleanupLinks()
 	while(i--)
 	{
 		const link = links[i];
-		let newLink;
-		if(link.id)
-			newLink = createElement("a", { innerHTML: link.innerHTML, href: link.href, id: link.id });
-		else
-			newLink = createElement("a", { innerHTML: link.innerHTML, href: link.href });
+		const newLink = document.createElement("a");
+		if(link.id) newLink.id = link.id;
+		if(link.href) newLink.href = link.href;
+		while (link.firstChild)
+			newLink.appendChild(link.firstChild);
 		link.parentNode.replaceChild(newLink, link);
 	}
 }
@@ -6550,11 +6557,8 @@ function logHrefsOnClick(evt)
 	evt.preventDefault();
 	evt.stopPropagation();
 	const MAX_DEPTH = 5;
-	let link = evt.target;
-	let depth = 0;
-	while(link.tagName !== "A" && link.parentNode && ++depth < MAX_DEPTH)
-		link = link.parentNode;
-	if(link.tagName !== "A")
+	let link = evt.target.closest("a");
+	if(!link)
 		return;
 	wrapElement(link, Nimbus.highlightTagName);
 	const href = link.href;
@@ -6563,7 +6567,6 @@ function logHrefsOnClick(evt)
 		const link = createElement("a", { textContent: href, href: href });
 		const linkWrapper = createElementWithChildren("h6", link);
 		document.body.appendChild(linkWrapper);
-		showMessageBig(href);
 	}
 	return false;
 }
@@ -7779,14 +7782,13 @@ function generateTableOfContents(optionalStringToMatch)
 	const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
 	const toc = document.createElement("header");
 	toc.id = "tableOfContents";
-	const onlyIncludeHeadingsMatchingText = typeof optionalStringToMatch === "string";
-	const str = optionalStringToMatch.toLowerCase();
+	const str = optionalStringToMatch ? optionalStringToMatch.toLowerCase() : null;
 	for (let i = 0, ii = headings.length; i < ii; i++)
 	{
 		const heading = headings[i];
 		if(!isNaN(Number(heading.textContent)))
 			continue;
-		if(onlyIncludeHeadingsMatchingText && heading.textContent.toLowerCase().indexOf(str) === -1)
+		if(str && heading.textContent.toLowerCase().indexOf(str) === -1)
 			continue;
 		const id = heading.tagName + "_" + i;
 		heading.id = id;
@@ -8635,9 +8637,9 @@ function handleKeyDown(e)
 			case KEYCODES.LEFTARROW: modifyMark("previous"); break;
 			case KEYCODES.RIGHTARROW: modifyMark("next"); break;
 			case KEYCODES.ONE: toggleStyleNegative(); break;
-			case KEYCODES.TWO: toggleStyle(STYLES.SIMPLE_NEGATIVE, "styleSimpleNegative", true); break;
+			case KEYCODES.TWO: toggleStyle(STYLES.DIM_BODY, "styleDimBody", true); break;
 			case KEYCODES.THREE: toggleStyle(STYLES.FONT_01, "styleFont01", true); break;
-			case KEYCODES.FOUR: toggleStyle(STYLES.COLORS_01, "styleColors01", true); break;
+			case KEYCODES.FOUR: toggleStyle(STYLES.SIMPLE_NEGATIVE_3, "styleSimpleNegative", true); break;
 			case KEYCODES.FIVE: toggleStyleGrayscale(); break;
 			case KEYCODES.SIX: toggleStyle(STYLES.MIN_FONT_SIZE, "styleMinFontSize", true); break;
 			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
