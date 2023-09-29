@@ -1802,6 +1802,13 @@ function convertElement(elem, tagName)
 
 function cloneElement(elem) { return convertElement(elem, elem.tagName); }
 
+function cloneElementRemovingId(elem)
+{
+	const clone = elem.cloneNode(true);
+	clone.removeAttribute("id");
+	return clone;
+}
+
 function replaceElement(elem, tagName)
 {
 	const replacement = document.createElement(tagName);
@@ -8244,22 +8251,27 @@ function findStringsInProximity(stringOne, stringTwo)
 	const resultsWrapper = createElement("div", { id: "proximateSearchResults" } );
 	resultsWrapper.appendChild(createElement( "h2", { textContent: `Proximity search results for "${stringOne}" and "${stringTwo}"` } ));
 	const resultsList = document.createElement("ol");
+	const seen = new Set();
 	for(let i = 0, ii = keys.length; i < ii; i++)
 	{
 		const key = keys[i];
 		const stringOneParagraphIndex = lookup1[key];
 		const keyPrev = "p" + createBracketKey(stringOneParagraphIndex - DISTANCE);
 		const keyNext = "p" + createBracketKey(stringOneParagraphIndex + DISTANCE);
-		let stringTwoParagraphIndex = lookup2[key] || lookup2[keyPrev] || lookup2[keyNext];
+		const stringTwoParagraphIndex = lookup2[key] || lookup2[keyPrev] || lookup2[keyNext];
 		if(stringTwoParagraphIndex)
 		{
 			const firstIndex = Math.min(stringOneParagraphIndex, stringTwoParagraphIndex);
-			const paragraph = getOne("#p-" + firstIndex);
+			const secondIndex = Math.max(stringOneParagraphIndex, stringTwoParagraphIndex);
+			if(seen.has(firstIndex) || seen.has(secondIndex)) continue;
+			seen.add(firstIndex);
+			seen.add(secondIndex);
+			const areSeparateParagraphs = firstIndex !== secondIndex;
+			const firstExcerpt = cloneElementRemovingId(getOne("#p-" + firstIndex))
+			const secondExcerpt = cloneElementRemovingId(getOne("#p-" + secondIndex))
 			const resultsListItem = document.createElement("li");
-			let excerpt = paragraph.textContent.replace(/\s+/g, " ").substring(0, 100);
 			const link = createElement("a", { textContent: firstIndex, href: "#p-" + firstIndex });
-			const linkWrapper = createElementWithChildren("h5", link);
-			linkWrapper.appendChild(document.createTextNode(" " + excerpt));
+			const linkWrapper = areSeparateParagraphs ? createElementWithChildren("blockquote", link, firstExcerpt, secondExcerpt) : createElementWithChildren("blockquote", link, firstExcerpt);
 			resultsListItem.appendChild(linkWrapper);
 			resultsList.appendChild(resultsListItem);
 		}
