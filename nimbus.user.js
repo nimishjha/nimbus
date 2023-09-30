@@ -36,7 +36,7 @@ let consoleLog = noop;
 let consoleWarn = noop;
 let consoleError = noop;
 
-const isDebugMode = false;
+const isDebugMode = true;
 
 const Nimbus = {
 	logString: "",
@@ -7857,10 +7857,8 @@ function highlightSelection(mode = "sentence")
 		showMessageBig("Nothing selected");
 		return;
 	}
-	let node = selection.anchorNode;
+	let node = getFirstBlockParent(selection.anchorNode);
 	let selectionText = removeLineBreaks(selection.toString()).trim();
-	while(node.parentNode && (node.textContent.length < selectionText.length || node.nodeType !== 1))
-		node = node.parentNode;
 	node.innerHTML = normalizeHTML(node.innerHTML);
 	if(!node || node.tagName === undefined)
 	{
@@ -8652,7 +8650,7 @@ function handleKeyDown(e)
 			case KEYCODES.LEFTARROW: modifyMark("previous"); break;
 			case KEYCODES.RIGHTARROW: modifyMark("next"); break;
 			case KEYCODES.ONE: toggleStyleNegative(); break;
-			case KEYCODES.TWO: toggleStyle(STYLES.DIM_BODY, "styleDimBody", true); break;
+			case KEYCODES.TWO: toggleStyle(STYLES.DIM_BODY + STYLES.FONT_01, "style2", true); break;
 			case KEYCODES.THREE: toggleStyle(STYLES.FONT_01, "styleFont01", true); break;
 			case KEYCODES.FOUR: toggleStyle(STYLES.SIMPLE_NEGATIVE_3, "styleSimpleNegative", true); break;
 			case KEYCODES.FIVE: toggleStyleGrayscale(); break;
