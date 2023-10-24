@@ -261,6 +261,7 @@ const Nimbus = {
 		unmarkAll: unmarkAll,
 		unwrapAll: unwrapAll,
 		wrapAll: wrapAll,
+		wrapAllInner: wrapAllInner,
 		wrapAnchorNodeInTag: wrapAnchorNodeInTag,
 		xlog: xlog,
 		xPathMark: xPathMark,
@@ -451,8 +452,6 @@ const STYLES = {
 function get(selector)
 {
 	let nodes;
-	if(!isNaN(selector))
-		selector = "#i" + selector;
 	if(selector === "h")
 		selector = "h1, h2, h3, h4, h5, h6";
 	try
@@ -464,11 +463,9 @@ function get(selector)
 		showMessageError("Invalid selector: " + selector);
 		return null;
 	}
-	if(selector.indexOf("#") === 0 && !~selector.indexOf(" ") && !~selector.indexOf("."))
-		return document.querySelector(selector);
 	if(nodes.length)
 		return Array.from(nodes);
-	return false;
+	return null;
 }
 
 function getOne(selector)
@@ -639,6 +636,7 @@ function retrieveElements(elems)
 function selectElementsStartingWithText(selector, text)
 {
 	const elems = get(selector);
+	if(!elems) return;
 	const selected = [];
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
@@ -652,6 +650,7 @@ function selectElementsStartingWithText(selector, text)
 function selectElementsEndingWithText(selector, text)
 {
 	const elems = get(selector);
+	if(!elems) return;
 	const textLength = text.length;
 	const selected = [];
 	for(let i = 0, ii = elems.length; i < ii; i++)
@@ -684,11 +683,12 @@ function selectByTagNameMatching(text)
 function selectByClassOrIdContaining(str)
 {
 	const strLower = str.toLowerCase();
-	const e = get("body *");
+	const elems = get("body *");
+	if(!elems) return;
 	const selected = [];
-	for(let i = 0, ii = e.length; i < ii; i++)
+	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
-		const node = e[i];
+		const node = elems[i];
 		if(node && ~node.className.toString().toLowerCase().indexOf(strLower) || ~node.id.toString().toLowerCase().indexOf(strLower))
 			selected.push(node);
 	}
@@ -767,6 +767,7 @@ function markByChildrenHavingTheExactText(...args)
 function markElementsWithChildrenSpanning(parentSelector, childSelector)
 {
 	const parents = get(parentSelector);
+	if(!parents) return;
 	let i = parents.length;
 	while(i--)
 	{
@@ -800,11 +801,12 @@ function debounce(func, delay)
 
 function forAll(selector, callback)
 {
-	const e = get(selector);
+	const elems = get(selector);
+	if(!elems) return;
+	const len = elems.length;
 	let i = -1;
-	const len = e.length;
 	while(++i < len)
-		callback(e[i]);
+		callback(elems[i]);
 }
 
 function getMarkedElements()
@@ -1007,6 +1009,7 @@ function startsWithAnyOfTheStrings(s, arrStrings)
 function fixLineBreaks()
 {
 	const spans = get("span");
+	if(!spans) return;
 	for(let i = 0, ii = spans.length; i < ii; i++)
 	{
 		const span = spans[i];
@@ -1024,6 +1027,7 @@ function fixLineBreaks()
 function joinByBrs(selector)
 {
 	const brs = get(selector + " br");
+	if(!brs) return;
 	for(let i = 0, ii = brs.length; i < ii; i++)
 	{
 		const br = brs[i];
@@ -1044,6 +1048,7 @@ function hasDirectChildrenOfType(elem, selector)
 
 function splitByLineBreaks(selector) {
 	const elems = get(selector);
+	if(!elems) return;
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
@@ -1107,12 +1112,14 @@ function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 function replaceBrs()
 {
 	const brs = get("br");
+	if(!brs) return;
 	for(let i = 0, ii = brs.length; i < ii; i++)
 	{
 		const parent = brs[i].parentNode;
 		if(parent) parent.classList.add("hasBrs");
 	}
 	const elems = get(".hasBrs");
+	if(!elems) return;
 	for(let i = 0, ii = elems.length; i < ii; i++)
 		splitByBrs(elems[i]);
 	replaceElementsBySelector("br", "brk");
@@ -1200,6 +1207,7 @@ function replaceTables() { replaceElementsBySelector("table, tbody, tr, td, th, 
 function replaceNonStandardElements()
 {
 	const elems = get("body *");
+	if(!elems) return;
 	const BLOCK_ELEMENTS = Nimbus.BLOCK_ELEMENTS;
 	const INLINE_ELEMENTS = Nimbus.INLINE_ELEMENTS;
 	let i = elems.length;
@@ -1221,6 +1229,7 @@ function replaceNonStandardElements()
 function replaceLongTextLinks()
 {
 	const links = get("a");
+	if(!links) return;
 	for(const link of links)
 	{
 		if(link.getElementsByTagName("img").length)
@@ -1486,6 +1495,7 @@ function setQueryParameter(url, parameterName, newValue)
 function replaceQueryParameter(key, oldValue, newValue)
 {
 	const links = get(`a[href*='${key}=${oldValue}']`);
+	if(!links) return;
 	for(let i = 0, ii = links.length; i < ii; i++)
 	{
 		const link = links[i];
@@ -1630,6 +1640,7 @@ function insertAsLastChild(anchorElement, elementToInsert) { anchorElement.inser
 function insertAroundAll(selector, position, elemType, textContent)
 {
 	const elems = get(selector);
+	if(!elems) return;
 	const where = position === "after" ? "afterend" : "beforebegin";
 	const tagName = elemType === "text" ? "span" : elemType;
 	for(let i = 0, ii = elems.length; i < ii; i++)
@@ -1691,11 +1702,12 @@ function getElemPropSafe(elem, prop)
 
 function replaceIframes()
 {
-	const e = get("iframe");
-	let i = e.length;
+	const elems = get("iframe");
+	if(!elems) return;
+	let i = elems.length;
 	while(i--)
 	{
-		const elem = e[i];
+		const elem = elems[i];
 		const iframereplacement = document.createElement("rp");
 		const iframelink = document.createElement("a");
 		let s = elem.src;
@@ -1764,6 +1776,7 @@ function replaceElementsBySelectorHelper()
 function replaceElementsBySelector(selector, tagName)
 {
 	const toReplace = get(selector);
+	if(!toReplace) return;
 	if(toReplace.length)
 	{
 		showMessageBig(`Replacing <b>${toReplace.length} ${selector}</b> with <b>${tagName}</b>`);
@@ -2115,7 +2128,7 @@ function hasClassesStartingWith(element, arrStr)
 
 function insertStyle(str, id, important)
 {
-	if(id && id.length && get("#" + id))
+	if(id && id.length && getOne("#" + id))
 		del("#" + id);
 	if(important)
 		str = str.replace(/!important/g, " ").replace(/;/g, " !important;");
@@ -2152,7 +2165,7 @@ function toggleNimbusStyles()
 
 function toggleStyle(str, id, important)
 {
-	if(id && id.length && get("#" + id))
+	if(id && id.length && getOne("#" + id))
 	{
 		del("#" + id);
 		return;
@@ -2419,11 +2432,11 @@ function showMessage(messageHtml, msgClass, persist)
 	const strStyle = `
 		message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #888; height: 60px; line-height: 60px; position: fixed; top: calc(100vh - 60px); left: 0; width: 100%; z-index: 2147483647; }
 		messageinner { display: block; max-width: 1200px; margin: 0 auto; text-align: left; }
-		messagebig { display: block; max-width: 1200px; margin: 0 auto; text-align: left; font: 32px "swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }
-		messageerror { display: block; max-width: 1200px; margin: 0 auto; text-align: left; font: 32px "swis721 cn bt"; color: #FFF; background: #500; height: 60px; line-height: 60px; font-weight: 500; }
+		messagebig { display: block; max-width: 1200px; margin: 0 auto; text-align: left; font: 24px "swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }
+		messageerror { display: block; max-width: 1200px; margin: 0 auto; text-align: left; font: 24px "swis721 cn bt"; color: #FFF; background: #500; height: 60px; line-height: 60px; font-weight: 500; }
 	`;
 	const messageInnerTagName = msgClass ? msgClass : "messageinner";
-	if(get("message"))
+	if(getOne("message"))
 	{
 		del("message");
 	}
@@ -2598,7 +2611,7 @@ function editStyleById(styleId)
 
 function toggleConsole(consoleType)
 {
-	if(get("#userInputWrapper"))
+	if(getOne("#userInputWrapper"))
 	{
 		del("#userInputWrapper");
 		del("#styleUserInputWrapper");
@@ -2709,7 +2722,7 @@ function runCommand(commandString)
 
 function openDialog(inputHandler)
 {
-	if(get("#xxdialog")) return;
+	if(getOne("#xxdialog")) return;
 	del("#styleDialog");
 	const dialog = createElement("div", { id: "xxdialog" });
 	const dialogInput = createElement("textarea", { id: "xxdialoginput" });
@@ -2725,7 +2738,7 @@ function openDialog(inputHandler)
 
 function closeDialog()
 {
-	const command = get("#xxdialoginput").value;
+	const command = getOne("#xxdialoginput").value;
 	del("#xxdialog");
 	del("#styleDialog");
 	return command;
@@ -2742,7 +2755,7 @@ function defaultDialogInputHandler(evt)
 
 function customPrompt(message, initialValue)
 {
-	if(!get("#xxdialog"))
+	if(!getOne("#xxdialog"))
 	{
 		del("#style-xxdialog");
 		const dialog = createElement("div", { id: "xxdialog" });
@@ -2791,7 +2804,7 @@ function restoreCustomPromptHistory(inputElement)
 
 function closeCustomPrompt()
 {
-	const command = get("#xxdialoginput").value;
+	const command = getOne("#xxdialoginput").value;
 	del("#xxdialog");
 	del("#style-xxdialog");
 	return command;
@@ -2866,14 +2879,14 @@ function autoCompleteInputBox()
 			else
 				s += '<match>' + inputComponent.matches[i] + "</match>";
 		}
-		get("#autoCompleteMatches").innerHTML = s;
+		getOne("#autoCompleteMatches").innerHTML = s;
 	}
 
 	function showMatches(str)
 	{
 		if(!str || !str.length || str.length < 2)
 		{
-			emptyElement(get("#autoCompleteMatches"));
+			emptyElement(getOne("#autoCompleteMatches"));
 			inputComponent.currentIndex = -1;
 			return;
 		}
@@ -2898,7 +2911,7 @@ function autoCompleteInputBox()
 
 	function open()
 	{
-		if(get("#autoCompleteInputWrapper"))
+		if(getOne("#autoCompleteInputWrapper"))
 			return;
 		const style = `autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2147483647; font-family: "swis721 cn bt"; }
 			inputelementwrapper { display: block; border: 2px solid #07C; }
@@ -2943,6 +2956,7 @@ function markByCssRule(prop, value, selector)
 	const sel = selector || "*";
 	const val = value.toLowerCase();
 	const elems = get(sel);
+	if(!elems) return;
 	let i = elems.length;
 	let count = 0;
 	while(i--)
@@ -2988,6 +3002,7 @@ function markBySelectorAndRegex(selector, regexString, boolInvertSelection = fal
 	const selected = [];
 	const selectedInverse = [];
 	const elements = get(selector);
+	if(!elements) return;
 	const regex = new RegExp(regexString);
 	for(let i = 0, ii = elements.length; i < ii; i++)
 	{
@@ -3041,11 +3056,12 @@ function highlightTableRows(rows)
 function markElementsWithSetWidths()
 {
 	showMessageBig("Finding divs with pixel widths...");
-	const e = get("div");
-	let i = e.length, j, cssRules;
+	const elems = get("div");
+	if(!elems) return;
+	let i = elems.length, j, cssRules;
 	while(i--)
 	{
-		const elem = e[i];
+		const elem = elems[i];
 		cssRules = getAllCssRulesForElement(elem);
 		j = cssRules.length;
 		while(j--)
@@ -3065,6 +3081,7 @@ function markElementsWithSetWidths()
 function markNavigationalLists()
 {
 	const lists = get("ul, ol");
+	if(!lists) return;
 	let len = lists.length;
 	let i = -1;
 	while(++i < len)
@@ -3118,6 +3135,7 @@ function showMarkedElementInfo(node)
 function highlightUserLinks()
 {
 	const links = get("a");
+	if(!links) return;
 	let i = links.length;
 	while(i--)
 	{
@@ -3972,7 +3990,7 @@ function replaceImagesWithAltText()
 
 function replaceImagesWithTextLinks()
 {
-	if(get("rt"))
+	if(getOne("rt"))
 	{
 		const images = get("rt");
 		let i = images.length;
@@ -3985,7 +4003,7 @@ function replaceImagesWithTextLinks()
 		del('#styleReplaceImages');
 		return;
 	}
-	else if(get("img"))
+	else if(getOne("img"))
 	{
 		const images = get("img");
 		let i = images.length;
@@ -4101,6 +4119,7 @@ function addLinksToLargerImages()
 {
 	const imageLinks = [];
 	const images = get("img");
+	if(!images) return;
 	const imagePlaceholders = get("rt a");
 	for(let i = 0, ii = images.length; i < ii; i++)
 		imageLinks.push(images[i].src);
@@ -4186,15 +4205,15 @@ function buildGallery()
 
 function buildSlideshow()
 {
-	if(get("#styleSlideshow"))
+	if(getOne("#styleSlideshow"))
 	{
 		del("#styleSlideshow");
 		return;
 	}
-	if(!get("#nimbusGallery"))
+	if(!getOne("#nimbusGallery"))
 		buildGallery();
 	del("#styleGallery");
-	const gallery = get("#nimbusGallery");
+	const gallery = getOne("#nimbusGallery");
 	const images = gallery.querySelectorAll("img");
 	if(!(gallery && images))
 		return;
@@ -4213,9 +4232,9 @@ function buildSlideshow()
 
 function slideshowChangeSlide(direction)
 {
-	if(!get("#styleSlideshow"))
+	if(!getOne("#styleSlideshow"))
 		return;
-	const gallery = get("#nimbusGallery");
+	const gallery = getOne("#nimbusGallery");
 	if(!gallery)
 		return;
 	const images = gallery.getElementsByTagName("img");
@@ -4242,16 +4261,15 @@ function slideshowChangeSlide(direction)
 
 function replaceIncorrectHeading()
 {
-	let heading1, heading1link, temp;
-	if(get("h1"))
+	const heading1 = getOne("h1");
+	if(heading1)
 	{
-		heading1 = getOne("h1");
-		heading1link = heading1.querySelector("a");
+		const heading1link = heading1.querySelector("a");
 		if(heading1link)
 		{
 			if(isCurrentDomainLink(heading1link.href))
 			{
-				temp = createElement("h3", { innerHTML: heading1.innerHTML });
+				const temp = createElement("h3", { innerHTML: heading1.innerHTML });
 				heading1.parentNode.replaceChild(temp, heading1);
 			}
 		}
@@ -4282,6 +4300,7 @@ function replaceEmptyParagraphsWithHr()
 function makePlainText(selector)
 {
 	const elements = get(selector);
+	if(!elements) return;
 	for(let i = 0, ii = elements.length; i < ii; i++)
 		makeElementPlainText(elements[i]);
 }
@@ -4911,20 +4930,20 @@ function parseCode(s)
 
 function highlightCode(shouldHighlightKeywords)
 {
-	if(get("pre span[style]").length)
+	if(get("pre span[style]"))
 	{
 		replaceInlineStylesWithClasses();
 		replaceClassesWithCustomElements("pre span", "x");
 		unwrapAll("pre span");
 		return;
 	}
-	if(get("pre span[class]").length)
+	if(get("pre span[class]"))
 	{
 		replaceClassesWithCustomElements("pre span", "x");
 		unwrapAll("pre span");
 		return;
 	}
-	else if(get("pre code[class]").length)
+	else if(get("pre code[class]"))
 	{
 		replaceClassesWithCustomElements("pre code", "x");
 		unwrapAll("pre code");
@@ -5072,7 +5091,7 @@ function revealEmptyLinks()
 
 function toggleShowEmptyLinksAndSpans()
 {
-	if(get("#styleToggleShowEmptyLinksAndSpans"))
+	if(getOne("#styleToggleShowEmptyLinksAndSpans"))
 	{
 		del("#styleToggleShowEmptyLinksAndSpans");
 		unmarkAll();
@@ -5102,7 +5121,7 @@ function toggleShowEmptyLinksAndSpans()
 	}
 	const style = `
 		a.${Nimbus.markerClass} { padding: 0 5px; }
-		a.${Nimbus.markerClass}::before { content: "id: "attr(id)"name: "attr(name); color: #FF0; }
+		a.${Nimbus.markerClass}::before { content: "id: "attr(id)", name: "attr(name); color: #FF0; }
 		a.${Nimbus.markerClass}::after { content: attr(href); color: #55F; }
 		span.${Nimbus.markerClass} { padding: 0 10px; }
 		span.${Nimbus.markerClass}::before { content: attr(id)" "; color: #0F0; }
@@ -5721,7 +5740,7 @@ function showPrintLink()
 
 function insertStyleHighlight()
 {
-	if(get("#styleHighlight")) return;
+	if(getOne("#styleHighlight")) return;
 	const s = `
 		.${Nimbus.markerClass} { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; background: #000; }
 		.focused { box-shadow: inset 0px 1000px #000; color: #FFF; }
@@ -6296,7 +6315,8 @@ function cleanupDocument()
 	replaceElementsBySelector("details", "div");
 	replaceElementsBySelector("summary", "h3");
 	deleteEmptyBlockElements();
-	if(get("footer").length > 1)
+	const footers = get("footer");
+	if(footers && footers.length > 1)
 	{
 		replaceElementsBySelector("footer", "h6");
 		makePlainText("h6");
@@ -6336,7 +6356,7 @@ function cleanupBarebone()
 {
 	removeAllAttributesOfTypes(["class", "style", "align"]);
 	del("noscript");
-	if(get("span[id]") !== false)
+	if(get("span[id]"))
 		fixInternalReferences();
 	unwrapAll("span");
 	deleteHtmlComments();
@@ -6489,6 +6509,7 @@ function deleteEmptyTextNodes(parentTagName)
 function deleteEmptyElements(selector)
 {
 	const elems = get(selector);
+	if(!elems) return;
 	let count = 0;
 	let i = elems.length;
 	while(i--)
@@ -6511,7 +6532,7 @@ function deleteEmptyElements(selector)
 			}
 		}
 	}
-	// showMessageBig(`Deleted ${count} empty elements`);
+	showMessageBig(`Deleted ${count} empty elements`);
 }
 
 function deleteEmptyHeadings()
@@ -6689,6 +6710,7 @@ function deleteHtmlComments()
 function replaceAudio()
 {
 	let sources = get("source");
+	if(!sources) return;
 	let i = sources.length;
 	while(i--)
 	{
@@ -6706,6 +6728,7 @@ function replaceAudio()
 function getMetadata()
 {
 	const headings4 = get("h4");
+	if(!headings4) return;
 	const len = headings4.length;
 	if(len < 3)
 		return false;
@@ -6807,9 +6830,10 @@ function fixBullets(elems)
 
 function deleteNonContentElements()
 {
-	if(get(makeClassSelector(Nimbus.markerClass)).length)
+	const markedElements = getMarkedElements();
+	if(markedElements)
 	{
-		del(makeClassSelector(Nimbus.markerClass));
+		del(markedElements);
 		cleanupDocument();
 		return;
 	}
@@ -6929,7 +6953,8 @@ function fixBody()
 function getContentByParagraphCount()
 {
 	const LONG_PARAGRAPH_THRESHOLD = 100;
-	if(get(makeClassSelector(Nimbus.markerClass)).length)
+	const markedElements = getMarkedElements();
+	if(markedElements)
 	{
 		// const title = document.title;
 		retrieve(makeClassSelector(Nimbus.markerClass));
@@ -6989,12 +7014,9 @@ function getContentByParagraphCount()
 		contentDiv = contentDiv.parentNode;
 
 	let HEADINGS_SELECTOR = "h1, h2";
-	if(get("h1").length)
-		HEADINGS_SELECTOR = "h1";
-	else if(get("h2").length)
-		HEADINGS_SELECTOR = "h2";
-	else if(get("h3").length)
-		HEADINGS_SELECTOR = "h3";
+	if(get("h1")) HEADINGS_SELECTOR = "h1";
+	else if(get("h2")) HEADINGS_SELECTOR = "h2";
+	else if(get("h3")) HEADINGS_SELECTOR = "h3";
 	if(document.querySelectorAll(HEADINGS_SELECTOR).length > 0 && contentDiv.querySelectorAll(HEADINGS_SELECTOR).length === 0)
 	{
 		while(
@@ -7091,6 +7113,7 @@ function showScripts()
 {
 	let numScripts = 0;
 	const scripts = get("script");
+	if(!scripts) return;
 	for(let i = 0, ii = scripts.length; i < ii; i++)
 	{
 		const script = scripts[i];
@@ -7110,6 +7133,7 @@ function showExternalStyles()
 {
 	let numLinks = 0;
 	const links = get("link");
+	if(!links) return;
 	for(let i = 0, ii = links.length; i < ii; i++)
 	{
 		const link = links[i];
@@ -7222,7 +7246,7 @@ function handleBlockEditClick(evt)
 function toggleBlockEditMode()
 {
 	const db = document.body;
-	if(get("#styleToggleBlockEditMode"))
+	if(getOne("#styleToggleBlockEditMode"))
 	{
 		del("#styleToggleBlockEditMode");
 		db.removeEventListener('mouseup', handleBlockEditClick, false);
@@ -7277,9 +7301,9 @@ function inspectMouseoverHandler(evt)
 	emptyElement(inspectorElem);
 	inspectorElem.appendChild(document.createTextNode(''));
 	evt.stopPropagation();
-	deleteClass("hovered");
+	// deleteClass("hovered");
 	let target = evt.target;
-	target.classList.add("hovered");
+	// target.classList.add("hovered");
 	while(target)
 	{
 		getAttributes(target);
@@ -7290,7 +7314,7 @@ function inspectMouseoverHandler(evt)
 //	*Much* faster than any browser's devtools inspector.
 function inspect(onTop)
 {
-	if(!get("#inspector"))
+	if(!getOne("#inspector"))
 	{
 		const b = document.createElement("div");
 		b.id = "inspector";
@@ -7309,7 +7333,7 @@ function inspect(onTop)
 		del('#inspector');
 		del('#styleInspector');
 		document.body.classList.remove("inspector");
-		deleteClass("hovered");
+		// deleteClass("hovered");
 	}
 }
 
@@ -7476,7 +7500,7 @@ function showSelectorsFor(tagName)
 
 function showSelectorsHeavy()
 {
-	if(get("#styleShowSelectorsHeavy"))
+	if(getOne("#styleShowSelectorsHeavy"))
 	{
 		del("#styleShowSelectorsHeavy");
 		removeAttributeOf("body *", "data-id");
@@ -7640,13 +7664,21 @@ function wrapAll(selector, tagName)
 		wrapElement(elems[i], tagName);
 }
 
+function wrapAllInner(selector, tagName)
+{
+	const elems = get(selector);
+	if(!elems && elems.length) return;
+	for(let i = 0, ii = elems.length; i < ii; i++)
+		wrapElementInner(elems[i], tagName);
+}
+
 function unwrapAll(selector)
 {
 	const elems = get(selector);
-	const numElems = elems.length || 0;
-	if(numElems)
+	if(elems)
 	{
-		for(let i = 0, ii = elems.length; i < ii; i++)
+		const numElems = elems.length || 0;
+		for(let i = 0, ii = numElems; i < ii; i++)
 			unwrapElement(elems[i]);
 		showMessageBig(`${numElems} ${selector} unwrapped`);
 	}
@@ -7671,6 +7703,7 @@ function convertToFragment(elem)
 function makeButtonsReadable()
 {
 	const buttons = get("button");
+	if(!buttons) return;
 	let count = 0;
 	for(let i = 0, ii = buttons.length; i < ii; i++)
 	{
@@ -7686,13 +7719,12 @@ function makeButtonsReadable()
 
 function copyAttribute(selector, sourceAttribute, targetAttribute)
 {
-	const elements = get(selector);
-	if(!elements)
-		return;
+	const elems = get(selector);
+	if(!elems) return;
 	let count = 0;
-	for(let i = 0, ii = elements.length; i < ii; i++)
+	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
-		const element = elements[i];
+		const element = elems[i];
 		const sourceAttributeValue = element[sourceAttribute] || element.getAttribute(sourceAttribute);
 		if(sourceAttributeValue)
 		{
@@ -7705,18 +7737,20 @@ function copyAttribute(selector, sourceAttribute, targetAttribute)
 
 function setAttributeOf(selector, attribute, value)
 {
-	const e = get(selector);
-	let i = e.length;
+	const elems = get(selector);
+	if(!elems) return;
+	let i = elems.length;
 	while(i--)
-		e[i].setAttribute(attribute, value);
+		elems[i].setAttribute(attribute, value);
 }
 
 function removeAttributeOf(selector, attribute)
 {
-	const e = get(selector);
-	let i = e.length;
+	const elems = get(selector);
+	if(!elems) return;
+	let i = elems.length;
 	while(i--)
-		e[i].removeAttribute(attribute);
+		elems[i].removeAttribute(attribute);
 }
 
 function removeAllAttributesOfType(type)
@@ -7834,6 +7868,7 @@ function generateTableOfContents(optionalStringToMatch)
 function insertHrBeforeAll(selector)
 {
 	const elems = get(selector);
+	if(!elems) return;
 	for(let i = 0, ii = elems.length; i < ii; i++)
 		insertBefore(elems[i], document.createElement("hr"));
 }
@@ -8231,6 +8266,7 @@ function findStringsInProximity(stringOne, stringTwo)
 	const DISTANCE = 2;
 	const createBracketKey = (n) => Math.round(n / DISTANCE) * DISTANCE;
 	const paras = get("p");
+	if(!paras) return;
 	const lookup1 = {};
 	const lookup2 = {};
 	for(let i = 0, ii = paras.length; i < ii; i++)
