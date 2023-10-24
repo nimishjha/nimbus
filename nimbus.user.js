@@ -64,7 +64,6 @@ const Nimbus = {
 		cleanupHead: cleanupHead,
 		cleanupHeadings: cleanupHeadings,
 		cleanupLinks: cleanupLinks,
-		consolidateAnchors: consolidateAnchors,
 		rescueOrphanedTextNodes: rescueOrphanedTextNodes,
 		copyAttribute: copyAttribute,
 		count: count,
@@ -221,7 +220,6 @@ const Nimbus = {
 		replaceNonStandardElements: replaceNonStandardElements,
 		replaceQueryParameter: replaceQueryParameter,
 		replaceSpecialCharacters:replaceSpecialCharacters,
-		replaceSupSpanAnchors: replaceSupSpanAnchors,
 		replaceTables: replaceTables,
 		rescueOrphanedInlineElements: rescueOrphanedInlineElements,
 		retrieve: retrieve,
@@ -3150,43 +3148,48 @@ function highlightUserLinks()
 	}
 }
 
-function consolidateAnchors()
+const getLinkAnchors = () => Array.from(document.querySelectorAll("a[id]")).filter(link => !link.href);
+const getSpanAnchors = () => Array.from(document.querySelectorAll("span[id]")).filter(span => !getTextLength(span));
+const getLinksToId = (id) => document.querySelectorAll(`a[href="#${id}"]`);
+
+function replaceEmptyAnchors()
 {
-	const internalLinks = get('a[href^="#"]');
-	const toDelete = [];
-	for(let i = 0, ii = internalLinks.length; i < ii; i++)
+	const anchors = getLinkAnchors().concat(getSpanAnchors());
+	const parentsAndLinks = [];
+	const anchorsWithoutLinks = [];
+	for(let i = 0, ii = anchors.length; i < ii; i++)
 	{
-		const link = internalLinks[i];
-		const linkHref = link.getAttribute("href");
-		const linkedElement = document.getElementById(linkHref.substring(1));
-		if(!(linkedElement && linkedElement.tagName))
-			continue;
-		if(
-			(["CITE", "SPAN"].includes(linkedElement.tagName) && getTextLength(linkedElement) === 0) ||
-			linkedElement.tagName === "A" && isEmptyLink(linkedElement)
-		)
-		{
-			const parent = getFirstBlockParent(linkedElement);
-			if(!parent)
-				continue;
-			if(!parent.id)
-				parent.id = "ref" + i;
-			link.setAttribute("href", "#" + parent.id);
-			toDelete.push(linkedElement);
-		}
+		const anchor = anchors[i];
+		const linksToAnchor = getLinksToId(anchor.id);
+		if(!linksToAnchor.length) anchorsWithoutLinks.push(anchor);
+		const parent = getFirstBlockParent(anchor);
+		if(!parent.id) parent.id = "a" + i;
+		if(linksToAnchor.length) parentsAndLinks.push({ anchor, parent, linksToAnchor });
 	}
-	showMessageBig(`${toDelete.length} anchors consolidated`);
-	del(toDelete);
-	del(select("cite", "text", "=", "\u2022"));
+
+	let numLinks = 0;
+	for(let i = 0, ii = parentsAndLinks.length; i < ii; i++)
+	{
+		const anchorData = parentsAndLinks[i];
+		const links = anchorData.linksToAnchor;
+		numLinks += links.length;
+		for(let i = 0, ii = links.length; i < ii; i++)
+			links[i].setAttribute("href", "#" + anchorData.parent.id);
+		anchorData.anchor.remove();
+	}
+
+	del(anchorsWithoutLinks);
+
+	showMessageBig(`Fixed ${numLinks} links to ${parentsAndLinks.length} anchors; deleted ${anchorsWithoutLinks.length} anchors without links`);
 }
 
 function fixInternalReferences()
 {
-	replaceSupSpanAnchors();
 	replaceEmptyAnchors();
 	makeFileLinksRelative();
 	const sanitizeNumericRef = (text) => text.replace(/[^A-Za-z0-9\s\-:,\(\)]+/g, "");
 	const internalLinks = get('a[href^="#"]');
+	if(!internalLinks) return;
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
 	{
 		const link = internalLinks[i];
@@ -3203,7 +3206,7 @@ function fixInternalReferences()
 	if(redundantSups)
 		for(let i = 0, ii = redundantSups.length; i < ii; i++)
 			unwrapElement(redundantSups[i]);
-	consolidateAnchors();
+	unwrapAll("reference a sup");
 }
 
 //	Takes footnotes from the end of the document and puts them inline after the paragraph that references them.
@@ -5150,73 +5153,6 @@ function createBackLink(id)
 		return createBulletAnchor(id);
 }
 
-//	Replaces empty, invisible anchor links by taking their IDs and
-//	applying the IDs to either an adjacent link if one exists, or to a
-//	<cite> element that is appended to the block parent
-function replaceEmptyAnchors()
-{
-	function canSetIdOnElement(elem)
-	{
-		return !!(elem.tagName && elem.tagName === "A" && elem.textContent.length && !elem.hasAttribute("id"));
-	}
-	const links = get("a");
-	const emptyLinksToDelete = [];
-	let i = links.length;
-	while(i--)
-	{
-		const link = links[i];
-		if(!(link.textContent.length || link.getElementsByTagName("img").length))
-		{
-			if(!link.id)
-				continue;
-			const prevElem = link.previousElementSibling;
-			const nextElem = link.nextElementSibling;
-			if(prevElem && canSetIdOnElement(prevElem))
-			{
-				prevElem.id = link.id;
-			}
-			else if(nextElem && canSetIdOnElement(nextElem))
-			{
-				nextElem.id = link.id;
-			}
-			else
-			{
-				const parent = getFirstBlockParent(link);
-				if(parent)
-					parent.appendChild(createBulletAnchor(link.id));
-			}
-			emptyLinksToDelete.push(link);
-		}
-	}
-	showMessageBig(`Replaced ${emptyLinksToDelete.length} empty links`);
-	del(emptyLinksToDelete);
-}
-
-function replaceSupSpanAnchors()
-{
-	const anchors = get("sup[id], span[id]");
-	let count = 0;
-	let i = anchors.length;
-	while(i--)
-	{
-		const anchor = anchors[i];
-		count++;
-		const childLink = anchor.querySelector("a");
-		if(childLink && !childLink.hasAttribute("id") && childLink.textContent.length)
-		{
-			childLink.id = anchor.id;
-		}
-		else
-		{
-			const parent = getFirstBlockParent(anchor);
-			if(parent)
-				parent.appendChild(createBulletAnchor(anchor.id));
-		}
-		anchor.removeAttribute("id");
-	}
-	showMessageBig(`Replaced ${count} anchors`);
-}
-
 function changePageByUrl(direction)
 {
 	const url = window.location.href;
@@ -6686,7 +6622,7 @@ function countReferencesToId(idString)
 function removeSpanTags(isOkToLoseIds)
 {
 	if(!isOkToLoseIds)
-		replaceSupSpanAnchors();
+		replaceEmptyAnchors();
 	unwrapAll("span");
 }
 
