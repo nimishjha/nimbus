@@ -354,7 +354,6 @@ const KEYCODES = Nimbus.KEYCODES;
 const STYLES = {
 	FONT_01: `
 		* { font-family: "swis721 cn bt"; }
-		b, em, strong, i { color: #DDD; },
 		a { text-decoration: none; }
 	`,
 	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); line-height: 1.4; }`,
@@ -450,8 +449,7 @@ const STYLES = {
 function get(selector)
 {
 	let nodes;
-	if(selector === "h")
-		selector = "h1, h2, h3, h4, h5, h6";
+	if(selector === "h") selector = "h1, h2, h3, h4, h5, h6";
 	try
 	{
 		nodes = document.querySelectorAll(selector);
@@ -459,11 +457,11 @@ function get(selector)
 	catch(error)
 	{
 		showMessageError("Invalid selector: " + selector);
-		return null;
+		return false;
 	}
 	if(nodes.length)
 		return Array.from(nodes);
-	return null;
+	return false;
 }
 
 function getOne(selector)
@@ -617,6 +615,7 @@ function deleteElements(elems)
 
 function retrieveElements(elems)
 {
+	if(!elems) return;
 	const docTitle = document.title;
 	const elements = elems.nodeType ? [elems] : elems;
 	if(!(elements && elements.length))
@@ -1007,12 +1006,14 @@ function startsWithAnyOfTheStrings(s, arrStrings)
 function fixLineBreaks()
 {
 	const spans = get("span");
-	if(!spans) return;
-	for(let i = 0, ii = spans.length; i < ii; i++)
+	if(spans)
 	{
-		const span = spans[i];
-		if(span.textContent.match(/\n$/))
-			span.appendChild(document.createElement("br"));
+		for(let i = 0, ii = spans.length; i < ii; i++)
+		{
+			const span = spans[i];
+			if(span.textContent.match(/\n$/))
+				span.appendChild(document.createElement("br"));
+		}
 	}
 	var marked = getOne(makeClassSelector(Nimbus.markerClass));
 	if(marked)
@@ -1045,7 +1046,7 @@ function hasDirectChildrenOfType(elem, selector)
 }
 
 function splitByLineBreaks(selector) {
-	const elems = get(selector);
+	const elems = selector ? get(selector) : getMarkedElements();
 	if(!elems) return;
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
@@ -3152,6 +3153,14 @@ const getLinkAnchors = () => Array.from(document.querySelectorAll("a[id]")).filt
 const getSpanAnchors = () => Array.from(document.querySelectorAll("span[id]")).filter(span => !getTextLength(span));
 const getLinksToId = (id) => document.querySelectorAll(`a[href="#${id}"]`);
 
+function createUniqueId(index)
+{
+	let prefix = "a";
+	while(get(prefix + index))
+		prefix += "a";
+	return prefix + index;
+}
+
 function replaceEmptyAnchors()
 {
 	const anchors = getLinkAnchors().concat(getSpanAnchors());
@@ -3161,10 +3170,16 @@ function replaceEmptyAnchors()
 	{
 		const anchor = anchors[i];
 		const linksToAnchor = getLinksToId(anchor.id);
-		if(!linksToAnchor.length) anchorsWithoutLinks.push(anchor);
-		const parent = getFirstBlockParent(anchor);
-		if(!parent.id) parent.id = "a" + i;
-		if(linksToAnchor.length) parentsAndLinks.push({ anchor, parent, linksToAnchor });
+		if(!linksToAnchor.length)
+		{
+			anchorsWithoutLinks.push(anchor);
+		}
+		else
+		{
+			const parent = getFirstBlockParent(anchor);
+			if(!parent.id) parent.id = createUniqueId(i);
+			if(linksToAnchor.length) parentsAndLinks.push({ anchor, parent, linksToAnchor });
+		}
 	}
 
 	let numLinks = 0;
@@ -4122,23 +4137,27 @@ function addLinksToLargerImages()
 {
 	const imageLinks = [];
 	const images = get("img");
-	if(!images) return;
+	if(images)
+		for(let i = 0, ii = images.length; i < ii; i++)
+			imageLinks.push(images[i].src);
 	const imagePlaceholders = get("rt a");
-	for(let i = 0, ii = images.length; i < ii; i++)
-		imageLinks.push(images[i].src);
-	for(let i = 0, ii = imagePlaceholders.length; i < ii; i++)
-		imageLinks.push(imagePlaceholders[i].href);
+	if(imagePlaceholders)
+		for(let i = 0, ii = imagePlaceholders.length; i < ii; i++)
+			imageLinks.push(imagePlaceholders[i].href);
 	const links = get("a");
-	let i = links.length;
-	while(i--)
+	if(links)
 	{
-		const link = links[i];
-		const linkHref = link.href;
-		if( linkHref.match(/(\.png|\.jpg|\.jpeg|\.gif)/i) && !imageLinks.includes(linkHref) )
+		let i = links.length;
+		while(i--)
 		{
-			link.parentNode.insertBefore(createElementWithChildren("rt", createElement("a", { href: linkHref, textContent: shortenImageSrc(linkHref) })), link);
-			if(isEmptyLink(link))
-				del(link);
+			const link = links[i];
+			const linkHref = link.href;
+			if( linkHref.match(/(\.png|\.jpg|\.jpeg|\.gif)/i) && !imageLinks.includes(linkHref) )
+			{
+				link.parentNode.insertBefore(createElementWithChildren("rt", createElement("a", { href: linkHref, textContent: shortenImageSrc(linkHref) })), link);
+				if(isEmptyLink(link))
+					del(link);
+			}
 		}
 	}
 }
@@ -6790,11 +6809,15 @@ function deleteMarkedElements()
 
 function deleteIframes()
 {
-	const numIframes = get("iframe").length;
-	if(numIframes !== undefined)
+	const iframes = get("iframe");
+	if(iframes)
 	{
-		del("iframe");
-		showMessageBig(numIframes + " iframes deleted");
+		const numIframes = iframes.length;
+		if(numIframes)
+		{
+			del("iframe");
+			showMessageBig(numIframes + " iframes deleted");
+		}
 	}
 	else
 	{
@@ -6890,7 +6913,7 @@ function getContentByParagraphCount()
 {
 	const LONG_PARAGRAPH_THRESHOLD = 100;
 	const markedElements = getMarkedElements();
-	if(markedElements)
+	if(markedElements.length)
 	{
 		// const title = document.title;
 		retrieve(makeClassSelector(Nimbus.markerClass));
@@ -8296,6 +8319,7 @@ function highlightInTextNode(textNode, regex, highlightTagName)
 	if(!parentNode)
 		return;
 	const matches = nodeText.matchAll(regex);
+	if(!matches) return;
 	const replacementNodes = [];
 	let lastIndex = 0;
 	for(const match of matches)
@@ -8508,6 +8532,7 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD6: retrieveLargeImages(); break;
 			case KEYCODES.NUMPAD7: groupMarkedElements("blockquote"); break;
 			case KEYCODES.NUMPAD8: groupUnderHeading(); break;
+			case KEYCODES.NUMPAD9: toggleNimbusStyles(); break;
 			case KEYCODES.NUMPAD0: deleteResources(); break;
 			case KEYCODES.NUMPAD_ADD: persistStreamingImages(); break;
 			case KEYCODES.NUMPAD_SUBTRACT: deletePersistedImages(); break;
