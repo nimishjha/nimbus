@@ -95,6 +95,7 @@ const Nimbus = {
 		deselect: deselect,
 		disableClickToCollectUrls: disableClickToCollectUrls,
 		disableConsoleLogs: disableConsoleLogs,
+		duplicateMarkedElement: duplicateMarkedElement,
 		edit: toggleContentEditable,
 		editDocumentTitle: editDocumentTitle,
 		editStyleById: editStyleById,
@@ -1678,6 +1679,25 @@ function createReplacementElement(tagName, sourceElement, propertyMapping)
 			setAttributeOrProperty(elem, key, value);
 	}
 	return elem;
+}
+
+function duplicateMarkedElement(num)
+{
+	const markedElements = getMarkedElements();
+	if(markedElements.length !== 1)
+	{
+		showMessageBig(`Expected 1 marked element; found ${markedElements.length}`);
+		return;
+	}
+	const marked = markedElements[0];
+	marked.classList.remove(Nimbus.markerClass);
+	const parent = marked.parentNode;
+	if(parent)
+	{
+		let i = num;
+		while(i--)
+			parent.appendChild(marked.cloneNode(true));
+	}
 }
 
 function getPropValueSafe(obj, propName)
