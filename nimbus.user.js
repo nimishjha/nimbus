@@ -157,6 +157,7 @@ const Nimbus = {
 		makeFileLinksRelative: makeFileLinksRelative,
 		makeHeadings: makeHeadings,
 		makeOL: makeOL,
+		makeParagraphsByLineBreaks: makeParagraphsByLineBreaks,
 		makePlainText: makePlainText,
 		makeUL: makeUL,
 		mark: mark,
@@ -248,7 +249,7 @@ const Nimbus = {
 		showTags: showTags,
 		simplifyClassNames: simplifyClassNames,
 		splitByBrs: splitByBrs,
-		splitByLineBreaks: splitByLineBreaks,
+		makeParagraphsByLineBreaks: makeParagraphsByLineBreaks,
 		toggleBlockEditMode: toggleBlockEditMode,
 		toggleContentEditable: toggleContentEditable,
 		toggleHighlightSelectionMode: toggleHighlightSelectionMode,
@@ -1046,7 +1047,7 @@ function hasDirectChildrenOfType(elem, selector)
 	return false;
 }
 
-function splitByLineBreaks(selector) {
+function makeParagraphsByLineBreaks(selector) {
 	const elems = selector ? get(selector) : getMarkedElements();
 	if(!elems) return;
 	for(let i = 0, ii = elems.length; i < ii; i++)
@@ -3129,8 +3130,6 @@ function markSelectionAnchorNode()
 {
 	const node = getNodeContainingSelection();
 	markElement(node);
-	if(node.textContent.length < 200)
-		console.log(node.textContent);
 	insertStyleHighlight();
 	showMarkedElementInfo(node);
 }
@@ -4428,7 +4427,7 @@ function replaceCommonClasses()
 	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle", "h1");
 	replaceElementsBySelector(".cn, .ct, .chapnum, .chaptitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .chno, .chtitle, .ch-num, .ch-title", "h2");
 	replaceElementsBySelector(".cst", "h3");
-	replaceElementsBySelector("div.calibre", "section");
+	// replaceElementsBySelector("div.calibre", "section");
 	replaceElementsBySelector(".epub-i, .i", "i");
 	replaceElementsBySelector(".epub-b, .b", "b");
 	replaceElementsBySelector(".epub-sc, .small", "small");
@@ -4450,6 +4449,8 @@ function replaceCommonClasses()
 	replaceElementsBySelector("span[class*=ital], span[class*=txit], span[class*=epub-i]", "i");
 	replaceElementsBySelector("span[class*=bold], span[class*=txbd], span[class*=epub-b]", "b");
 	replaceElementsBySelector("span[class*=small]", "small");
+
+	replaceElementsBySelector("body > div", "section");
 
 	document.body.innerHTML = document.body.innerHTML.replaceAll("calibre_link-", "l");
 }
@@ -8136,7 +8137,7 @@ function highlightTextAcrossTags(element, searchString)
 		return;
 	}
 	const index2 = index1 + searchString.length;
-	console.log(`%c${index1}%c ... %c${index2}`, colors.blue, colors.gray, colors.blue);
+	console.log(`%c ${index1} %c ... %c ${index2} `, colors.blue, colors.gray, colors.blue);
 	const childNodes = element.childNodes;
 	let childNodeEnd = 0;
 	const highlightElement = document.createElement(Nimbus.highlightTagName);
@@ -8157,7 +8158,7 @@ function highlightTextAcrossTags(element, searchString)
 		consoleLog(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} `, colors.blue, colors.gray, colors.blue);
 
 		const containsTheBeginning = index1 >= childNodeStart && index1 < childNodeEnd && index2 > childNodeEnd;
-		const isContained = index1 <= childNodeStart && index2 >= childNodeEnd;
+		const isContained = index1 < childNodeStart && index2 > childNodeEnd;
 		const containsTheEnd = index2 >= childNodeStart && index2 <= childNodeEnd;
 		const contains = index1 >= childNodeStart && index2 <= childNodeEnd;
 
