@@ -2348,10 +2348,7 @@ function replaceClass(class1, class2)
 	const e = document.querySelectorAll(makeClassSelector(class1));
 	let i = e.length;
 	while(i--)
-	{
-		e[i].classList.remove(class1);
-		e[i].classList.add(class2);
-	}
+		e[i].classList.replace(class1, class2);
 }
 
 function replaceInClassNames(str, repl)
@@ -2362,6 +2359,55 @@ function replaceInClassNames(str, repl)
 		const elem = elems[i];
 		if(typeof elem.className === "string" && elem.className.length)
 			elem.className = elem.className.replaceAll(str, repl);
+	}
+}
+
+function toggleIdentifyClassMode()
+{
+	if(Nimbus.identifyClassClasses) identifyClassTeardown();
+	else identifyClassSetup();
+}
+
+// takes a marked element, and sets up an array of its classes to cycle through
+function identifyClassSetup()
+{
+	const marked = getMarkedElements();
+	if(marked.length !== 1)
+	{
+		showMessageBig(`Expected 1 marked element; found ${marked.length}`);
+		return false;
+	}
+	const elem = marked[0];
+	elem.classList.remove(Nimbus.markerClass);
+	Nimbus.identifyClassClasses = Array.from(elem.classList.values());
+	if(Nimbus.identifyClassClasses.length)
+	{
+		Nimbus.identifyClassCurrentClass = Nimbus.identifyClassClasses[0];
+		showMessageBig("Identify class mode enabled: " + Nimbus.identifyClassClasses.length + " classes");
+	}
+}
+
+function identifyClassTeardown()
+{
+	del("#styleIdentifyClass");
+	Nimbus.identifyClassCurrentClass = null;
+	Nimbus.identifyClassClasses = null;
+	showMessageBig("Identify class mode disabled");
+}
+
+// reveals which elements a given class applies to
+function identifyClassCycleClass()
+{
+	if(!(Nimbus.identifyClassCurrentClass && Nimbus.identifyClassClasses))
+		identifyClassSetup();
+	const nextClass = getNext(Nimbus.identifyClassCurrentClass, Nimbus.identifyClassClasses);
+	if(nextClass)
+	{
+		const count = get(makeClassSelector(nextClass)).length;
+		showMessageBig(nextClass + ": " + count + " elements", true);
+		Nimbus.identifyClassCurrentClass = nextClass;
+		const style = `.${nextClass} { box-shadow: 4px 4px #09C, -4px -4px #09C; }`;
+		insertStyle(style, "styleIdentifyClass", true);
 	}
 }
 
@@ -8719,6 +8765,8 @@ function handleKeyDown(e)
 		shouldPreventDefault = true;
 		switch(k)
 		{
+			case KEYCODES.SQUARE_BRACKET_OPEN: toggleIdentifyClassMode(); break;
+			case KEYCODES.SQUARE_BRACKET_CLOSE: identifyClassCycleClass(); break;
 			case KEYCODES.ONE: fixBody(); break;
 			case KEYCODES.A: annotate("after"); break;
 			case KEYCODES.D: deselect(); break;
