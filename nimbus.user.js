@@ -64,6 +64,7 @@ const Nimbus = {
 		cleanupHead: cleanupHead,
 		cleanupHeadings: cleanupHeadings,
 		cleanupLinks: cleanupLinks,
+		convertLineBreaksToBrs: convertLineBreaksToBrs,
 		rescueOrphanedTextNodes: rescueOrphanedTextNodes,
 		copyAttribute: copyAttribute,
 		count: count,
@@ -236,7 +237,8 @@ const Nimbus = {
 		setItalicTag: setItalicTag,
 		setMarkerClass: setMarkerClass,
 		setQueryParameter: setQueryParameter,
-		setReplacementTag: setReplacementTag,
+		setReplacementTag1: setReplacementTag1,
+		setReplacementTag2: setReplacementTag2,
 		singleQuotesToDoubleQuotes: singleQuotesToDoubleQuotes,
 		showAttributes: showAttributes,
 		setClassByDepth: setClassByDepth,
@@ -284,7 +286,8 @@ const Nimbus = {
 		"markpurple": "trMarkPurple",
 		"markwhite": "trMarkWhite",
 	},
-	replacementTagName: "h2",
+	replacementTagName1: "h2",
+	replacementTagName2: "h3",
 	markerClass: "markd",
 	minPersistSize: 800,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
@@ -406,7 +409,7 @@ const STYLES = {
 		p { background: #282828; padding: 0.5rem 1rem; margin: 0 0 2px 0; }
 		a { text-decoration: none; }
 	`,
-	GRAYSCALE: 'body * { filter: saturate(0); } img { filter: brightness(0.5); }',
+	GRAYSCALE: 'video, img { filter: saturate(0); }',
 	OUTLINE_ELEMENTS: `header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
 		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
 		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
@@ -1045,6 +1048,14 @@ function hasDirectChildrenOfType(elem, selector)
 	for(let i = 0, ii = children.length; i < ii; i++)
 		if(children[i].matches(selector)) return true;
 	return false;
+}
+
+function convertLineBreaksToBrs(selectorOrElement)
+{
+	const elems = typeof selectorOrElement === "string" ? get(selectorOrElement) : [selectorOrElement];
+	if(!elems) return;
+	for(const elem of elems)
+		elem.innerHTML = elem.innerHTML.replaceAll("\n", "<br>");
 }
 
 function makeParagraphsByLineBreaks(selector) {
@@ -1762,7 +1773,7 @@ function replaceSelectedElement(tagName)
 	const node = getNodeContainingSelection();
 	if(node)
 	{
-		const replacementTag = tagName ? tagName : Nimbus.replacementTagName;
+		const replacementTag = tagName ? tagName : Nimbus.replacementTagName1;
 		replaceElement(node, replacementTag);
 	}
 }
@@ -1772,17 +1783,17 @@ function wrapMarkedElement(tagName)
 	const node = getMarkedElements()[0];
 	if(node)
 	{
-		const wrapperTag = tagName ? tagName : Nimbus.replacementTagName;
+		const wrapperTag = tagName ? tagName : Nimbus.replacementTagName1;
 		wrapElement(node, wrapperTag);
 	}
 }
 
 function replaceElementsByTagNameMatching(text, tagName)
 {
-	const replacementTagName = tagName || "blockquote";
+	const newTagName = tagName || "blockquote";
 	const elems = selectByTagNameMatching(text);
 	for(let i = 0, ii = elems.length; i < ii; i++)
-		replaceElement(elems[i], replacementTagName);
+		replaceElement(elems[i], newTagName);
 }
 
 function replaceElementsBySelectorHelper()
@@ -1848,13 +1859,6 @@ function convertElement(elem, tagName)
 }
 
 function cloneElement(elem) { return convertElement(elem, elem.tagName); }
-
-function cloneElementRemovingId(elem)
-{
-	const clone = elem.cloneNode(true);
-	clone.removeAttribute("id");
-	return clone;
-}
 
 function replaceElement(elem, tagName)
 {
@@ -2321,9 +2325,7 @@ function logAllClassesFor(selector)
 
 function getAllClassesFor(selector)
 {
-	let sel = "*";
-	if(selector && selector.length)
-		sel = selector;
+	const sel = typeof selector === "string" ? selector : "*";
 	const nodes = get(sel);
 	const classes = {};
 	let i = nodes.length;
@@ -2378,6 +2380,7 @@ function identifyClassSetup()
 		return false;
 	}
 	const elem = marked[0];
+	Nimbus.lastMarked = elem;
 	elem.classList.remove(Nimbus.markerClass);
 	Nimbus.identifyClassClasses = Array.from(elem.classList.values());
 	if(Nimbus.identifyClassClasses.length)
@@ -2392,6 +2395,7 @@ function identifyClassTeardown()
 	del("#styleIdentifyClass");
 	Nimbus.identifyClassCurrentClass = null;
 	Nimbus.identifyClassClasses = null;
+	markElement(Nimbus.lastMarked);
 	showMessageBig("Identify class mode disabled");
 }
 
@@ -2447,7 +2451,7 @@ function makeIdSelector(id)
 
 function simplifyClassNames(selector)
 {
-	const sel = selector ||  "body *";
+	const sel = selector ||  "section, div, header, p, li, span";
 	const elems = get(sel);
 	const classMap = {};
 	const numClassesByTagName = {};
@@ -2496,10 +2500,10 @@ function showMessage(messageHtml, msgClass, persist)
 	let messageInner;
 	msgClass = msgClass || "";
 	const strStyle = `
-		message { display: block; background: #111; font: 12px Verdcode, Verdana; color: #888; height: 60px; line-height: 60px; position: fixed; top: calc(100vh - 60px); left: 0; width: 100%; z-index: 2147483647; }
-		messageinner { display: block; max-width: 1200px; margin: 0 auto; text-align: left; }
-		messagebig { display: block; max-width: 1200px; margin: 0 auto; text-align: left; font: 24px "swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; }
-		messageerror { display: block; max-width: 1200px; margin: 0 auto; text-align: left; font: 24px "swis721 cn bt"; color: #FFF; background: #500; height: 60px; line-height: 60px; font-weight: 500; }
+		message { display: block; background: rgba(0,0,0,0.5); font: 12px Verdcode, Verdana; color: #888; height: 60px; line-height: 60px; position: fixed; top: calc(100vh - 60px); left: 0; width: 100%; z-index: 2147483647; }
+		messageinner { display: block; text-align: left; padding: 0 2rem; }
+		messagebig { display: block; text-align: left; font: 24px "swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; padding: 0 2rem; }
+		messageerror { display: block; text-align: left; font: 24px "swis721 cn bt"; color: #DDD; background: #500; height: 60px; line-height: 60px; font-weight: 500; padding: 0 2rem; }
 	`;
 	const messageInnerTagName = msgClass ? msgClass : "messageinner";
 	if(getOne("message"))
@@ -3267,20 +3271,20 @@ function fixInternalReferences()
 {
 	replaceEmptyAnchors();
 	makeFileLinksRelative();
-	const sanitizeNumericRef = (text) => text.replace(/[^A-Za-z0-9\s\-:,\(\)]+/g, "");
+	// const sanitizeNumericRef = (text) => text.replace(/[^A-Za-z0-9\s\-:,\(\)]+/g, "");
 	const internalLinks = get('a[href^="#"]');
 	if(!internalLinks) return;
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
 	{
 		const link = internalLinks[i];
-		if(link.parentNode && link.parentNode.tagName !== "REFERENCE")
-			wrapElement(link, "reference");
 		let refText = link.textContent.trim();
-		if(refText.match(/^\[\{/))
-			refText = sanitizeNumericRef(refText);
+		if(refText.match(/^\[\d+\]$/))
+			refText = refText.replace(/[^0-9]+/g, "");
 		if(!refText.length)
 			refText = "0" + i;
 		link.textContent = refText;
+		if(link.parentNode && link.parentNode.tagName !== "REFERENCE")
+			wrapElement(link, "reference");
 	}
 	const redundantSups = select("sup", "hasChildrenOfType", "reference");
 	if(redundantSups)
@@ -4268,11 +4272,11 @@ function buildGallery()
 		return;
 	}
 	const galleryElement = createElement("slideshow", { id: "nimbusGallery" });
-	const doneImageSources = [];
+	const seen = new Set();
 	for(let i = 0, ii = images.length; i < ii; i++)
 	{
 		const image = images[i];
-		if(doneImageSources.includes(image.src))
+		if(seen.has(image.src))
 			continue;
 		let w = image.naturalWidth;
 		let h = image.naturalHeight;
@@ -4282,7 +4286,7 @@ function buildGallery()
 		if(w && h)
 			aspectRatioClass = w / h > 16 / 9 ? "aspectRatioLandscape" : "aspectRatioPortrait";
 		galleryElement.appendChild(createElement("img", { src: image.src, className: aspectRatioClass }));
-		doneImageSources.push(image.src);
+		seen.add(image.src);
 	}
 	del("img");
 	cleanupHead();
@@ -4471,7 +4475,7 @@ function replaceCommonClasses()
 {
 	replaceElementsBySelector(".pn, .pt", "h1");
 	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle", "h1");
-	replaceElementsBySelector(".cn, .ct, .chapnum, .chaptitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .chno, .chtitle, .ch-num, .ch-title", "h2");
+	replaceElementsBySelector(".cn, .ct, .chapnum, .chaptitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .chno, .chtitle, .ch-num, .ch-title, .chap-tit", "h2");
 	replaceElementsBySelector(".cst", "h3");
 	// replaceElementsBySelector("div.calibre", "section");
 	replaceElementsBySelector(".epub-i, .i", "i");
@@ -5346,7 +5350,8 @@ function resetHighlightTag()
 }
 
 function setMarkerClass(str) { Nimbus.markerClass = str; }
-function setReplacementTag(tagName) { Nimbus.replacementTagName = tagName; }
+function setReplacementTag1(tagName) { Nimbus.replacementTagName1 = tagName; }
+function setReplacementTag2(tagName) { Nimbus.replacementTagName2 = tagName; }
 function setItalicTag(tagName) { Nimbus.italicTag = tagName; }
 
 function moveElementUp(position)
@@ -5367,30 +5372,20 @@ function moveElementUp(position)
 
 function groupMarkedElements(tagName)
 {
-	const parentTagName = tagName || "ul";
-	// let childTagName = "li";
-	// switch(parentTagName)
-	// {
-	// 	case "blockquote": childTagName = "p"; break;
-	// 	case "dl": childTagName = "dt"; break;
-	// 	case "ol": childTagName = "li"; break;
-	// 	case "ul": childTagName = "li"; break;
-	// }
+	const groupTagName = tagName || "ul";
 	const elemsToJoin = getMarkedElements();
 	if(!elemsToJoin.length)
 		return;
-	const wrapper = document.createElement(parentTagName);
+	const wrapper = document.createElement(groupTagName);
 	for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
 	{
 		const elem = elemsToJoin[i];
-		// const child = convertElement(elem, childTagName);
 		const child = convertElement(elem, elem.tagName);
 		child.id = elem.id;
 		wrapper.appendChild(child);
 	}
 	insertBefore(elemsToJoin[0], wrapper);
 	del(makeClassSelector(Nimbus.markerClass));
-	deleteMessage();
 }
 
 function groupAdjacentElements(selector, parentTag, childTag)
@@ -6155,6 +6150,22 @@ function deleteNodesByRelativePosition(anchorNode, beforeOrAfter)
 		if(relativePosition & condition && !(relativePosition & Node.DOCUMENT_POSITION_CONTAINS))
 			node.remove();
 	}
+}
+
+function selectNodesByRelativePosition(anchorNode, beforeOrAfter)
+{
+	const condition = beforeOrAfter === "after" ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
+	const nodes = get("div, aside, section, article, ol, ul, p, h1, h2, h3, table, img, header, footer, blockquote, pre, hr");
+	const selected = [];
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		const relativePosition = anchorNode.compareDocumentPosition(node);
+		if(relativePosition & condition && !(relativePosition & Node.DOCUMENT_POSITION_CONTAINS))
+			selected.push(node);
+	}
+	return selected;
 }
 
 function selectNodesBetweenMarkers(selector)
@@ -7704,9 +7715,17 @@ function unwrapAll(selector)
 	if(elems)
 	{
 		const numElems = elems.length || 0;
+		let numIdsLost = 0;
 		for(let i = 0, ii = numElems; i < ii; i++)
-			unwrapElement(elems[i]);
-		showMessageBig(`${numElems} ${selector} unwrapped`);
+		{
+			const elem = elems[i];
+			if(elem.id) ++numIdsLost;
+			unwrapElement(elem);
+		}
+		if(numIdsLost)
+			showMessageError(`${numElems} ${selector} unwrapped; ${numIdsLost} ids lost`);
+		else
+			showMessageBig(`${numElems} ${selector} unwrapped`);
 	}
 }
 
@@ -8274,12 +8293,25 @@ function highlightTextAcrossTags(element, searchString)
 	}
 }
 
+function createExcerpt(elem)
+{
+	const excerpt = document.createElement("p");
+	const temp = elem.cloneNode(true);
+	while(temp.firstChild)
+		excerpt.appendChild(temp.firstChild);
+	return excerpt;
+}
+
 //	Fast search for two strings occurring in close proximity in a document.
-//	Only paragraphs are scanned. The document is modified: most importantly,
-//	paragraph IDs are replaced, so existing internal references will be destroyed.
+//	The document is modified: most importantly, paragraph IDs are replaced, so existing internal references will be destroyed.
 // 	The advantage of this approach is that as the distance goes up, the cost goes down.
 function findStringsInProximity(stringOne, stringTwo)
 {
+	if(!(typeof stringOne === "string" && typeof stringTwo === "string"))
+	{
+		showMessageError("Two strings are required");
+		return;
+	}
 	insertStyleHighlight();
 	Nimbus.highlightTagName = "markgreen";
 	highlightAllMatchesInDocument(stringOne);
@@ -8291,14 +8323,14 @@ function findStringsInProximity(stringOne, stringTwo)
 	const stringTwoLower = stringTwo.toLowerCase();
 	const DISTANCE = 2;
 	const createBracketKey = (n) => Math.round(n / DISTANCE) * DISTANCE;
-	const paras = get("p");
+	const paras = get("p, blockquote, li");
 	if(!paras) return;
 	const lookup1 = {};
 	const lookup2 = {};
 	for(let i = 0, ii = paras.length; i < ii; i++)
 	{
 		const para = paras[i];
-		para.id = `p-${i}`;
+		para.id = `p${i}`;
 		const paraText = para.textContent.toLowerCase().replace(/\s+/g, " ");
 		if(~paraText.indexOf(stringOneLower))
 		{
@@ -8314,11 +8346,21 @@ function findStringsInProximity(stringOne, stringTwo)
 		}
 	}
 
-	Nimbus.highlightTagName = "mark";
+	function getIndex(lookup, key, keyPrev, keyNext)
+	{
+		if(typeof lookup[keyPrev] === "number")
+			return lookup[keyPrev];
+		if(typeof lookup[key] === "number")
+			return lookup[key];
+		if(typeof lookup[keyNext] === "number")
+			return lookup[keyNext];
+		return false;
+	}
 
 	const keys = Object.keys(lookup1);
 	if(!keys.length)
 		return;
+
 	const resultsWrapper = createElement("div", { id: "proximateSearchResults" } );
 	resultsWrapper.appendChild(createElement( "h2", { textContent: `Proximity search results for "${stringOne}" and "${stringTwo}"` } ));
 	const resultsList = document.createElement("ol");
@@ -8327,10 +8369,10 @@ function findStringsInProximity(stringOne, stringTwo)
 	{
 		const key = keys[i];
 		const stringOneParagraphIndex = lookup1[key];
-		const keyPrev = "p" + createBracketKey(stringOneParagraphIndex - DISTANCE);
+		const keyPrev = "p" + createBracketKey(Math.max(0, stringOneParagraphIndex - DISTANCE));
 		const keyNext = "p" + createBracketKey(stringOneParagraphIndex + DISTANCE);
-		const stringTwoParagraphIndex = lookup2[key] || lookup2[keyPrev] || lookup2[keyNext];
-		if(stringTwoParagraphIndex)
+		const stringTwoParagraphIndex = getIndex(lookup2, key, keyPrev, keyNext);
+		if(stringTwoParagraphIndex !== false)
 		{
 			const firstIndex = Math.min(stringOneParagraphIndex, stringTwoParagraphIndex);
 			const secondIndex = Math.max(stringOneParagraphIndex, stringTwoParagraphIndex);
@@ -8338,10 +8380,10 @@ function findStringsInProximity(stringOne, stringTwo)
 			seen.add(firstIndex);
 			seen.add(secondIndex);
 			const areSeparateParagraphs = firstIndex !== secondIndex;
-			const firstExcerpt = cloneElementRemovingId(getOne("#p-" + firstIndex))
-			const secondExcerpt = cloneElementRemovingId(getOne("#p-" + secondIndex))
+			const firstExcerpt = createExcerpt(getOne("#p" + firstIndex))
+			const secondExcerpt = createExcerpt(getOne("#p" + secondIndex))
 			const resultsListItem = document.createElement("li");
-			const link = createElement("a", { textContent: firstIndex, href: "#p-" + firstIndex });
+			const link = createElement("a", { textContent: firstIndex, href: "#p" + firstIndex });
 			const result = areSeparateParagraphs ? createElementWithChildren("blockquote", link, firstExcerpt, secondExcerpt) : createElementWithChildren("blockquote", link, firstExcerpt);
 			resultsListItem.appendChild(result);
 			resultsList.appendChild(resultsListItem);
@@ -8604,8 +8646,8 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD_ADD: persistStreamingImages(); break;
 			case KEYCODES.NUMPAD_SUBTRACT: deletePersistedImages(); break;
 			case KEYCODES.NUMPAD_MULTIPLY: showSavedStreamingImages(); break;
-			case KEYCODES.F1: customPrompt("Enter replacement tag name").then(setReplacementTag); break;
-			case KEYCODES.F2: replaceSelectedElement(); break;
+			case KEYCODES.F1: replaceSelectedElement(Nimbus.replacementTagName1); break;
+			case KEYCODES.F2: replaceSelectedElement(Nimbus.replacementTagName2); break;
 			case KEYCODES.F3: customPrompt("Enter tag name to replace elements of the marked type with").then(replaceElementsOfMarkedTypeWith); break;
 			case KEYCODES.F11: inspect(); break;
 			case KEYCODES.F12: highlightCode(); break;
@@ -8619,7 +8661,7 @@ function handleKeyDown(e)
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
 			case KEYCODES.NINE: removeAllAttributesOfTypes(["class", "style", "align"]); unwrapAll("span"); break;
 			case KEYCODES.ZERO: cycleThroughDocumentHeadings(); break;
-			case KEYCODES.A: cycleClass(db, ["nimbusTheme1", "nimbusTheme2", "none"]); dh.className = db.className; break;
+			case KEYCODES.A: cycleClass(db, ["nimbusTheme1", "nimbusTheme2", "nimbusTheme3", "none"]); dh.className = db.className; break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteEmptyBlockElements(); break;
 			case KEYCODES.E: cycleHighlightTag(); break;
