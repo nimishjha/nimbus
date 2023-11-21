@@ -124,6 +124,8 @@ const Nimbus = {
 		groupAdjacentElements: groupAdjacentElements,
 		groupMarkedElements: groupMarkedElements,
 		groupUnderHeadings: groupUnderHeadings,
+		hideNonVideoContent: hideNonVideoContent,
+		unhideNonVideoContent: unhideNonVideoContent,
 		highlightAllMatchesInDocument: highlightAllMatchesInDocument,
 		highlightAllStrings: highlightAllStrings,
 		highlightBySelectorAndText: highlightBySelectorAndText,
@@ -6987,6 +6989,28 @@ function fixBody()
 	newBody.parentNode.replaceChild(replacement, newBody);
 }
 
+function hideNonVideoContent()
+{
+	const videos = get("video");
+	if(videos && videos.length)
+	{
+		const mainVideo = videos[0];
+		const elemsFollowing = selectNodesByRelativePosition(mainVideo, "after");
+		for(const elem of elemsFollowing)
+			elem.classList.add("nimbusHide");
+		const elemsPreceding = selectNodesByRelativePosition(mainVideo, "before");
+		for(const elem of elemsPreceding)
+			elem.classList.add("nimbusHide");
+	}
+	insertStyle(".nimbusHide { opacity: 0; }", "styleNimbusHide", true);
+}
+
+function unhideNonVideoContent()
+{
+	deleteClass("nimbusHide");
+	del("styleNimbusHide");
+}
+
 function getContentByParagraphCount()
 {
 	const LONG_PARAGRAPH_THRESHOLD = 100;
@@ -6999,7 +7023,7 @@ function getContentByParagraphCount()
 		unmarkAll();
 		deleteIframes();
 		deleteEmptyBlockElements();
-		document.body.innerHTML += "<h6>removeEventListeners</h6>";
+		// document.body.innerHTML += "<h6>removeEventListeners</h6>";
 		return;
 	}
 	del("nav");
