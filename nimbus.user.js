@@ -346,6 +346,7 @@ const Nimbus = {
 		gray: "background: #555; color: #AAA",
 		blue: "background: #008; color: #ACE",
 		yellow: "background: #000; color: #CC0",
+		green: "background: #040; color: #0C0",
 	}
 };
 
@@ -2292,7 +2293,7 @@ function log2(str)
 function logString(str, label)
 {
 	const colors = Nimbus.logColors;
-	if(label) consoleLog(`%c${label} %c${str}`, colors.blue, colors.gray);
+	if(label) consoleLog(`%c${label} %c${str}`, colors.blue, colors.green);
 	else consoleLog(`%c${str}`, colors.gray);
 }
 
@@ -7955,9 +7956,9 @@ function getAlphanumericTextLength(elem)
 	return elem.textContent.replace(/[^a-zA-Z0-9]+/g, "").length;
 }
 
-function containsOnlyPlainText(element)
+function containsOnlyPlainText(node)
 {
-	return element.children.length === 0;
+	return node.children.length === 0;
 }
 
 function toggleHighlightSelectionMode()
@@ -8244,8 +8245,6 @@ function highlightTextAcrossTags(element, searchString)
 		if(childNodeEnd < index1)
 			continue;
 
-		consoleLog(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} `, colors.blue, colors.gray, colors.blue);
-
 		const containsTheBeginning = index1 >= childNodeStart && index1 < childNodeEnd && index2 > childNodeEnd;
 		const isContained = index1 < childNodeStart && index2 > childNodeEnd;
 		const containsTheEnd = index2 >= childNodeStart && index2 <= childNodeEnd;
@@ -8259,11 +8258,22 @@ function highlightTextAcrossTags(element, searchString)
 		}
 		else if(containsTheBeginning)
 		{
-			consoleLog("contains the beginning");
+			consoleLog(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the beginning`, colors.blue, colors.gray, colors.blue, colors.green);
 			if(childNode.nodeType === 1)
 			{
-				highlightElement.appendChild(childNode.cloneNode(true));
-				replacement.appendChild(highlightElement);
+				if(containsOnlyPlainText(childNode))
+				{
+					const childNodeTagName = childNode.tagName;
+					const splitIndex = index1 - childNodeStart;
+					const textBeforeMatch = childNodeText.substring(0, splitIndex);
+					const textOfMatch = childNodeText.substring(splitIndex);
+					replacement.appendChild(createElement(childNodeTagName, { textContent: textBeforeMatch}));
+					highlightElement.appendChild(document.createTextNode(textOfMatch));
+				}
+				else
+				{
+					highlightElement.appendChild(childNode.cloneNode(true));
+				}
 			}
 			else
 			{
@@ -8273,23 +8283,35 @@ function highlightTextAcrossTags(element, searchString)
 				consoleLog(`%c${textBeforeMatch}%c${textOfMatch}`, colors.gray, colors.yellow);
 				replacement.appendChild(document.createTextNode(textBeforeMatch));
 				highlightElement.appendChild(document.createTextNode(textOfMatch));
-				replacement.appendChild(highlightElement);
 			}
+			replacement.appendChild(highlightElement);
 			toReplace = childNode;
 		}
 		else if(isContained)
 		{
-			consoleLog("is contained");
+			consoleLog(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %cis contained`, colors.blue, colors.gray, colors.blue, colors.green);
 			consoleLog(`%c${childNodeText}`, colors.yellow);
 			highlightElement.appendChild(childNode.cloneNode(true));
 			toDelete.push(childNode);
 		}
 		else if(containsTheEnd)
 		{
-			consoleLog("contains the end");
+			consoleLog(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the end`, colors.blue, colors.gray, colors.blue, colors.green);
 			if(childNode.nodeType === 1)
 			{
-				highlightElement.appendChild(childNode.cloneNode(true));
+				if(containsOnlyPlainText(childNode))
+				{
+					const childNodeTagName = childNode.tagName;
+					const splitIndex = index2 - childNodeStart;
+					const textOfMatch = childNodeText.substring(0, splitIndex);
+					const textAfterMatch = childNodeText.substring(splitIndex);
+					highlightElement.appendChild(document.createTextNode(textOfMatch));
+					replacement.appendChild(createElement(childNodeTagName, { textContent: textAfterMatch}));
+				}
+				else
+				{
+					highlightElement.appendChild(childNode.cloneNode(true));
+				}
 			}
 			else
 			{
