@@ -347,7 +347,12 @@ const Nimbus = {
 		blue: "background: #008; color: #ACE",
 		yellow: "background: #000; color: #CC0",
 		green: "background: #040; color: #0C0",
-	}
+	},
+	identifyClass: {
+		style: "{ box-shadow: 4px 4px #09C, -4px -4px #09C; }",
+		classes: null,
+		currentClass: null,
+	},
 };
 
 Nimbus.blockElementSelector = Object.keys(Nimbus.BLOCK_ELEMENTS).join();
@@ -1777,7 +1782,7 @@ function replaceSelectedElement(tagName)
 	if(node)
 	{
 		const replacementTag = tagName ? tagName : Nimbus.replacementTagName1;
-		replaceElement(node, replacementTag);
+		replaceElementKeepingId(node, replacementTag);
 	}
 }
 
@@ -2369,7 +2374,7 @@ function replaceInClassNames(str, repl)
 
 function toggleIdentifyClassMode()
 {
-	if(Nimbus.identifyClassClasses) identifyClassTeardown();
+	if(Nimbus.identifyClass.classes) identifyClassTeardown();
 	else identifyClassSetup();
 }
 
@@ -2385,19 +2390,19 @@ function identifyClassSetup()
 	const elem = marked[0];
 	Nimbus.lastMarked = elem;
 	elem.classList.remove(Nimbus.markerClass);
-	Nimbus.identifyClassClasses = Array.from(elem.classList.values());
-	if(Nimbus.identifyClassClasses.length)
+	Nimbus.identifyClass.classes = Array.from(elem.classList.values());
+	if(Nimbus.identifyClass.classes.length)
 	{
-		Nimbus.identifyClassCurrentClass = Nimbus.identifyClassClasses[0];
-		showMessageBig("Identify class mode enabled: " + Nimbus.identifyClassClasses.length + " classes");
+		Nimbus.identifyClass.currentClass = Nimbus.identifyClass.classes[0];
+		showMessageBig("Identify class mode enabled: " + Nimbus.identifyClass.classes.length + " classes");
 	}
 }
 
 function identifyClassTeardown()
 {
 	del("#styleIdentifyClass");
-	Nimbus.identifyClassCurrentClass = null;
-	Nimbus.identifyClassClasses = null;
+	Nimbus.identifyClass.currentClass = null;
+	Nimbus.identifyClass.classes = null;
 	markElement(Nimbus.lastMarked);
 	showMessageBig("Identify class mode disabled");
 }
@@ -2405,15 +2410,15 @@ function identifyClassTeardown()
 // reveals which elements a given class applies to
 function identifyClassCycleClass()
 {
-	if(!(Nimbus.identifyClassCurrentClass && Nimbus.identifyClassClasses))
+	if(!(Nimbus.identifyClass.currentClass && Nimbus.identifyClass.classes))
 		identifyClassSetup();
-	const nextClass = getNext(Nimbus.identifyClassCurrentClass, Nimbus.identifyClassClasses);
+	const nextClass = getNext(Nimbus.identifyClass.currentClass, Nimbus.identifyClass.classes);
 	if(nextClass)
 	{
 		const count = get(makeClassSelector(nextClass)).length;
 		showMessageBig(nextClass + ": " + count + " elements", true);
-		Nimbus.identifyClassCurrentClass = nextClass;
-		const style = `.${nextClass} { box-shadow: 4px 4px #09C, -4px -4px #09C; }`;
+		Nimbus.identifyClass.currentClass = nextClass;
+		const style = `.${nextClass} ${Nimbus.identifyClass.style}`;
 		insertStyle(style, "styleIdentifyClass", true);
 	}
 }
@@ -6120,7 +6125,33 @@ function deleteNodesRelativeToAnchorNode(beforeOrAfter = "after")
 		deleteNodesByRelativePosition(anchorNode, beforeOrAfter);
 }
 
+function deleteNodesByRelativePosition(anchorNode, beforeOrAfter)
+{
+	del(selectByRelativePosition(anchorNode, beforeOrAfter));
+}
+
 function deleteNodesBySelectorAndRelativePosition(selector, beforeOrAfter)
+{
+	del(selectBySelectorAndRelativePosition(selector, beforeOrAfter));
+}
+
+function selectByRelativePosition(anchorNode, beforeOrAfter)
+{
+	const condition = beforeOrAfter === "after" ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
+	const nodes = get("div, aside, section, article, ol, ul, p, h1, h2, h3, table, img, header, footer, blockquote, pre, hr");
+	const selected = [];
+	let i = nodes.length;
+	while(i--)
+	{
+		const node = nodes[i];
+		const relativePosition = anchorNode.compareDocumentPosition(node);
+		if(relativePosition & condition && !(relativePosition & Node.DOCUMENT_POSITION_CONTAINS))
+			selected.push(node);
+	}
+	return selected;
+}
+
+function selectBySelectorAndRelativePosition(selector, beforeOrAfter)
 {
 	const marked = getMarkedElements();
 	if(marked.length !== 1)
@@ -6131,34 +6162,6 @@ function deleteNodesBySelectorAndRelativePosition(selector, beforeOrAfter)
 	const anchorNode = marked[0];
 	const condition = beforeOrAfter === "after" ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
 	const nodes = get(selector);
-	let i = nodes.length;
-	while(i--)
-	{
-		const node = nodes[i];
-		const relativePosition = anchorNode.compareDocumentPosition(node);
-		if(relativePosition & condition && !(relativePosition & Node.DOCUMENT_POSITION_CONTAINS))
-			node.remove();
-	}
-}
-
-function deleteNodesByRelativePosition(anchorNode, beforeOrAfter)
-{
-	const condition = beforeOrAfter === "after" ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
-	const nodes = get("div, aside, section, article, ol, ul, p, h1, h2, h3, table, img, header, footer, blockquote, pre, hr");
-	let i = nodes.length;
-	while(i--)
-	{
-		const node = nodes[i];
-		const relativePosition = anchorNode.compareDocumentPosition(node);
-		if(relativePosition & condition && !(relativePosition & Node.DOCUMENT_POSITION_CONTAINS))
-			node.remove();
-	}
-}
-
-function selectNodesByRelativePosition(anchorNode, beforeOrAfter)
-{
-	const condition = beforeOrAfter === "after" ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
-	const nodes = get("div, aside, section, article, ol, ul, p, h1, h2, h3, table, img, header, footer, blockquote, pre, hr");
 	const selected = [];
 	let i = nodes.length;
 	while(i--)
@@ -6996,10 +6999,10 @@ function hideNonVideoContent()
 	if(videos && videos.length)
 	{
 		const mainVideo = videos[0];
-		const elemsFollowing = selectNodesByRelativePosition(mainVideo, "after");
+		const elemsFollowing = selectByRelativePosition(mainVideo, "after");
 		for(const elem of elemsFollowing)
 			elem.classList.add("nimbusHide");
-		const elemsPreceding = selectNodesByRelativePosition(mainVideo, "before");
+		const elemsPreceding = selectByRelativePosition(mainVideo, "before");
 		for(const elem of elemsPreceding)
 			elem.classList.add("nimbusHide");
 	}
@@ -8235,6 +8238,14 @@ function highlightTextAcrossTags(element, searchString)
 	let toReplace;
 	const toDelete = [];
 
+	const isIndivisibleElement = {
+		B: true,
+		I: true,
+		EM: true,
+		STRONG: true,
+		REFERENCE: true
+	};
+
 	for(let i = 0, ii = childNodes.length; i < ii; i++)
 	{
 		const childNode = childNodes[i];
@@ -8261,9 +8272,9 @@ function highlightTextAcrossTags(element, searchString)
 			consoleLog(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the beginning`, colors.blue, colors.gray, colors.blue, colors.green);
 			if(childNode.nodeType === 1)
 			{
-				if(containsOnlyPlainText(childNode))
+				const childNodeTagName = childNode.tagName;
+				if(containsOnlyPlainText(childNode) && !isIndivisibleElement[childNodeTagName])
 				{
-					const childNodeTagName = childNode.tagName;
 					const splitIndex = index1 - childNodeStart;
 					const textBeforeMatch = childNodeText.substring(0, splitIndex);
 					const textOfMatch = childNodeText.substring(splitIndex);
@@ -8299,7 +8310,8 @@ function highlightTextAcrossTags(element, searchString)
 			consoleLog(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the end`, colors.blue, colors.gray, colors.blue, colors.green);
 			if(childNode.nodeType === 1)
 			{
-				if(containsOnlyPlainText(childNode))
+				const childNodeTagName = childNode.tagName;
+				if(containsOnlyPlainText(childNode) && !isIndivisibleElement[childNodeTagName])
 				{
 					const childNodeTagName = childNode.tagName;
 					const splitIndex = index2 - childNodeStart;
@@ -8367,8 +8379,8 @@ function findStringsInProximity(stringOne, stringTwo)
 
 	const stringOneLower = stringOne.toLowerCase();
 	const stringTwoLower = stringTwo.toLowerCase();
-	const DISTANCE = 2;
-	const createBracketKey = (n) => Math.round(n / DISTANCE) * DISTANCE;
+	const BRACKET_SIZE = 2;
+	const createBracketKey = (n) => Math.round(n / BRACKET_SIZE) * BRACKET_SIZE;
 	const paras = get("p, blockquote, li");
 	if(!paras) return;
 	const lookup1 = {};
@@ -8415,14 +8427,15 @@ function findStringsInProximity(stringOne, stringTwo)
 	{
 		const key = keys[i];
 		const stringOneParagraphIndex = lookup1[key];
-		const keyPrev = "p" + createBracketKey(Math.max(0, stringOneParagraphIndex - DISTANCE));
-		const keyNext = "p" + createBracketKey(stringOneParagraphIndex + DISTANCE);
+		const keyPrev = "p" + createBracketKey(Math.max(0, stringOneParagraphIndex - BRACKET_SIZE));
+		const keyNext = "p" + createBracketKey(stringOneParagraphIndex + BRACKET_SIZE);
 		const stringTwoParagraphIndex = getIndex(lookup2, key, keyPrev, keyNext);
 		if(stringTwoParagraphIndex !== false)
 		{
 			const firstIndex = Math.min(stringOneParagraphIndex, stringTwoParagraphIndex);
+			if(seen.has(firstIndex)) continue;
 			const secondIndex = Math.max(stringOneParagraphIndex, stringTwoParagraphIndex);
-			if(seen.has(firstIndex) || seen.has(secondIndex)) continue;
+			if(seen.has(secondIndex)) continue;
 			seen.add(firstIndex);
 			seen.add(secondIndex);
 			const areSeparateParagraphs = firstIndex !== secondIndex;
@@ -8818,6 +8831,8 @@ function handleKeyDown(e)
 			case KEYCODES.FOUR: toggleStyle(STYLES.SIMPLE_NEGATIVE_3, "styleSimpleNegative", true); break;
 			case KEYCODES.FIVE: toggleStyleGrayscale(); break;
 			case KEYCODES.SIX: toggleStyle(STYLES.MIN_FONT_SIZE, "styleMinFontSize", true); break;
+			case KEYCODES.NINE: hideNonVideoContent(); break;
+			case KEYCODES.ZERO: unhideNonVideoContent(); break;
 			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
 			case KEYCODES.B: toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
