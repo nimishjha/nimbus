@@ -123,6 +123,8 @@ const Nimbus = {
 		getBestImageSrc: getBestImageSrc,
 		getContentByParagraphCount: getContentByParagraphCount,
 		getPageNavLinks: getPageNavLinks,
+		goToLastElement: goToLastElement,
+		goToNextElement: goToNextElement,
 		groupAdjacentElements: groupAdjacentElements,
 		groupMarkedElements: groupMarkedElements,
 		groupUnderHeadings: groupUnderHeadings,
@@ -354,6 +356,11 @@ const Nimbus = {
 		style: "{ box-shadow: 4px 4px #09C, -4px -4px #09C; }",
 		classes: null,
 		currentClass: null,
+	},
+	goToNextElement: {
+		selector: null,
+		elements: [],
+		currentElement: null,
 	},
 };
 
@@ -5380,6 +5387,45 @@ function moveElementUp(position)
 	}
 }
 
+function goToNextElement(selector)
+{
+	const config = Nimbus.goToNextElement;
+	if(selector)
+	{
+		config.selector = selector;
+		config.elements = get(selector);
+		if(config.elements.length)
+		{
+			config.currentElement = config.elements[0];
+			config.currentElement.scrollIntoView();
+		}
+	}
+	else
+	{
+		const elementToScrollTo = getNext(config.currentElement, config.elements);
+		if(elementToScrollTo)
+		{
+			config.currentElement = elementToScrollTo;
+			elementToScrollTo.scrollIntoView();
+		}
+	}
+}
+
+function goToLastElement(selector)
+{
+	const config = Nimbus.goToNextElement;
+	if(selector)
+	{
+		config.selector = selector;
+		config.elements = get(selector);
+		if(config.elements.length)
+		{
+			config.currentElement = config.elements[config.elements.length - 1];
+			config.currentElement.scrollIntoView();
+		}
+	}
+}
+
 function groupMarkedElements(tagName)
 {
 	const groupTagName = tagName || "ul";
@@ -8816,8 +8862,8 @@ function handleKeyDown(e)
 			case KEYCODES.FORWARD_SLASH: focusButton(); break;
 			case KEYCODES.F12: highlightCode(true); break;
 			case KEYCODES.MINUS: callFunctionWithArgs("Insert HR before all (selector)", insertHrBeforeAll); break;
-			case KEYCODES.SQUARE_BRACKET_OPEN: slideshowChangeSlide("previous"); break;
-			case KEYCODES.SQUARE_BRACKET_CLOSE: slideshowChangeSlide("next"); break;
+			case KEYCODES.SQUARE_BRACKET_OPEN: goToNextElement("mark"); break;
+			case KEYCODES.SQUARE_BRACKET_CLOSE: goToNextElement(); break;
 			default: shouldPreventDefault = false; break;
 		}
 		if(shouldPreventDefault)
