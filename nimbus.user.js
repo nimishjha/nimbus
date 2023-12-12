@@ -90,6 +90,8 @@ const Nimbus = {
 		deleteNonContentLists: deleteNonContentLists,
 		deleteNonContentLinks: deleteNonContentLinks,
 		deletePersistedImages: deletePersistedImages,
+		deletePrecedingNodesBySelector: deletePrecedingNodesBySelector,
+		deleteFollowingNodesBySelector: deleteFollowingNodesBySelector,
 		deleteResources: deleteResources,
 		deleteSmallImages: deleteSmallImages,
 		delRange: delRange,
@@ -6133,6 +6135,16 @@ function deleteNodesByRelativePosition(anchorNode, beforeOrAfter)
 function deleteNodesBySelectorAndRelativePosition(selector, beforeOrAfter)
 {
 	del(selectBySelectorAndRelativePosition(selector, beforeOrAfter));
+}
+
+function deletePrecedingNodesBySelector(selector)
+{
+	del(selectBySelectorAndRelativePosition(selector, "before"));
+}
+
+function deleteFollowingNodesBySelector(selector)
+{
+	del(selectBySelectorAndRelativePosition(selector, "after"));
 }
 
 function selectByRelativePosition(anchorNode, beforeOrAfter)
