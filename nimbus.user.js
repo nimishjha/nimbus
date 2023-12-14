@@ -13,7 +13,7 @@
 
 //
 //	Nimbus
-//	Copyright (C) 2008-2023 Nimish Jha
+//	Copyright (C) 2008-2024 Nimish Jha
 //
 //	This program is free software: you can redistribute it and/or modify
 //	it under the terms of the GNU General Public License as published by
@@ -219,6 +219,7 @@ const Nimbus = {
 		replaceEmptyParagraphsWithHr: replaceEmptyParagraphsWithHr,
 		replaceFontTags: replaceFontTags,
 		replaceIframes: replaceIframes,
+		replaceMarkedWithTextElement: replaceMarkedWithTextElement,
 		replaceImagesWithAltText: replaceImagesWithAltText,
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
 		replaceInClassNames: replaceInClassNames,
@@ -463,6 +464,7 @@ const STYLES = {
 		#inspector div { box-shadow: none; margin: 0; padding: 0; }
 		#inspector::after, #inspector div::after { display: none; }
 	`,
+	INVERT_IMAGES: "img { filter: invert(1) hue-rotate(180deg); }",
 };
 
 //	Useful wrapper around document.querySelector() and document.querySelectorAll()
@@ -1272,6 +1274,18 @@ function replaceLongTextLinks()
 	}
 }
 
+function replaceMarkedWithTextElement(tagName, text)
+{
+	const elems = getMarkedElements();
+	if(!elems) return;
+	for(const elem of elems)
+	{
+		const replacement = document.createElement(tagName);
+		replacement.textContent = text;
+		elem.parentNode.replaceChild(replacement, elem);
+	}
+}
+
 function getTitleWithoutDomainTag()
 {
 	if(document.title)
@@ -1830,7 +1844,7 @@ function replaceElementsBySelector(selector, tagName)
 		showMessageBig(`Replacing <b>${toReplace.length} ${selector}</b> with <b>${tagName}</b>`);
 		let deletedTextLength = 0;
 		let i = toReplace.length;
-		if(tagName === "hr")
+		if(tagName === "hr" && toReplace[0].tagName !== "RT")
 		{
 			while(i--)
 			{
@@ -1860,7 +1874,7 @@ function replaceElementsBySelector(selector, tagName)
 	else if(toReplace && toReplace.parentNode)
 	{
 		showMessageBig("Replacing one " + selector);
-		replaceElement(toReplace, tagName);
+		replaceElementKeepingId(toReplace, tagName);
 	}
 }
 
@@ -2390,6 +2404,7 @@ function toggleIdentifyClassMode()
 // takes a marked element, and sets up an array of its classes to cycle through
 function identifyClassSetup()
 {
+	const config = Nimbus.identifyClass;
 	const marked = getMarkedElements();
 	if(marked.length !== 1)
 	{
@@ -2399,19 +2414,20 @@ function identifyClassSetup()
 	const elem = marked[0];
 	Nimbus.lastMarked = elem;
 	elem.classList.remove(Nimbus.markerClass);
-	Nimbus.identifyClass.classes = Array.from(elem.classList.values());
-	if(Nimbus.identifyClass.classes.length)
+	config.classes = Array.from(elem.classList.values());
+	if(config.classes.length)
 	{
-		Nimbus.identifyClass.currentClass = Nimbus.identifyClass.classes[0];
-		showMessageBig("Identify class mode enabled: " + Nimbus.identifyClass.classes.length + " classes");
+		config.currentClass = config.classes[0];
+		showMessageBig("Identify class mode enabled: " + config.classes.length + " classes");
 	}
 }
 
 function identifyClassTeardown()
 {
 	del("#styleIdentifyClass");
-	Nimbus.identifyClass.currentClass = null;
-	Nimbus.identifyClass.classes = null;
+	const config = Nimbus.identifyClass;
+	config.currentClass = null;
+	config.classes = null;
 	markElement(Nimbus.lastMarked);
 	showMessageBig("Identify class mode disabled");
 }
@@ -2419,15 +2435,16 @@ function identifyClassTeardown()
 // reveals which elements a given class applies to
 function identifyClassCycleClass()
 {
-	if(!(Nimbus.identifyClass.currentClass && Nimbus.identifyClass.classes))
+	const config = Nimbus.identifyClass;
+	if(!(config.currentClass && config.classes))
 		identifyClassSetup();
-	const nextClass = getNext(Nimbus.identifyClass.currentClass, Nimbus.identifyClass.classes);
+	const nextClass = getNext(config.currentClass, config.classes);
 	if(nextClass)
 	{
 		const count = get(makeClassSelector(nextClass)).length;
 		showMessageBig(nextClass + ": " + count + " elements", true);
-		Nimbus.identifyClass.currentClass = nextClass;
-		const style = `.${nextClass} ${Nimbus.identifyClass.style}`;
+		config.currentClass = nextClass;
+		const style = `.${nextClass} ${config.style}`;
 		insertStyle(style, "styleIdentifyClass", true);
 	}
 }
@@ -4010,7 +4027,6 @@ function getBestImageSrc()
 			{
 				const newImage = document.createElement("img");
 				newImage.src = imageData.bestSource;
-				markElement(newImage);
 				img.parentNode.replaceChild(newImage, img);
 			}
 		}
@@ -6425,6 +6441,7 @@ function cleanupDocument()
 	getBestImageSrc();
 	document.body.className = "pad100 xwrap";
 	document.documentElement.id = "nimbus";
+	document.documentElement.className = "";
 	document.body.id = "nimbus";
 	if(~navigator.userAgent.indexOf("Chrome"))
 	{
@@ -8428,6 +8445,7 @@ function findStringsInProximity(stringOne, stringTwo)
 		showMessageError("Two strings are required");
 		return;
 	}
+	del("#proximateSearchResults");
 	insertStyleHighlight();
 	Nimbus.highlightTagName = "markgreen";
 	highlightAllMatchesInDocument(stringOne);
@@ -8897,7 +8915,7 @@ function handleKeyDown(e)
 			case KEYCODES.F: del(["object", "embed", "video", "iframe"]); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements with class or id containing the string", deleteByClassOrIdContaining); break;
 			case KEYCODES.H: callFunctionWithArgs("Mark elements by selector", markBySelector, 1); break;
-			case KEYCODES.I: callFunctionWithArgs("Delete image by number", deleteImageByNumber, 1); break;
+			case KEYCODES.I: toggleStyle(STYLES.INVERT_IMAGES, "styleInvertImages", true); break;
 			case KEYCODES.J: deleteNodesBeforeAnchorNode(); break;
 			case KEYCODES.K: deleteNodesAfterAnchorNode(); break;
 			case KEYCODES.L: deleteNodesBetweenMarkers(); break;
@@ -8954,7 +8972,13 @@ function handleKeyDown(e)
 
 function main()
 {
-	setTimeout(inject, 200);
+	const excludedDomains = [
+		"mail.proton.me"
+	];
+	if(!excludedDomains.includes(location.hostname))
+		setTimeout(inject, 200);
+	else
+		console.log("Nimbus: is excluded domain, not injecting");
 }
 
 main();
