@@ -205,6 +205,7 @@ const Nimbus = {
 		removeQueryStringFromImageSources: removeQueryStringFromImageSources,
 		removeQueryStringFromLinks: removeQueryStringFromLinks,
 		removeQueryStringFromLinksMatching: removeQueryStringFromLinksMatching,
+		removeRedundantHrs: removeRedundantHrs,
 		removeSpanTags: removeSpanTags,
 		replaceAudio: replaceAudio,
 		replaceBrs: replaceBrs,
@@ -884,6 +885,32 @@ function createElement(tag, props)
 	return elem;
 }
 
+function removeRedundantHrs()
+{
+	const makesHrRedundant = {
+		H1: true,
+		H2: true,
+		H3: true,
+		HR: true,
+		FIGURE: true,
+		RT: true,
+		BLOCKQUOTE: true
+	};
+	const elems = get("hr");
+	let count = 0;
+	for(const elem of elems)
+	{
+		const prev = elem.previousElementSibling;
+		const next = elem.nextElementSibling;
+		if( (prev && makesHrRedundant[prev.tagName]) || (next && makesHrRedundant[next.tagName]) )
+		{
+			count++;
+			elem.remove();
+		}
+	}
+	showMessageBig(count + " redundant hrs removed");
+}
+
 function removeLineBreaks(str)
 {
 	return str.replace(/[\r\n\s]+/g, " ");
@@ -1066,6 +1093,15 @@ function hasDirectChildrenOfType(elem, selector)
 	if(!children.length) return false;
 	for(let i = 0, ii = children.length; i < ii; i++)
 		if(children[i].matches(selector)) return true;
+	return false;
+}
+
+function hasOnlyChildOfType(elem, selector)
+{
+	const children = elem.children;
+	if(!children.length) return false;
+	if(children.length !== 1) return false;
+	if(children[0].matches(selector)) return true;
 	return false;
 }
 
@@ -3308,16 +3344,25 @@ function fixInternalReferences()
 	// const sanitizeNumericRef = (text) => text.replace(/[^A-Za-z0-9\s\-:,\(\)]+/g, "");
 	const internalLinks = get('a[href^="#"]');
 	if(!internalLinks) return;
+	const tagsNotToMakeReferencesUnder = {
+		"REFERENCE": true,
+		"H1": true,
+		"H2": true,
+		"H3": true,
+		"H4": true,
+		"H5": true,
+		"H6": true,
+	};
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
 	{
 		const link = internalLinks[i];
 		let refText = link.textContent.trim();
-		if(refText.match(/^\[\d+\]$/))
+		if(refText.match(/^\[\d+\]$/) || refText.match(/^\{\d+\}$/))
 			refText = refText.replace(/[^0-9]+/g, "");
 		if(!refText.length)
 			refText = "0" + i;
 		link.textContent = refText;
-		if(link.parentNode && link.parentNode.tagName !== "REFERENCE")
+		if(link.parentNode && !tagsNotToMakeReferencesUnder[link.parentNode.tagName])
 			wrapElement(link, "reference");
 	}
 	const redundantSups = select("sup", "hasChildrenOfType", "reference");
@@ -3388,7 +3433,8 @@ function markNumericElements(selector)
 	while(i--)
 	{
 		const elem = elements[i];
-		let elemText = elem.textContent;
+		if(getTextLength(elem) === 0) continue;
+		let elemText = elem.textContent.replace(/\s+/g, "");
 		if(elemText && !isNaN(Number(elemText)))
 			markElement(elem);
 	}
@@ -4508,8 +4554,11 @@ function replaceCommonClasses()
 {
 	replaceElementsBySelector(".pn, .pt", "h1");
 	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle", "h1");
-	replaceElementsBySelector(".cn, .ct, .chapnum, .chaptitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .chno, .chtitle, .ch-num, .ch-title, .chap-tit", "h2");
+	replaceElementsBySelector(".cn, .ct, .chapnum, .chapter, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit", "h2");
 	replaceElementsBySelector(".cst", "h3");
+	replaceElementsBySelector(".figcap", "figcaption");
+	replaceElementsBySelector(".figure", "figure");
+
 	// replaceElementsBySelector("div.calibre", "section");
 	replaceElementsBySelector(".epub-i, .i", "i");
 	replaceElementsBySelector(".epub-b, .b", "b");
@@ -7096,13 +7145,11 @@ function getContentByParagraphCount()
 	const markedElements = getMarkedElements();
 	if(markedElements.length)
 	{
-		// const title = document.title;
 		retrieve(makeClassSelector(Nimbus.markerClass));
 		cleanupDocument();
 		unmarkAll();
 		deleteIframes();
 		deleteEmptyBlockElements();
-		// document.body.innerHTML += "<h6>removeEventListeners</h6>";
 		return;
 	}
 	del("nav");
