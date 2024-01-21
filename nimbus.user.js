@@ -4554,7 +4554,7 @@ function replaceCommonClasses()
 {
 	replaceElementsBySelector(".pn, .pt", "h1");
 	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle", "h1");
-	replaceElementsBySelector(".cn, .ct, .chapnum, .chapter, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit", "h2");
+	replaceElementsBySelector(".cn, .ct, .chapnum, .chapter, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num", "h2");
 	replaceElementsBySelector(".cst", "h3");
 	replaceElementsBySelector(".figcap", "figcaption");
 	replaceElementsBySelector(".figure", "figure");
@@ -7117,12 +7117,25 @@ function fixBody()
 	newBody.parentNode.replaceChild(replacement, newBody);
 }
 
+function getCurrentlyPlayingVideo(videos)
+{
+	for(const video of videos) {
+		if(!video.paused)
+			return video;
+	}
+}
+
 function hideNonVideoContent()
 {
 	const videos = get("video");
 	if(videos && videos.length)
 	{
-		const mainVideo = videos[0];
+		const mainVideo = getCurrentlyPlayingVideo(videos);
+		if(!mainVideo)
+		{
+			showMessageBig("Could not find currently playing video");
+			return;
+		}
 		const elemsFollowing = selectByRelativePosition(mainVideo, "after");
 		for(const elem of elemsFollowing)
 			elem.classList.add("nimbusHide");
