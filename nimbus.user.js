@@ -209,6 +209,7 @@ const Nimbus = {
 		removeSpanTags: removeSpanTags,
 		replaceAudio: replaceAudio,
 		replaceBrs: replaceBrs,
+		replaceBrsInPres: replaceBrsInPres,
 		replaceByClassOrIdContaining: replaceByClassOrIdContaining,
 		replaceClass: replaceClass,
 		replaceClassesWithCustomElements: replaceClassesWithCustomElements,
@@ -2521,7 +2522,8 @@ function makeIdSelector(id)
 
 function simplifyClassNames(selector)
 {
-	const sel = selector ||  "section, div, header, p, li, span";
+	removeAttributeOf("i, em, b, strong, a", "class");
+	const sel = selector ||  "section, div, header, p, ul, ol, li, span, table, tbody, thead, tr, td, th";
 	const elems = get(sel);
 	const classMap = {};
 	const numClassesByTagName = {};
@@ -2655,7 +2657,7 @@ function callFunctionWithArgs(promptMessage, callback, numArgs, initialValue)
 				callFunctionWithArgs(promptMessage, callback, numArgs);
 				return;
 			}
-			console.log(`%c${promptMessage}: ${args.join()}`, 'color: #FF0');
+			console.log(`%c${promptMessage}: ${args.join(", ")}`, 'color: #FF0');
 			callback.apply(null, args);
 		}
 		else
@@ -4552,12 +4554,15 @@ function makeHeadings()
 
 function replaceCommonClasses()
 {
-	replaceElementsBySelector(".pn, .pt", "h1");
-	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle", "h1");
-	replaceElementsBySelector(".cn, .ct, .chapnum, .chapter, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num", "h2");
-	replaceElementsBySelector(".cst", "h3");
+	replaceElementsBySelector("strong", "b");
+	replaceElementsBySelector("em", "i");
+
+	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle, .pt-num, .pt-title", "h1");
+	replaceElementsBySelector(".cn, .ct, .chapnum, .chapter, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num", "h2");
+	replaceElementsBySelector(".cst, .h", "h3");
 	replaceElementsBySelector(".figcap", "figcaption");
 	replaceElementsBySelector(".figure", "figure");
+	replaceElementsBySelector(".fn, .fn1", "footnote");
 
 	// replaceElementsBySelector("div.calibre", "section");
 	replaceElementsBySelector(".epub-i, .i", "i");
@@ -6772,6 +6777,7 @@ function logHrefsOnClick(evt)
 	const href = link.href;
 	if(href)
 	{
+		console.log(href);
 		const link = createElement("a", { textContent: href, href: href });
 		const linkWrapper = createElementWithChildren("h6", link);
 		document.body.appendChild(linkWrapper);
