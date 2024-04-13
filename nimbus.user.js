@@ -892,10 +892,12 @@ function removeRedundantHrs()
 		H1: true,
 		H2: true,
 		H3: true,
+		H4: true,
 		HR: true,
 		FIGURE: true,
 		RT: true,
-		BLOCKQUOTE: true
+		BLOCKQUOTE: true,
+		HEADER: true,
 	};
 	const elems = get("hr");
 	let count = 0;
@@ -908,6 +910,11 @@ function removeRedundantHrs()
 			count++;
 			elem.remove();
 		}
+	}
+	const firstAndLastHrs = get("hr:first-child, hr:last-child");
+	if(firstAndLastHrs.length) {
+		count += firstAndLastHrs.length;
+		del(firstAndLastHrs);
 	}
 	showMessageBig(count + " redundant hrs removed");
 }
@@ -2573,7 +2580,7 @@ function showMessage(messageHtml, msgClass, persist)
 	msgClass = msgClass || "";
 	const strStyle = `
 		message { display: block; background: rgba(0,0,0,0.5); font: 12px Verdcode, Verdana; color: #888; height: 60px; line-height: 60px; position: fixed; top: calc(100vh - 60px); left: 0; width: 100%; z-index: 2147483647; }
-		messageinner { display: block; text-align: left; padding: 0 2rem; }
+		messageinner { display: block; text-align: left; padding: 0 2rem; font: 18px "swis721 cn bt"; height: 60px; line-height: 60px; }
 		messagebig { display: block; text-align: left; font: 24px "swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; padding: 0 2rem; }
 		messageerror { display: block; text-align: left; font: 24px "swis721 cn bt"; color: #DDD; background: #500; height: 60px; line-height: 60px; font-weight: 500; padding: 0 2rem; }
 	`;
