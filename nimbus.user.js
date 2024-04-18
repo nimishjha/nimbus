@@ -7670,14 +7670,15 @@ function logMutations(mutations)
 		}
 		else if(mutation.type === "attributes")
 		{
-			console.log(padRight("Mutation: attribute", 25) + padRight(createSelector(mutation.target), 50) + "'" + mutation.attributeName + "' changed to '" + mutation.target.getAttribute(mutation.attributeName) + "'");
+			if(!Nimbus.attributeFilter || (Nimbus.attributeFilter && mutation.attributeName.includes(Nimbus.attributeFilter)))
+				console.log(`%c${mutation.attributeName}: %c${createSelector(mutation.target)}`, "color: #0F0", "color: #CCC");
 		}
 	}
 }
 
 //	Useful for finding out what's changing in the DOM when, for instance, you hover over an element
 //	and a popup appears, or similar things that regular developer tools are no good for.
-function toggleMutationObserver(watchAttributes, mutationFilterSelector = null)
+function toggleMutationObserver(watchAttributes, mutationFilterSelector = null, attributeFilter = null)
 {
 	if(Nimbus.isObservingMutations)
 	{
@@ -7687,6 +7688,7 @@ function toggleMutationObserver(watchAttributes, mutationFilterSelector = null)
 		return;
 	}
 	Nimbus.mutationFilterSelector = mutationFilterSelector;
+	Nimbus.attributeFilter = attributeFilter;
 	Nimbus.observer = new MutationObserver(logMutations);
 	let config = { childList: true };
 	let message = "Observing mutations";
