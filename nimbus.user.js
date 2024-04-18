@@ -2575,8 +2575,6 @@ function showMessage(messageHtml, msgClass, persist)
 {
 	const MESSAGE_TIMEOUT = 2000;
 	clearTimeout(Nimbus.messageTimeout);
-	let messageContainer;
-	let messageInner;
 	msgClass = msgClass || "";
 	const strStyle = `
 		message { display: block; background: rgba(0,0,0,0.5); font: 12px Verdcode, Verdana; color: #888; height: 60px; line-height: 60px; position: fixed; top: calc(100vh - 60px); left: 0; width: 100%; z-index: 2147483647; }
@@ -2589,8 +2587,11 @@ function showMessage(messageHtml, msgClass, persist)
 	{
 		del("message");
 	}
-	messageContainer = createElement("message");
-	messageInner = document.createElement(messageInnerTagName);
+	const messageContainer = createElement("message");
+	const messageInner = document.createElement(messageInnerTagName);
+	const messageContent = document.createElement("div");
+	messageContent.innerHTML = messageHtml;
+	messageInner.appendChild(messageContent);
 	messageContainer.appendChild(messageInner);
 	document.body.appendChild(messageContainer);
 	if(!getOne("#styleMessage"))
@@ -3014,7 +3015,7 @@ function autoCompleteInputBox()
 
 	function renderMatches()
 	{
-		let s = "";
+		const matchList = document.createElement("div");
 		const numMatches = inputComponent.matches.length;
 		if(numMatches === 1)
 		{
@@ -3023,12 +3024,14 @@ function autoCompleteInputBox()
 		}
 		for(let i = 0, ii = numMatches; i < ii; i++)
 		{
-			if(inputComponent.currentIndex === i)
-				s += '<match class="current">' + inputComponent.matches[i] + "</match>";
-			else
-				s += '<match>' + inputComponent.matches[i] + "</match>";
+			const match = document.createElement("match");
+			if(inputComponent.currentIndex === i) match.className = "current";
+			match.textContent = inputComponent.matches[i];
+			matchList.appendChild(match);
 		}
-		getOne("#autoCompleteMatches").innerHTML = s;
+		const matchesContainer = getOne("#autoCompleteMatches");
+		matchesContainer.textContent = "";
+		matchesContainer.appendChild(matchList);
 	}
 
 	function showMatches(str)
