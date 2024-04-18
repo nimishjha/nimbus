@@ -382,6 +382,7 @@ const STYLES = {
 		a { text-decoration: none; }
 	`,
 	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); line-height: 1.4; }`,
+	GITHUB_HIDE_DELETE_DIFFS: ".blob-num-deletion, .blob-code-deletion { display: none; }",
 	DIM_BODY: 'html, body { background: #000; color: #AAA; } body { opacity: 0.7; } ',
 	SIMPLE_NEGATIVE: `
 		html, body, body[class] { background: #000; font-family: "swis721 cn bt"; font-size: 22px; }
@@ -8985,6 +8986,7 @@ function handleKeyDown(e)
 			case KEYCODES.FOUR: toggleStyle(STYLES.SIMPLE_NEGATIVE_3, "styleSimpleNegative", true); break;
 			case KEYCODES.FIVE: toggleStyleGrayscale(); break;
 			case KEYCODES.SIX: toggleStyle(STYLES.MIN_FONT_SIZE, "styleMinFontSize", true); break;
+			case KEYCODES.SEVEN: toggleStyle(STYLES.GITHUB_HIDE_DELETE_DIFFS, "styleGithubHideDeleteDiffs", true); break;
 			case KEYCODES.NINE: hideNonVideoContent(); break;
 			case KEYCODES.ZERO: unhideNonVideoContent(); break;
 			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
