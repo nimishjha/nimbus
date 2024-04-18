@@ -2531,7 +2531,7 @@ function makeIdSelector(id)
 function simplifyClassNames(selector)
 {
 	removeAttributeOf("i, em, b, strong, a", "class");
-	const sel = selector ||  "section, div, header, p, ul, ol, li, span, table, tbody, thead, tr, td, th";
+	const sel = selector ||  "section, div, header, p, ul, ol, li, span, table, tbody, thead, tr, td, th, blockquote";
 	const elems = get(sel);
 	const classMap = {};
 	const numClassesByTagName = {};
@@ -2750,7 +2750,7 @@ function editStyleById(styleId)
 		return;
 	}
 	styleId = makeIdSelector(styleId);
-	const styleElem = get(styleId);
+	const styleElem = getOne(styleId);
 	if(!styleElem)
 	{
 		showMessageBig("Could not get style with id " + styleId);
@@ -2776,7 +2776,7 @@ function toggleConsole(consoleType)
 	let dialogStyle;
 	const consoleBackgroundColor = consoleType === "css" ? "#036" : "#000";
 	dialogStyle = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; }' +
-		'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: 22px Consolas, Verdana; width: 100%; height: 100%; padding: 10px 40px; border: 0; outline: 0; }';
+		'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: 16px Consolas, Verdana; width: 100%; height: 100%; padding: 10px 40px; border: 0; outline: 0; }';
 	insertStyle(dialogStyle, "styleUserInputWrapper", true);
 
 	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
@@ -4599,6 +4599,7 @@ function replaceCommonClasses()
 	replaceElementsBySelector("span[class*=small]", "small");
 
 	replaceElementsBySelector("body > div", "section");
+	deleteEmptyElements("section");
 
 	document.body.innerHTML = document.body.innerHTML.replaceAll("calibre_link-", "l");
 }
@@ -6065,22 +6066,22 @@ function toggleStyleNegative()
 	pre xk { color: #0099FF; }
 	pre xh { color: #AADDCC; }
 
-	X0 { color: #AA99BB; }
-	X1 { color: #BB7777; }
-	X2 { color: #9966BB; }
-	X3 { color: #AA77AA; }
-	X4 { color: #885566; }
-	X5 { color: #665577; }
-	X6 { color: #556699; }
-	X7 { color: #558866; }
-	X8 { color: #BB5588; }
-	X9 { color: #885577; }
-	X10 { color: #BB8866; }
-	X11 { color: #558866; }
-	X12 { color: #8888BB; }
-	X13 { color: #BB77AA; }
-	X14 { color: #5566AA; }
-	X15 { color: #4444AA; }
+	X0 { color: #664477; }
+	X1 { color: #6677CC; }
+	X2 { color: #6644BB; }
+	X3 { color: #666688; }
+	X4 { color: #6666FF; }
+	X5 { color: #774488; }
+	X6 { color: #667777; }
+	X7 { color: #667766; }
+	X8 { color: #6655DD; }
+	X9 { color: #666677; }
+	X10 { color: #6644AA; }
+	X11 { color: #777788; }
+	X12 { color: #665566; }
+	X13 { color: #7744DD; }
+	X14 { color: #774488; }
+	X15 { color: #6677EE; }
 
 	XC { color: #1CF; background: #247; }
 	XK { color: #1177CC; }
@@ -6982,7 +6983,7 @@ function deleteNonContentLinks()
 function fixBullets(elems)
 {
 	const BULLET_REGEX = /^\s*\u2022/;
-	const NUMERICBULLET_REGEX = /^\s*[0-9]+[\.\)]?/;
+	const NUMERICBULLET_REGEX = /^\s*\(?[0-9]+[\.\)]?/;
 	let ulCount = 0;
 	let olCount = 0;
 	const lis = elems || get("ol > li");
