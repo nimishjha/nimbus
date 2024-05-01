@@ -125,6 +125,7 @@ const Nimbus = {
 		getPageNavLinks: getPageNavLinks,
 		goToLastElement: goToLastElement,
 		goToNextElement: goToNextElement,
+		goToPrevElement: goToPrevElement,
 		groupAdjacentElements: groupAdjacentElements,
 		groupMarkedElements: groupMarkedElements,
 		groupUnderHeadings: groupUnderHeadings,
@@ -2326,6 +2327,18 @@ function getNext(item, arr)
 		nextItem = arr[nextIndex];
 	}
 	return nextItem;
+}
+
+function getPrev(item, arr)
+{
+	let prevItem = arr[0];
+	const index = arr.indexOf(item);
+	if(~index)
+	{
+		const prevIndex = index > 0 ? index - 1 : arr.length - 1;
+		prevItem = arr[prevIndex];
+	}
+	return prevItem;
 }
 
 function createUUID()
@@ -5485,6 +5498,30 @@ function goToNextElement(selector)
 	else
 	{
 		const elementToScrollTo = getNext(config.currentElement, config.elements);
+		if(elementToScrollTo)
+		{
+			config.currentElement = elementToScrollTo;
+			elementToScrollTo.scrollIntoView();
+		}
+	}
+}
+
+function goToPrevElement(selector)
+{
+	const config = Nimbus.goToNextElement;
+	if(selector)
+	{
+		config.selector = selector;
+		config.elements = get(selector);
+		if(config.elements.length)
+		{
+			config.currentElement = config.elements[0];
+			config.currentElement.scrollIntoView();
+		}
+	}
+	else
+	{
+		const elementToScrollTo = getPrev(config.currentElement, config.elements);
 		if(elementToScrollTo)
 		{
 			config.currentElement = elementToScrollTo;
@@ -8960,7 +8997,7 @@ function handleKeyDown(e)
 			case KEYCODES.FORWARD_SLASH: focusButton(); break;
 			case KEYCODES.F12: highlightCode(true); break;
 			case KEYCODES.MINUS: callFunctionWithArgs("Insert HR before all (selector)", insertHrBeforeAll); break;
-			case KEYCODES.SQUARE_BRACKET_OPEN: goToNextElement("mark"); break;
+			case KEYCODES.SQUARE_BRACKET_OPEN: goToPrevElement(); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: goToNextElement(); break;
 			default: shouldPreventDefault = false; break;
 		}
