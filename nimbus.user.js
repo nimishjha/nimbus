@@ -355,6 +355,7 @@ const Nimbus = {
 		blue: "background: #008; color: #ACE",
 		yellow: "background: #000; color: #CC0",
 		green: "background: #040; color: #0C0",
+		red: "background: #600; color: #C00",
 	},
 	identifyClass: {
 		style: "{ box-shadow: 4px 4px #09C, -4px -4px #09C; }",
@@ -900,6 +901,8 @@ function removeRedundantHrs()
 		RT: true,
 		BLOCKQUOTE: true,
 		HEADER: true,
+		UL: true,
+		OL: true,
 	};
 	const elems = get("hr");
 	let count = 0;
@@ -4599,6 +4602,7 @@ function replaceCommonClasses()
 	replaceElementsBySelector("div[class*=comment-footer]", "h6");
 	replaceElementsBySelector("div[class*=sidebar]", "aside");
 	replaceElementsBySelector("div[class*=social]", "aside");
+	replaceElementsBySelector("p[class*=toc-head]", "h2");
 	replaceElementsBySelector("p[class*=subtitle], div[class*=subtitle], p[class*=subhead], div[class*=subhead]", "h3");
 	replaceElementsBySelector("p[class*=image], div[class*=image]", "figure");
 	replaceElementsBySelector("p[class*=caption], div[class*=caption]", "figcaption");
@@ -4685,8 +4689,11 @@ function fixParagraphs()
 
 function fixDashes()
 {
+	const ps = get("p");
+	for(const p of ps)
+		p.innerHTML = removeLineBreaks(p.innerHTML);
 	replaceInTextNodes("--", "—");
-	replaceInTextNodes(" - ", "—");
+	replaceInTextNodesRegex("\s+-\s+", "—");
 	replaceInTextNodes(" -", "—");
 	replaceInTextNodes("— ", "—");
 	replaceInTextNodes(" —", "—");
@@ -5561,6 +5568,7 @@ function groupMarkedElements(tagName)
 	}
 	insertBefore(elemsToJoin[0], wrapper);
 	del(makeClassSelector(Nimbus.markerClass));
+	deleteMessage();
 }
 
 function groupAdjacentElements(selector, parentTag, childTag)
@@ -5599,6 +5607,7 @@ function groupAdjacentElements(selector, parentTag, childTag)
 		else
 			group.appendChild(convertElement(elem, childTagName));
 		let nextElem = elem.nextElementSibling;
+		// while(nextElem && nextElem === elem.nextSibling && elems.includes(nextElem))
 		while(nextElem && elems.includes(nextElem))
 		{
 			i++;
@@ -7642,10 +7651,8 @@ function listSelectorsWithLightBackgrounds()
 {
 	const THRESHOLD = 200;
 	const e = Array.from(document.getElementsByTagName("*"));
-	let i = e.length;
-	let count = 0;
 	let str = "";
-	for(i = 0, count = 0; i < e.length, count < 4000; i++, count++)
+	for(let i = 0, count = 0; i < e.length, count < 4000; i++, count++)
 	{
 		const elem = e[i];
 		if(!elem)
@@ -7689,6 +7696,7 @@ function numberTableRowsAndColumns(tableElement)
 
 function logMutations(mutations)
 {
+	const colors = Nimbus.logColors;
 	for(let i = 0, ii = mutations.length; i < ii; i++)
 	{
 		const mutation = mutations[i];
@@ -7699,18 +7707,18 @@ function logMutations(mutations)
 			if(mutation.addedNodes.length)
 			{
 				for(let j = 0, jj = mutation.addedNodes.length; j < jj; j++)
-					console.log(padRight("Mutation: added", 25) + createSelector(mutation.addedNodes[j]));
+					console.log(`%cadded:   %c${createSelector(mutation.addedNodes[j])} %c${mutation.addedNodes[j].textContent}`, colors.green, colors.gray, colors.blue);
 			}
 			if(mutation.removedNodes.length)
 			{
 				for(let j = 0, jj = mutation.removedNodes.length; j < jj; j++)
-					console.log(padRight("Mutation: removed", 25) + createSelector(mutation.removedNodes[j]));
+					console.log(`%cremoved: %c${createSelector(mutation.removedNodes[j])} %c${mutation.addedNodes[j].textContent}`, colors.red, colors.gray, colors.blue);
 			}
 		}
 		else if(mutation.type === "attributes")
 		{
 			if(!Nimbus.attributeFilter || (Nimbus.attributeFilter && mutation.attributeName.includes(Nimbus.attributeFilter)))
-				console.log(`%c${mutation.attributeName}: %c${createSelector(mutation.target)}`, "color: #0F0", "color: #CCC");
+				console.log(`%c${mutation.attributeName}: %c${createSelector(mutation.target)}`, "color: #0F0", "color: #CCC; background: #444");
 		}
 	}
 }
