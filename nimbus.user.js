@@ -8295,6 +8295,11 @@ function highlightLinksWithHrefContaining(str)
 	}
 }
 
+function stripTrailingReferenceNumber(str)
+{
+	return str.replace(/([\."'])\d+$/, "$1");
+}
+
 function expandSelectionToWordBoundaries(node, selection)
 {
 	const text = node.textContent.replace(/\s+/g, " ");
@@ -8310,8 +8315,8 @@ function expandSelectionToWordBoundaries(node, selection)
 		index1++;
 	while(text[index2] && text[index2].match(regexRight) && index2 < text.length)
 		index2++;
-	const expanded = text.substring(index1, index2).replace(/\s+/g, " ").trim();
-	return expanded;
+	const expandedSelection = text.substring(index1, index2).replace(/\s+/g, " ").trim();
+	return stripTrailingReferenceNumber(expandedSelection);
 }
 
 function expandSelectionToSentenceBoundaries(node, selection)
@@ -8338,8 +8343,8 @@ function expandSelectionToSentenceBoundaries(node, selection)
 		index2++;
 	if(index2 > text.length - 10)
 		index2 = text.length;
-	const expanded = text.substring(index1, index2).replace(/\s+/g, " ").trim();
-	return expanded;
+	const expandedSelection = text.substring(index1, index2).replace(/\s+/g, " ").trim();
+	return stripTrailingReferenceNumber(expandedSelection);
 }
 
 function getNodeText(node)
