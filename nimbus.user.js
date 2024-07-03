@@ -261,6 +261,7 @@ const Nimbus = {
 		showTags: showTags,
 		simplifyClassNames: simplifyClassNames,
 		splitByBrs: splitByBrs,
+		swapElementPositions: swapElementPositions,
 		makeParagraphsByLineBreaks: makeParagraphsByLineBreaks,
 		toggleBlockEditMode: toggleBlockEditMode,
 		toggleContentEditable: toggleContentEditable,
@@ -5489,6 +5490,18 @@ function moveElementUp(position)
 		if(position === "before") currentParent.insertAdjacentElement("beforebegin", elem);
 		else if(position === "after") currentParent.insertAdjacentElement("afterend", elem);
 	}
+}
+
+function swapElementPositions()
+{
+	const marked = getMarkedElements();
+	if(marked.length !== 2)
+	{
+		showMessageBig(`Expected 2 marked elements; found ${marked.length}`);
+		return false;
+	}
+	insertBefore(marked[0], marked[1]);
+	unmarkAll();
 }
 
 function goToNextElement(selector)
