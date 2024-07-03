@@ -896,6 +896,8 @@ function removeRedundantHrs()
 		H2: true,
 		H3: true,
 		H4: true,
+		H5: true,
+		H6: true,
 		HR: true,
 		FIGURE: true,
 		RT: true,
@@ -4585,7 +4587,7 @@ function replaceCommonClasses()
 	replaceElementsBySelector("em", "i");
 
 	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle, .pt-num, .pt-title", "h1");
-	replaceElementsBySelector(".cn, .ct, .chapnum, .chapter, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num", "h2");
+	replaceElementsBySelector(".cn, .ct, .chapnum, .chapter, .chapternumber, .tochead, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num", "h2");
 	replaceElementsBySelector(".cst, .h", "h3");
 	replaceElementsBySelector(".figcap", "figcaption");
 	replaceElementsBySelector(".figure", "figure");
@@ -6868,6 +6870,8 @@ function disableClickToCollectUrls()
 function makeFileLinksRelative()
 {
 	const links = get("a");
+	let hashCount = 0;
+	let imageCount = 0;
 	for(let i = 0, ii = links.length; i < ii; i++)
 	{
 		const link = links[i];
@@ -6881,6 +6885,7 @@ function makeFileLinksRelative()
 				{
 					const hash = "#" + splitHref[splitHref.length - 1];
 					link.setAttribute("href", hash);
+					hashCount++;
 				}
 			}
 			else if(~linkHref.indexOf("/images/"))
@@ -6889,9 +6894,11 @@ function makeFileLinksRelative()
 				const folderName = splitHref[splitHref.length - 2];
 				const imageFileName = splitHref[splitHref.length - 1];
 				link.setAttribute("href", folderName + "/" + imageFileName);
+				imageCount++;
 			}
 		}
 	}
+	showMessageBig(`${hashCount} hash links and ${imageCount} image links fixed`);
 }
 
 function countReferencesToId(idString)
