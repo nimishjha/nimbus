@@ -3327,7 +3327,7 @@ const getLinksToId = (id) => document.querySelectorAll(`a[href="#${id}"]`);
 function createUniqueId(index)
 {
 	let prefix = "a";
-	while(get(prefix + index))
+	while(get("#" + prefix + index))
 		prefix += "a";
 	return prefix + index;
 }
@@ -3361,10 +3361,11 @@ function replaceEmptyAnchors()
 		numLinks += links.length;
 		for(let i = 0, ii = links.length; i < ii; i++)
 			links[i].setAttribute("href", "#" + anchorData.parent.id);
-		anchorData.anchor.remove();
+		unwrapElement(anchorData.anchor);
 	}
 
-	del(anchorsWithoutLinks);
+	for(const anchor of anchorsWithoutLinks)
+		unwrapElement(anchor);
 
 	showMessageBig(`Fixed ${numLinks} links to ${parentsAndLinks.length} anchors; deleted ${anchorsWithoutLinks.length} anchors without links`);
 }
