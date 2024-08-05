@@ -4588,8 +4588,8 @@ function replaceCommonClasses()
 	replaceElementsBySelector("strong", "b");
 	replaceElementsBySelector("em", "i");
 
-	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle, .pt-num, .pt-title", "h1");
-	replaceElementsBySelector(".cn, .ct, .chapnum, .chapter, .chapternumber, .tochead, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num", "h2");
+	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle, .pt-num, .pt-title, .partno", "h1");
+	replaceElementsBySelector(".cn, .ct, .chapnum, .chapter, .chapternumber, .tochead, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chapno, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num", "h2");
 	replaceElementsBySelector(".cst, .h", "h3");
 	replaceElementsBySelector(".figcap", "figcaption");
 	replaceElementsBySelector(".figure", "figure");
