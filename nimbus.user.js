@@ -8495,7 +8495,8 @@ function highlightTextAcrossTags(element, searchString)
 		}
 		else if(containsTheBeginning)
 		{
-			consoleLog(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the beginning`, colors.blue, colors.gray, colors.blue, colors.green);
+			const substring = searchString.substring(0, childNodeEnd - index1);
+			consoleLog(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the beginning: %c${substring}`, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
 			if(childNode.nodeType === 1)
 			{
 				const childNodeTagName = childNode.tagName;
@@ -8526,21 +8527,26 @@ function highlightTextAcrossTags(element, searchString)
 		}
 		else if(isContained)
 		{
-			consoleLog(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %cis contained`, colors.blue, colors.gray, colors.blue, colors.green);
+			const substring = searchString.substring(childNodeStart - index1, childNodeEnd - index1);
+			consoleLog(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %cis contained: %c${substring}`, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
 			consoleLog(`%c${childNodeText}`, colors.yellow);
 			highlightElement.appendChild(childNode.cloneNode(true));
 			toDelete.push(childNode);
 		}
 		else if(containsTheEnd)
 		{
-			consoleLog(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the end`, colors.blue, colors.gray, colors.blue, colors.green);
+			const substring = searchString.substr(-(index2 - childNodeStart));
+			// handle the problem of extra spaces added by the browser when a selection contains child elements
+			const offset = childNodeText.indexOf(substring);
+			const adjustedEndIndex = index2 + offset;
+			consoleLog(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the end: %c${substring}`, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
 			if(childNode.nodeType === 1)
 			{
 				const childNodeTagName = childNode.tagName;
 				if(containsOnlyPlainText(childNode) && !isIndivisibleElement[childNodeTagName])
 				{
 					const childNodeTagName = childNode.tagName;
-					const splitIndex = index2 - childNodeStart;
+					const splitIndex = adjustedEndIndex - childNodeStart;
 					const textOfMatch = childNodeText.substring(0, splitIndex);
 					const textAfterMatch = childNodeText.substring(splitIndex);
 					highlightElement.appendChild(document.createTextNode(textOfMatch));
@@ -8553,7 +8559,7 @@ function highlightTextAcrossTags(element, searchString)
 			}
 			else
 			{
-				const splitIndex = index2 - childNodeStart;
+				const splitIndex = adjustedEndIndex - childNodeStart;
 				const textOfMatch = childNodeText.substring(0, splitIndex);
 				const textAfterMatch = childNodeText.substring(splitIndex);
 				consoleLog(`%c${textOfMatch}%c${textAfterMatch}`, colors.yellow, colors.gray);
