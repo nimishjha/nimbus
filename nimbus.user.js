@@ -4481,16 +4481,18 @@ function replaceIncorrectHeading()
 
 function replaceEmptyParagraphsWithHr()
 {
-	function containsOnlyAsterisks(elem)
+	function isSeparator(elem)
 	{
-		return ~elem.textContent.indexOf("*") && elem.textContent.replace(/[\*\s]+/g, "").length === 0;
+		const text = elem.textContent;
+		if(text.indexOf("•") !== -1) return text.replace(/[•\s]+/g, "").length === 0;
+		else return ~text.indexOf("*") && text.replace(/[\*\s]+/g, "").length === 0;
 	}
 	const paras = get("p");
 	let i = paras.length;
 	while(i--)
 	{
 		const para = paras[i];
-		if(getTextLength(para) === 0 || containsOnlyAsterisks(para))
+		if(getTextLength(para) === 0 || isSeparator(para))
 		{
 			let nextPara = paras[i - 1];
 			while(nextPara && getTextLength(nextPara) === 0 && i > 0)
@@ -4535,7 +4537,7 @@ function makeAnchorNodePlainText()
 
 function boldInlineColonHeadings()
 {
-	const paras = get("p, li");
+	const paras = getMarkedElements();
 	for(let i = 0, ii = paras.length; i < ii; i++)
 	{
 		const para = paras[i];
@@ -4621,6 +4623,8 @@ function replaceCommonClasses()
 
 	replaceElementsBySelector("body > div", "section");
 	deleteEmptyElements("section");
+
+	removeAttributeOf("a, i, b, sup, small", "class");
 
 	document.body.innerHTML = document.body.innerHTML.replaceAll("calibre_link-", "l");
 }
@@ -8465,6 +8469,7 @@ function highlightTextAcrossTags(element, searchString)
 	const toDelete = [];
 
 	const isIndivisibleElement = {
+		A: true,
 		B: true,
 		I: true,
 		EM: true,
@@ -8503,10 +8508,17 @@ function highlightTextAcrossTags(element, searchString)
 				if(containsOnlyPlainText(childNode) && !isIndivisibleElement[childNodeTagName])
 				{
 					const splitIndex = index1 - childNodeStart;
-					const textBeforeMatch = childNodeText.substring(0, splitIndex);
-					const textOfMatch = childNodeText.substring(splitIndex);
-					replacement.appendChild(createElement(childNodeTagName, { textContent: textBeforeMatch}));
-					highlightElement.appendChild(document.createTextNode(textOfMatch));
+					if(splitIndex === 0)
+					{
+						highlightElement.appendChild(childNode.cloneNode(true));
+					}
+					else
+					{
+						const textBeforeMatch = childNodeText.substring(0, splitIndex);
+						const textOfMatch = childNodeText.substring(splitIndex);
+						replacement.appendChild(createElement(childNodeTagName, { textContent: textBeforeMatch}));
+						highlightElement.appendChild(document.createTextNode(textOfMatch));
+					}
 				}
 				else
 				{
