@@ -640,7 +640,7 @@ function deleteElements(elems)
 	if(!(elements && elements.length))
 		return;
 	del(elements);
-	showMessageBig(`Deleted <b>${elements.length}</b> elements`);
+	showMessageBig(`Deleted ${elements.length} elements`);
 }
 
 function retrieveElements(elems)
@@ -657,7 +657,7 @@ function retrieveElements(elems)
 	del(["link", "script"]);
 	document.body.appendChild(wrapper);
 	document.title = docTitle;
-	showMessageBig(`Retrieved <b>${elements.length}</b> elements`);
+	showMessageBig(`Retrieved ${elements.length} elements`);
 }
 
 function selectElementsStartingWithText(selector, text)
@@ -1893,7 +1893,7 @@ function replaceElementsBySelector(selector, tagName)
 	if(!toReplace) return;
 	if(toReplace.length)
 	{
-		showMessageBig(`Replacing <b>${toReplace.length} ${selector}</b> with <b>${tagName}</b>`);
+		showMessageBig(`Replacing ${toReplace.length} ${selector} with ${tagName}`);
 		let deletedTextLength = 0;
 		let i = toReplace.length;
 		if(tagName === "hr" && toReplace[0].tagName !== "RT")
@@ -2006,7 +2006,7 @@ function replaceMarkedElements(tagName)
 function replaceByClassOrIdContaining(str, tagName)
 {
 	const toReplace = selectByClassOrIdContaining(str);
-	showMessageBig(`Replacing <b>${toReplace.length}</b> elements`);
+	showMessageBig(`Replacing ${toReplace.length} elements`);
 	for(let i = 0, ii = toReplace.length; i < ii; i++)
 		replaceElementKeepingId(toReplace[i], tagName);
 }
@@ -2591,7 +2591,7 @@ function showStatus(id, str)
 	getOrCreate("h3", id).textContent = id + ": " + str;
 }
 
-function showMessage(messageHtml, msgClass, persist)
+function showMessage(message, msgClass, persist)
 {
 	const MESSAGE_TIMEOUT = 2000;
 	clearTimeout(Nimbus.messageTimeout);
@@ -2610,27 +2610,38 @@ function showMessage(messageHtml, msgClass, persist)
 	const messageContainer = createElement("message");
 	const messageInner = document.createElement(messageInnerTagName);
 	const messageContent = document.createElement("div");
-	messageContent.innerHTML = messageHtml;
+	let messageText;
+	let messageTag;
+	let messageElement;
+	if(typeof message === "string")
+	{
+		messageElement = document.createTextNode(message);
+	}
+	else
+	{
+		messageElement = document.createElement(message.tag);
+		messageElement.textContent = message.text;
+	}
+	messageContent.appendChild(messageElement);
 	messageInner.appendChild(messageContent);
 	messageContainer.appendChild(messageInner);
 	document.body.appendChild(messageContainer);
 	if(!getOne("#styleMessage"))
 		insertStyle(strStyle, "styleMessage", true);
-	messageInner.innerHTML = messageHtml;
 	if(msgClass)
 		console.log("Nimbus: \t " + messageInner.textContent);
 	if(!persist)
 		Nimbus.messageTimeout = setTimeout(deleteMessage, MESSAGE_TIMEOUT);
 }
 
-function showMessageBig(messageHtml, persist = false)
+function showMessageBig(message, persist = false)
 {
-	showMessage(messageHtml, "messagebig", persist);
+	showMessage(message, "messagebig", persist);
 }
 
-function showMessageError(messageHtml, persist = false)
+function showMessageError(message, persist = false)
 {
-	showMessage(messageHtml, "messageerror", persist);
+	showMessage(message, "messageerror", persist);
 }
 
 function deleteMessage()
@@ -3147,7 +3158,7 @@ function markByCssRule(prop, value, selector)
 	}
 	if(count)
 	{
-		showMessageBig("Found " + count + " elements with <b>" + prop + ": " + val + "</b>");
+		showMessageBig("Found " + count + " elements with " + prop + ": " + val);
 		insertStyleHighlight();
 	}
 }
@@ -3532,7 +3543,7 @@ function unmarkAll()
 	if(!marked) return;
 	const count = marked.length;
 	unmarkElements(marked);
-	showMessageBig(`Unmarked <b>${count}</b> elements`);
+	showMessageBig(`Unmarked ${count} elements`);
 }
 
 function filterNodesByAttributeEqualTo(nodes, attribute, value)
@@ -4073,7 +4084,7 @@ function deleteImagesSmallerThan(pixelArea)
 			count++;
 		}
 	}
-	showMessageBig(`Deleted <b>${count}</b> images smaller than <b>${pixelArea}</b> pixels`);
+	showMessageBig(`Deleted ${count} images smaller than ${pixelArea} pixels`);
 }
 
 function deleteSmallImages()
@@ -4991,7 +5002,7 @@ function focusField(elem)
 	deleteClass("focused");
 	elem.focus();
 	elem.classList.add("focused");
-	showMessageBig(`Focused <b>${createSelector(elem)}</b>`);
+	showMessageBig(`Focused ${createSelector(elem)}`);
 	consoleLog("focusField: " + createSelector(document.activeElement));
 }
 
@@ -5463,7 +5474,7 @@ function changePage(direction)
 function cycleHighlightTag()
 {
 	const nextTag = getNext(Nimbus.highlightTagName, Nimbus.highlightTagNameList);
-	showMessageBig(`<${nextTag}>Highlight tag is ${nextTag}</${nextTag}>`);
+	showMessageBig({ text: `Highlight tag is ${nextTag}`, tag: nextTag });
 	Nimbus.highlightTagName = nextTag;
 }
 
@@ -5472,7 +5483,7 @@ function resetHighlightTag()
 	const nextTag = Nimbus.highlightTagNameList[0];
 	if(Nimbus.highlightTagName === nextTag)
 		return;
-	showMessageBig(`<${nextTag}>Highlight tag is ${nextTag}</${nextTag}>`);
+	showMessageBig({ text: `Highlight tag is ${nextTag}`, tag: nextTag });
 	Nimbus.highlightTagName = nextTag;
 }
 
@@ -8192,7 +8203,7 @@ function containsOnlyPlainText(node)
 function toggleHighlightSelectionMode()
 {
 	Nimbus.selectionHighlightMode = Nimbus.selectionHighlightMode === "sentence" ? "word" : "sentence";
-	showMessageBig(`Highlight mode is <b>${Nimbus.selectionHighlightMode}</b>`);
+	showMessageBig(`Highlight mode is ${Nimbus.selectionHighlightMode}`);
 }
 
 function singleQuotesToDoubleQuotes()
