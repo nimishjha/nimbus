@@ -4,7 +4,7 @@ function convertFootnoteNumbersToLinks()
 	const footnotes = get("footnote");
 	for(const footnote of footnotes)
 	{
-		const footnoteHTML = trim(footnote.innerHTML);
+		const footnoteHTML = footnote.innerHTML.trim();
 		const matches = footnoteHTML.match(/^[0-9]+\./);
 		if(matches && matches.length)
 		{
