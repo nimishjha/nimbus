@@ -48,19 +48,19 @@ function linkReferences(chapterSelector, footnoteContainerSelector)
 			const targetLink = footnoteReference.querySelector("a");
 			if(!sourceLink && targetLink)
 			{
-				console.log(`Chapter container ${chapterContainerIndex}: Could not get reference links for one or both of: ${chapterReferenceText}, ${footnoteReferenceText}`);
+				console.log(`Chapter container ${chapterContainerIndex} - ${chapterHeadingText}: Could not get reference links for one or both of: ${chapterReferenceText}, ${footnoteReferenceText}`);
 				return;
 			}
 
 			const referenceNumber = j + 1;
 			if(referenceNumber.toString() !== chapterReferenceText)
 			{
-				console.log(`Reference numbers do not match: chapter container ${chapterContainerIndex} - ${chapterHeadingText}, reference ${chapterReferenceText}`);
+				console.log(`Reference numbers do not match: chapter container ${chapterContainerIndex} - ${chapterHeadingText}, reference text is ${chapterReferenceText}, expected ${referenceNumber}`);
 				return;
 			}
 			if(referenceNumber.toString() !== footnoteReferenceText)
 			{
-				console.log(`Reference numbers do not match: chapter container ${chapterContainerIndex} - ${chapterHeadingText}, back-reference ${footnoteReferenceText}`);
+				console.log(`Reference numbers do not match: chapter container ${chapterContainerIndex} - ${chapterHeadingText}, back-reference is ${footnoteReferenceText}, expected ${referenceNumber}`);
 				return;
 			}
 

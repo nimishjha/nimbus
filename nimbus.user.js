@@ -382,6 +382,7 @@ const KEYCODES = Nimbus.KEYCODES;
 const STYLES = {
 	FONT_01: `
 		* { font-family: "swis721 cn bt"; }
+		p, li { font-family: "swis721 cn bt"; font-size: 22px; }
 		a { text-decoration: none; }
 	`,
 	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); line-height: 1.4; }`,
@@ -5161,6 +5162,7 @@ function parseCode(s)
 
 function highlightCode(shouldHighlightKeywords)
 {
+	removeAttributeOf("pre", "class");
 	if(get("pre span[style]"))
 	{
 		replaceInlineStylesWithClasses();
