@@ -46,7 +46,7 @@ const Nimbus = {
 		A: 65, B: 66, C: 67, D: 68, E: 69, F: 70, G: 71, H: 72, I: 73, J: 74, K: 75, L: 76, M: 77, N: 78, O: 79, P: 80, Q: 81, R: 82, S: 83, T: 84, U: 85, V: 86, W: 87, X: 88, Y: 89, Z: 90,
 		F1: 112, F2: 113, F3: 114, F4: 115, F5: 116, F6: 117, F7: 118, F8: 119, F9: 120, F10: 121, F11: 122, F12: 123,
 		NUMPAD0: 96, NUMPAD1: 97, NUMPAD2: 98, NUMPAD3: 99, NUMPAD4: 100, NUMPAD5: 101, NUMPAD6: 102, NUMPAD7: 103, NUMPAD8: 104, NUMPAD9: 105, NUMPAD_MULTIPLY: 106, NUMPAD_ADD: 107, NUMPAD_SUBTRACT: 109, NUMPAD_DECIMAL_POINT: 110, NUMPAD_DIVIDE: 111,
-		FORWARD_SLASH: 191, BACK_SLASH: 220, MINUS: 173, TILDE: 192, SPACE: 32, UPARROW: 38, DOWNARROW: 40, LEFTARROW: 37, RIGHTARROW: 39, TAB: 9, ENTER: 13, ESCAPE: 27, SQUARE_BRACKET_OPEN: 219, SQUARE_BRACKET_CLOSE: 221
+		FORWARD_SLASH: 191, BACK_SLASH: 220, MINUS: 173, TILDE: 192, SPACE: 32, UPARROW: 38, DOWNARROW: 40, LEFTARROW: 37, RIGHTARROW: 39, TAB: 9, ENTER: 13, ESCAPE: 27, SQUARE_BRACKET_OPEN: 219, SQUARE_BRACKET_CLOSE: 221, PERIOD: 190
 	},
 	availableFunctions: {
 		addDateToTitle: addDateToTitle,
@@ -7227,6 +7227,12 @@ function getCurrentlyPlayingVideo(videos)
 	}
 }
 
+function toggleNonVideoContent()
+{
+	if(get("#styleHNVC")) unhideNonVideoContent();
+	else hideNonVideoContent();
+}
+
 function hideNonVideoContent()
 {
 	const videos = get("video");
@@ -7245,13 +7251,13 @@ function hideNonVideoContent()
 		for(const elem of elemsPreceding)
 			elem.classList.add("nimbusHide");
 	}
-	insertStyle(".nimbusHide { opacity: 0; }", "styleNimbusHide", true);
+	insertStyle(".nimbusHide { opacity: 0; }", "styleHNVC", true);
 }
 
 function unhideNonVideoContent()
 {
 	deleteClass("nimbusHide");
-	del("styleNimbusHide");
+	del("#styleHNVC");
 }
 
 function getContentByParagraphCount()
@@ -8957,12 +8963,13 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD5: toggleHighlightSelectionMode(); break;
 			case KEYCODES.NUMPAD6: retrieveLargeImages(); break;
 			case KEYCODES.NUMPAD7: groupMarkedElements("blockquote"); break;
-			case KEYCODES.NUMPAD8: groupUnderHeading(); break;
+			case KEYCODES.NUMPAD8: toggleNonVideoContent(); break;
 			case KEYCODES.NUMPAD9: toggleNimbusStyles(); break;
 			case KEYCODES.NUMPAD0: deleteResources(); break;
 			case KEYCODES.NUMPAD_ADD: persistStreamingImages(); break;
 			case KEYCODES.NUMPAD_SUBTRACT: deletePersistedImages(); break;
 			case KEYCODES.NUMPAD_MULTIPLY: showSavedStreamingImages(); break;
+			case KEYCODES.PERIOD: toggleNonVideoContent(); break;
 			case KEYCODES.F1: replaceSelectedElement(Nimbus.replacementTagName1); break;
 			case KEYCODES.F2: replaceSelectedElement(Nimbus.replacementTagName2); break;
 			case KEYCODES.F3: customPrompt("Enter tag name to replace elements of the marked type with").then(replaceElementsOfMarkedTypeWith); break;
@@ -9090,8 +9097,6 @@ function handleKeyDown(e)
 			case KEYCODES.FIVE: toggleStyleGrayscale(); break;
 			case KEYCODES.SIX: toggleStyle(STYLES.MIN_FONT_SIZE, "styleMinFontSize", true); break;
 			case KEYCODES.SEVEN: toggleStyle(STYLES.GITHUB_HIDE_DELETE_DIFFS, "styleGithubHideDeleteDiffs", true); break;
-			case KEYCODES.NINE: hideNonVideoContent(); break;
-			case KEYCODES.ZERO: unhideNonVideoContent(); break;
 			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
 			case KEYCODES.B: toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
