@@ -8604,12 +8604,7 @@ function highlightTextAcrossTags(element, searchString)
 	if(toReplace)
 	{
 		element.replaceChild(replacement, toReplace);
-		const firstChild = highlightElement.firstChild;
-		const lastChild = highlightElement.lastChild;
-		if(firstChild && firstChild.nodeType === 1 && firstChild.tagName === "REFERENCE")
-			highlightElement.insertAdjacentElement("beforebegin", firstChild);
-		if(lastChild && lastChild.nodeType === 1 && lastChild.tagName === "REFERENCE")
-			highlightElement.insertAdjacentElement("afterend", lastChild);
+		moveLeadingAndTrailingReferencesOutOfHighlight(highlightElement);
 		del(toDelete);
 	}
 }
@@ -8859,6 +8854,16 @@ function toggleHighlight()
 		highlightSelectedElement();
 }
 
+function moveLeadingAndTrailingReferencesOutOfHighlight(highlightElement)
+{
+	const firstChild = highlightElement.firstChild;
+	const lastChild = highlightElement.lastChild;
+	if(firstChild && firstChild.nodeType === 1 && firstChild.tagName === "REFERENCE")
+		highlightElement.insertAdjacentElement("beforebegin", firstChild);
+	if(lastChild && lastChild.nodeType === 1 && lastChild.tagName === "REFERENCE")
+		highlightElement.insertAdjacentElement("afterend", lastChild);
+}
+
 function highlightSelectedElement(tag)
 {
 	const MAX_LENGTH = 4000;
@@ -8866,7 +8871,9 @@ function highlightSelectedElement(tag)
 	if(node && node.parentNode && node.tagName !== "BODY" && node.textContent.length < MAX_LENGTH)
 	{
 		const highlightTag = tag ? tag : Nimbus.highlightTagName;
-		wrapElementInner(getFirstBlockParent(node), highlightTag);
+		const element = getFirstBlockParent(node);
+		wrapElementInner(element, highlightTag);
+		moveLeadingAndTrailingReferencesOutOfHighlight(element.firstChild);
 	}
 }
 
