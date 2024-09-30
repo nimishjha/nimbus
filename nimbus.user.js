@@ -381,8 +381,7 @@ const KEYCODES = Nimbus.KEYCODES;
 
 const STYLES = {
 	FONT_01: `
-		* { font-family: "swis721 cn bt"; }
-		p, li { font-family: "swis721 cn bt"; font-size: 22px; }
+		*, p, li { font-family: "swis721 cn bt"; }
 		a { text-decoration: none; }
 	`,
 	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); line-height: 1.4; }`,
@@ -5986,7 +5985,7 @@ function insertStyleHighlight()
 		markgreen { background: #150; color: #4F0; }
 		markred { background: #500; color: #E33; }
 		markblue { background: #005; color: #05D; }
-		markpurple { background: #404; color: #C6C; }
+		markpurple { background: #204; color: #C7E; }
 		markyellow { background: #804800; color: #FF0; }
 		markwhite { background: #000; color: #DDD; }
 	`;
@@ -8857,9 +8856,9 @@ function toggleHighlight()
 function moveLeadingAndTrailingReferencesOutOfHighlight(highlightElement)
 {
 	const firstChild = highlightElement.firstChild;
-	const lastChild = highlightElement.lastChild;
 	if(firstChild && firstChild.nodeType === 1 && firstChild.tagName === "REFERENCE")
 		highlightElement.insertAdjacentElement("beforebegin", firstChild);
+	const lastChild = highlightElement.lastChild;
 	if(lastChild && lastChild.nodeType === 1 && lastChild.tagName === "REFERENCE")
 		highlightElement.insertAdjacentElement("afterend", lastChild);
 }
