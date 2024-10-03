@@ -3422,7 +3422,6 @@ function fixInternalReferences()
 function inlineFootnotes()
 {
 	const FOOTNOTE_TAGNAME = "FOOTNOTE";
-	const FOOTNOTE_TAGNAMES = [FOOTNOTE_TAGNAME, "DIV"];
 	const REFERENCE_TAGNAME = "REFERENCE";
 	const paras = get("p, blockquote, quote, quoteauthor");
 	for(let i = 0, ii = paras.length; i < ii; i++)
@@ -3443,7 +3442,7 @@ function inlineFootnotes()
 			{
 				if(refTarget.tagName === "A")
 					footnote = refTarget.closest(FOOTNOTE_TAGNAME);
-				else if(FOOTNOTE_TAGNAMES.includes(refTarget.tagName))
+				else if(refTarget.tagName === FOOTNOTE_TAGNAME)
 					footnote = refTarget;
 			}
 			if(footnote)
