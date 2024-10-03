@@ -203,6 +203,7 @@ const Nimbus = {
 		removeEventListeners: removeEventListeners,
 		removeHighlightsFromMarkedElements: removeHighlightsFromMarkedElements,
 		removeInlineStyles: removeInlineStyles,
+		removePeriodsFromAbbreviations: removePeriodsFromAbbreviations,
 		removeQueryStringFromImageSources: removeQueryStringFromImageSources,
 		removeQueryStringFromLinks: removeQueryStringFromLinks,
 		removeQueryStringFromLinksMatching: removeQueryStringFromLinksMatching,
@@ -7089,6 +7090,27 @@ function fixBullets(elems)
 		}
 	}
 	showMessageBig(`${olCount} ordered and ${ulCount} unordered list items fixed`);
+}
+
+function removePeriodsFromAbbreviations()
+{
+	const nodes = getTextNodesUnderSelector("body");
+	for(const node of nodes)
+	{
+		if(node.data.length < 4) continue;
+		const matches = node.data.match(/([A-Z]\.){2,}(\s+[a-z]|[,'’-])/g);
+		if(matches !== null)
+		{
+			for(const match of matches)
+				node.data = node.data.replace(match, match.replace(/\./g, ""));
+		}
+		const matchesAtSentenceEnd = node.data.match(/([A-Z]\.){2,}/g);
+		if(matchesAtSentenceEnd !== null)
+		{
+			for(const match of matchesAtSentenceEnd)
+				node.data = node.data.replace(match, match.replace(/\./g, "") + ".");
+		}
+	}
 }
 
 function deleteNonContentElements()
