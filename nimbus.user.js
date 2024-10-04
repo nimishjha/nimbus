@@ -1013,7 +1013,7 @@ function capitalize(text)
 	let str = "";
 	for(const word of words)
 	{
-		if(word.length > 1 && ( word.match(/[a-z]+/) === null || word.match(/^[A-Z]+'\w+$/) ) || word === "I")
+		if(word.length > 1 && (!/[a-z]+/.test(word) || /^[A-Z]+'\w+$/.test(word)) || word === "I")
 			str += word + " ";
 		else
 			str += word.toLowerCase() + " ";
@@ -1079,7 +1079,7 @@ function fixLineBreaks()
 		for(let i = 0, ii = spans.length; i < ii; i++)
 		{
 			const span = spans[i];
-			if(span.textContent.match(/\n$/))
+			if(/\n$/.test(span.textContent))
 				span.appendChild(document.createElement("br"));
 		}
 	}
@@ -1825,20 +1825,18 @@ function replaceIframes()
 		const elem = elems[i];
 		const iframereplacement = document.createElement("rp");
 		const iframelink = document.createElement("a");
-		let s = elem.src;
+		let iframeSrc = elem.src;
 		if(containsAnyOfTheStrings(s, ["facebook", "twitter"]))
 		{
 			elem.remove();
 			continue;
 		}
-		iframelink.href = s;
-		if(~s.indexOf("youtube") && s.indexOf("subscribe_embed") === -1)
+		iframelink.href = iframeSrc;
+		if(~iframeSrc.indexOf("youtube") && iframeSrc.indexOf("subscribe_embed") === -1)
 		{
-			s = s.replace(/\/embed\//, '/watch?v=');
-			const segments = s.split('?');
+			iframeSrc = iframeSrc.replace(/\/embed\//, '/watch?v=');
+			const segments = iframeSrc.split('?');
 			iframelink.href = segments[0] + '?' + segments[1];
-			if(s.indexOf(".") > 0)
-				s = s.match(/:\/\/(.[^/]+)/)[1];
 			iframelink.textContent = iframelink.href;
 		}
 		else
@@ -2168,7 +2166,7 @@ function createListsFromBulletedParagraphs()
 	while(i--)
 	{
 		const para = paras[i];
-		if(para.textContent.match(/\u2022/))
+		if(/\u2022/.test(para.textContent))
 		{
 			markElement(para);
 			para.innerHTML = para.innerHTML.replace(/\u2022/, "");
@@ -2580,7 +2578,7 @@ function simplifyClassNames(selector)
 		const tagName = classMap[key];
 		const tagNameMapped = tagMap[tagName] || tagName;
 		const index = numClassesByTagName[tagName]++;
-		if(tagName.match(/h\d/))
+		if(/h\d/.test(tagName))
 			replaceClass(key, tagNameMapped + "_" + index);
 		else
 			replaceClass(key, tagNameMapped + index);
@@ -2865,7 +2863,7 @@ function parseCommand(commandString)
 function isNumber(s)
 {
 	const str = s.trim();
-	if(!str.length || str.match(/[^0-9\.\-]/))
+	if(!str.length || /[^0-9\.\-]/.test(str))
 		return false;
 	const num = Number(str);
 	if(isNaN(num))
@@ -3191,7 +3189,7 @@ function markBySelectorAndRegex(selector, regexString, boolInvertSelection = fal
 	for(let i = 0, ii = elements.length; i < ii; i++)
 	{
 		const element = elements[i];
-		if(element.textContent && element.textContent.trim().match(regex) !== null && !element.querySelector(selector))
+		if(element.textContent && regex.test(element.textContent.trim()) && !element.querySelector(selector))
 			selected.push(element);
 		else
 			selectedInverse.push(element);
@@ -3250,7 +3248,7 @@ function markElementsWithSetWidths()
 		j = cssRules.length;
 		while(j--)
 		{
-			if(cssRules[j].match(/width:[^;]*px/) !== null)
+			if(/width:[^;]*px/.test(cssRules[j]))
 			{
 				markElement(elem);
 				elem.innerHTML = "<x>#" + elem.id + " ." + elem.className + " " + getComputedStyle(elem, null).getPropertyValue("width") + "</x>" + elem.innerHTML;
@@ -3398,11 +3396,13 @@ function fixInternalReferences()
 		"H5": true,
 		"H6": true,
 	};
+	const regexIsNumeric = /^\[\d+\]$/;
+	const regexIsNumberInBraces = /^\{\d+\}$/;
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
 	{
 		const link = internalLinks[i];
 		let refText = link.textContent.trim();
-		if(refText.match(/^\[\d+\]$/) || refText.match(/^\{\d+\}$/))
+		if(regexIsNumeric.test(refText) || regexIsNumberInBraces.test(refText))
 			refText = refText.replace(/[^0-9]+/g, "");
 		if(!refText.length)
 			refText = "0" + i;
@@ -3695,7 +3695,7 @@ function filterNodesByAttributeMatching(nodes, attribute, value)
 		while(i--)
 		{
 			const node = nodes[i];
-			if(node.textContent.match(regex))
+			if(regex.test(node.textContent))
 				result.push(node);
 		}
 	}
@@ -3704,7 +3704,7 @@ function filterNodesByAttributeMatching(nodes, attribute, value)
 		while(i--)
 		{
 			const node = nodes[i];
-			if(node.hasAttribute(attribute) && node.getAttribute(attribute).match(regex))
+			if(node.hasAttribute(attribute) && regex.test(node.getAttribute(attribute)))
 				result.push(node);
 		}
 	}
@@ -4344,7 +4344,7 @@ function addLinksToLargerImages()
 		{
 			const link = links[i];
 			const linkHref = link.href;
-			if( linkHref.match(/(\.png|\.jpg|\.jpeg|\.gif)/i) && !imageLinks.includes(linkHref) )
+			if( /(\.png|\.jpg|\.jpeg|\.gif)/i.test(linkHref) && !imageLinks.includes(linkHref) )
 			{
 				link.parentNode.insertBefore(createElementWithChildren("rt", createElement("a", { href: linkHref, textContent: shortenImageSrc(linkHref) })), link);
 				if(isEmptyLink(link))
@@ -4552,7 +4552,7 @@ function boldInlineColonHeadings()
 	for(let i = 0, ii = paras.length; i < ii; i++)
 	{
 		const para = paras[i];
-		if(para.innerHTML.match(/^[\w\d\.\s\-,"]+:.+/))
+		if(/^[\w\d\.\s\-,"]+:.+/.test(para.innerHTML))
 			para.innerHTML = para.innerHTML.replace(/(^[\w\d\.\s\-,"]+:)/, "<b>$1</b>");
 	}
 }
@@ -4816,7 +4816,7 @@ function cycleThroughDocumentHeadings()
 		Nimbus.currentHeadingText = getNext(Nimbus.currentHeadingText, candidateHeadingTexts);
 
 	const pageNumberStrings = document.body.textContent.match(/Page [0-9]+ of [0-9]+/);
-	if(pageNumberStrings && !Nimbus.currentHeadingText.match(/Page [0-9]+/i))
+	if(pageNumberStrings && !/Page [0-9]+/i.test(Nimbus.currentHeadingText))
 		Nimbus.currentHeadingText = Nimbus.currentHeadingText + " - " + pageNumberStrings[0];
 	setDocTitle(Nimbus.currentHeadingText);
 	return Nimbus.currentHeadingText;
@@ -5113,13 +5113,13 @@ function parseCode(s)
 			// PHP variables
 			case '$':
 				phpVarRegex = new RegExp('[a-z0-9_\-]', 'i');
-				if(next && next.match(phpVarRegex) !== null)
+				if(next && phpVarRegex.test(next))
 				{
 					t += '<xv>' + cur;
 					i++;
-					if(s[i] && s[i].match(phpVarRegex) !== null)
+					if(s[i] && phpVarRegex.test(s[i]))
 					{
-						while(s[i] && s[i].match(phpVarRegex) !== null)
+						while(s[i] && phpVarRegex.test(s[i]))
 						{
 							t += s[i];
 							i++;
@@ -5191,7 +5191,7 @@ function highlightCode(shouldHighlightKeywords)
 	{
 		const preElement = preBlocks[i];
 		// delete the <pre>s that only contain line numbers
-		if(preElement.textContent && preElement.textContent.match(/[a-z]/) === null)
+		if(preElement.textContent && !/[a-z]/.test(preElement.textContent))
 		{
 			preElement.remove();
 			continue;
@@ -5739,6 +5739,7 @@ function joinParagraphsByLastChar()
 {
 	const MINLENGTH = 20;
 	const paras = get("p");
+	const regexLowercaseOrComma = /[a-z,]/;
 	let i = paras.length;
 	while(i--)
 	{
@@ -5746,7 +5747,8 @@ function joinParagraphsByLastChar()
 		const paraText = para.textContent.trim();
 		if(!paraText || paraText.length < MINLENGTH)
 			continue;
-		if(paraText[paraText.length - 1].match(/[a-z,]/))
+		const lastChar = paraText[paraText.length - 1];
+		if(regexLowercaseOrComma.test(lastChar))
 		{
 			const nextPara = para.nextElementSibling;
 			if(nextPara && nextPara.tagName === "P")
@@ -5757,7 +5759,7 @@ function joinParagraphsByLastChar()
 					para.appendChild(nextPara.firstChild);
 			}
 		}
-		else if(paraText[paraText.length - 1].match(/\-/))
+		else if(lastChar === "-")
 		{
 			const nextPara = para.nextElementSibling;
 			if(nextPara && nextPara.tagName === "P")
@@ -6295,7 +6297,7 @@ function selectBlockElementsContainingText(text)
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
 		const textNode = textNodes[i];
-		if(textNode.data.match(regex))
+		if(regex.test(textNode.data))
 		{
 			const parent = getFirstBlockParent(textNode);
 			if(parent)
@@ -7073,7 +7075,7 @@ function fixBullets(elems)
 	for(let i = 0, ii = lis.length; i < ii; i++)
 	{
 		const firstTextChild = getFirstTextChild(lis[i]);
-		if(firstTextChild && firstTextChild.textContent.match(NUMERICBULLET_REGEX))
+		if(firstTextChild && NUMERICBULLET_REGEX.test(firstTextChild.textContent))
 		{
 			olCount++;
 			firstTextChild.textContent = firstTextChild.textContent.trim().replace(NUMERICBULLET_REGEX, "");
@@ -7083,7 +7085,7 @@ function fixBullets(elems)
 	for(let i = 0, ii = ulis.length; i < ii; i++)
 	{
 		const firstTextChild = getFirstTextChild(ulis[i]);
-		if(firstTextChild && firstTextChild.textContent.match(BULLET_REGEX))
+		if(firstTextChild && BULLET_REGEX.test(firstTextChild.textContent))
 		{
 			ulCount++;
 			firstTextChild.textContent = firstTextChild.textContent.trim().replace(BULLET_REGEX, "");
@@ -7374,7 +7376,8 @@ function cleanupStackOverflow()
 	}
 
 	const sites = ["stackexchange", "stackoverflow", "superuser", "serverfault", "askubuntu"];
-	if(containsAnyOfTheStrings(location.hostname, sites) && location.href.match(/questions\/[0-9]+/) !== null)
+
+	if(containsAnyOfTheStrings(location.hostname, sites) && /questions\/[0-9]+/.test(location.href))
 	{
 		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair", "#launch-popover", ".comments-link", ".aside-cta", ".js-post-menu", "iframe"]);
 		deleteByClassOrIdContaining("comments-link");
@@ -8280,7 +8283,7 @@ function italicizeSelection()
 	if(index1 > 0)
 	{
 		let textBeforeSelection = node.textContent.substring(0, index1);
-		if(textBeforeSelection[textBeforeSelection.length - 1].match(/[a-zA-Z]/))
+		if(/[a-zA-Z]/.test(textBeforeSelection[textBeforeSelection.length - 1]))
 			textBeforeSelection += " ";
 		frag.appendChild(document.createTextNode(textBeforeSelection));
 	}
@@ -8288,7 +8291,7 @@ function italicizeSelection()
 	if(index2 < node.textContent.length)
 	{
 		let textAfterSelection = node.textContent.substring(index2);
-		if(textAfterSelection[0].match(/[a-zA-Z]/))
+		if(/[a-zA-Z]/.test(textAfterSelection[0]))
 			textAfterSelection = " " + textAfterSelection;
 		frag.appendChild(document.createTextNode(textAfterSelection));
 	}
@@ -8304,7 +8307,7 @@ function highlightFirstParentByText(str)
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
 		const textNode = textNodes[i];
-		if(textNode.data.match(regex))
+		if(regex.test(textNode.data))
 			wrapElementInner(textNode.parentNode, highlightTagName);
 	}
 }
@@ -8373,11 +8376,11 @@ function expandSelectionToWordBoundaries(node, selection)
 	let index2 = index1 + selection.length;
 	const regexLeft = /[\w\.\?!,'"\(\)\u2018\u201C]/;
 	const regexRight = /[\w\.\?!,'"\(\)\u2019\u201D]/;
-	while(text[index1].match(regexLeft) && index1 > 0)
+	while(regexLeft.test(text[index1]) && index1 > 0)
 		index1--;
 	if(text[index1] === "\u2014") // em dash
 		index1++;
-	while(text[index2] && text[index2].match(regexRight) && index2 < text.length)
+	while(text[index2] && regexRight.test(text[index2]) && index2 < text.length)
 		index2++;
 	const expandedSelection = text.substring(index1, index2).replace(/\s+/g, " ").trim();
 	return stripTrailingReferenceNumber(expandedSelection);
@@ -8392,14 +8395,14 @@ function expandSelectionToSentenceBoundaries(node, selection)
 	let index2 = index1 + selection.length;
 	const regexLeft = /[\.\?!]/;
 	const regexRight = /[\.\?!]/;
-	while(!text[index1].match(regexLeft) && index1 > 0)
+	while(!regexLeft.test(text[index1]) && index1 > 0)
 		index1--;
-	while(text[index2] && !text[index2].match(regexRight) && index2 < text.length)
+	while(text[index2] && !regexRight.test(text[index2]) && index2 < text.length)
 		index2++;
-	if(index2 < text.length - 1 && text[index2 + 1].match(/['"\)]/))
+	if(index2 < text.length - 1 && /['"\)]/.test(text[index2 + 1]) )
 		index2++;
 	index1++;
-	if(text[index1].match(/['"\)]/))
+	if(/['"\)]/.test(text[index1]))
 		index1++;
 	if(index1 < 10)
 		index1 = 0;
@@ -8746,7 +8749,7 @@ function replaceInTextNodesRegex(regex, replacement)
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
 		const textNode = textNodes[i];
-		if(textNode.data.match(regex))
+		if(regex.test(textNode.data))
 		{
 			replCount++;
 			textNode.data = textNode.data.replace(regex, replacement);
@@ -8760,7 +8763,7 @@ function highlightInTextNode(textNode, regex, highlightTagName)
 {
 	const tagName = highlightTagName || Nimbus.highlightTagName;
 	const nodeText = textNode.data;
-	if(!nodeText.match(regex))
+	if(!regex.test(nodeText))
 		return;
 	const parentNode = textNode.parentNode;
 	if(!parentNode)
@@ -8904,7 +8907,7 @@ function highlightLinksInPres()
 	for(let i = 0, ii = pres.length; i < ii; i++ )
 	{
 		const pre = pres[i];
-		if(pre.textContent.match(linkRegex))
+		if(linkRegex.test(pre.textContent))
 			pre.innerHTML = pre.innerHTML.replace(regex, '<a href="' + "$1" + '">' + "$1" + '</a>');
 	}
 }

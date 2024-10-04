@@ -8,13 +8,13 @@ function fixTextAroundReferences(selector)
 		const next = elem.nextSibling;
 		if(next && next.nodeType === 3)
 		{
-			if(next.data.match(regexPeriodOrClosingBracket))
+			if(regexPeriodOrClosingBracket.test(next.data))
 				next.data = next.data.replace(regexPeriodOrClosingBracket, "");
 		}
 		const prev = elem.previousSibling;
 		if(prev && prev.nodeType === 3)
 		{
-			if(prev.data.match(regexOpeningBracket))
+			if(regexOpeningBracket.test(prev.data))
 				prev.data = prev.data.replace(regexOpeningBracket, "");
 		}
 	}
