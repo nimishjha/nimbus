@@ -1719,13 +1719,25 @@ function cycleClass(elem, arrClasses)
 		{
 			elem.classList.remove(currClass);
 			const nextIndex = i < ii - 1 ? i + 1 : 0;
-			elem.classList.add(arrClasses[nextIndex]);
+			const nextClass = arrClasses[nextIndex];
+			elem.classList.add(nextClass);
+			showMessageBig(nextClass);
 			found = true;
 			break;
 		}
 	}
 	if(!found)
-		elem.classList.add(arrClasses[0]);
+	{
+		const nextClass = arrClasses[0];
+		elem.classList.add(nextClass);
+		showMessageBig(nextClass);
+	}
+}
+
+function cycleTheme()
+{
+	cycleClass(document.body, ["nimbusTheme1", "nimbusTheme2", "nimbusTheme3", "none"]);
+	document.documentElement.className = document.body.className;
 }
 
 function insertBefore(anchorElement, elementToInsert) { anchorElement.insertAdjacentElement("beforebegin", elementToInsert); }
@@ -4712,7 +4724,7 @@ function fixDashes()
 	for(const p of ps)
 		p.innerHTML = removeLineBreaks(p.innerHTML);
 	replaceInTextNodes("--", "—");
-	replaceInTextNodesRegex("\s+-\s+", "—");
+	replaceInTextNodesRegex(/\s+-\s+/, "—");
 	replaceInTextNodes(" -", "—");
 	replaceInTextNodes("— ", "—");
 	replaceInTextNodes(" —", "—");
@@ -9015,7 +9027,7 @@ function handleKeyDown(e)
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
 			case KEYCODES.NINE: removeAllAttributesOfTypes(["class", "style", "align"]); unwrapAll("span"); break;
 			case KEYCODES.ZERO: cycleThroughDocumentHeadings(); break;
-			case KEYCODES.A: cycleClass(db, ["nimbusTheme1", "nimbusTheme2", "nimbusTheme3", "none"]); dh.className = db.className; break;
+			case KEYCODES.A: cycleTheme(); break;
 			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.D: deleteEmptyBlockElements(); break;
 			case KEYCODES.E: cycleHighlightTag(); break;
@@ -9190,10 +9202,10 @@ function handleKeyDown(e)
 
 function main()
 {
-	const excludedDomains = [
-		"mail.proton.me"
-	];
-	if(!excludedDomains.includes(location.hostname))
+	const excludedDomains = {
+		"mail.proton.me": true,
+	};
+	if(!excludedDomains[location.hostname])
 		setTimeout(inject, 200);
 	else
 		console.log("Nimbus: is excluded domain, not injecting");
