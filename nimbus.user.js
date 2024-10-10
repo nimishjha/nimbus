@@ -8982,7 +8982,7 @@ function highlightInTextNode(textNode, regex, highlightTagName)
 {
 	const tagName = highlightTagName || Nimbus.highlightTagName;
 	const nodeText = textNode.data;
-	if(!regex.test(nodeText))
+	if(nodeText.search(regex) === -1)
 		return;
 	const parentNode = textNode.parentNode;
 	if(!parentNode)
