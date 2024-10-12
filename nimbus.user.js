@@ -1839,7 +1839,7 @@ function replaceIframes()
 		const iframereplacement = document.createElement("rp");
 		const iframelink = document.createElement("a");
 		let iframeSrc = elem.src;
-		if(containsAnyOfTheStrings(s, ["facebook", "twitter"]))
+		if(containsAnyOfTheStrings(iframeSrc, ["facebook", "twitter"]))
 		{
 			elem.remove();
 			continue;
@@ -3010,7 +3010,7 @@ function autoCompleteInputBox()
 	function updateInputField()
 	{
 		if(~inputComponent.currentIndex && inputComponent.matches[inputComponent.currentIndex])
-			getOne("#autoCompleteInput").value = inputComponent.matches[inputComponent.currentIndex];
+			getOne("#autoCompleteInput").value = inputComponent.matches[inputComponent.currentIndex] + " ";
 	}
 
 	function highlightPrevMatch()
@@ -3085,7 +3085,7 @@ function autoCompleteInputBox()
 			inputComponent.currentIndex = -1;
 			return;
 		}
-		str = str.toLowerCase();
+		str = str.toLowerCase().trim();
 
 		inputComponent.matches = [];
 		const commands = Object.keys(Nimbus.availableFunctions);
@@ -3159,7 +3159,7 @@ function highlightMapper()
 		padding: 20,
 		drawGaps: false,
 		elements: [],
-	}
+	};
 
 	function setupCanvasClickTracking(canvas) {
 		canvas.addEventListener('click', function(event) {
@@ -3210,11 +3210,11 @@ function highlightMapper()
 		const rowHeightPlusSpacing = config.rowHeight + config.rowSpacing;
 
 		const colorsByHighlightType = {
-			plaintext: "#202830",
+			plaintext: "#303840",
 			mark: "#0077BB",
-			markyellow: "#CCCC00",
+			markyellow: "#CC9900",
 			markpurple: "#CC00CC",
-			markgreen: "#00AA00",
+			markgreen: "#00CC00",
 			markblue: "#4444CC",
 			markred: "#CC0000",
 			markwhite: "#E0E0E0",
@@ -3329,7 +3329,8 @@ function highlightMapper()
 	function destroy()
 	{
 		const canvas = document.getElementById(config.canvasId);
-		canvas.remove();
+		if(canvas)
+			canvas.remove();
 	}
 
 	return {
@@ -6205,7 +6206,7 @@ function insertStyleHighlight()
 		mark { background: #048; color: #6CF; }
 		markgreen { background: #150; color: #4F0; }
 		markred { background: #500; color: #E33; }
-		markblue { background: #005; color: #05D; }
+		markblue { background: #005; color: #66D; }
 		markpurple { background: #204; color: #C7E; }
 		markyellow { background: #804800; color: #FF0; }
 		markwhite { background: #000; color: #DDD; }
@@ -8988,7 +8989,6 @@ function highlightInTextNode(textNode, regex, highlightTagName)
 	if(!parentNode)
 		return;
 	const matches = nodeText.matchAll(regex);
-	if(!matches) return;
 	const replacementNodes = [];
 	let lastIndex = 0;
 	for(const match of matches)
@@ -9243,7 +9243,7 @@ function handleKeyDown(e)
 			case KEYCODES.J: removeEmojis(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.L: showLog(); break;
-			case KEYCODES.M: customPrompt("Enter command").then(runCommand); break;
+			case KEYCODES.M: toggleHighlightMap(); break;
 			case KEYCODES.N: numberDivs(); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatchesInDocument, true); break;
 			case KEYCODES.P: fixParagraphs(); break;
