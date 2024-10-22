@@ -42,11 +42,14 @@ const Nimbus = {
 	logString: "",
 	messageTimeout: null,
 	KEYCODES: {
-		DELETE: 46, ZERO: 48, ONE: 49, TWO: 50, THREE: 51, FOUR: 52, FIVE: 53, SIX: 54, SEVEN: 55, EIGHT: 56, NINE: 57,
+		ZERO: 48, ONE: 49, TWO: 50, THREE: 51, FOUR: 52, FIVE: 53, SIX: 54, SEVEN: 55, EIGHT: 56, NINE: 57,
 		A: 65, B: 66, C: 67, D: 68, E: 69, F: 70, G: 71, H: 72, I: 73, J: 74, K: 75, L: 76, M: 77, N: 78, O: 79, P: 80, Q: 81, R: 82, S: 83, T: 84, U: 85, V: 86, W: 87, X: 88, Y: 89, Z: 90,
 		F1: 112, F2: 113, F3: 114, F4: 115, F5: 116, F6: 117, F7: 118, F8: 119, F9: 120, F10: 121, F11: 122, F12: 123,
-		NUMPAD0: 96, NUMPAD1: 97, NUMPAD2: 98, NUMPAD3: 99, NUMPAD4: 100, NUMPAD5: 101, NUMPAD6: 102, NUMPAD7: 103, NUMPAD8: 104, NUMPAD9: 105, NUMPAD_MULTIPLY: 106, NUMPAD_ADD: 107, NUMPAD_SUBTRACT: 109, NUMPAD_DECIMAL_POINT: 110, NUMPAD_DIVIDE: 111,
-		FORWARD_SLASH: 191, BACK_SLASH: 220, MINUS: 173, TILDE: 192, SPACE: 32, UPARROW: 38, DOWNARROW: 40, LEFTARROW: 37, RIGHTARROW: 39, TAB: 9, ENTER: 13, ESCAPE: 27, SQUARE_BRACKET_OPEN: 219, SQUARE_BRACKET_CLOSE: 221, PERIOD: 190
+		NUMPAD0: 96, NUMPAD1: 97, NUMPAD2: 98, NUMPAD3: 99, NUMPAD4: 100, NUMPAD5: 101, NUMPAD6: 102, NUMPAD7: 103, NUMPAD8: 104, NUMPAD9: 105,
+		NUMPAD_MULTIPLY: 106, NUMPAD_ADD: 107, NUMPAD_SUBTRACT: 109, NUMPAD_DECIMAL_POINT: 110, NUMPAD_DIVIDE: 111,
+		FORWARD_SLASH: 191, BACK_SLASH: 220, MINUS: 173, TILDE: 192, SPACE: 32,
+		UPARROW: 38, DOWNARROW: 40, LEFTARROW: 37, RIGHTARROW: 39, TAB: 9, ENTER: 13, ESCAPE: 27, SQUARE_BRACKET_OPEN: 219, SQUARE_BRACKET_CLOSE: 221,
+		PERIOD: 190, HOME: 36, END: 35, DELETE: 46
 	},
 	availableFunctions: {
 		addDateToTitle: addDateToTitle,
@@ -908,6 +911,7 @@ function removeRedundantHrs()
 		HEADER: true,
 		UL: true,
 		OL: true,
+		PRE: true,
 	};
 	const elems = get("hr");
 	let count = 0;
@@ -1737,7 +1741,7 @@ function cycleClass(elem, arrClasses)
 
 function cycleTheme()
 {
-	cycleClass(document.body, ["nimbusTheme1", "nimbusTheme2", "nimbusTheme3", "none"]);
+	cycleClass(document.body, ["nimbusTheme1", "nimbusTheme3", "nimbusTheme2", "none"]);
 	document.documentElement.className = document.body.className;
 }
 
@@ -2207,14 +2211,15 @@ function createListsFromBulletedParagraphs()
 
 function deleteClass(className)
 {
-	const e = get(makeClassSelector(className));
-	let i = e.length;
+	const elems = get(makeClassSelector(className));
+	let i = elems.length;
 	let count = i ? i : 0;
 	while(i--)
 	{
-		e[i].classList.remove(className);
-		if(e[i].className === "")
-			e[i].removeAttribute("class");
+		const elem = elems[i];
+		elem.classList.remove(className);
+		if(elem.className === "")
+			elem.removeAttribute("class");
 	}
 	return count;
 }
@@ -3170,9 +3175,9 @@ function highlightMapper()
 			plaintext: "#303840",
 			mark: "#0077BB",
 			markyellow: "#CC9900",
-			markpurple: "#CC00CC",
+			markpurple: "#AA00CC",
 			markgreen: "#00CC00",
-			markblue: "#4444CC",
+			markblue: "#4444DD",
 			markred: "#CC0000",
 			markwhite: "#E0E0E0",
 		};
@@ -6197,8 +6202,6 @@ function toggleStyleNegative()
 	body.pad100 ul li { border-left: 5px solid #0C0C0C; }
 	body.pad100 img { max-width: 100%; display: block; }
 	body.pad100 section { padding: 10px; border: 2px solid #111; margin: 100px 0; }
-	body.xdark { background: #111; }
-	body.xblack { background: #000; }
 	body.xwrap { width: 1200px; margin: 0 auto; padding: 100px 200px; }
 
 	h1, h1[class], h2, h2[class], h3, h3[class], h4, h4[class], h5, h5[class], h6, h6[class]
@@ -6460,7 +6463,7 @@ function getFirstBlockParent(node)
 function getFirstTextChild(elem)
 {
 	let child = elem.firstChild;
-	while(child.nodeType !== 3)
+	while(child && child.nodeType !== 3)
 		child = child.firstChild;
 	return child;
 }
@@ -8552,7 +8555,7 @@ function expandSelectionToWordBoundaries(node, selection)
 		return selection;
 	let index2 = index1 + selection.length;
 	const regexLeft = /[\w\.\?!,'"\(\)\u2018\u201C]/;
-	const regexRight = /[\w\.\?!,'"\(\)\u2019\u201D]/;
+	const regexRight = /[\w\.\?!,;'"\(\)\u2019\u201D]/;
 	while(regexLeft.test(text[index1]) && index1 > 0)
 		index1--;
 	if(text[index1] === "\u2014") // em dash
@@ -8581,11 +8584,11 @@ function expandSelectionToSentenceBoundaries(node, selection)
 	index1++;
 	if(/['"\)]/.test(text[index1]))
 		index1++;
-	if(index1 < 10)
+	if(index1 < 4)
 		index1 = 0;
 	if(index2 < text.length - 1)
 		index2++;
-	if(index2 > text.length - 10)
+	if(index2 > text.length - 4)
 		index2 = text.length;
 	const expandedSelection = text.substring(index1, index2).replace(/\s+/g, " ").trim();
 	return stripTrailingReferenceNumber(expandedSelection);
@@ -9222,6 +9225,7 @@ function handleKeyDown(e)
 			case KEYCODES.SQUARE_BRACKET_CLOSE: modifyMark("next"); break;
 			case KEYCODES.MINUS: insertElementBeforeSelectionAnchor(); break;
 			case KEYCODES.BACK_SLASH: italicizeSelection(); break;
+			case KEYCODES.END: goToLastElement("mark"); break;
 			default: shouldPreventDefault = false;
 		}
 		if(shouldPreventDefault)
