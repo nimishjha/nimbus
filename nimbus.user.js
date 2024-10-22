@@ -9069,9 +9069,11 @@ function highlightSelectedElement(tag)
 	let node = getNodeContainingSelection();
 	if(node && node.parentNode && node.tagName !== "BODY" && node.textContent.length < MAX_LENGTH)
 	{
-		const highlightTag = tag ? tag : Nimbus.highlightTagName;
+		const highlightTagName = tag ? tag : Nimbus.highlightTagName;
 		const element = getFirstBlockParent(node);
-		wrapElementInner(element, highlightTag);
+		if(element.firstChild && element.firstChild.nodeType === 1 && element.firstChild.tagName.toLowerCase() === highlightTagName)
+			return;
+		wrapElementInner(element, highlightTagName);
 		moveLeadingAndTrailingReferencesOutOfHighlight(element.firstChild);
 	}
 }
