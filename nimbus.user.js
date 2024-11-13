@@ -9030,6 +9030,14 @@ function highlightMatchesUnderSelector(selector, str, isCaseSensitive = false)
 		highlightInTextNode(textNodes[i], regex);
 }
 
+function highlightMatchesInElementRegex(elem, regex)
+{
+	insertStyleHighlight();
+	const textNodes = getTextNodesUnderElement(elem);
+	for(let i = 0, ii = textNodes.length; i < ii; i++)
+		highlightInTextNode(textNodes[i], regex);
+}
+
 function highlightAllMatchesInDocument(str, isCaseSensitive = false)
 {
 	highlightMatchesUnderSelector("body", str, isCaseSensitive);
