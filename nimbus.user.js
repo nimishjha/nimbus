@@ -8353,11 +8353,10 @@ function wrapAnchorNodeInTag()
 	customPrompt("Enter tagName to wrap this node in").then(wrapFunc);
 }
 
-function generateTableOfContents(optionalStringToMatch)
+function generateTableOfContents(optionalStringToMatch, shouldUseHierarchicalHeadings = false)
 {
-	const shouldUseHierarchicalHeadings = true;
 	const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
-	const toc = document.createElement("header");
+	const toc = document.createElement("section");
 	toc.id = "tableOfContents";
 	const str = optionalStringToMatch ? optionalStringToMatch.toLowerCase() : null;
 	for (let i = 0, ii = headings.length; i < ii; i++)
@@ -8367,9 +8366,9 @@ function generateTableOfContents(optionalStringToMatch)
 			continue;
 		if(str && heading.textContent.toLowerCase().indexOf(str) === -1)
 			continue;
-		const id = heading.tagName + "_" + i;
-		heading.id = id;
-		const tocEntryLink = createElement("a", { textContent: heading.textContent, href: "#" + id } );
+		if(!heading.id)
+			heading.id = heading.tagName + "_" + i;
+		const tocEntryLink = createElement("a", { textContent: heading.textContent, href: "#" + heading.id } );
 		const indentLevel = parseInt(heading.tagName.substring(1), 10);
 		const tocEntryHeading = shouldUseHierarchicalHeadings ? createElement("h" + indentLevel) : createElement("h6");
 		const tocEntryWrapper = document.createElement("div");
