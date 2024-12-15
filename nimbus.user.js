@@ -3108,6 +3108,14 @@ function autoCompleteInputBox()
 	return { open, close };
 }
 
+function getViewportHeight()
+{
+	if (window.innerHeight) return window.innerHeight;
+	if (document.documentElement && document.documentElement.clientHeight) return document.documentElement.clientHeight;
+	if (document.body) return document.body.clientHeight;
+	return 0;
+}
+
 function highlightMapper()
 {
 	const config = {
@@ -3257,7 +3265,7 @@ function highlightMapper()
 
 	function generateHighlightData()
 	{
-		config.maxRows = Math.floor( document.body.clientHeight / (config.rowHeight + config.rowSpacing));
+		config.maxRows = Math.floor( getViewportHeight() / (config.rowHeight + config.rowSpacing));
 		const elems = document.querySelectorAll("p");
 		config.elements = elems;
 		const highlightData = {
