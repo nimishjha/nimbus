@@ -8470,16 +8470,16 @@ function italicizeSelection()
 	if(index1 > 0)
 	{
 		let textBeforeSelection = node.textContent.substring(0, index1);
-		if(/[a-zA-Z]/.test(textBeforeSelection[textBeforeSelection.length - 1]))
-			textBeforeSelection += " ";
+		// if(/[a-zA-Z]/.test(textBeforeSelection[textBeforeSelection.length - 1]))
+		// 	textBeforeSelection += " ";
 		frag.appendChild(document.createTextNode(textBeforeSelection));
 	}
 	frag.appendChild(createElement(tagName, { textContent: selectionText }));
 	if(index2 < node.textContent.length)
 	{
 		let textAfterSelection = node.textContent.substring(index2);
-		if(/[a-zA-Z]/.test(textAfterSelection[0]))
-			textAfterSelection = " " + textAfterSelection;
+		// if(/[a-zA-Z]/.test(textAfterSelection[0]))
+		// 	textAfterSelection = " " + textAfterSelection;
 		frag.appendChild(document.createTextNode(textAfterSelection));
 	}
 	node.parentNode.replaceChild(frag, node);
@@ -9280,7 +9280,7 @@ function handleKeyDown(e)
 			case KEYCODES.FIVE: buildSlideshow(); break;
 			case KEYCODES.A: annotate(); break;
 			case KEYCODES.C: deleteNonContentElements(); break;
-			case KEYCODES.E: resetHighlightTag(); break;
+			case KEYCODES.E: callFunctionWithArgs("Replace marked element with text", replaceMarkedWithTextElement, 2, "h2" + " "); break;
 			case KEYCODES.G: callFunctionWithArgs("Retrieve elements by selector (optionally containing text)", retrieveBySelectorAndText); break;
 			case KEYCODES.J: joinMarkedElements(); break;
 			case KEYCODES.K: makeChildOf(); break;
