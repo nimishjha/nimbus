@@ -248,6 +248,7 @@ const Nimbus = {
 		selectElementsStartingWithText: selectElementsStartingWithText,
 		setAttributeOf: setAttributeOf,
 		setDocTitle: setDocTitle,
+		setIdentifyClassStyle: setIdentifyClassStyle,
 		setItalicTag: setItalicTag,
 		setMarkerClass: setMarkerClass,
 		setQueryParameter: setQueryParameter,
@@ -2474,6 +2475,13 @@ function replaceInClassNames(str, repl)
 		if(typeof elem.className === "string" && elem.className.length)
 			elem.className = elem.className.replaceAll(str, repl);
 	}
+}
+
+function setIdentifyClassStyle(styleString)
+{
+	const styleRule = "{" + styleString + "}";
+	Nimbus.identifyClass.style = styleRule;
+	showMessageBig("identifyClass style set to " + styleRule);
 }
 
 function toggleIdentifyClassMode()
