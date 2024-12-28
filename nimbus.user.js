@@ -3223,6 +3223,10 @@ function highlightMapper()
 			}
 			y += rowHeightPlusSpacing;
 		}
+
+		ctx.font = "bold 20px SF Mono";
+		ctx.fillStyle = "#CCC";
+		ctx.fillText(`1:${config.groupSize}`, width - 50, 20);
 	}
 
 	function summarizeData(highlightData)
@@ -3230,12 +3234,10 @@ function highlightMapper()
 		const { highlightLengths } = highlightData;
 		if(highlightLengths.length <= config.maxRows)
 		{
-			showMessageBig(`Each row represents 1 paragraph`);
 			config.groupSize = 1;
 			return highlightData;
 		}
 		const groupSize = Math.ceil(highlightLengths.length / config.maxRows);
-		showMessageBig(`Each row represents ${groupSize} paragraphs`);
 		config.groupSize = groupSize;
 		const summarizedData = [];
 		let maxGroupedParagraphLength = 0;
@@ -9288,7 +9290,7 @@ function handleKeyDown(e)
 			case KEYCODES.FIVE: buildSlideshow(); break;
 			case KEYCODES.A: annotate(); break;
 			case KEYCODES.C: deleteNonContentElements(); break;
-			case KEYCODES.E: callFunctionWithArgs("Replace marked element with text", replaceMarkedWithTextElement, 2, "h2" + " "); break;
+			case KEYCODES.E: callFunctionWithArgs("Replace marked element with text", replaceMarkedWithTextElement, 2, "h2 "); break;
 			case KEYCODES.G: callFunctionWithArgs("Retrieve elements by selector (optionally containing text)", retrieveBySelectorAndText); break;
 			case KEYCODES.J: joinMarkedElements(); break;
 			case KEYCODES.K: makeChildOf(); break;
