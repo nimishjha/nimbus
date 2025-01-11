@@ -125,6 +125,7 @@ const Nimbus = {
 		getAllCssRulesMatching: getAllCssRulesMatching,
 		getBestImageSrc: getBestImageSrc,
 		getContentByParagraphCount: getContentByParagraphCount,
+		getMarkedHTML: getMarkedHTML,
 		getPageNavLinks: getPageNavLinks,
 		goToLastElement: goToLastElement,
 		goToNextElement: goToNextElement,
@@ -887,6 +888,25 @@ function forAllMarked(func)
 	for(let i = 0, ii = elements.length; i < ii; i++)
 		if(elements[i])
 			func.call(null, elements[i]);
+}
+
+function getMarkedHTML()
+{
+	const id = "nimbusMarkedInnerHTML";
+	function destroy()
+	{
+		const elem = getOne(id);
+		if(elem) elem.remove();
+		del("#" + id);
+	}
+	const elem = getOne(".markd");
+	if(!elem) return;
+	const ta = document.createElement("textarea");
+	ta.id = id;
+	ta.value = elem.innerHTML;
+	ta.setAttribute("style", "position: fixed; top: 100px; left: 100px; width: 80vw; height: 80vh;");
+	document.body.appendChild(ta);
+	setTimeout(destroy, 3000);
 }
 
 function setAttributeOrProperty(element, key, value)
