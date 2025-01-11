@@ -13,7 +13,7 @@
 
 //
 //	Nimbus
-//	Copyright (C) 2008-2024 Nimish Jha
+//	Copyright (C) 2008-2025 Nimish Jha
 //
 //	This program is free software: you can redistribute it and/or modify
 //	it under the terms of the GNU General Public License as published by
@@ -164,6 +164,7 @@ const Nimbus = {
 		listSelectorsWithLightBackgrounds: listSelectorsWithLightBackgrounds,
 		logAllClassesFor: logAllClassesFor,
 		makeButtonsReadable: makeButtonsReadable,
+		makeChildOf: makeChildOf,
 		makeDocumentHierarchical: makeDocumentHierarchical,
 		makeFileLinksRelative: makeFileLinksRelative,
 		makeHeadings: makeHeadings,
@@ -907,6 +908,7 @@ function removeRedundantHrs()
 		H6: true,
 		HR: true,
 		FIGURE: true,
+		FIGCAPTION: true,
 		RT: true,
 		BLOCKQUOTE: true,
 		HEADER: true,
@@ -1695,7 +1697,7 @@ function createSelector(elem)
 	if(elem.className && elem.className !== Nimbus.markerClass)
 		s += createClassSelector(elem);
 	if(elem.name)
-		s += " <b>name:</b> " + elem.name;
+		s += " name: " + elem.name;
 	return s;
 }
 
@@ -3188,9 +3190,9 @@ function highlightMapper()
 		const rowHeightPlusSpacing = config.rowHeight + config.rowSpacing;
 
 		const colorsByHighlightType = {
-			plaintext: "#303840",
+			plaintext: "#303030",
 			mark: "#0077BB",
-			markyellow: "#CC9900",
+			markyellow: "#DDBB00",
 			markpurple: "#AA00CC",
 			markgreen: "#00CC00",
 			markblue: "#4444DD",
@@ -8011,7 +8013,7 @@ function toggleMutationObserver(watchAttributes, mutationFilterSelector = null, 
 		message += " with attributes";
 	}
 	if(mutationFilterSelector)
-		message += ` for elements matching <b>${mutationFilterSelector}</b>`;
+		message += ` for elements matching ${mutationFilterSelector}`;
 	Nimbus.observer.observe(getOne("body"), config);
 	showMessageBig(message);
 	Nimbus.isObservingMutations = true;
@@ -8998,7 +9000,7 @@ function getPreTextNodes(directDescendantsOnly, markedOnly)
 	return getXpathResultAsArray(`//${selectorPre}//text()`);
 }
 
-function highlightCodeInTextNodes(regex, tagName)
+function highlightCodeInPreTextNodes(regex, tagName)
 {
 	const nodes = getPreTextNodes();
 	if(!nodes) return;

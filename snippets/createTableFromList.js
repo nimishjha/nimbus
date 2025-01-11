@@ -4,6 +4,7 @@ function createTableFromList(selector, numCols)
 	if(elems.length % numCols !== 0)
 	{
 		console.log("element count", elems.length , "is not divisible by", numCols);
+		return;
 	}
 	const parent = elems[0].parentNode;
 	const placeholder = document.createElement("aside");
@@ -32,6 +33,7 @@ function createTableFromElements(elems, numCols)
 	if(elems.length % numCols !== 0)
 	{
 		console.log("element count", elems.length , "is not divisible by", numCols);
+		return;
 	}
 	const parent = elems[0].parentNode;
 	const placeholder = document.createElement("dt");
