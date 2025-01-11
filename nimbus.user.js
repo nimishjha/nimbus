@@ -142,6 +142,7 @@ const Nimbus = {
 		highlightCodeComments: highlightCodeComments,
 		highlightCodePunctuation: highlightCodePunctuation,
 		highlightCodeStrings: highlightCodeStrings,
+		highlightInTextNodes: highlightInTextNodes,
 		highlightFirstParentByText: highlightFirstParentByText,
 		highlightLinksInPres: highlightLinksInPres,
 		highlightLinksWithHrefContaining: highlightLinksWithHrefContaining,
@@ -9056,33 +9057,41 @@ function highlightCodeInPreTextNodes(regex, tagName)
 
 function highlightCodePunctuation()
 {
-	highlightCodeInTextNodes(/[\{\}]/g, "xp");
-	highlightCodeInTextNodes(/[\[\]]/g, "x13");
-	highlightCodeInTextNodes(/[\(\)]/g, "x14");
-	highlightCodeInTextNodes(/\|\|/g, "x15");
+	highlightCodeInPreTextNodes(/[\{\}]/g, "xp");
+	highlightCodeInPreTextNodes(/[\[\]]/g, "x13");
+	highlightCodeInPreTextNodes(/[\(\)]/g, "x14");
+	highlightCodeInPreTextNodes(/\|\|/g, "x15");
 }
 
 function highlightCodeStrings()
 {
-	highlightCodeInTextNodes(/''/g, "xs");
-	highlightCodeInTextNodes(/""/g, "xs");
-	highlightCodeInTextNodes(/'[^']+'/g, "xs");
-	highlightCodeInTextNodes(/"[^"]+"/g, "xs");
+	highlightCodeInPreTextNodes(/''/g, "xs");
+	highlightCodeInPreTextNodes(/""/g, "xs");
+	highlightCodeInPreTextNodes(/'[^']+'/g, "xs");
+	highlightCodeInPreTextNodes(/"[^"]+"/g, "xs");
 }
 
 function highlightCodeKeywords(keywords)
 {
 	const keywordClause = '(' + keywords.join('|') + ')';
 	const regex = new RegExp("\\b" + keywordClause + "\\b", "g");
-	highlightCodeInTextNodes(regex, "xk");
+	highlightCodeInPreTextNodes(regex, "xk");
 }
 
 function highlightCodeComments()
 {
-	highlightCodeInTextNodes(/[^:]\/\/[^\n]+/g, "xc");
-	highlightCodeInTextNodes(/[\s]\/\/[^\n]+/g, "xc");
-	highlightCodeInTextNodes(/^\/\/[^\n]+/g, "xc");
+	highlightCodeInPreTextNodes(/[^:]\/\/[^\n]+/g, "xc");
+	highlightCodeInPreTextNodes(/[\s]\/\/[^\n]+/g, "xc");
+	highlightCodeInPreTextNodes(/^\/\/[^\n]+/g, "xc");
 	makePlainText("xc");
+}
+
+function highlightInTextNodes(regex, tagName)
+{
+	const nodes = getTextNodesUnderSelector("body");
+	if(!nodes) return;
+	for(const node of nodes)
+		highlightInTextNode(node, regex, tagName);
 }
 
 function highlightMatchesUnderSelector(selector, str, isCaseSensitive = false)
