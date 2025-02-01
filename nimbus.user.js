@@ -377,13 +377,18 @@ const Nimbus = {
 		elements: [],
 		currentElement: null,
 	},
-	symbolsString: "∆∑√∫αβγλμνπρστυ≃°θΩω⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉—",
+	symbolsString: "∆∑σ√∫αβγλμνπΦϕΨψρστυ≃°θΩω⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉—",
 	symbols: {
 		delta: "∆",
 		sigmaUpper: "∑",
-		pi: "π",
-		tau: "τ",
 		sigmaLower: "σ",
+		pi: "π",
+		phiUpper: "Φ",
+		phiLower: "ϕ",
+		psiUpper: "Ψ",
+		psiLower: "ψ",
+		rho: "ρ",
+		tau: "τ",
 		squareRoot: "√",
 		lambda: "λ",
 		gamma: "γ",
@@ -402,6 +407,8 @@ const Nimbus = {
 		sub3: "₃",
 		degree: "°",
 		emdash: "—",
+		pbar: "p̄",
+		qbar: "q̄",
 	},
 };
 
@@ -475,6 +482,7 @@ const STYLES = {
 		th { box-shadow: inset 2px 2px #048, inset -2px -2px #048; }
 		ul, ol { box-shadow: inset 2px 2px #0A0, inset -2px -2px #0A0; }
 		li { box-shadow: inset 2px 2px #070, inset -2px -2px #070; }
+		sup, sub { box-shadow: inset 2px 2px #68A, inset -2px -2px #68A; }
 		span { box-shadow: inset 2px 2px #AA0, inset -2px -2px #AA0; }
 		font { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; }
 		abbr { box-shadow: inset 2px 2px #A00, inset -2px -2px #A00; }
@@ -907,6 +915,7 @@ function getMarkedHTML()
 	ta.value = elem.innerHTML;
 	ta.setAttribute("style", "position: fixed; top: 100px; left: 100px; width: 80vw; height: 80vh;");
 	document.body.appendChild(ta);
+	ta.focus();
 	setTimeout(destroy, 3000);
 }
 
@@ -4745,7 +4754,7 @@ function replaceEmptyParagraphsWithHr()
 	{
 		const text = elem.textContent;
 		if(text.indexOf("•") !== -1) return text.replace(/[•\s]+/g, "").length === 0;
-		else return ~text.indexOf("*") && text.replace(/[\*\s]+/g, "").length === 0;
+		return ~text.indexOf("*") && text.replace(/[\*\s]+/g, "").length === 0;
 	}
 	const paras = get("p");
 	let i = paras.length;
@@ -4854,6 +4863,7 @@ function replaceCommonClasses()
 	replaceElementsBySelector(".cn, .ct, .chapnum, .chapter, .chapternumber, .tochead, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chapno, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num", "h2");
 	replaceElementsBySelector(".cst, .h", "h3");
 	replaceElementsBySelector(".figcap", "figcaption");
+	replaceElementsBySelector(".fig-cap", "figcaption");
 	replaceElementsBySelector(".figure", "figure");
 	replaceElementsBySelector(".fn, .fn1", "footnote");
 
@@ -9435,7 +9445,7 @@ function handleKeyDown(e)
 			case KEYCODES.Z: deselect(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by class or id containing", replaceByClassOrIdContaining, 2); break;
 			case KEYCODES.H: unmarkAll(); break;
-			case KEYCODES.M: toggleHighlightMap(); break;
+			case KEYCODES.M: toggleHighlightMap(4, 1, 20); break;
 			case KEYCODES.S: forceReloadCss(); break;
 			case KEYCODES.V: replaceCommonClasses(); break;
 			case KEYCODES.ZERO: capitalizeTitle(); break;
