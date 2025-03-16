@@ -411,6 +411,32 @@ const Nimbus = {
 		qbar: "q̄",
 		hbar: "h̄",
 	},
+	videoFilter: {
+		enabled: false,
+		current: "",
+		currentIndex: -1,
+		styles: [
+			"video, img { filter: saturate(1.5); }",
+			"video, img { filter: saturate(2); }",
+			"video, img { filter: saturate(1.5) brightness(0.9) contrast(1.1); }",
+			"video, img { filter: saturate(1.5) brightness(0.9) contrast(1.2); }",
+			"video, img { filter: saturate(1.5) brightness(0.8) contrast(1.1); }",
+			"video, img { filter: saturate(1.5) brightness(0.8) contrast(1.2); }",
+			"video, img { filter: saturate(1.5) hue-rotate(-10deg) brightness(0.8) contrast(1.1); }",
+			"video, img { filter: saturate(1.5) hue-rotate(-10deg) brightness(0.8) contrast(1.2); }",
+			"video, img { filter: saturate(0); }",
+			"video, img { filter: saturate(0) brightness(0.9) contrast(1.1); }",
+			"video, img { filter: saturate(0) brightness(0.8) contrast(1.2); }",
+			"video, img { filter: sepia(1) hue-rotate(180deg); }",
+			"video, img { filter: sepia(1) hue-rotate(180deg) saturate(2); }",
+			"video, img { filter: sepia(1) hue-rotate(180deg) saturate(3); }",
+			"video, img { filter: sepia(1) hue-rotate(180deg) saturate(4); }",
+			"video, img { filter: sepia(1) hue-rotate(180deg) brightness(0.8) contrast(1.2); }",
+			"video, img { filter: sepia(1) hue-rotate(180deg) saturate(2) brightness(0.8) contrast(1.2); }",
+			"video, img { filter: sepia(1) hue-rotate(180deg) saturate(3) brightness(0.8) contrast(1.2); }",
+			"video, img { filter: sepia(1) hue-rotate(180deg) saturate(4) brightness(0.8) contrast(1.2); }",
+		],
+	},
 };
 
 Nimbus.blockElementSelector = Object.keys(Nimbus.BLOCK_ELEMENTS).join();
@@ -476,7 +502,13 @@ const STYLES = {
 		p { background: #282828; padding: 0.5rem 1rem; margin: 0 0 2px 0; }
 		a { text-decoration: none; }
 	`,
-	GRAYSCALE: 'video, img { filter: saturate(0); }',
+	VIEW_VIDEO_01: `
+		html { background: #000; color: #999; font-size: 12px; }
+		body { background: #000; overflow: hidden; }
+		* { border: 0; text-shadow: none; font-size: 12px; color: #555; }
+		a { text-decoration: none; }
+		img { display: none; }
+	`,
 	OUTLINE_ELEMENTS: `header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
 		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
 		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
@@ -2412,7 +2444,7 @@ function getNext(item, arr)
 	return nextItem;
 }
 
-function getPrev(item, arr)
+function getPrevious(item, arr)
 {
 	let prevItem = arr[0];
 	const index = arr.indexOf(item);
@@ -5820,7 +5852,7 @@ function goToPrevElement(selector)
 	}
 	else
 	{
-		const elementToScrollTo = getPrev(config.currentElement, config.elements);
+		const elementToScrollTo = getPrevious(config.currentElement, config.elements);
 		if(elementToScrollTo)
 		{
 			config.currentElement = elementToScrollTo;
@@ -6258,11 +6290,6 @@ function insertStyleShowErrors()
 {
 	const s = ".error { box-shadow: inset 2000px 2000px rgba(255, 0, 0, 1);";
 	insertStyle(s, "styleShowErrors", true);
-}
-
-function toggleStyleGrayscale()
-{
-	toggleStyle(STYLES.GRAYSCALE, "styleGrayscale", true);
 }
 
 function toggleStyleNegative()
@@ -9213,6 +9240,42 @@ function removeHighlightsFromMarkedElements()
 	unmarkAll();
 }
 
+function toggleVideoFilter()
+{
+	const vf = Nimbus.videoFilter;
+	if(vf.enabled)
+		del("#styleVideoFilter");
+	else
+		insertStyle(vf.styles[vf.currentIndex], "styleVideoFilter", true);
+	vf.enabled = !vf.enabled;
+}
+
+function getPreviousIndex(index, array)
+{
+	return Math.max(--index, 0);
+}
+
+function getNextIndex(index, array)
+{
+	return Math.min(++index, array.length - 1);
+}
+
+function previousVideoFilter()
+{
+	const videoFilter = Nimbus.videoFilter;
+	videoFilter.currentIndex = getPreviousIndex(videoFilter.currentIndex, videoFilter.styles);
+	insertStyle(videoFilter.styles[videoFilter.currentIndex], "styleVideoFilter", true);
+	Nimbus.videoFilter.enabled = true;
+}
+
+function nextVideoFilter()
+{
+	const videoFilter = Nimbus.videoFilter;
+	videoFilter.currentIndex = getNextIndex(videoFilter.currentIndex, videoFilter.styles);
+	insertStyle(videoFilter.styles[videoFilter.currentIndex], "styleVideoFilter", true);
+	Nimbus.videoFilter.enabled = true;
+}
+
 function isChrome() { return navigator.userAgent.indexOf("Chrome/") !== -1; }
 function isIframe() { return window !== window.top; }
 
@@ -9390,8 +9453,8 @@ function handleKeyDown(e)
 		shouldPreventDefault = true;
 		switch(k)
 		{
-			case KEYCODES.SQUARE_BRACKET_OPEN: changePage("previous"); break;
-			case KEYCODES.SQUARE_BRACKET_CLOSE: changePage("next"); break;
+			// case KEYCODES.SQUARE_BRACKET_OPEN: changePage("previous"); break;
+			// case KEYCODES.SQUARE_BRACKET_CLOSE: changePage("next"); break;
 			case KEYCODES.UPARROW: modifyMark("expand"); break;
 			case KEYCODES.DOWNARROW: modifyMark("contract"); break;
 			case KEYCODES.LEFTARROW: modifyMark("previous"); break;
@@ -9399,10 +9462,10 @@ function handleKeyDown(e)
 			case KEYCODES.ONE: toggleStyleNegative(); break;
 			case KEYCODES.TWO: toggleStyle(STYLES.DIM_BODY + STYLES.FONT_01, "style2", true); break;
 			case KEYCODES.THREE: toggleStyle(STYLES.FONT_01, "styleFont01", true); break;
-			case KEYCODES.FOUR: toggleStyle(STYLES.SIMPLE_NEGATIVE_3, "styleSimpleNegative", true); break;
-			case KEYCODES.FIVE: toggleStyleGrayscale(); break;
-			case KEYCODES.SIX: toggleStyle(STYLES.MIN_FONT_SIZE, "styleMinFontSize", true); break;
-			case KEYCODES.SEVEN: toggleStyle(STYLES.GITHUB_HIDE_DELETE_DIFFS, "styleGithubHideDeleteDiffs", true); break;
+			case KEYCODES.FOUR: toggleStyle(STYLES.SIMPLE_NEGATIVE_3, "styleSimpleNegative3", true); break;
+			case KEYCODES.FIVE: toggleStyle(STYLES.MIN_FONT_SIZE, "styleMinFontSize", true); break;
+			case KEYCODES.SIX: toggleStyle(STYLES.GITHUB_HIDE_DELETE_DIFFS, "styleGithubHideDeleteDiffs", true); break;
+			case KEYCODES.ZERO: toggleStyle(STYLES.VIEW_VIDEO_01, "viewVideo01", true); break;
 			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
 			case KEYCODES.B: toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
@@ -9421,10 +9484,13 @@ function handleKeyDown(e)
 			case KEYCODES.T: toggleStyle(STYLES.SHOW_TABLE_STRUCTURE, "styleShowTableStructure", true); break;
 			case KEYCODES.V: toggleStyle(STYLES.OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
 			case KEYCODES.X: customPrompt("Enter xPath").then(xPathMark); break;
-			case KEYCODES.Y: replaceElementsByTagNameMatching("ytd"); break;
+			// case KEYCODES.Y: replaceElementsByTagNameMatching("ytd"); break;
 			case KEYCODES.Z: markSelectionAnchorNode(); break;
 			case KEYCODES.MINUS: insertElementAfterSelectionAnchor(); break;
 			case KEYCODES.F12: inspect(); break;
+			case KEYCODES.Y: toggleVideoFilter(); break;
+			case KEYCODES.SQUARE_BRACKET_OPEN: previousVideoFilter(); break;
+			case KEYCODES.SQUARE_BRACKET_CLOSE: nextVideoFilter(); break;
 			default: shouldPreventDefault = false; break;
 		}
 		if(shouldPreventDefault)
