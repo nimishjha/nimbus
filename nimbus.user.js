@@ -9276,6 +9276,13 @@ function nextVideoFilter()
 	Nimbus.videoFilter.enabled = true;
 }
 
+function clearBootstrapClasses()
+{
+	const elems = get("div[class*=col-]");
+	for(let i = 0, ii = elems.length; i < ii; i++)
+		elems[i].className = "";
+}
+
 function isChrome() { return navigator.userAgent.indexOf("Chrome/") !== -1; }
 function isIframe() { return window !== window.top; }
 
@@ -9465,7 +9472,7 @@ function handleKeyDown(e)
 			case KEYCODES.FOUR: toggleStyle(STYLES.SIMPLE_NEGATIVE_3, "styleSimpleNegative3", true); break;
 			case KEYCODES.FIVE: toggleStyle(STYLES.MIN_FONT_SIZE, "styleMinFontSize", true); break;
 			case KEYCODES.SIX: toggleStyle(STYLES.GITHUB_HIDE_DELETE_DIFFS, "styleGithubHideDeleteDiffs", true); break;
-			case KEYCODES.ZERO: toggleStyle(STYLES.VIEW_VIDEO_01, "viewVideo01", true); break;
+			case KEYCODES.ZERO: clearBootstrapClasses(); toggleStyle(STYLES.VIEW_VIDEO_01, "viewVideo01", true); break;
 			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
 			case KEYCODES.B: toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
