@@ -998,6 +998,7 @@ function removeRedundantHrs()
 		HR: true,
 		FIGURE: true,
 		FIGCAPTION: true,
+		FOOTNOTE: true,
 		RT: true,
 		BLOCKQUOTE: true,
 		HEADER: true,
