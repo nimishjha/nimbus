@@ -413,7 +413,6 @@ const Nimbus = {
 	},
 	videoFilter: {
 		enabled: false,
-		current: "",
 		currentIndex: -1,
 		styles: [
 			"video, img { filter: saturate(1.5); }",
@@ -9241,16 +9240,6 @@ function removeHighlightsFromMarkedElements()
 	unmarkAll();
 }
 
-function toggleVideoFilter()
-{
-	const vf = Nimbus.videoFilter;
-	if(vf.enabled)
-		del("#styleVideoFilter");
-	else
-		insertStyle(vf.styles[vf.currentIndex], "styleVideoFilter", true);
-	vf.enabled = !vf.enabled;
-}
-
 function getPreviousIndex(index, array)
 {
 	return Math.max(--index, 0);
@@ -9261,19 +9250,37 @@ function getNextIndex(index, array)
 	return Math.min(++index, array.length - 1);
 }
 
+function toggleVideoFilter()
+{
+	if(Nimbus.videoFilter.enabled)
+		disableVideoFilter();
+	else
+		applyVideoFilter();
+}
+
+function disableVideoFilter()
+{
+	del("#styleVideoFilter");
+	showMessageBig("Video filter disabled");
+	Nimbus.videoFilter.enabled = false;
+}
+
 function previousVideoFilter()
 {
-	const videoFilter = Nimbus.videoFilter;
-	videoFilter.currentIndex = getPreviousIndex(videoFilter.currentIndex, videoFilter.styles);
-	insertStyle(videoFilter.styles[videoFilter.currentIndex], "styleVideoFilter", true);
-	Nimbus.videoFilter.enabled = true;
+	Nimbus.videoFilter.currentIndex = getPreviousIndex(Nimbus.videoFilter.currentIndex, Nimbus.videoFilter.styles);
+	applyVideoFilter();
 }
 
 function nextVideoFilter()
 {
-	const videoFilter = Nimbus.videoFilter;
-	videoFilter.currentIndex = getNextIndex(videoFilter.currentIndex, videoFilter.styles);
-	insertStyle(videoFilter.styles[videoFilter.currentIndex], "styleVideoFilter", true);
+	Nimbus.videoFilter.currentIndex = getNextIndex(Nimbus.videoFilter.currentIndex, Nimbus.videoFilter.styles);
+	applyVideoFilter();
+}
+
+function applyVideoFilter(index)
+{
+	insertStyle(Nimbus.videoFilter.styles[Nimbus.videoFilter.currentIndex], "styleVideoFilter", true);
+	showMessageBig("Video filter " + Nimbus.videoFilter.currentIndex);
 	Nimbus.videoFilter.enabled = true;
 }
 
