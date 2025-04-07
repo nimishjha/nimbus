@@ -9268,13 +9268,24 @@ function disableVideoFilter()
 
 function previousVideoFilter()
 {
+	const lastIndex = Nimbus.videoFilter.currentIndex;
 	Nimbus.videoFilter.currentIndex = getPreviousIndex(Nimbus.videoFilter.currentIndex, Nimbus.videoFilter.styles);
-	applyVideoFilter();
+	if(Nimbus.videoFilter.currentIndex !== lastIndex)
+		applyVideoFilter();
 }
 
 function nextVideoFilter()
 {
+	const lastIndex = Nimbus.videoFilter.currentIndex;
 	Nimbus.videoFilter.currentIndex = getNextIndex(Nimbus.videoFilter.currentIndex, Nimbus.videoFilter.styles);
+	if(Nimbus.videoFilter.currentIndex !== lastIndex)
+		applyVideoFilter();
+}
+
+function addVideoFilter(style)
+{
+	Nimbus.videoFilter.styles.push(style);
+	Nimbus.videoFilter.currentIndex = Nimbus.videoFilter.styles.length - 1;
 	applyVideoFilter();
 }
 
@@ -9504,6 +9515,7 @@ function handleKeyDown(e)
 			case KEYCODES.Z: markSelectionAnchorNode(); break;
 			case KEYCODES.MINUS: insertElementAfterSelectionAnchor(); break;
 			case KEYCODES.F12: inspect(); break;
+			case KEYCODES.U: customPrompt("Enter custom video filter style", "video, img { filter: saturate(0); }").then(addVideoFilter); break;
 			case KEYCODES.Y: toggleVideoFilter(); break;
 			case KEYCODES.SQUARE_BRACKET_OPEN: previousVideoFilter(); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: nextVideoFilter(); break;
