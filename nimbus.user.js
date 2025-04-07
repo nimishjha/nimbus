@@ -535,6 +535,11 @@ const STYLES = {
 		h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #A0A, inset -4px -4px #404; }
 		span { box-shadow: inset 0 -100px #040; padding: 2px; border: 2px solid #0A0; }
 	`,
+	SHOW_SELECTORS_MINIMAL: `
+		*[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px 6px; font: 16px "swis721 cn bt"; }
+		*[id]::before { content: attr(id); color: #F0F; background: #000; padding: 2px 6px; font: 16px "swis721 cn bt"; }
+		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #0DD; background: #000; padding: 2px 6px; font: 16px "swis721 cn bt"; }
+	`,
 	SHOW_TABLE_STRUCTURE: 'th { background-image: linear-gradient(45deg, #000, #888); } td { background-image: linear-gradient(45deg, #000, #555); } th *, td * { background: transparent; color: #FFF; fill: #999; }',
 	INSPECTOR: `
 		body.inspector { padding-bottom: 30vh; }
@@ -9388,7 +9393,7 @@ function handleKeyDown(e)
 			case KEYCODES.J: removeEmojis(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.L: showLog(); break;
-			case KEYCODES.M: toggleHighlightMap(); break;
+			case KEYCODES.M: toggleHighlightMap(2, 0, 4); break;
 			case KEYCODES.N: numberDivs(); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatchesInDocument, true); break;
 			case KEYCODES.P: fixParagraphs(); break;
@@ -9536,6 +9541,7 @@ function handleKeyDown(e)
 			case KEYCODES.SQUARE_BRACKET_CLOSE: identifyClassCycleClass(); break;
 			case KEYCODES.ONE: fixBody(); break;
 			case KEYCODES.A: annotate("after"); break;
+			case KEYCODES.B: toggleStyle(STYLES.SHOW_SELECTORS_MINIMAL, "styleShowSelectorsMinimal", true); break;
 			case KEYCODES.D: deselect(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
 			case KEYCODES.Z: deselect(); break;
