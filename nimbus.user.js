@@ -4789,25 +4789,17 @@ function replaceIncorrectHeading()
 
 function replaceEmptyParagraphsWithHr()
 {
-	function isSeparator(elem)
-	{
-		const text = elem.textContent;
-		if(text.indexOf("•") !== -1) return text.replace(/[•\s]+/g, "").length === 0;
-		return ~text.indexOf("*") && text.replace(/[\*\s]+/g, "").length === 0;
-	}
-	const paras = get("p");
-	let i = paras.length;
+	const elems = get("p");
+	let i = elems.length;
 	while(i--)
 	{
-		const para = paras[i];
-		if(getTextLength(para) === 0 || isSeparator(para))
+		const elem = elems[i];
+		if(getTextLength(elem) === 0 || /^[_•\*]+$/.test(elem.textContent.replace(/\s+/g, "")))
 		{
-			let nextPara = paras[i - 1];
-			while(nextPara && getTextLength(nextPara) === 0 && i > 0)
-				nextPara = paras[--i];
-			para.parentNode.replaceChild(document.createElement("hr"), para);
+			elem.parentNode.replaceChild(document.createElement("hr"), elem);
 		}
 	}
+	removeRedundantHrs();
 }
 
 function makePlainText(selector)
