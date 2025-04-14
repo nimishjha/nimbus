@@ -3213,6 +3213,14 @@ function autoCompleteInputBox()
 	return { open, close };
 }
 
+function getViewportSize()
+{
+	if (window.innerWidth) return { width: window.innerWidth, height: window.innerHeight };
+	if (document.documentElement && document.documentElement.clientWidth) return { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight };
+	if (document.body) return { width: document.body.clientWidth, height: document.body.clientHeight };
+	return { width: 0, height: 0 };
+}
+
 function getViewportHeight()
 {
 	if (window.innerHeight) return window.innerHeight;
@@ -3372,7 +3380,7 @@ function highlightMapper()
 
 	function generateHighlightData()
 	{
-		config.maxRows = Math.floor( getViewportHeight() / (config.rowHeight + config.rowSpacing));
+		config.maxRows = Math.floor( getViewportSize().height / (config.rowHeight + config.rowSpacing));
 		const elems = document.querySelectorAll("p");
 		config.elements = elems;
 		const highlightData = {
@@ -9508,10 +9516,8 @@ function handleKeyDown(e)
 			case KEYCODES.T: toggleStyle(STYLES.SHOW_TABLE_STRUCTURE, "styleShowTableStructure", true); break;
 			case KEYCODES.V: toggleStyle(STYLES.OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
 			case KEYCODES.X: customPrompt("Enter xPath").then(xPathMark); break;
-			// case KEYCODES.Y: replaceElementsByTagNameMatching("ytd"); break;
 			case KEYCODES.Z: markSelectionAnchorNode(); break;
 			case KEYCODES.MINUS: insertElementAfterSelectionAnchor(); break;
-			case KEYCODES.F12: inspect(); break;
 			case KEYCODES.U: customPrompt("Enter custom video filter style", "video, img { filter: saturate(0); }").then(addVideoFilter); break;
 			case KEYCODES.Y: toggleVideoFilter(); break;
 			case KEYCODES.SQUARE_BRACKET_OPEN: previousVideoFilter(); break;
@@ -9532,6 +9538,7 @@ function handleKeyDown(e)
 			case KEYCODES.SQUARE_BRACKET_OPEN: toggleIdentifyClassMode(); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: identifyClassCycleClass(); break;
 			case KEYCODES.ONE: fixBody(); break;
+			case KEYCODES.ZERO: capitalizeTitle(); break;
 			case KEYCODES.A: annotate("after"); break;
 			case KEYCODES.B: toggleStyle(STYLES.SHOW_SELECTORS_MINIMAL, "styleShowSelectorsMinimal", true); break;
 			case KEYCODES.D: deselect(); break;
@@ -9542,8 +9549,7 @@ function handleKeyDown(e)
 			case KEYCODES.M: toggleHighlightMap(4, 1, 20); break;
 			case KEYCODES.S: forceReloadCss(); break;
 			case KEYCODES.V: replaceCommonClasses(); break;
-			case KEYCODES.ZERO: capitalizeTitle(); break;
-			case KEYCODES.F12: inspect(true); break;
+			case KEYCODES.F11: inspect(true); break;
 			case KEYCODES.UPARROW: modifyMark("expand", true); break;
 			case KEYCODES.DOWNARROW: modifyMark("contract", true); break;
 			case KEYCODES.LEFTARROW: modifyMark("previous", true); break;
