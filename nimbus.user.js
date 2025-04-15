@@ -89,6 +89,7 @@ const Nimbus = {
 		deleteMessage: deleteMessage,
 		deleteNodesBetweenMarkers: deleteNodesBetweenMarkers,
 		deleteNodesBySelectorAndRelativePosition: deleteNodesBySelectorAndRelativePosition,
+		deleteNonEnglishText: deleteNonEnglishText,
 		deleteNonContentElements: deleteNonContentElements,
 		deleteNonContentLists: deleteNonContentLists,
 		deleteNonContentLinks: deleteNonContentLinks,
@@ -6999,6 +7000,11 @@ function deleteBySelectorAndText(selector, str, boolInvertSelection = false)
 		deleteElements(selected);
 	else
 		showMessageBig("deleteBySelectorAndText: no elements found");
+}
+
+function deleteNonEnglishText()
+{
+	replaceInTextNodesRegex(/[^A-Za-z0-9 :\-]/g, "");
 }
 
 //	Potential improvement: add another function that scans comments for over-use of emojis to flag the poster as an idiot.
