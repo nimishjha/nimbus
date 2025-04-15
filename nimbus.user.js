@@ -68,7 +68,6 @@ const Nimbus = {
 		cleanupHeadings: cleanupHeadings,
 		cleanupLinks: cleanupLinks,
 		convertLineBreaksToBrs: convertLineBreaksToBrs,
-		rescueOrphanedTextNodes: rescueOrphanedTextNodes,
 		copyAttribute: copyAttribute,
 		count: count,
 		createListsFromBulletedParagraphs: createListsFromBulletedParagraphs,
@@ -216,6 +215,7 @@ const Nimbus = {
 		removeQueryStringFromLinksMatching: removeQueryStringFromLinksMatching,
 		removeRedundantHrs: removeRedundantHrs,
 		removeSpanTags: removeSpanTags,
+		removeUnnecessaryClasses: removeUnnecessaryClasses,
 		replaceAudio: replaceAudio,
 		replaceBrs: replaceBrs,
 		replaceBrsInPres: replaceBrsInPres,
@@ -243,6 +243,7 @@ const Nimbus = {
 		replaceSpecialCharacters:replaceSpecialCharacters,
 		replaceTables: replaceTables,
 		rescueOrphanedInlineElements: rescueOrphanedInlineElements,
+		rescueOrphanedTextNodes: rescueOrphanedTextNodes,
 		retrieve: retrieve,
 		retrieveBySelectorAndText: retrieveBySelectorAndText,
 		retrieveLargeImages: retrieveLargeImages,
@@ -2670,9 +2671,13 @@ function makeIdSelector(id)
 	return id.trim();
 }
 
+function removeUnnecessaryClasses()
+{
+	removeAttributeOf("table, tbody, thead, th, tr, td, i, em, b, strong, a", "class");
+}
+
 function simplifyClassNames(selector)
 {
-	removeAttributeOf("i, em, b, strong, a", "class");
 	const sel = selector ||  "section, div, header, p, ul, ol, li, span, table, tbody, thead, tr, td, th, blockquote";
 	const elems = get(sel);
 	const classMap = {};
