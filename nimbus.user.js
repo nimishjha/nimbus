@@ -1436,11 +1436,22 @@ function replaceMarkedWithTextElement(tagName, text)
 {
 	const elems = getMarkedElements();
 	if(!elems) return;
-	for(const elem of elems)
+	if(tagName === "text")
 	{
-		const replacement = document.createElement(tagName);
-		replacement.textContent = text;
-		elem.parentNode.replaceChild(replacement, elem);
+		for(const elem of elems)
+		{
+			const replacement = document.createTextNode(text);
+			elem.parentNode.replaceChild(replacement, elem);
+		}
+	}
+	else
+	{
+		for(const elem of elems)
+		{
+			const replacement = document.createElement(tagName);
+			replacement.textContent = text;
+			elem.parentNode.replaceChild(replacement, elem);
+		}
 	}
 }
 
