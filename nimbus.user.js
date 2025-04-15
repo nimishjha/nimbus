@@ -8560,11 +8560,14 @@ function toggleHighlightSelectionMode()
 
 function singleQuotesToDoubleQuotes()
 {
+	replaceInTextNodes('"', "ρρ");
 	replaceInTextNodes("'", '"');
 	replaceInTextNodesRegex(/([a-zA-Z])"([a-zA-Z])/g, "$1'$2");
 	replaceInTextNodes(' d" ', " d' ");
 	replaceInTextNodes('s" ', "s' ");
+	replaceInTextNodes('"s ', "'s ");
 	replaceInTextNodes('n" ', "n' ");
+	replaceInTextNodes("ρρ", "'");
 }
 
 //	When an entire paragraph is italicized, text that would be in italics is rendered normally instead.
