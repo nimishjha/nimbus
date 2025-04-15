@@ -510,6 +510,8 @@ const STYLES = {
 		* { border: 0; text-shadow: none; font-size: 12px; color: #555; }
 		a { text-decoration: none; }
 		img { display: none; }
+		.jw-text-track-display { opacity: 0.75; margin-top: 30px; }
+		.jw-text-track-cue { background: transparent; line-height: 1.4; font-size: 14px; }
 	`,
 	OUTLINE_ELEMENTS: `header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
 		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
@@ -2395,6 +2397,13 @@ function toggleNimbusStyles()
 	}
 	const nimbusStyles = styles.filter(isNimbusStyle);
 	for(const style of nimbusStyles)
+		style.disabled = !style.disabled;
+}
+
+function toggleWebsiteSpecificStyle()
+{
+	const style = getOne("#websiteSpecificStyle");
+	if(style)
 		style.disabled = !style.disabled;
 }
 
@@ -9323,6 +9332,12 @@ function applyVideoFilter(index)
 	Nimbus.videoFilter.enabled = true;
 }
 
+function toggleViewVideoMode()
+{
+	toggleStyle(STYLES.VIEW_VIDEO_01, "styleViewVideo", true);
+	toggleWebsiteSpecificStyle();
+}
+
 function clearBootstrapClasses()
 {
 	const elems = get("div[class*=col-]");
@@ -9519,7 +9534,7 @@ function handleKeyDown(e)
 			case KEYCODES.FOUR: toggleStyle(STYLES.SIMPLE_NEGATIVE_3, "styleSimpleNegative3", true); break;
 			case KEYCODES.FIVE: toggleStyle(STYLES.MIN_FONT_SIZE, "styleMinFontSize", true); break;
 			case KEYCODES.SIX: toggleStyle(STYLES.GITHUB_HIDE_DELETE_DIFFS, "styleGithubHideDeleteDiffs", true); break;
-			case KEYCODES.ZERO: clearBootstrapClasses(); toggleStyle(STYLES.VIEW_VIDEO_01, "viewVideo01", true); break;
+			case KEYCODES.ZERO: clearBootstrapClasses(); toggleViewVideoMode(); break;
 			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
 			case KEYCODES.B: toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
