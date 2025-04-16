@@ -1407,7 +1407,7 @@ function replaceNonStandardElements()
 		const elem = elems[i];
 		if(!elem.tagName)
 			continue;
-		if(BLOCK_ELEMENTS[elem.tagName] || INLINE_ELEMENTS[elem.tagName])
+		if(!BLOCK_ELEMENTS[elem.tagName] && !INLINE_ELEMENTS[elem.tagName])
 		{
 			const replacement = convertElement(elem, "div");
 			replacement.className = elem.tagName;
