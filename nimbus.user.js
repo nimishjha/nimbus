@@ -188,6 +188,7 @@ const Nimbus = {
 		markNodesBetweenMarkers: markNodesBetweenMarkers,
 		markNumericElements: markNumericElements,
 		markOverlays: markOverlays,
+		markRedundantDivs: markRedundantDivs,
 		markUppercaseElements: markUppercaseElements,
 		normaliseWhitespaceForParagraphs: normaliseWhitespaceForParagraphs,
 		normalizeAllWhitespace: normalizeAllWhitespace,
@@ -891,6 +892,28 @@ function markElementsWithChildrenSpanning(parentSelector, childSelector)
 		const childrenTextLength = children.reduce((acc, child) => acc + getTextLength(child), 0);
 		if(parentTextLength === childrenTextLength)
 			markElement(parent);
+	}
+}
+
+function markRedundantDivs()
+{
+	const elems = get("div");
+	let i = elems.length;
+	while(i--)
+	{
+		const elem = elems[i];
+		const children = elem.childNodes;
+		let isRedundant = true;
+		for(const child of children)
+		{
+			if(child.nodeType !== 1 || child.tagName !== "DIV")
+			{
+				isRedundant = false;
+				break;
+			}
+		}
+		if(isRedundant)
+			elem.className = "markd";
 	}
 }
 
