@@ -142,6 +142,7 @@ const Nimbus = {
 		highlightCodeComments: highlightCodeComments,
 		highlightCodePunctuation: highlightCodePunctuation,
 		highlightCodeStrings: highlightCodeStrings,
+		highlightInPres: highlightInPres,
 		highlightInTextNodes: highlightInTextNodes,
 		highlightFirstParentByText: highlightFirstParentByText,
 		highlightLinksInPres: highlightLinksInPres,
@@ -165,6 +166,7 @@ const Nimbus = {
 		joinParagraphsByLastChar: joinParagraphsByLastChar,
 		listSelectorsWithLightBackgrounds: listSelectorsWithLightBackgrounds,
 		logAllClassesFor: logAllClassesFor,
+		makeAllTextLowerCase: makeAllTextLowerCase,
 		makeButtonsReadable: makeButtonsReadable,
 		makeChildOf: makeChildOf,
 		makeDocumentHierarchical: makeDocumentHierarchical,
@@ -360,7 +362,8 @@ const Nimbus = {
 		A: true,
 		HEAD: true,
 		STYLE: true,
-		TIME: true
+		TIME: true,
+		CODE: true
 	},
 	italicTag: "i",
 	logColors: {
@@ -1337,6 +1340,8 @@ function replaceBrs()
 	for(let i = 0, ii = elems.length; i < ii; i++)
 		splitByBrs(elems[i]);
 	replaceElementsBySelector("br", "brk");
+	del("brk:first-child");
+	del("brk:last-child");
 }
 
 function replaceDiacritics(str)
@@ -2257,7 +2262,7 @@ function rescueOrphanedInlineElements()
 
 function rescueOrphanedTextNodes()
 {
-	const WRAPPER_TAGNAME = "aside";
+	const WRAPPER_TAGNAME = "p";
 	const textNodes = getTextNodesUnderSelector("body");
 	const numNodes = textNodes.length;
 	let count = 0;
@@ -2716,7 +2721,7 @@ function makeIdSelector(id)
 
 function removeUnnecessaryClasses()
 {
-	removeAttributeOf("table, tbody, thead, th, tr, td, i, em, b, strong, a", "class");
+	removeAttributeOf("table, tbody, thead, th, tr, td, i, em, b, strong, a, ul, ol, li, sup, sub, small", "class");
 }
 
 function simplifyClassNames(selector)
@@ -3778,13 +3783,14 @@ function inlineFootnotes()
 {
 	const FOOTNOTE_TAGNAME = "FOOTNOTE";
 	const REFERENCE_TAGNAME = "REFERENCE";
+	let numFootnotesNotFound = 0;
+	let numFootnotesFixed = 0;
 	const paras = get("p, blockquote, quote, quoteauthor");
 	for(let i = 0, ii = paras.length; i < ii; i++)
 	{
 		const para = paras[i];
 		const paraRefs = para.querySelectorAll(REFERENCE_TAGNAME + " a");
-		if(!paraRefs.length)
-			continue;
+		if(!paraRefs.length) continue;
 		let j = paraRefs.length;
 		while(j--)
 		{
@@ -3801,9 +3807,17 @@ function inlineFootnotes()
 					footnote = refTarget;
 			}
 			if(footnote)
+			{
 				para.insertAdjacentElement("afterend", footnote);
+				numFootnotesFixed++;
+			}
+			else
+			{
+				numFootnotesNotFound++;
+			}
 		}
 	}
+	showMessageBig(`Inlined ${numFootnotesFixed} footnotes, ${numFootnotesNotFound} footnote elements not found`);
 }
 
 function markUppercaseElements(selector)
@@ -4877,7 +4891,7 @@ function makeElementPlainText(elem)
 				elem.textContent = removeLineBreaks(elem.textContent);
 			break;
 		case "pre":
-			elem.textContent = elem.textContent;
+			elem.textContent = elem.textContent.trim();
 			break;
 		default:
 			elem.textContent = removeLineBreaks(elem.textContent);
@@ -4953,7 +4967,7 @@ function replaceCommonClasses()
 	replaceElementsBySelector(".figcap", "figcaption");
 	replaceElementsBySelector(".fig-cap", "figcaption");
 	replaceElementsBySelector(".figure", "figure");
-	replaceElementsBySelector(".fn, .fn1", "footnote");
+	replaceElementsBySelector(".fn, .fn1, p[class*=footnote]", "footnote");
 
 	// replaceElementsBySelector("div.calibre", "section");
 	replaceElementsBySelector(".epub-i, .i", "i");
@@ -7055,6 +7069,12 @@ function deleteNonEnglishText()
 	replaceInTextNodesRegex(/[^A-Za-z0-9 :\-]/g, "");
 }
 
+function makeAllTextLowerCase()
+{
+	const textNodes = getTextNodesUnderSelector("body");
+	for(const node of textNodes) node.data = node.data.toLowerCase();
+}
+
 //	Potential improvement: add another function that scans comments for over-use of emojis to flag the poster as an idiot.
 function removeEmojis()
 {
@@ -9148,6 +9168,12 @@ function getPreTextNodes(directDescendantsOnly, markedOnly)
 	return getXpathResultAsArray(`//${selectorPre}//text()`);
 }
 
+function highlightInPres(str, tagName = "markyellow")
+{
+	const regex = new RegExp(str, 'g');
+	highlightCodeInPreTextNodes(regex, tagName);
+}
+
 function highlightCodeInPreTextNodes(regex, tagName)
 {
 	const nodes = getPreTextNodes();
@@ -9158,10 +9184,11 @@ function highlightCodeInPreTextNodes(regex, tagName)
 
 function highlightCodePunctuation()
 {
-	highlightCodeInPreTextNodes(/[\{\}]/g, "xp");
-	highlightCodeInPreTextNodes(/[\[\]]/g, "x13");
-	highlightCodeInPreTextNodes(/[\(\)]/g, "x14");
-	highlightCodeInPreTextNodes(/\|\|/g, "x15");
+	highlightCodeInPreTextNodes(/[\{\}\[\]\(\)\|]/g, "xp");
+	// highlightCodeInPreTextNodes(/[\{\}]/g, "xp");
+	// highlightCodeInPreTextNodes(/[\[\]]/g, "x13");
+	// highlightCodeInPreTextNodes(/[\(\)]/g, "x14");
+	// highlightCodeInPreTextNodes(/\|\|/g, "x15");
 }
 
 function highlightCodeStrings()
@@ -9453,7 +9480,7 @@ function handleKeyDown(e)
 			case KEYCODES.E: cycleHighlightTag(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteBySelectorAndTextMatching); break;
 			case KEYCODES.I: toggleConsole("css"); break;
-			case KEYCODES.J: removeEmojis(); break;
+			case KEYCODES.J: deleteNonEnglishText(); makeAllTextLowerCase(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.L: showLog(); break;
 			case KEYCODES.M: toggleHighlightMap(2, 0, 4); break;
