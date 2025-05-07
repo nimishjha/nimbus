@@ -77,6 +77,7 @@ const Nimbus = {
 		del: del,
 		deleteByClassOrIdContaining: deleteByClassOrIdContaining,
 		deleteBySelectorAndText: deleteBySelectorAndText,
+		deleteBySelectorAndExactText: deleteBySelectorAndExactText,
 		deleteEmptyBlockElements: deleteEmptyBlockElements,
 		deleteEmptyElements: deleteEmptyElements,
 		deleteEmptyHeadings: deleteEmptyHeadings,
@@ -6589,6 +6590,29 @@ function selectBySelectorAndText(selector, text, boolInvertSelection = false)
 	return selected;
 }
 
+function selectBySelectorAndExactText(selector, text, boolInvertSelection = false)
+{
+	if(!(typeof selector === "string" && selector.length))
+		return;
+	if(!(typeof text === "string" && text.length))
+		return;
+
+	const selected = [];
+	const selectedInverse = [];
+	const elements = get(selector);
+	for(let i = 0, ii = elements.length; i < ii; i++)
+	{
+		const element = elements[i];
+		if(element.textContent && element.textContent.trim() === text && !element.querySelector(selector))
+			selected.push(element);
+		else
+			selectedInverse.push(element);
+	}
+	if(boolInvertSelection === true)
+		return selectedInverse;
+	return selected;
+}
+
 //	This is optimised for the case when the selector is simply a tagName, excluding "img" or "a".
 function selectByTagNameAndText(tagName, text)
 {
@@ -6928,6 +6952,7 @@ function cleanupDocument()
 	replaceElementsBySelector("details", "div");
 	replaceElementsBySelector("summary", "h3");
 	deleteEmptyBlockElements();
+	deleteBySelectorAndExactText("a", "¶");
 	const footers = get("footer");
 	if(footers && footers.length > 1)
 	{
@@ -7062,6 +7087,15 @@ function deleteBySelectorAndText(selector, str, boolInvertSelection = false)
 		deleteElements(selected);
 	else
 		showMessageBig("deleteBySelectorAndText: no elements found");
+}
+
+function deleteBySelectorAndExactText(selector, str, boolInvertSelection = false)
+{
+	const selected = selectBySelectorAndExactText(selector, str, boolInvertSelection);
+	if(selected)
+		deleteElements(selected);
+	else
+		showMessageBig("deleteBySelectorAndExactText: no elements found");
 }
 
 function deleteNonEnglishText()
