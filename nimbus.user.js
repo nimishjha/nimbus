@@ -5891,7 +5891,14 @@ function swapElementPositions()
 		showMessageBig(`Expected 2 marked elements; found ${marked.length}`);
 		return false;
 	}
-	insertBefore(marked[0], marked[1]);
+	const c0 = document.createElement("div");
+	const c1 = document.createElement("div");
+	marked[0].insertAdjacentElement("beforebegin", c1);
+	marked[1].insertAdjacentElement("beforebegin", c0);
+	c0.appendChild(marked[0]);
+	c1.appendChild(marked[1]);
+	unwrapElement(c0);
+	unwrapElement(c1);
 	unmarkAll();
 }
 
