@@ -193,6 +193,7 @@ const Nimbus = {
 		markOverlays: markOverlays,
 		markRedundantDivs: markRedundantDivs,
 		markUppercaseElements: markUppercaseElements,
+		moveDataTestIdToClassName: moveDataTestIdToClassName,
 		normaliseWhitespaceForParagraphs: normaliseWhitespaceForParagraphs,
 		normalizeAllWhitespace: normalizeAllWhitespace,
 		numberDivs: numberDivs,
@@ -2761,6 +2762,13 @@ function simplifyClassNames(selector)
 		else
 			replaceClass(key, tagNameMapped + index);
 	}
+}
+
+function moveDataTestIdToClassName()
+{
+	removeAllAttributesOfTypes(["class", "id"]);
+	copyAttribute("body *", "data-testid", "class");
+	removeAttributeOf("body *", "data-testid");
 }
 
 function showStatus(id, str)
