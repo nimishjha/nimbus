@@ -2723,7 +2723,7 @@ function makeIdSelector(id)
 
 function removeUnnecessaryClasses()
 {
-	removeAttributeOf("table, tbody, thead, th, tr, td, i, em, b, strong, a, ul, ol, li, sup, sub, small", "class");
+	removeAttributeOf("table, tbody, thead, th, tr, td, i, em, b, strong, a, ul, ol, li, sup, sub, small, pre", "class");
 }
 
 function simplifyClassNames(selector)
@@ -2981,7 +2981,7 @@ function toggleConsole(consoleType)
 	let dialogStyle;
 	const consoleBackgroundColor = consoleType === "css" ? "#036" : "#000";
 	dialogStyle = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; }' +
-		'#userInput { background: ' + consoleBackgroundColor + '; color: #FFF; font: 16px Consolas, Verdana; width: 100%; height: 100%; padding: 10px 40px; border: 0; outline: 0; }';
+		'#userInput { background: ' + consoleBackgroundColor + '; color: #CCC; font-family: "SF Mono", Consolas, Verdana; font-size: 18px; font-weight: bold; width: 100%; height: 100%; padding: 10px 40px; border: 0; outline: 0; }';
 	insertStyle(dialogStyle, "styleUserInputWrapper", true);
 
 	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
@@ -5217,6 +5217,10 @@ function getBestDomainSegment(hostname)
 	let hostnameSanitized = hostname;
 	for(let i = 0, ii = segmentsToReplace.length; i < ii; i++)
 		hostnameSanitized = hostnameSanitized.replace(segmentsToReplace[i], "");
+	if(/\w+\.github\.io/.test(hostnameSanitized))
+		hostnameSanitized = hostnameSanitized.replace(".github.io", "");
+	if(hostnameSanitized.indexOf(".") === -1)
+		return " [" + hostnameSanitized + "]";
 	let segments = hostnameSanitized.split(".");
 	let longestSegment = '';
 	let i = segments.length;
@@ -7799,9 +7803,10 @@ function cleanupStackOverflow()
 		deleteBySelectorAndTextMatching("h2", "Not the answer");
 		retrieve("#content");
 		cleanupDocument();
-		highlightCode(true);
 		removeAllAttributesOfTypes(["class", "style", "align", "id"]);
 		unwrapAll("span");
+		makePlainText("user");
+		unwrapAll("user");
 		const observer = new MutationObserver(handleMutations);
 		observer.observe(getOne("head"), { childList: true });
 	}
