@@ -986,6 +986,7 @@ function getMarkedHTML()
 	ta.setAttribute("style", "position: fixed; top: 100px; left: 100px; width: 80vw; height: 80vh;");
 	document.body.appendChild(ta);
 	ta.focus();
+	ta.select();
 	setTimeout(destroy, 3000);
 }
 
@@ -4174,7 +4175,8 @@ function filterNodesWithFirstChildOfType(nodes, selector)
 	{
 		const node = nodes[i];
 		const firstChild = node.firstElementChild;
-		if(firstChild && firstChild === node.firstChild && firstChild.matches(selector))
+		// if(firstChild && firstChild === node.firstChild && firstChild.matches(selector))
+		if(firstChild && firstChild.matches(selector))
 			result.push(node);
 	}
 	return result;
@@ -7814,6 +7816,7 @@ function cleanupStackOverflow()
 		unwrapAll("span");
 		makePlainText("user");
 		unwrapAll("user");
+		makePlainText("pre");
 		const observer = new MutationObserver(handleMutations);
 		observer.observe(getOne("head"), { childList: true });
 	}
