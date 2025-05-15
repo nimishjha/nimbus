@@ -78,6 +78,7 @@ const Nimbus = {
 		deleteByClassOrIdContaining: deleteByClassOrIdContaining,
 		deleteBySelectorAndText: deleteBySelectorAndText,
 		deleteBySelectorAndExactText: deleteBySelectorAndExactText,
+		deleteBySelectorAndRegex: deleteBySelectorAndRegex,
 		deleteEmptyBlockElements: deleteEmptyBlockElements,
 		deleteEmptyElements: deleteEmptyElements,
 		deleteEmptyHeadings: deleteEmptyHeadings,
@@ -6634,6 +6635,24 @@ function selectBySelectorAndExactText(selector, text, boolInvertSelection = fals
 	return selected;
 }
 
+function selectBySelectorAndRegex(selector, regex, boolInvertSelection = false)
+{
+	const selected = [];
+	const selectedInverse = [];
+	const elements = get(selector);
+	for(let i = 0, ii = elements.length; i < ii; i++)
+	{
+		const element = elements[i];
+		if(element.textContent && regex.test(element.textContent.trim()) && !element.querySelector(selector))
+			selected.push(element);
+		else
+			selectedInverse.push(element);
+	}
+	if(boolInvertSelection === true)
+		return selectedInverse;
+	return selected;
+}
+
 //	This is optimised for the case when the selector is simply a tagName, excluding "img" or "a".
 function selectByTagNameAndText(tagName, text)
 {
@@ -6973,7 +6992,7 @@ function cleanupDocument()
 	replaceElementsBySelector("details", "div");
 	replaceElementsBySelector("summary", "h3");
 	deleteEmptyBlockElements();
-	deleteBySelectorAndExactText("a", "¶");
+	deleteBySelectorAndRegex("a", /[¶§]/);
 	const footers = get("footer");
 	if(footers && footers.length > 1)
 	{
@@ -7117,6 +7136,15 @@ function deleteBySelectorAndExactText(selector, str, boolInvertSelection = false
 		deleteElements(selected);
 	else
 		showMessageBig("deleteBySelectorAndExactText: no elements found");
+}
+
+function deleteBySelectorAndRegex(selector, regex, boolInvertSelection = false)
+{
+	const selected = selectBySelectorAndRegex(selector, regex, boolInvertSelection);
+	if(selected)
+		deleteElements(selected);
+	else
+		showMessageBig("deleteBySelectorAndRegex: no elements found");
 }
 
 function deleteNonEnglishText()
