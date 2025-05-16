@@ -532,6 +532,7 @@ const STYLES = {
 		span { box-shadow: inset 2px 2px #AA0, inset -2px -2px #AA0; }
 		font { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; }
 		abbr { box-shadow: inset 2px 2px #A00, inset -2px -2px #A00; }
+		nobr { box-shadow: inset 2px 2px #A0A, inset -2px -2px #A0A; }
 		cite { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0C0; }
 		code { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0C0; }
 		small { box-shadow: inset 2px 2px #088, inset -2px -2px #088; }
