@@ -158,6 +158,7 @@ const Nimbus = {
 		insertAroundAll: insertAroundAll,
 		insertElementBeforeSelectionAnchor: insertElementBeforeSelectionAnchor,
 		insertHrBeforeAll: insertHrBeforeAll,
+		insertSpacesAround: insertSpacesAround,
 		insertStyle: insertStyle,
 		insertStyleHighlight: insertStyleHighlight,
 		inspect: inspect,
@@ -1908,6 +1909,21 @@ function insertAroundAll(selector, position, elemType, textContent)
 		elem.insertAdjacentElement(where, elemToInsert);
 		if(elemType === "text")
 			unwrapElement(elemToInsert);
+	}
+}
+
+function insertSpacesAround(selector)
+{
+	const elems = get(selector);
+	if(!elems) return;
+	for(const elem of elems)
+	{
+		const next = elem.nextSibling;
+		if(next && next.nodeType === 3 && /^[a-z]/.test(next.data))
+			next.data = " " + next.data;
+		const prev = elem.previousSibling;
+		if(prev && prev.nodeType === 3 && /[a-z]$/.test(prev.data))
+			prev.data = prev.data + " ";
 	}
 }
 
