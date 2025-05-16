@@ -5087,10 +5087,20 @@ function fixDashes()
 	for(const p of ps)
 		p.innerHTML = removeLineBreaks(p.innerHTML);
 	replaceInTextNodes("--", "—");
-	replaceInTextNodesRegex(/\s+-\s+/, "—");
-	replaceInTextNodes(" -", "—");
-	replaceInTextNodes("— ", "—");
-	replaceInTextNodes(" —", "—");
+
+	let replCount = 0;
+	const regex = /(\s+[-–—]\s+|\s+[-–—]|[-–—]\s+)/g;
+	const textNodes = getTextNodesUnderSelector("p");
+	for(const textNode of textNodes)
+	{
+		if(regex.test(textNode.data))
+		{
+			replCount++;
+			textNode.data = textNode.data.replace(regex, "—");
+		}
+	}
+	if(replCount)
+		showMessageBig(`${replCount} text nodes fixed`);
 }
 
 function toggleDashes()
@@ -7151,7 +7161,7 @@ function deleteBySelectorAndRegex(selector, regex, boolInvertSelection = false)
 
 function deleteNonEnglishText()
 {
-	replaceInTextNodesRegex(/[^A-Za-z0-9 :\-]/g, "");
+	replaceInTextNodesRegex("body", /[^A-Za-z0-9 :\-]/g, "");
 }
 
 function makeAllTextLowerCase()
@@ -8694,7 +8704,7 @@ function singleQuotesToDoubleQuotes()
 {
 	replaceInTextNodes('"', "ρρ");
 	replaceInTextNodes("'", '"');
-	replaceInTextNodesRegex(/([a-zA-Z])"([a-zA-Z])/g, "$1'$2");
+	replaceInTextNodesRegex("body", /([a-zA-Z])"([a-zA-Z])/g, "$1'$2");
 	replaceInTextNodes(' d" ', " d' ");
 	replaceInTextNodes('s" ', "s' ");
 	replaceInTextNodes('"s ', "'s ");
@@ -9198,9 +9208,9 @@ function replaceInTextNodes(searchString, replacementString)
 		textNode.data = textNode.data.replaceAll(searchString, replacementString);
 }
 
-function replaceInTextNodesRegex(regex, replacement)
+function replaceInTextNodesRegex(selector, regex, replacement)
 {
-	const textNodes = getTextNodesUnderSelector("body");
+	const textNodes = getTextNodesUnderSelector(selector);
 	let replCount = 0;
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
