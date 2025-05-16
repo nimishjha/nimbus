@@ -195,6 +195,7 @@ const Nimbus = {
 		markOverlays: markOverlays,
 		markRedundantDivs: markRedundantDivs,
 		markUppercaseElements: markUppercaseElements,
+		mapIdsToClasses: mapIdsToClasses,
 		moveDataTestIdToClassName: moveDataTestIdToClassName,
 		normaliseWhitespaceForParagraphs: normaliseWhitespaceForParagraphs,
 		normalizeAllWhitespace: normalizeAllWhitespace,
@@ -2623,6 +2624,13 @@ function getAllClassesFor(selector)
 	for(let i = 0, ii = keys.length; i < ii; i++)
 		result.push(classes[keys[i]]);
 	return result;
+}
+
+function mapIdsToClasses()
+{
+	const elems = get("*[id]");
+	for(const elem of elems)
+		elem.className = elem.id.replace(/[^A-Za-z]+/g, "");
 }
 
 function replaceClass(class1, class2)
