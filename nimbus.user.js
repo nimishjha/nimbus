@@ -539,11 +539,11 @@ const STYLES = {
 		img { background: #800; padding: 2px; box-sizing: border-box; }
 	`,
 	SHOW_SELECTORS: `
-		*[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
-		*[id]::before { content: attr(id); color: #F0F; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
-		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #0DD; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
+		*[class]::before { content: attr(class); color: #C90; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
+		*[id]::before { content: attr(id); color: #C0C; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
+		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #C90; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
 		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 2px 2px 2px 10px; padding: 4px; }
-		h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #A0A, inset -4px -4px #404; }
+		h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #909, inset -4px -4px #505; }
 		span { box-shadow: inset 0 -100px #040; padding: 2px; border: 2px solid #0A0; }
 	`,
 	SHOW_SELECTORS_MINIMAL: `
@@ -2725,7 +2725,7 @@ function makeIdSelector(id)
 
 function removeUnnecessaryClasses()
 {
-	removeAttributeOf("table, tbody, thead, th, tr, td, i, em, b, strong, a, ul, ol, li, sup, sub, small, pre", "class");
+	removeAttributeOf("table, tbody, thead, th, tr, td, i, em, b, strong, a, ul, ol, li, sup, sub, small, pre, code", "class");
 }
 
 function simplifyClassNames(selector)
@@ -4176,8 +4176,7 @@ function filterNodesWithFirstChildOfType(nodes, selector)
 	{
 		const node = nodes[i];
 		const firstChild = node.firstElementChild;
-		// if(firstChild && firstChild === node.firstChild && firstChild.matches(selector))
-		if(firstChild && firstChild.matches(selector))
+		if(firstChild && firstChild === node.firstChild && firstChild.matches(selector))
 			result.push(node);
 	}
 	return result;
@@ -5009,6 +5008,9 @@ function replaceCommonClasses()
 	deleteEmptyElements("section");
 
 	removeAttributeOf("a, i, b, sup, small", "class");
+
+	replaceElementsBySelector(".indexmain", "dt");
+	replaceElementsBySelector(".indexsub", "dd");
 
 	document.body.innerHTML = document.body.innerHTML.replaceAll("calibre_link-", "l");
 }
@@ -6776,7 +6778,7 @@ function deleteFollowingNodesBySelector(selector)
 function selectByRelativePosition(anchorNode, beforeOrAfter)
 {
 	const condition = beforeOrAfter === "after" ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
-	const nodes = get("div, aside, section, article, ol, ul, p, h1, h2, h3, table, img, header, footer, blockquote, pre, hr");
+	const nodes = get("div, aside, section, article, ol, ul, p, h1, h2, h3, h5, h6, table, img, header, footer, blockquote, pre, hr, dl, dt");
 	const selected = [];
 	let i = nodes.length;
 	while(i--)
@@ -7258,7 +7260,7 @@ function deleteEmptyHeadings()
 function deleteEmptyBlockElements()
 {
 	del("noscript");
-	const SELECTOR = "div, p, blockquote, h1, h2, h3, h4, h5, h6, li, figure, figcaption, pre, dt, dd, message, annotation, quote, quoteauthor, partheading, aside, section, article, nav, ul, ol, fieldset, figure, header, footer";
+	const SELECTOR = "div, p, blockquote, h1, h2, h3, h4, h5, h6, li, figure, figcaption, pre, dl, dt, dd, message, annotation, quote, quoteauthor, aside, section, article, nav, ul, ol, fieldset, figure, header, footer, fieldset";
 	deleteEmptyElements(SELECTOR);
 }
 
@@ -8519,6 +8521,8 @@ function copyAttribute(selector, sourceAttribute, targetAttribute)
 		if(sourceAttributeValue)
 		{
 			count++;
+			if(typeof sourceAttributeValue !== "string")
+				console.log("sourceAttributeValue is", Object.prototype.toString.call(sourceAttributeValue));
 			setAttributeOrProperty(element, targetAttribute, sourceAttributeValue);
 		}
 	}
