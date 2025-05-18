@@ -1477,8 +1477,7 @@ function replaceMarkedWithTextElement(tagName, text)
 	{
 		for(const elem of elems)
 		{
-			const replacement = document.createTextNode(text);
-			elem.parentNode.replaceChild(replacement, elem);
+			elem.parentNode.replaceChild(document.createTextNode(text), elem);
 		}
 	}
 	else
