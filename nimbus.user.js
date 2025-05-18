@@ -678,6 +678,30 @@ function xPathMark(xpath)
 		showMessageBig("No matches found");
 }
 
+function getTextNodesExcludingPre()
+{
+	const textNodes = [];
+	const walker = document.createTreeWalker(
+	document.body,
+	NodeFilter.SHOW_TEXT,
+	{
+		acceptNode(node)
+		{
+			if (node.parentElement.closest('pre'))
+			{
+				return NodeFilter.FILTER_REJECT;
+			}
+			return NodeFilter.FILTER_ACCEPT;
+		}
+	});
+	let node;
+	while ((node = walker.nextNode()))
+	{
+		textNodes.push(node);
+	}
+	return textNodes;
+}
+
 function markElement(elem) { elem.classList.add(Nimbus.markerClass); }
 function unmarkElement(elem) { elem.classList.remove(Nimbus.markerClass); }
 
@@ -5129,14 +5153,14 @@ function fixParagraphs()
 
 function fixDashes()
 {
-	const ps = get("p");
+	const ps = get("p, li, blockquote");
 	for(const p of ps)
 		p.innerHTML = removeLineBreaks(p.innerHTML);
 	replaceInTextNodes("--", "—");
 
 	let replCount = 0;
 	const regex = /(\s+[-–—]\s+|\s+[-–—]|[-–—]\s+)/g;
-	const textNodes = getTextNodesUnderSelector("p");
+	const textNodes = getTextNodesExcludingPre();
 	for(const textNode of textNodes)
 	{
 		if(regex.test(textNode.data))
