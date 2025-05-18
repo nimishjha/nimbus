@@ -3775,11 +3775,33 @@ function replaceEmptyAnchors()
 	showMessageBig(`Fixed ${numLinks} links to ${parentsAndLinks.length} anchors; deleted ${anchorsWithoutLinks.length} anchors without links`);
 }
 
+function moveIdsFromSpans()
+{
+	const elems = get("span[id]");
+	if(!elems) return;
+	for(const elem of elems)
+	{
+		const parent = elem.closest("p, h1, h2, h3, h4");
+		if(!parent) continue;
+		if(parent.hasAttribute("id"))
+		{
+			const replacement = document.createElement("cite");
+			replacement.textContent = replacement.id = elem.id;
+			elem.insertAdjacentElement("beforebegin", replacement);
+		}
+		else
+		{
+			parent.id = elem.id;
+		}
+		unwrapElement(elem);
+	}
+}
+
 function fixInternalReferences()
 {
+	moveIdsFromSpans();
 	replaceEmptyAnchors();
 	makeFileLinksRelative();
-	// const sanitizeNumericRef = (text) => text.replace(/[^A-Za-z0-9\s\-:,\(\)]+/g, "");
 	const internalLinks = get('a[href^="#"]');
 	if(!internalLinks) return;
 	const tagsNotToMakeReferencesUnder = {
