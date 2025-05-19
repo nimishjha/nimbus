@@ -4958,6 +4958,7 @@ function makePlainText(selector)
 {
 	const elements = get(selector);
 	if(!elements) return;
+	if(selector === "pre") replaceBrsInPres();
 	for(let i = 0, ii = elements.length; i < ii; i++)
 		makeElementPlainText(elements[i]);
 }
@@ -5048,6 +5049,7 @@ function replaceCommonClasses()
 	replaceElementsBySelector(".figcap", "figcaption");
 	replaceElementsBySelector(".fig-cap", "figcaption");
 	replaceElementsBySelector(".figure", "figure");
+	replaceElementsBySelector(".comment", "comment");
 	replaceElementsBySelector(".fn, .fn1, p[class*=footnote]", "footnote");
 
 	// replaceElementsBySelector("div.calibre", "section");
@@ -7586,11 +7588,7 @@ function deleteNonContentLists()
 
 function deleteNonContentLinks()
 {
-	del(select("a", "text", "=", "Reply"));
-	del(select("a", "text", "=", "Share"));
-	del(select("a", "text", "=", "Tweet"));
-	del(select("a", "text", "=", "Delete"));
-	del(select("a", "text", "=", "Replies"));
+	deleteBySelectorAndRegex("a", /^(Edit|Reply|Share|Tweet|Delete|Replies)$/i);
 }
 
 //	After converting numbered or bulleted paragraphs to lists, we need
