@@ -2611,10 +2611,19 @@ function logTable(...args)
 
 function logAllClassesFor(selector)
 {
+	function sortFunc(a, b) { return a.count - b.count; }
+
 	if(typeof selector === "string" && selector.length)
 	{
-		console.log(selector);
-		console.log("\t" + getAllClassesFor(selector).sort().join("\n\t"));
+		let str = "";
+		const classCounts = getClassCounts(selector);
+		if(classCounts.length)
+		{
+			str += selector + "\n";
+			for(const item of classCounts.sort(sortFunc))
+				str += "\t" + item.className + "\t" + item.count + "\n";
+			console.log(str);
+		}
 	}
 	else
 	{
@@ -2626,6 +2635,19 @@ function logAllClassesFor(selector)
 		logAllClassesFor("blockquote");
 		logAllClassesFor("span");
 	}
+}
+
+function getClassCounts(tagName) {
+	const elements = document.getElementsByTagName(tagName);
+	const classMap = new Map();
+	for (const element of elements)
+	{
+		for (const className of element.classList)
+		{
+			classMap.set(className, (classMap.get(className) || 0) + 1);
+		}
+	}
+	return Array.from(classMap, ([className, count]) => ({className, count}));
 }
 
 function getAllClassesFor(selector)
