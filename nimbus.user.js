@@ -680,20 +680,16 @@ function xPathMark(xpath)
 
 function getTextNodesExcludingPre()
 {
-	const textNodes = [];
-	const walker = document.createTreeWalker(
-	document.body,
-	NodeFilter.SHOW_TEXT,
+	function filter(node)
 	{
-		acceptNode(node)
+		if (node.parentElement.closest('pre'))
 		{
-			if (node.parentElement.closest('pre'))
-			{
-				return NodeFilter.FILTER_REJECT;
-			}
-			return NodeFilter.FILTER_ACCEPT;
+			return NodeFilter.FILTER_REJECT;
 		}
-	});
+		return NodeFilter.FILTER_ACCEPT;
+	}
+	const textNodes = [];
+	const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, filter);
 	let node;
 	while ((node = walker.nextNode()))
 	{
@@ -8988,7 +8984,8 @@ function highlightSelection(mode = "sentence")
 	}
 	const element = getFirstBlockParent(selection.anchorNode);
 	let selectionText = removeLineBreaks(selection.toString()).trim();
-	element.innerHTML = normalizeHTML(element.innerHTML);
+	if(element.tagName !== "PRE")
+		element.innerHTML = normalizeHTML(element.innerHTML);
 	if(!element || element.tagName === undefined)
 	{
 		showMessageBig("Couldn't get anchorNode");
