@@ -76,6 +76,7 @@ const Nimbus = {
 		deleteByClassOrIdContaining: deleteByClassOrIdContaining,
 		deleteBySelectorAndText: deleteBySelectorAndText,
 		deleteBySelectorAndExactText: deleteBySelectorAndExactText,
+		deleteBySelectorAndNormalizedText: deleteBySelectorAndNormalizedText,
 		deleteBySelectorAndRegex: deleteBySelectorAndRegex,
 		deleteEmptyBlockElements: deleteEmptyBlockElements,
 		deleteEmptyElements: deleteEmptyElements,
@@ -179,6 +180,7 @@ const Nimbus = {
 		markByChildrenHavingTheExactText: markByChildrenHavingTheExactText,
 		markByClassOrIdContaining: markByClassOrIdContaining,
 		markByCssRule: markByCssRule,
+		markBySelectorAndNormalizedText: markBySelectorAndNormalizedText,
 		markBySelector: markBySelector,
 		markBySelectorAndRegex: markBySelectorAndRegex,
 		markByTagNameAndText: markByTagNameAndText,
@@ -6671,6 +6673,23 @@ function selectBySelectorAndExactText(selector, text, boolInvertSelection = fals
 		return selectedInverse;
 	return selected;
 }
+
+function selectBySelectorAndNormalizedText(selector, str)
+{
+	const elems = get(selector);
+	const selected = [];
+	if(!elems) return;
+	for(const elem of elems)
+	{
+		if(elem.querySelector(selector)) continue;
+		if(~elem.textContent.replace(/[^A-Za-z0-9]/g, "").toLowerCase().indexOf(str))
+			selected.push(elem);
+	}
+	return selected;
+}
+
+function markBySelectorAndNormalizedText(selector, str) { markElements(selectBySelectorAndNormalizedText(selector, str)); }
+function deleteBySelectorAndNormalizedText(selector, str) { del(selectBySelectorAndNormalizedText(selector, str)); }
 
 function selectBySelectorAndRegex(selector, regex, boolInvertSelection = false)
 {
