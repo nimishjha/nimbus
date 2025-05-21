@@ -150,6 +150,10 @@ const Nimbus = {
 		highlightSelection: highlightSelection,
 		highlightUserLinks: highlightUserLinks,
 		highlightMatchesUnderSelector: highlightMatchesUnderSelector,
+		identifyClassSetStyle: identifyClassSetStyle,
+		identifyClassSetup: identifyClassSetup,
+		identifyClassShowMarked: identifyClassShowMarked,
+		identifyClassTeardown: identifyClassTeardown,
 		ih: forceImageHeight,
 		inlineFootnotes: inlineFootnotes,
 		insertAroundAll: insertAroundAll,
@@ -258,7 +262,6 @@ const Nimbus = {
 		selectElementsStartingWithText: selectElementsStartingWithText,
 		setAttributeOf: setAttributeOf,
 		setDocTitle: setDocTitle,
-		setIdentifyClassStyle: setIdentifyClassStyle,
 		setItalicTag: setItalicTag,
 		setMarkerClass: setMarkerClass,
 		setQueryParameter: setQueryParameter,
@@ -376,9 +379,11 @@ const Nimbus = {
 		red: "background: #600; color: #C00",
 	},
 	identifyClass: {
-		style: "{ box-shadow: 4px 4px #09C, -4px -4px #09C; }",
-		classes: null,
+		style: "{ box-shadow: inset 2px 2px #09C, inset -2px -2px #09C; }",
+		classes: [],
+		markedClasses: [],
 		currentClass: null,
+		currentIndex: -1,
 	},
 	goToNextElement: {
 		selector: null,
@@ -2604,8 +2609,6 @@ function logTable(...args)
 
 function logAllClassesFor(selector)
 {
-	function sortFunc(a, b) { return a.count - b.count; }
-
 	if(typeof selector === "string" && selector.length)
 	{
 		let str = "";
@@ -2613,7 +2616,7 @@ function logAllClassesFor(selector)
 		if(classCounts.length)
 		{
 			str += selector + "\n";
-			for(const item of classCounts.sort(sortFunc))
+			for(const item of classCounts)
 				str += "\t" + item.className + "\t" + item.count + "\n";
 			console.log(str);
 		}
@@ -2630,8 +2633,9 @@ function logAllClassesFor(selector)
 	}
 }
 
-function getClassCounts(tagName) {
-	const elements = document.getElementsByTagName(tagName);
+function getClassCounts(selector) {
+	function sortFunc(a, b) { return a.count - b.count; }
+	const elements = get(selector);
 	const classMap = new Map();
 	for (const element of elements)
 	{
@@ -2640,7 +2644,7 @@ function getClassCounts(tagName) {
 			classMap.set(className, (classMap.get(className) || 0) + 1);
 		}
 	}
-	return Array.from(classMap, ([className, count]) => ({className, count}));
+	return Array.from(classMap, ([className, count]) => ({className, count})).sort(sortFunc);
 }
 
 function getAllClassesFor(selector)
@@ -2691,65 +2695,71 @@ function replaceInClassNames(str, repl)
 	}
 }
 
-function setIdentifyClassStyle(styleString)
+function getUniqueClassNames(arrClasses)
+{
+	if (!arrClasses) return [];
+	const allClassNames = arrClasses.flatMap(line => line.trim().split('.').filter(name => name));
+	return [...new Set(allClassNames)];
+}
+
+function identifyClassSetup(selector, atomic = true)
+{
+	const classes = atomic ? getClassCounts(selector).map(item => item.className) : getAllClassesFor(selector);
+	Nimbus.identifyClass.classes = classes;
+	Nimbus.identifyClass.currentIndex = -1;
+	showMessageBig(atomic ? `Found ${classes.length} atomic classes for ${selector}` : `Found ${classes.length} classes for ${selector}`);
+}
+
+function identifyClassTeardown()
+{
+	identifyClassShowMarked();
+	del("#styleIdentifyClass");
+	const config = Nimbus.identifyClass;
+	config.currentIndex = -1;
+	config.currentClass = null;
+	config.classes = [];
+	config.markedClasses = [];
+	showMessageBig("Identify class mode disabled");
+}
+
+function identifyClassSetStyle(styleString)
 {
 	const styleRule = "{" + styleString + "}";
 	Nimbus.identifyClass.style = styleRule;
 	showMessageBig("identifyClass style set to " + styleRule);
 }
 
-function toggleIdentifyClassMode()
-{
-	if(Nimbus.identifyClass.classes) identifyClassTeardown();
-	else identifyClassSetup();
-}
-
-// takes a marked element, and sets up an array of its classes to cycle through
-function identifyClassSetup()
+function identifyClassCycle(direction)
 {
 	const config = Nimbus.identifyClass;
-	const marked = getMarkedElements();
-	if(marked.length !== 1)
+	if(!(config.classes && config.classes.length))
 	{
-		showMessageBig(`Expected 1 marked element; found ${marked.length}`);
-		return false;
+		showMessageBig("config.classes is empty. Run identifyClassSetup <selector> first.");
+		return;
 	}
-	const elem = marked[0];
-	Nimbus.lastMarked = elem;
-	elem.classList.remove(Nimbus.markerClass);
-	config.classes = Array.from(elem.classList.values());
-	if(config.classes.length)
+	config.currentIndex = direction === "previous" ? getPreviousIndex(config.currentIndex, config.classes) : getNextIndex(config.currentIndex, config.classes);
+	const currentClass = config.classes[config.currentIndex];
+	const classCount = config.classes.length;
+	if(currentClass)
 	{
-		config.currentClass = config.classes[0];
-		showMessageBig("Identify class mode enabled: " + config.classes.length + " classes");
-	}
-}
-
-function identifyClassTeardown()
-{
-	del("#styleIdentifyClass");
-	const config = Nimbus.identifyClass;
-	config.currentClass = null;
-	config.classes = null;
-	markElement(Nimbus.lastMarked);
-	showMessageBig("Identify class mode disabled");
-}
-
-// reveals which elements a given class applies to
-function identifyClassCycleClass()
-{
-	const config = Nimbus.identifyClass;
-	if(!(config.currentClass && config.classes))
-		identifyClassSetup();
-	const nextClass = getNext(config.currentClass, config.classes);
-	if(nextClass)
-	{
-		const count = get(makeClassSelector(nextClass)).length;
-		showMessageBig(nextClass + ": " + count + " elements", true);
-		config.currentClass = nextClass;
-		const style = `.${nextClass} ${config.style}`;
+		const elemCount = get(makeClassSelector(currentClass)).length;
+		showMessageBig("[" + (config.currentIndex + 1) + "/" + classCount + "] ." + currentClass + ": " + elemCount + " elements", true);
+		const style = `.${currentClass} ${config.style}`;
 		insertStyle(style, "styleIdentifyClass", true);
 	}
+}
+
+function identifyClassMark(str)
+{
+	const config = Nimbus.identifyClass;
+	const currentClass = config.classes[config.currentIndex];
+	config.markedClasses.push(`.${currentClass} {} /* ${str} */`);
+	showMessageBig(`Marked ${currentClass} with tag ${str}`);
+}
+
+function identifyClassShowMarked()
+{
+	console.log(Nimbus.identifyClass.markedClasses.join("\n"));
 }
 
 function zeroPad(n)
@@ -3313,7 +3323,7 @@ function autoCompleteInputBox()
 		insertStyle(style, "styleAutoCompleteInputBox", true);
 		const dialogWrapper = createElement("autocompleteinputwrapper", { id: "autoCompleteInputWrapper" });
 		const inputElementWrapper = createElement("inputelementwrapper");
-		const inputElement = createElement("input", { id: "autoCompleteInput", autocomplete: "randomstring" });
+		const inputElement = createElement("input", { id: "autoCompleteInput", autocomplete: "off" });
 		const optionsList = createElement("matches", { id: "autoCompleteMatches" });
 		inputElement.addEventListener("keyup", onAutoCompleteInputKeyUp);
 		inputElement.addEventListener("keydown", onAutoCompleteInputKeyDown);
@@ -9739,8 +9749,9 @@ function handleKeyDown(e)
 		shouldPreventDefault = true;
 		switch(k)
 		{
-			case KEYCODES.SQUARE_BRACKET_OPEN: toggleIdentifyClassMode(); break;
-			case KEYCODES.SQUARE_BRACKET_CLOSE: identifyClassCycleClass(); break;
+			case KEYCODES.SQUARE_BRACKET_OPEN: identifyClassCycle("previous"); break;
+			case KEYCODES.SQUARE_BRACKET_CLOSE: identifyClassCycle("next"); break;
+			case KEYCODES.BACK_SLASH: customPrompt("Enter tag to mark this class with").then(identifyClassMark); break;
 			case KEYCODES.ONE: fixBody(); break;
 			case KEYCODES.ZERO: capitalizeTitle(); break;
 			case KEYCODES.A: annotate("after"); break;
