@@ -61,9 +61,7 @@ const Nimbus = {
 		buildSlideshow: buildSlideshow,
 		capitalizeTitle: capitalizeTitle,
 		cleanupAttributes: cleanupAttributes,
-		cleanupAttributes_regex: cleanupAttributes_regex,
 		cleanupDocument: cleanupDocument,
-		cleanupAlt: cleanupAlt,
 		cleanupHead: cleanupHead,
 		cleanupHeadings: cleanupHeadings,
 		cleanupLinks: cleanupLinks,
@@ -112,9 +110,7 @@ const Nimbus = {
 		findStringsInProximity: findStringsInProximity,
 		fixBody: fixBody,
 		fixBullets: fixBullets,
-		fixCdnImages: fixCdnImages,
 		fixDashes: fixDashes,
-		fixHeadings: fixHeadings,
 		fixInternalReferences: fixInternalReferences,
 		fixLineBreaks: fixLineBreaks,
 		fixParagraphs: fixParagraphs,
@@ -174,7 +170,6 @@ const Nimbus = {
 		makeChildOf: makeChildOf,
 		makeDocumentHierarchical: makeDocumentHierarchical,
 		makeFileLinksRelative: makeFileLinksRelative,
-		makeHeadings: makeHeadings,
 		makeOL: makeOL,
 		makeParagraphsByLineBreaks: makeParagraphsByLineBreaks,
 		makePlainText: makePlainText,
@@ -5017,45 +5012,6 @@ function boldInlineColonHeadings()
 	}
 }
 
-function makeHeadings()
-{
-	const MAX_LENGTH = 120;
-	const paragraphs = get("p");
-	let i = paragraphs.length;
-	while(i--)
-	{
-		const paragraph = paragraphs[i];
-		let text = paragraph.textContent;
-		text = text.replace(/\s+/g, '');
-		let len = text.length;
-		if(len === 0)
-		{
-			if(!paragraph.getElementsByTagName("img").length)
-				paragraph.remove();
-		}
-		else if( text.match(/[IVX\.]+/g) && text.match(/[IVX\.]+/g)[0] === text )
-		{
-			replaceElement(paragraph, "h2");
-			continue;
-		}
-		else if(len < MAX_LENGTH && !text[len-1].match(/[.,!\?'"\u2018\u201C\u2019\u201D]/) )
-		{
-			replaceElement(paragraph, "h3");
-		}
-		const tags = ["b", "strong", "em"];
-		for(let j = 0, jj = tags.length; j < jj; j++)
-		{
-			const tag = tags[j];
-			if(paragraph.getElementsByTagName(tag).length === 1)
-			{
-				const childText = paragraph.querySelector(tag).textContent;
-				if(childText && childText.length < MAX_LENGTH && removeWhitespace(childText) === text)
-					replaceElement(paragraph, "h2");
-			}
-		}
-	}
-}
-
 function replaceCommonClasses()
 {
 	replaceElementsBySelector("strong", "b");
@@ -5103,27 +5059,6 @@ function replaceCommonClasses()
 	replaceElementsBySelector(".indexsub", "dd");
 
 	document.body.innerHTML = document.body.innerHTML.replaceAll("calibre_link-", "l");
-}
-
-function fixHeadings()
-{
-	fixParagraphs();
-	makeHeadings();
-	cleanupHeadings();
-}
-
-function fixCdnImages()
-{
-	const images = get("img[src*='si-cdn']");
-	for(let i = 0, ii = images.length; i < ii; i++)
-	{
-		let src = images[i].src;
-		if(src.indexOf("/http"))
-		{
-			src = trimStartingAt(src, "/http").substring(1);
-			images[i].src = src;
-		}
-	}
 }
 
 function reindentPreformatted(pre)
@@ -7016,15 +6951,6 @@ function cleanupAttributes()
 	}
 }
 
-function cleanupAttributes_regex()
-{
-	const t1 = performance.now();
-	document.body.removeAttribute("background");
-	document.body.innerHTML = document.body.innerHTML.replace(/(<[^ai][a-z0-9]*) [^>]+/gi, '$1');
-	const t2 = performance.now();
-	xlog(t2 - t1 + "ms: cleanupAttributes_regex");
-}
-
 function cleanupHeadings()
 {
 	const headings = get("h1, h2, h3, h4, h5, h6");
@@ -7114,23 +7040,6 @@ function cleanupDocument()
 	{
 		toggleStyleNegative();
 	}
-}
-
-function cleanupAlt()
-{
-	const t1 = performance.now();
-	deleteEmptyHeadings();
-	cleanupHead();
-	replaceIframes();
-	del(["link", "style", "iframe", "script", "input", "select", "textarea", "button", "x", "canvas", "label", "svg", "video", "audio", "applet", "message"]);
-	replaceElementsBySelector("center", "div");
-	setDocTitle();
-	del("x");
-	cleanupAttributes_regex();
-	appendMetadata();
-	document.body.className = "pad100 xShowImages";
-	const t2 = performance.now();
-	xlog(Math.round(t2 - t1) + " ms: cleanupAlt");
 }
 
 function cleanupBarebone()
