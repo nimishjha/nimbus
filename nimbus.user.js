@@ -280,7 +280,7 @@ const Nimbus = {
 		simplifyClassNames: simplifyClassNames,
 		splitByBrs: splitByBrs,
 		swapElementPositions: swapElementPositions,
-		makeParagraphsByLineBreaks: makeParagraphsByLineBreaks,
+		tabifySpacesInPres: tabifySpacesInPres,
 		toggleBlockEditMode: toggleBlockEditMode,
 		toggleContentEditable: toggleContentEditable,
 		toggleHighlightMap: toggleHighlightMap,
@@ -5073,31 +5073,6 @@ function replaceCommonClasses()
 	document.body.innerHTML = document.body.innerHTML.replaceAll("calibre_link-", "l");
 }
 
-function reindentPreformatted(pre)
-{
-	let s = pre.innerHTML;
-	s = s.replace(/&nbsp;/g, " ")
-		.replace(/<\/div>/g, "\r\n")
-		.replace(/<\/p>/g, "\r\n")
-		.replace(/<br>/g, "\r\n")
-		.replace(/<br\s*\/>/g, "\r\n");
-	pre.innerHTML = tabifySpaces(s);
-}
-
-function tabifySpaces(s)
-{
-	if(s.match("\n  [^ ]")) {
-		s = s.replace(/^ {2}/g, "\t");
-	} else if(s.match("\n   [^ ]")) {
-		s = s.replace(/^ {3}/g, "\t");
-	} else if(s.match("\n    [^ ]")) {
-		s = s.replace(/^ {4}/g, "\t");
-	} else {
-		s = s.replace(/^ {4}/g, "\t");
-	}
-	return s;
-}
-
 //	Some people use <br> elements to create line breaks inside pres.
 //	"Only two things are infinite..."
 function replaceBrsInPres()
@@ -5107,6 +5082,24 @@ function replaceBrsInPres()
 	{
 		const br = brs[i];
 		br.parentNode.replaceChild(document.createTextNode("\n"), br);
+	}
+}
+
+function tabifySpacesInPres()
+{
+	const pres = get("pre");
+	for(const pre of pres)
+	{
+		let s = pre.innerHTML;
+		if(/\n  [^ ]/.test(s))
+			s = s.replace(/ {2}/g, "\t");
+		else if(/\n   [^ ]/.test(s))
+			s = s.replace(/ {3}/g, "\t");
+		else if(/\n    [^ ]/.test(s))
+			s = s.replace(/ {4}/g, "\t");
+		else
+			s = s.replace(/ {4}/g, "\t");
+		pre.innerHTML = s;
 	}
 }
 
