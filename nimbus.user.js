@@ -684,7 +684,7 @@ function getTextNodesExcludingPre()
 {
 	function filter(node)
 	{
-		if (node.parentElement.closest('pre'))
+		if (node.parentElement.closest('pre, code'))
 		{
 			return NodeFilter.FILTER_REJECT;
 		}
@@ -2762,11 +2762,12 @@ function identifyClassShowMarked()
 	console.log(Nimbus.identifyClass.markedClasses.join("\n"));
 }
 
-function zeroPad(n)
+function zeroPad(num, width = 2)
 {
-	n += '';
-	if(n.length < 2) n = '0' + n;
-	return n;
+	const str = num.toString();
+	const len = str.length;
+	if (len >= width) return str;
+	return '0'.repeat(width - len) + str;
 }
 
 function isCurrentDomainLink(url)
@@ -3834,7 +3835,8 @@ function moveIdsFromSpans()
 		if(parent.hasAttribute("id"))
 		{
 			const replacement = document.createElement("cite");
-			replacement.textContent = replacement.id = elem.id;
+			replacement.textContent = "\u2022";
+			replacement.id = elem.id;
 			elem.insertAdjacentElement("beforebegin", replacement);
 		}
 		else
@@ -5016,12 +5018,19 @@ function makeAnchorNodePlainText()
 function boldInlineColonHeadings()
 {
 	const paras = getMarkedElements();
+	if(!(paras && paras.length))
+	{
+		showMessageBig("Didn't find any marked elements");
+		return;
+	}
 	for(let i = 0, ii = paras.length; i < ii; i++)
 	{
 		const para = paras[i];
+		para.innerHTML = normalizeHTML(para.innerHTML);
 		if(/^[\w\d\.\s\-,"]+:.+/.test(para.innerHTML))
 			para.innerHTML = para.innerHTML.replace(/(^[\w\d\.\s\-,"]+:)/, "<b>$1</b>");
 	}
+	unmarkAll();
 }
 
 function replaceCommonClasses()
@@ -5092,13 +5101,13 @@ function tabifySpacesInPres()
 	{
 		let s = pre.innerHTML;
 		if(/\n  [^ ]/.test(s))
-			s = s.replace(/ {2}/g, "\t");
+			s = s.replace(/\n {2}/g, "\n\t");
 		else if(/\n   [^ ]/.test(s))
-			s = s.replace(/ {3}/g, "\t");
+			s = s.replace(/\n {3}/g, "\n\t");
 		else if(/\n    [^ ]/.test(s))
-			s = s.replace(/ {4}/g, "\t");
+			s = s.replace(/\n {4}/g, "\n\t");
 		else
-			s = s.replace(/ {4}/g, "\t");
+			s = s.replace(/\n {4}/g, "\n\t");
 		pre.innerHTML = s;
 	}
 }
@@ -5116,10 +5125,9 @@ function fixDashes()
 	const ps = get("p, li, blockquote");
 	for(const p of ps)
 		p.innerHTML = removeLineBreaks(p.innerHTML);
-	replaceInTextNodes("--", "—");
 
 	let replCount = 0;
-	const regex = /(\s+[-–—]\s+|\s+[-–—]|[-–—]\s+)/g;
+	const regex = /(\s+[-–—]\s+|\s+[-–—]|[-–—]\s+|--)/g;
 	const textNodes = getTextNodesExcludingPre();
 	for(const textNode of textNodes)
 	{
@@ -7042,7 +7050,7 @@ function cleanupDocument()
 	replaceElementsBySelector("details", "div");
 	replaceElementsBySelector("summary", "h3");
 	deleteEmptyBlockElements();
-	deleteBySelectorAndRegex("a", /[¶§]/);
+	deleteBySelectorAndRegex("a", /^[¶§]$/);
 	const footers = get("footer");
 	if(footers && footers.length > 1)
 	{
@@ -7750,7 +7758,11 @@ function hideNonVideoContent()
 		for(const elem of elemsPreceding)
 			elem.classList.add("nimbusHide");
 	}
-	insertStyle(".nimbusHide { opacity: 0; }", "styleHNVC", true);
+	const style = `
+		.nimbusHide { opacity: 0; }
+		div { background-image: none; }
+	`;
+	insertStyle(style, "styleHNVC", true);
 }
 
 function unhideNonVideoContent()
@@ -7847,36 +7859,33 @@ function cleanupStackOverflow()
 {
 	function handleMutations(mutations)
 	{
+		console.log("handleMutations");
 		for(let i = 0, ii = mutations.length; i < ii; i++)
 			if(mutations[i].addedNodes.length)
+			{
+				console.log("\t deleting resources...");
 				del(["link", "script", "iframe"]);
+			}
 	}
 
-	const sites = ["stackexchange", "stackoverflow", "superuser", "serverfault", "askubuntu"];
-
-	if(containsAnyOfTheStrings(location.hostname, sites) && /questions\/[0-9]+/.test(location.href))
-	{
-		del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair", "#launch-popover", ".comments-link", ".aside-cta", ".js-post-menu", "iframe"]);
-		deleteByClassOrIdContaining("comments-link");
-		replaceElementsBySelector(".post-tag", "tag");
-		unwrapAll(".js-post-tag-list-item");
-		replaceElementsBySelector(".js-post-tag-list-wrapper", "footer");
-		replaceElementsBySelector(".user-action-time", "h5");
-		replaceElementsBySelector(".user-details", "h2");
-		replaceElementsBySelector(".answercell", "dt");
-		// replaceElementsBySelector(".votecell", "h6");
-		del(".votecell");
-		deleteBySelectorAndTextMatching("h2", "Not the answer");
-		retrieve("#content");
-		cleanupDocument();
-		removeAllAttributesOfTypes(["class", "style", "align", "id"]);
-		unwrapAll("span");
-		makePlainText("user");
-		unwrapAll("user");
-		makePlainText("pre");
-		const observer = new MutationObserver(handleMutations);
-		observer.observe(getOne("head"), { childList: true });
-	}
+	del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair", "#launch-popover", ".comments-link", ".aside-cta", ".js-post-menu", "iframe", ".js-bottom-notice", ".votecell"]);
+	deleteByClassOrIdContaining("comments-link");
+	replaceElementsBySelector(".post-tag", "tag");
+	unwrapAll(".js-post-tag-list-item");
+	replaceElementsBySelector(".js-post-tag-list-wrapper", "footer");
+	replaceElementsBySelector(".user-action-time", "h5");
+	replaceElementsBySelector(".user-details", "h2");
+	replaceElementsBySelector(".answercell", "dt");
+	deleteBySelectorAndTextMatching("h2", "Not the answer");
+	retrieve("#content");
+	cleanupDocument();
+	removeAllAttributesOfTypes(["class", "style", "align", "id"]);
+	unwrapAll("span");
+	makePlainText("user");
+	unwrapAll("user");
+	makePlainText("pre");
+	const observer = new MutationObserver(handleMutations);
+	observer.observe(getOne("head"), { childList: true });
 }
 
 function renderResourceInfo(str, uuid)
@@ -9518,6 +9527,12 @@ function clearBootstrapClasses()
 function isChrome() { return navigator.userAgent.indexOf("Chrome/") !== -1; }
 function isIframe() { return window !== window.top; }
 
+function doWebsiteSpecificTasksInternal()
+{
+	const sites = ["stackexchange", "stackoverflow", "superuser", "serverfault", "askubuntu"];
+	if(containsAnyOfTheStrings(location.hostname, sites) && /questions\/[0-9]+/.test(location.href)) cleanupStackOverflow();
+}
+
 function doWebsiteSpecificTasks()
 {
 	const commandElems = get("#website-specific-commands li");
@@ -9534,7 +9549,7 @@ function inject()
 		insertStyleHighlight();
 	xlog("Referrer: " + document.referrer);
 	xlog("Page loaded at " + getTimestamp());
-	cleanupStackOverflow();
+	doWebsiteSpecificTasksInternal();
 	Nimbus.pageMetadata = getMetadata();
 	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
 	if(isDebugMode)
@@ -9545,13 +9560,8 @@ function inject()
 function handleKeyDown(e)
 {
 	let shouldPreventDefault = true;
-	let ctrlOrMeta = "ctrlKey";
-	if(~navigator.userAgent.indexOf("Macintosh"))
-		ctrlOrMeta = "metaKey";
-	if(!(e.altKey || e.shiftKey || e[ctrlOrMeta]))
-	{
-		return;
-	}
+	const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
+	if(!(e.altKey || e.shiftKey || e[ctrlOrMeta])) return;
 	const db = document.body;
 	const dh = document.documentElement;
 	const k = e.keyCode;
@@ -9580,7 +9590,6 @@ function handleKeyDown(e)
 			case KEYCODES.F2: replaceSelectedElement(Nimbus.replacementTagName2); break;
 			case KEYCODES.F3: customPrompt("Enter tag name to replace elements of the marked type with").then(replaceElementsOfMarkedTypeWith); break;
 			case KEYCODES.F11: inspect(); break;
-			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.ONE: cleanupDocument(); break;
 			case KEYCODES.TWO: deleteImages(); break;
 			case KEYCODES.THREE: toggleClass(db, "xwrap"); break;
@@ -9692,8 +9701,6 @@ function handleKeyDown(e)
 		shouldPreventDefault = true;
 		switch(k)
 		{
-			// case KEYCODES.SQUARE_BRACKET_OPEN: changePage("previous"); break;
-			// case KEYCODES.SQUARE_BRACKET_CLOSE: changePage("next"); break;
 			case KEYCODES.UPARROW: modifyMark("expand"); break;
 			case KEYCODES.DOWNARROW: modifyMark("contract"); break;
 			case KEYCODES.LEFTARROW: modifyMark("previous"); break;
