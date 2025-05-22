@@ -9545,13 +9545,8 @@ function inject()
 function handleKeyDown(e)
 {
 	let shouldPreventDefault = true;
-	let ctrlOrMeta = "ctrlKey";
-	if(~navigator.userAgent.indexOf("Macintosh"))
-		ctrlOrMeta = "metaKey";
-	if(!(e.altKey || e.shiftKey || e[ctrlOrMeta]))
-	{
-		return;
-	}
+	const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
+	if(!(e.altKey || e.shiftKey || e[ctrlOrMeta])) return;
 	const db = document.body;
 	const dh = document.documentElement;
 	const k = e.keyCode;
@@ -9580,7 +9575,6 @@ function handleKeyDown(e)
 			case KEYCODES.F2: replaceSelectedElement(Nimbus.replacementTagName2); break;
 			case KEYCODES.F3: customPrompt("Enter tag name to replace elements of the marked type with").then(replaceElementsOfMarkedTypeWith); break;
 			case KEYCODES.F11: inspect(); break;
-			case KEYCODES.F12: highlightCode(); break;
 			case KEYCODES.ONE: cleanupDocument(); break;
 			case KEYCODES.TWO: deleteImages(); break;
 			case KEYCODES.THREE: toggleClass(db, "xwrap"); break;
