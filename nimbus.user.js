@@ -96,6 +96,7 @@ const Nimbus = {
 		deletePersistedImages: deletePersistedImages,
 		deletePrecedingNodesBySelector: deletePrecedingNodesBySelector,
 		deleteFollowingNodesBySelector: deleteFollowingNodesBySelector,
+		unwrapRedundantDivs: unwrapRedundantDivs,
 		deleteResources: deleteResources,
 		deleteSmallImages: deleteSmallImages,
 		delRange: delRange,
@@ -194,7 +195,6 @@ const Nimbus = {
 		markNodesBetweenMarkers: markNodesBetweenMarkers,
 		markNumericElements: markNumericElements,
 		markOverlays: markOverlays,
-		markRedundantDivs: markRedundantDivs,
 		markUppercaseElements: markUppercaseElements,
 		mapIdsToClasses: mapIdsToClasses,
 		moveDataTestIdToClassName: moveDataTestIdToClassName,
@@ -535,12 +535,12 @@ const STYLES = {
 		sup, sub { box-shadow: inset 2px 2px #68A, inset -2px -2px #68A; }
 		span { box-shadow: inset 2px 2px #AA0, inset -2px -2px #AA0; }
 		font { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; }
-		abbr { box-shadow: inset 2px 2px #A00, inset -2px -2px #A00; }
+		abbr { box-shadow: inset 2px 2px #A40, inset -2px -2px #A40; }
 		nobr { box-shadow: inset 2px 2px #A0A, inset -2px -2px #A0A; }
-		cite { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0C0; }
-		code { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0C0; }
+		cite { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0A0; }
+		code { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0A0; }
 		small { box-shadow: inset 2px 2px #088, inset -2px -2px #088; }
-		p { box-shadow: inset 2px 2px #C0C, inset -2px -2px #C0C; }
+		p { box-shadow: inset 2px 2px #909, inset -2px -2px #505; }
 		mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 2px 2px #888, inset -2px -2px #888; }
 		a, a * { background: rgba(180, 255, 0, 0.25); }
 		img { background: #800; padding: 2px; box-sizing: border-box; }
@@ -928,7 +928,7 @@ function markElementsWithChildrenSpanning(parentSelector, childSelector)
 	}
 }
 
-function markRedundantDivs()
+function unwrapRedundantDivs()
 {
 	const elems = get("div");
 	let i = elems.length;
@@ -946,7 +946,7 @@ function markRedundantDivs()
 			}
 		}
 		if(isRedundant)
-			elem.className = "markd";
+			unwrapElement(elem);
 	}
 }
 
@@ -2736,7 +2736,7 @@ function identifyClassCycle(direction)
 	const config = Nimbus.identifyClass;
 	if(!(config.classes && config.classes.length))
 	{
-		showMessageBig("config.classes is empty. Run identifyClassSetup <selector> first.");
+		showMessageBig("No classes to work with. Run identifyClassSetup <selector> first.");
 		return;
 	}
 	config.currentIndex = direction === "previous" ? getPreviousIndex(config.currentIndex, config.classes) : getNextIndex(config.currentIndex, config.classes);
@@ -2801,7 +2801,7 @@ function makeIdSelector(id)
 
 function removeUnnecessaryClasses()
 {
-	removeAttributeOf("table, tbody, thead, th, tr, td, i, em, b, strong, a, ul, ol, li, sup, sub, small, pre, code", "class");
+	removeAttributeOf("table, tbody, thead, th, tr, td, i, em, b, strong, a, ul, ol, li, sup, sub, small, pre, code, h1, h2, h3, h4, h5, h6, dt, dd, dl", "class");
 }
 
 function simplifyClassNames(selector)
@@ -3829,9 +3829,10 @@ function replaceEmptyAnchors()
 function moveIdsFromSpans()
 {
 	const spans = get("span[id]");
+	if(!spans) return;
 	for(const span of spans)
 	{
-		const recipient = span.nextElementSibling;
+		const recipient = span.closest("h1, h2, h3, h4, h5, h6, p") || span.nextElementSibling;
 		if(recipient && !recipient.id)
 		{
 			recipient.id = span.id;
@@ -4653,13 +4654,16 @@ function shortenIds()
 {
 	const links = get('a[href^="#"]');
 	const linksByHref = {};
-	for(const link of links)
+	if(links)
 	{
-		const href = link.getAttribute("href").substring(1);
-		if(linksByHref[href])
-			linksByHref[href].push(link);
-		else
-			linksByHref[href] = [link];
+		for(const link of links)
+		{
+			const href = link.getAttribute("href").substring(1);
+			if(linksByHref[href])
+				linksByHref[href].push(link);
+			else
+				linksByHref[href] = [link];
+		}
 	}
 
 	const elems = get("*[id]");
@@ -4667,9 +4671,9 @@ function shortenIds()
 	{
 		const elem = elems[i];
 		const links = linksByHref[elem.id];
-		elem.id = "i" + i;
 		if(links && links.length)
 		{
+			elem.id = "i" + i;
 			for(const link of links)
 				link.setAttribute("href", "#" + elem.id);
 		}
@@ -5136,13 +5140,13 @@ function tabifySpacesInPres()
 	{
 		let s = pre.innerHTML;
 		if(/\n  [^ ]/.test(s))
-			s = s.replace(/\n {2}/g, "\n\t");
+			s = s.replace(/ {2}/g, "\t");
 		else if(/\n   [^ ]/.test(s))
-			s = s.replace(/\n {3}/g, "\n\t");
+			s = s.replace(/ {3}/g, "\t");
 		else if(/\n    [^ ]/.test(s))
-			s = s.replace(/\n {4}/g, "\n\t");
+			s = s.replace(/ {4}/g, "\t");
 		else
-			s = s.replace(/\n {4}/g, "\n\t");
+			s = s.replace(/ {4}/g, "\t");
 		pre.innerHTML = s;
 	}
 }
