@@ -198,6 +198,7 @@ const Nimbus = {
 		markUppercaseElements: markUppercaseElements,
 		mapIdsToClasses: mapIdsToClasses,
 		moveDataTestIdToClassName: moveDataTestIdToClassName,
+		moveIdsFromSpans: moveIdsFromSpans,
 		normaliseWhitespaceForParagraphs: normaliseWhitespaceForParagraphs,
 		normalizeAllWhitespace: normalizeAllWhitespace,
 		numberDivs: numberDivs,
@@ -3826,24 +3827,26 @@ function replaceEmptyAnchors()
 
 function moveIdsFromSpans()
 {
-	const elems = get("span[id]");
-	if(!elems) return;
-	for(const elem of elems)
+	const spans = get("span[id]");
+	for(const span of spans)
 	{
-		const parent = elem.closest("p, h1, h2, h3, h4");
-		if(!parent) continue;
-		if(parent.hasAttribute("id"))
+		const recipient = span.nextElementSibling;
+		if(recipient && !recipient.id)
 		{
-			const replacement = document.createElement("cite");
-			replacement.textContent = "\u2022";
-			replacement.id = elem.id;
-			elem.insertAdjacentElement("beforebegin", replacement);
+			recipient.id = span.id;
+			if(getTextLength(span) === 0)
+				span.remove();
 		}
 		else
 		{
-			parent.id = elem.id;
+			const repl = document.createElement("cite");
+			repl.textContent = "\u2022";
+			repl.id = span.id;
+			if(getTextLength(span) === 0)
+				span.parentNode.replaceChild(repl, span);
+			else
+				span.insertAdjacentElement("beforebegin", repl);
 		}
-		unwrapElement(elem);
 	}
 }
 
