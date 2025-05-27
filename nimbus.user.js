@@ -269,6 +269,7 @@ const Nimbus = {
 		setReplacementTag1: setReplacementTag1,
 		setReplacementTag2: setReplacementTag2,
 		singleQuotesToDoubleQuotes: singleQuotesToDoubleQuotes,
+		shortenIds: shortenIds,
 		showAttributes: showAttributes,
 		setClassByDepth: setClassByDepth,
 		showHtmlComments: showHtmlComments,
@@ -4646,6 +4647,37 @@ function getBestImageSrc()
 		}
 	}
 	getBestImages();
+}
+
+function shortenIds()
+{
+	const links = get('a[href^="#"]');
+	const linksByHref = {};
+	for(const link of links)
+	{
+		const href = link.getAttribute("href").substring(1);
+		if(linksByHref[href])
+			linksByHref[href].push(link);
+		else
+			linksByHref[href] = [link];
+	}
+
+	const elems = get("*[id]");
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+		const links = linksByHref[elem.id];
+		elem.id = "i" + i;
+		if(links && links.length)
+		{
+			for(const link of links)
+				link.setAttribute("href", "#" + elem.id);
+		}
+		else
+		{
+			elem.removeAttribute("id");
+		}
+	}
 }
 
 function shortenImageSrc(src)
