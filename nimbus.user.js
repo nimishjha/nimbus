@@ -8191,10 +8191,13 @@ function inspect(onTop)
 	}
 }
 
-function inspectClickHandler(e)
+function inspectClickHandler(evt)
 {
-	e.stopPropagation();
-	e.target.classList.add(Nimbus.markerClass);
+	evt.stopPropagation();
+	if(evt.ctrlKey)
+		identifyClassSetup("." + Array.from(evt.target.classList).join("."));
+	else
+		evt.target.classList.add(Nimbus.markerClass);
 }
 
 function showAttributes(selector = "*")
