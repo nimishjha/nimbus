@@ -2870,7 +2870,8 @@ function showMessage(message, msgClass, persist)
 	{
 		del("message");
 	}
-	const messageContainer = createElement("message");
+	const messageContainer = document.createElement("message");
+	messageContainer.className = "excludeFromMutations";
 	const messageInner = document.createElement(messageInnerTagName);
 	const messageContent = document.createElement("div");
 	let messageText;
@@ -2891,8 +2892,6 @@ function showMessage(message, msgClass, persist)
 	document.body.appendChild(messageContainer);
 	if(!getOne("#styleMessage"))
 		insertStyle(strStyle, "styleMessage", true);
-	if(msgClass)
-		console.log("Nimbus: \t " + messageInner.textContent);
 	if(!persist)
 		Nimbus.messageTimeout = setTimeout(deleteMessage, MESSAGE_TIMEOUT);
 }
@@ -3062,7 +3061,7 @@ function toggleConsole(consoleType)
 		'#userInput { background: ' + consoleBackgroundColor + '; color: #CCC; font-family: "SF Mono", Consolas, Verdana; font-size: 18px; font-weight: bold; width: 100%; height: 100%; padding: 10px 40px; border: 0; outline: 0; }';
 	insertStyle(dialogStyle, "styleUserInputWrapper", true);
 
-	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper" });
+	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper", class: "excludeFromMutations" });
 	const inputTextarea = createElement("textarea", { id: "userInput", class: "monospace", value: getConsoleHistory(consoleType) });
 	const handleKeyDown = function(event){ handleConsoleInput(event, consoleType); };
 	inputTextarea.addEventListener("keydown", handleKeyDown);
@@ -3159,9 +3158,9 @@ function customPrompt(message, initialValue)
 	if(!getOne("#xxdialog"))
 	{
 		del("#style-xxdialog");
-		const dialog = createElement("div", { id: "xxdialog" });
+		const dialog = createElement("div", { id: "xxdialog", class: "excludeFromMutations" });
 		const dialogHeading = createElement("heading", { textContent: message });
-		const dialogInput = createElement("input", { id: "xxdialoginput" });
+		const dialogInput = createElement("input", { id: "xxdialoginput", autocomplete: "off" });
 		if(initialValue)
 			dialogInput.value = initialValue;
 		dialog.appendChild(dialogHeading);
@@ -3267,6 +3266,7 @@ function autoCompleteInputBox()
 	function renderMatches()
 	{
 		const matchList = document.createElement("div");
+		matchList.className = "excludeFromMutations";
 		const numMatches = inputComponent.matches.length;
 		if(numMatches === 1)
 		{
@@ -3276,6 +3276,7 @@ function autoCompleteInputBox()
 		for(let i = 0, ii = numMatches; i < ii; i++)
 		{
 			const match = document.createElement("match");
+			match.className = "excludeFromMutations";
 			if(inputComponent.currentIndex === i) match.className = "current";
 			match.textContent = inputComponent.matches[i];
 			matchList.appendChild(match);
@@ -3324,7 +3325,7 @@ function autoCompleteInputBox()
 			autocompleteinputwrapper match.current { background: #303030; color: #FFF; }
 			autocompleteinputwrapper em { display: inline-block; width: 200px; }`;
 		insertStyle(style, "styleAutoCompleteInputBox", true);
-		const dialogWrapper = createElement("autocompleteinputwrapper", { id: "autoCompleteInputWrapper" });
+		const dialogWrapper = createElement("autocompleteinputwrapper", { id: "autoCompleteInputWrapper", class: "excludeFromMutations" });
 		const inputElementWrapper = createElement("inputelementwrapper");
 		const inputElement = createElement("input", { id: "autoCompleteInput", autocomplete: "off" });
 		const optionsList = createElement("matches", { id: "autoCompleteMatches" });
@@ -8291,8 +8292,32 @@ function numberTableRowsAndColumns(tableElement)
 		tables[i].classList.add("numbered");
 }
 
+function traceLineage(element)
+{
+	let current = element;
+	while (current)
+	{
+		const id = current.id || "";
+		const classes = current.className || "";
+		console.log(`#${id} .${classes}`);
+		current = current.parentNode;
+	}
+}
+
+function showClonedElements()
+{
+	function removeStyle(x) { x.removeAttribute("style"); }
+	if(Nimbus.clonedNodesContainer && Nimbus.clonedNodesContainer.children.length)
+	{
+		document.body.insertBefore(Nimbus.clonedNodesContainer, document.body.firstChild);
+		insertStyle("#cloneContainer { position: fixed; top: 10px; left: 10px; width: 400px; height: 400px; border: 2px solid #333; z-index: 2147483647; }", "styleCloneContainer", true);
+		forAll("#cloneContainer *", removeStyle);
+	}
+}
+
 function logMutations(mutations)
 {
+	function clone(elem) { Nimbus.clonedNodesContainer.appendChild(elem.cloneNode(true)); }
 	const colors = Nimbus.logColors;
 	for(let i = 0, ii = mutations.length; i < ii; i++)
 	{
@@ -8304,18 +8329,32 @@ function logMutations(mutations)
 			if(mutation.addedNodes.length)
 			{
 				for(let j = 0, jj = mutation.addedNodes.length; j < jj; j++)
-					console.log(`%cadded:   %c${createSelector(mutation.addedNodes[j])} %c${mutation.addedNodes[j].textContent}`, colors.green, colors.gray, colors.blue);
+				{
+					const addedNode = mutation.addedNodes[j];
+					if(addedNode.className && addedNode.classList.contains("excludeFromMutations"))
+						continue;
+					console.log(`%cadded:   %c${createSelector(addedNode)} %c${addedNode.textContent}`, colors.green, colors.gray, colors.blue);
+					clone(addedNode);
+				}
 			}
 			if(mutation.removedNodes.length)
 			{
 				for(let j = 0, jj = mutation.removedNodes.length; j < jj; j++)
-					console.log(`%cremoved: %c${createSelector(mutation.removedNodes[j])} %c${mutation.removedNodes[j].textContent}`, colors.red, colors.gray, colors.blue);
+				{
+					const removedNode = mutation.removedNodes[j];
+					if( removedNode.className && removedNode.classList.contains("excludeFromMutations") )
+						continue;
+					console.log(`%cremoved: %c${createSelector(removedNode)} %c${removedNode.textContent}`, colors.red, colors.gray, colors.blue);
+				}
 			}
 		}
 		else if(mutation.type === "attributes")
 		{
 			if(!Nimbus.attributeFilter || (Nimbus.attributeFilter && mutation.attributeName.includes(Nimbus.attributeFilter)))
-				console.log(`%c${mutation.attributeName}: %c${createSelector(mutation.target)}`, "color: #0F0", "color: #CCC; background: #444");
+			{
+				console.log(`%c${mutation.attributeName}: %c${createSelector(mutation.target)}`, colors.green, colors.gray);
+				clone(mutation.target);
+			}
 		}
 	}
 }
@@ -8329,11 +8368,16 @@ function toggleMutationObserver(watchAttributes, mutationFilterSelector = null, 
 		Nimbus.observer.disconnect();
 		Nimbus.isObservingMutations = false;
 		showMessageBig("Stopped observing mutations");
+		showClonedElements();
+		Nimbus.clonedNodesContainer = null;
 		return;
 	}
 	Nimbus.mutationFilterSelector = mutationFilterSelector;
 	Nimbus.attributeFilter = attributeFilter;
 	Nimbus.observer = new MutationObserver(logMutations);
+	del("#cloneContainer");
+	Nimbus.clonedNodesContainer = document.createElement("div");
+	Nimbus.clonedNodesContainer.id = "cloneContainer";
 	let config = { childList: true };
 	let message = "Observing mutations";
 	if(watchAttributes)
