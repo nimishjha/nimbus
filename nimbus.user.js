@@ -96,7 +96,6 @@ const Nimbus = {
 		deletePersistedImages: deletePersistedImages,
 		deletePrecedingNodesBySelector: deletePrecedingNodesBySelector,
 		deleteFollowingNodesBySelector: deleteFollowingNodesBySelector,
-		unwrapRedundantDivs: unwrapRedundantDivs,
 		deleteResources: deleteResources,
 		deleteSmallImages: deleteSmallImages,
 		delRange: delRange,
@@ -223,6 +222,7 @@ const Nimbus = {
 		removeQueryStringFromImageSources: removeQueryStringFromImageSources,
 		removeQueryStringFromLinks: removeQueryStringFromLinks,
 		removeQueryStringFromLinksMatching: removeQueryStringFromLinksMatching,
+		removeRedundantDivs: removeRedundantDivs,
 		removeRedundantHrs: removeRedundantHrs,
 		removeSpanTags: removeSpanTags,
 		removeUnnecessaryClasses: removeUnnecessaryClasses,
@@ -928,7 +928,7 @@ function markElementsWithChildrenSpanning(parentSelector, childSelector)
 	}
 }
 
-function unwrapRedundantDivs()
+function removeRedundantDivs()
 {
 	const elems = get("div");
 	let i = elems.length;
@@ -4671,6 +4671,7 @@ function shortenIds()
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
+		if(elem.tagName === "STYLE" || elem.tagName === "BODY") continue;
 		const links = linksByHref[elem.id];
 		if(links && links.length)
 		{
@@ -8353,7 +8354,6 @@ function logMutations(mutations)
 			if(!Nimbus.attributeFilter || (Nimbus.attributeFilter && mutation.attributeName.includes(Nimbus.attributeFilter)))
 			{
 				console.log(`%c${mutation.attributeName}: %c${createSelector(mutation.target)}`, colors.green, colors.gray);
-				clone(mutation.target);
 			}
 		}
 	}
