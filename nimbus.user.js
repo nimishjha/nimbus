@@ -293,6 +293,7 @@ const Nimbus = {
 		toggleStyleNegative: toggleStyleNegative,
 		unmark: unmark,
 		unmarkAll: unmarkAll,
+		unmarkFromEnd: unmarkFromEnd,
 		unwrapAll: unwrapAll,
 		wrapAll: wrapAll,
 		wrapAllInner: wrapAllInner,
@@ -8504,13 +8505,34 @@ function forceReloadCss()
 	}
 }
 
-function modifyMark(direction, keepSelection)
+function unmarkFromEnd(whichEnd = "end", n)
+{
+	const marked = getMarkedElements();
+	if(!(marked && marked.length))
+	{
+		showMessageBig("No marked elements");
+		return;
+	}
+	n = Math.max(0, Math.min(n, marked.length));
+	if(whichEnd === "start")
+	{
+		for(let i = 0; i < n; i++)
+			unmarkElement(marked[i]);
+	}
+	else
+	{
+		for(let i = 1; i < n + 1; i++)
+			unmarkElement(marked[marked.length - i]);
+	}
+}
+
+function modifyMark(action, keepSelection)
 {
 	let currentElement;
 	const markedElements = getMarkedElements();
 	if(markedElements && markedElements.length)
 	{
-		if(direction === "previous")
+		if(action === "previous")
 			currentElement = markedElements[0];
 		else
 			currentElement = markedElements[markedElements.length - 1];
@@ -8525,7 +8547,7 @@ function modifyMark(direction, keepSelection)
 		return;
 	}
 	let nextElement;
-	switch(direction)
+	switch(action)
 	{
 		case "expand": nextElement = currentElement.parentNode; break;
 		case "contract": nextElement = currentElement.firstElementChild; break;
@@ -8537,7 +8559,7 @@ function modifyMark(direction, keepSelection)
 		showMessageError("Couldn't get next element");
 		return;
 	}
-	if(!keepSelection || direction === "expand" || direction === "contract")
+	if(!keepSelection || action === "expand" || action === "contract")
 		unmarkElement(currentElement);
 	markElement(nextElement);
 	showMarkedElementInfo(nextElement);
