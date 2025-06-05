@@ -8838,6 +8838,20 @@ function getAlphanumericTextLength(elem)
 	return elem.textContent.replace(/[^a-zA-Z0-9]+/g, "").length;
 }
 
+function containsPlainTextNodes(node)
+{
+        for(const child of node.childNodes)
+                if(child.nodeType === 3) return true;
+        return false;
+}
+
+function containsNonEmptyPlainTextNodes(node)
+{
+	for(const child of node.childNodes)
+		if(child.nodeType === 3 && child.data.replace(/\s+/g, "").length > 0) return true;
+	return false;
+}
+
 function containsOnlyPlainText(node)
 {
 	return node.children.length === 0;
