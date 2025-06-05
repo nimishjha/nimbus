@@ -263,6 +263,7 @@ const Nimbus = {
 		selectElementsStartingWithText: selectElementsStartingWithText,
 		setAttributeOf: setAttributeOf,
 		setDocTitle: setDocTitle,
+		setGroupTagName: setGroupTagName,
 		setItalicTag: setItalicTag,
 		setMarkerClass: setMarkerClass,
 		setQueryParameter: setQueryParameter,
@@ -325,6 +326,7 @@ const Nimbus = {
 	minPersistSize: 800,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
 	selectionHighlightMode: "sentence",
+	GROUP_TAGNAME: "blockquote",
 	BLOCK_ELEMENTS: {
 		DIV: true,
 		P: true,
@@ -6060,6 +6062,19 @@ function goToLastElement(selector)
 	}
 }
 
+function setGroupTagName(tagName)
+{
+	if(typeof tagName === "string" && tagName.length)
+	{
+		Nimbus.GROUP_TAGNAME = tagName;
+	}
+	else
+	{
+		showMessageBig("No tag provided, defaulting to blockquote");
+		Nimbus.GROUP_TAGNAME = "blockquote";
+	}
+}
+
 function groupMarkedElements(tagName)
 {
 	const groupTagName = tagName || "ul";
@@ -9686,7 +9701,7 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.NUMPAD5: toggleHighlightSelectionMode(); break;
 			case KEYCODES.NUMPAD6: retrieveLargeImages(); break;
-			case KEYCODES.NUMPAD7: groupMarkedElements("blockquote"); break;
+			case KEYCODES.NUMPAD7: groupMarkedElements(Nimbus.GROUP_TAGNAME); break;
 			case KEYCODES.NUMPAD8: toggleNonVideoContent(); break;
 			case KEYCODES.NUMPAD9: toggleNimbusStyles(); break;
 			case KEYCODES.NUMPAD0: deleteResources(); break;
