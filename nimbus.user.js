@@ -561,6 +561,9 @@ const STYLES = {
 		*[id]::before { content: attr(id); color: #F0F; background: #000; padding: 2px 6px; font: 16px "swis721 cn bt"; }
 		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #0DD; background: #000; padding: 2px 6px; font: 16px "swis721 cn bt"; }
 	`,
+	PAD_BLOCK_ELEMENTS: `
+		div, p, hgroup, article, nav, footnote, header, footer { margin: 4px; padding: 4px; }
+	`,
 	SHOW_TABLE_STRUCTURE: 'th { background-image: linear-gradient(45deg, #000, #888); } td { background-image: linear-gradient(45deg, #000, #555); } th *, td * { background: transparent; color: #FFF; fill: #999; }',
 	INSPECTOR: `
 		body.inspector { padding-bottom: 30vh; }
@@ -9860,6 +9863,7 @@ function handleKeyDown(e)
 			case KEYCODES.K: deleteNodesAfterAnchorNode(); break;
 			case KEYCODES.L: deleteNodesBetweenMarkers(); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
+			case KEYCODES.N: toggleStyle(STYLES.PAD_BLOCK_ELEMENTS, "stylePadBlockElements", true); break;
 			case KEYCODES.O: customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
 			case KEYCODES.P: makeAnchorNodePlainText(); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;
