@@ -294,6 +294,7 @@ const Nimbus = {
 		toggleStyleNegative: toggleStyleNegative,
 		unmark: unmark,
 		unmarkAll: unmarkAll,
+		unmarkFromBeginning: unmarkFromBeginning,
 		unmarkFromEnd: unmarkFromEnd,
 		unwrapAll: unwrapAll,
 		wrapAll: wrapAll,
@@ -8523,7 +8524,7 @@ function forceReloadCss()
 	}
 }
 
-function unmarkFromEnd(whichEnd = "end", n)
+function unmarkFromBeginningOrEnd(whichEnd = "end", n)
 {
 	const marked = getMarkedElements();
 	if(!(marked && marked.length))
@@ -8532,7 +8533,7 @@ function unmarkFromEnd(whichEnd = "end", n)
 		return;
 	}
 	n = Math.max(0, Math.min(n, marked.length));
-	if(whichEnd === "start")
+	if(whichEnd === "beginning")
 	{
 		for(let i = 0; i < n; i++)
 			unmarkElement(marked[i]);
@@ -8543,6 +8544,9 @@ function unmarkFromEnd(whichEnd = "end", n)
 			unmarkElement(marked[marked.length - i]);
 	}
 }
+
+function unmarkFromBeginning(n) { unmarkFromBeginningOrEnd("beginning", n); }
+function unmarkFromEnd(n) { unmarkFromBeginningOrEnd("end", n); }
 
 function modifyMark(action, keepSelection)
 {
