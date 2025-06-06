@@ -942,11 +942,10 @@ function removeRedundantDivs()
 	while(i--)
 	{
 		const elem = elems[i];
-		const children = elem.childNodes;
 		let isRedundant = true;
-		for(const child of children)
+		for(const child of elem.childNodes)
 		{
-			if(child.nodeType !== 1 || child.tagName !== "DIV")
+			if((child.nodeType === 3 && child.data.replace(/\s+/g, "").length > 0) || (child.nodeType === 1 && child.tagName !== "DIV"))
 			{
 				isRedundant = false;
 				break;
