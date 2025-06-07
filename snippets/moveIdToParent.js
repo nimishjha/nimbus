@@ -1,6 +1,11 @@
 function moveIdToParent(childSelector, parentSelector)
 {
 	const children = get(childSelector);
+	if(!(children && children.length))
+	{
+		showMessageBig(`No children matching selector ${childSelector}`);
+		return;
+	}
 	let numIdsMoved = 0;
 	let numNoId = 0;
 	let numNoParent = 0;

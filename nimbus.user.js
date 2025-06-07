@@ -553,9 +553,21 @@ const STYLES = {
 		*[class]::before { content: attr(class); color: #C90; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
 		*[id]::before { content: attr(id); color: #C0C; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
 		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #C90; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
+
 		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 2px 2px 2px 10px; padding: 4px; }
 		h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #909, inset -4px -4px #505; }
+
+		h1::after { content: "h1"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
+		h2::after { content: "h2"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
+		h3::after { content: "h3"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
+		h4::after { content: "h4"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
+		h5::after { content: "h5"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
+		h6::after { content: "h6"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
+
 		span { box-shadow: inset 0 -100px #040; padding: 2px; border: 2px solid #0A0; }
+
+		message::before, autocompleteinputwrapper::before, autocompleteinputwrapper *::before, #userInputWrapper::before, #userInputWrapper *::before { display: none; }
+		message *, autocompleteinputwrapper, autocompleteinputwrapper *, #userInputWrapper, #userInputWrapper * { box-shadow: none; }
 	`,
 	SHOW_SELECTORS_MINIMAL: `
 		*[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px 6px; font: 16px "swis721 cn bt"; }
@@ -2745,7 +2757,7 @@ function identifyClassCycle(direction)
 		showMessageBig("No classes to work with. Run identifyClassSetup <selector> first.");
 		return;
 	}
-	config.currentIndex = direction === "previous" ? getPreviousIndex(config.currentIndex, config.classes) : getNextIndex(config.currentIndex, config.classes);
+	config.currentIndex = direction === "previous" ? getPreviousIndex(config.currentIndex) : getNextIndex(config.currentIndex, config.classes);
 	const currentClass = config.classes[config.currentIndex];
 	const classCount = config.classes.length;
 	if(currentClass)
@@ -6581,10 +6593,10 @@ function toggleStyleNegative()
 	autocompleteinputwrapper input, autocompleteinputwrapper input[class] { font-size: 40px; color: #FFF; }
 	autocompleteinputwrapper input div, autocompleteinputwrapper input[class] div { color: #FFF; }
 
-	a, a:link, a[class], a[id] { color: #04C; text-decoration: none; text-shadow: none; font: inherit; border: 0; background: inherit; }
+	a, a:link, a[class], a[id] { color: #77C; text-decoration: none; text-shadow: none; font: inherit; border: 0; background: inherit; }
 	a[class*="btn"] { background: #333; }
 	button[class*="active"], a[class*="active"], a[class*="selected"] { outline: 2px solid #6F0; }
-	a:visited, a:visited * { color: #37A; text-decoration: none; }
+	a:visited, a:visited * { color: #55C; text-decoration: none; }
 	a:active, a:hover, a:focus, a:hover *, a:focus * { color: #09F; text-decoration: none; outline: 0; }
 	.pagination a:link { font: bold 30px "swis721 cn bt"; border: 0; background: #111; padding: 10px; }
 
@@ -7141,6 +7153,7 @@ function cleanupBarebone()
 	unwrapAll("span");
 	deleteHtmlComments();
 	removeInlineStyles();
+	shortenIds();
 }
 
 function cleanupHead()
@@ -8846,9 +8859,9 @@ function getAlphanumericTextLength(elem)
 
 function containsPlainTextNodes(node)
 {
-        for(const child of node.childNodes)
-                if(child.nodeType === 3) return true;
-        return false;
+	for(const child of node.childNodes)
+		if(child.nodeType === 3) return true;
+	return false;
 }
 
 function containsNonEmptyPlainTextNodes(node)
@@ -9599,7 +9612,7 @@ function removeHighlightsFromMarkedElements()
 	unmarkAll();
 }
 
-function getPreviousIndex(index, array)
+function getPreviousIndex(index)
 {
 	return Math.max(--index, 0);
 }
@@ -9627,7 +9640,7 @@ function disableVideoFilter()
 function previousVideoFilter()
 {
 	const lastIndex = Nimbus.videoFilter.currentIndex;
-	Nimbus.videoFilter.currentIndex = getPreviousIndex(Nimbus.videoFilter.currentIndex, Nimbus.videoFilter.styles);
+	Nimbus.videoFilter.currentIndex = getPreviousIndex(Nimbus.videoFilter.currentIndex);
 	if(Nimbus.videoFilter.currentIndex !== lastIndex)
 		applyVideoFilter();
 }
@@ -9705,8 +9718,6 @@ function handleKeyDown(e)
 	let shouldPreventDefault = true;
 	const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
 	if(!(e.altKey || e.shiftKey || e[ctrlOrMeta])) return;
-	const db = document.body;
-	const dh = document.documentElement;
 	const k = e.keyCode;
 	//
 	//	Alt
@@ -9735,7 +9746,7 @@ function handleKeyDown(e)
 			case KEYCODES.F11: inspect(); break;
 			case KEYCODES.ONE: cleanupDocument(); break;
 			case KEYCODES.TWO: deleteImages(); break;
-			case KEYCODES.THREE: toggleClass(db, "xwrap"); break;
+			case KEYCODES.THREE: toggleClass(document.body, "xwrap"); break;
 			case KEYCODES.FOUR: deleteSmallImages(); break;
 			case KEYCODES.FIVE: buildGallery(); break;
 			case KEYCODES.SIX: deleteIframes(); break;
