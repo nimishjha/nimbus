@@ -653,7 +653,7 @@ function getOrCreate(tagName, id, parent)
 
 function XpathNodesToArray(nodes)
 {
-	let selected = new Array(nodes.snapshotLength);
+	let selected = Array.from({ length: nodes.snapshotLength });
 	for(let i = 0, ii = selected.length; i < ii; i++)
 		selected[i] = nodes.snapshotItem(i);
 	return selected;
@@ -1261,7 +1261,7 @@ function fixLineBreaks()
 		for(let i = 0, ii = spans.length; i < ii; i++)
 		{
 			const span = spans[i];
-			if(/\n$/.test(span.textContent))
+			if(span.textContent.endsWith('\n'))
 				span.appendChild(document.createElement("br"));
 		}
 	}
@@ -7196,7 +7196,7 @@ function replaceInlineStylesWithClasses(selector = "span[style]")
 
 function replaceClassesWithCustomElements(selector, baseTagName)
 {
-	if(!typeof selector === "string") return;
+	if(typeof selector !== "string") return;
 	const classes = getAllClassesFor(selector);
 	for(let i = 0, ii = classes.length; i < ii; i++)
 	{
@@ -7749,7 +7749,7 @@ function retrieve(selector)
 function retrieveGrouped(selectors, wrapperTagName = "section", groupTagName = "hgroup")
 {
 	const numSelectors = selectors.length;
-	const nodeLists = new Array(numSelectors);
+	const nodeLists = Array.from({ length: numSelectors });
 	for(let i = 0, ii = selectors.length; i < ii; i++)
 	{
 		const selector = selectors[i];
