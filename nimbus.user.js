@@ -1741,7 +1741,7 @@ function parseQueryString(url)
 	return(parsedParameters);
 }
 
-function removeQueryParameter(url, parameterName)
+function removeQueryParameterFromUrl(url, parameterName)
 {
 	const parsedParameters = parseQueryString(url);
 	if(!parsedParameters)
@@ -1758,6 +1758,13 @@ function removeQueryParameter(url, parameterName)
 	if(newQueryString.length)
 		return(`${baseUrl}?${newQueryString}`);
 	return baseUrl;
+}
+
+function removeQueryParameterFromLinks(str, selector="a[href]")
+{
+	const links = get(selector);
+	for(const link of links)
+		link.href = removeQueryParameterFromUrl(link.href, str);
 }
 
 function setQueryParameter(url, parameterName, newValue)
@@ -7585,9 +7592,9 @@ function appendMetadata()
 	if(!existingMetadata && protocol === "file:") return;
 
 	const urlWithoutHash = protocol + "//" + hostname + pathname + search;
-	let documentUrl = removeQueryParameter(urlWithoutHash, "utm_source");
-	documentUrl = removeQueryParameter(documentUrl, "utm_medium");
-	documentUrl = removeQueryParameter(documentUrl, "utm_campaign");
+	let documentUrl = removeQueryParameterFromUrl(urlWithoutHash, "utm_source");
+	documentUrl = removeQueryParameterFromUrl(documentUrl, "utm_medium");
+	documentUrl = removeQueryParameterFromUrl(documentUrl, "utm_campaign");
 
 	const domainLinkWrapper = createElement("h4", { textContent: "Domain: " });
 	const domainLink = createElement("a", { textContent: hostname, href: protocol + "//" + hostname });
