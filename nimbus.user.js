@@ -39,6 +39,7 @@ let consoleError = noop;
 const isDebugMode = true;
 
 const Nimbus = {
+	version: "2025.06.14.01",
 	logString: "",
 	messageTimeout: null,
 	KEYCODES: {
@@ -277,7 +278,6 @@ const Nimbus = {
 		showPrintLink: showPrintLink,
 		showResources: showResources,
 		showSavedStreamingImages: showSavedStreamingImages,
-		showSelectorsFor: showSelectorsFor,
 		showSelectorsHeavy: showSelectorsHeavy,
 		showTags: showTags,
 		simplifyClassNames: simplifyClassNames,
@@ -291,6 +291,7 @@ const Nimbus = {
 		toggleMutationObserver: toggleMutationObserver,
 		toggleNimbusStyles: toggleNimbusStyles,
 		toggleShowEmptyLinksAndSpans: toggleShowEmptyLinksAndSpans,
+		toggleShowSelectors: toggleShowSelectors,
 		toggleStyleNegative: toggleStyleNegative,
 		unmark: unmark,
 		unmarkAll: unmarkAll,
@@ -361,9 +362,12 @@ const Nimbus = {
 		HEADER: true,
 		FOOTER: true,
 		HR: true,
-		RT: true
+		RT: true,
+		STYLE: true,
 	},
 	INLINE_ELEMENTS: {
+		SUP: true,
+		SUB: true,
 		SPAN: true,
 		FONT: true,
 		EM: true,
@@ -371,10 +375,12 @@ const Nimbus = {
 		STRONG: true,
 		B: true,
 		A: true,
-		HEAD: true,
-		STYLE: true,
 		TIME: true,
-		CODE: true
+		CODE: true,
+		KBD: true,
+		TT: true,
+		SAMP: true,
+		CITE: true,
 	},
 	italicTag: "i",
 	logColors: {
@@ -8432,15 +8438,57 @@ function toggleMutationObserver(watchAttributes, mutationFilterSelector = null, 
 	Nimbus.isObservingMutations = true;
 }
 
-//	When you want to see the classes and ids for all elements of a given type
-function showSelectorsFor(tagName)
+function toggleShowSelectors(tagName)
 {
-	const styleId = 'styleShowSelectorsFor';
-	del("#" + styleId);
-	const style = `${tagName}::before { content: attr(id); background: #000; color: #FF0; }
-		${tagName}::after { content: attr(class); background: #000; color: #F90; }
-		${tagName} { border: 2px solid #000; box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 2px 2px 2px 10px; padding: 4px; }`;
-	insertStyle(style, styleId, true);
+	if(document.body.classList.contains("nimbusShowSelectors"))
+	{
+		document.body.classList.remove("nimbusShowSelectors");
+		del("#styleShowSelectors");
+	}
+	else
+	{
+		document.body.classList.add("nimbusShowSelectors");
+		showSelectors(tagName);
+	}
+}
+
+function showSelectors(tagName)
+{
+	function generateBlockStyleRule(tag) {
+		tag = tag.toLowerCase();
+		return `
+			${tag} { box-shadow: inset 2px 2px #000, inset -2px -2px #000; padding: 8px; margin: 8px; }
+			${tag}::before { content: "${tag}"; color: #07C; background: #000; padding: 2px 6px; font: bold 22px "swis721 cn bt"; }
+			${tag}[id]::before { content: "${tag}#" attr(id); color: #C0C; background: #000; padding: 2px 6px; font: bold 22px "swis721 cn bt"; }
+			${tag}[class]::before { content: "${tag}." attr(class); color: #C90; background: #000; padding: 2px 6px; font: bold 22px "swis721 cn bt"; }
+			${tag}[id][class]::before { content: "${tag}#" attr(id) "."attr(class); color: #CC0; background: #000; padding: 2px 6px; font: bold 22px "swis721 cn bt"; }
+		`;
+	}
+	function generateInlineStyleRule(tag) {
+		tag = tag.toLowerCase();
+		return `
+			${tag} { padding: 4px; margin: 4px; box-shadow: inset 2px 2px #080, inset -2px -2px #080; }
+			${tag}::before { content: "${tag}"; color: #7C0; background: #000; padding: 2px 6px; font: bold 18px "swis721 cn bt"; }
+			${tag}[id]::before { content: "${tag}#" attr(id); color: #C0C; background: #000; padding: 2px 6px; font: bold 18px "swis721 cn bt"; }
+			${tag}[class]::before { content: "${tag}." attr(class); color: #C90; background: #000; padding: 2px 6px; font: bold 18px "swis721 cn bt"; }
+			${tag}[id][class]::before { content: "${tag}#" attr(id) "."attr(class); color: #CC0; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; font: bold 18px "swis721 cn bt"; }
+		`;
+	}
+
+	if(tagName)
+	{
+		const style = Nimbus.BLOCK_ELEMENTS[tagName.toUpperCase()] ? generateBlockStyleRule(tagName) : generateInlineStyleRule(tagName);
+		insertStyle(style, "styleShowSelectors", true);
+	}
+	else
+	{
+		const blockTags = Object.keys(Nimbus.BLOCK_ELEMENTS);
+		const inlineTags = Object.keys(Nimbus.INLINE_ELEMENTS);
+		const rulesBlock = blockTags.map(generateBlockStyleRule);
+		const rulesInline = inlineTags.map(generateInlineStyleRule);
+		const style = rulesBlock.join("\n") + rulesInline.join("\n");
+		insertStyle(style, "styleShowSelectors", true);
+	}
 }
 
 function showSelectorsHeavy()
@@ -9874,7 +9922,7 @@ function handleKeyDown(e)
 			case KEYCODES.SIX: toggleStyle(STYLES.GITHUB_HIDE_DELETE_DIFFS, "styleGithubHideDeleteDiffs", true); break;
 			case KEYCODES.ZERO: clearBootstrapClasses(); toggleViewVideoMode(); break;
 			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
-			case KEYCODES.B: toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
+			case KEYCODES.B: toggleShowSelectors(); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
 			case KEYCODES.F: del(["object", "embed", "video", "iframe"]); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements with class or id containing the string", deleteByClassOrIdContaining); break;
@@ -9917,7 +9965,7 @@ function handleKeyDown(e)
 			case KEYCODES.ONE: fixBody(); break;
 			case KEYCODES.ZERO: capitalizeTitle(); break;
 			case KEYCODES.A: annotate("after"); break;
-			case KEYCODES.B: toggleStyle(STYLES.SHOW_SELECTORS_MINIMAL, "styleShowSelectorsMinimal", true); break;
+			case KEYCODES.B: toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
 			case KEYCODES.D: deselect(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
 			case KEYCODES.Z: deselect(); break;
@@ -9944,6 +9992,7 @@ function main()
 	const excludedDomains = {
 		"mail.proton.me": true,
 	};
+	console.log("Nimbus version " + Nimbus.version);
 	if(!excludedDomains[location.hostname])
 		setTimeout(inject, 200);
 	else
