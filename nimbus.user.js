@@ -75,14 +75,16 @@ const Nimbus = {
 		cycleThroughDocumentHeadings: cycleThroughDocumentHeadings,
 		del: del,
 		deleteByClassOrIdContaining: deleteByClassOrIdContaining,
-		deleteBySelectorAndText: deleteBySelectorAndText,
 		deleteBySelectorAndExactText: deleteBySelectorAndExactText,
 		deleteBySelectorAndNormalizedText: deleteBySelectorAndNormalizedText,
 		deleteBySelectorAndRegex: deleteBySelectorAndRegex,
+		deleteBySelectorAndText: deleteBySelectorAndText,
+		deleteClass: deleteClass,
 		deleteEmptyBlockElements: deleteEmptyBlockElements,
 		deleteEmptyElements: deleteEmptyElements,
 		deleteEmptyHeadings: deleteEmptyHeadings,
 		deleteEmptyTextNodes: deleteEmptyTextNodes,
+		deleteFollowingNodesBySelector: deleteFollowingNodesBySelector,
 		deleteIframes: deleteIframes,
 		deleteImageByNumber: deleteImageByNumber,
 		deleteImages: deleteImages,
@@ -90,13 +92,12 @@ const Nimbus = {
 		deleteMessage: deleteMessage,
 		deleteNodesBetweenMarkers: deleteNodesBetweenMarkers,
 		deleteNodesBySelectorAndRelativePosition: deleteNodesBySelectorAndRelativePosition,
-		deleteNonEnglishText: deleteNonEnglishText,
 		deleteNonContentElements: deleteNonContentElements,
-		deleteNonContentLists: deleteNonContentLists,
 		deleteNonContentLinks: deleteNonContentLinks,
+		deleteNonContentLists: deleteNonContentLists,
+		deleteNonEnglishText: deleteNonEnglishText,
 		deletePersistedImages: deletePersistedImages,
 		deletePrecedingNodesBySelector: deletePrecedingNodesBySelector,
-		deleteFollowingNodesBySelector: deleteFollowingNodesBySelector,
 		deleteResources: deleteResources,
 		deleteSmallImages: deleteSmallImages,
 		delRange: delRange,
@@ -134,7 +135,6 @@ const Nimbus = {
 		groupMarkedElements: groupMarkedElements,
 		groupUnderHeadings: groupUnderHeadings,
 		hideNonVideoContent: hideNonVideoContent,
-		unhideNonVideoContent: unhideNonVideoContent,
 		highlightAllMatchesInDocument: highlightAllMatchesInDocument,
 		highlightAllStrings: highlightAllStrings,
 		highlightBySelectorAndText: highlightBySelectorAndText,
@@ -142,15 +142,15 @@ const Nimbus = {
 		highlightCodeComments: highlightCodeComments,
 		highlightCodePunctuation: highlightCodePunctuation,
 		highlightCodeStrings: highlightCodeStrings,
+		highlightFirstParentByText: highlightFirstParentByText,
 		highlightInPres: highlightInPres,
 		highlightInTextNodes: highlightInTextNodes,
-		highlightFirstParentByText: highlightFirstParentByText,
 		highlightLinksInPres: highlightLinksInPres,
 		highlightLinksWithHrefContaining: highlightLinksWithHrefContaining,
+		highlightMatchesUnderSelector: highlightMatchesUnderSelector,
 		highlightQuotes: highlightQuotes,
 		highlightSelection: highlightSelection,
 		highlightUserLinks: highlightUserLinks,
-		highlightMatchesUnderSelector: highlightMatchesUnderSelector,
 		identifyClassSetStyle: identifyClassSetStyle,
 		identifyClassSetup: identifyClassSetup,
 		identifyClassShowMarked: identifyClassShowMarked,
@@ -180,13 +180,14 @@ const Nimbus = {
 		makeParagraphsByLineBreaks: makeParagraphsByLineBreaks,
 		makePlainText: makePlainText,
 		makeUL: makeUL,
+		mapIdsToClasses: mapIdsToClasses,
 		mark: mark,
 		markBlockElementsContainingText: markBlockElementsContainingText,
 		markByChildrenHavingTheExactText: markByChildrenHavingTheExactText,
 		markByClassOrIdContaining: markByClassOrIdContaining,
 		markByCssRule: markByCssRule,
-		markBySelectorAndNormalizedText: markBySelectorAndNormalizedText,
 		markBySelector: markBySelector,
+		markBySelectorAndNormalizedText: markBySelectorAndNormalizedText,
 		markBySelectorAndRegex: markBySelectorAndRegex,
 		markByTagNameAndText: markByTagNameAndText,
 		markElementsWithChildrenSpanning: markElementsWithChildrenSpanning,
@@ -196,7 +197,6 @@ const Nimbus = {
 		markNumericElements: markNumericElements,
 		markOverlays: markOverlays,
 		markUppercaseElements: markUppercaseElements,
-		mapIdsToClasses: mapIdsToClasses,
 		moveDataTestIdToClassName: moveDataTestIdToClassName,
 		moveIdsFromSpans: moveIdsFromSpans,
 		normaliseWhitespaceForParagraphs: normaliseWhitespaceForParagraphs,
@@ -211,15 +211,14 @@ const Nimbus = {
 		removeAllAttributesOfType: removeAllAttributesOfType,
 		removeAllEmphasis: removeAllEmphasis,
 		removeAllHighlights: removeAllHighlights,
-		unhighlightAll: removeAllHighlights,
 		removeAttributeOf: removeAttributeOf,
-		deleteClass: deleteClass,
 		removeColorsFromInlineStyles: removeColorsFromInlineStyles,
 		removeEmojis: removeEmojis,
 		removeEventListeners: removeEventListeners,
 		removeHighlightsFromMarkedElements: removeHighlightsFromMarkedElements,
 		removeInlineStyles: removeInlineStyles,
 		removePeriodsFromAbbreviations: removePeriodsFromAbbreviations,
+		removeQueryParameterFromLinks: removeQueryParameterFromLinks,
 		removeQueryStringFromImageSources: removeQueryStringFromImageSources,
 		removeQueryStringFromLinks: removeQueryStringFromLinks,
 		removeQueryStringFromLinksMatching: removeQueryStringFromLinksMatching,
@@ -241,7 +240,6 @@ const Nimbus = {
 		replaceEmptyParagraphsWithHr: replaceEmptyParagraphsWithHr,
 		replaceFontTags: replaceFontTags,
 		replaceIframes: replaceIframes,
-		replaceMarkedWithTextElement: replaceMarkedWithTextElement,
 		replaceImagesWithAltText: replaceImagesWithAltText,
 		replaceImagesWithTextLinks: replaceImagesWithTextLinks,
 		replaceInClassNames: replaceInClassNames,
@@ -249,6 +247,7 @@ const Nimbus = {
 		replaceInTextNodes: replaceInTextNodes,
 		replaceLongTextLinks: replaceLongTextLinks,
 		replaceMarkedElements: replaceMarkedElements,
+		replaceMarkedWithTextElement: replaceMarkedWithTextElement,
 		replaceNonStandardElements: replaceNonStandardElements,
 		replaceQueryParameter: replaceQueryParameter,
 		replaceSpecialCharacters:replaceSpecialCharacters,
@@ -263,6 +262,7 @@ const Nimbus = {
 		selectElementsEndingWithText: selectElementsEndingWithText,
 		selectElementsStartingWithText: selectElementsStartingWithText,
 		setAttributeOf: setAttributeOf,
+		setClassByDepth: setClassByDepth,
 		setDocTitle: setDocTitle,
 		setGroupTagName: setGroupTagName,
 		setItalicTag: setItalicTag,
@@ -270,10 +270,8 @@ const Nimbus = {
 		setQueryParameter: setQueryParameter,
 		setReplacementTag1: setReplacementTag1,
 		setReplacementTag2: setReplacementTag2,
-		singleQuotesToDoubleQuotes: singleQuotesToDoubleQuotes,
 		shortenIds: shortenIds,
 		showAttributes: showAttributes,
-		setClassByDepth: setClassByDepth,
 		showHtmlComments: showHtmlComments,
 		showPrintLink: showPrintLink,
 		showResources: showResources,
@@ -281,6 +279,7 @@ const Nimbus = {
 		showSelectorsHeavy: showSelectorsHeavy,
 		showTags: showTags,
 		simplifyClassNames: simplifyClassNames,
+		singleQuotesToDoubleQuotes: singleQuotesToDoubleQuotes,
 		splitByBrs: splitByBrs,
 		swapElementPositions: swapElementPositions,
 		tabifySpacesInPres: tabifySpacesInPres,
@@ -293,6 +292,8 @@ const Nimbus = {
 		toggleShowEmptyLinksAndSpans: toggleShowEmptyLinksAndSpans,
 		toggleShowSelectors: toggleShowSelectors,
 		toggleStyleNegative: toggleStyleNegative,
+		unhideNonVideoContent: unhideNonVideoContent,
+		unhighlightAll: removeAllHighlights,
 		unmark: unmark,
 		unmarkAll: unmarkAll,
 		unmarkFromBeginning: unmarkFromBeginning,
@@ -556,12 +557,15 @@ const STYLES = {
 		img { background: #800; padding: 2px; box-sizing: border-box; }
 	`,
 	SHOW_SELECTORS: `
-		*[class]::before { content: attr(class); color: #C90; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
-		*[id]::before { content: attr(id); color: #C0C; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
-		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #C90; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; }
+		*[class]::before { content: attr(class); color: #C90; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
+		*[id]::before { content: attr(id); color: #C0C; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
+		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #C90; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
 
-		header, footer, article, aside, section, div, blockquote { box-shadow: inset 4px 4px #000, inset -4px -4px #000; margin: 2px 2px 2px 10px; padding: 4px; }
-		h1, h2, h3, h4, h5, h6, p { box-shadow: inset 4px 4px #909, inset -4px -4px #505; }
+		div, p, blockquote, hgroup, h1, h2, h3, h4, h5, h6, ol, ul, li, head, figure, figcaption, pre, dt, dd, message, annotation, td, article { box-shadow: inset 4px 4px #444, inset -4px -4px #111; margin: 4px; padding: 4px; }
+		small, big, sup, sub, abbr, time, cite { box-shadow: inset 2px 2px #357, inset -2px -2px #357; }
+		font { box-shadow: inset 2px 2px #C90, inset -2px -2px #C90; }
+		span { box-shadow: inset 0 -100px #040; padding: 4px; border: 2px solid #0A0; }
+		span span { padding: 0px; }
 
 		h1::after { content: "h1"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
 		h2::after { content: "h2"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
@@ -569,8 +573,6 @@ const STYLES = {
 		h4::after { content: "h4"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
 		h5::after { content: "h5"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
 		h6::after { content: "h6"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
-
-		span { box-shadow: inset 0 -100px #040; padding: 2px; border: 2px solid #0A0; }
 
 		message::before, autocompleteinputwrapper::before, autocompleteinputwrapper *::before, #userInputWrapper::before, #userInputWrapper *::before { display: none; }
 		message *, autocompleteinputwrapper, autocompleteinputwrapper *, #userInputWrapper, #userInputWrapper * { box-shadow: none; }
@@ -586,7 +588,7 @@ const STYLES = {
 	SHOW_TABLE_STRUCTURE: 'th { background-image: linear-gradient(45deg, #000, #888); } td { background-image: linear-gradient(45deg, #000, #555); } th *, td * { background: transparent; color: #FFF; fill: #999; }',
 	INSPECTOR: `
 		body.inspector { padding-bottom: 30vh; }
-		div#inspector { padding: 5px 10px; position: fixed; left: 0; bottom: 0; width: 50%; min-width: 500px; height: 30vh; overflow: hidden; background:#000; color: #AAA; text-align:left; z-index: 2147483647; font: 22px "swis721 cn bt", verdana; letter-spacing: 0; box-shadow: none; min-height: 30vh; margin: 0; }
+		div#inspector { padding: 5px 10px; position: fixed; left: 0; bottom: 0; width: 50%; min-width: 500px; height: 30vh; overflow: hidden; background:#000; color: #AAA; text-align:left; z-index: 2147483647; font: bold 18px "Swis721 Cn BT", verdana; letter-spacing: 0; box-shadow: none; min-height: 30vh; margin: 0; }
 		#inspector.onTop { bottom: auto; top: 0; }
 		#inspector b { color:#09F; }
 		#inspector em { font-style:normal; color:#F90; }
@@ -4837,7 +4839,7 @@ function persistStreamingImages(minSize)
 		Nimbus.streamingImages = [];
 	let images = Nimbus.streamingImages;
 	const unsavedImages = document.querySelectorAll("img:not(.alreadySaved)");
-	for(let i = 0; i < unsavedImages.length; i++)
+	for(let i = 0, ii = unsavedImages.length; i < ii; i++)
 	{
 		const image = unsavedImages[i];
 		const imgSrc = image.src;
@@ -7016,10 +7018,10 @@ function removeAllAttributesOf(elem)
 
 function removeAllAttributesExcept(selectorOrElement, attrToKeep)
 {
+	const attrToKeepLower = attrToKeep.toLowerCase();
 	const elems = typeof selectorOrElement === "string" ? get(selectorOrElement) : [selectorOrElement];
 	for(const elem of elems)
 	{
-		const attrToKeepLower = attrToKeep.toLowerCase();
 		const attrs = elem.attributes;
 		let i = attrs.length;
 		while(i--)
@@ -7037,7 +7039,7 @@ function cleanupAttributes()
 {
 	const elems = document.getElementsByTagName('*');
 	document.body.removeAttribute("background");
-	for(let i = 0; i < elems.length; i++)
+	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
 		if(elem.attributes)
@@ -8154,13 +8156,13 @@ function toggleBlockEditMode()
 	if(getOne("#styleToggleBlockEditMode"))
 	{
 		del("#styleToggleBlockEditMode");
-		db.removeEventListener('mouseup', handleBlockEditClick, false);
+		db.removeEventListener("mouseup", handleBlockEditClick, false);
 		db.classList.remove("debug");
 		showMessageBig("Block edit mode off");
 	}
 	else
 	{
-		db.addEventListener('mouseup', handleBlockEditClick, false);
+		db.addEventListener("mouseup", handleBlockEditClick, false);
 		db.classList.add("debug");
 		const style = `
 			html body.debug header, html body.debug footer, html body.debug article, html body.debug aside, html body.debug section, html body.debug div { box-shadow: inset 2px 2px #555, inset -2px -2px #555; margin: 10px; padding: 10px; }
@@ -8180,7 +8182,7 @@ function getAttributes(elem)
 	{
 		const attrs = elem.attributes;
 		const frag = document.createDocumentFragment();
-		for(let i = 0; i < attrs.length; i++)
+		for(let i = 0, ii = attrs.length; i < ii; i++)
 		{
 			const attr = attrs[i];
 			if(attr)
@@ -8457,7 +8459,6 @@ function showSelectors(tagName)
 	function generateBlockStyleRule(tag) {
 		tag = tag.toLowerCase();
 		return `
-			${tag} { box-shadow: inset 2px 2px #000, inset -2px -2px #000; padding: 8px; margin: 8px; }
 			${tag}::before { content: "${tag}"; color: #07C; background: #000; padding: 2px 6px; font: bold 22px "swis721 cn bt"; }
 			${tag}[id]::before { content: "${tag}#" attr(id); color: #C0C; background: #000; padding: 2px 6px; font: bold 22px "swis721 cn bt"; }
 			${tag}[class]::before { content: "${tag}." attr(class); color: #C90; background: #000; padding: 2px 6px; font: bold 22px "swis721 cn bt"; }
@@ -8467,11 +8468,10 @@ function showSelectors(tagName)
 	function generateInlineStyleRule(tag) {
 		tag = tag.toLowerCase();
 		return `
-			${tag} { padding: 4px; margin: 4px; box-shadow: inset 2px 2px #080, inset -2px -2px #080; }
 			${tag}::before { content: "${tag}"; color: #7C0; background: #000; padding: 2px 6px; font: bold 18px "swis721 cn bt"; }
 			${tag}[id]::before { content: "${tag}#" attr(id); color: #C0C; background: #000; padding: 2px 6px; font: bold 18px "swis721 cn bt"; }
 			${tag}[class]::before { content: "${tag}." attr(class); color: #C90; background: #000; padding: 2px 6px; font: bold 18px "swis721 cn bt"; }
-			${tag}[id][class]::before { content: "${tag}#" attr(id) "."attr(class); color: #CC0; background: #000; padding: 2px 6px; font: 22px "swis721 cn bt"; font: bold 18px "swis721 cn bt"; }
+			${tag}[id][class]::before { content: "${tag}#" attr(id) "."attr(class); color: #CC0; background: #000; padding: 2px 6px; font: bold 18px "swis721 cn bt"; }
 		`;
 	}
 
@@ -8482,11 +8482,19 @@ function showSelectors(tagName)
 	}
 	else
 	{
+		const borderStyle = `
+			div, p, blockquote, hgroup, h1, h2, h3, h4, h5, h6, ol, ul, li, head, figure, figcaption, pre, dt, dd, message, annotation, td, quote, quoteauthor, aside, section, article, nav, footnote, header, footer, hr, rt, style { box-shadow: inset 4px 4px #444, inset -4px -4px #111; margin: 4px; padding: 4px; }
+			small, big, sup, sub, abbr, time, cite { box-shadow: inset 2px 2px #357, inset -2px -2px #357; }
+			font { box-shadow: inset 2px 2px #C90, inset -2px -2px #C90; }
+			span { box-shadow: inset 0 -100px #040; padding: 4px; border: 2px solid #0A0; }
+			span span { padding: 0px; }
+		`;
+
 		const blockTags = Object.keys(Nimbus.BLOCK_ELEMENTS);
 		const inlineTags = Object.keys(Nimbus.INLINE_ELEMENTS);
 		const rulesBlock = blockTags.map(generateBlockStyleRule);
 		const rulesInline = inlineTags.map(generateInlineStyleRule);
-		const style = rulesBlock.join("\n") + rulesInline.join("\n");
+		const style = rulesBlock.join("\n") + rulesInline.join("\n") + borderStyle;
 		insertStyle(style, "styleShowSelectors", true);
 	}
 }
@@ -8580,7 +8588,7 @@ function forceReloadCss()
 {
 	showMessageBig("Force-reloading CSS");
 	const styleLinks = document.getElementsByTagName('link');
-	for(let i = 0; i < styleLinks.length; i++)
+	for(let i = 0, ii = styleLinks.length; i < ii; i++)
 	{
 		const styleSheet = styleLinks[i];
 		if(styleSheet.rel.toLowerCase().indexOf('stylesheet') >= 0 && styleSheet.href)
@@ -9922,7 +9930,7 @@ function handleKeyDown(e)
 			case KEYCODES.SIX: toggleStyle(STYLES.GITHUB_HIDE_DELETE_DIFFS, "styleGithubHideDeleteDiffs", true); break;
 			case KEYCODES.ZERO: clearBootstrapClasses(); toggleViewVideoMode(); break;
 			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
-			case KEYCODES.B: toggleShowSelectors(); break;
+			case KEYCODES.B: toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
 			case KEYCODES.F: del(["object", "embed", "video", "iframe"]); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements with class or id containing the string", deleteByClassOrIdContaining); break;
@@ -9965,7 +9973,7 @@ function handleKeyDown(e)
 			case KEYCODES.ONE: fixBody(); break;
 			case KEYCODES.ZERO: capitalizeTitle(); break;
 			case KEYCODES.A: annotate("after"); break;
-			case KEYCODES.B: toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
+			case KEYCODES.B: toggleShowSelectors(); break;
 			case KEYCODES.D: deselect(); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
 			case KEYCODES.Z: deselect(); break;
