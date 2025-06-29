@@ -3469,6 +3469,7 @@ function highlightMapper()
 
 		const colorsByHighlightType = {
 			plaintext: "#303030",
+			currentLocation: "#A0A0A0",
 			mark: "#0077BB",
 			markyellow: "#DDBB00",
 			markpurple: "#AA00CC",
@@ -3477,6 +3478,15 @@ function highlightMapper()
 			markred: "#CC0000",
 			markwhite: "#E0E0E0",
 		};
+
+		let currentScrollPosition = 0;
+		if(window.scrollY > 0 && window.scrollMaxY > 0)
+		{
+			const scrollPercentage = window.scrollY / window.scrollMaxY;
+			currentScrollPosition = Math.min(height - config.rowHeight, height * scrollPercentage);
+		}
+		ctx.fillStyle = colorsByHighlightType["currentLocation"];
+		ctx.fillRect(width - 50, currentScrollPosition, width, config.rowHeight);
 
 		let x = 0;
 		let y = 0;
