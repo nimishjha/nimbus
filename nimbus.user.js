@@ -39,7 +39,7 @@ let consoleError = noop;
 const isDebugMode = true;
 
 const Nimbus = {
-	version: "2025.06.14.01",
+	version: "2025.06.30.01",
 	logString: "",
 	messageTimeout: null,
 	KEYCODES: {
@@ -278,6 +278,7 @@ const Nimbus = {
 		showSavedStreamingImages: showSavedStreamingImages,
 		showSelectorsHeavy: showSelectorsHeavy,
 		showTags: showTags,
+		showVersion: showVersion,
 		simplifyClassNames: simplifyClassNames,
 		singleQuotesToDoubleQuotes: singleQuotesToDoubleQuotes,
 		splitByBrs: splitByBrs,
@@ -1867,6 +1868,11 @@ function logElements(elements)
 	for(let i = 0, ii = elements.length; i < ii; i++)
 		strElementSelectors += "\t" + createSelector(elements[i]) + "\n";
 	console.log(strElementSelectors);
+}
+
+function showVersion()
+{
+	showMessageBig("Nimbus version " + Nimbus.version);
 }
 
 function showLog(prepend)
@@ -9258,7 +9264,7 @@ function highlightTextAcrossTags(element, searchString)
 
 		if(contains)
 		{
-			consoleLog("contains; recursing");
+			consoleLog(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the entire string: %c${searchString}`, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
 			highlightTextAcrossTags(childNode, searchString);
 			break;
 		}
@@ -10010,7 +10016,6 @@ function main()
 	const excludedDomains = {
 		"mail.proton.me": true,
 	};
-	console.log("Nimbus version " + Nimbus.version);
 	if(!excludedDomains[location.hostname])
 		setTimeout(inject, 200);
 	else
