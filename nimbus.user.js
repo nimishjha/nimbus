@@ -562,7 +562,7 @@ const STYLES = {
 		*[id]::before { content: attr(id); color: #C0C; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
 		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #C90; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
 
-		div, p, blockquote, hgroup, h1, h2, h3, h4, h5, h6, ol, ul, li, head, figure, figcaption, pre, dt, dd, message, annotation, td, article { box-shadow: inset 4px 4px #444, inset -4px -4px #111; margin: 4px; padding: 4px; }
+		div, p, blockquote, hgroup, h1, h2, h3, h4, h5, h6, ol, ul, li, head, figure, figcaption, pre, dt, dd, message, annotation, td, article { box-shadow: inset 2px 2px #444, inset -2px -2px #111; margin: 4px; padding: 4px; }
 		small, big, sup, sub, abbr, time, cite { box-shadow: inset 2px 2px #357, inset -2px -2px #357; }
 		font { box-shadow: inset 2px 2px #C90, inset -2px -2px #C90; }
 		span { box-shadow: inset 0 -100px #040; padding: 4px; border: 2px solid #0A0; }
@@ -710,7 +710,7 @@ function xPathMark(xpath)
 		showMessageBig("No matches found");
 }
 
-function getTextNodesExcludingPre()
+function getNonCodeTextNodes()
 {
 	function filter(node)
 	{
@@ -5218,13 +5218,13 @@ function fixDashes()
 
 	let replCount = 0;
 	const regex = /(\s+[-–—]\s+|\s+[-–—]|[-–—]\s+|--)/g;
-	const textNodes = getTextNodesExcludingPre();
+	const textNodes = getNonCodeTextNodes();
 	for(const textNode of textNodes)
 	{
 		if(regex.test(textNode.data))
 		{
 			replCount++;
-			textNode.data = textNode.data.replace(regex, "—");
+			textNode.data = textNode.data.replaceAll("--", "—").replace(regex, "—");
 		}
 	}
 	if(replCount)
@@ -7064,6 +7064,7 @@ function cleanupAttributes()
 			for(let j = attrs.length - 1; j >= 0; j--)
 			{
 				const attr = attrs[j];
+				if(!attr) continue;
 				switch(attr.name)
 				{
 					case "href":
@@ -8499,7 +8500,7 @@ function showSelectors(tagName)
 	else
 	{
 		const borderStyle = `
-			div, p, blockquote, hgroup, h1, h2, h3, h4, h5, h6, ol, ul, li, head, figure, figcaption, pre, dt, dd, message, annotation, td, quote, quoteauthor, aside, section, article, nav, footnote, header, footer, hr, rt, style { box-shadow: inset 4px 4px #444, inset -4px -4px #111; margin: 4px; padding: 4px; }
+			div, p, blockquote, hgroup, h1, h2, h3, h4, h5, h6, ol, ul, li, head, figure, figcaption, pre, dt, dd, message, annotation, td, quote, quoteauthor, aside, section, article, nav, footnote, header, footer, hr, rt, style { box-shadow: inset 2px 2px #444, inset -2px -2px #111; margin: 4px; padding: 4px; }
 			small, big, sup, sub, abbr, time, cite { box-shadow: inset 2px 2px #357, inset -2px -2px #357; }
 			font { box-shadow: inset 2px 2px #C90, inset -2px -2px #C90; }
 			span { box-shadow: inset 0 -100px #040; padding: 4px; border: 2px solid #0A0; }
