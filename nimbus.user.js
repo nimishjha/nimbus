@@ -262,6 +262,7 @@ const Nimbus = {
 		selectElementsEndingWithText: selectElementsEndingWithText,
 		selectElementsStartingWithText: selectElementsStartingWithText,
 		setAttributeOf: setAttributeOf,
+		setBodyOpacity: setBodyOpacity,
 		setClassByDepth: setClassByDepth,
 		setDocTitle: setDocTitle,
 		setGroupTagName: setGroupTagName,
@@ -482,7 +483,7 @@ const STYLES = {
 	`,
 	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); line-height: 1.4; }`,
 	GITHUB_HIDE_DELETE_DIFFS: ".blob-num-deletion, .blob-code-deletion { display: none; }",
-	DIM_BODY: 'html, body { background: #000; color: #AAA; } body { opacity: 0.7; } ',
+	DIM_BODY: 'html, body { background: #000; color: #AAA; } body { opacity: 0.8; } ',
 	SIMPLE_NEGATIVE: `
 		html, body, body[class] { background: #000; font-family: "swis721 cn bt"; font-size: 22px; }
 		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "swis721 cn bt"; }
@@ -2527,6 +2528,13 @@ function toggleStyle(str, id, important)
 		return;
 	}
 	insertStyle(str, id, important);
+}
+
+function setBodyOpacity(n)
+{
+	const styleId = "styleBodyOpacity";
+	if(n >= 10) del("#" + styleId);
+	else insertStyle(`body { opacity: ${n/10}; }`, styleId, true);
 }
 
 function getTimestamp(mode = "dateAndTime")
