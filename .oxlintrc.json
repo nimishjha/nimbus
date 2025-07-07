@@ -1,8 +1,7 @@
 {
   "plugins": [
     "unicorn",
-    "typescript",
-    "oxc"
+    "oxc",
   ],
   "categories": {},
   "rules": {
@@ -25,7 +24,7 @@
     "no-empty-character-class": "warn",
     "no-empty-pattern": "warn",
     "no-empty-static-block": "warn",
-    "no-eval": "warn",
+    "no-eval": "off",
     "no-ex-assign": "warn",
     "no-extra-boolean-cast": "warn",
     "no-func-assign": "warn",
@@ -42,6 +41,7 @@
     "no-shadow-restricted-names": "warn",
     "no-sparse-arrays": "warn",
     "no-this-before-super": "warn",
+    "no-undef": "error",
     "no-unsafe-finally": "warn",
     "no-unsafe-negation": "warn",
     "no-unsafe-optional-chaining": "warn",
@@ -69,17 +69,6 @@
     "oxc/number-arg-out-of-range": "warn",
     "oxc/only-used-in-recursion": "warn",
     "oxc/uninvoked-array-callback": "warn",
-    "typescript/no-duplicate-enum-values": "warn",
-    "typescript/no-extra-non-null-assertion": "warn",
-    "typescript/no-misused-new": "warn",
-    "typescript/no-non-null-asserted-optional-chain": "warn",
-    "typescript/no-this-alias": "warn",
-    "typescript/no-unnecessary-parameter-property-assignment": "warn",
-    "typescript/no-unsafe-declaration-merging": "warn",
-    "typescript/no-useless-empty-export": "warn",
-    "typescript/no-wrapper-object-types": "warn",
-    "typescript/prefer-as-const": "warn",
-    "typescript/triple-slash-reference": "warn",
     "unicorn/no-await-in-promise-methods": "warn",
     "unicorn/no-empty-file": "warn",
     "unicorn/no-invalid-fetch-options": "warn",
@@ -118,7 +107,8 @@
     }
   },
   "env": {
-    "builtin": true
+    "builtin": true,
+    "browser": true
   },
   "globals": {},
   "ignorePatterns": []

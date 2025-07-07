@@ -37,6 +37,6 @@ function handleCommandInput(evt)
 	switch(evt.keyCode)
 	{
 		case KEYCODES.ESCAPE: closeDialog(); break;
-		case KEYCODES.ENTER: runCommandcloseDialog()); break;
+		case KEYCODES.ENTER: runCommandcloseDialog(); break;
 	}
 }
