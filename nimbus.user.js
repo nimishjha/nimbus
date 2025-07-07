@@ -38,6 +38,84 @@ let consoleError = noop;
 
 const isDebugMode = true;
 
+class Cyclable
+{
+	constructor(array, currentIndex)
+	{
+		if(Array.isArray(array))
+		{
+			this.values = array;
+			if(currentIndex)
+				this.currentIndex = currentIndex;
+			else
+				this.currentIndex = 0;
+			if(array.length === 0)
+				this.currentIndex = -1;
+		}
+		else
+		{
+			console.log("ERROR: expected array, got", typeof array);
+		}
+	}
+
+	getCurrentValue()
+	{
+		if(this.currentIndex < 0 || this.currentIndex > this.values.length - 1) return null;
+		return this.values[this.currentIndex];
+	}
+
+	getCurrentIndex(index)
+	{
+		return this.currentIndex;
+	}
+
+	setCurrentIndex(index)
+	{
+		this.currentIndex = index;
+	}
+
+	setValues(array)
+	{
+		this.values = array;
+		this.currentIndex = Math.min(this.currentIndex, this.values.length - 1);
+	}
+
+	getValues()
+	{
+		return this.values;
+	}
+
+	nextValue()
+	{
+		this.currentIndex = Math.min(this.currentIndex + 1, this.values.length - 1);
+		return this.values[this.currentIndex];
+	}
+
+	previousValue()
+	{
+		this.currentIndex = Math.max(this.currentIndex - 1, 0);
+		return this.values[this.currentIndex];
+	}
+
+	nextWrappedValue()
+	{
+		this.currentIndex = (this.currentIndex + 1) % this.values.length;
+		return this.values[this.currentIndex];
+	}
+
+	previousWrappedValue()
+	{
+		this.currentIndex--;
+		if(this.currentIndex < 0) this.currentIndex = this.values.length - 1;
+		return this.values[this.currentIndex]
+	}
+
+	getLength()
+	{
+		return this.values.length;
+	}
+}
+
 const Nimbus = {
 	version: "2025.06.30.01",
 	logString: "",
@@ -395,10 +473,8 @@ const Nimbus = {
 	},
 	identifyClass: {
 		style: "{ box-shadow: inset 2px 2px #09C, inset -2px -2px #09C; }",
-		classes: [],
+		classes: new Cyclable([]),
 		markedClasses: [],
-		currentClass: null,
-		currentIndex: -1,
 	},
 	goToNextElement: {
 		selector: null,
@@ -2754,8 +2830,7 @@ function getUniqueClassNames(arrClasses)
 function identifyClassSetup(selector, atomic = true)
 {
 	const classes = atomic ? getClassCounts(selector).map(item => item.className) : getAllClassesFor(selector);
-	Nimbus.identifyClass.classes = classes;
-	Nimbus.identifyClass.currentIndex = -1;
+	Nimbus.identifyClass.classes = new Cyclable(classes, -1);
 	showMessageBig(atomic ? `Found ${classes.length} atomic classes for ${selector}` : `Found ${classes.length} classes for ${selector}`);
 }
 
@@ -2764,9 +2839,7 @@ function identifyClassTeardown()
 	identifyClassShowMarked();
 	del("#styleIdentifyClass");
 	const config = Nimbus.identifyClass;
-	config.currentIndex = -1;
-	config.currentClass = null;
-	config.classes = [];
+	config.classes.setValues([]);
 	config.markedClasses = [];
 	showMessageBig("Identify class mode disabled");
 }
@@ -2781,18 +2854,17 @@ function identifyClassSetStyle(styleString)
 function identifyClassCycle(direction)
 {
 	const config = Nimbus.identifyClass;
-	if(!(config.classes && config.classes.length))
+	if(!config.classes.getLength())
 	{
 		showMessageBig("No classes to work with. Run identifyClassSetup <selector> first.");
 		return;
 	}
-	config.currentIndex = direction === "previous" ? getPreviousIndex(config.currentIndex) : getNextIndex(config.currentIndex, config.classes);
-	const currentClass = config.classes[config.currentIndex];
-	const classCount = config.classes.length;
+	const currentClass = direction === "previous" ? config.classes.previousValue() : config.classes.nextValue();
+	const classCount = config.classes.getLength();
 	if(currentClass)
 	{
 		const elemCount = get(makeClassSelector(currentClass)).length;
-		showMessageBig("[" + (config.currentIndex + 1) + "/" + classCount + "] ." + currentClass + ": " + elemCount + " elements", true);
+		showMessageBig("[" + (config.classes.getCurrentIndex() + 1) + "/" + classCount + "] ." + currentClass + ": " + elemCount + " elements", true);
 		const style = `.${currentClass} ${config.style}`;
 		insertStyle(style, "styleIdentifyClass", true);
 	}
