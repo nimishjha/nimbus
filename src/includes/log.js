@@ -7,6 +7,11 @@ import { getNodeText } from "./node";
 import { arrayToString } from "./misc";
 import { getClassCounts } from "./inspect";
 
+export function elemToString(elem)
+{
+	return elem.tagName + ": " + elem.textContent.substring(0, 10);
+}
+
 export function printPropOfObjectArray(arr, propName)
 {
 	let i = -1;

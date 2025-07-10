@@ -33,6 +33,7 @@ export const BLOCK_ELEMENTS = {
 	HR: true,
 	RT: true,
 	STYLE: true,
+	COMMENT: true,
 };
 
 export const INLINE_ELEMENTS = {
@@ -51,6 +52,7 @@ export const INLINE_ELEMENTS = {
 	TT: true,
 	SAMP: true,
 	CITE: true,
+	REFERENCE: true,
 };
 
 export const SYMBOLS = {

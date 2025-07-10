@@ -1,5 +1,5 @@
 import { Nimbus } from "./Nimbus";
-import { emptyElement, createElement, createElementWithChildren, getAttributes } from "./element";
+import { emptyElement, createElement, createElementWithChildren } from "./element";
 import { replaceElement } from "./replaceElements";
 import { get, getOne, del } from "./selectors";
 import { getXpathResultAsArray } from "./xpath";
@@ -183,38 +183,80 @@ export function showResources()
 	window.scrollTo(0, 0);
 }
 
-export function inspect(onTop)
-{
-	if(!getOne("#inspector"))
-	{
-		const b = document.createElement("div");
-		b.id = "inspector";
-		if(onTop)
-			b.className = "onTop";
-		document.body.insertBefore(b, document.body.firstChild);
-		document.body.addEventListener('mouseover', inspectMouseoverHandler, false);
-		document.body.addEventListener('contextmenu', inspectClickHandler, false);
-		document.body.classList.add("inspector");
-		insertStyle(STYLES.INSPECTOR, "styleInspector", true);
-	}
-	else
-	{
-		document.body.removeEventListener('mouseover', inspectMouseoverHandler, false);
-		document.body.removeEventListener('contextmenu', inspectClickHandler, false);
-		del('#inspector');
-		del('#styleInspector');
-		document.body.classList.remove("inspector");
-		// deleteClass("hovered");
-	}
-}
-
-export function inspectClickHandler(evt)
+function handleClick(evt)
 {
 	evt.stopPropagation();
 	if(evt.ctrlKey)
 		identifyClassSetup("." + Array.from(evt.target.classList).join("."));
 	else
 		evt.target.classList.add(Nimbus.markerClass);
+}
+
+function handleMouseOver(evt)
+{
+	function showAttributes(elem)
+	{
+		const inspectorPanel = document.createElement('div');
+		if(elem.tagName)
+			inspectorPanel.appendChild(createElement("b", { textContent: elem.tagName.toLowerCase() }) );
+		if(elem.attributes)
+		{
+			const attrs = elem.attributes;
+			const frag = document.createDocumentFragment();
+			for(let i = 0, ii = attrs.length; i < ii; i++)
+			{
+				const attr = attrs[i];
+				if(attr)
+				{
+					frag.appendChild(createElement("em", { textContent: " " + attr.name + "="}));
+					frag.appendChild(document.createTextNode('"' + attr.value + '"'));
+				}
+			}
+			inspectorPanel.appendChild(frag);
+			const keys = Object.keys(elem);
+			const elemKeys = document.createElement("em");
+			for(let i = 0, ii = keys.length; i < ii; i++)
+				elemKeys.appendChild(document.createTextNode(keys[i] + " "));
+			inspectorPanel.appendChild(elemKeys);
+			const inspectorElem = document.getElementById("inspector");
+			inspectorElem.appendChild(inspectorPanel);
+		}
+	}
+
+	const inspectorElem = document.getElementById("inspector");
+	emptyElement(inspectorElem);
+	inspectorElem.appendChild(document.createTextNode(''));
+	evt.stopPropagation();
+	let target = evt.target;
+	while(target)
+	{
+		showAttributes(target);
+		target = target.parentNode;
+	}
+}
+
+export function inspect(onTop)
+{
+	if(!getOne("#inspector"))
+	{
+		const inspectorElem = document.createElement("div");
+		inspectorElem.id = "inspector";
+		if(onTop)
+			inspectorElem.className = "onTop";
+		document.body.insertBefore(inspectorElem, document.body.firstChild);
+		document.body.addEventListener('mouseover', handleMouseOver, false);
+		document.body.addEventListener('contextmenu', handleClick, false);
+		document.body.classList.add("inspector");
+		insertStyle(STYLES.INSPECTOR, "styleInspector", true);
+	}
+	else
+	{
+		document.body.removeEventListener('mouseover', handleMouseOver, false);
+		document.body.removeEventListener('contextmenu', handleClick, false);
+		del('#inspector');
+		del('#styleInspector');
+		document.body.classList.remove("inspector");
+	}
 }
 
 export function showAttributes(selector = "*")
@@ -345,22 +387,6 @@ export function showTags()
 		.nimbusShowTags::before { content: attr(data-tagname); color: #F90; background: #000; padding: 2px 5px; }
 		`;
 	insertStyle(style, "styleShowTags", true);
-}
-
-export function inspectMouseoverHandler(evt)
-{
-	const inspectorElem = document.getElementById("inspector");
-	emptyElement(inspectorElem);
-	inspectorElem.appendChild(document.createTextNode(''));
-	evt.stopPropagation();
-	// deleteClass("hovered");
-	let target = evt.target;
-	// target.classList.add("hovered");
-	while(target)
-	{
-		getAttributes(target);
-		target = target.parentNode;
-	}
 }
 
 export function listSelectorsWithLightBackgrounds()

@@ -1,7 +1,7 @@
 import { Cyclable } from "./Cyclable";
 
 export const Nimbus = {
-	version: "2025.07.08.01",
+	version: "2025.07.12.01",
 	logString: "",
 	autoCompleteInputComponent: {
 		matches: [],

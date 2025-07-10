@@ -1,3 +1,5 @@
+import { BLOCK_ELEMENTS } from "./constants";
+
 export function hasClassesContaining(element, arrStr)
 {
 	const classes = element.className.toLowerCase().replace(/[^a-z\-]+/g, "");
@@ -45,7 +47,6 @@ export function containsOnlyPlainText(node)
 
 export function hasAdjacentBlockElement(node)
 {
-	const BLOCK_ELEMENTS = BLOCK_ELEMENTS;
 	const prevSib = node.previousSibling;
 	const prevElemSib = node.previousElementSibling;
 	const nextSib = node.nextSibling;

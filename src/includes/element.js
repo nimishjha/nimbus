@@ -185,31 +185,20 @@ export function removeAllAttributesOfTypes(attrNames)
 
 export function getAttributes(elem)
 {
-	const inspectorPanel = document.createElement('div');
-	if(elem.tagName)
-		inspectorPanel.appendChild(createElement("b", { textContent: elem.tagName.toLowerCase() }) );
-	if(elem.attributes)
+	const attributes = [];
+	const attrs = elem.attributes;
+	for(let i = 0, ii = attrs.length; i < ii; i++)
 	{
-		const attrs = elem.attributes;
-		const frag = document.createDocumentFragment();
-		for(let i = 0, ii = attrs.length; i < ii; i++)
+		const attr = attrs[i];
+		if(attr)
 		{
-			const attr = attrs[i];
-			if(attr)
-			{
-				frag.appendChild(createElement("em", { textContent: " " + attr.name + "="}));
-				frag.appendChild(document.createTextNode('"' + attr.value + '"'));
-			}
+			attributes.push({
+				name: attr.name,
+				value: attr.value
+			});
 		}
-		inspectorPanel.appendChild(frag);
-		const keys = Object.keys(elem);
-		const elemKeys = document.createElement("em");
-		for(let i = 0, ii = keys.length; i < ii; i++)
-			elemKeys.appendChild(document.createTextNode(keys[i] + " "));
-		inspectorPanel.appendChild(elemKeys);
-		const inspectordiv = document.getElementById("inspector");
-		inspectordiv.appendChild(inspectorPanel);
 	}
+	return attributes;
 }
 
 export function saveIdsToElement(element, ids)

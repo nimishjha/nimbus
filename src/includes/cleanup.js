@@ -78,7 +78,7 @@ export function cleanupDocument()
 	replaceElementsBySelector("details", "div");
 	replaceElementsBySelector("summary", "h3");
 	deleteEmptyBlockElements();
-	deleteBySelectorAndRegex("a", /^[¶§]$/);
+	deleteBySelectorAndRegex("a", /^[¶§#]$/);
 	const footers = get("footer");
 	if(footers && footers.length > 1)
 	{

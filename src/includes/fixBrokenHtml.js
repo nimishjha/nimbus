@@ -12,21 +12,20 @@ import { cleanupHeadings, removeRedundantHrs } from "./cleanup";
 import { deleteEmptyTextNodes, deleteEmptyElements } from "./delete";
 import { convertElement } from "./replaceElements";
 import { isBlockElement, hasAdjacentBlockElement } from "./elementAndNodeTests";
+import { INLINE_ELEMENTS} from "./constants";
 
 //	If any text nodes or inline elements have a block element as a sibling, they need to be wrapped in a block container.
 export function rescueOrphanedInlineElements()
 {
 	deleteEmptyTextNodes();
-	const WRAPPER_TAGNAME = "comment";
-	const nodes = get("body *");
+	const WRAPPER_TAGNAME = "p";
+	const nodes = get(Object.keys(INLINE_ELEMENTS).join(", "));
 	const numNodes = nodes.length;
 	let count = 0;
 	let node, nodeParent;
 	for(let i = 0, ii = nodes.length; i < ii; i++)
 	{
 		node = nodes[i];
-		if(isBlockElement(node))
-			continue;
 
 		if(hasAdjacentBlockElement(node))
 		{
@@ -181,8 +180,9 @@ export function fixParagraphs()
 {
 	replaceBrs();
 	deleteEmptyElements("p");
-	cleanupHeadings();
+	// cleanupHeadings();
 	rescueOrphanedTextNodes();
+	rescueOrphanedInlineElements();
 }
 
 export function normaliseWhitespaceForParagraphs()
