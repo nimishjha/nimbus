@@ -114,6 +114,18 @@ export function showScripts()
 			renderResourceInfo(script.src, uuid);
 		}
 	}
+	const scriptlinks = get("link[href*=\\.js]");
+	if(scriptlinks)
+	{
+		for(let i = 0, ii = scriptlinks.length; i < ii; i++)
+		{
+			const scriptlink = scriptlinks[i];
+			numScripts++;
+			const uuid = createUUID();
+			scriptlink.id = uuid;
+			renderResourceInfo(scriptlink.href, uuid);
+		}
+	}
 	if(numScripts)
 		ylog(numScripts + " scripts", "h2", true);
 }
