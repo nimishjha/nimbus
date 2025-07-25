@@ -539,7 +539,7 @@ export function shortenIds()
 	{
 		for(const link of links)
 		{
-			const href = link.getAttribute("href").substring(1);
+			const href = link.getAttribute("href");
 			if(linksByHref[href])
 				linksByHref[href].push(link);
 			else
@@ -552,7 +552,7 @@ export function shortenIds()
 	{
 		const elem = elems[i];
 		if(elem.tagName === "STYLE" || elem.tagName === "BODY") continue;
-		const links = linksByHref[elem.id];
+		const links = linksByHref["#" + elem.id];
 		if(links && links.length)
 		{
 			elem.id = "i" + i;
