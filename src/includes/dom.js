@@ -66,8 +66,10 @@ export function toggleContentEditable()
 		return;
 	if(selectedNode.textContent.length > MAX_TEXT_LENGTH)
 		return;
-	let isEditable = selectedNode.getAttribute("contenteditable") === "true";
-	selectedNode.setAttribute("contenteditable", isEditable ? "false" : "true");
+	let isEditable = selectedNode.hasAttribute("contenteditable");
+	forAll("*[contenteditable]", makeNonEditable);
+	if(!isEditable)
+		selectedNode.setAttribute("contenteditable", "true");
 	isEditable = !isEditable;
 	if(isEditable)
 	{
@@ -78,8 +80,7 @@ export function toggleContentEditable()
 	else
 	{
 		showMessageBig("contentEditable OFF");
-		// selectedNode.removeAttribute("contentEditable");
-		forAll("*[contenteditable]", makeNonEditable);
+		selectedNode.removeAttribute("contentEditable");
 		const tagName = selectedNode.tagName;
 		if(tagName !== "PRE")
 		{
