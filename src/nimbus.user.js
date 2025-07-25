@@ -546,6 +546,7 @@ import {
 	showMarkedElementInfo,
 	markUppercaseElements,
 	markNumericElements,
+	markElementsWithSameClass,
 	unmarkAll,
 	xPathMark,
 } from "./includes/mark";
@@ -729,6 +730,7 @@ const availableFunctions = {
 	markBySelectorAndRegex: markBySelectorAndRegex,
 	markByTagNameAndText: markByTagNameAndText,
 	markElementsWithChildrenSpanning: markElementsWithChildrenSpanning,
+	markElementsWithSameClass: markElementsWithSameClass,
 	markElementsWithSetWidths: markElementsWithSetWidths,
 	markNavigationalLists: markNavigationalLists,
 	markNodesBetweenMarkers: markNodesBetweenMarkers,

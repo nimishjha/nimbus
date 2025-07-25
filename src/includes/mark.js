@@ -319,3 +319,21 @@ export function xPathMark(xpath)
 	else
 		showMessageBig("No matches found");
 }
+
+export function markElementsWithSameClass()
+{
+	const marked = getOne(makeClassSelector(Nimbus.markerClass));
+	if(!marked)
+	{
+		showMessageBig("Expected one marked element, found none");
+		return;
+	}
+	marked.classList.remove(Nimbus.markerClass);
+	if(marked.className === "")
+	{
+		showMessageBig("Marked element has no class");
+		return;
+	}
+	const classSelector = "." + marked.className.replaceAll(" ", ".");
+	markElements(get(classSelector));
+}
