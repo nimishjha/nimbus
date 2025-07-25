@@ -26,14 +26,15 @@ export function removeQueryParameterFromUrl(url, parameterName)
 	if(!parsedParameters)
 		return url;
 	let baseUrl = trimAt(url, "?");
-	let newQueryString = "";
+	const newParamValuePairs = [];
 	for(let i = 0, ii = parsedParameters.length; i < ii; i++)
 	{
 		const param = parsedParameters[i].key;
 		const value = parsedParameters[i].value;
-		if(param !== parameterName)
-			newQueryString += `${param}=${value}&`;
+		if(param && param.length && param !== parameterName)
+			newParamValuePairs.push(`${param}=${value}`);
 	}
+	const newQueryString = newParamValuePairs.join("&");
 	if(newQueryString.length)
 		return(`${baseUrl}?${newQueryString}`);
 	return baseUrl;

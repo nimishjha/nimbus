@@ -133,35 +133,34 @@ export function replaceBrs()
 export function replaceDiacritics(str)
 {
 	const diacriticRegexesByLetter = {
-		A: /[\u0100\u0102\u0104\u00c0\u00c1\u00c2\u00c3\u00c4\u00c5]/g,
-		a: /[\u00e0\u00e1\u00e2\u00e3\u00e4\u00e5\u0105\u0101\u0103]/g,
-		B: /[\u00df]/g,
-		C: /[\u00c7\u0106\u0108\u010a\u010c]/g,
-		c: /[\u00e7\u0107\u0109\u010b\u010d]/g,
-		E: /[\u00c8\u00c9\u00ca\u00cb\u0112\u0114\u0116\u0118\u011a]/g,
-		e: /[\u00e8\u00e9\u00ea\u00eb\u0113\u0115\u0117\u0119\u011b]/g,
+		A: /[ÁÂÃÄÅ]/g,
+		a: /[àáâãäå]/g,
+		B: /[ß]/g,
+		C: /[ĆĈĊČ]/g,
+		c: /[ćĉċč]/g,
+		E: /[ÈÉÊËĒĔĖĘĚ]/g,
+		e: /[èéêëēĕėęě]/g,
 		AE: /[\u00c6]/g,
 		ae: /[\u00e6]/g,
 		oe: /[\u0153]/g,
-		I: /[\u00cc\u00cd\u00ce\u00cf]/g,
-		i: /[\u00ec\u00ed\u00ee\u00ef]/g,
-		O: /[\u00d2\u00d3\u00d4\u00d5\u00d6\u00d8\u014c\u014e\u0150]/g,
-		o: /[\u00f0\u00f2\u00f3\u00f4\u00f5\u00f6\u00f8\u014d\u014f\u0151]/g,
-		U: /[\u00d9\u00da\u00db\u00dc]/g,
-		u: /[\u00f9\u00fa\u00fb\u00fc]/g,
-		N: /[\u00d1\u0143\u0145\u0147]/g,
-		n: /[\u00f1\u0148\u0144\u0146]/g,
-		Y: /[\u00dd\u0176\u0178]/g,
-		y: /[\u00fd\u00ff\u0177]/g,
-		Z: /[\u0179\u017b\u017d]/g,
-		z: /[\u017a\u017c\u017e]/g,
+		I: /[ÌÍÎÏ]/g,
+		i: /[ìíîï]/g,
+		O: /[ÒÓÔÕÖŌŎŐ]/g,
+		o: /[ðòóôõöøōŏő]/g,
+		S: /[ŚŜŞŠ]/g,
+		s: /[śŝşš]/g,
+		U: /[ÙÚÛÜ]/g,
+		u: /[ùúûü]/g,
+		N: /[ÑŃŅŇŊ]/g,
+		n: /[ñńņňŉŋ]/g,
+		Y: /[ÝŶŸ]/g,
+		y: /[ýÿŷ]/g,
+		Z: /[ŹŻŽ]/g,
+		z: /[źżž]/g,
 	};
 	const letters = Object.keys(diacriticRegexesByLetter);
-	for(let i = 0, ii = letters.length; i < ii; i++)
-	{
-		const letter = letters[i];
+	for(const letter of letters)
 		str = str.replace(diacriticRegexesByLetter[letter], letter);
-	}
 	return str;
 }
 

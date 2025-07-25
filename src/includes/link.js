@@ -305,9 +305,9 @@ export function removeQueryStringFromLinksMatching(text)
 	}
 }
 
-export function removeQueryParameterFromLinks(str, selector="a[href]")
+export function removeQueryParameterFromLinks(paramName, selector="a[href]")
 {
 	const links = get(selector);
 	for(const link of links)
-		link.href = removeQueryParameterFromUrl(link.href, str);
+		link.href = removeQueryParameterFromUrl(link.href, paramName);
 }

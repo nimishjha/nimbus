@@ -8,6 +8,13 @@ export function replaceInTextNodes(searchString, replacementString)
 		textNode.data = textNode.data.replaceAll(searchString, replacementString);
 }
 
+function replaceInPreTextNodes(searchString, replacementString)
+{
+	const textNodes = getTextNodesUnderSelector("pre");
+	for(const textNode of textNodes)
+		textNode.data = textNode.data.replaceAll(searchString, replacementString);
+}
+
 export function replaceInTextNodesRegex(selector, regex, replacement)
 {
 	const textNodes = getTextNodesUnderSelector(selector);
