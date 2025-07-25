@@ -120,6 +120,13 @@ export function getBestImageSrc()
 	getBestImages();
 }
 
+function getLastSplit(str, splitter)
+{
+	if(str.indexOf(splitter) === -1) return str;
+	const splat = str.split(splitter);
+	return splat[splat.length - 1];
+}
+
 export function shortenImageSrc(src)
 {
 	const splat = src.split("/");
@@ -129,6 +136,8 @@ export function shortenImageSrc(src)
 	{
 		domain = splat[2];
 		imageFileName = unescape(splat[splat.length - 1]);
+		if(imageFileName.indexOf("/") !== -1)
+		imageFileName = getLastSplit(imageFileName, "/");
 	}
 	if(domain.length)
 		return domain + " | " + imageFileName;
