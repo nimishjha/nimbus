@@ -350,35 +350,6 @@ export function showSelectors(tagName)
 	}
 }
 
-export function showSelectorsHeavy()
-{
-	if(getOne("#styleShowSelectorsHeavy"))
-	{
-		del("#styleShowSelectorsHeavy");
-		removeAttributeOf("body *", "data-id");
-		removeAttributeOf("body *", "data-idclass");
-		removeAttributeOf("body *", "data-class");
-		return;
-	}
-	const elems = get("*");
-	for(let i = 0, ii = elems.length; i < ii; i++)
-	{
-		const elem = elems[i];
-		if(elem.id && !elem.className)
-			elem.setAttribute("data-id", elem.tagName.toLowerCase() + "#" + elem.id);
-		else if(elem.id && elem.className)
-			elem.setAttribute("data-idclass", elem.tagName.toLowerCase() + "#" + elem.id + "." + elem.className);
-		else if(elem.className)
-			elem.setAttribute("data-class", elem.tagName.toLowerCase() + "." + elem.className);
-	}
-	const style = `
-		*[data-id]::before { content: attr(data-id); color: #F0F; background: #000; padding: 2px 5px; }
-		*[data-idclass]::before { content: attr(data-idclass); color: #0FF; background: #000; padding: 2px 5px; }
-		*[data-class]::before { content: attr(data-class); color: #F90; background: #000; padding: 2px 5px; }
-	`;
-	insertStyle(style, "styleShowSelectorsHeavy", true);
-}
-
 export function showTags()
 {
 	const e = Array.from( document.body.getElementsByTagName("*") );
