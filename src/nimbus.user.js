@@ -169,7 +169,7 @@ import {
 	autoCompleteInputBox,
 	getSelectionOrUserInput,
 } from "./includes/ui";
-import { replaceInTextNodes, replaceInTextNodesRegex } from "./includes/textReplace";
+import { replaceInTextNodes, replaceInPreTextNodes, replaceInTextNodesRegex } from "./includes/textReplace";
 import { toggleHighlightMap } from "./includes/highlightMapper";
 import { getPrevious, getNext } from "./includes/array";
 import {
@@ -786,6 +786,7 @@ const availableFunctions = {
 	replaceInClassNames: replaceInClassNames,
 	replaceInlineStylesWithClasses: replaceInlineStylesWithClasses,
 	replaceInTextNodes: replaceInTextNodes,
+	replaceInPreTextNodes: replaceInPreTextNodes,
 	replaceMarkedElements: replaceMarkedElements,
 	replaceMarkedWithTextElement: replaceMarkedWithTextElement,
 	replaceNonStandardElements: replaceNonStandardElements,
