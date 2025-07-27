@@ -20,19 +20,32 @@ export function parseQueryString(url)
 	return(parsedParameters);
 }
 
-export function removeQueryParameterFromUrl(url, parameterName)
+export function removeQueryParameterFromUrl(url, parameterName, shouldInvertMatch = false)
 {
 	const parsedParameters = parseQueryString(url);
 	if(!parsedParameters)
 		return url;
 	let baseUrl = trimAt(url, "?");
 	const newParamValuePairs = [];
-	for(let i = 0, ii = parsedParameters.length; i < ii; i++)
+	if(shouldInvertMatch)
 	{
-		const param = parsedParameters[i].key;
-		const value = parsedParameters[i].value;
-		if(param && param.length && param !== parameterName)
-			newParamValuePairs.push(`${param}=${value}`);
+		for(let i = 0, ii = parsedParameters.length; i < ii; i++)
+		{
+			const param = parsedParameters[i].key;
+			const value = parsedParameters[i].value;
+			if(param && param.length && param === parameterName)
+				newParamValuePairs.push(`${param}=${value}`);
+		}
+	}
+	else
+	{
+		for(let i = 0, ii = parsedParameters.length; i < ii; i++)
+		{
+			const param = parsedParameters[i].key;
+			const value = parsedParameters[i].value;
+			if(param && param.length && param !== parameterName)
+				newParamValuePairs.push(`${param}=${value}`);
+		}
 	}
 	const newQueryString = newParamValuePairs.join("&");
 	if(newQueryString.length)

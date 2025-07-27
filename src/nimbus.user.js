@@ -213,6 +213,7 @@ import {
 	removeQueryStringFromLinks,
 	removeQueryStringFromLinksMatching,
 	removeQueryParameterFromLinks,
+	removeAllQueryParametersExcept,
 } from "./includes/link";
 import {
 	printPropOfObjectArray,
@@ -750,6 +751,7 @@ const availableFunctions = {
 	removeAllAttributesOfType: removeAllAttributesOfType,
 	removeAllEmphasis: removeAllEmphasis,
 	removeAllHighlights: removeAllHighlights,
+	removeAllQueryParametersExcept: removeAllQueryParametersExcept,
 	removeAttributeOf: removeAttributeOf,
 	removeColorsFromInlineStyles: removeColorsFromInlineStyles,
 	removeEmojis: removeEmojis,

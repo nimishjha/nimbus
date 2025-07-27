@@ -311,3 +311,10 @@ export function removeQueryParameterFromLinks(paramName, selector="a[href]")
 	for(const link of links)
 		link.href = removeQueryParameterFromUrl(link.href, paramName);
 }
+
+export function removeAllQueryParametersExcept(paramName, selector="a[href]")
+{
+	const links = get(selector);
+	for(const link of links)
+		link.href = removeQueryParameterFromUrl(link.href, paramName, true);
+}
