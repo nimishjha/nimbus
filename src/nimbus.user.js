@@ -948,6 +948,7 @@ function handleKeyDown(e)
 	let shouldPreventDefault = true;
 	const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
 	if(!(e.altKey || e.shiftKey || e[ctrlOrMeta])) return;
+	deleteMessage();
 	const k = e.keyCode;
 	//
 	//	Alt

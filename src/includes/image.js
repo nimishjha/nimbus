@@ -137,7 +137,7 @@ export function shortenImageSrc(src)
 		domain = splat[2];
 		imageFileName = unescape(splat[splat.length - 1]);
 		if(imageFileName.indexOf("/") !== -1)
-		imageFileName = getLastSplit(imageFileName, "/");
+			imageFileName = getLastSplit(imageFileName, "/");
 	}
 	if(domain.length)
 		return domain + " | " + imageFileName;

@@ -90,6 +90,7 @@ export function cleanupDocument()
 	highlightUserLinks();
 	appendMetadata();
 	getBestImageSrc();
+	removeRedundantHrs();
 	document.body.className = "pad100 xwrap";
 	document.documentElement.id = "nimbus";
 	document.documentElement.className = "";
@@ -192,6 +193,7 @@ export function cleanupBarebone()
 	deleteHtmlComments();
 	removeInlineStyles();
 	shortenIds();
+	unwrapAll("pre code");
 }
 
 export function removeRedundantHrs()
@@ -215,23 +217,26 @@ export function removeRedundantHrs()
 		PRE: true,
 	};
 	const elems = get("hr");
-	let count = 0;
-	for(const elem of elems)
+	if(elems)
 	{
-		const prev = elem.previousElementSibling;
-		const next = elem.nextElementSibling;
-		if( (prev && makesHrRedundant[prev.tagName]) || (next && makesHrRedundant[next.tagName]) )
+		let count = 0;
+		for(const elem of elems)
 		{
-			count++;
-			elem.remove();
+			const prev = elem.previousElementSibling;
+			const next = elem.nextElementSibling;
+			if( (prev && makesHrRedundant[prev.tagName]) || (next && makesHrRedundant[next.tagName]) )
+			{
+				count++;
+				elem.remove();
+			}
 		}
+		const firstAndLastHrs = get("hr:first-child, hr:last-child");
+		if(firstAndLastHrs.length) {
+			count += firstAndLastHrs.length;
+			del(firstAndLastHrs);
+		}
+		showMessageBig(count + " redundant hrs removed");
 	}
-	const firstAndLastHrs = get("hr:first-child, hr:last-child");
-	if(firstAndLastHrs.length) {
-		count += firstAndLastHrs.length;
-		del(firstAndLastHrs);
-	}
-	showMessageBig(count + " redundant hrs removed");
 }
 
 export function deleteNonContentLists()

@@ -73,7 +73,6 @@ export const STYLES = {
 		abbr { box-shadow: inset 2px 2px #A40, inset -2px -2px #A40; }
 		nobr { box-shadow: inset 2px 2px #A0A, inset -2px -2px #A0A; }
 		cite { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0A0; }
-		code { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0A0; }
 		small { box-shadow: inset 2px 2px #088, inset -2px -2px #088; }
 		p { box-shadow: inset 2px 2px #909, inset -2px -2px #505; }
 		mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 2px 2px #888, inset -2px -2px #888; }
