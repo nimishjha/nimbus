@@ -27,3 +27,36 @@ export function tabifySpacesInPres()
 		pre.innerHTML = s;
 	}
 }
+
+function snakeCaseToCamelCase(snakeCase)
+{
+	const splat = snakeCase.split("_");
+	if(!splat || !splat.length) return snakeCase;
+	let camelCase = splat[0];
+	for(let i = 1, ii = splat.length; i < ii; i++)
+	{
+		const segment = splat[i];
+		if(!(segment && typeof segment === "string")) return snakeCase;
+		camelCase += segment[0].toUpperCase() + segment.substring(1);
+	}
+	return camelCase;
+}
+
+export function preSnakeCaseToCamelCase()
+{
+	const elems = get("pre");
+	if(elems)
+	{
+		for(const elem of elems)
+		{
+			const matches = elem.textContent.match(/\b\w+_\w+\b/g);
+			if(matches === null) continue;
+			for(const match of matches)
+			{
+				if(!/[a-z]/.test(match)) continue;
+				const camelCased = snakeCaseToCamelCase(match);
+				elem.textContent = elem.textContent.replaceAll(match, camelCased);
+			}
+		}
+	}
+}

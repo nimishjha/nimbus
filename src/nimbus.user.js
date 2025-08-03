@@ -570,7 +570,8 @@ import {
 } from "./includes/replaceElements";
 import {
 	replaceBrsInPres,
-	tabifySpacesInPres
+	tabifySpacesInPres,
+	preSnakeCaseToCamelCase,
 } from "./includes/preformatted";
 import {
 	parseQueryString,
@@ -745,6 +746,7 @@ const availableFunctions = {
 	numberTableRowsAndColumns: numberTableRowsAndColumns,
 	om: toggleMutationObserver,
 	persistStreamingImages: persistStreamingImages,
+	preSnakeCaseToCamelCase: preSnakeCaseToCamelCase,
 	remove: remove,
 	removeAllAttributesExcept: removeAllAttributesExcept,
 	removeAllAttributesOf: removeAllAttributesOf,
