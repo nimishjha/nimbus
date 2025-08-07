@@ -118,6 +118,17 @@ export function unwrapAll(selector)
 	}
 }
 
+export function unwrapAllExcept(selector)
+{
+	const elems = get("body *");
+	if(!elems) return;
+	for(const elem of elems)
+	{
+		if(!elem.matches(selector))
+			unwrapElement(elem);
+	}
+}
+
 export function unwrapElement(elem)
 {
 	const frag = document.createDocumentFragment();
