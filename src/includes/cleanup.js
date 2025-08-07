@@ -366,6 +366,21 @@ export function getContentByParagraphCount()
 		showMessageError("Could not find content");
 }
 
+function replaceParentWithChild(parentSelector, childSelector)
+{
+	const children = get(childSelector);
+	if(!children) return;
+	for(const child of children)
+	{
+		const parent = child.closest(parentSelector);
+		const grandparent = parent.parentNode;
+		if(parent && grandparent)
+		{
+			grandparent.replaceChild(child, parent);
+		}
+	}
+}
+
 export function cleanupStackOverflow()
 {
 	function handleMutations(mutations)
@@ -379,22 +394,43 @@ export function cleanupStackOverflow()
 			}
 	}
 
-	del(["#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair", "#launch-popover", ".comments-link", ".aside-cta", ".js-post-menu", "iframe", ".js-bottom-notice", ".votecell"]);
-	deleteByClassOrIdContaining("comments-link");
+	retrieve("#content");
+	del([
+		"#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair", "#launch-popover", ".comments-link", ".aside-cta", ".js-post-menu", "iframe",
+		".js-bottom-notice", ".votecell", ".comment-actions", ".js-share-link", ".js-suggest-edit-post", ".js-voting-container", "form", ".js-bottom-notice", ".js-menu-popup-container",
+		".js-post-menu", ".answers-subheader",
+	]);
+
+	makePlainText(".comment-date");
+	replaceElementsBySelector(".comments-list", "dl");
+	replaceElementsBySelector(".comment", "dd");
+	replaceElementsBySelector(".comment-copy", "quote");
+	replaceElementsBySelector(".comment-user", "postauthor");
+	replaceElementsBySelector(".comment-date", "postdate");
+	replaceElementsBySelector(".user-action-time", "postdate");
+	replaceElementsBySelector(".comment-score", "kbd");
+	replaceElementsBySelector(".user-details", "postauthor");
 	replaceElementsBySelector(".post-tag", "tag");
+	deleteByClassOrIdContaining("comments-link");
+	replaceElementsBySelector(".answercell", "dt");
+	replaceElementsBySelector(".user-action-time", "postdate");
+	makePlainText("pre");
+	makePlainText("h6");
+	makePlainText("postauthor");
+	makePlainText("postdate");
+	replaceParentWithChild(".ai-center", ".ai-center postauthor");
+
 	unwrapAll(".js-post-tag-list-item");
 	replaceElementsBySelector(".js-post-tag-list-wrapper", "footer");
-	replaceElementsBySelector(".user-action-time", "h5");
-	replaceElementsBySelector(".user-details", "h2");
-	replaceElementsBySelector(".answercell", "dt");
+
 	deleteBySelectorAndTextMatching("h2", "Not the answer");
-	retrieve("#content");
+
 	cleanupDocument();
 	removeAllAttributesOfTypes(["class", "style", "align", "id"]);
 	unwrapAll("span");
 	makePlainText("user");
 	unwrapAll("user");
-	makePlainText("pre");
+
 	const observer = new MutationObserver(handleMutations);
 	observer.observe(getOne("head"), { childList: true });
 }
