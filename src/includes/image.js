@@ -253,12 +253,13 @@ export function persistStreamingImages(minSize)
 	{
 		const image = unsavedImages[i];
 		const imgSrc = image.src;
-		if(images.includes(imgSrc) || getImageWidth(image) * getImageHeight(image) < minArea)
+		if(images.includes(imgSrc) || image.naturalWidth * image.naturalHeight < minArea)
 			continue;
 		images.push(imgSrc);
 		imageContainer.appendChild(createElement("img", { src: imgSrc, className: "alreadySaved" }));
 	}
-	let numImages = get(".alreadySaved").length;
+	const savedImages = get(".alreadySaved");
+	const numImages = savedImages.length ? savedImages.length : 0;
 	showMessage(`${numImages} unique images larger than ${Nimbus.minPersistSize}px so far`, "messagebig", true);
 	Nimbus.persistStreamingImagesTimeout = setTimeout(persistStreamingImages, 250);
 }
