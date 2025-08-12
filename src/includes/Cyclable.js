@@ -53,7 +53,7 @@ export class Cyclable
 	addAndSelect(value)
 	{
 		this.values.push(value);
-		this.currentIndex = this.values[this.values.length - 1];
+		this.currentIndex = this.values.length - 1;
 	}
 
 	nextValue()
