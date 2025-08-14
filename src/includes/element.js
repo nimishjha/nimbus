@@ -3,7 +3,7 @@ import { showMessageBig, showMessageError } from "./ui";
 import { get } from "./selectors";
 import { createBulletAnchor, makeClassSelector } from "./misc";
 import { removeLineBreaks } from "./string";
-import { replaceBrsInPres } from "./preformatted";
+import { preReplaceBrs } from "./preformatted";
 
 export function createElement(tag, props)
 {
@@ -383,7 +383,7 @@ export function makePlainText(selector)
 {
 	const elements = get(selector);
 	if(!elements) return;
-	if(selector === "pre") replaceBrsInPres();
+	if(selector === "pre") preReplaceBrs();
 	for(let i = 0, ii = elements.length; i < ii; i++)
 		makeElementPlainText(elements[i]);
 }

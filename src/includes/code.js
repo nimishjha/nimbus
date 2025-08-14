@@ -1,7 +1,7 @@
 import { unwrapAll, removeAttributeOf, makePlainText } from "./element";
 import { get } from "./selectors";
 import { replaceInlineStylesWithClasses, replaceClassesWithCustomElements } from "./cleanup";
-import { replaceBrsInPres } from "./preformatted";
+import { preReplaceBrs } from "./preformatted";
 
 function parseCode(s)
 {
@@ -144,7 +144,7 @@ export function highlightCode(shouldHighlightKeywords)
 		return;
 	}
 
-	replaceBrsInPres();
+	preReplaceBrs();
 	makePlainText("pre");
 
 	const preBlocks = get("pre");

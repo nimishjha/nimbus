@@ -1,6 +1,7 @@
 import { get } from "./selectors";
+import { emptyElement } from "./element";
 
-export function replaceBrsInPres()
+export function preReplaceBrs()
 {
 	const brs = document.querySelectorAll("pre br");
 	for(let i = 0, ii = brs.length; i < ii; i++)
@@ -10,7 +11,7 @@ export function replaceBrsInPres()
 	}
 }
 
-export function tabifySpacesInPres()
+export function preTabifySpaces()
 {
 	const pres = get("pre");
 	for(const pre of pres)
@@ -59,4 +60,32 @@ export function preSnakeCaseToCamelCase()
 			}
 		}
 	}
+}
+
+export function preMakeDivsFromLineBreaks()
+{
+	const pres = get("pre");
+	for(const pre of pres)
+	{
+		const wrapper = document.createDocumentFragment();
+		const lines = pre.textContent.split("\n");
+
+		for(const line of lines)
+		{
+			const lineDiv = document.createElement("div");
+			lineDiv.textContent = line;
+			wrapper.appendChild(lineDiv);
+		}
+
+		emptyElement(pre);
+		pre.appendChild(wrapper);
+	}
+}
+
+export function preRemoveMultiLineBreaks()
+{
+	const elems = get("pre");
+	if(!elems) return;
+	for(const elem of elems)
+		elem.textContent = elem.textContent.replace(/\n+/g, "\n").trim();
 }

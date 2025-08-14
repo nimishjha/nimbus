@@ -570,9 +570,11 @@ import {
 	replaceSelectedElement,
 } from "./includes/replaceElements";
 import {
-	replaceBrsInPres,
-	tabifySpacesInPres,
+	preReplaceBrs,
+	preTabifySpaces,
 	preSnakeCaseToCamelCase,
+	preMakeDivsFromLineBreaks,
+	preRemoveMultiLineBreaks
 } from "./includes/preformatted";
 import {
 	parseQueryString,
@@ -747,7 +749,11 @@ const availableFunctions = {
 	numberTableRowsAndColumns: numberTableRowsAndColumns,
 	om: toggleMutationObserver,
 	persistStreamingImages: persistStreamingImages,
+	preMakeDivsFromLineBreaks: preMakeDivsFromLineBreaks,
+	preRemoveMultiLineBreaks: preRemoveMultiLineBreaks,
+	preReplaceBrs: preReplaceBrs,
 	preSnakeCaseToCamelCase: preSnakeCaseToCamelCase,
+	preTabifySpaces: preTabifySpaces,
 	remove: remove,
 	removeAllAttributesExcept: removeAllAttributesExcept,
 	removeAllAttributesOf: removeAllAttributesOf,
@@ -772,7 +778,6 @@ const availableFunctions = {
 	removeUnnecessaryClasses: removeUnnecessaryClasses,
 	replaceAudio: replaceAudio,
 	replaceBrs: replaceBrs,
-	replaceBrsInPres: replaceBrsInPres,
 	replaceByClassOrIdContaining: replaceByClassOrIdContaining,
 	replaceClass: replaceClass,
 	replaceClassesWithCustomElements: replaceClassesWithCustomElements,
@@ -827,7 +832,6 @@ const availableFunctions = {
 	singleQuotesToDoubleQuotes: singleQuotesToDoubleQuotes,
 	splitByBrs: splitByBrs,
 	swapElementPositions: swapElementPositions,
-	tabifySpacesInPres: tabifySpacesInPres,
 	toggleBlockEditMode: toggleBlockEditMode,
 	toggleContentEditable: toggleContentEditable,
 	toggleHighlightMap: toggleHighlightMap,
