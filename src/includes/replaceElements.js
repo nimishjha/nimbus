@@ -7,6 +7,7 @@ import { makeClassSelector } from "./misc";
 import { getAlphanumericTextLength, createElement, createClassSelector } from "./element";
 import { xlog, showLog } from "./log";
 import { callFunctionWithArgs } from "./command";
+import { BLOCK_ELEMENTS, INLINE_ELEMENTS } from "./constants";
 
 export function replaceElementsByTagNameMatching(text, tagName)
 {
@@ -152,8 +153,6 @@ export function replaceNonStandardElements()
 {
 	const elems = get("body *");
 	if(!elems) return;
-	const BLOCK_ELEMENTS = BLOCK_ELEMENTS;
-	const INLINE_ELEMENTS = INLINE_ELEMENTS;
 	let i = elems.length;
 	while(i--)
 	{
@@ -203,5 +202,21 @@ export function replaceSelectedElement(tagName)
 	{
 		const replacementTag = tagName ? tagName : Nimbus.replacementTagName1;
 		replaceElementKeepingId(node, replacementTag);
+	}
+}
+
+export function convertDivsToParagraphs()
+{
+	const elems = get("div");
+	if(!elems) return;
+	for(const elem of elems)
+	{
+		if(elem.querySelector("div") === null)
+		{
+			const fc = elem.firstChild;
+			if(!fc) continue;
+			if(fc.nodeType === 3 || INLINE_ELEMENTS[fc.tagName])
+				replaceElementKeepingId(elem, "p");
+		}
 	}
 }

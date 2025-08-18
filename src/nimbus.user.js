@@ -568,6 +568,7 @@ import {
 	replaceTables,
 	replaceMarkedWithTextElement,
 	replaceSelectedElement,
+	convertDivsToParagraphs,
 } from "./includes/replaceElements";
 import {
 	preReplaceBrs,
@@ -611,6 +612,7 @@ const availableFunctions = {
 	cleanupHead: cleanupHead,
 	cleanupHeadings: cleanupHeadings,
 	cleanupLinks: cleanupLinks,
+	convertDivsToParagraphs: convertDivsToParagraphs,
 	convertLineBreaksToBrs: convertLineBreaksToBrs,
 	copyAttribute: copyAttribute,
 	count: count,
