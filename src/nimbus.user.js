@@ -851,6 +851,8 @@ const availableFunctions = {
 	unmarkFromEnd: unmarkFromEnd,
 	unwrapAll: unwrapAll,
 	unwrapAllExcept: unwrapAllExcept,
+	uwa: unwrapAll,
+	uwe: unwrapAllExcept,
 	wrapAll: wrapAll,
 	wrapAllInner: wrapAllInner,
 	wrapAnchorNodeInTag: wrapAnchorNodeInTag,
