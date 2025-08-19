@@ -1,5 +1,5 @@
 import { Nimbus } from "./Nimbus";
-import { createElement, deleteClass, removeAllAttributesExcept } from "./element";
+import { createElement, deleteClass, removeAllAttributesExcept, setAttributeOf } from "./element";
 import { get, getOne, del } from "./selectors";
 import { removeAllAttributesOf, createElementWithText, createElementWithChildren } from "./element";
 import { insertStyle } from "./style";
@@ -449,4 +449,9 @@ export function removeQueryStringFromImageSources()
 		imagePlaceholder.href = trimAt(imagePlaceholder.href, "?");
 		imagePlaceholder.textContent = imagePlaceholder.href;
 	}
+}
+
+export function invertImages()
+{
+	setAttributeOf("img", "class", "invert");
 }
