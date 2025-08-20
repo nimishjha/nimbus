@@ -6,6 +6,7 @@ import { containsAnyOfTheStrings, trimAt, startsWithAnyOfTheStrings } from "./st
 import { parseQueryString } from "./url";
 import { getPrevious, getNext } from "./array";
 import { deleteEmptyHeadings } from "./delete";
+import { markElement, unmarkAll } from "./mark";
 
 export function changePageByUrl(direction)
 {
@@ -150,8 +151,10 @@ export function goToNextElement(selector)
 		config.elements = get(selector);
 		if(config.elements.length)
 		{
+			unmarkAll();
 			config.currentElement = config.elements[0];
 			config.currentElement.scrollIntoView();
+			markElement(config.currentElement);
 		}
 	}
 	else
@@ -159,8 +162,10 @@ export function goToNextElement(selector)
 		const elementToScrollTo = getNext(config.currentElement, config.elements);
 		if(elementToScrollTo)
 		{
+			unmarkAll();
 			config.currentElement = elementToScrollTo;
 			elementToScrollTo.scrollIntoView();
+			markElement(config.currentElement);
 		}
 	}
 }
@@ -174,8 +179,10 @@ export function goToPrevElement(selector)
 		config.elements = get(selector);
 		if(config.elements.length)
 		{
+			unmarkAll();
 			config.currentElement = config.elements[0];
 			config.currentElement.scrollIntoView();
+			markElement(config.currentElement);
 		}
 	}
 	else
@@ -183,8 +190,10 @@ export function goToPrevElement(selector)
 		const elementToScrollTo = getPrevious(config.currentElement, config.elements);
 		if(elementToScrollTo)
 		{
+			unmarkAll();
 			config.currentElement = elementToScrollTo;
 			elementToScrollTo.scrollIntoView();
+			markElement(config.currentElement);
 		}
 	}
 }
