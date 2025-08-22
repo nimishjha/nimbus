@@ -8,6 +8,13 @@ function assignIdsIfMissing(elems)
 	}
 }
 
+function annotateElement(elem, str)
+{
+	const annotation = document.createElement("an");
+	annotation.textContent = " " + str;
+	elem.appendChild(annotation);
+}
+
 function relinkTableOfContents(linksSelector, headingsSelector)
 {
 	function normalizeText(str)
@@ -44,11 +51,17 @@ function relinkTableOfContents(linksSelector, headingsSelector)
 		if(heading)
 		{
 			link.setAttribute("href", "#" + heading.id);
+			link.className = "active";
+			annotateElement(link, "●");
 			numLinksFixed++;
+		}
+		else
+		{
+			annotateElement(link, "○");
 		}
 	}
 
 	showMessageBig(`${numLinksFixed} links fixed`);
 }
 
-relinkTableOfContents(".markd a", "h1, h2, h3, h4, h5, h6");
+relinkTableOfContents("li a", "h1, h2, h3, h4, h5, h6");

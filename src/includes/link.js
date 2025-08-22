@@ -220,10 +220,11 @@ export function logHrefsOnClick(evt)
 	const href = link.href;
 	if(href)
 	{
-		console.log(href);
-		const link = createElement("a", { textContent: href, href: href });
-		const linkWrapper = createElementWithChildren("h6", link);
-		document.body.appendChild(linkWrapper);
+		const clickedLink = createElement("a", { textContent: href, href: href });
+		if(link.textContent)
+			clickedLink.textContent += " " + link.textContent;
+		const clickedLinkWrapper = createElementWithChildren("h6", clickedLink);
+		document.body.appendChild(clickedLinkWrapper);
 	}
 	return false;
 }
