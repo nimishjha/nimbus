@@ -4,8 +4,10 @@ import { containsAnyOfTheStrings, normalizeString, trimAt } from "./string";
 import { markElement } from "./mark";
 import { insertStyle, toggleStyle, toggleWebsiteSpecificStyle } from "./style";
 import { looksLikeUrl } from "./misc";
-import { wrapElement, deleteClass, createElementWithChildren } from "./element";
+import { wrapElement, deleteClass, cycleClass, createElementWithChildren } from "./element";
 import { get, getOne, del, selectByRelativePosition } from "./selectors";
+import { cleanupStackOverflow } from "./cleanup";
+import { runCommand } from "./command";
 import { STYLES } from "./stylesheets";
 
 export function logout()
@@ -239,4 +241,33 @@ export function highlightUserLinks()
 		)
 			wrapElement(link, "user");
 	}
+}
+
+export function cycleTheme()
+{
+	cycleClass(document.body, ["nimbusTheme1", "nimbusTheme3", "nimbusTheme2", "none"]);
+	document.documentElement.className = document.body.className;
+}
+
+export function setBodyOpacity(n)
+{
+	const styleId = "styleBodyOpacity";
+	if(n >= 10) del("#" + styleId);
+	else insertStyle(`body { opacity: ${n/10}; }`, styleId, true);
+}
+
+export function doWebsiteSpecificTasks()
+{
+	const commandElems = get("#website-specific-commands li");
+	if(!commandElems) return;
+	for(const commandElem of commandElems)
+		runCommand(commandElem.textContent);
+	del("#website-specific-commands");
+}
+
+export function doWebsiteSpecificTasksInternal()
+{
+	const sites = ["stackexchange", "stackoverflow", "superuser", "serverfault", "askubuntu"];
+	if(containsAnyOfTheStrings(location.hostname, sites) && /questions\/[0-9]+/.test(location.href))
+		cleanupStackOverflow();
 }

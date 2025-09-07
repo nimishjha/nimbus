@@ -1,5 +1,5 @@
 import { Nimbus } from "./Nimbus";
-import { get, getOne, del } from "./selectors";
+import { get, getOne, getOrCreate, del } from "./selectors";
 import { insertStyle } from "./style";
 import { emptyElement, createElement } from "./element";
 import { KEYCODES } from "./keycodes";
@@ -290,4 +290,9 @@ export function getSelectionOrUserInput(promptMessage, callback, isUnary)
 			callback.call(null, userInput);
 	}
 	customPrompt(promptMessage).then(callFunctionWithUserInput);
+}
+
+export function showStatus(id, str)
+{
+	getOrCreate("h3", id).textContent = id + ": " + str;
 }

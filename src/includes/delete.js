@@ -1,5 +1,5 @@
 import { showMessageBig } from "./ui";
-import { get, del, selectByClassOrIdContaining, selectBySelectorAndRegex, getNodeContainingSelection } from "./selectors";
+import { get, del, selectByClassOrIdContaining, selectBySelectorAndRegex, getNodeContainingSelection, selectBySelectorAndNormalizedText } from "./selectors";
 import { getMarkedElements } from "./mark";
 import { getXpathResultAsArray } from "./xpath";
 import { getTextLength } from "./node";
@@ -238,4 +238,9 @@ export function deleteElements(elems)
 export function deleteByClassOrIdContaining(str)
 {
 	deleteElements(selectByClassOrIdContaining(str));
+}
+
+export function deleteBySelectorAndNormalizedText(selector, str)
+{
+	del(selectBySelectorAndNormalizedText(selector, str));
 }

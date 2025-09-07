@@ -2,6 +2,7 @@ import { Nimbus } from "./Nimbus";
 import { showMessageBig, showMessageError } from "./ui";
 import { get } from "./selectors";
 import { createBulletAnchor, makeClassSelector } from "./misc";
+import { getMarkedElements } from "./mark";
 import { removeLineBreaks } from "./string";
 import { preReplaceBrs } from "./preformatted";
 
@@ -70,6 +71,16 @@ export function wrapElement(elem, tagName, className)
 	const newElem = elem.cloneNode(true);
 	wrapper.appendChild(newElem);
 	elem.parentNode.replaceChild(wrapper, elem);
+}
+
+export function wrapMarkedElement(tagName)
+{
+	const node = getMarkedElements()[0];
+	if(node)
+	{
+		const wrapperTag = tagName ? tagName : Nimbus.replacementTagName1;
+		wrapElement(node, wrapperTag);
+	}
 }
 
 export function wrapElementInner(elem, tagName)

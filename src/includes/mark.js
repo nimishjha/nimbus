@@ -1,7 +1,7 @@
 import { Nimbus } from "./Nimbus";
 import { showMessage, showMessageBig, showMessageError } from "./ui";
 import { removeWhitespace } from "./string";
-import { get, getOne, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText } from "./selectors";
+import { get, getOne, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining } from "./selectors";
 import { getTextLength } from "./node";
 import { makeClassSelector } from "./misc";
 import { insertStyle, insertStyleHighlight, getAllCssRulesForElement } from "./style";
@@ -336,4 +336,24 @@ export function markElementsWithSameClass()
 	}
 	const classSelector = "." + marked.className.replaceAll(" ", ".");
 	markElements(get(classSelector));
+}
+
+export function setMarkerClass(str)
+{
+	Nimbus.markerClass = str;
+}
+
+export function markBlockElementsContainingText(text)
+{
+	markElements(selectBlockElementsContainingText(text));
+}
+
+export function markBySelectorAndNormalizedText(selector, str)
+{
+	markElements(selectBySelectorAndNormalizedText(selector, str));
+}
+
+export function markByClassOrIdContaining(str)
+{
+	markElements(selectByClassOrIdContaining(str));
 }

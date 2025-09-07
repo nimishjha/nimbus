@@ -150,3 +150,6 @@ export function getViewportHeight()
 	if (document.body) return document.body.clientHeight;
 	return 0;
 }
+
+export function isChrome() { return navigator.userAgent.indexOf("Chrome/") !== -1; }
+export function isIframe() { return window !== window.top; }

@@ -220,3 +220,7 @@ export function convertDivsToParagraphs()
 		}
 	}
 }
+
+export function setReplacementTag1(tagName) { Nimbus.replacementTagName1 = tagName; }
+export function setReplacementTag2(tagName) { Nimbus.replacementTagName2 = tagName; }
+export function setItalicTag(tagName) { Nimbus.italicTag = tagName; }
