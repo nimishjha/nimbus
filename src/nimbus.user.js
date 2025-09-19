@@ -313,6 +313,8 @@ import {
 	singleQuotesToDoubleQuotes,
 	splitByBrs,
 	toggleDashes,
+	enableHyphensToDashesOnClick,
+	disableHyphensToDashesOnClick,
 } from "./includes/text";
 import {
 	convertToFragment,
@@ -673,6 +675,8 @@ const availableFunctions = {
 	editStyleById: editStyleById,
 	enableClickToCollectUrls: enableClickToCollectUrls,
 	enableConsoleLogs: enableConsoleLogs,
+	enableHyphensToDashesOnClick: enableHyphensToDashesOnClick,
+	disableHyphensToDashesOnClick: disableHyphensToDashesOnClick,
 	findStringsInProximity: findStringsInProximity,
 	fixBody: fixBody,
 	fixBullets: fixBullets,

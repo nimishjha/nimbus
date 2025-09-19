@@ -3,7 +3,7 @@ import { emptyElement, createElementWithChildren, createElement, wrapElement, un
 import { hasDirectChildrenOfType } from "./elementAndNodeTests";
 import { get, getOne, del, getFirstTextChild, getNonCodeTextNodes, getNodeContainingSelection } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
-import { getTextNodesUnderSelector } from "./xpath";
+import { getTextNodesUnderSelector, getTextNodesUnderElement } from "./xpath";
 import { replaceElementsBySelector } from "./replaceElements";
 import { makeClassSelector } from "./misc";
 import { showMessageBig } from "./ui";
@@ -404,3 +404,26 @@ export function toggleDashes()
 }
 
 export function removeAllEmphasis() { unwrapAll("b, strong, i, em, u"); }
+
+function replaceHyphensWithDashesInClickedElement(evt)
+{
+	const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
+	if(!evt[ctrlOrMeta]) return;
+	const clickedElement = getNodeContainingSelection();
+	const textNodes = getTextNodesUnderElement(clickedElement);
+	for(const node of textNodes)
+	{
+		if(node.data.includes("-"))
+			node.data = node.data.replace(/-/g, "—");
+	}
+}
+
+export function enableHyphensToDashesOnClick()
+{
+	document.addEventListener('click', replaceHyphensWithDashesInClickedElement, false);
+}
+
+export function disableHyphensToDashesOnClick()
+{
+	document.removeEventListener('click', replaceHyphensWithDashesInClickedElement);
+}
