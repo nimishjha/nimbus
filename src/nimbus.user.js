@@ -882,8 +882,18 @@ const availableFunctions = {
 	ylog: ylog,
 };
 
+const consoleFunctions = {
+	trimAt: trimAt,
+	trimAtInclusive: trimAtInclusive,
+	trimBetween: trimBetween,
+	trimNonAlphanumeric: trimNonAlphanumeric,
+	trimSpecialChars: trimSpecialChars,
+	trimStartingAt: trimStartingAt,
+};
+
 Nimbus.blockElementSelector = Object.keys(BLOCK_ELEMENTS).join();
 Nimbus.availableFunctions = availableFunctions;
+Nimbus.consoleFunctions = consoleFunctions;
 
 function enableConsoleLogs()
 {
