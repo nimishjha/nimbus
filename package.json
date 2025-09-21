@@ -6,6 +6,7 @@
   "private": false,
   "scripts": {
     "lintandbuild": "bun run lint && bun run build.js",
+    "lab": "bun run lint && bun run build.js",
     "lint": "oxlint -f stylish src/**/*.js",
     "lintconcise": "oxlint -f unix src/**/*.js",
     "lintverbose": "oxlint -f default src/**/*.js",
