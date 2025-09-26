@@ -377,18 +377,29 @@ export function fixDashes()
 		p.innerHTML = removeLineBreaks(p.innerHTML);
 
 	let replCount = 0;
-	const regex = /(\s+[-–—]\s+|\s+[-–—]|[-–—]\s+|--)/g;
+	const regexBadDashes = /(\s+[-–—]\s+|\s+[-–—]|[-–—]\s+|--)/g;
+	const regexHyphenBeforeEndQuote = /([A-Za-z])-"/g;
 	const textNodes = getNonCodeTextNodes();
 	for(const textNode of textNodes)
 	{
-		if(regex.test(textNode.data))
+		if(~textNode.data.indexOf("--"))
 		{
 			replCount++;
-			textNode.data = textNode.data.replaceAll("--", "—").replace(regex, "—");
+			textNode.data = textNode.data.replace(/-+/g, "—");
+		}
+		if(regexHyphenBeforeEndQuote.test(textNode.data))
+		{
+			replCount++;
+			textNode.data = textNode.data.replace(regexHyphenBeforeEndQuote, '$1—"')
+		}
+		if(regexBadDashes.test(textNode.data))
+		{
+			replCount++;
+			textNode.data = textNode.data.replace(regexBadDashes, "—");
 		}
 	}
 	if(replCount)
-		showMessageBig(`${replCount} text nodes fixed`);
+		showMessageBig(`${replCount} replacements made`);
 }
 
 export function toggleDashes()
