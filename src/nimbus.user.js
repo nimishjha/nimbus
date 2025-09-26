@@ -822,7 +822,7 @@ const availableFunctions = {
 	replaceMarkedWithTextElement: replaceMarkedWithTextElement,
 	replaceNonStandardElements: replaceNonStandardElements,
 	replaceQueryParameter: replaceQueryParameter,
-	replaceSpecialCharacters:replaceSpecialCharacters,
+	replaceSpecialCharacters: replaceSpecialCharacters,
 	replaceTables: replaceTables,
 	rescueOrphanedInlineElements: rescueOrphanedInlineElements,
 	rescueOrphanedTextNodes: rescueOrphanedTextNodes,
