@@ -8,7 +8,7 @@ function quoteIfString(arg)
 }
 
 //	Prints all properties of an object that match a string
-function logPropertiesMatching(obj, str)
+export function logPropertiesMatching(obj, str)
 {
 	str = str.toLowerCase();
 	const seen = new Set();
@@ -41,7 +41,7 @@ function logPropertiesMatching(obj, str)
 }
 
 //	Prints all property values of an object that match a string
-function logValuesMatching(obj, str)
+export function logValuesMatching(obj, str)
 {
 	str = str.toLowerCase();
 	const seen = new Set();

@@ -173,6 +173,7 @@ import {
 import { replaceInTextNodes, replaceInPreTextNodes, replaceInTextNodesRegex } from "./includes/textReplace";
 import { toggleHighlightMap } from "./includes/highlightMapper";
 import { getPrevious, getNext } from "./includes/array";
+import { logPropertiesMatching, logValuesMatching } from "./includes/object";
 import {
 	capitalize,
 	containsAllOfTheStrings,
@@ -882,14 +883,16 @@ const availableFunctions = {
 	ylog: ylog,
 };
 
-const consoleFunctions = {
-	trimAt: trimAt,
-	trimAtInclusive: trimAtInclusive,
-	trimBetween: trimBetween,
-	trimNonAlphanumeric: trimNonAlphanumeric,
-	trimSpecialChars: trimSpecialChars,
-	trimStartingAt: trimStartingAt,
-};
+const consoleFunctions = [
+	trimAt,
+	trimAtInclusive,
+	trimBetween,
+	trimNonAlphanumeric,
+	trimSpecialChars,
+	trimStartingAt,
+	logPropertiesMatching,
+	logValuesMatching
+];
 
 Nimbus.blockElementSelector = Object.keys(BLOCK_ELEMENTS).join();
 Nimbus.availableFunctions = availableFunctions;
@@ -978,7 +981,7 @@ function handleKeyDown(e)
 			case KEYCODES.J: deleteNonEnglishText(); makeAllTextLowerCase(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.L: showLog(); break;
-			case KEYCODES.M: toggleHighlightMap(2, 0, 4); break;
+			case KEYCODES.M: toggleHighlightMap(3, 0, 0); break;
 			case KEYCODES.N: numberDivs(); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatchesInDocument, true); break;
 			case KEYCODES.P: fixParagraphs(); break;

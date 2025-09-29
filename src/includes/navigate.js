@@ -151,10 +151,8 @@ export function goToNextElement(selector)
 		config.elements = get(selector);
 		if(config.elements.length)
 		{
-			unmarkAll();
 			config.currentElement = config.elements[0];
 			config.currentElement.scrollIntoView();
-			markElement(config.currentElement);
 		}
 	}
 	else
@@ -162,10 +160,8 @@ export function goToNextElement(selector)
 		const elementToScrollTo = getNext(config.currentElement, config.elements);
 		if(elementToScrollTo)
 		{
-			unmarkAll();
 			config.currentElement = elementToScrollTo;
 			elementToScrollTo.scrollIntoView();
-			markElement(config.currentElement);
 		}
 	}
 }
