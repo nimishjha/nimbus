@@ -52,9 +52,16 @@ export function identifyClassCycle(direction)
 export function identifyClassMark(str)
 {
 	const config = Nimbus.identifyClass;
-	const currentClass = config.classes[config.currentIndex];
-	config.markedClasses.push(`.${currentClass} {} /* ${str} */`);
-	showMessageBig(`Marked ${currentClass} with tag ${str}`);
+	const currentClass = config.classes.getCurrentValue();
+	if(!currentClass)
+	{
+		console.error(`currentClass is ${currentClass}`);
+	}
+	else
+	{
+		config.markedClasses.push(`.${currentClass} {} /* ${str} */`);
+		showMessageBig(`Marked ${currentClass} with tag ${str}`);
+	}
 }
 
 export function identifyClassShowMarked()
