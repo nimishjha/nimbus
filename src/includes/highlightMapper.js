@@ -2,6 +2,52 @@ import { Nimbus } from "./Nimbus";
 import { showMessageError } from "./ui";
 import { getViewportSize } from "./misc";
 
+function findFirstElementInViewport(elements)
+{
+	function promiseFunc(resolve)
+	{
+		if(!(elements && elements.length))
+		{
+			resolve(null);
+			return;
+		}
+
+		let isFirstInvocation = true;
+
+		function intersectionObserverCallback(entries)
+		{
+			if(isFirstInvocation)
+			{
+				isFirstInvocation = false;
+				for(const entry of entries)
+				{
+					if(entry.isIntersecting)
+					{
+						observer.disconnect();
+						resolve(entry.target);
+						break;
+					}
+				}
+			}
+			observer.disconnect();
+			resolve(null);
+		}
+
+		const intersectionObserverConfig = {
+			root: null,
+			rootMargin: '0px',
+			threshold: 0
+		};
+
+		const observer = new IntersectionObserver(intersectionObserverCallback, intersectionObserverConfig);
+
+		for(const element of elements)
+			observer.observe(element);
+	}
+
+	return new Promise(promiseFunc);
+}
+
 function highlightMapper()
 {
 	const config = {
@@ -61,8 +107,8 @@ function highlightMapper()
 	function drawHighlightMap(highlightData)
 	{
 		const { highlightLengths, maxParagraphLength } = highlightData;
-		const { ctx, width, height } = initCanvas(highlightLengths.length);
-		const widthScale = (width - config.padding) / maxParagraphLength;
+		const { ctx, width: canvasWidth, height } = initCanvas(highlightLengths.length);
+		const widthScale = (canvasWidth - config.padding) / maxParagraphLength;
 		const rowHeightPlusSpacing = config.rowHeight + config.rowSpacing;
 
 		const colorsByHighlightType = {
@@ -77,19 +123,16 @@ function highlightMapper()
 			markwhite: "#E0E0E0",
 		};
 
-		let currentScrollPosition = 0;
-		if(window.scrollY > 0 && window.scrollMaxY > 0)
-		{
-			const scrollPercentage = window.scrollY / window.scrollMaxY;
-			currentScrollPosition = Math.min(height - config.rowHeight, height * scrollPercentage);
-		}
-		ctx.fillStyle = colorsByHighlightType["currentLocation"];
-		ctx.fillRect(width - 50, currentScrollPosition, width, config.rowHeight);
-
 		let x = 0;
 		let y = 0;
 		for(let i = 0, ii = highlightLengths.length; i < ii; i++)
 		{
+			if(highlightLengths[i].isFirstVisibleElement)
+			{
+				ctx.fillStyle = colorsByHighlightType["currentLocation"];
+				ctx.fillRect(canvasWidth - 50, y, 50, config.rowHeight);
+			}
+
 			x = 0;
 			ctx.fillStyle = colorsByHighlightType["plaintext"];
 			const width = getBarWidth(highlightLengths[i]["plaintext"], widthScale);
@@ -114,7 +157,7 @@ function highlightMapper()
 
 		ctx.font = "bold 20px SF Mono";
 		ctx.fillStyle = "#CCC";
-		ctx.fillText(`1:${config.groupSize}`, width - 50, 20);
+		ctx.fillText(`1:${config.groupSize}`, canvasWidth - 50, 20);
 	}
 
 	function summarizeData(highlightData)
@@ -134,6 +177,8 @@ function highlightMapper()
 			const highlightLengthsGrouped = createHighlightLengthsObject(0);
 			for(let j = i, jj = i + groupSize; j < jj && j < ii; j++)
 			{
+				if(highlightLengths[j].isFirstVisibleElement)
+					highlightLengthsGrouped.isFirstVisibleElement = true;
 				for(const tag of ["plaintext", "mark", "markyellow", "markpurple", "markgreen", "markblue", "markred", "markwhite"])
 					highlightLengthsGrouped[tag] += highlightLengths[j][tag];
 			}
@@ -147,9 +192,10 @@ function highlightMapper()
 		};
 	}
 
-	function createHighlightLengthsObject(plaintextLength)
+	function createHighlightLengthsObject(plaintextLength, isFirstVisibleElement)
 	{
 		return {
+			isFirstVisibleElement: !!isFirstVisibleElement,
 			plaintext: plaintextLength,
 			mark: 0,
 			markyellow: 0,
@@ -161,18 +207,20 @@ function highlightMapper()
 		};
 	}
 
-	function generateHighlightData()
+	async function generateHighlightData()
 	{
 		config.maxRows = Math.floor( getViewportSize().height / (config.rowHeight + config.rowSpacing));
 		const elems = document.querySelectorAll("p");
 		config.elements = elems;
+		const firstVisibleElement = await findFirstElementInViewport(elems);
 		const highlightData = {
 			highlightLengths: [],
 			maxParagraphLength: 0
 		};
 		for(const elem of elems)
 		{
-			const highlightLengthsItem = createHighlightLengthsObject(elem.textContent.length);
+			const isFirstVisibleElement = firstVisibleElement && elem === firstVisibleElement;
+			const highlightLengthsItem = createHighlightLengthsObject(elem.textContent.length, isFirstVisibleElement);
 			highlightData.maxParagraphLength = Math.max(highlightData.maxParagraphLength, highlightLengthsItem.plaintext);
 			for(const tag of ["mark", "markyellow", "markpurple", "markgreen", "markblue", "markred", "markwhite"])
 			{
@@ -186,12 +234,12 @@ function highlightMapper()
 		return summarizeData(highlightData);
 	}
 
-	function draw(rowHeight, rowSpacing, minWidth)
+	async function draw(rowHeight, rowSpacing, minWidth)
 	{
 		if(typeof rowHeight === "number") config.rowHeight = rowHeight;
 		if(typeof rowSpacing === "number") config.rowSpacing = rowSpacing;
 		if(typeof minWidth === "number") config.minWidth = minWidth;
-		drawHighlightMap(generateHighlightData());
+		drawHighlightMap(await generateHighlightData());
 	}
 
 	function destroy()
