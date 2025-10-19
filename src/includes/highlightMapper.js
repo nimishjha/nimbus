@@ -114,7 +114,7 @@ function highlightMapper()
 		const colorsByHighlightType = {
 			plaintext: "#303030",
 			currentLocation: "#A0A0A0",
-			mark: "#0077BB",
+			mark: "#606060",
 			markyellow: "#DDBB00",
 			markpurple: "#AA00CC",
 			markgreen: "#00CC00",
