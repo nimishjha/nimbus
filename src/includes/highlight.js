@@ -12,6 +12,7 @@ import { escapeForRegExp } from "./misc";
 import { getTextNodesUnderSelector } from "./xpath";
 import { makePlainText, unwrapElement, deleteClass, createElement, unwrapAll, wrapElement, wrapElementInner } from "./element";
 import { normalizeHTML, removeLineBreaks } from "./string";
+import { BLOCK_ELEMENTS } from "./constants";
 
 export function highlightInPres(str, tagName = "markyellow")
 {
@@ -181,7 +182,6 @@ export function highlightElements(elems)
 		showMessageError("highlightElements(): no elements given");
 		return;
 	}
-	const BLOCK_ELEMENTS = BLOCK_ELEMENTS;
 	const firstElement = elements[0];
 	const highlightTagName = Nimbus.highlightTagName;
 	//	Assumption: the elements are all of the same type
@@ -508,7 +508,9 @@ export function highlightAllStrings(...args)
 
 export function highlightByTagNameAndText(tagName, str)
 {
-	highlightElements(selectByTagNameAndText(tagName, str));
+	const elems = selectByTagNameAndText(tagName, str);
+	if(elems && elems.length)
+		highlightElements(elems);
 }
 
 export function highlightQuotes()

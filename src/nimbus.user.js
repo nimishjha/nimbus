@@ -981,7 +981,7 @@ function handleKeyDown(e)
 			case KEYCODES.J: deleteNonEnglishText(); makeAllTextLowerCase(); break;
 			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.L: showLog(); break;
-			case KEYCODES.M: toggleHighlightMap(3, 0, 0); break;
+			case KEYCODES.M: toggleHighlightMap(3, 0, 3); break;
 			case KEYCODES.N: numberDivs(); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatchesInDocument, true); break;
 			case KEYCODES.P: fixParagraphs(); break;
