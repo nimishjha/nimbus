@@ -49,9 +49,9 @@ export const Nimbus = {
 	colorsByHighlightType: {
 		plaintext: "#303030",
 		currentLocation: "#A0A0A0",
-		mark: "#606060",
-		markyellow: "#bb9900",
-		markpurple: "#AA00CC",
+		mark: "#777777",
+		markyellow: "#CCCC00",
+		markpurple: "#AA00AA",
 		markgreen: "#00AA00",
 		markblue: "#4444DD",
 		markred: "#CC0000",

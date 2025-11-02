@@ -892,7 +892,10 @@ const consoleFunctions = [
 	trimSpecialChars,
 	trimStartingAt,
 	logPropertiesMatching,
-	logValuesMatching
+	logValuesMatching,
+	showMessage,
+	showMessageBig,
+	showMessageError,
 ];
 
 Nimbus.blockElementSelector = Object.keys(BLOCK_ELEMENTS).join();
