@@ -111,17 +111,7 @@ function highlightMapper()
 		const widthScale = (canvasWidth - config.padding) / maxParagraphLength;
 		const rowHeightPlusSpacing = config.rowHeight + config.rowSpacing;
 
-		const colorsByHighlightType = {
-			plaintext: "#303030",
-			currentLocation: "#A0A0A0",
-			mark: "#606060",
-			markyellow: "#DDBB00",
-			markpurple: "#AA00CC",
-			markgreen: "#00CC00",
-			markblue: "#4444DD",
-			markred: "#CC0000",
-			markwhite: "#E0E0E0",
-		};
+		const colorsByHighlightType = Nimbus.colorsByHighlightType;
 
 		let x = 0;
 		let y = 0;
@@ -267,4 +257,9 @@ export function toggleHighlightMap(rowHeight = 4, rowSpacing = 1, minWidth = 4)
 		Nimbus.highlightMapper.destroy();
 		Nimbus.highlightMapper = null;
 	}
+}
+
+export function setHighlightMapColor(marktype, color)
+{
+	Nimbus.colorsByHighlightType[marktype] = color;
 }

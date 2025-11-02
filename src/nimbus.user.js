@@ -171,7 +171,7 @@ import {
 	showStatus,
 } from "./includes/ui";
 import { replaceInTextNodes, replaceInPreTextNodes, replaceInTextNodesRegex } from "./includes/textReplace";
-import { toggleHighlightMap } from "./includes/highlightMapper";
+import { toggleHighlightMap, setHighlightMapColor } from "./includes/highlightMapper";
 import { getPrevious, getNext } from "./includes/array";
 import { logPropertiesMatching, logValuesMatching } from "./includes/object";
 import {
@@ -839,6 +839,7 @@ const availableFunctions = {
 	setClassByDepth: setClassByDepth,
 	setDocTitle: setDocTitle,
 	setGroupTagName: setGroupTagName,
+	setHighlightMapColor: setHighlightMapColor,
 	setItalicTag: setItalicTag,
 	setMarkerClass: setMarkerClass,
 	setQueryParameter: setQueryParameter,

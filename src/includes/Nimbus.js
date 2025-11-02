@@ -46,4 +46,15 @@ export const Nimbus = {
 		currentElement: null,
 	},
 	symbolsString: "∆∑σ√∫αβγλμνπΦϕΨψρστυ≃°θΩω⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉—",
+	colorsByHighlightType: {
+		plaintext: "#303030",
+		currentLocation: "#A0A0A0",
+		mark: "#606060",
+		markyellow: "#bb9900",
+		markpurple: "#AA00CC",
+		markgreen: "#00AA00",
+		markblue: "#4444DD",
+		markred: "#CC0000",
+		markwhite: "#E0E0E0",
+	},
 };
