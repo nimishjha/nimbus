@@ -2,6 +2,9 @@ import { Nimbus } from "./Nimbus";
 import { showMessageError } from "./ui";
 import { getViewportSize } from "./misc";
 
+// For the 'developers' who need guard rails to keep them from doing dumb things
+const MODULE_NAME = "highlightMapper";
+
 function findFirstElementInViewport(elements)
 {
 	function promiseFunc(resolve)
@@ -50,18 +53,7 @@ function findFirstElementInViewport(elements)
 
 function highlightMapper()
 {
-	const config = {
-		width: 300,
-		rowHeight: 4,
-		rowSpacing: 1,
-		minWidth: 4,
-		groupSize: 1,
-		canvasId: "highlightMapCanvas",
-		maxRows: 100,
-		padding: 20,
-		drawGaps: false,
-		elements: [],
-	};
+	const config = Nimbus.moduleConfigs[MODULE_NAME];
 
 	function setupCanvasClickTracking(canvas) {
 		canvas.addEventListener('click', function(event) {
@@ -111,7 +103,7 @@ function highlightMapper()
 		const widthScale = (canvasWidth - config.padding) / maxParagraphLength;
 		const rowHeightPlusSpacing = config.rowHeight + config.rowSpacing;
 
-		const colorsByHighlightType = Nimbus.colorsByHighlightType;
+		const colorsByHighlightType = config.colorsByHighlightType;
 
 		let x = 0;
 		let y = 0;
@@ -261,5 +253,6 @@ export function toggleHighlightMap(rowHeight = 4, rowSpacing = 1, minWidth = 4)
 
 export function setHighlightMapColor(marktype, color)
 {
-	Nimbus.colorsByHighlightType[marktype] = color;
+	const config = Nimbus.moduleConfigs[MODULE_NAME];
+	config.colorsByHighlightType[marktype] = color;
 }
