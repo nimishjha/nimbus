@@ -271,3 +271,9 @@ export function doWebsiteSpecificTasksInternal()
 	if(containsAnyOfTheStrings(location.hostname, sites) && /questions\/[0-9]+/.test(location.href))
 		cleanupStackOverflow();
 }
+
+export function hideReferences()
+{
+	const style = "reference { display: none; }";
+	insertStyle(style, "styleHideReferences", true);
+}
