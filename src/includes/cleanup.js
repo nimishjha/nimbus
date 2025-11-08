@@ -460,12 +460,14 @@ export function replaceCommonClasses()
 	replaceElementsBySelector("div[class*=sidebar]", "aside");
 	replaceElementsBySelector("div[class*=social]", "aside");
 	replaceElementsBySelector("p[class*=toc-head]", "h2");
+	replaceElementsBySelector("p[class*=chaptertitle]", "h2");
 	replaceElementsBySelector("p[class*=subtitle], div[class*=subtitle], p[class*=subhead], div[class*=subhead]", "h3");
 	replaceElementsBySelector("p[class*=image], div[class*=image]", "figure");
 	replaceElementsBySelector("p[class*=caption], div[class*=caption]", "figcaption");
 	replaceElementsBySelector("p[class*=quote], div[class*=quote]", "blockquote");
 	replaceElementsBySelector("p[class*=author], div[class*=author]", "h4");
 	replaceElementsBySelector("p[class*=date], div[class*=date]", "h5");
+	replaceElementsBySelector("p[class*=quote], div[class*=quote]", "blockquote");
 	replaceElementsBySelector("p[class*=quote], div[class*=quote]", "blockquote");
 
 	replaceElementsBySelector("span[class*=ital], span[class*=txit], span[class*=epub-i]", "i");
