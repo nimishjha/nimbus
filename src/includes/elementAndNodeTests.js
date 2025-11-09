@@ -112,3 +112,8 @@ export function hasOnlyChildOfType(elem, selector)
 	if(children[0].matches(selector)) return true;
 	return false;
 }
+
+export function hasNumericText(elem)
+{
+	return /^\d+$/.test(elem.textContent.replace(/\s+/g, ""));
+}

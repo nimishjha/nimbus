@@ -19,7 +19,7 @@ import { appendMetadata } from "./metadata";
 import { toggleStyleNegative, insertStyleHighlight } from "./style";
 import { showMessageBig, showMessageError } from "./ui";
 import { retrieve } from "./retrieve";
-import { replaceEmptyAnchors, getLinksByHref } from "./link";
+import { replaceEmptyAnchors, createLinksByHrefLookup } from "./link";
 import { isCurrentDomainLink } from "./url";
 import { getAllClassesFor } from "./inspect";
 import { replaceClass } from "./dom";
@@ -576,7 +576,7 @@ export function simplifyClassNames(selector)
 
 export function shortenIds()
 {
-	const linksByHref = getLinksByHref();
+	const linksByHref = createLinksByHrefLookup();
 	const elems = get("*[id]");
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{

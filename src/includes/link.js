@@ -1,5 +1,6 @@
 import { Nimbus } from "./Nimbus";
-import { createElement, createElementWithChildren, unwrapElement, wrapElement, unwrapAll, filterByNumericText } from "./element";
+import { createElement, createElementWithChildren, unwrapElement, wrapElement, unwrapAll } from "./element";
+import { hasNumericText } from "./elementAndNodeTests";
 import { markElement, unmarkAll } from "./mark";
 import { showMessageBig } from "./ui";
 import { get, getOne, del, select, getLinkAnchors, getSpanAnchors, getLinksToId, getFirstBlockParent } from "./selectors";
@@ -320,7 +321,7 @@ export function removeAllQueryParametersExcept(paramName, selector="a[href]")
 		link.href = removeQueryParameterFromUrl(link.href, paramName, true);
 }
 
-export function getLinksByHref()
+export function createLinksByHrefLookup()
 {
 	const links = get('a[href^="#"]');
 	const linksByHref = {};
@@ -340,13 +341,13 @@ export function getLinksByHref()
 
 export function numberNumericReferencesByInterlinkedGroup()
 {
-	const linksByHref = getLinksByHref();
+	const linksByHref = createLinksByHrefLookup();
 
 	const allLinks = get('a[href^="#"]');
 	if(!(allLinks && allLinks.length))
 		return;
 
-	const links = allLinks.filter(filterByNumericText);
+	const links = allLinks.filter(hasNumericText);
 	if(!(links && links.length))
 		return;
 
@@ -361,17 +362,16 @@ export function numberNumericReferencesByInterlinkedGroup()
 
 		const group = new Set();
 		const href = link.getAttribute("href");
-		if(!href) continue;
 
-		if(href.indexOf("#") === 0)
+		if(href && href.indexOf("#") === 0)
 		{
 			group.add(link);
 			const targetId = href.substring(1);
-			const targetLink = document.getElementById(targetId);
-			if(targetLink && targetLink.tagName === "A")
+			const targetElem = document.getElementById(targetId);
+			if(targetElem && targetElem.tagName === "A")
 			{
-				group.add(targetLink);
-				seen.add(targetLink);
+				group.add(targetElem);
+				seen.add(targetElem);
 			}
 		}
 
@@ -387,8 +387,10 @@ export function numberNumericReferencesByInterlinkedGroup()
 				}
 			}
 		}
+
 		const groupLinks = Array.from(group);
-		groups.push(groupLinks);
+		if(groupLinks.length)
+			groups.push(groupLinks);
 	}
 
 	let count = 0;
