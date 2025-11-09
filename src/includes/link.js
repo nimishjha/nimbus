@@ -319,3 +319,21 @@ export function removeAllQueryParametersExcept(paramName, selector="a[href]")
 	for(const link of links)
 		link.href = removeQueryParameterFromUrl(link.href, paramName, true);
 }
+
+export function getLinksByHref()
+{
+	const links = get('a[href^="#"]');
+	const linksByHref = {};
+	if(links)
+	{
+		for(const link of links)
+		{
+			const href = link.getAttribute("href");
+			if(linksByHref[href])
+				linksByHref[href].push(link);
+			else
+				linksByHref[href] = [link];
+		}
+	}
+	return linksByHref;
+}
