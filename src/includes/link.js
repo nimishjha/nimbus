@@ -1,5 +1,5 @@
 import { Nimbus } from "./Nimbus";
-import { createElement, createElementWithChildren, unwrapElement, wrapElement, unwrapAll } from "./element";
+import { createElement, createElementWithChildren, unwrapElement, wrapElement, unwrapAll, filterByNumericText } from "./element";
 import { markElement, unmarkAll } from "./mark";
 import { showMessageBig } from "./ui";
 import { get, getOne, del, select, getLinkAnchors, getSpanAnchors, getLinksToId, getFirstBlockParent } from "./selectors";
@@ -336,4 +336,70 @@ export function getLinksByHref()
 		}
 	}
 	return linksByHref;
+}
+
+export function numberNumericReferencesByInterlinkedGroup()
+{
+	const linksByHref = getLinksByHref();
+
+	const allLinks = get('a[href^="#"]');
+	if(!(allLinks && allLinks.length))
+		return;
+
+	const links = allLinks.filter(filterByNumericText);
+	if(!(links && links.length))
+		return;
+
+	const seen = new Set();
+	const groups = [];
+	for(let i = 0, ii = links.length; i < ii; i++)
+	{
+		const link = links[i];
+		if(seen.has(link))
+			continue;
+		seen.add(link);
+
+		const group = new Set();
+		const href = link.getAttribute("href");
+		if(!href) continue;
+
+		if(href.indexOf("#") === 0)
+		{
+			group.add(link);
+			const targetId = href.substring(1);
+			const targetLink = document.getElementById(targetId);
+			if(targetLink && targetLink.tagName === "A")
+			{
+				group.add(targetLink);
+				seen.add(targetLink);
+			}
+		}
+
+		if(link.id)
+		{
+			const linksToThisAnchor = linksByHref["#" + link.id];
+			if(linksToThisAnchor && linksToThisAnchor.length)
+			{
+				for(const backlink of linksToThisAnchor)
+				{
+					group.add(backlink);
+					seen.add(backlink);
+				}
+			}
+		}
+		const groupLinks = Array.from(group);
+		groups.push(groupLinks);
+	}
+
+	let count = 0;
+	for(let i = 0, ii = groups.length; i < ii; i++)
+	{
+		for(const link of groups[i])
+		{
+			count++;
+			link.textContent = (i + 1).toString();
+		}
+	}
+
+	showMessageBig(`${groups.length} groups found; ${count} links fixed`);
 }

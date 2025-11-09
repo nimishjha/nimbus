@@ -417,3 +417,8 @@ export function createReplacementElement(tagName, sourceElement, propertyMapping
 	}
 	return elem;
 }
+
+export function filterByNumericText(elem)
+{
+	return /^\d+$/.test(elem.textContent.replace(/\s+/g, ""));
+}
