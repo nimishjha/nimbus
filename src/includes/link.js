@@ -100,11 +100,12 @@ export function fixInternalReferences()
 	};
 	const regexIsNumeric = /^\[\d+\]$/;
 	const regexIsNumberInBraces = /^\{\d+\}$/;
+	const regexIsNumericWithPeriod = /\d+\.$/;
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
 	{
 		const link = internalLinks[i];
 		let refText = link.textContent.trim();
-		if(regexIsNumeric.test(refText) || regexIsNumberInBraces.test(refText))
+		if(regexIsNumeric.test(refText) || regexIsNumberInBraces.test(refText) || regexIsNumericWithPeriod.test(refText))
 			refText = refText.replace(/[^0-9]+/g, "");
 		if(!refText.length)
 			refText = "0" + i;
