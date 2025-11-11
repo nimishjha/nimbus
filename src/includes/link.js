@@ -9,6 +9,7 @@ import { trimAt } from "./string";
 import { insertStyle } from "./style";
 import { createUUID, createBulletAnchor } from "./misc";
 import { removeQueryParameterFromUrl } from "./url";
+import { annotateElement } from "./dom";
 
 export function createUniqueId(index)
 {
@@ -120,10 +121,20 @@ export function fixInternalReferences()
 	unwrapAll("reference a sup");
 }
 
-export function revealLinkHrefs()
+export function revealLinkAttributes()
 {
-	const style = "a::after { content: attr(href); background: #000; color: #F90; padding: 2px 10px; }";
-	insertStyle(style, "styleRevealLinkHrefs", true);
+	const style = `
+		a[id]::after { content: "id: "attr(id); background: #000; color: #c0c; padding: 1px 5px; font-weight: bold; }
+		a[href]::after { content: "href: "attr(href); background: #000; color: #0b0; padding: 1px 5px; font-weight: bold; }
+		a[name]::after { content: "name: "attr(name); background: #000; color: #cc0; padding: 1px 5px; font-weight: bold; }
+
+		a[id][href]::after { content: "id: "attr(id)" href: "attr(href); background: #000; color: #88c; padding: 1px 5px; font-weight: bold; }
+		a[id][name]::after { content: "id: "attr(id)" name: "attr(name); background: #000; color: #c90; padding: 1px 5px; font-weight: bold; }
+		a[href][name]::after { content: "href: "attr(href)" name: "attr(name); background: #500; color: #c00; padding: 1px 5px; font-weight: bold; }
+
+		a[id][href][name]::after { content: "id: "attr(id)" href: "attr(href)" name: "attr(name); background: #000; color: #c00; padding: 1px 5px; font-weight: bold; }
+	`;
+	insertStyle(style, "styleRevealLinkAttributes", true);
 }
 
 export function humanizeUrl(url)
@@ -145,8 +156,17 @@ export function revealEmptyLinks()
 {
 	const links = get("a");
 	for(const link of links)
+	{
 		if(isEmptyLink(link))
-			link.textContent = link.href;
+		{
+			if(link.id)
+				annotateElement(link, "a1", link.id);
+			if(link.href)
+				annotateElement(link, "a2", link.getAttribute("href"));
+			if(link.name)
+				annotateElement(link, "a3", link.name);
+		}
+	}
 }
 
 export function toggleShowEmptyLinksAndSpans()
@@ -181,10 +201,10 @@ export function toggleShowEmptyLinksAndSpans()
 	}
 	const style = `
 		a.${Nimbus.markerClass} { padding: 0 5px; }
-		a.${Nimbus.markerClass}::before { content: "id: "attr(id)", name: "attr(name); color: #FF0; }
-		a.${Nimbus.markerClass}::after { content: attr(href); color: #55F; }
+		a.${Nimbus.markerClass}::before { content: "id: "attr(id)", name: "attr(name); color: #C90; }
+		a.${Nimbus.markerClass}::after { content: attr(href); color: #07C; }
 		span.${Nimbus.markerClass} { padding: 0 10px; }
-		span.${Nimbus.markerClass}::before { content: attr(id)" "; color: #0F0; }
+		span.${Nimbus.markerClass}::before { content: attr(id)" "; color: #0C0; }
 	`;
 	insertStyle(style, 'styleToggleShowEmptyLinksAndSpans', true);
 	showMessageBig(`Revealed ${countLinks} empty links and ${countSpans} empty spans`);

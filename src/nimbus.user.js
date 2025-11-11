@@ -215,7 +215,7 @@ import {
 	removeQueryStringFromLinksMatching,
 	replaceEmptyAnchors,
 	revealEmptyLinks,
-	revealLinkHrefs,
+	revealLinkAttributes,
 	toggleShowEmptyLinksAndSpans,
 } from "./includes/link";
 import {
@@ -406,6 +406,7 @@ import {
 	markNodesBetweenMarkers,
 } from "./includes/delete";
 import {
+	annotateElement,
 	duplicateMarkedElement,
 	insertAfter,
 	insertAroundAll,
@@ -420,6 +421,7 @@ import {
 	makeUL,
 	mapIdsToClasses,
 	moveDataTestIdToClassName,
+	moveIdToChild,
 	moveElementUp,
 	replaceClass,
 	replaceInClassNames,
@@ -624,6 +626,7 @@ const availableFunctions = {
 	addDateToTitle: addDateToTitle,
 	addLinksToLargerImages: addLinksToLargerImages,
 	annotate: annotate,
+	annotateElement: annotateElement,
 	appendMetadata: appendMetadata,
 	boldInlineColonHeadings: boldInlineColonHeadings,
 	buildGallery: buildGallery,
@@ -770,6 +773,7 @@ const availableFunctions = {
 	markUppercaseElements: markUppercaseElements,
 	moveDataTestIdToClassName: moveDataTestIdToClassName,
 	moveIdsFromSpans: moveIdsFromSpans,
+	moveIdToChild: moveIdToChild,
 	normaliseWhitespaceForParagraphs: normaliseWhitespaceForParagraphs,
 	normalizeAllWhitespace: normalizeAllWhitespace,
 	numberDivs: numberDivs,
@@ -835,7 +839,7 @@ const availableFunctions = {
 	retrieveBySelectorAndText: retrieveBySelectorAndText,
 	retrieveLargeImages: retrieveLargeImages,
 	revealEmptyLinks: revealEmptyLinks,
-	revealLinkHrefs: revealLinkHrefs,
+	revealLinkAttributes: revealLinkAttributes,
 	selectElementsEndingWithText: selectElementsEndingWithText,
 	selectElementsStartingWithText: selectElementsStartingWithText,
 	setAttributeOf: setAttributeOf,
