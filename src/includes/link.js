@@ -384,16 +384,13 @@ export function numberNumericReferencesByInterlinkedGroup()
 		const group = new Set();
 		const href = link.getAttribute("href");
 
-		if(href && href.indexOf("#") === 0)
+		group.add(link);
+		const targetId = href.substring(1);
+		const targetElem = document.getElementById(targetId);
+		if(targetElem && targetElem.tagName === "A")
 		{
-			group.add(link);
-			const targetId = href.substring(1);
-			const targetElem = document.getElementById(targetId);
-			if(targetElem && targetElem.tagName === "A")
-			{
-				group.add(targetElem);
-				seen.add(targetElem);
-			}
+			group.add(targetElem);
+			seen.add(targetElem);
 		}
 
 		if(link.id)
