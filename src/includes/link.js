@@ -7,6 +7,7 @@ import { get, getOne, del, select, getLinkAnchors, getSpanAnchors, getLinksToId,
 import { getTextLength } from "./node";
 import { trimAt } from "./string";
 import { insertStyle } from "./style";
+import { STYLES } from "./stylesheets";
 import { createUUID, createBulletAnchor } from "./misc";
 import { removeQueryParameterFromUrl } from "./url";
 import { annotateElement } from "./dom";
@@ -123,18 +124,7 @@ export function fixInternalReferences()
 
 export function revealLinkAttributes()
 {
-	const style = `
-		a[id]::after { content: "id: "attr(id); background: #000; color: #c0c; padding: 1px 5px; font-weight: bold; }
-		a[href]::after { content: "href: "attr(href); background: #000; color: #0b0; padding: 1px 5px; font-weight: bold; }
-		a[name]::after { content: "name: "attr(name); background: #000; color: #cc0; padding: 1px 5px; font-weight: bold; }
-
-		a[id][href]::after { content: "id: "attr(id)" href: "attr(href); background: #000; color: #88c; padding: 1px 5px; font-weight: bold; }
-		a[id][name]::after { content: "id: "attr(id)" name: "attr(name); background: #000; color: #c90; padding: 1px 5px; font-weight: bold; }
-		a[href][name]::after { content: "href: "attr(href)" name: "attr(name); background: #500; color: #c00; padding: 1px 5px; font-weight: bold; }
-
-		a[id][href][name]::after { content: "id: "attr(id)" href: "attr(href)" name: "attr(name); background: #000; color: #c00; padding: 1px 5px; font-weight: bold; }
-	`;
-	insertStyle(style, "styleRevealLinkAttributes", true);
+	insertStyle(STYLES.REVEAL_LINK_ATTRIBUTES, "styleRevealLinkAttributes", true);
 }
 
 export function humanizeUrl(url)

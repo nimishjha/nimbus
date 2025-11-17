@@ -6,6 +6,17 @@ export const STYLES = {
 	MIN_FONT_SIZE: `* { font-size: calc(22px + 0.0001vh); line-height: 1.4; }`,
 	GITHUB_HIDE_DELETE_DIFFS: ".blob-num-deletion, .blob-code-deletion { display: none; }",
 	DIM_BODY: 'html, body { background: #000; color: #AAA; } body { opacity: 0.8; } ',
+	REVEAL_LINK_ATTRIBUTES: `
+		a[id]::after { content: "id: "attr(id); background: #000; color: #c0c; padding: 1px 5px; font-weight: bold; }
+		a[href]::after { content: "href: "attr(href); background: #000; color: #0b0; padding: 1px 5px; font-weight: bold; }
+		a[name]::after { content: "name: "attr(name); background: #000; color: #cc0; padding: 1px 5px; font-weight: bold; }
+
+		a[id][href]::after { content: "id: "attr(id)" href: "attr(href); background: #000; color: #88c; padding: 1px 5px; font-weight: bold; }
+		a[id][name]::after { content: "id: "attr(id)" name: "attr(name); background: #000; color: #c90; padding: 1px 5px; font-weight: bold; }
+		a[href][name]::after { content: "href: "attr(href)" name: "attr(name); background: #500; color: #c00; padding: 1px 5px; font-weight: bold; }
+
+		a[id][href][name]::after { content: "id: "attr(id)" href: "attr(href)" name: "attr(name); background: #000; color: #c00; padding: 1px 5px; font-weight: bold; }
+	`,
 	SIMPLE_NEGATIVE: `
 		html, body, body[class] { background: #000; font-family: "swis721 cn bt"; font-size: 22px; }
 		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "swis721 cn bt"; }
@@ -81,8 +92,8 @@ export const STYLES = {
 	`,
 	SHOW_SELECTORS: `
 		*[class]::before { content: attr(class); color: #C90; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
-		*[id]::before { content: attr(id); color: #C0C; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
-		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #C90; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
+		*[id]::before { content: attr(id); color: #C00; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
+		*[id][class]::before { content: "#"attr(id)" ."attr(class); color: #C0C; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
 
 		div, p, blockquote, hgroup, h1, h2, h3, h4, h5, h6, ol, ul, li, head, figure, figcaption, pre, dt, dd, message, annotation, td, article { box-shadow: inset 2px 2px #444, inset -2px -2px #111; margin: 4px; padding: 4px; }
 		small, big, sup, sub, abbr, time, cite { box-shadow: inset 2px 2px #357, inset -2px -2px #357; }
@@ -97,8 +108,12 @@ export const STYLES = {
 		h5::after { content: "h5"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
 		h6::after { content: "h6"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
 
-		message::before, autocompleteinputwrapper::before, autocompleteinputwrapper *::before, #userInputWrapper::before, #userInputWrapper *::before { display: none; }
+		message::before, autocompleteinputwrapper::before, autocompleteinputwrapper *::before, #userInputWrapper::before, #userInputWrapper *::before, .excludeFromMutations::before { content: none; }
 		message *, autocompleteinputwrapper, autocompleteinputwrapper *, #userInputWrapper, #userInputWrapper * { box-shadow: none; }
+
+		.excludeFromMutations::before, .excludeFromMutations *::before { content: none; }
+		.excludeFromMutations[id]::before, .excludeFromMutations[id] *::after { content: none; }
+		.excludeFromMutations[class]::before, .excludeFromMutations[class] *::after { content: none; }
 	`,
 	SHOW_SELECTORS_MINIMAL: `
 		*[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px 6px; font: 16px "swis721 cn bt"; }
@@ -207,7 +222,7 @@ autocompleteinputwrapper input div, autocompleteinputwrapper input[class] div { 
 a, a:link, a[class], a[id] { color: #77C; text-decoration: none; text-shadow: none; font: inherit; border: 0; background: inherit; }
 a[class*="btn"] { background: #333; }
 button[class*="active"], a[class*="active"], a[class*="selected"] { outline: 2px solid #6F0; }
-a:visited, a:visited * { color: #55C; text-decoration: none; }
+a:visited, a:visited * { color: #357; text-decoration: none; }
 a:active, a:hover, a:focus, a:hover *, a:focus * { color: #09F; text-decoration: none; outline: 0; }
 .pagination a:link { font: bold 30px "swis721 cn bt"; border: 0; background: #111; padding: 10px; }
 

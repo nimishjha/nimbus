@@ -51,8 +51,8 @@ function relinkTableOfContents(linksSelector, headingsSelector)
 		if(heading)
 		{
 			link.setAttribute("href", "#" + heading.id);
-			link.className = "active";
-			annotateElement(link, "●");
+			link.className = "statusOk";
+			// annotateElement(link, "●");
 			numLinksFixed++;
 		}
 		else

@@ -1,0 +1,32 @@
+*[id]::before { content: attr(id); background: #000; color: #c0c; font-weight: bold; padding: 0.125rem 0.25rem; }
+*[class]::after { content: attr(class); background: #000; color: #c90; font-weight: bold; padding: 0.125rem 0.25rem; }
+a[href]::after { content: attr(href); background: #000; color: #0c0; font-weight: bold; padding: 0.125rem 0.25rem; }
+
+
+
+*[class]::before { content: attr(class); background: #000; color: #c90; font-weight: bold; padding: 0.125rem 0.25rem; }
+
+*[id]::before { content: attr(id); background: #000; color: #c0c; font-weight: bold; padding: 0.125rem 0.25rem; }
+
+
+
+h1[id]::before { content: "h1 "attr(id); background: #000; color: #c0c; font-weight: bold; padding: 0.125rem 0.25rem; }
+h2[id]::before { content: "h2 "attr(id); background: #000; color: #c0c; font-weight: bold; padding: 0.125rem 0.25rem; }
+h3[id]::before { content: "h3 "attr(id); background: #000; color: #c0c; font-weight: bold; padding: 0.125rem 0.25rem; }
+h4[id]::before { content: "h4 "attr(id); background: #000; color: #c0c; font-weight: bold; padding: 0.125rem 0.25rem; }
+h5[id]::before { content: "h5 "attr(id); background: #000; color: #c0c; font-weight: bold; padding: 0.125rem 0.25rem; }
+h6[id]::before { content: "h6 "attr(id); background: #000; color: #c0c; font-weight: bold; padding: 0.125rem 0.25rem; }
+div[id]::before { content: "div "attr(id); background: #000; color: #c0c; font-weight: bold; padding: 0.125rem 0.25rem; }
+p[id]::before { content: "p "attr(id); background: #000; color: #c0c; font-weight: bold; padding: 0.125rem 0.25rem; }
+a[id]::before { content: "a "attr(id); background: #000; color: #c0c; font-weight: bold; padding: 0.125rem 0.25rem; }
+footnote[id]::before { content: "footnote "attr(id); background: #000; color: #c0c; font-weight: bold; padding: 0.125rem 0.25rem; }
+
+
+
+*[id]::before { content: attr(id); background: #000; color: #c0c; font-weight: bold; padding: 0.125rem 0.25rem; }
+a[href]::after { content: attr(href); background: #000; color: #0c0; font-weight: bold; padding: 0.125rem 0.25rem; }
+
+
+*[id]::before { content: attr(id); background: #000; color: #c00; font-weight: bold; padding: 0.125rem 0.25rem; }
+a[id]::before { color: #c0c; }
+a[href]::after { content: attr(href); background: #000; color: #0c0; font-weight: bold; padding: 0.125rem 0.25rem; }
