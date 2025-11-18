@@ -132,6 +132,7 @@ export function shortenImageSrc(src)
 	const splat = src.split("/");
 	let domain = "unknown domain";
 	let imageFileName = "image";
+
 	if(splat.length && splat.length > 2)
 	{
 		domain = splat[2];
@@ -139,6 +140,9 @@ export function shortenImageSrc(src)
 		if(imageFileName.indexOf("/") !== -1)
 			imageFileName = getLastSplit(imageFileName, "/");
 	}
+
+	imageFileName = trimAt(imageFileName, "?");
+
 	if(domain.length)
 		return domain + " | " + imageFileName;
 	return imageFileName;
