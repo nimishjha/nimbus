@@ -7,9 +7,8 @@ import { logString } from "./log";
 import { getNext } from "./array";
 import { getNodeText } from "./node";
 import { containsOnlyPlainText } from "./elementAndNodeTests";
-import { getTextNodesUnderElement } from "./xpath";
+import { getTextNodesUnderSelector, getTextNodesUnderElement, xPathSelect } from "./xpath";
 import { escapeForRegExp } from "./misc";
-import { getTextNodesUnderSelector } from "./xpath";
 import { makePlainText, unwrapElement, deleteClass, createElement, unwrapAll, wrapElement, wrapElementInner } from "./element";
 import { normalizeHTML, removeLineBreaks } from "./string";
 import { BLOCK_ELEMENTS } from "./constants";
@@ -545,7 +544,7 @@ export function highlightAllTextNodesMatching(str)
 {
 	insertStyleHighlight();
 	str = str.toLowerCase();
-	const textNodes = getTextNodesUnderSelector("body");
+	const textNodes = xPathSelect(`//body//text()[not(ancestor::${Nimbus.highlightTagName})]`);
 	let count = 0;
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
@@ -554,12 +553,48 @@ export function highlightAllTextNodesMatching(str)
 		const parentNode = textNode.parentNode;
 		if(~nodeText.toLowerCase().indexOf(str) && parentNode)
 		{
-			parentNode.replaceChild(createElement(Nimbus.highlightTagName, { textContent: nodeText }), textNode);
+			const repl = document.createElement(Nimbus.highlightTagName);
+			repl.textContent = nodeText;
+			parentNode.replaceChild(repl, textNode);
 			count++;
 		}
 	}
 	if(count)
 		showMessageBig(count + " text nodes containing " + str + " highlighted");
+}
+
+export function highlightOnMutation(str)
+{
+	const HIGHLIGHT_TAGNAME = Nimbus.highlightTagName.toUpperCase();
+
+	highlightAllTextNodesMatching(str);
+
+	function handleMutations(mutationRecords)
+	{
+		let shouldHandleThisMutation = true;
+		for(const mutationRecord of mutationRecords)
+		{
+			if(mutationRecord.addedNodes)
+			{
+				for(const addedNode of mutationRecord.addedNodes)
+				{
+					if((addedNode.tagName && addedNode.tagName === HIGHLIGHT_TAGNAME) || (addedNode.className && addedNode.classList.contains("excludeFromMutations")))
+					{
+						shouldHandleThisMutation = false;
+						break;
+					}
+				}
+			}
+			if(!shouldHandleThisMutation)
+				break;
+		}
+
+		if(shouldHandleThisMutation)
+			highlightAllTextNodesMatching(str);
+	}
+	const observer = new MutationObserver(handleMutations);
+	const config = { childList: true, subtree: true };
+	observer.observe(document.querySelector("body"), config);
 }
 
 export function highlightBySelectorAndText(selector, str)
