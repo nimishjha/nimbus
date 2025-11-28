@@ -455,7 +455,13 @@ export function removeQueryStringFromImageSources()
 	}
 }
 
-export function invertImages()
+export function toggleInvertImages()
 {
-	setAttributeOf("img", "class", "invert");
+	const images = get("img");
+	const invertedImages = get("img.invert");
+
+	if(images && invertedImages && images.length === invertedImages.length)
+		deleteClass("invert");
+	else
+		setAttributeOf("img", "class", "invert");
 }

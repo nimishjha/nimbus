@@ -243,7 +243,7 @@ import {
 	getBestImageSrc,
 	getImageHeight,
 	getImageWidth,
-	invertImages,
+	toggleInvertImages,
 	persistStreamingImages,
 	removeQueryStringFromImageSources,
 	replaceImagesWithAltText,
@@ -1057,7 +1057,7 @@ function handleKeyDown(e)
 			case KEYCODES.C: deleteNonContentElements(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace marked element with text", replaceMarkedWithTextElement, 2, "h2 "); break;
 			case KEYCODES.G: callFunctionWithArgs("Retrieve elements by selector (optionally containing text)", retrieveBySelectorAndText); break;
-			case KEYCODES.I: invertImages(); break;
+			case KEYCODES.I: toggleInvertImages(); break;
 			case KEYCODES.J: joinMarkedElements(); break;
 			case KEYCODES.K: makeChildOf(); break;
 			case KEYCODES.L: logout(); break;
