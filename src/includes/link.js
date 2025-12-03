@@ -1,6 +1,6 @@
 import { Nimbus } from "./Nimbus";
 import { createElement, createElementWithChildren, unwrapElement, wrapElement, unwrapAll } from "./element";
-import { hasNumericText } from "./elementAndNodeTests";
+import { hasNonAlphabeticalText } from "./elementAndNodeTests";
 import { markElement, unmarkAll } from "./mark";
 import { showMessageBig } from "./ui";
 import { get, getOne, del, select, getLinkAnchors, getSpanAnchors, getLinksToId, getFirstBlockParent } from "./selectors";
@@ -354,11 +354,11 @@ export function numberNumericReferencesByInterlinkedGroup()
 {
 	const linksByHref = createLinksByHrefLookup();
 
-	const allLinks = get('a[href^="#"]');
+	const allLinks = get('reference a[href^="#"]');
 	if(!(allLinks && allLinks.length))
 		return;
 
-	const links = allLinks.filter(hasNumericText);
+	const links = allLinks.filter(hasNonAlphabeticalText);
 	if(!(links && links.length))
 		return;
 

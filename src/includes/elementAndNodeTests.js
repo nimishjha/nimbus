@@ -117,3 +117,13 @@ export function hasNumericText(elem)
 {
 	return /^\d+$/.test(elem.textContent.replace(/\s+/g, ""));
 }
+
+export function hasNonAlphabeticalText(elem)
+{
+	return !/[a-zA-Z]/.test(elem.textContent);
+}
+
+export function hasNonAlphanumericText(elem)
+{
+	return !/[a-zA-Z0-9]/.test(elem.textContent);
+}
