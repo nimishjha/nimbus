@@ -1110,7 +1110,8 @@ function handleKeyDown(e)
 			case KEYCODES.K: deleteNodesAfterAnchorNode(); break;
 			case KEYCODES.L: deleteNodesBetweenMarkers(); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
-			case KEYCODES.N: toggleStyle(STYLES.PAD_BLOCK_ELEMENTS, "stylePadBlockElements", true); break;
+			// case KEYCODES.N: toggleStyle(STYLES.PAD_BLOCK_ELEMENTS, "stylePadBlockElements", true); break;
+			case KEYCODES.N: toggleStyle(STYLES.INDICATE_LINK_ATTRIBUTES, "styleShowIdsAndHrefs", true); break;
 			case KEYCODES.O: customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
 			case KEYCODES.P: makeAnchorNodePlainText(); break;
 			case KEYCODES.R: wrapAnchorNodeInTag(); break;

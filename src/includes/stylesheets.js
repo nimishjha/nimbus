@@ -95,7 +95,8 @@ export const STYLES = {
 		*[id]::before { content: attr(id); color: #C00; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
 		*[id][class]::before { content: "#"attr(id)" ."attr(class); color: #C0C; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
 
-		div, p, blockquote, hgroup, h1, h2, h3, h4, h5, h6, ol, ul, li, head, figure, figcaption, pre, dt, dd, message, annotation, td, article { box-shadow: inset 2px 2px #444, inset -2px -2px #111; margin: 4px; padding: 4px; }
+		div, blockquote, hgroup, h1, h2, h3, h4, h5, h6, ol, ul, li, head, figure, figcaption, pre, dt, dd, message, annotation, td, article { box-shadow: inset 2px 2px #444, inset -2px -2px #444; margin: 4px; padding: 4px; }
+		p { box-shadow: inset 2px 2px #808, inset -2px -2px #808; margin: 4px; padding: 4px; }
 		small, big, sup, sub, abbr, time, cite { box-shadow: inset 2px 2px #357, inset -2px -2px #357; }
 		font { box-shadow: inset 2px 2px #C90, inset -2px -2px #C90; }
 		span { box-shadow: inset 0 -100px #040; padding: 4px; border: 2px solid #0A0; }
@@ -135,6 +136,13 @@ export const STYLES = {
 		#inspector::after, #inspector div::after { display: none; }
 	`,
 	INVERT_IMAGES: "img { filter: invert(1) hue-rotate(180deg); }",
+	INDICATE_LINK_ATTRIBUTES: `
+		*[id]::before { content: " "; background: #c00; width: 10px; height: 10px; margin-right: 6px; display: inline-block; border: 5px solid #000; }
+		a[id]::before { content: none; }
+		a[href]::after { content: " "; background: #08c; width: 10px; height: 10px; margin-left: 6px; display: inline-block; border: 5px solid #000; }
+		a[id]::after { content: " "; background: #c00; width: 10px; height: 10px; margin-left: 6px; display: inline-block; border: 5px solid #000; }
+		a[id][href]::after { content: " "; background: #0c0; width: 10px; height: 10px; margin-left: 6px; display: inline-block; border: 5px solid #000; }
+	`,
 	NEGATIVE: `html { background: #181818; font-size: 20px; }
 html body, #nimbus body { background: #242424; color: #999; border: 0; font-size: 20px; font-family: "swis721 cn bt"; font-style: normal; line-height: 1.35; }
 form { font-family: inherit; font-size: 20px; }
