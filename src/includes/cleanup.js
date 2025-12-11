@@ -585,7 +585,7 @@ export function shortenIds()
 		const links = linksByHref["#" + elem.id];
 		if(links && links.length)
 		{
-			elem.id = "i" + i;
+			elem.id = "s" + (i + 1);
 			for(const link of links)
 				link.setAttribute("href", "#" + elem.id);
 		}

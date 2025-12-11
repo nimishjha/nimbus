@@ -56,6 +56,8 @@ export const INLINE_ELEMENTS = {
 };
 
 export const SYMBOLS = {
+	alphaLower: "α",
+	epsilon: "ε",
 	delta: "∆",
 	sigmaUpper: "∑",
 	sigmaLower: "σ",
