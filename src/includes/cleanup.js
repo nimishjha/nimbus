@@ -24,6 +24,7 @@ import { isCurrentDomainLink } from "./url";
 import { getAllClassesFor } from "./inspect";
 import { replaceClass } from "./dom";
 import { callFunctionWithArgs } from "./command";
+import { doDuplicateIDsExist } from "./validations";
 
 export function replaceIframes()
 {
@@ -576,6 +577,11 @@ export function simplifyClassNames(selector)
 
 export function shortenIds()
 {
+	if(doDuplicateIDsExist())
+	{
+		showMessageError("Document has elements with duplicate IDs");
+		return;
+	}
 	const linksByHref = createLinksByHrefLookup();
 	const elems = get("*[id]");
 	for(let i = 0, ii = elems.length; i < ii; i++)

@@ -2,7 +2,7 @@ import { Nimbus } from "./Nimbus";
 import { createElement, createElementWithChildren, unwrapElement, wrapElement, unwrapAll } from "./element";
 import { hasNonAlphabeticalText } from "./elementAndNodeTests";
 import { markElement, unmarkAll } from "./mark";
-import { showMessageBig } from "./ui";
+import { showMessageBig, showMessageError } from "./ui";
 import { get, getOne, del, select, getLinkAnchors, getSpanAnchors, getLinksToId, getFirstBlockParent } from "./selectors";
 import { getTextLength } from "./node";
 import { trimAt } from "./string";
@@ -11,6 +11,7 @@ import { STYLES } from "./stylesheets";
 import { createUUID, createBulletAnchor } from "./misc";
 import { removeQueryParameterFromUrl } from "./url";
 import { annotateElement } from "./dom";
+import { doDuplicateIDsExist } from "./validations";
 
 export function createUniqueId(index)
 {
@@ -86,6 +87,11 @@ export function moveIdsFromSpans()
 
 export function fixInternalReferences()
 {
+	if(doDuplicateIDsExist())
+	{
+		showMessageError("Document has elements with duplicate IDs");
+		return;
+	}
 	moveIdsFromSpans();
 	replaceEmptyAnchors();
 	makeFileLinksRelative();
