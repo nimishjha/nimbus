@@ -808,6 +808,8 @@ const availableFunctions = {
 	removeQueryStringFromLinksMatching: removeQueryStringFromLinksMatching,
 	removeRedundantDivs: removeRedundantDivs,
 	removeRedundantHrs: removeRedundantHrs,
+	rrd: removeRedundantDivs,
+	rrh: removeRedundantHrs,
 	removeSpanTags: removeSpanTags,
 	removeUnnecessaryClasses: removeUnnecessaryClasses,
 	replaceAudio: replaceAudio,
@@ -1003,7 +1005,7 @@ function handleKeyDown(e)
 			case KEYCODES.R: toggleHighlight(); break;
 			case KEYCODES.S: toggleContentEditable(); break;
 			case KEYCODES.T: capitalizeTitle(); break;
-			case KEYCODES.U: del("ul"); del("dl"); break;
+			case KEYCODES.U: showMessageBig("Unbound"); break;
 			case KEYCODES.V: cleanupBarebone(); break;
 			case KEYCODES.W: highlightSelection("word"); break;
 			case KEYCODES.X: joinNodesContainingSelection(); break;

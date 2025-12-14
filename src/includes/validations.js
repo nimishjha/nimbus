@@ -4,6 +4,11 @@ export function doDuplicateIDsExist()
 	const seen = new Set();
 	for(const elem of elementsWithIDs)
 	{
+		if(elem.id === "")
+		{
+			elem.removeAttribute("id");
+			continue;
+		}
 		if(seen.has(elem.id))
 			return true;
 		seen.add(elem.id);
