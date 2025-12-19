@@ -179,7 +179,7 @@ export function deleteNodesBetweenMarkers(selector = "div, ol, ul, p")
 export function deleteResources()
 {
 	del(["link", "style", "script", "message", "iframe"]);
-	document.body.className = "xwrap pad100";
+	document.body.className = document.documentElement.className = "xwrap pad100";
 }
 
 export function deleteBySelectorAndTextMatching(selector, str)
