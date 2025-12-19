@@ -417,3 +417,14 @@ export function createReplacementElement(tagName, sourceElement, propertyMapping
 	}
 	return elem;
 }
+
+export function deleteLeadingAndTrailingEmptyTextNodes(element)
+{
+	const first = element.firstChild;
+	if(first.nodeType === Node.TEXT_NODE && first.data.replace(/\s+/g, "").length === 0)
+		first.remove();
+
+	const last = element.lastChild;
+	if(last.nodeType === Node.TEXT_NODE && last.data.replace(/\s+/g, "").length === 0)
+		last.remove();
+}

@@ -9,7 +9,7 @@ import { getNodeText } from "./node";
 import { containsOnlyPlainText } from "./elementAndNodeTests";
 import { getTextNodesUnderSelector, getTextNodesUnderElement, xPathSelect } from "./xpath";
 import { escapeForRegExp } from "./misc";
-import { makePlainText, unwrapElement, deleteClass, createElement, unwrapAll, wrapElement, wrapElementInner } from "./element";
+import { makePlainText, unwrapElement, deleteClass, createElement, unwrapAll, wrapElement, wrapElementInner, deleteLeadingAndTrailingEmptyTextNodes } from "./element";
 import { normalizeHTML, removeLineBreaks } from "./string";
 import { BLOCK_ELEMENTS } from "./constants";
 
@@ -131,6 +131,7 @@ export function highlightSelectedElement(tag)
 		const element = getFirstBlockParent(node);
 		if(element.firstChild && element.firstChild.nodeType === 1 && element.firstChild.tagName.toLowerCase() === highlightTagName)
 			return;
+		deleteLeadingAndTrailingEmptyTextNodes(element);
 		wrapElementInner(element, highlightTagName);
 		moveLeadingAndTrailingReferencesOutOfHighlight(element.firstChild);
 	}
