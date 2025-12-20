@@ -483,7 +483,7 @@ export function replaceCommonClasses()
 	replaceElementsBySelector(".indexmain", "dt");
 	replaceElementsBySelector(".indexsub", "dd");
 
-	// document.body.innerHTML = document.body.innerHTML.replaceAll("calibre_link-", "l");
+	deleteClass("indent");
 }
 
 export function clearBootstrapClasses()
