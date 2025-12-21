@@ -33,19 +33,19 @@ export function insertStyleHighlight()
 {
 	if(getOne("#styleHighlight")) return;
 	const s = `
-		.${Nimbus.markerClass} { box-shadow: inset 2px 2px #F00, inset -2px -2px #F00; padding: 2px; background: #000; }
+		.${Nimbus.markerClass} { box-shadow: inset 2px 2px #c00, inset -2px -2px #c00; padding: 2px; background: #000; }
 		.focused { box-shadow: inset 0px 1000px #000; color: #FFF; }
-		.${Nimbus.markerClass}2 { box-shadow: inset 2px 2px #00F, inset -2px -2px #00F; padding: 2px; }
+		.${Nimbus.markerClass}2 { box-shadow: inset 2px 2px #00c, inset -2px -2px #00c; padding: 2px; }
 		.${Nimbus.markerClass}::after, .${Nimbus.markerClass}2::after { content: " "; display: block; clear: both; }
 		a.${Nimbus.markerClass}::after, span.${Nimbus.markerClass}::after { content: ""; display: inline; clear: none; }
 		mark, markgreen, markred, markblue, markpurple, markyellow, markwhite { padding: 3px 0; line-height: inherit; }
-		mark { background: #048; color: #6CF; }
-		markgreen { background: #150; color: #4F0; }
+		mark { background: #303336; color: #808488; }
+		markgreen { background: #040; color: #0B0; }
 		markred { background: #500; color: #E33; }
 		markblue { background: #005; color: #66D; }
 		markpurple { background: #204; color: #C7E; }
-		markyellow { background: #804800; color: #FF0; }
-		markwhite { background: #000; color: #DDD; }
+		markyellow { background: #630; color: #d0a000; }
+		markwhite { background: #000; color: #c0c4c8; }
 	`;
 	insertStyle(s, "styleHighlight", true);
 }
