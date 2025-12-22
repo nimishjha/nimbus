@@ -24,7 +24,7 @@ import { isCurrentDomainLink } from "./url";
 import { getAllClassesFor } from "./inspect";
 import { replaceClass } from "./dom";
 import { callFunctionWithArgs } from "./command";
-import { doDuplicateIDsExist } from "./validations";
+import { countDuplicateIDs } from "./validations";
 
 export function replaceIframes()
 {
@@ -193,7 +193,6 @@ export function cleanupBarebone()
 	unwrapAll("span");
 	deleteHtmlComments();
 	removeInlineStyles();
-	shortenIds();
 	unwrapAll("pre code");
 }
 
@@ -577,7 +576,7 @@ export function simplifyClassNames(selector)
 
 export function shortenIds()
 {
-	if(doDuplicateIDsExist())
+	if(countDuplicateIDs() !== 0)
 	{
 		showMessageError("Document has elements with duplicate IDs");
 		return;

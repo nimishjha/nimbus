@@ -11,7 +11,7 @@ import { STYLES } from "./stylesheets";
 import { createUUID, createBulletAnchor } from "./misc";
 import { removeQueryParameterFromUrl } from "./url";
 import { annotateElement } from "./dom";
-import { doDuplicateIDsExist } from "./validations";
+import { countDuplicateIDs } from "./validations";
 
 export function createUniqueId(index)
 {
@@ -87,7 +87,7 @@ export function moveIdsFromSpans()
 
 export function fixInternalReferences()
 {
-	if(doDuplicateIDsExist())
+	if(countDuplicateIDs() !== 0)
 	{
 		showMessageError("Document has elements with duplicate IDs");
 		return;
