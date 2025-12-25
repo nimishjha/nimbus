@@ -115,6 +115,10 @@ export const STYLES = {
 		.excludeFromMutations::before, .excludeFromMutations *::before { content: none; }
 		.excludeFromMutations[id]::before, .excludeFromMutations[id] *::after { content: none; }
 		.excludeFromMutations[class]::before, .excludeFromMutations[class] *::after { content: none; }
+
+		a[href]::after { content: " "; background: #08c; width: 10px; height: 10px; margin-left: 6px; display: inline-block; border: 5px solid #000; }
+		a[id]::after { content: " "; background: #c00; width: 10px; height: 10px; margin-left: 6px; display: inline-block; border: 5px solid #000; }
+		a[id][href]::after { content: " "; background: #0c0; width: 10px; height: 10px; margin-left: 6px; display: inline-block; border: 5px solid #000; }
 	`,
 	SHOW_SELECTORS_MINIMAL: `
 		*[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px 6px; font: 16px "swis721 cn bt"; }
