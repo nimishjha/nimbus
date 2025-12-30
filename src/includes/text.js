@@ -10,6 +10,12 @@ import { showMessageBig } from "./ui";
 import { replaceInTextNodes, replaceInTextNodesRegex } from "./textReplace";
 import { normalizeHTML, removeLineBreaks } from "./string";
 
+export function fixSpacesBetweenNestedQuotes()
+{
+	replaceInTextNodes("' \"", "'\"");
+	replaceInTextNodes("\" '", "\"'");
+}
+
 export function fixLineBreaks()
 {
 	const spans = get("span");

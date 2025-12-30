@@ -7,7 +7,7 @@ function parseCode(s)
 {
 	let t = "";
 	let cur, prev, next;
-	let phpVarRegex;
+	const phpVarRegex = new RegExp('[a-z0-9_\-]', 'i');
 	let i, ii;
 	for(i = 0, ii = s.length; i < ii; i++)
 	{
@@ -74,7 +74,6 @@ function parseCode(s)
 				break;
 			// PHP variables
 			case '$':
-				phpVarRegex = new RegExp('[a-z0-9_\-]', 'i');
 				if(next && phpVarRegex.test(next))
 				{
 					t += '<xv>' + cur;

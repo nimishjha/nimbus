@@ -245,8 +245,7 @@ export function highlightUserLinks()
 
 export function cycleTheme()
 {
-	cycleClass(document.body, ["nimbusTheme1", "nimbusTheme3", "nimbusTheme2", "none"]);
-	document.documentElement.className = document.body.className;
+	cycleClass(document.documentElement, ["nimbusTheme1", "nimbusTheme3", "nimbusTheme2", "none"]);
 }
 
 export function setBodyOpacity(n)
