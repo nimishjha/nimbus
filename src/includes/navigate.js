@@ -1,6 +1,6 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig } from "./ui";
-import { get, getOne, del } from "./selectors";
+import { get, getOne, del, select } from "./selectors";
 import { setDocTitle, sanitizeTitle, getTitleWithoutDomainTag } from "./cleanup";
 import { containsAnyOfTheStrings, trimAt, startsWithAnyOfTheStrings } from "./string";
 import { parseQueryString } from "./url";
@@ -203,4 +203,11 @@ export function goToLastElement(selector)
 			config.currentElement.scrollIntoView();
 		}
 	}
+}
+
+export function setElementsToCycleThrough(selector, str)
+{
+	if(!(typeof selector === "string" && selector.length && typeof str === "string" && str.length))
+		return;
+	Nimbus.goToNextElement.elements = select(selector, "text", "contains", str);
 }

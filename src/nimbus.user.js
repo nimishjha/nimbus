@@ -378,6 +378,7 @@ import {
 	goToLastElement,
 	goToNextElement,
 	goToPrevElement,
+	setElementsToCycleThrough,
 } from "./includes/navigate";
 import {
 	deleteByClassOrIdContaining,
@@ -854,6 +855,7 @@ const availableFunctions = {
 	setBodyOpacity: setBodyOpacity,
 	setClassByDepth: setClassByDepth,
 	setDocTitle: setDocTitle,
+	setElementsToCycleThrough: setElementsToCycleThrough,
 	setGroupTagName: setGroupTagName,
 	setHighlightMapColor: setHighlightMapColor,
 	setItalicTag: setItalicTag,

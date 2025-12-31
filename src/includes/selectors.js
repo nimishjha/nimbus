@@ -304,6 +304,7 @@ export function filterNodesByAttributeValueGreaterThan(nodes, attribute, value)
 
 export function filterNodesByAttributeContaining(nodes, attribute, value)
 {
+	const valueLower = value.toLowerCase();
 	let i = nodes.length;
 	const result = [];
 	if(attribute === "text" || attribute === "textContent")
@@ -311,7 +312,7 @@ export function filterNodesByAttributeContaining(nodes, attribute, value)
 		while(i--)
 		{
 			const node = nodes[i];
-			if(~node.textContent.indexOf(value))
+			if(node.textContent.toLowerCase().includes(valueLower))
 				result.push(node);
 		}
 	}
@@ -329,6 +330,7 @@ export function filterNodesByAttributeContaining(nodes, attribute, value)
 
 export function filterNodesByAttributeNotContaining(nodes, attribute, value)
 {
+	const valueLower = value.toLowerCase();
 	let i = nodes.length;
 	const result = [];
 	if(attribute === "text" || attribute === "textContent")
@@ -336,7 +338,7 @@ export function filterNodesByAttributeNotContaining(nodes, attribute, value)
 		while(i--)
 		{
 			const node = nodes[i];
-			if(node.textContent.indexOf(value) === -1)
+			if(node.textContent.toLowerCase().indexOf(valueLower) === -1)
 				result.push(node);
 		}
 	}

@@ -64,7 +64,7 @@ export const Nimbus = {
 				currentLocation: "#A0A0A0",
 				mark: "#777777",
 				markyellow: "#CCCC00",
-				markpurple: "#AA00AA",
+				markpurple: "#6600CC",
 				markgreen: "#00AA00",
 				markblue: "#4444DD",
 				markred: "#CC0000",
