@@ -440,10 +440,17 @@ export function highlightTextAcrossTags(element, searchString)
 				{
 					const childNodeTagName = childNode.tagName;
 					const splitIndex = adjustedEndIndex - childNodeStart;
-					const textOfMatch = childNodeText.substring(0, splitIndex);
-					const textAfterMatch = childNodeText.substring(splitIndex);
-					highlightElement.appendChild(document.createTextNode(textOfMatch));
-					replacement.appendChild(createElement(childNodeTagName, { textContent: textAfterMatch}));
+					if(splitIndex === childNodeText.length)
+					{
+						highlightElement.appendChild(childNode.cloneNode(true));
+					}
+					else
+					{
+						const textOfMatch = childNodeText.substring(0, splitIndex);
+						const textAfterMatch = childNodeText.substring(splitIndex);
+						highlightElement.appendChild(document.createTextNode(textOfMatch));
+						replacement.appendChild(createElement(childNodeTagName, { textContent: textAfterMatch}));
+					}
 				}
 				else
 				{
