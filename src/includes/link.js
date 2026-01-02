@@ -3,7 +3,7 @@ import { createElement, createElementWithChildren, unwrapElement, wrapElement, u
 import { hasNonAlphabeticalText } from "./elementAndNodeTests";
 import { markElement, unmarkAll } from "./mark";
 import { showMessageBig, showMessageError } from "./ui";
-import { get, getOne, del, select, getLinkAnchors, getSpanAnchors, getLinksToId, getFirstBlockParent } from "./selectors";
+import { get, getOne, del, select, getLinkAnchors, getSpanAnchors, getFirstBlockParent } from "./selectors";
 import { getTextLength } from "./node";
 import { trimAt } from "./string";
 import { insertStyle } from "./style";
@@ -26,10 +26,12 @@ export function replaceEmptyAnchors()
 	const anchors = getLinkAnchors().concat(getSpanAnchors());
 	const parentsAndLinks = [];
 	const anchorsWithoutLinks = [];
+	const linksByHref = createLinksByHrefLookup();
+
 	for(let i = 0, ii = anchors.length; i < ii; i++)
 	{
 		const anchor = anchors[i];
-		const linksToAnchor = getLinksToId(anchor.id);
+		const linksToAnchor = linksByHref["#" + anchor.id];
 		if(!linksToAnchor.length)
 		{
 			anchorsWithoutLinks.push(anchor);
@@ -181,8 +183,15 @@ export function toggleShowEmptyLinksAndSpans()
 		const link = links[i];
 		if(isEmptyLink(link))
 		{
-			countLinks++;
-			markElement(link);
+			if(!link.id && !link.name)
+			{
+				unwrapElement(link);
+			}
+			else
+			{
+				countLinks++;
+				markElement(link);
+			}
 		}
 	}
 	const spans = get("span");
@@ -195,15 +204,22 @@ export function toggleShowEmptyLinksAndSpans()
 			markElement(span);
 		}
 	}
-	const style = `
-		a.${Nimbus.markerClass} { padding: 0 5px; }
-		a.${Nimbus.markerClass}::before { content: "id: "attr(id)", name: "attr(name); color: #C90; }
-		a.${Nimbus.markerClass}::after { content: attr(href); color: #07C; }
-		span.${Nimbus.markerClass} { padding: 0 10px; }
-		span.${Nimbus.markerClass}::before { content: attr(id)" "; color: #0C0; }
-	`;
-	insertStyle(style, 'styleToggleShowEmptyLinksAndSpans', true);
-	showMessageBig(`Revealed ${countLinks} empty links and ${countSpans} empty spans`);
+	if(countLinks + countSpans === 0)
+	{
+		showMessageBig(`No empty links or spans`);
+	}
+	else
+	{
+		const style = `
+			a.${Nimbus.markerClass} { padding: 0 5px; }
+			a.${Nimbus.markerClass}::before { content: "id: "attr(id)", name: "attr(name); color: #C90; }
+			a.${Nimbus.markerClass}::after { content: attr(href); color: #07C; }
+			span.${Nimbus.markerClass} { padding: 0 10px; }
+			span.${Nimbus.markerClass}::before { content: attr(id)" "; color: #0C0; }
+		`;
+		insertStyle(style, 'styleToggleShowEmptyLinksAndSpans', true);
+		showMessageBig(`Revealed ${countLinks} empty links and ${countSpans} empty spans`);
+	}
 }
 
 export function createBackLink(id)
