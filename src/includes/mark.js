@@ -357,3 +357,19 @@ export function markByClassOrIdContaining(str)
 {
 	markElements(selectByClassOrIdContaining(str));
 }
+
+export function markAllFollowingSiblings()
+{
+	const marked = getMarkedElements();
+	if(marked.length !== 1)
+	{
+		showMessageBig("Expected one marked element, found " + marked.length);
+		return;
+	}
+	let first = marked[0];
+	while(first.nextElementSibling)
+	{
+		first.nextElementSibling.className = Nimbus.markerClass;
+		first = first.nextElementSibling;
+	}
+}
