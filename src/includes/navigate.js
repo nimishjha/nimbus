@@ -210,4 +210,5 @@ export function setElementsToCycleThrough(selector, str)
 	if(!(typeof selector === "string" && selector.length && typeof str === "string" && str.length))
 		return;
 	Nimbus.goToNextElement.elements = select(selector, "text", "contains", str);
+	showMessageBig(`${Nimbus.goToNextElement.elements.length} elements found`);
 }

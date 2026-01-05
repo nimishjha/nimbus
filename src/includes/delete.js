@@ -180,6 +180,7 @@ export function deleteResources()
 {
 	del(["link", "style", "script", "message", "iframe"]);
 	document.body.className = "xwrap pad100";
+	document.documentElement.id = "nimbus";
 }
 
 export function deleteBySelectorAndTextMatching(selector, str)

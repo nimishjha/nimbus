@@ -1,7 +1,6 @@
 import { showMessageBig } from "./ui";
 import { insertAfter, insertAsFirstChild } from "./dom";
 import { createElement } from "./element";
-import { wrapElementInLayers } from "./element";
 import { get, getOne } from "./selectors";
 
 export function generateTableOfContents(optionalStringToMatch, shouldUseHierarchicalHeadings = false)
@@ -22,11 +21,10 @@ export function generateTableOfContents(optionalStringToMatch, shouldUseHierarch
 		const tocEntryLink = createElement("a", { textContent: heading.textContent, href: "#" + heading.id } );
 		const indentLevel = parseInt(heading.tagName.substring(1), 10);
 		const tocEntryHeading = shouldUseHierarchicalHeadings ? createElement("h" + indentLevel) : createElement("h6");
-		const tocEntryWrapper = document.createElement("div");
+		const tocEntryIndent = document.createElement("d" + indentLevel);
 		tocEntryHeading.appendChild(tocEntryLink);
-		tocEntryWrapper.appendChild(tocEntryHeading);
-		wrapElementInLayers(tocEntryHeading, indentLevel, "ind");
-		toc.appendChild(tocEntryWrapper);
+		tocEntryIndent.appendChild(tocEntryHeading);
+		toc.appendChild(tocEntryIndent);
 	}
 	const documentHeading = getOne("documentheading");
 	if(documentHeading)
