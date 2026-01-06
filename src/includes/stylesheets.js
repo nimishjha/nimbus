@@ -309,7 +309,7 @@ XS { color: #1CF; background: #113060; }
 mark, markgreen, markred, markblue, markpurple, markyellow, markwhite { padding: 3px 0; line-height: inherit; }
 mark { background: #048; color: #6CF; }
 markgreen { background: #150; color: #3F0; }
-markred { background: #500; color: #E33; }
+markred { background: #400; color: #C00; }
 markblue { background: #005; color: #05D; }
 markpurple { background: #408; color: #C7F; }
 markyellow { background: #804800; color: #FF0; }

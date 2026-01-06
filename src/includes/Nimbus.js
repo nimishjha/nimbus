@@ -1,5 +1,6 @@
 import { Cyclable } from "./Cyclable";
 import { version } from "./version";
+import { noop } from "./misc";
 
 export const Nimbus = {
 	version,
@@ -72,4 +73,7 @@ export const Nimbus = {
 			}
 		},
 	},
+	consoleLog: noop,
+	consoleWarn: noop,
+	consoleError: noop,
 };

@@ -153,3 +153,4 @@ export function getViewportHeight()
 
 export function isChrome() { return navigator.userAgent.indexOf("Chrome/") !== -1; }
 export function isIframe() { return window !== window.top; }
+export function noop(){};

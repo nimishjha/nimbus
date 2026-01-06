@@ -24,7 +24,7 @@ export function highlightCodeInPreTextNodes(regex, tagName)
 	const nodes = getPreTextNodes();
 	if(!nodes) return;
 	for(const node of nodes)
-		highlightInTextNode(node, regex, tagName);
+		highlightInTextNodeRegex(node, regex, tagName);
 }
 
 export function highlightCodePunctuation()
@@ -64,7 +64,7 @@ export function highlightInTextNodes(regex, tagName)
 	const nodes = getTextNodesUnderSelector("body");
 	if(!nodes) return;
 	for(const node of nodes)
-		highlightInTextNode(node, regex, tagName);
+		highlightInTextNodeRegex(node, regex, tagName);
 }
 
 export function highlightMatchesUnderSelector(selector, str, isCaseSensitive = false)
@@ -74,7 +74,7 @@ export function highlightMatchesUnderSelector(selector, str, isCaseSensitive = f
 	const regexFlags = isCaseSensitive ? "g" : "gi";
 	const regex = new RegExp(escapeForRegExp(str), regexFlags);
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
-		highlightInTextNode(textNodes[i], regex);
+		highlightInTextNodeRegex(textNodes[i], regex);
 }
 
 export function highlightMatchesInElementRegex(elem, regex)
@@ -82,7 +82,7 @@ export function highlightMatchesInElementRegex(elem, regex)
 	insertStyleHighlight();
 	const textNodes = getTextNodesUnderElement(elem);
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
-		highlightInTextNode(textNodes[i], regex);
+		highlightInTextNodeRegex(textNodes[i], regex);
 }
 
 export function highlightAllMatchesInDocument(str, isCaseSensitive = false)
@@ -99,7 +99,7 @@ export function highlightAllMatchesInDocumentRegex(regex)
 {
 	const textNodes = getTextNodesUnderSelector("body");
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
-		highlightInTextNode(textNodes[i], regex);
+		highlightInTextNodeRegex(textNodes[i], regex);
 }
 
 export function toggleHighlight()
@@ -305,7 +305,7 @@ export function highlightInElementTextNodes(element, searchString)
 			const textBeforeMatch = node.data.substring(0, index);
 			const textOfMatch = node.data.substring(index, index + searchString.length);
 			const textAfterMatch = node.data.substring(index + searchString.length);
-			console.log(`%c${textBeforeMatch}%c${textOfMatch}%c${textAfterMatch}`, colors.gray, colors.yellow, colors.gray);
+			Nimbus.consoleLog(`%c${textBeforeMatch}%c${textOfMatch}%c${textAfterMatch}`, colors.gray, colors.yellow, colors.gray);
 			const replacement = document.createDocumentFragment();
 			const highlight = document.createElement(Nimbus.highlightTagName);
 			highlight.appendChild(document.createTextNode(textOfMatch));
@@ -328,20 +328,28 @@ export function highlightInElementTextNodes(element, searchString)
 //	highlighting the text across those nodes.
 export function highlightTextAcrossTags(element, searchString)
 {
+	if(element.nodeType === Node.TEXT_NODE)
+	{
+		showMessageError("highlight text across tags: expected element, received text node");
+		return;
+	}
+
 	const colors = Nimbus.logColors;
-	logString(searchString, "highlightTextAcrossTags");
+	Nimbus.consoleLog(`%c highlight text across tags in %c ${element.tagName || "text node"} %c ${searchString}`, colors.blue, colors.yellow, colors.green);
+
 	searchString = searchString.replace(/\s+/g, " ");
 	const nodeText = element.textContent.replace(/\s+/g, " ");
 	const index1 = nodeText.toLowerCase().indexOf(searchString.toLowerCase());
 	if(index1 === -1)
 	{
-		showMessageError("highlightTextAcrossTags: string not found in text");
+		showMessageError("highlight text across tags: string not found in text");
 		logString(searchString, "searchString");
 		logString(nodeText, "nodeText");
 		return;
 	}
 	const index2 = index1 + searchString.length;
-	console.log(`%c ${index1} %c ... %c ${index2} `, colors.blue, colors.gray, colors.blue);
+	// Nimbus.consoleLog(`%c ${element.tagName || "text node"} %c ${index1} %c ... %c ${index2} `, colors.green, colors.blue, colors.gray, colors.blue);
+
 	const childNodes = element.childNodes;
 	let childNodeEnd = 0;
 	const highlightElement = document.createElement(Nimbus.highlightTagName);
@@ -375,15 +383,18 @@ export function highlightTextAcrossTags(element, searchString)
 
 		if(contains)
 		{
-			console.log(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the entire string: %c${searchString}`, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
-			highlightTextAcrossTags(childNode, searchString);
+			Nimbus.consoleLog(`\t%c ${childNode.tagName || "text node"} %c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the entire string: %c${searchString}`, colors.yellow, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
+			if(childNode.nodeType === Node.TEXT_NODE)
+				highlightInTextNode(childNode, searchString);
+			else
+				highlightTextAcrossTags(childNode, searchString);
 			break;
 		}
 		else if(containsTheBeginning)
 		{
 			const substring = searchString.substring(0, childNodeEnd - index1);
-			console.log(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the beginning: %c${substring}`, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
-			if(childNode.nodeType === 1)
+			Nimbus.consoleLog(`\t%c ${childNode.tagName || "text node"} %c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the beginning: %c${substring}`, colors.yellow, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
+			if(childNode.nodeType === Node.ELEMENT_NODE)
 			{
 				const childNodeTagName = childNode.tagName;
 				if(containsOnlyPlainText(childNode) && !isIndivisibleElement[childNodeTagName])
@@ -411,7 +422,7 @@ export function highlightTextAcrossTags(element, searchString)
 				const splitIndex = index1 - childNodeStart;
 				const textBeforeMatch = childNodeText.substring(0, splitIndex);
 				const textOfMatch = childNodeText.substring(splitIndex);
-				console.log(`%c${textBeforeMatch}%c${textOfMatch}`, colors.gray, colors.yellow);
+				Nimbus.consoleLog(`%c${textBeforeMatch}%c${textOfMatch}`, colors.gray, colors.yellow);
 				replacement.appendChild(document.createTextNode(textBeforeMatch));
 				highlightElement.appendChild(document.createTextNode(textOfMatch));
 			}
@@ -421,8 +432,8 @@ export function highlightTextAcrossTags(element, searchString)
 		else if(isContained)
 		{
 			const substring = searchString.substring(childNodeStart - index1, childNodeEnd - index1);
-			console.log(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %cis contained: %c${substring}`, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
-			console.log(`%c${childNodeText}`, colors.yellow);
+			Nimbus.consoleLog(`\t%c ${childNode.tagName || "text node"} %c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %cis contained: %c${substring}`, colors.yellow, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
+			Nimbus.consoleLog(`\t%c${childNodeText}`, colors.yellow);
 			highlightElement.appendChild(childNode.cloneNode(true));
 			toDelete.push(childNode);
 		}
@@ -432,8 +443,8 @@ export function highlightTextAcrossTags(element, searchString)
 			// handle the problem of extra spaces added by the browser when a selection contains child elements
 			const offset = childNodeText.indexOf(substring);
 			const adjustedEndIndex = index2 + offset;
-			console.log(`%c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the end: %c${substring}`, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
-			if(childNode.nodeType === 1)
+			Nimbus.consoleLog(`\t%c ${childNode.tagName || "text node"} %c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the end: %c${substring}`, colors.yellow, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
+			if(childNode.nodeType === Node.ELEMENT_NODE)
 			{
 				const childNodeTagName = childNode.tagName;
 				if(containsOnlyPlainText(childNode) && !isIndivisibleElement[childNodeTagName])
@@ -454,6 +465,10 @@ export function highlightTextAcrossTags(element, searchString)
 				}
 				else
 				{
+					if(childNode.nodeType === Node.TEXT_NODE)
+						highlightInTextNodeRegex(childNode, new RegExp(substring));
+					else
+						highlightTextAcrossTags(childNode, substring);
 					highlightElement.appendChild(childNode.cloneNode(true));
 				}
 			}
@@ -462,7 +477,7 @@ export function highlightTextAcrossTags(element, searchString)
 				const splitIndex = adjustedEndIndex - childNodeStart;
 				const textOfMatch = childNodeText.substring(0, splitIndex);
 				const textAfterMatch = childNodeText.substring(splitIndex);
-				console.log(`%c${textOfMatch}%c${textAfterMatch}`, colors.yellow, colors.gray);
+				Nimbus.consoleLog(`%c${textOfMatch}%c${textAfterMatch}`, colors.yellow, colors.gray);
 				highlightElement.appendChild(document.createTextNode(textOfMatch));
 				replacement.appendChild(document.createTextNode(textAfterMatch));
 			}
@@ -478,7 +493,40 @@ export function highlightTextAcrossTags(element, searchString)
 	}
 }
 
-export function highlightInTextNode(textNode, regex, highlightTagName)
+export function highlightInTextNode(textNode, searchString)
+{
+	if(textNode.data.length === searchString.length)
+	{
+		const replacement = document.createElement(Nimbus.highlightTagName);
+		replacement.textContent = textNode.data;
+		textNode.parentNode.replaceChild(replacement, textNode);
+	}
+	else
+	{
+		const replacement = document.createDocumentFragment();
+		const cHighlight = document.createElement(Nimbus.highlightTagName);
+		const cIndex1 = textNode.data.indexOf(searchString);
+		const cIndex2 = cIndex1 + searchString.length;
+		const textBeforeMatch = textNode.data.substring(0, cIndex1);
+		const textOfMatch = textNode.data.substring(cIndex1, cIndex2);
+		const textAfterMatch = textNode.data.substring(cIndex2);
+		logString(textBeforeMatch, "textBeforeMatch");
+		logString(textOfMatch, "textOfMatch");
+		logString(textAfterMatch, "textAfterMatch");
+		if(textBeforeMatch.length)
+			replacement.appendChild(document.createTextNode(textBeforeMatch));
+
+		cHighlight.textContent = textOfMatch;
+		replacement.appendChild(cHighlight);
+
+		if(textAfterMatch.length)
+			replacement.appendChild(document.createTextNode(textAfterMatch));
+
+		textNode.parentNode.replaceChild(replacement, textNode);
+	}
+}
+
+export function highlightInTextNodeRegex(textNode, regex, highlightTagName)
 {
 	const tagName = highlightTagName || Nimbus.highlightTagName;
 	const nodeText = textNode.data;
@@ -487,7 +535,7 @@ export function highlightInTextNode(textNode, regex, highlightTagName)
 	const parentNode = textNode.parentNode;
 	if(!parentNode)
 		return;
-	const matches = nodeText.matchAll(regex);
+	const matches = regex.global ? nodeText.matchAll(regex) : nodeText.match(regex);
 	const replacementNodes = [];
 	let lastIndex = 0;
 	for(const match of matches)
