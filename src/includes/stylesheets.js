@@ -115,10 +115,6 @@ export const STYLES = {
 		.excludeFromMutations::before, .excludeFromMutations *::before { content: none; }
 		.excludeFromMutations[id]::before, .excludeFromMutations[id] *::after { content: none; }
 		.excludeFromMutations[class]::before, .excludeFromMutations[class] *::after { content: none; }
-
-		a[href]::after { content: " "; background: #08c; width: 10px; height: 10px; margin-left: 6px; display: inline-block; border: 5px solid #000; }
-		a[id]::after { content: " "; background: #c00; width: 10px; height: 10px; margin-left: 6px; display: inline-block; border: 5px solid #000; }
-		a[id][href]::after { content: " "; background: #0c0; width: 10px; height: 10px; margin-left: 6px; display: inline-block; border: 5px solid #000; }
 	`,
 	SHOW_SELECTORS_MINIMAL: `
 		*[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px 6px; font: 16px "swis721 cn bt"; }
@@ -142,10 +138,14 @@ export const STYLES = {
 	INVERT_IMAGES: "img { filter: invert(1) hue-rotate(180deg); }",
 	INDICATE_LINK_ATTRIBUTES: `
 		*[id]::before { content: " "; background: #c00; width: 10px; height: 10px; margin-right: 6px; display: inline-block; border: 5px solid #000; }
-		a[id]::before { content: none; }
-		a[href]::after { content: " "; background: #08c; width: 10px; height: 10px; margin-left: 6px; display: inline-block; border: 5px solid #000; }
-		a[id]::after { content: " "; background: #c00; width: 10px; height: 10px; margin-left: 6px; display: inline-block; border: 5px solid #000; }
-		a[id][href]::after { content: " "; background: #0c0; width: 10px; height: 10px; margin-left: 6px; display: inline-block; border: 5px solid #000; }
+		a::before { content: none; }
+		a[id], a[href], a[id][href] { padding-right: 8px !important; }
+		a[id] { box-shadow: inset -4px 0 #c00 !important; }
+		a[href] { box-shadow: inset -4px 0 #55c !important; }
+		a[name] { box-shadow: inset -4px 0 #cc0 !important; }
+		a[id][name] { box-shadow: inset -4px 0 #806 !important; }
+		a[id][href][name] { box-shadow: inset -4px 0 #c0a !important; }
+		a[id][href] { box-shadow: inset -4px 0 #0c0 !important; }
 	`,
 	NEGATIVE: `html { background: #181818; font-size: 20px; }
 html body, #nimbus body { background: #242424; color: #999; border: 0; font-size: 20px; font-family: "swis721 cn bt"; font-style: normal; line-height: 1.35; }
