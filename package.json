@@ -10,5 +10,8 @@
     "lint": "oxlint -f stylish src/**/*.js",
     "lintconcise": "oxlint -f unix src/**/*.js",
     "lintverbose": "oxlint -f default src/**/*.js",
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "^20.0.11"
   }
 }
