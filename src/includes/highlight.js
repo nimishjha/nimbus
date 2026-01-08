@@ -500,23 +500,18 @@ export function highlightInTextNode(textNode, searchString)
 	else
 	{
 		const replacement = document.createDocumentFragment();
-		const cHighlight = document.createElement(Nimbus.highlightTagName);
-		const cIndex1 = textNode.data.indexOf(searchString);
-		const cIndex2 = cIndex1 + searchString.length;
-		const textBeforeMatch = textNode.data.substring(0, cIndex1);
-		const textOfMatch = textNode.data.substring(cIndex1, cIndex2);
-		const textAfterMatch = textNode.data.substring(cIndex2);
-		logString(textBeforeMatch, "textBeforeMatch");
-		logString(textOfMatch, "textOfMatch");
-		logString(textAfterMatch, "textAfterMatch");
-		if(textBeforeMatch.length)
-			replacement.appendChild(document.createTextNode(textBeforeMatch));
+		const highlightElement = document.createElement(Nimbus.highlightTagName);
+		const startIndex = textNode.data.indexOf(searchString);
+		const endIndex = startIndex + searchString.length;
 
-		cHighlight.textContent = textOfMatch;
-		replacement.appendChild(cHighlight);
+		if(startIndex > 0)
+			replacement.appendChild(document.createTextNode(textNode.data.substring(0, startIndex)));
 
-		if(textAfterMatch.length)
-			replacement.appendChild(document.createTextNode(textAfterMatch));
+		highlightElement.textContent = textNode.data.substring(startIndex, endIndex);
+		replacement.appendChild(highlightElement);
+
+		if(endIndex < textNode.data.length)
+			replacement.appendChild(document.createTextNode(textNode.data.substring(endIndex)));
 
 		textNode.parentNode.replaceChild(replacement, textNode);
 	}
