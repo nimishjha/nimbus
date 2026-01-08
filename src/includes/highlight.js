@@ -204,9 +204,9 @@ export function toggleHighlightSelectionMode()
 	showMessageBig(`Highlight mode is ${Nimbus.selectionHighlightMode}`);
 }
 
-export function stripTrailingReferenceNumber(str)
+function stripLeadingAndTrailingReferenceNumbers(str)
 {
-	return str.replace(/([\."'])\d+$/, "$1");
+	return str.replace(/([\."'])\d+$/, "$1").replace(/^\d+ ([A-Z])/, "$1");
 }
 
 export function expandSelectionToWordBoundaries(node, selection)
@@ -225,7 +225,7 @@ export function expandSelectionToWordBoundaries(node, selection)
 	while(text[index2] && regexRight.test(text[index2]) && index2 < text.length)
 		index2++;
 	const expandedSelection = text.substring(index1, index2).replace(/\s+/g, " ").trim();
-	return stripTrailingReferenceNumber(expandedSelection);
+	return stripLeadingAndTrailingReferenceNumbers(expandedSelection);
 }
 
 export function expandSelectionToSentenceBoundaries(node, selection)
@@ -253,7 +253,7 @@ export function expandSelectionToSentenceBoundaries(node, selection)
 	if(index2 > text.length - 4)
 		index2 = text.length;
 	const expandedSelection = text.substring(index1, index2).replace(/\s+/g, " ").trim();
-	return stripTrailingReferenceNumber(expandedSelection);
+	return stripLeadingAndTrailingReferenceNumbers(expandedSelection);
 }
 
 export function highlightSelection(mode = "sentence")

@@ -501,7 +501,6 @@ import {
 	removeAllHighlights,
 	removeHighlightsFromMarkedElements,
 	resetHighlightTag,
-	stripTrailingReferenceNumber,
 	toggleHighlight,
 	toggleHighlightSelectionMode,
 } from "./includes/highlight";
