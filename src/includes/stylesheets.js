@@ -138,7 +138,7 @@ export const STYLES = {
 	INVERT_IMAGES: "img { filter: invert(1) hue-rotate(180deg); }",
 	INDICATE_LINK_ATTRIBUTES: `
 		*[id]::before { content: " "; background: #c00; width: 10px; height: 10px; margin-right: 6px; display: inline-block; border: 5px solid #000; }
-		a::before { content: none; }
+		a[id]::before { content: none; }
 		a[id], a[href], a[id][href] { padding-right: 8px !important; }
 		a[id] { box-shadow: inset -4px 0 #c00 !important; }
 		a[href] { box-shadow: inset -4px 0 #55c !important; }

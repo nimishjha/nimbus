@@ -30,10 +30,6 @@ export function highlightCodeInPreTextNodes(regex, tagName)
 export function highlightCodePunctuation()
 {
 	highlightCodeInPreTextNodes(/[\{\}\[\]\(\)\|]/g, "xp");
-	// highlightCodeInPreTextNodes(/[\{\}]/g, "xp");
-	// highlightCodeInPreTextNodes(/[\[\]]/g, "x13");
-	// highlightCodeInPreTextNodes(/[\(\)]/g, "x14");
-	// highlightCodeInPreTextNodes(/\|\|/g, "x15");
 }
 
 export function highlightCodeStrings()
