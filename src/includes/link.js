@@ -250,13 +250,12 @@ export function logHrefsOnClick(evt)
 	let link = evt.target.closest("a");
 	if(!link)
 		return;
-	wrapElement(link, Nimbus.highlightTagName);
+	link.classList.add(Nimbus.markerClass);
 	const href = link.href;
 	if(href)
 	{
-		const clickedLink = createElement("a", { textContent: href, href: href });
-		if(link.textContent)
-			clickedLink.textContent += " " + link.textContent;
+		const clickedLink = document.createElement("a");
+		clickedLink.textContent = clickedLink.href = href;
 		const clickedLinkWrapper = createElementWithChildren("h6", clickedLink);
 		document.body.appendChild(clickedLinkWrapper);
 	}
