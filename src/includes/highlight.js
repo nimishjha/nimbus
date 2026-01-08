@@ -256,6 +256,14 @@ export function expandSelectionToSentenceBoundaries(node, selection)
 	return stripLeadingAndTrailingReferenceNumbers(expandedSelection);
 }
 
+function getFirstElementParent(node)
+{
+	if(node.nodeType === Node.ELEMENT_NODE)
+		return node;
+	else
+		return node.parentNode;
+}
+
 export function highlightSelection(mode = "sentence")
 {
 	const selection = window.getSelection();
@@ -264,7 +272,7 @@ export function highlightSelection(mode = "sentence")
 		showMessageBig("Nothing selected");
 		return;
 	}
-	const element = getFirstBlockParent(selection.anchorNode);
+	const element = getFirstElementParent(selection.anchorNode);
 	let selectionText = removeLineBreaks(selection.toString()).trim();
 	if(element.tagName !== "PRE")
 		element.innerHTML = normalizeHTML(element.innerHTML);
@@ -317,177 +325,6 @@ export function highlightInElementTextNodes(element, searchString)
 	return false;
 }
 
-//	This function solves the problem of highlighting text in an HTML element when that text
-//	spans other HTML elements, such as span, b, or em tags. It works by finding the
-//	starting and ending indices of the search string in the textContent of the parent element,
-//	using those indices to figure out which nodes are spanned by the search string, and then
-//	highlighting the text across those nodes.
-export function highlightTextAcrossTags(element, searchString)
-{
-	if(element.nodeType === Node.TEXT_NODE)
-	{
-		showMessageError("highlight text across tags: expected element, received text node");
-		return;
-	}
-
-	const colors = Nimbus.logColors;
-	Nimbus.consoleLog(`%c highlight text across tags in %c ${element.tagName || "text node"} %c ${searchString}`, colors.blue, colors.yellow, colors.green);
-
-	searchString = searchString.replace(/\s+/g, " ");
-	const nodeText = element.textContent.replace(/\s+/g, " ");
-	const index1 = nodeText.toLowerCase().indexOf(searchString.toLowerCase());
-	if(index1 === -1)
-	{
-		showMessageError("highlight text across tags: string not found in text");
-		logString(searchString, "searchString");
-		logString(nodeText, "nodeText");
-		return;
-	}
-	const index2 = index1 + searchString.length;
-	// Nimbus.consoleLog(`%c ${element.tagName || "text node"} %c ${index1} %c ... %c ${index2} `, colors.green, colors.blue, colors.gray, colors.blue);
-
-	const childNodes = element.childNodes;
-	let childNodeEnd = 0;
-	const highlightElement = document.createElement(Nimbus.highlightTagName);
-	const replacement = document.createDocumentFragment();
-	let toReplace;
-	const toDelete = [];
-
-	const isIndivisibleElement = {
-		A: true,
-		B: true,
-		I: true,
-		EM: true,
-		STRONG: true,
-		REFERENCE: true
-	};
-
-	for(let i = 0, ii = childNodes.length; i < ii; i++)
-	{
-		const childNode = childNodes[i];
-		const childNodeStart = childNodeEnd;
-		const childNodeText = getNodeText(childNode);
-		childNodeEnd += childNodeText.length;
-
-		if(childNodeEnd < index1)
-			continue;
-
-		const containsTheBeginning = index1 >= childNodeStart && index1 < childNodeEnd && index2 > childNodeEnd;
-		const isContained = index1 < childNodeStart && index2 > childNodeEnd;
-		const containsTheEnd = index2 >= childNodeStart && index2 <= childNodeEnd;
-		const contains = index1 >= childNodeStart && index2 <= childNodeEnd;
-
-		if(contains)
-		{
-			Nimbus.consoleLog(`\t%c ${childNode.tagName || "text node"} %c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the entire string: %c${searchString}`, colors.yellow, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
-			if(childNode.nodeType === Node.TEXT_NODE)
-				highlightInTextNode(childNode, searchString);
-			else
-				highlightTextAcrossTags(childNode, searchString);
-			break;
-		}
-		else if(containsTheBeginning)
-		{
-			const substring = searchString.substring(0, childNodeEnd - index1);
-			Nimbus.consoleLog(`\t%c ${childNode.tagName || "text node"} %c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the beginning: %c${substring}`, colors.yellow, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
-			if(childNode.nodeType === Node.ELEMENT_NODE)
-			{
-				const childNodeTagName = childNode.tagName;
-				if(containsOnlyPlainText(childNode) && !isIndivisibleElement[childNodeTagName])
-				{
-					const splitIndex = index1 - childNodeStart;
-					if(splitIndex === 0)
-					{
-						highlightElement.appendChild(childNode.cloneNode(true));
-					}
-					else
-					{
-						const textBeforeMatch = childNodeText.substring(0, splitIndex);
-						const textOfMatch = childNodeText.substring(splitIndex);
-						replacement.appendChild(createElement(childNodeTagName, { textContent: textBeforeMatch}));
-						highlightElement.appendChild(document.createTextNode(textOfMatch));
-					}
-				}
-				else
-				{
-					highlightElement.appendChild(childNode.cloneNode(true));
-				}
-			}
-			else
-			{
-				const splitIndex = index1 - childNodeStart;
-				const textBeforeMatch = childNodeText.substring(0, splitIndex);
-				const textOfMatch = childNodeText.substring(splitIndex);
-				Nimbus.consoleLog(`%c${textBeforeMatch}%c${textOfMatch}`, colors.gray, colors.yellow);
-				replacement.appendChild(document.createTextNode(textBeforeMatch));
-				highlightElement.appendChild(document.createTextNode(textOfMatch));
-			}
-			replacement.appendChild(highlightElement);
-			toReplace = childNode;
-		}
-		else if(isContained)
-		{
-			const substring = searchString.substring(childNodeStart - index1, childNodeEnd - index1);
-			Nimbus.consoleLog(`\t%c ${childNode.tagName || "text node"} %c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %cis contained: %c${substring}`, colors.yellow, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
-			Nimbus.consoleLog(`\t%c${childNodeText}`, colors.yellow);
-			highlightElement.appendChild(childNode.cloneNode(true));
-			toDelete.push(childNode);
-		}
-		else if(containsTheEnd)
-		{
-			const substring = searchString.substr(-(index2 - childNodeStart));
-			// handle the problem of extra spaces added by the browser when a selection contains child elements
-			const offset = childNodeText.indexOf(substring);
-			const adjustedEndIndex = index2 + offset;
-			Nimbus.consoleLog(`\t%c ${childNode.tagName || "text node"} %c ${childNodeStart} %c${childNodeText}%c ${childNodeEnd} %ccontains the end: %c${substring}`, colors.yellow, colors.blue, colors.gray, colors.blue, colors.green, colors.yellow);
-			if(childNode.nodeType === Node.ELEMENT_NODE)
-			{
-				const childNodeTagName = childNode.tagName;
-				if(containsOnlyPlainText(childNode) && !isIndivisibleElement[childNodeTagName])
-				{
-					const childNodeTagName = childNode.tagName;
-					const splitIndex = adjustedEndIndex - childNodeStart;
-					if(splitIndex === childNodeText.length)
-					{
-						highlightElement.appendChild(childNode.cloneNode(true));
-					}
-					else
-					{
-						const textOfMatch = childNodeText.substring(0, splitIndex);
-						const textAfterMatch = childNodeText.substring(splitIndex);
-						highlightElement.appendChild(document.createTextNode(textOfMatch));
-						replacement.appendChild(createElement(childNodeTagName, { textContent: textAfterMatch}));
-					}
-				}
-				else
-				{
-					if(childNode.nodeType === Node.TEXT_NODE)
-						highlightInTextNodeRegex(childNode, new RegExp(substring));
-					else
-						highlightTextAcrossTags(childNode, substring);
-					highlightElement.appendChild(childNode.cloneNode(true));
-				}
-			}
-			else
-			{
-				const splitIndex = adjustedEndIndex - childNodeStart;
-				const textOfMatch = childNodeText.substring(0, splitIndex);
-				const textAfterMatch = childNodeText.substring(splitIndex);
-				Nimbus.consoleLog(`%c${textOfMatch}%c${textAfterMatch}`, colors.yellow, colors.gray);
-				highlightElement.appendChild(document.createTextNode(textOfMatch));
-				replacement.appendChild(document.createTextNode(textAfterMatch));
-			}
-			toDelete.push(childNode);
-			break;
-		}
-	}
-	if(toReplace)
-	{
-		element.replaceChild(replacement, toReplace);
-		moveLeadingAndTrailingReferencesOutOfHighlight(highlightElement);
-		del(toDelete);
-	}
-}
 
 export function highlightInTextNode(textNode, searchString)
 {
@@ -687,4 +524,176 @@ export function resetHighlightTag()
 		return;
 	showMessageBig({ text: `Highlight tag is ${nextTag}`, tag: nextTag });
 	Nimbus.highlightTagName = nextTag;
+}
+
+function normalizeText(s)
+{
+	return s.replace(/[\s\n]+/g, " ");
+}
+
+function createNodeData(elem)
+{
+	const nodes = elem.childNodes;
+	const nodeData = [];
+	let length = 0;
+	const normTextArray = [];
+	for(let i = 0; i < nodes.length; i++)
+	{
+		const node = nodes[i];
+		let normText = node.nodeType === 3 ? normalizeText(node.data) : normalizeText(node.textContent);
+		if(i > 0)
+		{
+			if(nodeData[i - 1].text.endsWith(" ") && normText.startsWith(" "))
+				normText = normText.slice(1);
+		}
+		normTextArray.push(normText);
+		const startIndex = length;
+		length += normText.length;
+		nodeData.push({ node, text: normText, length: normText.length, startIndex, endIndex: length });
+	}
+
+	const joinedText = normTextArray.join("").replace(/ /g, "_");
+	if(joinedText.includes("__"))
+		console.error("Duplicate spaces found in joined text");
+
+	return nodeData;
+}
+
+function getAllNodesSpanningString(nodeData, index1, index2)
+{
+	const startAndEndNodeIndices = [];
+	const nodesSpanningString = [];
+
+	let i = 0;
+	for(; i < nodeData.length; i++)
+	{
+		if(index1 <= nodeData[i].endIndex)
+		{
+			startAndEndNodeIndices.push(i);
+			break;
+		}
+	}
+	for(; i < nodeData.length; i++)
+	{
+		if(index2 <= nodeData[i].endIndex)
+		{
+			startAndEndNodeIndices.push(i);
+			break;
+		}
+	}
+
+	for(let i = startAndEndNodeIndices[0]; i <= startAndEndNodeIndices[1]; i++)
+		nodesSpanningString.push(i);
+
+	return nodesSpanningString;
+}
+
+function logYellow(...args)
+{
+	const [ str, ...rest ] = args;
+	console.log(`%c${str}`, Nimbus.logColors.yellow, ...rest);
+}
+
+function logNode(node)
+{
+	if(node.nodeType === Node.TEXT_NODE)
+		console.log(`%ctext node %c${node.data}`, Nimbus.logColors.yellow, Nimbus.logColors.gray);
+	else
+		console.log(`%c${node.tagName} %c${node.textContent}`, Nimbus.logColors.yellow, Nimbus.logColors.blue);
+}
+
+function logDocumentFragment(frag)
+{
+	for(const node of frag.childNodes)
+		logNode(node);
+}
+
+export function highlightTextAcrossTags(element, searchString)
+{
+	const nodeData = createNodeData(element);
+
+	const elemText = normalizeText(element.textContent);
+	const index1 = elemText.indexOf(searchString);
+	const index2 = index1 + searchString.length;
+
+	if(index1 === -1)
+	{
+		showMessageError("Invalid highlight attempted: selection needs to start and end within the same element");
+		return;
+	}
+
+	const nodesSpanningString = getAllNodesSpanningString(nodeData, index1, index2);
+
+	if(nodesSpanningString.length > 1)
+	{
+		const firstNodeParent = nodeData[nodesSpanningString[0]].node.parentNode;
+		const lastNodeParent = nodeData[nodesSpanningString[nodesSpanningString.length - 1]].node.parentNode;
+		if(firstNodeParent !== lastNodeParent)
+		{
+			showMessageError("Invalid highlight attempted: selection needs to start and end within the same element");
+			return;
+		}
+	}
+
+	const replacement = document.createDocumentFragment();
+	const highlightElement = document.createElement(Nimbus.highlightTagName);
+
+	const { green, black, gray, yellow } = Nimbus.logColors;
+
+	let nodeToReplace = null;
+
+	for(let i = 0; i < nodesSpanningString.length; i++)
+	{
+		const nodeIndex = nodesSpanningString[i];
+		if(i === 0)
+		{
+			nodeToReplace = nodeData[nodeIndex].node;
+			if(!nodeToReplace)
+			{
+				console.error('nodeToReplace is', nodeToReplace);
+				return;
+			}
+			const text = nodeData[nodeIndex].text;
+			const localStartIndex = index1 - nodeData[nodeIndex].startIndex;
+			if(localStartIndex !== 0)
+			{
+				const textBeforeMatch = text.substring(0, localStartIndex);
+				const textOfMatch = text.substring(localStartIndex);
+
+				Nimbus.consoleLog(`%c ${textBeforeMatch} %c ${textOfMatch}`, black, green);
+
+				replacement.appendChild(document.createTextNode(textBeforeMatch));
+				highlightElement.appendChild(document.createTextNode(textOfMatch));
+			}
+			else
+			{
+				console.log(`%c ${text}`, green);
+				highlightElement.appendChild(nodeData[nodeIndex].node.cloneNode(true));
+			}
+		}
+		else if(i === nodesSpanningString.length - 1)
+		{
+			const text = nodeData[nodeIndex].text;
+			const localEndIndex = index2 - nodeData[nodeIndex].startIndex;
+			const textOfMatch = text.substring(0, localEndIndex);
+			const textAfterMatch = text.substring(localEndIndex);
+
+			Nimbus.consoleLog(`%c ${textOfMatch} %c ${textAfterMatch}`, green, black);
+
+			highlightElement.appendChild(document.createTextNode(textOfMatch));
+			replacement.appendChild(highlightElement);
+			replacement.appendChild(document.createTextNode(textAfterMatch));
+
+			nodeData[nodeIndex].node.remove();
+		}
+		else
+		{
+			Nimbus.consoleLog(`%c ${nodeData[nodeIndex].text}`, green);
+			highlightElement.appendChild(nodeData[nodeIndex].node);
+		}
+	}
+
+	logDocumentFragment(replacement);
+
+	nodeToReplace.parentNode.replaceChild(replacement, nodeToReplace);
 }

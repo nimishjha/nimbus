@@ -31,9 +31,11 @@ export const Nimbus = {
 	GROUP_TAGNAME: "blockquote",
 	italicTag: "i",
 	logColors: {
+		black: "background: #000; color: #AAA",
 		gray: "background: #555; color: #AAA",
 		blue: "background: #008; color: #ACE",
 		yellow: "background: #000; color: #CC0",
+		orange: "background: #420; color: #C80",
 		green: "background: #040; color: #0C0",
 		red: "background: #600; color: #C00",
 	},

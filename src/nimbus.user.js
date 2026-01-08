@@ -620,7 +620,7 @@ import {
 	retrieveGrouped,
 } from "./includes/retrieve";
 
-const isDebugMode = false;
+const isDebugMode = true;
 
 const availableFunctions = {
 	addDateToTitle: addDateToTitle,
