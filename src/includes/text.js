@@ -78,16 +78,31 @@ export function makeParagraphsByLineBreaks(selector) {
 export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 {
 	const elems = typeof selectorOrElement === "string" ? get(selectorOrElement) : [selectorOrElement];
+
+	let WRAPPER_TAGNAME;
+	let CHILD_TAGNAME;
+	if(["h1", "h2", "h3", "h4", "h5", "h6"].includes(elems[0].tagName))
+	{
+		WRAPPER_TAGNAME = "hgroup";
+		CHILD_TAGNAME = elems[0].tagName;
+	}
+	else
+	{
+		WRAPPER_TAGNAME = (wrapperTagName || elems[0].tagName).toUpperCase();
+		CHILD_TAGNAME = (childTagName || "P").toUpperCase();
+	}
+
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
+
 		if(!hasDirectChildrenOfType(elem, "BR"))
 			continue;
-		const WRAPPER_TAGNAME = (wrapperTagName || elem.tagName).toUpperCase();
-		const CHILD_TAGNAME = (childTagName || "P").toUpperCase();
+
 		const elemChildNodes = elem.childNodes;
 		const groups = [];
 		let nodeGroup = [];
+
 		for(let i = 0, ii = elemChildNodes.length; i < ii; i++)
 		{
 			let node = elemChildNodes[i];
@@ -104,8 +119,10 @@ export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 				nodeGroup.push(node);
 			}
 		}
+
 		if(nodeGroup.length)
 			groups.push(nodeGroup);
+
 		if(groups.length > 1)
 		{
 			const replacementWrapper = WRAPPER_TAGNAME === "P" ? document.createDocumentFragment() : document.createElement(WRAPPER_TAGNAME);
