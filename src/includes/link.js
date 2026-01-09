@@ -32,7 +32,7 @@ export function replaceEmptyAnchors()
 	{
 		const anchor = anchors[i];
 		const linksToAnchor = linksByHref["#" + anchor.id];
-		if(!linksToAnchor.length)
+		if(!(linksToAnchor && linksToAnchor.length))
 		{
 			anchorsWithoutLinks.push(anchor);
 		}

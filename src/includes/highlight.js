@@ -552,8 +552,8 @@ function createNodeData(elem)
 		nodeData.push({ node, text: normText, length: normText.length, startIndex, endIndex: length });
 	}
 
-	const joinedText = normTextArray.join("").replace(/ /g, "_");
-	if(joinedText.includes("__"))
+	const joinedText = normTextArray.join("");
+	if(joinedText.includes("  "))
 		console.error("Duplicate spaces found in joined text");
 
 	return nodeData;
@@ -667,7 +667,7 @@ export function highlightTextAcrossTags(element, searchString)
 			}
 			else
 			{
-				console.log(`%c ${text}`, green);
+				Nimbus.consoleLog(`%c ${text}`, green);
 				highlightElement.appendChild(nodeData[nodeIndex].node.cloneNode(true));
 			}
 		}

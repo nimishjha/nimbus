@@ -849,6 +849,8 @@ export function fixTextAroundReferences(selector = "footnote reference")
 	const regexPeriodOrClosingBracket = /^[\]\.]/;
 	const regexOpeningBracket = /\[$/;
 	const elems = get(selector);
+	if(!elems) return;
+
 	let count = 0;
 	for(const elem of elems)
 	{
