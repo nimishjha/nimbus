@@ -14,6 +14,7 @@ import { normalizeHTML, removeLineBreaks } from "./string";
 import { BLOCK_ELEMENTS } from "./constants";
 
 const { green, blue, black, gray, yellow, purple } = Nimbus.logColors;
+const { styleHeading } = Nimbus.logStyles;
 
 export function highlightInPres(str, tagName = "markyellow")
 {
@@ -622,25 +623,17 @@ function logDocumentFragment(frag, label)
 
 export function highlightTextAcrossTags(element, searchString)
 {
-	const isIndivisibleElement = {
-		A: true,
-		B: true,
-		I: true,
-		EM: true,
-		STRONG: true,
-		REFERENCE: true
-	};
+	Nimbus.consoleLog(`%chighlightTextAcrossTags in %c${element.tagName}%c${searchString}`, styleHeading + black, styleHeading + blue, styleHeading + green);
 
-	Nimbus.consoleLog(`%chighlightTextAcrossTags in %c${element.tagName}%c${searchString}`, purple, blue, purple);
+	const indivisibleElementTypes = new Set(["A", "B", "I", "EM", "STRONG", "REFERENCE"]);
 	const nodeData = createNodeData(element);
-
 	const elemText = normalizeText(element.textContent);
 	const index1 = elemText.indexOf(searchString);
 	const index2 = index1 + searchString.length;
 
 	if(index1 === -1)
 	{
-		showMessageError("Invalid highlight attempted: selection needs to start and end within the same element");
+		showMessageError("Search string not found in element");
 		return;
 	}
 
@@ -682,15 +675,15 @@ export function highlightTextAcrossTags(element, searchString)
 	{
 		const nodeIndex = nodesSpanningString[i];
 		const node = nodeData[nodeIndex].node;
+		const nodeText = nodeData[nodeIndex].text;
 
 		if(i === 0)
 		{
 			logNode(node, "first node");
 			nodeToReplace = node;
 
-			const text = nodeData[nodeIndex].text;
 			const localStartIndex = index1 - nodeData[nodeIndex].startIndex;
-			const localSearchString = text.substring(localStartIndex);
+			const localSearchString = nodeText.substring(localStartIndex);
 
 			logString(localSearchString, "first node localSearchString");
 
@@ -701,23 +694,34 @@ export function highlightTextAcrossTags(element, searchString)
 			}
 			else
 			{
-				const textBeforeMatch = text.substring(0, localStartIndex);
-				const textOfMatch = text.substring(localStartIndex);
-				replacement.appendChild(document.createTextNode(textBeforeMatch));
-				highlightElement.appendChild(document.createTextNode(textOfMatch));
+				if(localStartIndex === 0)
+				{
+					highlightElement.appendChild(document.createTextNode(nodeText));
+				}
+				else
+				{
+					const textBeforeMatch = nodeText.substring(0, localStartIndex);
+					const textOfMatch = nodeText.substring(localStartIndex);
+					replacement.appendChild(document.createTextNode(textBeforeMatch));
+					highlightElement.appendChild(document.createTextNode(textOfMatch));
+				}
 			}
 		}
 		else if(i === nodesSpanningString.length - 1)
 		{
 			logNode(node, "last node");
-			const nodeText = nodeData[nodeIndex].text;
 			const localEndIndex = index2 - nodeData[nodeIndex].startIndex;
 			const localSearchString = searchString.slice(-localEndIndex);
 			logString(localSearchString, "last node localSearchString");
 
 			if(node.nodeType === Node.ELEMENT_NODE)
 			{
-				if(containsOnlyPlainText(node) && !isIndivisibleElement[node.tagName])
+				if(indivisibleElementTypes.has(node.tagName))
+				{
+					highlightElement.appendChild(node);
+					replacement.appendChild(highlightElement);
+				}
+				else if(containsOnlyPlainText(node))
 				{
 					if(localEndIndex === nodeText.length)
 					{
@@ -741,16 +745,12 @@ export function highlightTextAcrossTags(element, searchString)
 				{
 					highlightTextAcrossTags(node, localSearchString);
 					replacement.appendChild(highlightElement);
-					nodeToReplace.parentNode.replaceChild(replacement, nodeToReplace);
-					return;
 				}
 			}
 			else
 			{
-				const text = nodeData[nodeIndex].text;
-				const localEndIndex = index2 - nodeData[nodeIndex].startIndex;
-				const textOfMatch = text.substring(0, localEndIndex);
-				const textAfterMatch = text.substring(localEndIndex);
+				const textOfMatch = nodeText.substring(0, localEndIndex);
+				const textAfterMatch = nodeText.substring(localEndIndex);
 
 				highlightElement.appendChild(document.createTextNode(textOfMatch));
 				if(highlightElement.textContent.length)

@@ -40,6 +40,9 @@ export const Nimbus = {
 		red: "background: #600; color: #C00;",
 		purple: "background: #204; color: #C7E;",
 	},
+	logStyles: {
+		styleHeading: "font-size: 22px;",
+	},
 	identifyClass: {
 		style: "{ box-shadow: inset 2px 2px #09C, inset -2px -2px #09C; }",
 		classes: new Cyclable([]),
