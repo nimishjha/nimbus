@@ -669,100 +669,100 @@ export function highlightTextAcrossTags(element, searchString)
 	const replacement = document.createDocumentFragment();
 	const highlightElement = document.createElement(Nimbus.highlightTagName);
 
-	let nodeToReplace;
+	const firstNodeIndex = nodesSpanningString[0];
+	const lastNodeIndex = nodesSpanningString[nodesSpanningString.length - 1];
+	const nodeToReplace = nodeData[firstNodeIndex].node;
 
-	for(let i = 0; i < nodesSpanningString.length; i++)
 	{
-		const nodeIndex = nodesSpanningString[i];
-		const node = nodeData[nodeIndex].node;
-		const nodeText = nodeData[nodeIndex].text;
+		const node = nodeData[firstNodeIndex].node;
+		const nodeText = nodeData[firstNodeIndex].text;
+		const localStartIndex = index1 - nodeData[firstNodeIndex].startIndex;
+		const localSearchString = nodeText.substring(localStartIndex);
 
-		if(i === 0)
+		logNode(node, "first node");
+
+		logString(localSearchString, "first node localSearchString");
+
+		if(node.nodeType === Node.ELEMENT_NODE)
 		{
-			logNode(node, "first node");
-			nodeToReplace = node;
-
-			const localStartIndex = index1 - nodeData[nodeIndex].startIndex;
-			const localSearchString = nodeText.substring(localStartIndex);
-
-			logString(localSearchString, "first node localSearchString");
-
-			if(node.nodeType === Node.ELEMENT_NODE)
+			logYellow("first node is element node, appending to highlight");
+			highlightElement.appendChild(node.cloneNode(true));
+		}
+		else
+		{
+			if(localStartIndex === 0)
 			{
-				logYellow("first node is element node, appending to highlight");
-				highlightElement.appendChild(node.cloneNode(true));
+				highlightElement.appendChild(document.createTextNode(nodeText));
 			}
 			else
 			{
-				if(localStartIndex === 0)
-				{
-					highlightElement.appendChild(document.createTextNode(nodeText));
-				}
-				else
-				{
-					const textBeforeMatch = nodeText.substring(0, localStartIndex);
-					const textOfMatch = nodeText.substring(localStartIndex);
-					replacement.appendChild(document.createTextNode(textBeforeMatch));
-					highlightElement.appendChild(document.createTextNode(textOfMatch));
-				}
+				const textBeforeMatch = nodeText.substring(0, localStartIndex);
+				const textOfMatch = nodeText.substring(localStartIndex);
+				replacement.appendChild(document.createTextNode(textBeforeMatch));
+				highlightElement.appendChild(document.createTextNode(textOfMatch));
 			}
 		}
-		else if(i === nodesSpanningString.length - 1)
-		{
-			logNode(node, "last node");
-			const localEndIndex = index2 - nodeData[nodeIndex].startIndex;
-			const localSearchString = searchString.slice(-localEndIndex);
-			logString(localSearchString, "last node localSearchString");
+	}
 
-			if(node.nodeType === Node.ELEMENT_NODE)
+	for(let i = 1; i < nodesSpanningString.length - 1; i++)
+	{
+		highlightElement.appendChild(nodeData[nodesSpanningString[i]].node);
+	}
+
+	{
+		const node = nodeData[lastNodeIndex].node;
+		const nodeText = nodeData[lastNodeIndex].text;
+
+		logNode(node, "last node");
+
+		const localEndIndex = index2 - nodeData[lastNodeIndex].startIndex;
+		const localSearchString = searchString.slice(-localEndIndex);
+		logString(localSearchString, "last node localSearchString");
+
+		if(node.nodeType === Node.ELEMENT_NODE)
+		{
+			if(indivisibleElementTypes.has(node.tagName))
 			{
-				if(indivisibleElementTypes.has(node.tagName))
+				highlightElement.appendChild(node);
+				replacement.appendChild(highlightElement);
+			}
+			else if(containsOnlyPlainText(node))
+			{
+				if(localEndIndex === nodeText.length)
 				{
 					highlightElement.appendChild(node);
 					replacement.appendChild(highlightElement);
 				}
-				else if(containsOnlyPlainText(node))
-				{
-					if(localEndIndex === nodeText.length)
-					{
-						highlightElement.appendChild(node);
-						replacement.appendChild(highlightElement);
-					}
-					else
-					{
-						const textOfMatch = nodeText.substring(0, localEndIndex);
-						const textAfterMatch = nodeText.substring(localEndIndex);
-						node.textContent = textOfMatch;
-						highlightElement.appendChild(node);
-						replacement.appendChild(highlightElement);
-						if(textAfterMatch === " ")
-							replacement.appendChild(document.createTextNode(" "));
-						else
-							replacement.appendChild(createElement(node.tagName, { textContent: textAfterMatch }));
-					}
-				}
 				else
 				{
-					highlightTextAcrossTags(node, localSearchString);
+					const textOfMatch = nodeText.substring(0, localEndIndex);
+					const textAfterMatch = nodeText.substring(localEndIndex);
+					node.textContent = textOfMatch;
+					highlightElement.appendChild(node);
 					replacement.appendChild(highlightElement);
+					if(textAfterMatch === " ")
+						replacement.appendChild(document.createTextNode(" "));
+					else
+						replacement.appendChild(createElement(node.tagName, { textContent: textAfterMatch }));
 				}
 			}
 			else
 			{
-				const textOfMatch = nodeText.substring(0, localEndIndex);
-				const textAfterMatch = nodeText.substring(localEndIndex);
-
-				highlightElement.appendChild(document.createTextNode(textOfMatch));
-				if(highlightElement.textContent.length)
-					replacement.appendChild(highlightElement);
-				replacement.appendChild(document.createTextNode(textAfterMatch));
-
-				node.remove();
+				highlightTextAcrossTags(node, localSearchString);
+				replacement.appendChild(highlightElement);
 			}
 		}
 		else
 		{
-			highlightElement.appendChild(nodeData[nodeIndex].node);
+			const textOfMatch = nodeText.substring(0, localEndIndex);
+			const textAfterMatch = nodeText.substring(localEndIndex);
+
+			highlightElement.appendChild(document.createTextNode(textOfMatch));
+			if(highlightElement.textContent.length)
+				replacement.appendChild(highlightElement);
+			replacement.appendChild(document.createTextNode(textAfterMatch));
+
+			node.remove();
 		}
 	}
 
