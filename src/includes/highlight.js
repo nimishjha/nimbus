@@ -312,7 +312,6 @@ export function highlightInElementTextNodes(element, searchString)
 			const textBeforeMatch = node.data.substring(0, index);
 			const textOfMatch = node.data.substring(index, index + searchString.length);
 			const textAfterMatch = node.data.substring(index + searchString.length);
-			Nimbus.consoleLog(`%c${textBeforeMatch}%c${textOfMatch}%c${textAfterMatch}`, gray, yellow, gray);
 			const replacement = document.createDocumentFragment();
 			const highlight = document.createElement(Nimbus.highlightTagName);
 			highlight.appendChild(document.createTextNode(textOfMatch));
@@ -621,8 +620,12 @@ function logNode(node, label)
 
 function logDocumentFragment(frag, label)
 {
+	if(label)
+		logYellow("\t".repeat(5) + "begin " + label + "\t".repeat(5));
 	for(const node of frag.childNodes)
 		logNode(node);
+	if(label)
+		logYellow("\t".repeat(5) + "end " + label + "\t".repeat(5));
 }
 
 export function highlightTextAcrossTags(element, searchString)
@@ -769,7 +772,7 @@ export function highlightTextAcrossTags(element, searchString)
 		}
 	}
 
-	logDocumentFragment(replacement, "replacement");
+	logDocumentFragment(replacement, "replacement fragment");
 
 	nodeToReplace.parentNode.replaceChild(replacement, nodeToReplace);
 }

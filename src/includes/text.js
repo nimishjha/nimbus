@@ -203,7 +203,7 @@ export function replaceSpecialCharacters()
 		"\u2002": " ",
 		"\u2003": " ",
 		"\u2009": " ",
-		"\u2013": "-",
+		"\u2013": "—",
 		"\u2122": "(tm)"
 	};
 
