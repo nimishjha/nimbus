@@ -565,6 +565,7 @@ function createNodeData(elem)
 function getNodesSpanningString(nodeData, index1, index2)
 {
 	const startAndEndNodeIndices = [];
+	const indicesOfNodesSpanningString = [];
 	const nodesSpanningString = [];
 
 	let i = 0;
@@ -585,8 +586,11 @@ function getNodesSpanningString(nodeData, index1, index2)
 		}
 	}
 
-	for(let i = startAndEndNodeIndices[0]; i <= startAndEndNodeIndices[1]; i++)
-		nodesSpanningString.push(i);
+	for(let j = startAndEndNodeIndices[0]; j <= startAndEndNodeIndices[1]; j++)
+		indicesOfNodesSpanningString.push(j);
+
+	for(let j = 0; j < indicesOfNodesSpanningString.length; j++)
+		nodesSpanningString.push(nodeData[indicesOfNodesSpanningString[j]]);
 
 	return nodesSpanningString;
 }
@@ -638,13 +642,14 @@ export function highlightTextAcrossTags(element, searchString)
 	}
 
 	const nodesSpanningString = getNodesSpanningString(nodeData, index1, index2);
+	const nodesSpanningStringLastIndex = nodesSpanningString.length - 1;
 
-	logYellow("nodesSpanningString", nodesSpanningString.length);
+	Nimbus.consoleLog(`%cselection spans ${nodesSpanningString.length} nodes`, yellow);
 
 	if(nodesSpanningString.length > 1)
 	{
-		const firstNodeParent = nodeData[nodesSpanningString[0]].node.parentNode;
-		const lastNodeParent = nodeData[nodesSpanningString[nodesSpanningString.length - 1]].node.parentNode;
+		const firstNodeParent = nodesSpanningString[0].node.parentNode;
+		const lastNodeParent = nodesSpanningString[nodesSpanningStringLastIndex].node.parentNode;
 		if(firstNodeParent !== lastNodeParent)
 		{
 			showMessageError("Invalid highlight attempted: selection needs to start and end within the same element");
@@ -653,15 +658,15 @@ export function highlightTextAcrossTags(element, searchString)
 	}
 	else
 	{
-		if(nodeData[nodesSpanningString[0]].node.nodeType === Node.ELEMENT_NODE)
+		if(nodesSpanningString[0].node.nodeType === Node.ELEMENT_NODE)
 		{
 			logYellow("selection is contained in an element which is not the block parent");
-			highlightTextAcrossTags(nodeData[nodesSpanningString[0]].node, searchString);
+			highlightTextAcrossTags(nodesSpanningString[0].node, searchString);
 			return;
 		}
 		else
 		{
-			highlightInTextNode(nodeData[nodesSpanningString[0]].node, searchString);
+			highlightInTextNode(nodesSpanningString[0].node, searchString);
 			return;
 		}
 	}
@@ -669,14 +674,12 @@ export function highlightTextAcrossTags(element, searchString)
 	const replacement = document.createDocumentFragment();
 	const highlightElement = document.createElement(Nimbus.highlightTagName);
 
-	const firstNodeIndex = nodesSpanningString[0];
-	const lastNodeIndex = nodesSpanningString[nodesSpanningString.length - 1];
-	const nodeToReplace = nodeData[firstNodeIndex].node;
+	const nodeToReplace = nodesSpanningString[0].node;
 
 	{
-		const node = nodeData[firstNodeIndex].node;
-		const nodeText = nodeData[firstNodeIndex].text;
-		const localStartIndex = index1 - nodeData[firstNodeIndex].startIndex;
+		const node = nodeToReplace;
+		const nodeText = nodesSpanningString[0].text;
+		const localStartIndex = index1 - nodesSpanningString[0].startIndex;
 		const localSearchString = nodeText.substring(localStartIndex);
 
 		logNode(node, "first node");
@@ -704,18 +707,18 @@ export function highlightTextAcrossTags(element, searchString)
 		}
 	}
 
-	for(let i = 1; i < nodesSpanningString.length - 1; i++)
+	for(let i = 1; i < nodesSpanningStringLastIndex; i++)
 	{
-		highlightElement.appendChild(nodeData[nodesSpanningString[i]].node);
+		highlightElement.appendChild(nodesSpanningString[i].node);
 	}
 
 	{
-		const node = nodeData[lastNodeIndex].node;
-		const nodeText = nodeData[lastNodeIndex].text;
+		const node = nodesSpanningString[nodesSpanningStringLastIndex].node;
+		const nodeText = nodesSpanningString[nodesSpanningStringLastIndex].text;
 
 		logNode(node, "last node");
 
-		const localEndIndex = index2 - nodeData[lastNodeIndex].startIndex;
+		const localEndIndex = index2 - nodesSpanningString[nodesSpanningStringLastIndex].startIndex;
 		const localSearchString = searchString.slice(-localEndIndex);
 		logString(localSearchString, "last node localSearchString");
 
