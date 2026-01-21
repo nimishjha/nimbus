@@ -760,15 +760,22 @@ export function highlightTextAcrossTags(element, searchString)
 		}
 		else
 		{
-			const textOfMatch = nodeText.substring(0, localEndIndex);
-			const textAfterMatch = nodeText.substring(localEndIndex);
-
-			highlightElement.appendChild(document.createTextNode(textOfMatch));
-			if(highlightElement.textContent.length)
+			if(localEndIndex === nodeText.length)
+			{
+				highlightElement.appendChild(node);
 				replacement.appendChild(highlightElement);
-			replacement.appendChild(document.createTextNode(textAfterMatch));
+			}
+			else
+			{
+				const textOfMatch = nodeText.substring(0, localEndIndex);
+				const textAfterMatch = nodeText.substring(localEndIndex);
 
-			node.remove();
+				highlightElement.appendChild(document.createTextNode(textOfMatch));
+				if(highlightElement.textContent.length)
+					replacement.appendChild(highlightElement);
+				replacement.appendChild(document.createTextNode(textAfterMatch));
+				node.remove();
+			}
 		}
 	}
 
