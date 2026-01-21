@@ -34,7 +34,7 @@
 import { Nimbus } from "./includes/Nimbus";
 import { Cyclable } from "./includes/Cyclable";
 import { STYLES } from "./includes/stylesheets";
-import { KEYCODES } from "./includes/keycodes";
+import { KEYCODES, KEYCODES_REVERSE } from "./includes/keycodes";
 import { SYMBOLS, BLOCK_ELEMENTS, INLINE_ELEMENTS } from "./includes/constants";
 import { parseCommand, runCommand, callFunctionWithArgs } from "./includes/command";
 import {
@@ -450,6 +450,7 @@ import {
 	logout,
 	makeButtonsReadable,
 	setBodyOpacity,
+	setTheme,
 	showPassword,
 	showPrintLink,
 	toggleNonVideoContent,
@@ -951,6 +952,66 @@ function inject()
 	setTimeout(doWebsiteSpecificTasks, 1000);
 }
 
+function toggleKeyMenu()
+{
+	if(Nimbus.keyMenu.isActive)
+	{
+		document.removeEventListener("keydown", handleKeyMenu, false);
+		Nimbus.keyMenu.isActive = false;
+		showMessageBig("Key menu disabled");
+	}
+	else
+	{
+		document.addEventListener("keydown", handleKeyMenu, false);
+		Nimbus.keyMenu.isActive = true;
+		showMessageBig("Key menu enabled");
+	}
+}
+
+function handleKeyMenuCommand(str)
+{
+	if(!(typeof str === "string" && str.length === 2))
+	{
+		showMessageBig("Invalid command: " + str);
+		return;
+	}
+	switch(str)
+	{
+		case "M1": toggleHighlightMap(3, 0, 3); break;
+		case "M2": toggleHighlightMap(4, 1, 4); break;
+		case "M3": toggleHighlightMap(4, 1, 20); break;
+
+		case "T1": setTheme("none"); break;
+		case "T2": setTheme("nimbusThemeRed"); break;
+		case "T3": setTheme("nimbusThemeSepia"); break;
+		default: showMessageBig(`Unknown command ${str}`);
+	}
+}
+
+function handleKeyMenu(evt)
+{
+	const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
+	if(evt.altKey || evt.shiftKey || evt[ctrlOrMeta])
+		return;
+	if(evt.keyCode === KEYCODES.ESCAPE)
+	{
+		Nimbus.keyMenu.keys = [];
+		toggleKeyMenu();
+		return;
+	}
+	if(evt.keyCode < 48 || evt.keyCode > 90)
+		return;
+
+	evt.preventDefault();
+	const key = KEYCODES_REVERSE[evt.keyCode.toString()];
+	Nimbus.keyMenu.keys.push(key);
+	if(Nimbus.keyMenu.keys.length === 2)
+	{
+		handleKeyMenuCommand(Nimbus.keyMenu.keys.join(""));
+		Nimbus.keyMenu.keys = [];
+	}
+}
+
 function handleKeyDown(e)
 {
 	let shouldPreventDefault = true;
@@ -1003,14 +1064,14 @@ function handleKeyDown(e)
 			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.L: showLog(); break;
 			case KEYCODES.M: toggleHighlightMap(3, 0, 3); break;
-			case KEYCODES.N: numberDivs(); break;
+			case KEYCODES.N: showMessageBig("Unbound"); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatchesInDocument, true); break;
 			case KEYCODES.P: fixParagraphs(); break;
 			case KEYCODES.Q: resetHighlightTag(); Nimbus.selectionHighlightMode = "sentence"; break;
 			case KEYCODES.R: toggleHighlight(); break;
 			case KEYCODES.S: toggleContentEditable(); break;
 			case KEYCODES.T: capitalizeTitle(); break;
-			case KEYCODES.U: showMessageBig("Unbound"); break;
+			case KEYCODES.U: toggleKeyMenu(); break;
 			case KEYCODES.V: cleanupBarebone(); break;
 			case KEYCODES.W: highlightSelection("word"); break;
 			case KEYCODES.X: joinNodesContainingSelection(); break;

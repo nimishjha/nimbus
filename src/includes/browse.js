@@ -248,6 +248,11 @@ export function cycleTheme()
 	cycleClass(document.documentElement, ["nimbusThemeSepia", "nimbusThemeRed", "nimbusThemeBlack", "nimbusThemeHideLinks", "nimbusThemeDimGrey", "none"]);
 }
 
+export function setTheme(str)
+{
+	document.documentElement.className = str;
+}
+
 export function setBodyOpacity(n)
 {
 	const styleId = "styleBodyOpacity";

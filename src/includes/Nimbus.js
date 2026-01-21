@@ -82,4 +82,8 @@ export const Nimbus = {
 	consoleLog: noop,
 	consoleWarn: noop,
 	consoleError: noop,
+	keyMenu: {
+		isActive: false,
+		keys: [],
+	}
 };
