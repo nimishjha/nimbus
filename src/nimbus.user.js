@@ -150,7 +150,7 @@ import {
 	removeSpanTags,
 	removeUnnecessaryClasses,
 	replaceAudio,
-	replaceClassesWithCustomElements,
+	convertClassesToCustomElements,
 	replaceCommonClasses,
 	replaceIframes,
 	replaceInlineStylesWithClasses,
@@ -819,7 +819,7 @@ const availableFunctions = {
 	replaceBrs: replaceBrs,
 	replaceByClassOrIdContaining: replaceByClassOrIdContaining,
 	replaceClass: replaceClass,
-	replaceClassesWithCustomElements: replaceClassesWithCustomElements,
+	convertClassesToCustomElements: convertClassesToCustomElements,
 	replaceCommonClasses: replaceCommonClasses,
 	replaceDiacritics: replaceDiacritics,
 	replaceElementsBySelector: replaceElementsBySelector,
@@ -984,6 +984,7 @@ function handleKeyMenuCommand(str)
 		case "T1": setTheme("none"); break;
 		case "T2": setTheme("nimbusThemeRed"); break;
 		case "T3": setTheme("nimbusThemeSepia"); break;
+
 		default: showMessageBig(`Unknown command ${str}`);
 	}
 }

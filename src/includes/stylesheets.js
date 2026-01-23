@@ -306,7 +306,7 @@ XO { color: #11AACC; }
 XP { color: #11FF00; }
 XS { color: #1CF; background: #113060; }
 
-mark, markgreen, markred, markblue, markpurple, markyellow, markwhite { padding: 3px 0; line-height: inherit; }
+mark, markgreen, markred, markblue, markpurple, markyellow, markwhite { padding: 2px 0; line-height: inherit; }
 mark { background: #048; color: #6CF; }
 markgreen { background: #150; color: #3F0; }
 markred { background: #400; color: #C00; }

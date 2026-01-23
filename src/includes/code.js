@@ -1,6 +1,6 @@
 import { unwrapAll, removeAttributeOf, makePlainText } from "./element";
 import { get } from "./selectors";
-import { replaceInlineStylesWithClasses, replaceClassesWithCustomElements } from "./cleanup";
+import { replaceInlineStylesWithClasses, convertClassesToCustomElements } from "./cleanup";
 import { preReplaceBrs } from "./preformatted";
 
 function parseCode(s)
@@ -126,19 +126,19 @@ export function highlightCode(shouldHighlightKeywords)
 	if(get("pre span[style]"))
 	{
 		replaceInlineStylesWithClasses();
-		replaceClassesWithCustomElements("pre span", "x");
+		convertClassesToCustomElements("pre span", "x");
 		unwrapAll("pre span");
 		return;
 	}
 	if(get("pre span[class]"))
 	{
-		replaceClassesWithCustomElements("pre span", "x");
+		convertClassesToCustomElements("pre span", "x");
 		unwrapAll("pre span");
 		return;
 	}
 	else if(get("pre code[class]"))
 	{
-		replaceClassesWithCustomElements("pre code", "x");
+		convertClassesToCustomElements("pre code", "x");
 		unwrapAll("pre code");
 		return;
 	}

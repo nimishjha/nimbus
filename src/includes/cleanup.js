@@ -704,7 +704,7 @@ export function replaceInlineStylesWithClasses(selector = "span[style]")
 	}
 }
 
-export function replaceClassesWithCustomElements(selector, baseTagName)
+export function convertClassesToCustomElements(selector, baseTagName)
 {
 	if(typeof selector !== "string") return;
 	const classes = getAllClassesFor(selector);
