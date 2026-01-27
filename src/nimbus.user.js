@@ -1030,6 +1030,7 @@ function handleKeyDown(e)
 			case KEYCODES.TILDE: highlightSelection(); break;
 			case KEYCODES.NUMPAD1: removeAttributeOf("body *", "class"); break;
 			case KEYCODES.NUMPAD2: removeAttributeOf("body *", "id"); break;
+			case KEYCODES.NUMPAD3: removeRedundantDivs(); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.NUMPAD5: toggleHighlightSelectionMode(); break;
 			case KEYCODES.NUMPAD6: retrieveLargeImages(); break;

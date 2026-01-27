@@ -110,7 +110,7 @@ export function fixInternalReferences()
 	};
 	const regexIsNumeric = /^\[\d+\]$/;
 	const regexIsNumberInBraces = /^\{\d+\}$/;
-	const regexIsNumericWithPeriod = /\d+\.$/;
+	const regexIsNumericWithPeriod = /^\d+\.$/;
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
 	{
 		const link = internalLinks[i];
