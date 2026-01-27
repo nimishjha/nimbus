@@ -11,6 +11,7 @@ import { toggleStyle, insertStyle } from "./style";
 import { STYLES } from "./stylesheets";
 import { BLOCK_ELEMENTS, INLINE_ELEMENTS } from "./constants";
 import { identifyClassSetup } from "./identifyClass";
+import { getMarkedElements } from "./mark";
 
 export function traceLineage(element)
 {
@@ -472,12 +473,17 @@ export function getMarkedHTML()
 		if(elem) elem.remove();
 		del("#" + id);
 	}
-	const elem = getOne(".markd");
-	if(!elem) return;
+
+	const elems = getMarkedElements();
+	if(!elems) return;
+
 	const ta = document.createElement("textarea");
 	ta.id = id;
-	ta.value = elem.innerHTML;
 	ta.setAttribute("style", "position: fixed; top: 100px; left: 100px; width: 80vw; height: 80vh;");
+
+	for(const elem of elems)
+		ta.value += "<section>" + elem.innerHTML + "</section>";
+
 	document.body.appendChild(ta);
 	ta.focus();
 	ta.select();
