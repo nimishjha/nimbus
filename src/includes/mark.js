@@ -149,7 +149,7 @@ export function markByCssRule(prop, value, selector)
 
 export function markBySelector(selector)
 {
-	const elems = get(selector);
+	const elems = get(selector.replaceAll("\"", ""));
 	if(!elems)
 	{
 		showMessageError("No elements matching " + selector);
@@ -187,31 +187,6 @@ export function markBySelectorAndRegex(selector, regexString, boolInvertSelectio
 export function markByTagNameAndText(tagName, str)
 {
 	markElements(selectByTagNameAndText(tagName, str));
-}
-
-export function markElementsWithSetWidths()
-{
-	showMessageBig("Finding divs with pixel widths...");
-	const elems = get("div");
-	if(!elems) return;
-	let i = elems.length, j, cssRules;
-	while(i--)
-	{
-		const elem = elems[i];
-		cssRules = getAllCssRulesForElement(elem);
-		j = cssRules.length;
-		while(j--)
-		{
-			if(/width:[^;]*px/.test(cssRules[j]))
-			{
-				markElement(elem);
-				elem.innerHTML = "<x>#" + elem.id + " ." + elem.className + " " + getComputedStyle(elem, null).getPropertyValue("width") + "</x>" + elem.innerHTML;
-				ylog(cssRules[j]);
-			}
-		}
-	}
-	insertStyle("x { background: #000; color: #FFF; padding: 2px 4px; display: block; font: 12px verdana;  } .xlog { clear: both; }", "styleMarkElementsWithSetWidths", true);
-	insertStyleHighlight();
 }
 
 export function markNavigationalLists()

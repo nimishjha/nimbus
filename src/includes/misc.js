@@ -1,5 +1,6 @@
 import { get } from "./selectors";
 import { createElement } from "./element";
+import { Nimbus } from "./Nimbus";
 
 export function isNumber(s)
 {
@@ -154,3 +155,8 @@ export function getViewportHeight()
 export function isChrome() { return navigator.userAgent.indexOf("Chrome/") !== -1; }
 export function isIframe() { return window !== window.top; }
 export function noop(){};
+
+export function toggleShowKeyCodes()
+{
+	Nimbus.showKeyCodes = !Nimbus.showKeyCodes;
+}

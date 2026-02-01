@@ -148,20 +148,6 @@ export function shortenImageSrc(src)
 	return imageFileName;
 }
 
-export function replaceImagesWithAltText()
-{
-	const imgs = get("img");
-	for(let i = 0, ii = imgs.length; i < ii; i++)
-	{
-		const img = imgs[i];
-		const altText = img.alt;
-		if(altText && altText.length)
-			img.parentNode.replaceChild(createElementWithText("small", altText), img);
-		else
-			img.remove();
-	}
-}
-
 export function replaceImagesWithTextLinks()
 {
 	if(getOne("rt"))
@@ -233,6 +219,11 @@ export function getImageWidth(image)
 export function getImageHeight(image)
 {
 	return image.naturalHeight || image.clientHeight;
+}
+
+export function setMinPersistSize(side)
+{
+	Nimbus.minPersistSize = side;
 }
 
 export function persistStreamingImages(minSize)

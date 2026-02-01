@@ -101,6 +101,12 @@ export function highlightAllMatchesInDocumentRegex(regex)
 		highlightInTextNodeRegex(textNodes[i], regex);
 }
 
+export function highlightAllMatchesInDocumentWithWordExpansion(str)
+{
+	let regex = new RegExp("(\\w*" + escapeForRegExp(str) + "\\w*)", "gi");
+	highlightAllMatchesInDocumentRegex(regex);
+}
+
 export function toggleHighlight()
 {
 	const markedElements = getMarkedElements();
@@ -510,6 +516,12 @@ export function highlightLinksWithHrefContaining(str)
 		if(~link.href.indexOf(str))
 			wrapElementInner(link, highlightTagName);
 	}
+}
+
+export function setHighlightTag(tagName)
+{
+	showMessageBig({ text: `Highlight tag is ${tagName}`, tag: tagName });
+	Nimbus.highlightTagName = tagName;
 }
 
 export function cycleHighlightTag()

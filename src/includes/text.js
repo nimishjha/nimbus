@@ -81,7 +81,7 @@ export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 
 	let WRAPPER_TAGNAME;
 	let CHILD_TAGNAME;
-	if(["h1", "h2", "h3", "h4", "h5", "h6"].includes(elems[0].tagName))
+	if(["H1", "H2", "H3", "H4", "H5", "H6"].includes(elems[0].tagName))
 	{
 		WRAPPER_TAGNAME = "hgroup";
 		CHILD_TAGNAME = elems[0].tagName;
@@ -139,18 +139,24 @@ export function replaceBrs()
 {
 	const brs = get("br");
 	if(!brs) return;
+
+	const elementsWithBrs = new Set();
 	for(let i = 0, ii = brs.length; i < ii; i++)
 	{
 		const parent = brs[i].parentNode;
-		if(parent) parent.classList.add("hasBrs");
+		if(parent)
+			elementsWithBrs.add(parent);
 	}
-	const elems = get(".hasBrs");
-	if(!elems) return;
-	for(let i = 0, ii = elems.length; i < ii; i++)
-		splitByBrs(elems[i]);
+
+	for(const elem of elementsWithBrs.entries())
+	{
+		splitByBrs(elem[0]);
+	}
+
+	del("br:first-child");
+	del("br:last-child");
+
 	replaceElementsBySelector("br", "brk");
-	del("brk:first-child");
-	del("brk:last-child");
 }
 
 export function replaceDiacritics(str)
@@ -343,10 +349,11 @@ export function italicizeSelection()
 	node.parentNode.replaceChild(frag, node);
 }
 
-export function makeAllTextLowerCase()
+export function makeTextLowerCase()
 {
-	const textNodes = getTextNodesUnderSelector("body");
-	for(const node of textNodes) node.data = node.data.toLowerCase();
+	const textNodes = getOne(makeClassSelector(Nimbus.markerClass)) ? getTextNodesUnderSelector(null, Nimbus.markerClass) : getTextNodesUnderSelector("body");
+	for(const node of textNodes)
+		node.data = node.data.toLowerCase();
 }
 
 export function removeEmojis()
@@ -395,6 +402,8 @@ export function boldInlineColonHeadings()
 
 export function fixDashes()
 {
+	const t1 = new Date();
+
 	const ps = get("p, li, blockquote");
 	for(const p of ps)
 		p.innerHTML = removeLineBreaks(p.innerHTML);
@@ -423,6 +432,9 @@ export function fixDashes()
 	}
 	if(replCount)
 		showMessageBig(`${replCount} replacements made`);
+
+	const t2 = new Date();
+	console.log(`fixDashes: ${t2 - t1} ms`);
 }
 
 export function toggleDashes()

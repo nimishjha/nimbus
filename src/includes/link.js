@@ -107,6 +107,8 @@ export function fixInternalReferences()
 		"H4": true,
 		"H5": true,
 		"H6": true,
+		"DT": true,
+		"DD": true,
 	};
 	const regexIsNumeric = /^\[\d+\]$/;
 	const regexIsNumberInBraces = /^\{\d+\}$/;

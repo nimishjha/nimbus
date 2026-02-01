@@ -26,7 +26,7 @@ import { replaceClass } from "./dom";
 import { callFunctionWithArgs } from "./command";
 import { countDuplicateIDs } from "./validations";
 
-export function replaceIframes()
+function replaceIframes()
 {
 	const elems = get("iframe");
 	if(!elems) return;
@@ -259,13 +259,6 @@ export function deleteNonContentLinks()
 
 export function deleteNonContentElements()
 {
-	const markedElements = getMarkedElements();
-	if(markedElements)
-	{
-		del(markedElements);
-		cleanupDocument();
-		return;
-	}
 	replaceElementsBySelector("article", "div");
 	markNavigationalLists();
 	deleteNonContentLists();
@@ -479,8 +472,12 @@ export function replaceCommonClasses()
 
 	removeAttributeOf("a, i, b, sup, small", "class");
 
-	replaceElementsBySelector(".indexmain", "dt");
-	replaceElementsBySelector(".indexsub", "dd");
+	if(getOne(".indexmain") && getOne(".indexsub"))
+	{
+		replaceElementsBySelector(".indexmain", "dt");
+		replaceElementsBySelector(".indexmain1", "dt");
+		replaceElementsBySelector(".indexsub", "dd");
+	}
 
 	deleteClass("indent");
 }

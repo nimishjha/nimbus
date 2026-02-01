@@ -40,12 +40,12 @@ export function insertStyleHighlight()
 		a.${Nimbus.markerClass}::after, span.${Nimbus.markerClass}::after { content: ""; display: inline; clear: none; }
 		mark, markgreen, markred, markblue, markpurple, markyellow, markwhite { padding: 3px 0; line-height: inherit; }
 		mark { background: #303336; color: #808488; }
-		markgreen { background: #040; color: #0B0; }
-		markred { background: #500; color: #E33; }
-		markblue { background: #005; color: #66D; }
-		markpurple { background: #204; color: #C7E; }
-		markyellow { background: #630; color: #d0a000; }
-		markwhite { background: #000; color: #c0c4c8; }
+		markgreen  { background: #040; color: #0B0; }
+		markred    { background: #500; color: #E33; }
+		markblue   { background: #005; color: #66D; }
+		markpurple { background: #180030; color: #60A; }
+		markyellow { background: #630; color: #c0b040; }
+		markwhite  { background: #000; color: #c0c0c0; }
 	`;
 	insertStyle(s, "styleHighlight", true);
 }
