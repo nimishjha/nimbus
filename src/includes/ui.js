@@ -302,7 +302,7 @@ export function showStatus(id, str)
 export function showPanel(panelText)
 {
 	const strStyle = `
-		panel { display: block; background: rgba(0,0,0,0.75); font-size: 20px; font-family: "swis721 cn bt"; color: #888; height: 100vh; position: fixed; top: 0; left: 0; bottom: 0; width: 30%; z-index: 2147483647; }
+		panel { display: block; background: rgba(0,0,0,0.75); font-size: 20px; font-family: "swis721 cn bt"; color: #888; height: 100vh; position: fixed; top: 0; left: 0; bottom: 0; width: 100%; z-index: 2147483647; }
 		panelinner { display: block; text-align: left; padding: 0 2rem; font: inherit; white-space: pre; }
 	`;
 	if(getOne("panel"))

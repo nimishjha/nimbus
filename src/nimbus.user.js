@@ -86,7 +86,6 @@ import {
 	selectElementsEndingWithText,
 	selectElementsStartingWithText,
 	selectNodesBetweenMarkers,
-	unmark,
 } from "./includes/selectors";
 import {
 	getTextNodesUnderElement,
@@ -152,7 +151,6 @@ import {
 	replaceAudio,
 	convertClassesToCustomElements,
 	replaceCommonClasses,
-	replaceIframes,
 	replaceInlineStylesWithClasses,
 	setDocTitle,
 	setDocumentHeading,
@@ -169,6 +167,7 @@ import {
 	showMessage,
 	showMessageBig,
 	showMessageError,
+	showPanel,
 	showStatus,
 } from "./includes/ui";
 import { replaceInTextNodes, replaceInPreTextNodes, replaceInTextNodesRegex } from "./includes/textReplace";
@@ -247,9 +246,9 @@ import {
 	toggleInvertImages,
 	persistStreamingImages,
 	removeQueryStringFromImageSources,
-	replaceImagesWithAltText,
 	replaceImagesWithTextLinks,
 	retrieveLargeImages,
+	setMinPersistSize,
 	shortenImageSrc,
 	showSavedStreamingImages,
 	slideshowChangeSlide,
@@ -281,6 +280,7 @@ import {
 	makeIdSelector,
 	noop,
 	selectRandom,
+	toggleShowKeyCodes,
 	toNumber,
 	zeroPad,
 } from "./includes/misc";
@@ -308,7 +308,7 @@ import {
 	invertItalics,
 	italicizeSelection,
 	joinByBrs,
-	makeAllTextLowerCase,
+	makeTextLowerCase,
 	makeParagraphsByLineBreaks,
 	normalizeAllWhitespace,
 	removeAllEmphasis,
@@ -472,6 +472,7 @@ import {
 	highlightAllMatchesInDocument,
 	highlightAllMatchesInDocumentCaseSensitive,
 	highlightAllMatchesInDocumentRegex,
+	highlightAllMatchesInDocumentWithWordExpansion,
 	highlightAllStrings,
 	highlightAllTextNodesMatching,
 	highlightBySelectorAndText,
@@ -502,6 +503,7 @@ import {
 	removeAllHighlights,
 	removeHighlightsFromMarkedElements,
 	resetHighlightTag,
+	setHighlightTag,
 	toggleHighlight,
 	toggleHighlightSelectionMode,
 } from "./includes/highlight";
@@ -564,7 +566,6 @@ import {
 	markByTagNameAndText,
 	markElements,
 	markElementsWithSameClass,
-	markElementsWithSetWidths,
 	markNavigationalLists,
 	markNumericElements,
 	markSelectionAnchorNode,
@@ -620,6 +621,9 @@ import {
 	retrieveElements,
 	retrieveGrouped,
 } from "./includes/retrieve";
+import {
+	keyMenuOptionsByKey
+} from "./includes/keyMenu.js";
 
 const isDebugMode = true;
 
@@ -638,6 +642,7 @@ const availableFunctions = {
 	cleanupHead: cleanupHead,
 	cleanupHeadings: cleanupHeadings,
 	cleanupLinks: cleanupLinks,
+	convertClassesToCustomElements: convertClassesToCustomElements,
 	convertDivsToParagraphs: convertDivsToParagraphs,
 	convertLineBreaksToBrs: convertLineBreaksToBrs,
 	copyAttribute: copyAttribute,
@@ -645,7 +650,6 @@ const availableFunctions = {
 	createListsFromBulletedParagraphs: createListsFromBulletedParagraphs,
 	cycleFocusOverFormFields: cycleFocusOverFormFields,
 	cycleThroughDocumentHeadings: cycleThroughDocumentHeadings,
-	del: del,
 	deleteByClassOrIdContaining: deleteByClassOrIdContaining,
 	deleteBySelectorAndExactText: deleteBySelectorAndExactText,
 	deleteBySelectorAndNormalizedText: deleteBySelectorAndNormalizedText,
@@ -713,6 +717,8 @@ const availableFunctions = {
 	hideNonVideoContent: hideNonVideoContent,
 	hideReferences: hideReferences,
 	highlightAllMatchesInDocument: highlightAllMatchesInDocument,
+	highlightAllMatchesInDocumentRegex: highlightAllMatchesInDocumentRegex,
+	highlightAllMatchesInDocumentWithWordExpansion: highlightAllMatchesInDocumentWithWordExpansion,
 	highlightAllStrings: highlightAllStrings,
 	highlightBySelectorAndText: highlightBySelectorAndText,
 	highlightCode: highlightCode,
@@ -736,11 +742,7 @@ const availableFunctions = {
 	ih: forceImageHeight,
 	inlineFootnotes: inlineFootnotes,
 	insertAroundAll: insertAroundAll,
-	insertElementBeforeSelectionAnchor: insertElementBeforeSelectionAnchor,
-	insertHrBeforeAll: insertHrBeforeAll,
 	insertSpacesAround: insertSpacesAround,
-	insertStyle: insertStyle,
-	insertStyleHighlight: insertStyleHighlight,
 	inspect: inspect,
 	iw: forceImageWidth,
 	joinAdjacentElements: joinAdjacentElements,
@@ -749,7 +751,7 @@ const availableFunctions = {
 	joinParagraphsByLastChar: joinParagraphsByLastChar,
 	listSelectorsWithLightBackgrounds: listSelectorsWithLightBackgrounds,
 	logAllClassesFor: logAllClassesFor,
-	makeAllTextLowerCase: makeAllTextLowerCase,
+	makeTextLowerCase: makeTextLowerCase,
 	makeButtonsReadable: makeButtonsReadable,
 	makeChildOf: makeChildOf,
 	makeDocumentHierarchical: makeDocumentHierarchical,
@@ -763,7 +765,6 @@ const availableFunctions = {
 	markAllFollowingSiblings: markAllFollowingSiblings,
 	markBlockElementsContainingText: markBlockElementsContainingText,
 	markByChildrenHavingTheExactText: markByChildrenHavingTheExactText,
-	markByClassOrIdContaining: markByClassOrIdContaining,
 	markByCssRule: markByCssRule,
 	markBySelector: markBySelector,
 	markBySelectorAndNormalizedText: markBySelectorAndNormalizedText,
@@ -771,7 +772,6 @@ const availableFunctions = {
 	markByTagNameAndText: markByTagNameAndText,
 	markElementsWithChildrenSpanning: markElementsWithChildrenSpanning,
 	markElementsWithSameClass: markElementsWithSameClass,
-	markElementsWithSetWidths: markElementsWithSetWidths,
 	markNavigationalLists: markNavigationalLists,
 	markNodesBetweenMarkers: markNodesBetweenMarkers,
 	markNumericElements: markNumericElements,
@@ -784,7 +784,6 @@ const availableFunctions = {
 	numberDivs: numberDivs,
 	numberNumericReferencesByInterlinkedGroup: numberNumericReferencesByInterlinkedGroup,
 	numberTableRowsAndColumns: numberTableRowsAndColumns,
-	om: toggleMutationObserver,
 	persistStreamingImages: persistStreamingImages,
 	preMakeDivsFromLineBreaks: preMakeDivsFromLineBreaks,
 	preRemoveMultiLineBreaks: preRemoveMultiLineBreaks,
@@ -819,7 +818,6 @@ const availableFunctions = {
 	replaceBrs: replaceBrs,
 	replaceByClassOrIdContaining: replaceByClassOrIdContaining,
 	replaceClass: replaceClass,
-	convertClassesToCustomElements: convertClassesToCustomElements,
 	replaceCommonClasses: replaceCommonClasses,
 	replaceDiacritics: replaceDiacritics,
 	replaceElementsBySelector: replaceElementsBySelector,
@@ -827,8 +825,6 @@ const availableFunctions = {
 	replaceEmptyAnchors: replaceEmptyAnchors,
 	replaceEmptyParagraphsWithHr: replaceEmptyParagraphsWithHr,
 	replaceFontTags: replaceFontTags,
-	replaceIframes: replaceIframes,
-	replaceImagesWithAltText: replaceImagesWithAltText,
 	replaceImagesWithTextLinks: replaceImagesWithTextLinks,
 	replaceInClassNames: replaceInClassNames,
 	replaceInlineStylesWithClasses: replaceInlineStylesWithClasses,
@@ -838,7 +834,6 @@ const availableFunctions = {
 	replaceMarkedWithTextElement: replaceMarkedWithTextElement,
 	replaceNonStandardElements: replaceNonStandardElements,
 	replaceQueryParameter: replaceQueryParameter,
-	replaceSpecialCharacters: replaceSpecialCharacters,
 	replaceTables: replaceTables,
 	rescueOrphanedInlineElements: rescueOrphanedInlineElements,
 	rescueOrphanedTextNodes: rescueOrphanedTextNodes,
@@ -855,9 +850,9 @@ const availableFunctions = {
 	setDocTitle: setDocTitle,
 	setElementsToCycleThrough: setElementsToCycleThrough,
 	setGroupTagName: setGroupTagName,
-	setHighlightMapColor: setHighlightMapColor,
 	setItalicTag: setItalicTag,
 	setMarkerClass: setMarkerClass,
+	setMinPersistSize: setMinPersistSize,
 	setQueryParameter: setQueryParameter,
 	setReplacementTag1: setReplacementTag1,
 	setReplacementTag2: setReplacementTag2,
@@ -876,16 +871,9 @@ const availableFunctions = {
 	toggleBlockEditMode: toggleBlockEditMode,
 	toggleContentEditable: toggleContentEditable,
 	toggleHighlightMap: toggleHighlightMap,
-	toggleHighlightSelectionMode: toggleHighlightSelectionMode,
-	toggleMutationObserver: toggleMutationObserver,
 	toggleNimbusStyles: toggleNimbusStyles,
-	toggleShowEmptyLinksAndSpans: toggleShowEmptyLinksAndSpans,
-	toggleShowSelectors: toggleShowSelectors,
-	toggleStyleNegative: toggleStyleNegative,
 	unhideNonVideoContent: unhideNonVideoContent,
 	unhighlightAll: removeAllHighlights,
-	unmark: unmark,
-	unmarkAll: unmarkAll,
 	unmarkFromBeginning: unmarkFromBeginning,
 	unmarkFromEnd: unmarkFromEnd,
 	unwrapAll: unwrapAll,
@@ -901,17 +889,20 @@ const availableFunctions = {
 };
 
 const consoleFunctions = [
+	del,
+	insertStyle,
+	logPropertiesMatching,
+	logValuesMatching,
+	setHighlightMapColor,
+	showMessage,
+	showMessageBig,
+	showMessageError,
 	trimAt,
 	trimAtInclusive,
 	trimBetween,
 	trimNonAlphanumeric,
 	trimSpecialChars,
 	trimStartingAt,
-	logPropertiesMatching,
-	logValuesMatching,
-	showMessage,
-	showMessageBig,
-	showMessageError,
 ];
 
 Nimbus.blockElementSelector = Object.keys(BLOCK_ELEMENTS).join();
@@ -952,20 +943,14 @@ function inject()
 	setTimeout(doWebsiteSpecificTasks, 1000);
 }
 
-function toggleKeyMenu()
+//
+//
+//
+
+function disableKeyMenu()
 {
-	if(Nimbus.keyMenu.isActive)
-	{
-		document.removeEventListener("keydown", handleKeyMenu, false);
-		Nimbus.keyMenu.isActive = false;
-		showMessageBig("Key menu disabled");
-	}
-	else
-	{
-		document.addEventListener("keydown", handleKeyMenu, false);
-		Nimbus.keyMenu.isActive = true;
-		showMessageBig("Key menu enabled");
-	}
+	document.removeEventListener("keydown", handleKeyMenu, false);
+	Nimbus.keyMenu.isActive = false;
 }
 
 function handleKeyMenuCommand(str)
@@ -975,18 +960,130 @@ function handleKeyMenuCommand(str)
 		showMessageBig("Invalid command: " + str);
 		return;
 	}
-	switch(str)
+
+	deleteMessage();
+
+	if(str[1] === ".")
 	{
-		case "M1": toggleHighlightMap(3, 0, 3); break;
-		case "M2": toggleHighlightMap(4, 1, 4); break;
-		case "M3": toggleHighlightMap(4, 1, 20); break;
-
-		case "T1": setTheme("none"); break;
-		case "T2": setTheme("nimbusThemeRed"); break;
-		case "T3": setTheme("nimbusThemeSepia"); break;
-
-		default: showMessageBig(`Unknown command ${str}`);
+		showKeyMenuOptions(str[0]);
+		Nimbus.keyMenu.keys = [str[0]];
 	}
+	else
+	{
+		switch(str)
+		{
+			case "AB": setTheme("nimbusThemeBlack"); break;
+			case "AD": setTheme("nimbusThemeDimGrey"); break;
+			case "AL": setTheme("nimbusThemeHideLinks"); break;
+			case "AN": setTheme("none"); break;
+			case "AR": setTheme("nimbusThemeRed"); break;
+			case "AS": setTheme("nimbusThemeSepia"); break;
+
+			case "BK": toggleShowKeyCodes(); break;
+
+			case "CB": cleanupBarebone(); break;
+			case "CC": getContentByParagraphCount(); break;
+			case "CD": cleanupDocument(); break;
+			case "CJ": toggleConsole("js"); break;
+			case "CS": toggleConsole("css"); break;
+			case "CO": makeOL(); break;
+			case "CT": capitalizeTitle(); break;
+			case "CU": makeUL(); break;
+
+			case "DA": deleteNodesAfterAnchorNode(); break;
+			case "DB": deleteNodesBeforeAnchorNode(); break;
+			case "DC": callFunctionWithArgs("Delete class", deleteClass, 1); break;
+			case "DE": callFunctionWithArgs("Delete elements (optionally containing text)", deleteBySelectorAndTextMatching); break;
+			case "DF": deleteIframes(); break;
+			case "DI": deleteImages(); break;
+			case "DJ": removeEmojis(); break;
+			case "DN": deleteNonContentElements(); break;
+			case "DP": callFunctionWithArgs("Delete elements with class or id containing text", deleteByClassOrIdContaining); break;
+			case "DR": deleteResources(); break;
+			case "DT": callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
+			case "DY": deleteEmptyBlockElements(); break;
+
+			case "ET": editDocumentTitle(); break;
+
+			case "FD": fixDashes(); break;
+			case "FP": fixParagraphs(); break;
+			case "FR": fixTextAroundReferences(); break;
+
+			case "HA": getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatchesInDocument, true); break;
+			case "HE": callFunctionWithArgs("Highlight elements by tag name containing text", highlightByTagNameAndText, 2); break;
+			case "HC": callFunctionWithArgs("Set highlight map color", setHighlightMapColor, 2); break;
+			case "HP": highlightCode(true); break;
+			case "HR": removeAllHighlights(); break;
+			case "HS": getSelectionOrUserInput("Highlight all occurrences of string (case-sensitive)", highlightAllMatchesInDocumentCaseSensitive, true); break;
+			case "HT": customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
+			case "HW": callFunctionWithArgs("Highlight all matches with word expansion", highlightAllMatchesInDocumentWithWordExpansion, 1); break;
+
+			case "MC": markElementsWithSameClass(); break;
+			case "MP": callFunctionWithArgs("Mark elements by class or id containing text", markByClassOrIdContaining, 1); break;
+			case "MS": callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
+			case "MU": unmarkAll(); break;
+			case "MX": customPrompt("Mark by xPath").then(xPathMark); break;
+			case "M1": toggleHighlightMap(3, 0, 3); break;
+			case "M2": toggleHighlightMap(4, 0, 4); break;
+			case "M3": toggleHighlightMap(4, 1, 4); break;
+			case "M4": toggleHighlightMap(4, 1, 20); break;
+
+			case "PT": callFunctionWithArgs("Make plain text", makePlainText, 1); break;
+
+			case "RB": replaceBrs(); break;
+			case "RE": replaceElementsBySelectorHelper(); break;
+			case "RM": callFunctionWithArgs("Replace marked element with element containing text", replaceMarkedWithTextElement, 2, "h2 "); break;
+			case "RS": replaceSpecialCharacters(); break;
+			case "RT": replaceTables(); break;
+
+			case "TX": deleteNonEnglishText(); makeTextLowerCase(); break;
+			case "TL": makeTextLowerCase(); break;
+
+			case "UA": callFunctionWithArgs("Unwrap all", unwrapAll, 1); break;
+			case "UE": callFunctionWithArgs("Unwrap all except", unwrapAllExcept, 1); break;
+			case "UM": unwrapAll(".markd"); break;
+
+			case "VB": cleanupBarebone(); break;
+			case "VC": simplifyClassNames(); break;
+			case "VD": removeRedundantDivs(); break;
+			case "VH": removeRedundantHrs(); break;
+			case "VI": shortenIds(); break;
+			case "VU": removeUnnecessaryClasses(); break;
+
+			case "WA": callFunctionWithArgs("Wrap all", wrapAll, 2); break;
+			case "WI": callFunctionWithArgs("Wrap all inner", wrapAllInner, 2); break;
+
+			case "YF": toggleStyle(STYLES.FONT_01, "styleFont01", true); break;
+			case "YH": insertStyleHighlight(); break;
+			case "YI": toggleStyle(STYLES.INVERT_IMAGES, "styleInvertImages", true); break;
+			case "YL": toggleStyle(STYLES.INDICATE_LINK_ATTRIBUTES, "styleIndicateLinkAttributes", true); break;
+			case "YN": toggleStyleNegative(); break;
+			case "YO": toggleStyle(STYLES.OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
+			case "YS": toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
+
+			case "ZB": setHighlightTag("markblue"); break;
+			case "ZG": setHighlightTag("markgreen"); break;
+			case "ZM": setHighlightTag("mark"); break;
+			case "ZP": setHighlightTag("markpurple"); break;
+			case "ZR": setHighlightTag("markred"); break;
+			case "ZW": setHighlightTag("markwhite"); break;
+			case "ZY": setHighlightTag("markyellow"); break;
+
+			default: showMessageBig(`Unknown command ${str}`);
+		}
+	}
+
+	if(Nimbus.keyMenu.shouldExitMenuModeAfterCommand)
+		disableKeyMenu();
+}
+
+function showKeyMenuOptions(key)
+{
+	const options = keyMenuOptionsByKey[key];
+	if(options)
+		showPanel(options);
+	else
+		showMessageBig(`No commands starting with ${key}`);
 }
 
 function handleKeyMenu(evt)
@@ -998,9 +1095,10 @@ function handleKeyMenu(evt)
 	{
 		Nimbus.keyMenu.keys = [];
 		toggleKeyMenu();
+		deleteMessage();
 		return;
 	}
-	if(evt.keyCode < 48 || evt.keyCode > 90)
+	if(!((evt.keyCode > 47 && evt.keyCode < 91) || evt.keyCode === 190))
 		return;
 
 	evt.preventDefault();
@@ -1011,15 +1109,63 @@ function handleKeyMenu(evt)
 		handleKeyMenuCommand(Nimbus.keyMenu.keys.join(""));
 		Nimbus.keyMenu.keys = [];
 	}
+	else
+	{
+		showMessageBig(Nimbus.keyMenu.keys[0], true);
+	}
 }
+
+function toggleKeyMenu(firstKey)
+{
+	if(Nimbus.keyMenu.isActive)
+	{
+		document.removeEventListener("keydown", handleKeyMenu, false);
+		Nimbus.keyMenu.keys = [];
+		Nimbus.keyMenu.isActive = false;
+		showMessageBig("Key menu disabled");
+	}
+	else
+	{
+		if(firstKey)
+		{
+			Nimbus.keyMenu.shouldExitMenuModeAfterCommand = true;
+			Nimbus.keyMenu.keys = [firstKey];
+			showMessageBig(firstKey, true);
+		}
+		else
+		{
+			Nimbus.keyMenu.shouldExitMenuModeAfterCommand = false;
+			showMessageBig("Key menu enabled");
+		}
+
+		document.addEventListener("keydown", handleKeyMenu, false);
+		Nimbus.keyMenu.isActive = true;
+	}
+}
+
+//
+//
+//
 
 function handleKeyDown(e)
 {
 	let shouldPreventDefault = true;
 	const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
-	if(!(e.altKey || e.shiftKey || e[ctrlOrMeta])) return;
+	if(!(e.altKey || e.shiftKey || e[ctrlOrMeta]))
+	{
+		if(e.keyCode === KEYCODES.F1 || e.keyCode === KEYCODES.F2)
+			toggleKeyMenu();
+		else if(e.keyCode === KEYCODES.ESCAPE)
+			deleteMessage();
+		if(Nimbus.showKeyCodes)
+			console.log(e.keyCode);
+
+		return;
+	}
+
 	deleteMessage();
 	const k = e.keyCode;
+
 	//
 	//	Alt
 	//
@@ -1028,14 +1174,14 @@ function handleKeyDown(e)
 		switch(k)
 		{
 			case KEYCODES.TILDE: highlightSelection(); break;
-			case KEYCODES.NUMPAD1: removeAttributeOf("body *", "class"); break;
-			case KEYCODES.NUMPAD2: removeAttributeOf("body *", "id"); break;
+			case KEYCODES.NUMPAD1: simplifyClassNames(); break;
+			case KEYCODES.NUMPAD2: shortenIds(); break;
 			case KEYCODES.NUMPAD3: removeRedundantDivs(); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
-			case KEYCODES.NUMPAD5: toggleHighlightSelectionMode(); break;
+			case KEYCODES.NUMPAD5: toggleHighlightMap(3, 0, 3); break;
 			case KEYCODES.NUMPAD6: retrieveLargeImages(); break;
 			case KEYCODES.NUMPAD7: groupMarkedElements(Nimbus.GROUP_TAGNAME); break;
-			case KEYCODES.NUMPAD8: toggleNonVideoContent(); break;
+			case KEYCODES.NUMPAD8: showMessageBig("Unbound"); break;
 			case KEYCODES.NUMPAD9: toggleNimbusStyles(); break;
 			case KEYCODES.NUMPAD0: deleteResources(); break;
 			case KEYCODES.NUMPAD_ADD: persistStreamingImages(); break;
@@ -1051,34 +1197,37 @@ function handleKeyDown(e)
 			case KEYCODES.THREE: toggleClass(document.body, "xwrap"); break;
 			case KEYCODES.FOUR: deleteSmallImages(); break;
 			case KEYCODES.FIVE: buildGallery(); break;
-			case KEYCODES.SIX: deleteIframes(); break;
-			case KEYCODES.SEVEN: showHtmlComments(); break;
+			case KEYCODES.SIX: showMessageBig("Unbound"); break;
+			case KEYCODES.SEVEN: showMessageBig("Unbound"); break;
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
 			case KEYCODES.NINE: removeAllAttributesOfTypes(["class", "style", "align"]); unwrapAll("span"); break;
 			case KEYCODES.ZERO: cycleThroughDocumentHeadings(); break;
-			case KEYCODES.A: cycleTheme(); break;
-			case KEYCODES.C: getContentByParagraphCount(); break;
-			case KEYCODES.D: deleteEmptyBlockElements(); break;
+			case KEYCODES.A: toggleKeyMenu("A"); break;
+			case KEYCODES.B: toggleKeyMenu("B"); break;
+			case KEYCODES.C: toggleKeyMenu("C"); break;
+			case KEYCODES.D: toggleKeyMenu("D"); break;
 			case KEYCODES.E: cycleHighlightTag(); break;
+			case KEYCODES.F: toggleKeyMenu("F"); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteBySelectorAndTextMatching); break;
+			case KEYCODES.H: toggleKeyMenu("H"); break;
 			case KEYCODES.I: toggleConsole("css"); break;
-			case KEYCODES.J: deleteNonEnglishText(); makeAllTextLowerCase(); break;
+			case KEYCODES.J: toggleKeyMenu("J"); break;
 			case KEYCODES.K: toggleConsole("js"); break;
 			case KEYCODES.L: showLog(); break;
-			case KEYCODES.M: toggleHighlightMap(3, 0, 3); break;
-			case KEYCODES.N: showMessageBig("Unbound"); break;
+			case KEYCODES.M: toggleKeyMenu("M"); break;
+			case KEYCODES.N: toggleKeyMenu("N"); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatchesInDocument, true); break;
-			case KEYCODES.P: fixParagraphs(); break;
+			case KEYCODES.P: toggleKeyMenu("P"); break;
 			case KEYCODES.Q: resetHighlightTag(); Nimbus.selectionHighlightMode = "sentence"; break;
 			case KEYCODES.R: toggleHighlight(); break;
 			case KEYCODES.S: toggleContentEditable(); break;
-			case KEYCODES.T: capitalizeTitle(); break;
-			case KEYCODES.U: toggleKeyMenu(); break;
-			case KEYCODES.V: cleanupBarebone(); break;
+			case KEYCODES.T: toggleKeyMenu("T"); break;
+			case KEYCODES.U: toggleKeyMenu("U"); break;
+			case KEYCODES.V: toggleKeyMenu("V"); break;
 			case KEYCODES.W: highlightSelection("word"); break;
 			case KEYCODES.X: joinNodesContainingSelection(); break;
-			case KEYCODES.Y: callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
-			case KEYCODES.Z: replaceSpecialCharacters(); break;
+			case KEYCODES.Y: toggleKeyMenu("Y"); break;
+			case KEYCODES.Z: toggleKeyMenu("Z"); break;
 			case KEYCODES.FORWARD_SLASH: showPassword(); cycleFocusOverFormFields(); break;
 			case KEYCODES.DELETE: deleteMarkedElements(); break;
 			case KEYCODES.SQUARE_BRACKET_OPEN: modifyMark("previous"); break;
@@ -1183,7 +1332,7 @@ function handleKeyDown(e)
 			case KEYCODES.N: toggleStyle(STYLES.INDICATE_LINK_ATTRIBUTES, "styleShowIdsAndHrefs", true); break;
 			case KEYCODES.O: customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
 			case KEYCODES.P: makeAnchorNodePlainText(); break;
-			case KEYCODES.R: wrapAnchorNodeInTag(); break;
+			case KEYCODES.R: toggleKeyMenu("R"); break;
 			case KEYCODES.S: callFunctionWithArgs("Mark block elements containing text", markBlockElementsContainingText, 1); break;
 			case KEYCODES.T: toggleStyle(STYLES.SHOW_TABLE_STRUCTURE, "styleShowTableStructure", true); break;
 			case KEYCODES.V: toggleStyle(STYLES.OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
@@ -1210,6 +1359,7 @@ function handleKeyDown(e)
 			case KEYCODES.SQUARE_BRACKET_OPEN: identifyClassCycle("previous"); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: identifyClassCycle("next"); break;
 			case KEYCODES.BACK_SLASH: customPrompt("Enter tag to mark this class with").then(identifyClassMark); break;
+			case KEYCODES.BACKSPACE: identifyClassTeardown(); break;
 			case KEYCODES.ONE: fixBody(); break;
 			case KEYCODES.ZERO: capitalizeTitle(); break;
 			case KEYCODES.A: annotate("after"); break;
