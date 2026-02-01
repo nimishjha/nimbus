@@ -15,7 +15,7 @@ export function showMessage(message, msgClass, persist)
 	clearTimeout(config.messageTimeout);
 	msgClass = msgClass || "";
 	const strStyle = `
-		message { display: block; background: rgba(0,0,0,0.5); font: 12px Verdcode, Verdana; color: #888; height: 60px; line-height: 60px; position: fixed; top: calc(100vh - 60px); left: 0; width: 100%; z-index: 2147483647; }
+		message { display: block; background: rgba(0,0,0,0.75); font: 12px Verdcode, Verdana; color: #888; height: 60px; line-height: 60px; position: fixed; top: calc(100vh - 60px); left: 0; width: 100%; z-index: 2147483647; }
 		messageinner { display: block; text-align: left; padding: 0 2rem; font: 18px "swis721 cn bt"; height: 60px; line-height: 60px; }
 		messagebig { display: block; text-align: left; font: 24px "swis721 cn bt"; color: #AAA; height: 60px; line-height: 60px; font-weight: 500; padding: 0 2rem; }
 		messageerror { display: block; text-align: left; font: 24px "swis721 cn bt"; color: #DDD; background: #500; height: 60px; line-height: 60px; font-weight: 500; padding: 0 2rem; }
@@ -65,6 +65,8 @@ export function deleteMessage()
 {
 	del("message");
 	del("#styleMessage");
+	del("panel");
+	del("#stylePanel");
 }
 
 export function customPrompt(message, initialValue)
@@ -295,4 +297,23 @@ export function getSelectionOrUserInput(promptMessage, callback, isUnary)
 export function showStatus(id, str)
 {
 	getOrCreate("h3", id).textContent = id + ": " + str;
+}
+
+export function showPanel(panelText)
+{
+	const strStyle = `
+		panel { display: block; background: rgba(0,0,0,0.75); font-size: 20px; font-family: "swis721 cn bt"; color: #888; height: 100vh; position: fixed; top: 0; left: 0; bottom: 0; width: 30%; z-index: 2147483647; }
+		panelinner { display: block; text-align: left; padding: 0 2rem; font: inherit; white-space: pre; }
+	`;
+	if(getOne("panel"))
+		del("panel");
+
+	const messageContainer = document.createElement("panel");
+	messageContainer.className = "excludeFromMutations";
+	const messageInner = document.createElement("panelinner");
+	messageInner.textContent = panelText;
+	messageContainer.appendChild(messageInner);
+	document.body.appendChild(messageContainer);
+	if(!getOne("#stylePanel"))
+		insertStyle(strStyle, "stylePanel", true);
 }
