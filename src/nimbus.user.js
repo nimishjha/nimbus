@@ -13,7 +13,7 @@
 
 //
 //	Nimbus
-//	Copyright (C) 2008-2025 Nimish Jha
+//	Copyright (C) 2008-2026 Nimish Jha
 //
 //	This program is free software: you can redistribute it and/or modify
 //	it under the terms of the GNU General Public License as published by
@@ -581,7 +581,6 @@ import {
 	xPathMark,
 } from "./includes/mark";
 import {
-	cloneElement ,
 	convertDivsToParagraphs,
 	convertElement,
 	replaceByClassOrIdContaining,
@@ -1018,6 +1017,8 @@ function handleKeyMenuCommand(str)
 			case "HT": customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
 			case "HW": callFunctionWithArgs("Highlight all matches with word expansion", highlightAllMatchesInDocumentWithWordExpansion, 1); break;
 
+			case "LI": retrieveLargeImages(); break;
+
 			case "MC": markElementsWithSameClass(); break;
 			case "MP": callFunctionWithArgs("Mark elements by class or id containing text", markByClassOrIdContaining, 1); break;
 			case "MS": callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
@@ -1179,7 +1180,7 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD3: removeRedundantDivs(); break;
 			case KEYCODES.NUMPAD4: forceReloadCss(); break;
 			case KEYCODES.NUMPAD5: toggleHighlightMap(3, 0, 3); break;
-			case KEYCODES.NUMPAD6: retrieveLargeImages(); break;
+			case KEYCODES.NUMPAD6: showMessageBig("Unbound"); break;
 			case KEYCODES.NUMPAD7: groupMarkedElements(Nimbus.GROUP_TAGNAME); break;
 			case KEYCODES.NUMPAD8: showMessageBig("Unbound"); break;
 			case KEYCODES.NUMPAD9: toggleNimbusStyles(); break;
@@ -1213,7 +1214,7 @@ function handleKeyDown(e)
 			case KEYCODES.I: toggleConsole("css"); break;
 			case KEYCODES.J: toggleKeyMenu("J"); break;
 			case KEYCODES.K: toggleConsole("js"); break;
-			case KEYCODES.L: showLog(); break;
+			case KEYCODES.L: toggleKeyMenu("L"); break;
 			case KEYCODES.M: toggleKeyMenu("M"); break;
 			case KEYCODES.N: toggleKeyMenu("N"); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatchesInDocument, true); break;
@@ -1320,6 +1321,7 @@ function handleKeyDown(e)
 			case KEYCODES.ZERO: clearBootstrapClasses(); toggleViewVideoMode(); break;
 			case KEYCODES.A: toggleShowEmptyLinksAndSpans(); break;
 			case KEYCODES.B: toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
+			case KEYCODES.C: getContentByParagraphCount(); break;
 			case KEYCODES.E: replaceElementsBySelectorHelper(); break;
 			case KEYCODES.F: del(["object", "embed", "video", "iframe"]); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements with class or id containing the string", deleteByClassOrIdContaining); break;

@@ -79,8 +79,6 @@ export function convertElement(elem, tagName)
 	return replacement;
 }
 
-export function cloneElement(elem) { return convertElement(elem, elem.tagName); }
-
 export function replaceElement(elem, tagName)
 {
 	const replacement = document.createElement(tagName);

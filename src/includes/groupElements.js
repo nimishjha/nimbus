@@ -3,7 +3,7 @@ import { showMessageBig } from "./ui";
 import { get, getOne, del } from "./selectors";
 import { getMarkedElements } from "./mark";
 import { makeClassSelector } from "./misc";
-import { convertElement, cloneElement } from "./replaceElements";
+import { convertElement } from "./replaceElements";
 import { deleteMessage } from "./ui";
 import { insertBefore } from "./dom";
 
@@ -72,7 +72,7 @@ export function groupAdjacentElements(selector, parentTag, childTag)
 		const group = document.createElement(parentTagName);
 		groups.push(group);
 		if(childTagName === "same")
-			group.appendChild(cloneElement(elem));
+			group.appendChild(elem.cloneNode(true));
 		else
 			group.appendChild(convertElement(elem, childTagName));
 		let nextElem = elem.nextElementSibling;
@@ -82,7 +82,7 @@ export function groupAdjacentElements(selector, parentTag, childTag)
 			i++;
 			const nextElemTemp = nextElem.nextElementSibling;
 			if(childTagName === "same")
-				group.appendChild(cloneElement(nextElem));
+				group.appendChild(nextElem.cloneNode(true));
 			else
 				group.appendChild(convertElement(nextElem, childTagName));
 			nextElem.remove();
