@@ -130,8 +130,8 @@ function highlightMapper()
 				if(config.drawGaps)
 				{
 					ctx.fillStyle = "#000";
-					ctx.fillRect(x, y, 2, config.rowHeight);
-					x += 2;
+					ctx.fillRect(x, y, 1, config.rowHeight);
+					x += 1;
 				}
 			}
 			y += rowHeightPlusSpacing;
@@ -216,11 +216,15 @@ function highlightMapper()
 		return summarizeData(highlightData);
 	}
 
-	async function draw(rowHeight, rowSpacing, minWidth)
+	async function draw(rowHeight, rowSpacing, minWidth, drawGaps)
 	{
 		if(typeof rowHeight === "number") config.rowHeight = rowHeight;
 		if(typeof rowSpacing === "number") config.rowSpacing = rowSpacing;
 		if(typeof minWidth === "number") config.minWidth = minWidth;
+		if(drawGaps === "true")
+			config.drawGaps = true;
+		else
+			config.drawGaps = false;
 		drawHighlightMap(await generateHighlightData());
 	}
 
@@ -237,12 +241,12 @@ function highlightMapper()
 	};
 }
 
-export function toggleHighlightMap(rowHeight = 4, rowSpacing = 1, minWidth = 4)
+export function toggleHighlightMap(rowHeight = 4, rowSpacing = 1, minWidth = 4, drawGaps = false)
 {
 	if(!Nimbus.highlightMapper)
 	{
 		Nimbus.highlightMapper = highlightMapper();
-		Nimbus.highlightMapper.draw(rowHeight, rowSpacing, minWidth);
+		Nimbus.highlightMapper.draw(rowHeight, rowSpacing, minWidth, drawGaps);
 	}
 	else
 	{
