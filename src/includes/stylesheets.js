@@ -72,7 +72,9 @@ export const STYLES = {
 		.jw-text-track-display { opacity: 0.75; margin-top: 30px; }
 		.jw-text-track-cue { background: transparent; line-height: 1.4; font-size: 14px; }
 	`,
-	OUTLINE_ELEMENTS: `header, footer, article, aside, section, div, blockquote, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
+	OUTLINE_ELEMENTS: `
+		header, footer, article, aside, section, div, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
+		blockquote { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; }
 		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
 		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
 		th { box-shadow: inset 2px 2px #048, inset -2px -2px #048; }
@@ -95,10 +97,20 @@ export const STYLES = {
 		*[id]::before { content: attr(id); color: #C00; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
 		*[id][class]::before { content: "#"attr(id)" ."attr(class); color: #C0C; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
 
-		div, blockquote, hgroup, h1, h2, h3, h4, h5, h6, ol, ul, li, head, figure, figcaption, pre, dt, dd, message, annotation, td, article { box-shadow: inset 2px 2px #444, inset -2px -2px #444; margin: 4px; padding: 4px; }
-		p { box-shadow: inset 2px 2px #808, inset -2px -2px #808; margin: 4px; padding: 4px; }
-		small, big, sup, sub, abbr, time, cite { box-shadow: inset 2px 2px #357, inset -2px -2px #357; }
-		font { box-shadow: inset 2px 2px #C90, inset -2px -2px #C90; }
+		header, footer, article, aside, section, div, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
+		blockquote { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; }
+		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
+		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
+		th { box-shadow: inset 2px 2px #048, inset -2px -2px #048; }
+		ul, ol { box-shadow: inset 2px 2px #0A0, inset -2px -2px #0A0; }
+		li { box-shadow: inset 2px 2px #070, inset -2px -2px #070; }
+		sup, sub { box-shadow: inset 2px 2px #68A, inset -2px -2px #68A; }
+		font { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; }
+		abbr { box-shadow: inset 2px 2px #A40, inset -2px -2px #A40; }
+		nobr { box-shadow: inset 2px 2px #A0A, inset -2px -2px #A0A; }
+		cite { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0A0; }
+		small { box-shadow: inset 2px 2px #088, inset -2px -2px #088; }
+		p { box-shadow: inset 2px 2px #909, inset -2px -2px #505; }
 		span { box-shadow: inset 0 -100px #040; padding: 4px; border: 2px solid #0A0; }
 		span span { padding: 0px; }
 
@@ -110,7 +122,7 @@ export const STYLES = {
 		h6::after { content: "h6"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
 
 		message::before, autocompleteinputwrapper::before, autocompleteinputwrapper *::before, #userInputWrapper::before, #userInputWrapper *::before, .excludeFromMutations::before { content: none; }
-		message *, autocompleteinputwrapper, autocompleteinputwrapper *, #userInputWrapper, #userInputWrapper * { box-shadow: none; }
+		message, message *, autocompleteinputwrapper, autocompleteinputwrapper *, #userInputWrapper, #userInputWrapper * { box-shadow: none; }
 
 		.excludeFromMutations::before, .excludeFromMutations *::before { content: none; }
 		.excludeFromMutations[id]::before, .excludeFromMutations[id] *::after { content: none; }

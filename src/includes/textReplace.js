@@ -5,14 +5,16 @@ export function replaceInTextNodes(searchString, replacementString)
 {
 	const textNodes = getTextNodesUnderSelector("body");
 	for(const textNode of textNodes)
-		textNode.data = textNode.data.replaceAll(searchString, replacementString);
+		if(textNode.data.includes(searchString))
+			textNode.data = textNode.data.replaceAll(searchString, replacementString);
 }
 
 export function replaceInPreTextNodes(searchString, replacementString)
 {
 	const textNodes = getTextNodesUnderSelector("pre");
 	for(const textNode of textNodes)
-		textNode.data = textNode.data.replaceAll(searchString, replacementString);
+		if(textNode.data.includes(searchString))
+			textNode.data = textNode.data.replaceAll(searchString, replacementString);
 }
 
 export function replaceInTextNodesRegex(selector, regex, replacement)

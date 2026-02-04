@@ -75,7 +75,8 @@ export function callFunctionWithArgs(promptMessage, callback, numArgs, initialVa
 		}
 		else
 		{
-			console.log(`%c${promptMessage}`, 'color: #FF0');
+			userInput = userInput.replaceAll('"', "");
+			console.log(`%c${promptMessage} ${userInput}`, 'color: #FF0');
 			callback.call(null, userInput);
 		}
 	}

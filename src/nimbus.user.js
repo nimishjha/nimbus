@@ -974,6 +974,7 @@ function handleKeyMenuCommand(str)
 		{
 			case "AB": setTheme("nimbusThemeBlack"); break;
 			case "AD": setTheme("nimbusThemeDimGrey"); break;
+			case "AG": setTheme("nimbusThemeGrey"); break;
 			case "AL": setTheme("nimbusThemeHideLinks"); break;
 			case "AN": setTheme("none"); break;
 			case "AR": setTheme("nimbusThemeRed"); break;
@@ -1033,6 +1034,7 @@ function handleKeyMenuCommand(str)
 			case "PT": callFunctionWithArgs("Make plain text", makePlainText, 1); break;
 
 			case "RB": replaceBrs(); break;
+			case "RC": forceReloadCss(); break;
 			case "RE": replaceElementsBySelectorHelper(); break;
 			case "RM": callFunctionWithArgs("Replace marked element with element containing text", replaceMarkedWithTextElement, 2, "h2 "); break;
 			case "RS": replaceSpecialCharacters(); break;
@@ -1179,7 +1181,7 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD1: simplifyClassNames(); break;
 			case KEYCODES.NUMPAD2: shortenIds(); break;
 			case KEYCODES.NUMPAD3: removeRedundantDivs(); break;
-			case KEYCODES.NUMPAD4: forceReloadCss(); break;
+			case KEYCODES.NUMPAD4: showMessageBig("Unbound"); break;
 			case KEYCODES.NUMPAD5: toggleHighlightMap(3, 0, 3); break;
 			case KEYCODES.NUMPAD6: showMessageBig("Unbound"); break;
 			case KEYCODES.NUMPAD7: groupMarkedElements(Nimbus.GROUP_TAGNAME); break;

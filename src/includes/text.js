@@ -52,7 +52,8 @@ export function convertLineBreaksToBrs(selectorOrElement)
 	const elems = typeof selectorOrElement === "string" ? get(selectorOrElement) : [selectorOrElement];
 	if(!elems) return;
 	for(const elem of elems)
-		elem.innerHTML = elem.innerHTML.replaceAll("\n", "<br>");
+		if(elem.innerHTML.includes("\n"))
+			elem.innerHTML = elem.innerHTML.replaceAll("\n", "<br>");
 }
 
 export function makeParagraphsByLineBreaks(selector) {
@@ -81,10 +82,16 @@ export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 
 	let WRAPPER_TAGNAME;
 	let CHILD_TAGNAME;
+
 	if(["H1", "H2", "H3", "H4", "H5", "H6"].includes(elems[0].tagName))
 	{
 		WRAPPER_TAGNAME = "hgroup";
 		CHILD_TAGNAME = elems[0].tagName;
+	}
+	else if(["I", "B"].includes(elems[0].tagName))
+	{
+		WRAPPER_TAGNAME = "section";
+		CHILD_TAGNAME = "div";
 	}
 	else
 	{
@@ -209,7 +216,7 @@ export function replaceSpecialCharacters()
 		"\u2002": " ",
 		"\u2003": " ",
 		"\u2009": " ",
-		"\u2013": "—",
+		// "\u2013": "—",
 		"\u2122": "(tm)"
 	};
 
@@ -226,12 +233,18 @@ export function replaceSpecialCharacters()
 	{
 		const textNode = textNodes[i];
 		let nodeText = textNode.data;
+		let textHasChanged = false;
 		for(let j = 0, jj = keys.length; j < jj; j++)
 		{
 			const key = keys[j];
-			nodeText = nodeText.replace(regularExpressions[key], replacements[key]);
+			if(nodeText.includes(key))
+			{
+				nodeText = nodeText.replace(regularExpressions[key], replacements[key]);
+				textHasChanged = true;
+			}
 		}
-		textNode.data = nodeText;
+		if(textHasChanged)
+			textNode.data = nodeText;
 	}
 }
 
@@ -440,12 +453,14 @@ export function fixDashes()
 export function toggleDashes()
 {
 	const node = getNodeContainingSelection();
+	const EMDASH = "\u2014";
+	const HYPHEN = "-";
 	if(node)
 	{
-		if(node.textContent.indexOf('-') !== -1)
-			node.textContent = node.textContent.replace(/-/g, "\u2014");
-		else
-			node.textContent = node.textContent.replaceAll("\u2014", "-");
+		if(node.textContent.indexOf(HYPHEN) !== -1)
+			node.textContent = node.textContent.replace(/-/g, EMDASH);
+		else if(node.textContent.indexOf(EMDASH) !== -1)
+			node.textContent = node.textContent.replaceAll(EMDASH, HYPHEN);
 	}
 }
 

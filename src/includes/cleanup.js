@@ -13,7 +13,6 @@ import { deleteEmptyElements, deleteEmptyBlockElements, deleteBySelectorAndRegex
 import { getTextLength } from "./node";
 import { deleteIframes, deleteByClassOrIdContaining, deleteBySelectorAndTextMatching } from "./delete";
 import { makeClassSelector, getTimestamp } from "./misc";
-import { highlightUserLinks } from "./browse";
 import { getBestImageSrc } from "./image";
 import { appendMetadata } from "./metadata";
 import { toggleStyleNegative, insertStyleHighlight } from "./style";
@@ -88,7 +87,6 @@ export function cleanupDocument()
 	}
 	makePlainText("li header");
 	replaceAudio();
-	highlightUserLinks();
 	appendMetadata();
 	getBestImageSrc();
 	removeRedundantHrs();
@@ -579,7 +577,7 @@ export function shortenIds()
 		return;
 	}
 	const linksByHref = createLinksByHrefLookup();
-	const elems = get("*[id]");
+	const elems = get("body *[id]");
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
