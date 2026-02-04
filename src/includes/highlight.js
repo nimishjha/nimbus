@@ -142,6 +142,18 @@ export function highlightSelectedElement(tag)
 	}
 }
 
+export function unhighlightSelectedElement()
+{
+	let node = getNodeContainingSelection();
+	if(node && node.parentNode && node.tagName !== "BODY")
+	{
+		const element = getFirstBlockParent(node);
+		const marks = element.querySelectorAll("mark, markyellow, markred, markgreen, markblue, markpurple, markwhite");
+		for(let i = 0, ii = marks.length; i < ii; i++)
+			unwrapElement(marks[i]);
+	}
+}
+
 export function highlightLinksInPres()
 {
 	const pres = get("pre");

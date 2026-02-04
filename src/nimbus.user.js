@@ -495,6 +495,7 @@ import {
 	highlightOnMutation,
 	highlightQuotes,
 	highlightSelectedElement,
+	unhighlightSelectedElement,
 	highlightSelection,
 	highlightTableRows,
 	highlightTextAcrossTags,
@@ -1285,7 +1286,7 @@ function handleKeyDown(e)
 			case KEYCODES.N: callFunctionWithArgs("Delete numbered divs in range", delRange); break;
 			case KEYCODES.O: getSelectionOrUserInput("Highlight all occurrences of string (case-sensitive)", highlightAllMatchesInDocumentCaseSensitive, true); break;
 			case KEYCODES.P: getPageNavLinks(); break;
-			case KEYCODES.R: wrapMarkedElement(); break;
+			case KEYCODES.R: unhighlightSelectedElement(); break;
 			case KEYCODES.U: moveElementUp("before"); break;
 			case KEYCODES.D: moveElementUp("after"); break;
 			case KEYCODES.W: cleanupAttributes(); break;
