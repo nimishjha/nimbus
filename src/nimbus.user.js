@@ -981,6 +981,7 @@ function handleKeyMenuCommand(str)
 			case "AS": setTheme("nimbusThemeSepia"); break;
 
 			case "BK": toggleShowKeyCodes(); break;
+			case "BC": boldInlineColonHeadings(); break;
 
 			case "CB": cleanupBarebone(); break;
 			case "CC": getContentByParagraphCount(); break;

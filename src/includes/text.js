@@ -1,5 +1,5 @@
 import { Nimbus } from "./Nimbus";
-import { emptyElement, createElementWithChildren, createElement, wrapElement, unwrapElement, unwrapAll } from "./element";
+import { emptyElement, createElementWithChildren, createElement, wrapElement, unwrapElement, unwrapAll, getFirstTextNode } from "./element";
 import { hasDirectChildrenOfType } from "./elementAndNodeTests";
 import { get, getOne, del, getFirstTextChild, getNonCodeTextNodes, getNodeContainingSelection } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
@@ -405,10 +405,22 @@ export function boldInlineColonHeadings()
 	}
 	for(let i = 0, ii = paras.length; i < ii; i++)
 	{
-		const para = paras[i];
-		para.innerHTML = normalizeHTML(para.innerHTML);
-		if(/^[\w\d\.\s\-,"]+:.+/.test(para.innerHTML))
-			para.innerHTML = para.innerHTML.replace(/(^[\w\d\.\s\-,"]+:)/, "<b>$1</b>");
+		const elem = paras[i];
+		const first = getFirstTextNode(elem);
+		if(!first)
+			continue;
+
+		const index = first.data.indexOf(":");
+		if(index !== -1)
+		{
+			const repl = document.createDocumentFragment();
+			const bold = document.createElement("b");
+			bold.textContent = first.data.substring(0, index);
+			const plain = document.createTextNode(first.data.substring(index));
+			repl.appendChild(bold);
+			repl.appendChild(plain);
+			first.parentNode.replaceChild(repl, first);
+		}
 	}
 	unmarkAll();
 }
