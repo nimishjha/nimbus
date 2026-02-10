@@ -1032,7 +1032,14 @@ function handleKeyMenuCommand(str)
 			case "M3": toggleHighlightMap(4, 1, 4); break;
 			case "M4": toggleHighlightMap(4, 1, 20); break;
 
+			case "NI": goToNextElement("img"); break;
+			case "NM": goToNextElement(".markd"); break;
+			case "NS": customPrompt("Go to next element by selector").then(goToNextElement); break;
+
 			case "PT": callFunctionWithArgs("Make plain text", makePlainText, 1); break;
+			case "P1": setReplacementTag1("h1"); setReplacementTag2("h2"); break;
+			case "P2": setReplacementTag1("h2"); setReplacementTag2("h3"); break;
+			case "PQ": setReplacementTag1("quote"); setReplacementTag2("quoteauthor"); break;
 
 			case "RB": replaceBrs(); break;
 			case "RC": forceReloadCss(); break;
@@ -1188,7 +1195,7 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD7: groupMarkedElements(Nimbus.GROUP_TAGNAME); break;
 			case KEYCODES.NUMPAD8: showMessageBig("Unbound"); break;
 			case KEYCODES.NUMPAD9: toggleNimbusStyles(); break;
-			case KEYCODES.NUMPAD0: deleteResources(); break;
+			case KEYCODES.NUMPAD0: deleteResources(); document.body.removeAttribute("style"); break;
 			case KEYCODES.NUMPAD_ADD: persistStreamingImages(); break;
 			case KEYCODES.NUMPAD_SUBTRACT: deletePersistedImages(); break;
 			case KEYCODES.NUMPAD_MULTIPLY: showSavedStreamingImages(); break;

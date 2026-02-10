@@ -477,6 +477,7 @@ export function replaceCommonClasses()
 		replaceElementsBySelector(".indexsub", "dd");
 	}
 
+	replaceElementsBySelector("div.indent", "p");
 	deleteClass("indent");
 }
 
