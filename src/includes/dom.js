@@ -2,7 +2,7 @@ import { Nimbus } from "./Nimbus";
 import { createElement, createElementWithText, unwrapElement } from "./element";
 import { showMessageBig } from "./ui";
 import { getFirstMarkedElement, getMarkedElements, unmarkAll } from "./mark";
-import { get, getNodeContainingSelection } from "./selectors";
+import { get, getOne, getNodeContainingSelection } from "./selectors";
 import { forAll, makeClassSelector } from "./misc";
 import { splitByBrs, fixBullets } from "./text";
 import { groupAdjacentElements } from "./groupElements";
@@ -232,4 +232,14 @@ export function annotateElement(elem, tagName, str)
 	const annotation = document.createElement(tagName);
 	annotation.textContent = str;
 	elem.appendChild(annotation);
+}
+
+export function makeLastChild()
+{
+	const elem = getOne(makeClassSelector(Nimbus.markerClass));
+	if(elem)
+	{
+		document.body.appendChild(elem);
+		elem.classList.remove("markd");
+	}
 }
