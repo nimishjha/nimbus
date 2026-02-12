@@ -984,8 +984,9 @@ function handleKeyMenuCommand(str)
 
 			case "BK": toggleShowKeyCodes(); break;
 			case "BC": boldInlineColonHeadings(); break;
+			case "BG": buildGallery(); break;
 
-			case "CB": cleanupBarebone(); break;
+			case "CB": groupAdjacentElements(".markd", "blockquote", p); break;
 			case "CC": getContentByParagraphCount(); break;
 			case "CD": cleanupDocument(); break;
 			case "CJ": toggleConsole("js"); break;
@@ -1013,6 +1014,8 @@ function handleKeyMenuCommand(str)
 			case "FP": fixParagraphs(); break;
 			case "FR": fixTextAroundReferences(); break;
 
+			case "GM": groupMarkedElements(Nimbus.GROUP_TAGNAME); break;
+
 			case "HA": getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatchesInDocument, true); break;
 			case "HE": callFunctionWithArgs("Highlight elements by tag name containing text", highlightByTagNameAndText, 2); break;
 			case "HC": callFunctionWithArgs("Set highlight map color", setHighlightMapColor, 2); break;
@@ -1024,15 +1027,16 @@ function handleKeyMenuCommand(str)
 
 			case "LI": retrieveLargeImages(); break;
 
-			case "MC": markElementsWithSameClass(); break;
-			case "MP": callFunctionWithArgs("Mark elements by class or id containing text", markByClassOrIdContaining, 1); break;
-			case "MS": callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
-			case "MU": unmarkAll(); break;
-			case "MX": customPrompt("Mark by xPath").then(xPathMark); break;
 			case "M1": toggleHighlightMap(3, 0, 3); break;
 			case "M2": toggleHighlightMap(4, 0, 4); break;
 			case "M3": toggleHighlightMap(4, 1, 4); break;
 			case "M4": toggleHighlightMap(4, 1, 20); break;
+			case "MC": markElementsWithSameClass(); break;
+			case "ML": makeLastChild(); break;
+			case "MP": callFunctionWithArgs("Mark elements by class or id containing text", markByClassOrIdContaining, 1); break;
+			case "MS": callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
+			case "MU": unmarkAll(); break;
+			case "MX": customPrompt("Mark by xPath").then(xPathMark); break;
 
 			case "NI": goToNextElement("img"); break;
 			case "NM": goToNextElement(".markd"); break;
@@ -1188,13 +1192,13 @@ function handleKeyDown(e)
 		switch(k)
 		{
 			case KEYCODES.TILDE: highlightSelection(); break;
-			case KEYCODES.NUMPAD1: simplifyClassNames(); break;
-			case KEYCODES.NUMPAD2: shortenIds(); break;
-			case KEYCODES.NUMPAD3: removeRedundantDivs(); break;
+			case KEYCODES.NUMPAD1: setHighlightTag("markblue"); break;
+			case KEYCODES.NUMPAD2: setHighlightTag("markred"); break;
+			case KEYCODES.NUMPAD3: setHighlightTag("markwhite"); break;
 			case KEYCODES.NUMPAD4: showMessageBig("Unbound"); break;
 			case KEYCODES.NUMPAD5: toggleHighlightMap(3, 0, 3); break;
 			case KEYCODES.NUMPAD6: showMessageBig("Unbound"); break;
-			case KEYCODES.NUMPAD7: groupMarkedElements(Nimbus.GROUP_TAGNAME); break;
+			case KEYCODES.NUMPAD7: showMessageBig("Unbound"); break;
 			case KEYCODES.NUMPAD8: showMessageBig("Unbound"); break;
 			case KEYCODES.NUMPAD9: toggleNimbusStyles(); break;
 			case KEYCODES.NUMPAD0: deleteResources(); document.body.removeAttribute("style"); break;
@@ -1210,7 +1214,7 @@ function handleKeyDown(e)
 			case KEYCODES.TWO: deleteImages(); break;
 			case KEYCODES.THREE: toggleClass(document.body, "xwrap"); break;
 			case KEYCODES.FOUR: deleteSmallImages(); break;
-			case KEYCODES.FIVE: buildGallery(); break;
+			case KEYCODES.FIVE: showMessageBig("Unbound"); break;
 			case KEYCODES.SIX: showMessageBig("Unbound"); break;
 			case KEYCODES.SEVEN: showMessageBig("Unbound"); break;
 			case KEYCODES.EIGHT: toggleBlockEditMode(); break;
@@ -1222,7 +1226,7 @@ function handleKeyDown(e)
 			case KEYCODES.D: toggleKeyMenu("D"); break;
 			case KEYCODES.E: cycleHighlightTag(); break;
 			case KEYCODES.F: toggleKeyMenu("F"); break;
-			case KEYCODES.G: callFunctionWithArgs("Delete elements (optionally containing text)", deleteBySelectorAndTextMatching); break;
+			case KEYCODES.G: toggleKeyMenu("G"); break;
 			case KEYCODES.H: toggleKeyMenu("H"); break;
 			case KEYCODES.I: toggleConsole("css"); break;
 			case KEYCODES.J: toggleKeyMenu("J"); break;

@@ -196,24 +196,25 @@ export function cleanupBarebone()
 
 export function removeRedundantHrs()
 {
-	const makesHrRedundant = {
-		H1: true,
-		H2: true,
-		H3: true,
-		H4: true,
-		H5: true,
-		H6: true,
-		HR: true,
-		FIGURE: true,
-		FIGCAPTION: true,
-		FOOTNOTE: true,
-		RT: true,
-		BLOCKQUOTE: true,
-		HEADER: true,
-		UL: true,
-		OL: true,
-		PRE: true,
-	};
+	const makesHrRedundant = new Set([
+		"H1",
+		"H2",
+		"H3",
+		"H4",
+		"H5",
+		"H6",
+		"HR",
+		"FIGURE",
+		"FIGCAPTION",
+		"FOOTNOTE",
+		"RT",
+		"BLOCKQUOTE",
+		"HEADER",
+		"UL",
+		"OL",
+		"PRE",
+		"SECTION",
+	]);
 	const elems = get("hr");
 	if(elems)
 	{
@@ -222,7 +223,7 @@ export function removeRedundantHrs()
 		{
 			const prev = elem.previousElementSibling;
 			const next = elem.nextElementSibling;
-			if( (prev && makesHrRedundant[prev.tagName]) || (next && makesHrRedundant[next.tagName]) )
+			if( (prev && makesHrRedundant.has(prev.tagName)) || (next && makesHrRedundant.has(next.tagName)) )
 			{
 				count++;
 				elem.remove();
