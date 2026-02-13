@@ -263,7 +263,7 @@ export function fixBullets(elems)
 		if(firstTextChild && NUMERICBULLET_REGEX.test(firstTextChild.textContent))
 		{
 			olCount++;
-			firstTextChild.textContent = firstTextChild.textContent.trim().replace(NUMERICBULLET_REGEX, "");
+			firstTextChild.textContent = firstTextChild.textContent.replace(/^\s+/, "").replace(NUMERICBULLET_REGEX, "");
 		}
 	}
 	const ulis = elems || get("ul > li");
@@ -273,7 +273,7 @@ export function fixBullets(elems)
 		if(firstTextChild && BULLET_REGEX.test(firstTextChild.textContent))
 		{
 			ulCount++;
-			firstTextChild.textContent = firstTextChild.textContent.trim().replace(BULLET_REGEX, "");
+			firstTextChild.textContent = firstTextChild.textContent.replace(/^\s+/, "").replace(BULLET_REGEX, "");
 		}
 	}
 	showMessageBig(`${olCount} ordered and ${ulCount} unordered list items fixed`);

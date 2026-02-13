@@ -1012,10 +1012,13 @@ function handleKeyMenuCommand(str)
 			case "ET": editDocumentTitle(); break;
 
 			case "FD": fixDashes(); break;
+			case "FI": fixInternalReferences(); break;
 			case "FP": fixParagraphs(); break;
-			case "FR": fixTextAroundReferences(); break;
+			case "FT": fixTextAroundReferences(); break;
 
+			case "GB": groupAdjacentElements("blockquote", "blockquote", "p"); break;
 			case "GM": groupMarkedElements(Nimbus.GROUP_TAGNAME); break;
+			case "GS": groupMarkedElements("section"); break;
 
 			case "HA": getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatchesInDocument, true); break;
 			case "HE": callFunctionWithArgs("Highlight elements by tag name containing text", highlightByTagNameAndText, 2); break;
@@ -1390,7 +1393,7 @@ function handleKeyDown(e)
 			case KEYCODES.Z: deselect(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by class or id containing", replaceByClassOrIdContaining, 2); break;
 			case KEYCODES.H: unmarkAll(); break;
-			case KEYCODES.M: toggleHighlightMap(4, 1, 20); break;
+			case KEYCODES.M: toggleHighlightMap(); break;
 			case KEYCODES.S: forceReloadCss(); break;
 			case KEYCODES.V: replaceCommonClasses(); break;
 			case KEYCODES.F11: inspect(true); break;

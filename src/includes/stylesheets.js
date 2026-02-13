@@ -74,7 +74,7 @@ export const STYLES = {
 	`,
 	OUTLINE_ELEMENTS: `
 		header, footer, article, aside, section, div, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
-		blockquote { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; }
+		blockquote { box-shadow: inset 2px 2px #05a, inset -2px -2px #05a; }
 		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
 		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
 		th { box-shadow: inset 2px 2px #048, inset -2px -2px #048; }
@@ -98,7 +98,7 @@ export const STYLES = {
 		*[id][class]::before { content: "#"attr(id)" ."attr(class); color: #C0C; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
 
 		header, footer, article, aside, section, div, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
-		blockquote { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; }
+		blockquote { box-shadow: inset 2px 2px #05a, inset -2px -2px #05a; }
 		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
 		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
 		th { box-shadow: inset 2px 2px #048, inset -2px -2px #048; }
