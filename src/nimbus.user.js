@@ -171,7 +171,7 @@ import {
 	showStatus,
 } from "./includes/ui";
 import { replaceInTextNodes, replaceInPreTextNodes, replaceInTextNodesRegex } from "./includes/textReplace";
-import { toggleHighlightMap, setHighlightMapColor } from "./includes/highlightMapper";
+import { toggleHighlightMap, setHighlightMapColor, setHighlightMapOptions } from "./includes/highlightMapper";
 import { getPrevious, getNext } from "./includes/array";
 import { logPropertiesMatching, logValuesMatching } from "./includes/object";
 import {
@@ -852,6 +852,7 @@ const availableFunctions = {
 	setDocTitle: setDocTitle,
 	setElementsToCycleThrough: setElementsToCycleThrough,
 	setGroupTagName: setGroupTagName,
+	setHighlightMapOptions: setHighlightMapOptions,
 	setItalicTag: setItalicTag,
 	setMarkerClass: setMarkerClass,
 	setMinPersistSize: setMinPersistSize,
@@ -1027,12 +1028,13 @@ function handleKeyMenuCommand(str)
 
 			case "LI": retrieveLargeImages(); break;
 
-			case "M1": toggleHighlightMap(3, 0, 3); break;
-			case "M2": toggleHighlightMap(4, 0, 4); break;
-			case "M3": toggleHighlightMap(4, 1, 4); break;
-			case "M4": toggleHighlightMap(4, 1, 20); break;
+			case "M1": setHighlightMapOptions(3, 0, 3); break;
+			case "M2": setHighlightMapOptions(4, 0, 4); break;
+			case "M3": setHighlightMapOptions(4, 1, 4); break;
+			case "M4": setHighlightMapOptions(4, 1, 20); break;
 			case "MC": markElementsWithSameClass(); break;
 			case "ML": makeLastChild(); break;
+			case "MM": toggleHighlightMap(); break;
 			case "MP": callFunctionWithArgs("Mark elements by class or id containing text", markByClassOrIdContaining, 1); break;
 			case "MS": callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
 			case "MU": unmarkAll(); break;
@@ -1196,7 +1198,7 @@ function handleKeyDown(e)
 			case KEYCODES.NUMPAD2: setHighlightTag("markred"); break;
 			case KEYCODES.NUMPAD3: setHighlightTag("markwhite"); break;
 			case KEYCODES.NUMPAD4: showMessageBig("Unbound"); break;
-			case KEYCODES.NUMPAD5: toggleHighlightMap(3, 0, 3); break;
+			case KEYCODES.NUMPAD5: toggleHighlightMap(); break;
 			case KEYCODES.NUMPAD6: showMessageBig("Unbound"); break;
 			case KEYCODES.NUMPAD7: showMessageBig("Unbound"); break;
 			case KEYCODES.NUMPAD8: showMessageBig("Unbound"); break;

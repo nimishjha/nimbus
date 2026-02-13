@@ -241,12 +241,12 @@ function highlightMapper()
 	};
 }
 
-export function toggleHighlightMap(rowHeight = 4, rowSpacing = 1, minWidth = 4, drawGaps = false)
+export function toggleHighlightMap()
 {
 	if(!Nimbus.highlightMapper)
 	{
 		Nimbus.highlightMapper = highlightMapper();
-		Nimbus.highlightMapper.draw(rowHeight, rowSpacing, minWidth, drawGaps);
+		Nimbus.highlightMapper.draw();
 	}
 	else
 	{
@@ -259,4 +259,12 @@ export function setHighlightMapColor(marktype, color)
 {
 	const config = Nimbus.moduleConfigs[MODULE_NAME];
 	config.colorsByHighlightType[marktype] = color;
+}
+
+export function setHighlightMapOptions(rowHeight, rowSpacing, minWidth)
+{
+	const config = Nimbus.moduleConfigs[MODULE_NAME];
+	if(typeof rowHeight === "number") config.rowHeight = rowHeight;
+	if(typeof rowSpacing === "number") config.rowSpacing = rowSpacing;
+	if(typeof minWidth === "number") config.minWidth = minWidth;
 }
