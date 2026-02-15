@@ -133,6 +133,7 @@ import {
 	cleanupStackOverflow,
 	cleanupTitle,
 	clearBootstrapClasses,
+	convertClassesToCustomElements,
 	deleteHtmlComments,
 	deleteNonContentElements,
 	deleteNonContentLinks,
@@ -149,13 +150,14 @@ import {
 	removeSpanTags,
 	removeUnnecessaryClasses,
 	replaceAudio,
-	convertClassesToCustomElements,
 	replaceCommonClasses,
 	replaceInlineStylesWithClasses,
 	setDocTitle,
 	setDocumentHeading,
 	shortenIds,
 	simplifyClassNames,
+	splitElementsByChildren,
+	unwrapLinksInsideHeadings,
 } from "./includes/cleanup";
 import {
 	autoCompleteInputBox,
@@ -870,6 +872,7 @@ const availableFunctions = {
 	simplifyClassNames: simplifyClassNames,
 	singleQuotesToDoubleQuotes: singleQuotesToDoubleQuotes,
 	splitByBrs: splitByBrs,
+	splitElementsByChildren: splitElementsByChildren,
 	swapElementPositions: swapElementPositions,
 	toggleBlockEditMode: toggleBlockEditMode,
 	toggleContentEditable: toggleContentEditable,
@@ -881,6 +884,7 @@ const availableFunctions = {
 	unmarkFromEnd: unmarkFromEnd,
 	unwrapAll: unwrapAll,
 	unwrapAllExcept: unwrapAllExcept,
+	unwrapLinksInsideHeadings: unwrapLinksInsideHeadings,
 	uwa: unwrapAll,
 	uwe: unwrapAllExcept,
 	wrapAll: wrapAll,
@@ -893,6 +897,7 @@ const availableFunctions = {
 
 const consoleFunctions = [
 	del,
+	getTextLength,
 	insertStyle,
 	logPropertiesMatching,
 	logValuesMatching,

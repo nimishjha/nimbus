@@ -872,3 +872,82 @@ export function fixTextAroundReferences(selector = "footnote reference")
 	}
 	showMessageBig(`${count} text nodes fixed`);
 }
+
+export function splitElementsByChildren(selector = "h1, h2, h3, h4", parentTagName = "hgroup", childTagName = "h2")
+{
+	const elems = get(selector);
+	if(elems)
+	{
+		let count = 0;
+		const tagName = childTagName || "p";
+		const wrapperTagName = parentTagName || "hgroup";
+		for(const elem of elems)
+		{
+			const wrapper = document.createElement(wrapperTagName);
+			for(let i = 0, ii = elem.childNodes.length; i < ii; i++)
+			{
+				const child = elem.childNodes[i];
+				if(!child)
+					continue;
+
+				const childWrapper = document.createElement(tagName);
+				childWrapper.className = "child" + i;
+
+				if(child.nodeType === Node.TEXT_NODE)
+				{
+					if(getTextLength(child) !== 0)
+					{
+						childWrapper.textContent = child.data;
+						wrapper.appendChild(childWrapper);
+					}
+				}
+				else
+				{
+					if(child.tagName !== "BR" && child.tagName !== "HR" && getTextLength(child) !== 0)
+					{
+						childWrapper.appendChild(child.cloneNode(true));
+						wrapper.appendChild(childWrapper);
+					}
+				}
+			}
+			if(wrapper.children.length > 1)
+			{
+				elem.parentNode.replaceChild(wrapper, elem);
+				count++;
+			}
+		}
+		showMessageBig(`${count} elements affected`);
+	}
+}
+
+export function createAnchorInside(element, id)
+{
+	const anchor = document.createElement("cite");
+	anchor.textContent = anchor.id = id;
+	element.appendChild(anchor);
+}
+
+export function unwrapLinksInsideHeadings(selector = "h1 a, h2 a, h3 a, h4 a")
+{
+	const elems = get(selector);
+	if(elems)
+	{
+		let count = 0;
+		for(const elem of elems)
+		{
+			if(elem.getAttribute("href") !== null)
+				continue;
+			const parent = elem.closest("h1, h2, h3, h4, h5, h6");
+			if(parent)
+			{
+				if(!parent.id)
+					parent.id = elem.id;
+				else
+					createAnchorInside(parent, elem.id);
+				unwrapElement(elem);
+				count++;
+			}
+		}
+		showMessageBig(`${count} links unwrapped`);
+	}
+}
