@@ -91,7 +91,7 @@ export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 	else if(["I", "B"].includes(elems[0].tagName))
 	{
 		WRAPPER_TAGNAME = "section";
-		CHILD_TAGNAME = "div";
+		CHILD_TAGNAME = "dt";
 	}
 	else
 	{
@@ -147,12 +147,24 @@ export function replaceBrs()
 	const brs = get("br");
 	if(!brs) return;
 
+	const inlineTags = new Set(["I", "EM", "B", "STRONG"]);
+
 	const elementsWithBrs = new Set();
 	for(let i = 0, ii = brs.length; i < ii; i++)
 	{
 		const parent = brs[i].parentNode;
 		if(parent)
-			elementsWithBrs.add(parent);
+		{
+			if(inlineTags.has(parent.tagName))
+			{
+				elementsWithBrs.add(parent.parentNode);
+				unwrapElement(parent);
+			}
+			else
+			{
+				elementsWithBrs.add(parent);
+			}
+		}
 	}
 
 	for(const elem of elementsWithBrs.entries())
