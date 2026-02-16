@@ -3,21 +3,18 @@ import { insertAfter, insertAsFirstChild } from "./dom";
 import { createElement } from "./element";
 import { get, getOne } from "./selectors";
 
-export function generateTableOfContents(optionalStringToMatch, shouldUseHierarchicalHeadings = false)
+export function generateTableOfContents(selector = "h1, h2, h3, h4, h5, h6", shouldUseHierarchicalHeadings = false)
 {
-	const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
+	const headings = document.querySelectorAll(selector);
 	const toc = document.createElement("section");
 	toc.id = "tableOfContents";
-	const str = optionalStringToMatch ? optionalStringToMatch.toLowerCase() : null;
 	for (let i = 0, ii = headings.length; i < ii; i++)
 	{
 		const heading = headings[i];
 		if(!isNaN(Number(heading.textContent)))
 			continue;
-		if(str && heading.textContent.toLowerCase().indexOf(str) === -1)
-			continue;
 		if(!heading.id)
-			heading.id = heading.tagName + "_" + i;
+			heading.id = `h${i + 1}`;
 		const tocEntryLink = createElement("a", { textContent: heading.textContent, href: "#" + heading.id } );
 		const indentLevel = parseInt(heading.tagName.substring(1), 10);
 		const tocEntryHeading = shouldUseHierarchicalHeadings ? createElement("h" + indentLevel) : createElement("h6");
