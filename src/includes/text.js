@@ -9,6 +9,7 @@ import { makeClassSelector } from "./misc";
 import { showMessageBig } from "./ui";
 import { replaceInTextNodes, replaceInTextNodesRegex } from "./textReplace";
 import { normalizeHTML, removeLineBreaks } from "./string";
+import { DIACRITIC_REGEXES_BY_LETTER } from "./constants";
 
 export function fixSpacesBetweenNestedQuotes()
 {
@@ -180,36 +181,34 @@ export function replaceBrs()
 
 export function replaceDiacritics(str)
 {
-	const diacriticRegexesByLetter = {
-		A: /[ÁÂÃÄÅ]/g,
-		a: /[àáâãäå]/g,
-		B: /[ß]/g,
-		C: /[ĆĈĊČ]/g,
-		c: /[ćĉċč]/g,
-		E: /[ÈÉÊËĒĔĖĘĚ]/g,
-		e: /[èéêëēĕėęě]/g,
-		AE: /[\u00c6]/g,
-		ae: /[\u00e6]/g,
-		oe: /[\u0153]/g,
-		I: /[ÌÍÎÏ]/g,
-		i: /[ìíîï]/g,
-		O: /[ÒÓÔÕÖŌŎŐ]/g,
-		o: /[ðòóôõöøōŏő]/g,
-		S: /[ŚŜŞŠ]/g,
-		s: /[śŝşš]/g,
-		U: /[ÙÚÛÜ]/g,
-		u: /[ùúûü]/g,
-		N: /[ÑŃŅŇŊ]/g,
-		n: /[ñńņňŉŋ]/g,
-		Y: /[ÝŶŸ]/g,
-		y: /[ýÿŷ]/g,
-		Z: /[ŹŻŽ]/g,
-		z: /[źżž]/g,
-	};
-	const letters = Object.keys(diacriticRegexesByLetter);
+	const letters = Object.keys(DIACRITIC_REGEXES_BY_LETTER);
 	for(const letter of letters)
-		str = str.replace(diacriticRegexesByLetter[letter], letter);
+		if(DIACRITIC_REGEXES_BY_LETTER[letter].test(str))
+			str = str.replace(DIACRITIC_REGEXES_BY_LETTER[letter], letter);
 	return str;
+}
+
+export function replaceAllDiacritics()
+{
+	const textNodes = getTextNodesUnderSelector("body");
+	for(let i = 0, ii = textNodes.length; i < ii; i++)
+	{
+		const textNode = textNodes[i];
+		let text = textNode.data;
+		const letters = Object.keys(DIACRITIC_REGEXES_BY_LETTER);
+		let hasChanged = false;
+		for(let j = 0, jj = letters.length; j < jj; j++)
+		{
+			if(DIACRITIC_REGEXES_BY_LETTER[letters[j]].test(text))
+			{
+				text = text.replace(DIACRITIC_REGEXES_BY_LETTER[letters[j]], letters[j]);
+				hasChanged = true;
+			}
+		}
+
+		if(hasChanged)
+			textNode.data = text;
+	}
 }
 
 export function replaceSpecialCharacters()
