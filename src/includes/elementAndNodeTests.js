@@ -1,4 +1,5 @@
 import { BLOCK_TAGS_SET } from "./constants";
+import { getTextLength } from "./node";
 
 export function hasClassesContaining(element, arrStr)
 {
@@ -45,16 +46,51 @@ export function containsOnlyPlainText(node)
 	return node.children.length === 0;
 }
 
-export function hasAdjacentBlockElement(node)
+export function hasAdjacentBlockElement(elem)
 {
-	const prevSib = node.previousSibling;
-	const prevElemSib = node.previousElementSibling;
-	const nextSib = node.nextSibling;
-	const nextElemSib = node.nextElementSibling;
-	if(prevSib && prevElemSib && prevSib === prevElemSib && BLOCK_TAGS_SET.has(prevElemSib.tagName))
-		return true;
-	if(nextSib && nextElemSib && nextSib === nextElemSib && BLOCK_TAGS_SET.has(nextElemSib.tagName))
-		return true;
+	if(!elem) return false;
+
+	let node = elem.previousSibling;
+	if(node)
+	{
+		if(node.nodeType === Node.ELEMENT_NODE)
+			return BLOCK_TAGS_SET.has(node.tagName);
+
+		if(node.nodeType === Node.TEXT_NODE)
+		{
+			if(getTextLength(node) > 0)
+				return false;
+
+			while(node = node.previousSibling)
+			{
+				if(node.nodeType === Node.ELEMENT_NODE)
+					return BLOCK_TAGS_SET.has(node.tagName);
+				if(node.nodeType === Node.TEXT_NODE && getTextLength(node) > 0)
+					return false;
+			}
+		}
+	}
+
+	node = elem.nextSibling;
+	if(node)
+	{
+		if(node.nodeType === Node.ELEMENT_NODE)
+			return BLOCK_TAGS_SET.has(node.tagName);
+
+		if(node.nodeType === Node.TEXT_NODE)
+		{
+			if(getTextLength(node) > 0)
+				return false;
+
+			while(node = node.nextSibling)
+			{
+				if(node.nodeType === Node.ELEMENT_NODE)
+					return BLOCK_TAGS_SET.has(node.tagName);
+				if(node.nodeType === Node.TEXT_NODE && getTextLength(node) > 0)
+					return false;
+			}
+		}
+	}
 	return false;
 }
 
