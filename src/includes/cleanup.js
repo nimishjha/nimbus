@@ -433,7 +433,7 @@ export function replaceCommonClasses()
 	replaceElementsBySelector("em", "i");
 
 	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle, .pt-num, .pt-title, .partno", "h1");
-	replaceElementsBySelector(".cn, .ct, .chapnum, .chapter, .chapternumber, .tochead, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chapno, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num", "h2");
+	replaceElementsBySelector(".cn, .ct, .chapnum, .chapternumber, .tochead, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chapno, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num", "h2");
 	replaceElementsBySelector(".cst, .h", "h3");
 	replaceElementsBySelector(".figcap", "figcaption");
 	replaceElementsBySelector(".fig-cap", "figcaption");
@@ -480,6 +480,10 @@ export function replaceCommonClasses()
 
 	replaceElementsBySelector("div.indent", "p");
 	deleteClass("indent");
+
+	unwrapAll(".dropcap");
+	unwrapAll(".dropcaps");
+	unwrapAll(".stickup");
 }
 
 export function clearBootstrapClasses()
@@ -883,6 +887,9 @@ export function splitElementsByChildren(selector = "h1, h2, h3, h4", parentTagNa
 		const wrapperTagName = parentTagName || "hgroup";
 		for(const elem of elems)
 		{
+			if(elem.childNodes.length === 1)
+				continue;
+
 			const wrapper = document.createElement(wrapperTagName);
 			for(let i = 0, ii = elem.childNodes.length; i < ii; i++)
 			{

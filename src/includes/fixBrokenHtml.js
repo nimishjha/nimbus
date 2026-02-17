@@ -204,7 +204,7 @@ export function replaceEmptyParagraphsWithHr()
 	while(i--)
 	{
 		const elem = elems[i];
-		if(getTextLength(elem) === 0 || /^[_•\*]+$/.test(elem.textContent.replace(/\s+/g, "")))
+		if(getTextLength(elem) === 0 || /^[_•\*—]+$/.test(elem.textContent.replace(/\s+/g, "")))
 		{
 			elem.parentNode.replaceChild(document.createElement("hr"), elem);
 		}

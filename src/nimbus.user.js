@@ -915,7 +915,7 @@ const consoleFunctions = [
 	trimStartingAt,
 ];
 
-Nimbus.blockElementSelector = Object.keys(BLOCK_TAGS).join();
+Nimbus.blockElementSelector = BLOCK_TAGS.join();
 Nimbus.availableFunctions = availableFunctions;
 Nimbus.consoleFunctions = consoleFunctions;
 
@@ -1013,6 +1013,7 @@ function handleKeyMenuCommand(str)
 			case "DN": deleteNonContentElements(); break;
 			case "DP": callFunctionWithArgs("Delete elements with class or id containing text", deleteByClassOrIdContaining); break;
 			case "DR": deleteResources(); break;
+			case "DS": customPrompt("Delete elements by selector").then(del); break;
 			case "DT": callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
 			case "DY": deleteEmptyBlockElements(); break;
 
@@ -1023,6 +1024,7 @@ function handleKeyMenuCommand(str)
 			case "FP": fixParagraphs(); break;
 			case "FT": fixTextAroundReferences(); break;
 
+			case "GA": groupAdjacentElements(".markd", "blockquote", "p"); break;
 			case "GB": groupAdjacentElements("blockquote", "blockquote", "p"); break;
 			case "GM": groupMarkedElements(Nimbus.GROUP_TAGNAME); break;
 			case "GS": groupMarkedElements("section"); break;
