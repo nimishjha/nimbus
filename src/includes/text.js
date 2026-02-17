@@ -89,7 +89,15 @@ export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 		if(!(wrapperTagName && childTagName))
 		{
 			childTagName = elem.tagName;
-			wrapperTagName = headingTagsSet.has(childTagName) ? "hgroup" : "comment";
+			if(headingTagsSet.has(childTagName))
+				wrapperTagName = "hgroup";
+			else if(childTagName === "BLOCKQUOTE")
+			{
+				wrapperTagName = "blockquote";
+				childTagName = "p";
+			}
+			else
+				wrapperTagName = "comment";
 		}
 
 		if(!hasDirectChildrenOfType(elem, "BR"))
