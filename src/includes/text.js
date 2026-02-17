@@ -1,6 +1,6 @@
 import { Nimbus } from "./Nimbus";
 import { emptyElement, createElementWithChildren, createElement, wrapElement, unwrapElement, unwrapAll, getFirstTextNode } from "./element";
-import { hasDirectChildrenOfType } from "./elementAndNodeTests";
+import { hasDirectChildrenOfType, hasAdjacentBlockElement } from "./elementAndNodeTests";
 import { get, getOne, del, getFirstTextChild, getNonCodeTextNodes, getNodeContainingSelection } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
 import { getTextNodesUnderSelector, getTextNodesUnderElement } from "./xpath";
@@ -139,10 +139,26 @@ export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 	}
 }
 
+export function removeRedundantBrs()
+{
+	del("br:last-child");
+	const elems = get("br");
+	const toDelete = [];
+	let i = elems.length;
+	while(i--)
+	{
+		if(hasAdjacentBlockElement(elems[i]))
+			toDelete.push(elems[i]);
+	}
+	del(toDelete);
+}
+
 export function replaceBrs()
 {
 	const brs = get("br");
 	if(!brs) return;
+
+	removeRedundantBrs();
 
 	const inlineTags = new Set(["I", "EM", "B", "STRONG"]);
 
@@ -169,10 +185,11 @@ export function replaceBrs()
 		splitByBrs(elem[0]);
 	}
 
-	del("br:first-child");
-	del("br:last-child");
-
-	replaceElementsBySelector("br", "brk");
+	const brsRemaining = get("br");
+	if(!brsRemaining)
+		showMessageBig(`${brs.length} BRs deleted`);
+	else
+		replaceElementsBySelector("br", "brk");
 }
 
 export function replaceDiacritics(str)
