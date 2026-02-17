@@ -11,7 +11,7 @@ import { getTextNodesUnderSelector, getTextNodesUnderElement, xPathSelect } from
 import { escapeForRegExp } from "./misc";
 import { makePlainText, unwrapElement, deleteClass, createElement, unwrapAll, wrapElement, wrapElementInner, deleteLeadingAndTrailingEmptyTextNodes } from "./element";
 import { normalizeHTML, removeLineBreaks } from "./string";
-import { BLOCK_ELEMENTS } from "./constants";
+import { BLOCK_TAGS_SET } from "./constants";
 
 const { green, blue, black, gray, yellow, purple } = Nimbus.logColors;
 const { styleHeading } = Nimbus.logStyles;
@@ -207,7 +207,7 @@ export function highlightElements(elems)
 		highlightTableRows(elements);
 		return;
 	}
-	else if(BLOCK_ELEMENTS[firstElement.tagName])
+	else if(BLOCK_TAGS_SET.has(firstElement.tagName))
 	{
 		for(let i = 0, ii = elements.length; i < ii; i++)
 			wrapElementInner(elements[i], highlightTagName);

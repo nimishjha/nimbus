@@ -35,7 +35,7 @@ import { Nimbus } from "./includes/Nimbus";
 import { Cyclable } from "./includes/Cyclable";
 import { STYLES } from "./includes/stylesheets";
 import { KEYCODES, KEYCODES_REVERSE } from "./includes/keycodes";
-import { SYMBOLS, BLOCK_ELEMENTS, INLINE_ELEMENTS } from "./includes/constants";
+import { SYMBOLS, BLOCK_TAGS } from "./includes/constants";
 import { parseCommand, runCommand, callFunctionWithArgs } from "./includes/command";
 import {
 	count,
@@ -915,7 +915,7 @@ const consoleFunctions = [
 	trimStartingAt,
 ];
 
-Nimbus.blockElementSelector = Object.keys(BLOCK_ELEMENTS).join();
+Nimbus.blockElementSelector = Object.keys(BLOCK_TAGS).join();
 Nimbus.availableFunctions = availableFunctions;
 Nimbus.consoleFunctions = consoleFunctions;
 

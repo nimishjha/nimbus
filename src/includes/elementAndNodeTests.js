@@ -1,4 +1,4 @@
-import { BLOCK_ELEMENTS } from "./constants";
+import { BLOCK_TAGS_SET } from "./constants";
 
 export function hasClassesContaining(element, arrStr)
 {
@@ -51,16 +51,16 @@ export function hasAdjacentBlockElement(node)
 	const prevElemSib = node.previousElementSibling;
 	const nextSib = node.nextSibling;
 	const nextElemSib = node.nextElementSibling;
-	if(prevSib && prevElemSib && prevSib === prevElemSib && BLOCK_ELEMENTS[prevElemSib.tagName])
+	if(prevSib && prevElemSib && prevSib === prevElemSib && BLOCK_TAGS_SET.has(prevElemSib.tagName))
 		return true;
-	if(nextSib && nextElemSib && nextSib === nextElemSib && BLOCK_ELEMENTS[nextElemSib.tagName])
+	if(nextSib && nextElemSib && nextSib === nextElemSib && BLOCK_TAGS_SET.has(nextElemSib.tagName))
 		return true;
 	return false;
 }
 
 export function isBlockElement(node)
 {
-	const NON_BLOCK_ELEMENTS = {
+	const NON_BLOCK_TAGS = {
 		A: true,
 		B: true,
 		BIG: true,
@@ -81,7 +81,7 @@ export function isBlockElement(node)
 		USER: true
 	}
 	if(node.nodeType !== 1) return false;
-	if(NON_BLOCK_ELEMENTS[node.tagName]) return false;
+	if(NON_BLOCK_TAGS[node.tagName]) return false;
 	return true;
 }
 

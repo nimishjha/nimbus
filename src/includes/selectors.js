@@ -7,7 +7,7 @@ import { markElement, getMarkedElements, unmarkAll, unmarkElement } from "./mark
 import { xPathSelect, getTextNodesUnderSelector, getXpathResultAsArray } from "./xpath";
 import { getTextLength } from "./node";
 import { escapeForRegExp } from "./misc";
-import { BLOCK_ELEMENTS } from "./constants";
+import { BLOCK_TAGS_SET } from "./constants";
 
 export function get(selector)
 {
@@ -983,7 +983,7 @@ export function selectNodesBetweenMarkers(selector)
 export function getFirstBlockParent(node)
 {
 	const elem = node.nodeType === 1 ? node : node.parentNode;
-	if(BLOCK_ELEMENTS[elem.tagName])
+	if(BLOCK_TAGS_SET.has(elem.tagName))
 		return elem;
 	else
 		return elem.closest(Nimbus.blockElementSelector);

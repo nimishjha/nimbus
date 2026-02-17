@@ -7,7 +7,7 @@ import { makeClassSelector } from "./misc";
 import { getAlphanumericTextLength, createElement, createClassSelector } from "./element";
 import { xlog, showLog } from "./log";
 import { callFunctionWithArgs } from "./command";
-import { BLOCK_ELEMENTS, INLINE_ELEMENTS } from "./constants";
+import { BLOCK_TAGS_SET, INLINE_TAGS_SET } from "./constants";
 
 export function replaceElementsByTagNameMatching(text, tagName)
 {
@@ -157,7 +157,7 @@ export function replaceNonStandardElements()
 		const elem = elems[i];
 		if(!elem.tagName)
 			continue;
-		if(!BLOCK_ELEMENTS[elem.tagName] && !INLINE_ELEMENTS[elem.tagName])
+		if(!( BLOCK_TAGS_SET.has(elem.tagName) || INLINE_TAGS_SET.has(elem.tagName) ))
 		{
 			const replacement = convertElement(elem, "div");
 			replacement.className = elem.tagName;
@@ -213,7 +213,7 @@ export function convertDivsToParagraphs()
 		{
 			const fc = elem.firstChild;
 			if(!fc) continue;
-			if(fc.nodeType === 3 || INLINE_ELEMENTS[fc.tagName])
+			if(fc.nodeType === 3 || INLINE_TAGS_SET.has(fc.tagName))
 				replaceElementKeepingId(elem, "p");
 		}
 	}

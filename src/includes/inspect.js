@@ -9,7 +9,7 @@ import { trimAt } from "./string";
 import { xlog, ylog } from "./log";
 import { toggleStyle, insertStyle } from "./style";
 import { STYLES } from "./stylesheets";
-import { BLOCK_ELEMENTS, INLINE_ELEMENTS } from "./constants";
+import { BLOCK_TAGS, BLOCK_TAGS_SET, INLINE_TAGS } from "./constants";
 import { identifyClassSetup } from "./identifyClass";
 import { getMarkedElements } from "./mark";
 
@@ -329,7 +329,7 @@ export function showSelectors(tagName)
 
 	if(tagName)
 	{
-		const style = BLOCK_ELEMENTS[tagName.toUpperCase()] ? generateBlockStyleRule(tagName) : generateInlineStyleRule(tagName);
+		const style = BLOCK_TAGS_SET.has(tagName.toUpperCase()) ? generateBlockStyleRule(tagName) : generateInlineStyleRule(tagName);
 		insertStyle(style, "styleShowSelectors", true);
 	}
 	else
@@ -342,10 +342,8 @@ export function showSelectors(tagName)
 			span span { padding: 0px; }
 		`;
 
-		const blockTags = Object.keys(BLOCK_ELEMENTS);
-		const inlineTags = Object.keys(INLINE_ELEMENTS);
-		const rulesBlock = blockTags.map(generateBlockStyleRule);
-		const rulesInline = inlineTags.map(generateInlineStyleRule);
+		const rulesBlock = BLOCK_TAGS.map(generateBlockStyleRule);
+		const rulesInline = INLINE_TAGS.map(generateInlineStyleRule);
 		const style = rulesBlock.join("\n") + rulesInline.join("\n") + borderStyle;
 		insertStyle(style, "styleShowSelectors", true);
 	}
