@@ -1,7 +1,7 @@
 import { Nimbus } from "./Nimbus";
 import { showMessage, showMessageBig, showMessageError } from "./ui";
 import { removeWhitespace } from "./string";
-import { get, getOne, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining } from "./selectors";
+import { get, getOne, select, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining } from "./selectors";
 import { getTextLength } from "./node";
 import { makeClassSelector } from "./misc";
 import { insertStyle, insertStyleHighlight, getAllCssRulesForElement } from "./style";
@@ -346,5 +346,17 @@ export function markAllFollowingSiblings()
 	{
 		first.nextElementSibling.className = Nimbus.markerClass;
 		first = first.nextElementSibling;
+	}
+}
+
+export function markByIdenticalText()
+{
+	const marked = getFirstMarkedElement();
+	if(marked)
+	{
+		unmarkAll();
+		const text = marked.textContent.trim();
+		if(text.length)
+			markElements(select(marked.tagName, "text", "equals", text));
 	}
 }
