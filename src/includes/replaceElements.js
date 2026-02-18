@@ -1,13 +1,13 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig, showMessageError } from "./ui";
 import { selectByClassOrIdContaining, selectByTagNameMatching, getNodeContainingSelection } from "./selectors";
-import { getMarkedElements } from "./mark";
+import { getMarkedElements, unmarkAll } from "./mark";
 import { get } from "./selectors";
 import { makeClassSelector } from "./misc";
 import { getAlphanumericTextLength, createElement, createClassSelector } from "./element";
 import { xlog, showLog } from "./log";
 import { callFunctionWithArgs } from "./command";
-import { BLOCK_TAGS_SET, INLINE_TAGS_SET } from "./constants";
+import { BLOCK_TAGS_SET, INLINE_TAGS_SET, HEADING_TAGS_SET } from "./constants";
 
 export function replaceElementsByTagNameMatching(text, tagName)
 {
@@ -222,3 +222,19 @@ export function convertDivsToParagraphs()
 export function setReplacementTag1(tagName) { Nimbus.replacementTagName1 = tagName; }
 export function setReplacementTag2(tagName) { Nimbus.replacementTagName2 = tagName; }
 export function setItalicTag(tagName) { Nimbus.italicTag = tagName; }
+
+export function replaceFirstLevelChildrenWith(tagName)
+{
+	if(document.querySelector(".markd"))
+	{
+		const elems = document.querySelectorAll(".markd > *");
+		for(const elem of elems)
+			if(!HEADING_TAGS_SET.has(elem.tagName))
+				replaceElementKeepingId(elem, tagName);
+		unmarkAll();
+	}
+	else
+	{
+		showMessageError("%cexpected one marked element, found none", "color: #a00; background: #400");
+	}
+}
