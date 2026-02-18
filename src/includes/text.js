@@ -9,7 +9,7 @@ import { makeClassSelector } from "./misc";
 import { showMessageBig } from "./ui";
 import { replaceInTextNodes, replaceInTextNodesRegex } from "./textReplace";
 import { normalizeHTML, removeLineBreaks } from "./string";
-import { DIACRITIC_REGEXES_BY_LETTER } from "./constants";
+import { DIACRITIC_REGEXES_BY_LETTER, HEADING_TAGS_SET } from "./constants";
 
 export function fixSpacesBetweenNestedQuotes()
 {
@@ -80,7 +80,6 @@ export function makeParagraphsByLineBreaks(selector) {
 export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 {
 	const elems = typeof selectorOrElement === "string" ? get(selectorOrElement) : [selectorOrElement];
-	const headingTagsSet = new Set(["H1", "H2", "H3", "H4", "H5", "H6"]);
 
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
@@ -89,7 +88,7 @@ export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 		if(!(wrapperTagName && childTagName))
 		{
 			childTagName = elem.tagName;
-			if(headingTagsSet.has(childTagName))
+			if(HEADING_TAGS_SET.has(childTagName))
 				wrapperTagName = "hgroup";
 			else if(childTagName === "BLOCKQUOTE")
 			{

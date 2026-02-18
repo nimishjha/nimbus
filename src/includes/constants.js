@@ -57,6 +57,7 @@ export const INLINE_TAGS = [
 
 export const BLOCK_TAGS_SET = new Set(BLOCK_TAGS);
 export const INLINE_TAGS_SET = new Set(INLINE_TAGS);
+export const HEADING_TAGS_SET = new Set(["H1", "H2", "H3", "H4", "H5", "H6"]);
 
 export const SYMBOLS = {
 	alphaLower: "α",

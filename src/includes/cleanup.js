@@ -534,12 +534,12 @@ export function removeSpanTags(isOkToLoseIds)
 
 export function removeUnnecessaryClasses()
 {
-	removeAttributeOf("table, tbody, thead, th, tr, td, i, em, b, strong, a, ul, ol, li, sup, sub, small, pre, code, h1, h2, h3, h4, h5, h6, dt, dd, dl", "class");
+	removeAttributeOf("table, tbody, thead, th, tr, td, i, em, b, strong, a, ul, ol, li, sup, sub, small, pre, code, h1, h2, h3, h4, h5, h6, dt, dd, dl, blockquote", "class");
 }
 
 export function simplifyClassNames(selector)
 {
-	const sel = selector ||  "section, div, header, p, ul, ol, li, span, table, tbody, thead, tr, td, th, blockquote";
+	const sel = selector ||  "section, div, header, p, span";
 	const elems = get(sel);
 	const classMap = {};
 	const numClassesByTagName = {};

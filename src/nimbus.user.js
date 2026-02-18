@@ -565,6 +565,7 @@ import {
 	markBlockElementsContainingText,
 	markByClassOrIdContaining,
 	markByCssRule,
+	markByIdenticalText,
 	markBySelector,
 	markBySelectorAndNormalizedText,
 	markBySelectorAndRegex,
@@ -597,6 +598,7 @@ import {
 	replaceElementsBySelectorHelper,
 	replaceElementsByTagNameMatching,
 	replaceElementsOfMarkedTypeWith,
+	replaceFirstLevelChildrenWith,
 	replaceMarkedElements,
 	replaceMarkedWithTextElement,
 	replaceNonStandardElements,
@@ -1047,10 +1049,12 @@ function handleKeyMenuCommand(str)
 			case "M3": setHighlightMapOptions(4, 1, 4); break;
 			case "M4": setHighlightMapOptions(4, 1, 20); break;
 			case "MC": markElementsWithSameClass(); break;
+			case "MD": replaceFirstLevelChildrenWith("dt"); break;
 			case "ML": makeLastChild(); break;
 			case "MM": toggleHighlightMap(); break;
 			case "MP": callFunctionWithArgs("Mark elements by class or id containing text", markByClassOrIdContaining, 1); break;
 			case "MS": callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
+			case "MT": markByIdenticalText(); break;
 			case "MU": unmarkAll(); break;
 			case "MX": customPrompt("Mark by xPath").then(xPathMark); break;
 
