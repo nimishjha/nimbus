@@ -448,6 +448,11 @@ export function boldInlineColonHeadings()
 	unmarkAll();
 }
 
+export function enDashToEmDash()
+{
+	replaceInTextNodes(" – ", "—");
+}
+
 export function fixDashes()
 {
 	const t1 = new Date();
