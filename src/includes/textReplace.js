@@ -17,14 +17,6 @@ export function replaceInTextNodesUnder(selector, searchString, replacementStrin
 			textNode.data = textNode.data.replaceAll(searchString, replacementString);
 }
 
-export function replaceInPreTextNodes(searchString, replacementString)
-{
-	const textNodes = getTextNodesUnderSelector("pre");
-	for(const textNode of textNodes)
-		if(textNode.data.includes(searchString))
-			textNode.data = textNode.data.replaceAll(searchString, replacementString);
-}
-
 export function replaceInTextNodesRegex(selector, regex, replacement)
 {
 	const textNodes = getTextNodesUnderSelector(selector);

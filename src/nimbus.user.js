@@ -172,7 +172,7 @@ import {
 	showPanel,
 	showStatus,
 } from "./includes/ui";
-import { replaceInTextNodes, replaceInTextNodesUnder, replaceInPreTextNodes, replaceInTextNodesRegex } from "./includes/textReplace";
+import { replaceInTextNodes, replaceInTextNodesUnder, replaceInTextNodesRegex } from "./includes/textReplace";
 import { toggleHighlightMap, setHighlightMapColor, setHighlightMapOptions } from "./includes/highlightMapper";
 import { getPrevious, getNext } from "./includes/array";
 import { logPropertiesMatching, logValuesMatching } from "./includes/object";
@@ -841,7 +841,6 @@ const availableFunctions = {
 	replaceInlineStylesWithClasses: replaceInlineStylesWithClasses,
 	replaceInTextNodes: replaceInTextNodes,
 	replaceInTextNodesUnder: replaceInTextNodesUnder,
-	replaceInPreTextNodes: replaceInPreTextNodes,
 	replaceMarkedElements: replaceMarkedElements,
 	replaceMarkedWithTextElement: replaceMarkedWithTextElement,
 	replaceNonStandardElements: replaceNonStandardElements,
