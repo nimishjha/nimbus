@@ -9,6 +9,14 @@ export function replaceInTextNodes(searchString, replacementString)
 			textNode.data = textNode.data.replaceAll(searchString, replacementString);
 }
 
+export function replaceInTextNodesUnder(selector, searchString, replacementString)
+{
+	const textNodes = selector.startsWith(".") ? getTextNodesUnderSelector(null, selector.slice(1)) : getTextNodesUnderSelector(selector);
+	for(const textNode of textNodes)
+		if(textNode.data.includes(searchString))
+			textNode.data = textNode.data.replaceAll(searchString, replacementString);
+}
+
 export function replaceInPreTextNodes(searchString, replacementString)
 {
 	const textNodes = getTextNodesUnderSelector("pre");
