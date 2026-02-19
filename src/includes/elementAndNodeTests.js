@@ -61,12 +61,14 @@ export function hasAdjacentBlockElement(elem)
 			if(getTextLength(node) > 0)
 				return false;
 
-			while(node = node.previousSibling)
+			node = node.previousSibling;
+			while(node)
 			{
 				if(node.nodeType === Node.ELEMENT_NODE)
 					return BLOCK_TAGS_SET.has(node.tagName);
 				if(node.nodeType === Node.TEXT_NODE && getTextLength(node) > 0)
 					return false;
+				node = node.previousSibling;
 			}
 		}
 	}
@@ -82,12 +84,14 @@ export function hasAdjacentBlockElement(elem)
 			if(getTextLength(node) > 0)
 				return false;
 
-			while(node = node.nextSibling)
+			node = node.nextSibling;
+			while(node)
 			{
 				if(node.nodeType === Node.ELEMENT_NODE)
 					return BLOCK_TAGS_SET.has(node.tagName);
 				if(node.nodeType === Node.TEXT_NODE && getTextLength(node) > 0)
 					return false;
+				node = node.nextSibling;
 			}
 		}
 	}
