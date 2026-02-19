@@ -1052,8 +1052,6 @@ function handleKeyMenuCommand(str)
 			case "M2": setHighlightMapOptions(4, 0, 4); break;
 			case "M3": setHighlightMapOptions(4, 1, 4); break;
 			case "M4": setHighlightMapOptions(4, 1, 20); break;
-			case "MA": markAnchorsWithNoLinks(); break;
-			case "MB": markBrokenInternalLinks(); break;
 			case "MC": markElementsWithSameClass(); break;
 			case "MD": replaceFirstLevelChildrenWith("dt"); break;
 			case "ML": makeLastChild(); break;
@@ -1106,13 +1104,8 @@ function handleKeyMenuCommand(str)
 			case "YS": toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
 			case "YM": toggleStyle(STYLES.SHOW_SELECTORS_MINIMAL, "styleShowSelectors", true); break;
 
-			case "ZB": setHighlightTag("markblue"); break;
-			case "ZG": setHighlightTag("markgreen"); break;
-			case "ZM": setHighlightTag("mark"); break;
-			case "ZP": setHighlightTag("markpurple"); break;
-			case "ZR": setHighlightTag("markred"); break;
-			case "ZW": setHighlightTag("markwhite"); break;
-			case "ZY": setHighlightTag("markyellow"); break;
+			case "ZA": markAnchorsWithNoLinks(); break;
+			case "ZB": markBrokenInternalLinks(); break;
 
 			default: showMessageBig(`Unknown command ${str}`);
 		}
