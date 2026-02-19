@@ -153,6 +153,7 @@ export function goToNextElement(selector)
 		{
 			config.currentElement = config.elements[0];
 			config.currentElement.scrollIntoView();
+			window.scrollBy(0, -100);
 		}
 	}
 	else
@@ -162,6 +163,7 @@ export function goToNextElement(selector)
 		{
 			config.currentElement = elementToScrollTo;
 			elementToScrollTo.scrollIntoView();
+			window.scrollBy(0, -100);
 		}
 	}
 }
@@ -177,6 +179,7 @@ export function goToPrevElement(selector)
 		{
 			config.currentElement = config.elements[0];
 			config.currentElement.scrollIntoView();
+			window.scrollBy(0, -100);
 		}
 	}
 	else
@@ -186,6 +189,7 @@ export function goToPrevElement(selector)
 		{
 			config.currentElement = elementToScrollTo;
 			elementToScrollTo.scrollIntoView();
+			window.scrollBy(0, -100);
 		}
 	}
 }

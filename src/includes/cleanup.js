@@ -580,7 +580,7 @@ export function createUniqueID(num)
 	let charCode = 97;
 	let newID = `${String.fromCharCode(charCode)}${num}`;
 
-	while(getOne("#" + newID))
+	while(document.getElementById(newID))
 	{
 		charCode++;
 		newID = `${String.fromCharCode(charCode)}${num}`;

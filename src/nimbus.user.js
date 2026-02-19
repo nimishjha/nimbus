@@ -1096,6 +1096,7 @@ function handleKeyMenuCommand(str)
 			case "YN": toggleStyleNegative(); break;
 			case "YO": toggleStyle(STYLES.OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
 			case "YS": toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
+			case "YM": toggleStyle(STYLES.SHOW_SELECTORS_MINIMAL, "styleShowSelectors", true); break;
 
 			case "ZB": setHighlightTag("markblue"); break;
 			case "ZG": setHighlightTag("markgreen"); break;

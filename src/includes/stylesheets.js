@@ -129,9 +129,10 @@ export const STYLES = {
 		.excludeFromMutations[class]::before, .excludeFromMutations[class] *::after { content: none; }
 	`,
 	SHOW_SELECTORS_MINIMAL: `
-		*[class]::before { content: attr(class); color: #F90; background: #000; padding: 2px 6px; font: 16px "swis721 cn bt"; }
-		*[id]::before { content: attr(id); color: #F0F; background: #000; padding: 2px 6px; font: 16px "swis721 cn bt"; }
-		*[id][class]::before { content: "#"attr(id) "."attr(class); color: #0DD; background: #000; padding: 2px 6px; font: 16px "swis721 cn bt"; }
+		*[class]::before, *[id]::before, *[id][class]::before { background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
+		*[class]::before { content: attr(class); color: #C90; }
+		*[id]::before { content: attr(id); color: #C00; background: #000; }
+		*[id][class]::before { content: "#"attr(id)" ."attr(class); color: #C0C; background: #000; }
 	`,
 	PAD_BLOCK_ELEMENTS: `
 		div, p, hgroup, article, nav, footnote, header, footer { margin: 4px; padding: 4px; }
