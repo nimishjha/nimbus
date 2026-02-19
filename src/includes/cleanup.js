@@ -575,6 +575,20 @@ export function simplifyClassNames(selector)
 	}
 }
 
+export function createUniqueID(num)
+{
+	let charCode = 97;
+	let newID = `${String.fromCharCode(charCode)}${num}`;
+
+	while(getOne("#" + newID))
+	{
+		charCode++;
+		newID = `${String.fromCharCode(charCode)}${num}`;
+	}
+
+	return newID;
+}
+
 export function shortenIds()
 {
 	if(countDuplicateIDs() !== 0)
@@ -591,7 +605,7 @@ export function shortenIds()
 		const links = linksByHref["#" + elem.id];
 		if(links && links.length)
 		{
-			elem.id = "s" + (i + 1);
+			elem.id = createUniqueID(i + 1);
 			for(const link of links)
 				link.setAttribute("href", "#" + elem.id);
 		}
