@@ -220,6 +220,7 @@ import {
 	replaceEmptyAnchors,
 	revealEmptyLinks,
 	revealLinkAttributes,
+	showLinksToIds,
 	toggleShowEmptyLinksAndSpans,
 } from "./includes/link";
 import {
@@ -871,6 +872,7 @@ const availableFunctions = {
 	shortenIds: shortenIds,
 	showAttributes: showAttributes,
 	showHtmlComments: showHtmlComments,
+	showLinksToIds: showLinksToIds,
 	showPrintLink: showPrintLink,
 	showResources: showResources,
 	showSavedStreamingImages: showSavedStreamingImages,
@@ -998,6 +1000,7 @@ function handleKeyMenuCommand(str)
 			case "BK": toggleShowKeyCodes(); break;
 			case "BC": boldInlineColonHeadings(); break;
 			case "BG": buildGallery(); break;
+			case "BL": showLinksToIds(); break;
 
 			case "CB": groupAdjacentElements(".markd", "blockquote", p); break;
 			case "CC": getContentByParagraphCount(); break;
@@ -1020,6 +1023,7 @@ function handleKeyMenuCommand(str)
 			case "DR": deleteResources(); break;
 			case "DS": customPrompt("Delete elements by selector").then(del); break;
 			case "DT": callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
+			case "DX": del("x"); break;
 			case "DY": deleteEmptyBlockElements(); break;
 
 			case "ET": editDocumentTitle(); break;

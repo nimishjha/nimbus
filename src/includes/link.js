@@ -1,5 +1,5 @@
 import { Nimbus } from "./Nimbus";
-import { createElement, createElementWithChildren, unwrapElement, wrapElement, unwrapAll } from "./element";
+import { createElement, createElementWithChildren, createLinkInWrapper, unwrapElement, wrapElement, unwrapAll } from "./element";
 import { hasNonAlphabeticalText } from "./elementAndNodeTests";
 import { markElement, unmarkAll } from "./mark";
 import { showMessageBig, showMessageError } from "./ui";
@@ -479,4 +479,38 @@ export function markAnchorsWithNoLinks()
 		showMessageBig(`${count} unreferenced anchors marked`);
 	else
 		showMessageBig("No unreferenced anchors");
+}
+
+export function showLinksToIds(selector = "body *[id]")
+{
+	const elems = document.querySelectorAll(selector);
+	const linksByHref = createLinksByHrefLookup();
+
+	let numIDsWithLinks = 0;
+	let numLinks = 0;
+
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+		if(!elem.id)
+			continue;
+		const id = "#" + elem.id;
+		const links = linksByHref[id];
+		if(links)
+		{
+			numIDsWithLinks++;
+			numLinks += links.length;
+			for(let j = 0, jj = links.length; j < jj; j++)
+			{
+				const link = links[j];
+				if(!link.id)
+					link.id = `b${numIDsWithLinks}_${j}`;
+				if(elem.tagName === "A")
+					elem.insertAdjacentElement("afterend", createLinkInWrapper("x", `${link.textContent}`, "#" + link.id))
+				else
+					elem.appendChild(createLinkInWrapper("x", `${link.textContent}`, "#" + link.id));
+			}
+		}
+	}
+	showMessageBig(`${numIDsWithLinks} ids have ${numLinks} links`);
 }
