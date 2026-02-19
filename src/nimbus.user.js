@@ -446,7 +446,6 @@ import {
 	cycleTheme,
 	doWebsiteSpecificTasks,
 	doWebsiteSpecificTasksInternal,
-	echoPassword,
 	getCurrentlyPlayingVideo,
 	getPageNavLinks,
 	hideNonVideoContent,
@@ -456,7 +455,6 @@ import {
 	makeButtonsReadable,
 	setBodyOpacity,
 	setTheme,
-	showPassword,
 	showPrintLink,
 	toggleNonVideoContent,
 	toggleViewVideoMode,
@@ -1266,7 +1264,7 @@ function handleKeyDown(e)
 			case KEYCODES.X: joinNodesContainingSelection(); break;
 			case KEYCODES.Y: toggleKeyMenu("Y"); break;
 			case KEYCODES.Z: toggleKeyMenu("Z"); break;
-			case KEYCODES.FORWARD_SLASH: showPassword(); cycleFocusOverFormFields(); break;
+			case KEYCODES.FORWARD_SLASH: cycleFocusOverFormFields(); break;
 			case KEYCODES.DELETE: deleteMarkedElements(); break;
 			case KEYCODES.SQUARE_BRACKET_OPEN: modifyMark("previous"); break;
 			case KEYCODES.SQUARE_BRACKET_CLOSE: modifyMark("next"); break;

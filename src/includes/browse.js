@@ -159,26 +159,6 @@ export function toggleViewVideoMode()
 	toggleWebsiteSpecificStyle();
 }
 
-export function showPassword()
-{
-	const inputs = get("input");
-	let i = inputs.length;
-	while(i--)
-	{
-		const input = inputs[i];
-		if(input.type && input.type === "password" && !input.classList.contains("showPassword"))
-		{
-			input.addEventListener("keyup", echoPassword, false);
-			input.classList.add("showPassword");
-		}
-	}
-}
-
-export function echoPassword(e)
-{
-	showMessage(e.target.value, "none", true);
-}
-
 export function getPageNavLinks()
 {
 	const links = get("a");
