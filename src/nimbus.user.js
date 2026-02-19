@@ -209,6 +209,8 @@ import {
 	isEmptyLink,
 	logHrefsOnClick,
 	makeFileLinksRelative,
+	markAnchorsWithNoLinks,
+	markBrokenInternalLinks,
 	moveIdsFromSpans,
 	numberNumericReferencesByInterlinkedGroup,
 	removeAllQueryParametersExcept,
@@ -1046,6 +1048,8 @@ function handleKeyMenuCommand(str)
 			case "M2": setHighlightMapOptions(4, 0, 4); break;
 			case "M3": setHighlightMapOptions(4, 1, 4); break;
 			case "M4": setHighlightMapOptions(4, 1, 20); break;
+			case "MA": markAnchorsWithNoLinks(); break;
+			case "MB": markBrokenInternalLinks(); break;
 			case "MC": markElementsWithSameClass(); break;
 			case "MD": replaceFirstLevelChildrenWith("dt"); break;
 			case "ML": makeLastChild(); break;

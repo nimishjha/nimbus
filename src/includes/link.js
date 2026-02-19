@@ -436,3 +436,47 @@ export function numberNumericReferencesByInterlinkedGroup()
 
 	showMessageBig(`${groups.length} groups found; ${count} links fixed`);
 }
+
+export function markBrokenInternalLinks()
+{
+	const links = document.querySelectorAll('a[href^="#"]');
+	let count = 0;
+	for(let i = 0, ii = links.length; i < ii; i++)
+	{
+		const link = links[i];
+		const href = link.getAttribute("href");
+		if(href === null || href.length < 2)
+			continue;
+		const target = document.getElementById(href.slice(1));
+		if(target === null)
+		{
+			link.className = Nimbus.markerClass;
+			count++;
+		}
+	}
+	if(count)
+		showMessageBig(`${count} broken internal links marked`);
+	else
+		showMessageBig("No broken internal links");
+}
+
+export function markAnchorsWithNoLinks()
+{
+	const anchors = document.querySelectorAll('body *[id]');
+	const linksByHref = createLinksByHrefLookup();
+	let count = 0;
+	for(let i = 0, ii = anchors.length; i < ii; i++)
+	{
+		const anchor = anchors[i];
+		const links = linksByHref["#" + anchor.id];
+		if(!links)
+		{
+			anchor.className = Nimbus.markerClass;
+			count++;
+		}
+	}
+	if(count)
+		showMessageBig(`${count} unreferenced anchors marked`);
+	else
+		showMessageBig("No unreferenced anchors");
+}
