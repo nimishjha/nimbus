@@ -4,13 +4,13 @@ function assignIdsIfMissing(elems)
 	{
 		const elem = elems[i];
 		if(!elem.id)
-			elem.id = elem.tagName + "_" +  i;
+			elem.id = elem.tagName.toLowerCase() + "_" +  i;
 	}
 }
 
 function annotateElement(elem, str)
 {
-	const annotation = document.createElement("an");
+	const annotation = document.createElement("x");
 	annotation.textContent = " " + str;
 	elem.appendChild(annotation);
 }
@@ -57,7 +57,8 @@ function relinkTableOfContents(linksSelector, headingsSelector)
 		}
 		else
 		{
-			annotateElement(link, "○");
+			link.className = "statusError";
+			// annotateElement(link, "○");
 		}
 	}
 

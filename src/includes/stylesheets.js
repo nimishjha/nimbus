@@ -114,12 +114,13 @@ export const STYLES = {
 		span { box-shadow: inset 0 -100px #040; padding: 4px; border: 2px solid #0A0; }
 		span span { padding: 0px; }
 
-		h1::after { content: "h1"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
-		h2::after { content: "h2"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
-		h3::after { content: "h3"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
-		h4::after { content: "h4"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
-		h5::after { content: "h5"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
-		h6::after { content: "h6"; color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
+		h1::after, h2::after, h3::after, h4::after, h5::after, h6::after { color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
+		h1::after { content: "h1"; }
+		h2::after { content: "h2"; }
+		h3::after { content: "h3"; }
+		h4::after { content: "h4"; }
+		h5::after { content: "h5"; }
+		h6::after { content: "h6"; }
 
 		message::before, autocompleteinputwrapper::before, autocompleteinputwrapper *::before, #userInputWrapper::before, #userInputWrapper *::before, .excludeFromMutations::before { content: none; }
 		message, message *, autocompleteinputwrapper, autocompleteinputwrapper *, #userInputWrapper, #userInputWrapper * { box-shadow: none; }
@@ -133,6 +134,10 @@ export const STYLES = {
 		*[class]::before { content: attr(class); color: #C90; }
 		*[id]::before { content: attr(id); color: #C00; background: #000; }
 		*[id][class]::before { content: "#"attr(id)" ."attr(class); color: #C0C; background: #000; }
+
+		.excludeFromMutations::before, .excludeFromMutations *::before { content: none; }
+		.excludeFromMutations[id]::before, .excludeFromMutations[id] *::after { content: none; }
+		.excludeFromMutations[class]::before, .excludeFromMutations[class] *::after { content: none; }
 	`,
 	PAD_BLOCK_ELEMENTS: `
 		div, p, hgroup, article, nav, footnote, header, footer { margin: 4px; padding: 4px; }

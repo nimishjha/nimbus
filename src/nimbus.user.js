@@ -998,10 +998,8 @@ function handleKeyMenuCommand(str)
 			case "AR": setTheme("nimbusThemeRed"); break;
 			case "AS": setTheme("nimbusThemeSepia"); break;
 
-			case "BK": toggleShowKeyCodes(); break;
 			case "BC": boldInlineColonHeadings(); break;
 			case "BG": buildGallery(); break;
-			case "BL": showLinksToIds(); break;
 
 			case "CB": groupAdjacentElements(".markd", "blockquote", p); break;
 			case "CC": getContentByParagraphCount(); break;
@@ -1104,10 +1102,12 @@ function handleKeyMenuCommand(str)
 			case "YN": toggleStyleNegative(); break;
 			case "YO": toggleStyle(STYLES.OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
 			case "YS": toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
-			case "YM": toggleStyle(STYLES.SHOW_SELECTORS_MINIMAL, "styleShowSelectors", true); break;
+			case "YM": toggleStyle(STYLES.SHOW_SELECTORS_MINIMAL, "styleShowSelectorsMinimal", true); break;
 
 			case "ZA": markAnchorsWithNoLinks(); break;
 			case "ZB": markBrokenInternalLinks(); break;
+			case "ZK": toggleShowKeyCodes(); break;
+			case "ZL": showLinksToIds(); break;
 
 			default: showMessageBig(`Unknown command ${str}`);
 		}
