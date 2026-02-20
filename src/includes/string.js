@@ -76,7 +76,6 @@ export function padRight(str, width)
 export function normalizeWhitespace(str) { return str.replace(/\s+/g, " "); }
 export function removeWhitespace(str) { return str.replace(/\s+/g, ''); }
 export function normalizeString(str) { return removeWhitespace(str.toLowerCase()); }
-export function normalizeHTML(html) { return html.replace(/&nbsp;/g, " ").replace(/\s+/g, " "); }
 export function removeNonAlpha(str) { return str.replace(/[^A-Za-z]/g, ''); }
 
 export function capitalize(text)

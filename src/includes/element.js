@@ -453,3 +453,8 @@ export function createLinkInWrapper(tagName, text, href, id)
 	wrapper.appendChild(link);
 	return wrapper;
 }
+
+export function normalizeHTML(element)
+{
+	element.innerHTML = element.innerHTML.replace(/&nbsp;/g, " ").replace(/\s+/g, " ");
+}

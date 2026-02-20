@@ -8,7 +8,7 @@ import { replaceElementsBySelector } from "./replaceElements";
 import { makeClassSelector } from "./misc";
 import { showMessageBig } from "./ui";
 import { replaceInTextNodes, replaceInTextNodesRegex } from "./textReplace";
-import { normalizeHTML, removeLineBreaks } from "./string";
+import { removeLineBreaks } from "./string";
 import { DIACRITIC_REGEXES_BY_LETTER, HEADING_TAGS_SET } from "./constants";
 
 export function fixSpacesBetweenNestedQuotes()

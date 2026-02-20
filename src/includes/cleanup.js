@@ -891,13 +891,13 @@ export function fixTextAroundReferences(selector = "footnote reference")
 	showMessageBig(`${count} text nodes fixed`);
 }
 
-export function splitElementsByChildren(selector = "h1, h2, h3, h4", parentTagName = "hgroup", childTagName = "h2")
+export function splitElementsByChildren(selector = "h1, h2, h3, h4", parentTagName, childTagName)
 {
 	const elems = get(selector);
 	if(elems)
 	{
 		let count = 0;
-		const tagName = childTagName || "p";
+		const tagName = childTagName || "same";
 		const wrapperTagName = parentTagName || "hgroup";
 		for(const elem of elems)
 		{
@@ -911,7 +911,7 @@ export function splitElementsByChildren(selector = "h1, h2, h3, h4", parentTagNa
 				if(!child)
 					continue;
 
-				const childWrapper = document.createElement(tagName);
+				const childWrapper = tagName === "same" ? document.createElement(elem.tagName) : document.createElement(tagName);
 				childWrapper.className = "child" + i;
 
 				if(child.nodeType === Node.TEXT_NODE)

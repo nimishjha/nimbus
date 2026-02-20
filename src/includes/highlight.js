@@ -9,8 +9,8 @@ import { getNodeText, getTextLength } from "./node";
 import { containsOnlyPlainText } from "./elementAndNodeTests";
 import { getTextNodesUnderSelector, getTextNodesUnderElement, xPathSelect } from "./xpath";
 import { escapeForRegExp } from "./misc";
-import { makePlainText, unwrapElement, deleteClass, createElement, unwrapAll, wrapElement, wrapElementInner, deleteLeadingAndTrailingEmptyTextNodes } from "./element";
-import { normalizeHTML, removeLineBreaks } from "./string";
+import { normalizeHTML, makePlainText, unwrapElement, deleteClass, createElement, unwrapAll, wrapElement, wrapElementInner, deleteLeadingAndTrailingEmptyTextNodes } from "./element";
+import { removeLineBreaks } from "./string";
 import { BLOCK_TAGS_SET } from "./constants";
 
 const { green, blue, black, gray, yellow, purple } = Nimbus.logColors;
@@ -296,7 +296,7 @@ export function highlightSelection(mode = "sentence")
 	const element = getFirstBlockParent(selection.anchorNode);
 	let selectionText = removeLineBreaks(selection.toString()).trim();
 	if(element.tagName !== "PRE")
-		element.innerHTML = normalizeHTML(element.innerHTML);
+		normalizeHTML(element);
 	if(!element || element.tagName === undefined)
 	{
 		showMessageBig("Couldn't get anchorNode");
