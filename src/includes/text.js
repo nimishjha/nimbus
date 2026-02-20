@@ -140,7 +140,6 @@ export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 
 export function removeRedundantBrs()
 {
-	del("br:last-child");
 	const elems = get("br");
 	const toDelete = [];
 	let i = elems.length;
