@@ -236,3 +236,11 @@ export function replaceFirstLevelChildrenWith(tagName)
 		showMessageError("%cexpected one marked element, found none", "color: #a00; background: #400");
 	}
 }
+
+export function replaceWithSpaces(selector)
+{
+	const elems = get(selector);
+	for(let i = 0; i < elems.length; i++)
+		elems[i].replaceWith(" ");
+	showMessageBig(`${elems.length} ${selector} replaced`);
+}
