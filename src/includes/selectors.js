@@ -465,6 +465,7 @@ export function filterNodesWithFirstChildOfType(nodes, selector)
 	while(i--)
 	{
 		const node = nodes[i];
+		node.normalize();
 		const firstChild = node.firstElementChild;
 		if(firstChild && firstChild === node.firstChild && firstChild.matches(selector))
 			result.push(node);
