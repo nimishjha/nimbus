@@ -44,7 +44,7 @@ export function joinByBrs(selector)
 	for(let i = 0, ii = brs.length; i < ii; i++)
 	{
 		const br = brs[i];
-		br.parentNode.replaceChild(document.createTextNode(" "), br);
+		br.replaceWith(document.createTextNode(" "));
 	}
 }
 
@@ -133,7 +133,7 @@ export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 				replacementWrapper.appendChild(createElementWithChildren(childTagName, ...groups[i]));
 			if(elem.id)
 				replacementWrapper.id = elem.id;
-			elem.parentNode.replaceChild(replacementWrapper, elem);
+			elem.replaceWith(replacementWrapper);
 		}
 	}
 }
@@ -441,7 +441,7 @@ export function boldInlineColonHeadings()
 			const plain = document.createTextNode(first.data.substring(index));
 			repl.appendChild(bold);
 			repl.appendChild(plain);
-			first.parentNode.replaceChild(repl, first);
+			first.replaceWith(repl);
 		}
 	}
 	unmarkAll();

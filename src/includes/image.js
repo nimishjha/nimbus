@@ -68,7 +68,7 @@ export function getBestImageSrc()
 			{
 				const newImage = document.createElement("img");
 				newImage.src = imageData.bestSource;
-				img.parentNode.replaceChild(newImage, img);
+				img.replaceWith(newImage);
 			}
 		}
 		if(Nimbus.bestImagesData.length)
@@ -158,7 +158,7 @@ export function replaceImagesWithTextLinks()
 		{
 			const elem = images[i];
 			const imageLink = createElement("img", { src: elem.querySelector("a").href });
-			elem.parentNode.replaceChild(imageLink, elem);
+			elem.replaceWith(imageLink);
 		}
 		del('#styleReplaceImages');
 		return;
@@ -203,7 +203,7 @@ export function retrieveLargeImages()
 		{
 			if(link.parentNode)
 			{
-				link.parentNode.replaceChild(createElement("img", { src: linkHref }), link);
+				link.replaceWith(createElement("img", { src: linkHref }));
 				count++;
 			}
 		}

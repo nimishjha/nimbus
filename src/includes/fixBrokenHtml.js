@@ -172,7 +172,7 @@ export function replaceFontTags()
 		const fontElem = fontElements[i];
 		const fontSize = fontElem.getAttribute("size");
 		const replacementHeading = convertElement(fontElem, getTagName(fontSize));
-		fontElem.parentNode.replaceChild(replacementHeading, fontElem);
+		fontElem.replaceWith(replacementHeading);
 	}
 }
 
@@ -180,7 +180,6 @@ export function fixParagraphs()
 {
 	replaceBrs();
 	deleteEmptyElements("p");
-	// cleanupHeadings();
 	rescueOrphanedTextNodes();
 	rescueOrphanedInlineElements();
 }
@@ -203,11 +202,8 @@ export function replaceEmptyParagraphsWithHr()
 	let i = elems.length;
 	while(i--)
 	{
-		const elem = elems[i];
-		if(getTextLength(elem) === 0 || /^[_•\*—]+$/.test(elem.textContent.replace(/\s+/g, "")))
-		{
-			elem.parentNode.replaceChild(document.createElement("hr"), elem);
-		}
+		if(getTextLength(elems[i]) === 0 || /^[_•\*—]+$/.test(elems[i].textContent.replace(/\s+/g, "")))
+			elems[i].replaceWith(document.createElement("hr"));
 	}
 	removeRedundantHrs();
 }

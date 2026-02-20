@@ -7,7 +7,7 @@ export function preReplaceBrs()
 	for(let i = 0, ii = brs.length; i < ii; i++)
 	{
 		const br = brs[i];
-		br.parentNode.replaceChild(document.createTextNode("\n"), br);
+		br.replaceWith(document.createTextNode("\n"));
 	}
 }
 

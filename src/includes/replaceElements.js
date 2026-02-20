@@ -45,7 +45,7 @@ export function replaceElementsBySelector(selector, tagName)
 					deletedTextLength += textLength;
 					xlog(elem.textContent);
 				}
-				elem.parentNode.replaceChild(createElement(tagName), elem);
+				elem.replaceWith(createElement(tagName));
 			}
 			if(deletedTextLength)
 			{
@@ -84,7 +84,7 @@ export function replaceElement(elem, tagName)
 	const replacement = document.createElement(tagName);
 	while(elem.firstChild)
 		replacement.appendChild(elem.firstChild);
-	elem.parentNode.replaceChild(replacement, elem);
+	elem.replaceWith(replacement);
 }
 
 export function replaceElementKeepingId(elem, tagName)
@@ -95,7 +95,7 @@ export function replaceElementKeepingId(elem, tagName)
 	const elemId = elem.id;
 	if(elemId)
 		replacement.id = elemId;
-	elem.parentNode.replaceChild(replacement, elem);
+	elem.replaceWith(replacement);
 }
 
 export function replaceElementsOfMarkedTypeWith(tagName)
@@ -162,7 +162,7 @@ export function replaceNonStandardElements()
 			const replacement = convertElement(elem, "div");
 			replacement.className = elem.tagName;
 			if(elem.parentNode)
-				elem.parentNode.replaceChild(replacement, elem);
+				elem.replaceWith(replacement);
 		}
 	}
 }
@@ -176,9 +176,7 @@ export function replaceMarkedWithTextElement(tagName, text)
 	if(tagName === "text")
 	{
 		for(const elem of elems)
-		{
-			elem.parentNode.replaceChild(document.createTextNode(text), elem);
-		}
+			elem.replaceWith(document.createTextNode(text));
 	}
 	else
 	{
@@ -186,7 +184,7 @@ export function replaceMarkedWithTextElement(tagName, text)
 		{
 			const replacement = document.createElement(tagName);
 			replacement.textContent = text;
-			elem.parentNode.replaceChild(replacement, elem);
+			elem.replaceWith(replacement);
 		}
 	}
 }

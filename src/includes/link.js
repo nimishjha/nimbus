@@ -80,7 +80,7 @@ export function moveIdsFromSpans()
 			repl.textContent = "\u2022";
 			repl.id = span.id;
 			if(getTextLength(span) === 0)
-				span.parentNode.replaceChild(repl, span);
+				span.replaceWith(repl);
 			else
 				span.insertAdjacentElement("beforebegin", repl);
 		}

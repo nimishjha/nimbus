@@ -54,7 +54,7 @@ function replaceIframes()
 			iframelink.textContent = "iframe: " + iframelink.href;
 		}
 		iframereplacement.appendChild(iframelink);
-		elem.parentNode.replaceChild(iframereplacement, elem);
+		elem.replaceWith(iframereplacement);
 	}
 }
 
@@ -510,7 +510,7 @@ export function replaceAudio()
 		{
 			const audioLink = createElement("a", { href: source.src, textContent: source.src });
 			const audioLinkWrapper = createElementWithChildren("h2", audioLink);
-			source.parentNode.replaceChild(audioLinkWrapper, source);
+			source.replaceWith(audioLinkWrapper);
 		}
 	}
 	replaceElementsBySelector("audio", "h2");
@@ -522,7 +522,7 @@ export function fixBody()
 	const replacement = document.createElement("body");
 	while(newBody.firstChild)
 		replacement.appendChild(newBody.firstChild);
-	newBody.parentNode.replaceChild(replacement, newBody);
+	newBody.replaceWith(replacement);
 }
 
 export function removeSpanTags(isOkToLoseIds)
@@ -764,7 +764,7 @@ export function cleanupLinks()
 		if(link.href) newLink.href = link.href;
 		while (link.firstChild)
 			newLink.appendChild(link.firstChild);
-		link.parentNode.replaceChild(newLink, link);
+		link.replaceWith(newLink);
 	}
 }
 
@@ -853,7 +853,7 @@ export function replaceIncorrectHeading()
 			if(isCurrentDomainLink(heading1link.href))
 			{
 				const temp = createElement("h3", { innerHTML: heading1.innerHTML });
-				heading1.parentNode.replaceChild(temp, heading1);
+				heading1.replaceWith(temp);
 			}
 		}
 	}
@@ -933,7 +933,7 @@ export function splitElementsByChildren(selector = "h1, h2, h3, h4", parentTagNa
 			}
 			if(wrapper.children.length > 1)
 			{
-				elem.parentNode.replaceChild(wrapper, elem);
+				elem.replaceWith(wrapper);
 				count++;
 			}
 		}

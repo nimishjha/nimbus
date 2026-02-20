@@ -70,7 +70,7 @@ export function wrapElement(elem, tagName, className)
 	if(className) wrapper.className = className;
 	const newElem = elem.cloneNode(true);
 	wrapper.appendChild(newElem);
-	elem.parentNode.replaceChild(wrapper, elem);
+	elem.replaceWith(wrapper);
 }
 
 export function wrapMarkedElement(tagName)
@@ -145,7 +145,7 @@ export function unwrapElement(elem)
 	const frag = document.createDocumentFragment();
 	while(elem.firstChild)
 		frag.appendChild(elem.firstChild);
-	elem.parentNode.replaceChild(frag, elem);
+	elem.replaceWith(frag);
 }
 
 export function convertToFragment(elem)

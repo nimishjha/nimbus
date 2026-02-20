@@ -89,7 +89,7 @@ export function groupAdjacentElements(selector, parentTag, childTag)
 			nextElem = nextElemTemp;
 		}
 		if(elem.parentNode)
-			elem.parentNode.replaceChild(group, elem);
+			elem.replaceWith(group);
 	}
 	return groups;
 }
@@ -124,6 +124,6 @@ export function groupUnderHeading(heading, selectorToBreakOn)
 		elemsToDelete.push(nextElem);
 		nextElem = nextElem.nextElementSibling;
 	}
-	heading.parentNode.replaceChild(wrapperElem, heading);
+	heading.replaceWith(wrapperElem);
 	del(elemsToDelete);
 }

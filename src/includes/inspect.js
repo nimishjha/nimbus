@@ -32,8 +32,8 @@ export function showHtmlComments()
 	{
 		const comment = comments[i];
 		const replacement = document.createElement("aside");
-		replacement.innerHTML = comment.data;
-		comment.parentNode.replaceChild(replacement, comment);
+		replacement.textContent = comment.data;
+		comment.replaceWith(replacement);
 	}
 }
 
