@@ -427,17 +427,13 @@ export function numberDivs()
 }
 
 export function getClassCounts(selector) {
-	function sortFunc(a, b) { return a.count - b.count; }
+	function sortByCountDescending(a, b) { return b.count - a.count; }
 	const elements = get(selector);
 	const classMap = new Map();
-	for (const element of elements)
-	{
-		for (const className of element.classList)
-		{
+	for(const element of elements)
+		for(const className of element.classList)
 			classMap.set(className, (classMap.get(className) || 0) + 1);
-		}
-	}
-	return Array.from(classMap, ([className, count]) => ({className, count})).sort(sortFunc);
+	return Array.from(classMap, ([className, count]) => ({className, count})).sort(sortByCountDescending);
 }
 
 export function getAllClassesFor(selector)
