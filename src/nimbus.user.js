@@ -250,7 +250,7 @@ import {
 	toggleInvertImages,
 	persistStreamingImages,
 	removeQueryStringFromImageSources,
-	replaceImagesWithTextLinks,
+	toggleImagesAndPlaceholders,
 	retrieveLargeImages,
 	setMinPersistSize,
 	shortenImageSrc,
@@ -839,7 +839,7 @@ const availableFunctions = {
 	replaceEmptyAnchors: replaceEmptyAnchors,
 	replaceEmptyParagraphsWithHr: replaceEmptyParagraphsWithHr,
 	replaceFontTags: replaceFontTags,
-	replaceImagesWithTextLinks: replaceImagesWithTextLinks,
+	toggleImagesAndPlaceholders: toggleImagesAndPlaceholders,
 	replaceInClassNames: replaceInClassNames,
 	replaceInlineStylesWithClasses: replaceInlineStylesWithClasses,
 	replaceInTextNodes: replaceInTextNodes,
@@ -1311,7 +1311,7 @@ function handleKeyDown(e)
 		{
 			case KEYCODES.ZERO: editDocumentTitle(); break;
 			case KEYCODES.ONE: showResources(); break;
-			case KEYCODES.TWO: replaceImagesWithTextLinks(); break;
+			case KEYCODES.TWO: toggleImagesAndPlaceholders(); break;
 			case KEYCODES.FOUR: deleteImagesSmallerThan(100, 100); break;
 			case KEYCODES.FIVE: buildSlideshow(); break;
 			case KEYCODES.A: annotate(); break;

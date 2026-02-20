@@ -148,19 +148,41 @@ export function shortenImageSrc(src)
 	return imageFileName;
 }
 
-export function replaceImagesWithTextLinks()
+function createImagePlaceholder(img)
+{
+	const wrapper = document.createElement("rt");
+	if(img.src.startsWith("file:"))
+	{
+		const srcElem = document.createElement("b");
+		const srcSplat = img.src.split("/");
+		const folderName = srcSplat[srcSplat.length - 2];
+		const fileName = srcSplat[srcSplat.length - 1];
+		srcElem.textContent = `${folderName}/${fileName}`;
+		wrapper.appendChild(srcElem);
+	}
+	else
+	{
+		const srcElem = document.createElement("a");
+		srcElem.href = img.src;
+		srcElem.textContent = shortenImageSrc(img.src)
+		wrapper.appendChild(srcElem);
+	}
+	return wrapper;
+}
+
+export function toggleImagesAndPlaceholders()
 {
 	if(getOne("rt"))
 	{
-		const images = get("rt");
-		let i = images.length;
+		const imagePlaceholders = get("rt");
+		let i = imagePlaceholders.length;
 		while(i--)
 		{
-			const elem = images[i];
-			const imageLink = createElement("img", { src: elem.querySelector("a").href });
-			elem.replaceWith(imageLink);
+			const image = document.createElement("img");
+			image.src = imagePlaceholders[i].getElementsByTagName("b").length ? imagePlaceholders[i].querySelector("b").textContent : imagePlaceholders[i].querySelector("a").href;
+			imagePlaceholders[i].replaceWith(image);
 		}
-		del('#styleReplaceImages');
+		del("#styleReplaceImages");
 		return;
 	}
 	else if(getOne("img"))
@@ -169,20 +191,18 @@ export function replaceImagesWithTextLinks()
 		let i = images.length;
 		while(i--)
 		{
-			const elem = images[i];
-			if(elem.src)
+			const image = images[i];
+			if(image.src)
 			{
-				const imageLink = createElement("a", { href: elem.src, textContent: shortenImageSrc(elem.src) });
-				const imageReplacement = createElementWithChildren("rt", imageLink);
-				if(elem.parentNode.tagName === "A")
-					insertBefore(elem.parentNode, imageReplacement);
+				const imagePlaceholder = createImagePlaceholder(image);
+				if(image.parentNode.tagName === "A")
+					image.parentNode.replaceWith(imagePlaceholder);
 				else
-					insertBefore(elem, imageReplacement);
+					image.replaceWith(imagePlaceholder);
 			}
 		}
-		del("img");
 		const s = 'rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px verdana; text-align: left; }' +
-		'rt a { color: #FFF; }' +
+		'rt a { color: #888; }' +
 		'rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }';
 		insertStyle(s, "styleReplaceImages");
 	}
