@@ -209,11 +209,11 @@ import {
 	isEmptyLink,
 	logHrefsOnClick,
 	makeFileLinksRelative,
-	markAnchorsWithNoLinks,
 	markBrokenInternalLinks,
 	moveIdsFromSpans,
 	numberNumericReferencesByInterlinkedGroup,
 	removeAllQueryParametersExcept,
+	removeUnreferencedIDs,
 	removeQueryParameterFromLinks,
 	removeQueryStringFromLinks,
 	removeQueryStringFromLinksMatching,
@@ -1104,8 +1104,8 @@ function handleKeyMenuCommand(str)
 			case "YS": toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
 			case "YM": toggleStyle(STYLES.SHOW_SELECTORS_MINIMAL, "styleShowSelectorsMinimal", true); break;
 
-			case "ZA": markAnchorsWithNoLinks(); break;
 			case "ZB": markBrokenInternalLinks(); break;
+			case "ZI": removeUnreferencedIDs(); break;
 			case "ZK": toggleShowKeyCodes(); break;
 			case "ZL": showLinksToIds(); break;
 

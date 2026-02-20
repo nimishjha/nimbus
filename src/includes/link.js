@@ -460,7 +460,7 @@ export function markBrokenInternalLinks()
 		showMessageBig("No broken internal links");
 }
 
-export function markAnchorsWithNoLinks()
+export function removeUnreferencedIDs()
 {
 	const anchors = document.querySelectorAll('body *[id]');
 	const linksByHref = createLinksByHrefLookup();
@@ -471,12 +471,12 @@ export function markAnchorsWithNoLinks()
 		const links = linksByHref["#" + anchor.id];
 		if(!links)
 		{
-			anchor.className = Nimbus.markerClass;
+			anchor.removeAttribute("id");
 			count++;
 		}
 	}
 	if(count)
-		showMessageBig(`${count} unreferenced anchors marked`);
+		showMessageBig(`${count} unreferenced IDs removed`);
 	else
 		showMessageBig("No unreferenced anchors");
 }
