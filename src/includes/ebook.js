@@ -2,6 +2,7 @@ import { showMessageBig } from "./ui";
 import { insertAfter, insertAsFirstChild } from "./dom";
 import { createElement } from "./element";
 import { get, getOne } from "./selectors";
+import { createUniqueID } from "./misc";
 
 export function generateTableOfContents(selector = "h1, h2, h3, h4, h5, h6", shouldUseHierarchicalHeadings = false)
 {
@@ -14,7 +15,7 @@ export function generateTableOfContents(selector = "h1, h2, h3, h4, h5, h6", sho
 		if(!isNaN(Number(heading.textContent)))
 			continue;
 		if(!heading.id)
-			heading.id = `h${i + 1}`;
+			heading.id = createUniqueID(`heading${i + 1}`);
 		const tocEntryLink = createElement("a", { textContent: heading.textContent, href: "#" + heading.id } );
 		const indentLevel = parseInt(heading.tagName.substring(1), 10);
 		const tocEntryHeading = shouldUseHierarchicalHeadings ? createElement("h" + indentLevel) : createElement("h6");
