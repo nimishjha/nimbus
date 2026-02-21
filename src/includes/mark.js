@@ -357,8 +357,9 @@ export function markByIdenticalText()
 		unmarkAll();
 		if(marked.tagName === "IMG")
 		{
-			if(marked.src)
-				markElements(select(marked.tagName, "src", "equals", marked.src));
+			const src = marked.getAttribute("src");
+			if(src)
+				markElements(select("img", "src", "equals", src));
 		}
 		else
 		{
