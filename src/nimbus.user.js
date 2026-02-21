@@ -540,6 +540,7 @@ import {
 	renderResourceInfo,
 	setClassByDepth,
 	showAttributes,
+	showDuplicateIDs,
 	showExternalStyles,
 	showHtmlComments,
 	showHtmlTextRatio,
@@ -1108,6 +1109,7 @@ function handleKeyMenuCommand(str)
 			case "YM": toggleStyle(STYLES.SHOW_SELECTORS_MINIMAL, "styleShowSelectorsMinimal", true); break;
 
 			case "ZB": markBrokenInternalLinks(); break;
+			case "ZD": showDuplicateIDs(); break;
 			case "ZI": removeUnreferencedIDs(); break;
 			case "ZK": toggleShowKeyCodes(); break;
 			case "ZL": showLinksToIds(); break;

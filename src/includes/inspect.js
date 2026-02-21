@@ -12,6 +12,8 @@ import { STYLES } from "./stylesheets";
 import { BLOCK_TAGS, BLOCK_TAGS_SET, INLINE_TAGS } from "./constants";
 import { identifyClassSetup } from "./identifyClass";
 import { getMarkedElements } from "./mark";
+import { annotateElement } from "./dom";
+import { showMessageBig } from "./ui";
 
 export function traceLineage(element)
 {
@@ -498,4 +500,40 @@ export function countReferencesToId(idString)
 			count++;
 	}
 	return count;
+}
+
+export function showDuplicateIDs()
+{
+	const elementsById = {};
+	const elementsWithIDs = document.querySelectorAll("body *[id]");
+	for(const elem of elementsWithIDs)
+	{
+		const id = elem.id;
+		if(id === "")
+		{
+			elem.removeAttribute("id");
+			continue;
+		}
+		if(!id) continue;
+		if(elementsById[id])
+			elementsById[id].push(elem);
+		else
+			elementsById[id] = [elem];
+	}
+
+	const ids = Object.keys(elementsById);
+	let count = 0;
+	for(const id of ids)
+	{
+		if(elementsById[id].length > 1)
+		{
+			count++;
+			for(const elemWithDupID of elementsById[id])
+			{
+				annotateElement(elemWithDupID, "x", id);
+				elemWithDupID.className = "markd";
+			}
+		}
+	}
+	showMessageBig(`${count} duplicate IDs found`);
 }
