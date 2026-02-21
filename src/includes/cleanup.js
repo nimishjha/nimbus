@@ -12,7 +12,7 @@ import { replaceElementsBySelector } from "./replaceElements";
 import { deleteEmptyElements, deleteEmptyBlockElements, deleteBySelectorAndRegex } from "./delete";
 import { getTextLength } from "./node";
 import { deleteIframes, deleteByClassOrIdContaining, deleteBySelectorAndTextMatching } from "./delete";
-import { makeClassSelector, getTimestamp } from "./misc";
+import { makeClassSelector, getTimestamp, createUniqueID } from "./misc";
 import { getBestImageSrc } from "./image";
 import { appendMetadata } from "./metadata";
 import { toggleStyleNegative, insertStyleHighlight } from "./style";
@@ -573,20 +573,6 @@ export function simplifyClassNames(selector)
 		else
 			replaceClass(key, tagNameMapped + index);
 	}
-}
-
-export function createUniqueID(num)
-{
-	let charCode = 97;
-	let newID = `${String.fromCharCode(charCode)}${num}`;
-
-	while(document.getElementById(newID))
-	{
-		charCode++;
-		newID = `${String.fromCharCode(charCode)}${num}`;
-	}
-
-	return newID;
 }
 
 export function shortenIds()

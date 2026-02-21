@@ -160,3 +160,17 @@ export function toggleShowKeyCodes()
 {
 	Nimbus.showKeyCodes = !Nimbus.showKeyCodes;
 }
+
+export function createUniqueID(base)
+{
+	let charCode = 97;
+	let newID = `${String.fromCharCode(charCode)}${base}`;
+
+	while(document.getElementById(newID))
+	{
+		charCode++;
+		newID = `${String.fromCharCode(charCode)}${base}`;
+	}
+
+	return newID;
+}

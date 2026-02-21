@@ -200,7 +200,6 @@ import {
 } from "./includes/string";
 import {
 	createBackLink,
-	createUniqueId,
 	disableClickToCollectUrls,
 	enableClickToCollectUrls,
 	fixInternalReferences,
@@ -273,6 +272,7 @@ import {
 } from "./includes/metadata";
 import {
 	arrayToString,
+	createUniqueID,
 	forAll,
 	getTimestamp,
 	getUniqueClassNames,

@@ -8,18 +8,10 @@ import { getTextLength } from "./node";
 import { trimAt } from "./string";
 import { insertStyle } from "./style";
 import { STYLES } from "./stylesheets";
-import { createUUID, createBulletAnchor } from "./misc";
+import { createUUID, createBulletAnchor, createUniqueID } from "./misc";
 import { removeQueryParameterFromUrl } from "./url";
 import { annotateElement } from "./dom";
 import { countDuplicateIDs } from "./validations";
-
-export function createUniqueId(index)
-{
-	let prefix = "a";
-	while(get("#" + prefix + index))
-		prefix += "a";
-	return prefix + index;
-}
 
 export function replaceEmptyAnchors()
 {
@@ -39,7 +31,7 @@ export function replaceEmptyAnchors()
 		else
 		{
 			const parent = getFirstBlockParent(anchor);
-			if(!parent.id) parent.id = createUniqueId(i);
+			if(!parent.id) parent.id = createUniqueID(i);
 			if(linksToAnchor.length) parentsAndLinks.push({ anchor, parent, linksToAnchor });
 		}
 	}
