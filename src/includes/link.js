@@ -11,7 +11,7 @@ import { STYLES } from "./stylesheets";
 import { createUUID, createBulletAnchor, createUniqueID } from "./misc";
 import { removeQueryParameterFromUrl } from "./url";
 import { annotateElement } from "./dom";
-import { countDuplicateIDs } from "./validations";
+import { hasDuplicateIDs } from "./validations";
 
 export function replaceEmptyAnchors()
 {
@@ -81,7 +81,7 @@ export function moveIdsFromSpans()
 
 export function fixInternalReferences()
 {
-	if(countDuplicateIDs() !== 0)
+	if(hasDuplicateIDs())
 	{
 		showMessageError("Document has elements with duplicate IDs");
 		return;

@@ -23,7 +23,7 @@ import { isCurrentDomainLink } from "./url";
 import { getAllClassesFor } from "./inspect";
 import { replaceClass } from "./dom";
 import { callFunctionWithArgs } from "./command";
-import { countDuplicateIDs } from "./validations";
+import { hasDuplicateIDs } from "./validations";
 
 function replaceIframes()
 {
@@ -433,7 +433,7 @@ export function replaceCommonClasses()
 	replaceElementsBySelector("em", "i");
 
 	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle, .pt-num, .pt-title, .partno", "h1");
-	replaceElementsBySelector(".cn, .ct, .chapnum, .chapternumber, .tochead, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chapno, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num", "h2");
+	replaceElementsBySelector(".bmh, .cn, .ct, .chapnum, .chapternumber, .tochead, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chapno, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num", "h2");
 	replaceElementsBySelector(".cst, .h", "h3");
 	replaceElementsBySelector(".figcap", "figcaption");
 	replaceElementsBySelector(".fig-cap", "figcaption");
@@ -577,7 +577,7 @@ export function simplifyClassNames(selector)
 
 export function shortenIds()
 {
-	if(countDuplicateIDs() !== 0)
+	if(hasDuplicateIDs())
 	{
 		showMessageError("Document has elements with duplicate IDs");
 		return;

@@ -1,11 +1,9 @@
 import { Nimbus } from "./Nimbus";
 
-export function countDuplicateIDs()
+export function hasDuplicateIDs()
 {
 	const elementsWithIDs = document.querySelectorAll("body *[id]");
 	const seen = new Set();
-	let count = 0;
-
 	for(const elem of elementsWithIDs)
 	{
 		if(elem.id === "")
@@ -15,10 +13,8 @@ export function countDuplicateIDs()
 		}
 		if(seen.has(elem.id))
 		{
-			count++;
-			elem.classList.add(Nimbus.markerClass);
+			return true;
 		}
-		seen.add(elem.id);
 	}
-	return count;
+	return false;
 }
