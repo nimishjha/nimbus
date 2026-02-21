@@ -958,3 +958,13 @@ export function unwrapLinksInsideHeadings(selector = "h1 a, h2 a, h3 a, h4 a")
 		showMessageBig(`${count} links unwrapped`);
 	}
 }
+
+export function cloneBody()
+{
+	const newBody = document.createElement("section");
+	while(document.body.firstChild)
+		newBody.appendChild(document.body.firstChild);
+
+	document.body.textContent = "";
+	document.body.appendChild(newBody);
+}

@@ -176,6 +176,7 @@ export function removeAllHighlights()
 	deleteClass("trMarkBlue");
 	deleteClass("trMarkPurple");
 	deleteClass("trMarkWhite");
+	document.body.normalize();
 }
 
 export function removeHighlightsFromMarkedElements()

@@ -46,11 +46,15 @@ export function groupAdjacentElements(selector, parentTag, childTag)
 	const firstElemTagName = elems[0].tagName;
 	let parentTagName = parentTag || "";
 	let childTagName = childTag || "";
+
 	if(!(parentTagName && childTagName))
 	{
 		switch(firstElemTagName)
 		{
 			case "BLOCKQUOTE":
+				parentTagName = "comment";
+				childTagName = "blockquote";
+				break;
 			case "P":
 				parentTagName = "blockquote";
 				childTagName = "p";
@@ -65,6 +69,7 @@ export function groupAdjacentElements(selector, parentTag, childTag)
 				break;
 		}
 	}
+
 	const groups = [];
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{

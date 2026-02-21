@@ -77,9 +77,7 @@ export function getBestImageSrc()
 
 	function sortSources(a, b)
 	{
-		if(a.size > b.size) return 1;
-		if(a.size < b.size) return -1;
-		return 0;
+		return b.size - a.size;
 	}
 
 	const images = document.querySelectorAll("img");
@@ -111,7 +109,7 @@ export function getBestImageSrc()
 			if(sourcesArray.length > 1)
 			{
 				sourcesArray = sourcesArray.sort(sortSources);
-				bestSource = sourcesArray[sourcesArray.length - 1].src;
+				bestSource = sourcesArray[0].src;
 				Nimbus.bestImagesData.push({ image, bestSource });
 			}
 			removeAllAttributesExcept(image, "src");

@@ -133,6 +133,7 @@ import {
 	cleanupStackOverflow,
 	cleanupTitle,
 	clearBootstrapClasses,
+	cloneBody,
 	convertClassesToCustomElements,
 	deleteHtmlComments,
 	deleteNonContentElements,
@@ -1110,6 +1111,7 @@ function handleKeyMenuCommand(str)
 			case "ZI": removeUnreferencedIDs(); break;
 			case "ZK": toggleShowKeyCodes(); break;
 			case "ZL": showLinksToIds(); break;
+			case "ZZ": cloneBody(); break;
 
 			default: showMessageBig(`Unknown command ${str}`);
 		}
