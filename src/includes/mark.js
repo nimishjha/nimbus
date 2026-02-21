@@ -355,8 +355,16 @@ export function markByIdenticalText()
 	if(marked)
 	{
 		unmarkAll();
-		const text = marked.textContent.trim();
-		if(text.length)
-			markElements(select(marked.tagName, "text", "equals", text));
+		if(marked.tagName === "IMG")
+		{
+			if(marked.src)
+				markElements(select(marked.tagName, "src", "equals", marked.src));
+		}
+		else
+		{
+			const text = marked.textContent.trim();
+			if(text.length)
+				markElements(select(marked.tagName, "text", "equals", text));
+		}
 	}
 }
