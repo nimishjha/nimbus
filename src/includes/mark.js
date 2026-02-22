@@ -93,6 +93,9 @@ export function modifyMark(action, keepSelection)
 	else
 	{
 		currentElement = document.body.firstElementChild;
+		markElement(currentElement);
+		showMarkedElementInfo(currentElement);
+		return;
 	}
 	if(!currentElement)
 	{
