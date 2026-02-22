@@ -22,7 +22,15 @@ export function traceLineage(element)
 	{
 		const id = current.id || "";
 		const classes = current.className || "";
-		console.log(`#${id} .${classes}`);
+		if(current.tagName)
+		{
+			if(id && classes)
+				console.log(`${current.tagName} #${id} .${classes}`);
+			else if(id)
+				console.log(`${current.tagName} #${id}`);
+			else if(classes)
+				console.log(`${current.tagName} .${classes}`);
+		}
 		current = current.parentNode;
 	}
 }
