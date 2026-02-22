@@ -205,24 +205,6 @@ export function createPagerFromSelect()
 	document.body.appendChild(createElement("hr"));
 }
 
-export function highlightUserLinks()
-{
-	const links = get("a");
-	if(!links) return;
-	let i = links.length;
-	while(i--)
-	{
-		const link = links[i];
-		if(
-			link.href &&
-			link.textContent.replace(/\s+/g, "").length &&
-			containsAnyOfTheStrings(link.pathname, ["/u/", "/user", "/member", "profile"]) &&
-			link.parentNode && link.parentNode.tagName !== "USER"
-		)
-			wrapElement(link, "user");
-	}
-}
-
 export function cycleTheme()
 {
 	cycleClass(document.documentElement, ["nimbusThemeSepia", "nimbusThemeRed", "nimbusThemeBlack", "nimbusThemeHideLinks", "nimbusThemeDimGrey", "none"]);
