@@ -528,7 +528,6 @@ import {
 	isEmptyTextNode,
 } from "./includes/elementAndNodeTests";
 import {
-	countReferencesToId,
 	deleteResource,
 	getAllClassesFor,
 	getClassCounts,
