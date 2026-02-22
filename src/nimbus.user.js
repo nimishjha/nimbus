@@ -61,6 +61,7 @@ import {
 	filterNodesWithTextLengthUnder,
 	get,
 	getFirstBlockParent,
+	getFirstMarkedElement,
 	getFirstTextChild,
 	getNodeContainingSelection,
 	getNonCodeTextNodes,
@@ -562,7 +563,6 @@ import {
 } from "./includes/joinElements";
 import {
 	forAllMarked,
-	getFirstMarkedElement,
 	getMarkedElements,
 	markAllFollowingSiblings,
 	markBlockElementsContainingText,
@@ -599,6 +599,7 @@ import {
 	replaceElements,
 	replaceElementsBySelector,
 	replaceElementsBySelectorHelper,
+	replaceElementsBySelectorInMarked,
 	replaceElementsByTagNameMatching,
 	replaceElementsOfMarkedTypeWith,
 	replaceFirstLevelChildrenWith,
@@ -1003,6 +1004,7 @@ function handleKeyMenuCommand(str)
 
 			case "BC": boldInlineColonHeadings(); break;
 			case "BG": buildGallery(); break;
+			case "BS": replaceBrsWithSpaces(".markd br"); break;
 
 			case "CB": groupAdjacentElements(".markd", "blockquote", p); break;
 			case "CC": getContentByParagraphCount(); break;
@@ -1057,6 +1059,7 @@ function handleKeyMenuCommand(str)
 			case "M4": setHighlightMapOptions(4, 1, 20); break;
 			case "MC": markElementsWithSameClass(); break;
 			case "MD": replaceFirstLevelChildrenWith("dt"); break;
+			case "ME": callFunctionWithArgs("Replace marked element with element containing text", replaceMarkedWithTextElement, 2, "h2 "); break;
 			case "ML": makeLastChild(); break;
 			case "MM": toggleHighlightMap(); break;
 			case "MP": callFunctionWithArgs("Mark elements by class or id containing text", markByClassOrIdContaining, 1); break;
@@ -1077,7 +1080,7 @@ function handleKeyMenuCommand(str)
 			case "RB": replaceBrs(); break;
 			case "RC": forceReloadCss(); break;
 			case "RE": replaceElementsBySelectorHelper(); break;
-			case "RM": callFunctionWithArgs("Replace marked element with element containing text", replaceMarkedWithTextElement, 2, "h2 "); break;
+			case "RM": callFunctionWithArgs("Replace children of marked elements by selector", replaceElementsBySelectorInMarked, 2); break;
 			case "RS": replaceSpecialCharacters(); break;
 			case "RT": replaceTables(); break;
 

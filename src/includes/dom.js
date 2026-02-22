@@ -1,8 +1,8 @@
 import { Nimbus } from "./Nimbus";
 import { createElement, createElementWithText, unwrapElement } from "./element";
 import { showMessageBig } from "./ui";
-import { getFirstMarkedElement, getMarkedElements, unmarkAll } from "./mark";
-import { get, getOne, getNodeContainingSelection } from "./selectors";
+import { getMarkedElements, unmarkAll } from "./mark";
+import { get, getOne, getNodeContainingSelection, getFirstMarkedElement } from "./selectors";
 import { forAll, makeClassSelector } from "./misc";
 import { splitByBrs, fixBullets } from "./text";
 import { groupAdjacentElements } from "./groupElements";

@@ -6,7 +6,7 @@ import { hasDirectChildrenOfType } from "./elementAndNodeTests";
 import { markElement, getMarkedElements, unmarkAll, unmarkElement } from "./mark";
 import { xPathSelect, getTextNodesUnderSelector, getXpathResultAsArray } from "./xpath";
 import { getTextLength } from "./node";
-import { escapeForRegExp } from "./misc";
+import { escapeForRegExp, makeClassSelector } from "./misc";
 import { BLOCK_TAGS_SET } from "./constants";
 
 export function get(selector)
@@ -1001,3 +1001,9 @@ export function getFirstTextChild(elem)
 export const getLinkAnchors = () => Array.from(document.querySelectorAll("a[id]")).filter(link => !link.href);
 export const getSpanAnchors = () => Array.from(document.querySelectorAll("span[id]")).filter(span => !getTextLength(span));
 export const getLinksToId = (id) => document.querySelectorAll(`a[href="#${id}"]`);
+
+export function getFirstMarkedElement()
+{
+	const markedElement = getOne(makeClassSelector(Nimbus.markerClass));
+	return markedElement ? markedElement : false;
+}

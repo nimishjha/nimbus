@@ -1,7 +1,7 @@
 import { Nimbus } from "./Nimbus";
 import { showMessage, showMessageBig, showMessageError } from "./ui";
 import { removeWhitespace } from "./string";
-import { get, getOne, select, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining } from "./selectors";
+import { get, getOne, getFirstMarkedElement, select, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining } from "./selectors";
 import { getTextLength } from "./node";
 import { makeClassSelector } from "./misc";
 import { insertStyle, insertStyleHighlight, getAllCssRulesForElement } from "./style";
@@ -32,12 +32,6 @@ export function getMarkedElements()
 {
 	const markedElements = get(makeClassSelector(Nimbus.markerClass));
 	return markedElements ? markedElements : [];
-}
-
-export function getFirstMarkedElement()
-{
-	const markedElement = getOne(makeClassSelector(Nimbus.markerClass));
-	return markedElement ? markedElement : false;
 }
 
 export function forAllMarked(func)

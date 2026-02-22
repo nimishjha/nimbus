@@ -1,6 +1,6 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig, showMessageError } from "./ui";
-import { selectByClassOrIdContaining, selectByTagNameMatching, getNodeContainingSelection } from "./selectors";
+import { selectByClassOrIdContaining, selectByTagNameMatching, getNodeContainingSelection, getFirstMarkedElement } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
 import { get } from "./selectors";
 import { makeClassSelector } from "./misc";
@@ -243,4 +243,28 @@ export function replaceWithSpaces(selector)
 	for(let i = 0; i < elems.length; i++)
 		elems[i].replaceWith(" ");
 	showMessageBig(`${elems.length} ${selector} replaced`);
+}
+
+export function replaceElementsBySelectorInMarked(selector, tagName)
+{
+	if(getFirstMarkedElement())
+	{
+		const markClass = makeClassSelector(Nimbus.markerClass);
+		if(selector.includes(","))
+		{
+			const splat = selector.split(",");
+			const arr = [];
+			for(let i = 0; i < splat.length; i++)
+				arr.push(markClass + " " + splat[i]);
+			replaceElementsBySelector(arr.join(", "), tagName);
+		}
+		else
+		{
+			replaceElementsBySelector(".markd " + selector, tagName);
+		}
+	}
+	else
+	{
+		showMessageError("Expected at least one marked element, found none");
+	}
 }
