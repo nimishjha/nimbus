@@ -211,7 +211,7 @@ export function convertDivsToParagraphs()
 		{
 			const fc = elem.firstChild;
 			if(!fc) continue;
-			if(fc.nodeType === 3 || INLINE_TAGS_SET.has(fc.tagName))
+			if(fc.nodeType === Node.TEXT_NODE || INLINE_TAGS_SET.has(fc.tagName))
 				replaceElementKeepingId(elem, "p");
 		}
 	}

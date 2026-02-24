@@ -1,4 +1,4 @@
-import { BLOCK_TAGS_SET } from "./constants";
+import { BLOCK_TAGS_SET, INLINE_TAGS_SET } from "./constants";
 import { getTextLength } from "./node";
 
 export function hasClassesContaining(element, arrStr)
@@ -100,28 +100,8 @@ export function hasAdjacentBlockElement(elem)
 
 export function isBlockElement(node)
 {
-	const NON_BLOCK_TAGS = {
-		A: true,
-		B: true,
-		BIG: true,
-		SMALL: true,
-		STRONG: true,
-		I: true,
-		EM: true,
-		SPAN: true,
-		TIME: true,
-		MARK: true,
-		MARKYELLOW: true,
-		MARKRED: true,
-		MARKGREEN: true,
-		MARKBLUE: true,
-		MARKPURPLE: true,
-		MARKWHITE: true,
-		CODE: true,
-		USER: true
-	}
 	if(node.nodeType !== 1) return false;
-	if(NON_BLOCK_TAGS[node.tagName]) return false;
+	if(INLINE_TAGS_SET.has(node.tagName)) return false;
 	return true;
 }
 
