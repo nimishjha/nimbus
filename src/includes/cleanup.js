@@ -440,6 +440,8 @@ export function replaceCommonClasses()
 	replaceElementsBySelector(".figure", "figure");
 	replaceElementsBySelector(".comment", "comment");
 	replaceElementsBySelector(".fn, .fn1, p[class*=footnote]", "footnote");
+	replaceElementsBySelector('p[class^="crt"]', "dt");
+	replaceElementsBySelector('p[class^="copyr"], .bib', "dt");
 
 	replaceElementsBySelector(".epub-i, .i", "i");
 	replaceElementsBySelector(".epub-b, .b", "b");

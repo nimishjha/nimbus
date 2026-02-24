@@ -1033,7 +1033,7 @@ function handleKeyMenuCommand(str)
 			case "FD": fixDashes(); break;
 			case "FI": fixInternalReferences(); break;
 			case "FP": fixParagraphs(); break;
-			case "FT": fixTextAroundReferences(); break;
+			case "FR": fixTextAroundReferences(); break;
 
 			case "GA": groupAdjacentElements(".markd", "blockquote", "p"); break;
 			case "GB": groupAdjacentElements("blockquote", "blockquote", "p"); break;

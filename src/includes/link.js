@@ -59,22 +59,23 @@ export function moveIdsFromSpans()
 	if(!spans) return;
 	for(const span of spans)
 	{
-		const recipient = span.closest("h1, h2, h3, h4, h5, h6, p") || span.nextElementSibling;
+		const recipient = span.querySelector("a") || span.closest("h1, h2, h3, h4, h5, h6, p") || span.nextElementSibling;
 		if(recipient && !recipient.id)
 		{
 			recipient.id = span.id;
 			if(getTextLength(span) === 0)
-				span.remove();
+				unwrapElement(span);
+			else
+				span.removeAttribute("id");
 		}
 		else
 		{
-			const repl = document.createElement("cite");
-			repl.textContent = "\u2022";
-			repl.id = span.id;
+			const ref = createLinkInWrapper("reference", span.id, null, span.id);
+			span.removeAttribute("id");
 			if(getTextLength(span) === 0)
-				span.replaceWith(repl);
+				span.replaceWith(ref);
 			else
-				span.insertAdjacentElement("beforebegin", repl);
+				span.insertAdjacentElement("afterend", ref);
 		}
 	}
 }
@@ -91,18 +92,8 @@ export function fixInternalReferences()
 	makeFileLinksRelative();
 	const internalLinks = get('a[href^="#"]');
 	if(!internalLinks) return;
-	const tagsNotToMakeReferencesUnder = {
-		"REFERENCE": true,
-		"H1": true,
-		"H2": true,
-		"H3": true,
-		"H4": true,
-		"H5": true,
-		"H6": true,
-		"DT": true,
-		"DD": true,
-	};
-	const regexIsNumeric = /^\[\d+\]$/;
+	const tagsNotToMakeReferencesUnder = new Set([ "REFERENCE", "H1", "H2", "H3", "H4", "H5", "H6", "DT", "DD" ]);
+	const regexIsNumeric = /^\d+$/;
 	const regexIsNumberInBraces = /^\{\d+\}$/;
 	const regexIsNumericWithPeriod = /^\d+\.$/;
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
@@ -114,7 +105,7 @@ export function fixInternalReferences()
 		if(!refText.length)
 			refText = "0" + i;
 		link.textContent = refText;
-		if(link.parentNode && !tagsNotToMakeReferencesUnder[link.parentNode.tagName])
+		if(link.parentNode && !tagsNotToMakeReferencesUnder.has(link.parentNode.tagName))
 			wrapElement(link, "reference");
 	}
 	const redundantSups = select("sup", "hasChildrenOfType", "reference");
