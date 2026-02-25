@@ -15,6 +15,7 @@ export function hasDuplicateIDs()
 		{
 			return true;
 		}
+		seen.add(elem.id);
 	}
 	return false;
 }
