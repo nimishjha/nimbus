@@ -970,3 +970,17 @@ export function cloneBody()
 	document.body.textContent = "";
 	document.body.appendChild(newBody);
 }
+
+export function replaceSmallCapsWithLowercase()
+{
+	const smalls = get("small");
+	for(let i = 0, ii = smalls.length; i < ii; i++)
+	{
+		const prev = smalls[i].previousSibling;
+		if(prev && prev.nodeType === Node.TEXT_NODE && /[A-Z]$/.test(prev.data))
+		{
+			smalls[i].textContent = smalls[i].textContent.toLowerCase();
+			unwrapElement(smalls[i]);
+		}
+	}
+}
