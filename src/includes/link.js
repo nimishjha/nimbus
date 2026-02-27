@@ -1,7 +1,7 @@
 import { Nimbus } from "./Nimbus";
-import { createElement, createElementWithChildren, createLinkInWrapper, unwrapElement, wrapElement, unwrapAll } from "./element";
+import { createElement, createElementWithChildren, createLinkInWrapper, unwrapElement, wrapElement, wrapElementInner, unwrapAll } from "./element";
 import { hasNonAlphabeticalText } from "./elementAndNodeTests";
-import { markElement, unmarkAll } from "./mark";
+import { markElement, unmarkAll, getMarkedElements } from "./mark";
 import { showMessageBig, showMessageError } from "./ui";
 import { get, getOne, del, select, getLinkAnchors, getSpanAnchors, getFirstBlockParent } from "./selectors";
 import { getTextLength } from "./node";
@@ -549,4 +549,29 @@ export function showLinksToIds(selector = "body *[id]")
 		}
 	}
 	showMessageBig(`${numIDsWithLinks} ids have ${numLinks} links`);
+}
+
+export function interlinkMarkedElements()
+{
+	const elems = getMarkedElements();
+	if(!elems || elems.length !== 2)
+	{
+		showMessageError("Expected two marked elements");
+		return;
+	}
+
+	if(!elems[0].querySelector("a"))
+		wrapElementInner(elems[0], "a");
+	if(!elems[1].querySelector("a"))
+		wrapElementInner(elems[1], "a");
+
+	const link1 = elems[0].querySelector("a");
+	const link2 = elems[1].querySelector("a");
+
+	link1.id = "link" + createUniqueID(Math.floor(Math.random() * 1000));
+	link2.id = link1.id + "b";
+	link1.setAttribute("href", "#" + link2.id);
+	link2.setAttribute("href", "#" + link1.id);
+
+	unmarkAll();
 }
