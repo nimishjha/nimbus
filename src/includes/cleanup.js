@@ -889,6 +889,8 @@ export function splitElementsByChildren(selector = "h1, h2, h3, h4", parentTagNa
 		const wrapperTagName = parentTagName || "hgroup";
 		for(const elem of elems)
 		{
+			elem.normalize();
+
 			if(elem.childNodes.length === 1)
 				continue;
 
@@ -921,6 +923,8 @@ export function splitElementsByChildren(selector = "h1, h2, h3, h4", parentTagNa
 			}
 			if(wrapper.children.length > 1)
 			{
+				if(elem.id)
+					wrapper.id = elem.id;
 				elem.replaceWith(wrapper);
 				count++;
 			}
