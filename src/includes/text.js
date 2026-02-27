@@ -1,11 +1,11 @@
 import { Nimbus } from "./Nimbus";
-import { emptyElement, createElementWithChildren, createElement, wrapElement, unwrapElement, unwrapAll, getFirstTextNode } from "./element";
+import { emptyElement, createElementWithChildren, createElement, wrapElement, unwrapElement, unwrapAll, getFirstTextNode, normalizeHTML } from "./element";
 import { hasDirectChildrenOfType, hasAdjacentBlockElement } from "./elementAndNodeTests";
 import { get, getOne, del, getFirstTextChild, getNonCodeTextNodes, getNodeContainingSelection } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
 import { getTextNodesUnderSelector, getTextNodesUnderElement } from "./xpath";
 import { replaceElementsBySelector } from "./replaceElements";
-import { makeClassSelector } from "./misc";
+import { makeClassSelector, forAll } from "./misc";
 import { showMessageBig } from "./ui";
 import { replaceInTextNodes, replaceInTextNodesRegex } from "./textReplace";
 import { removeLineBreaks } from "./string";
@@ -449,6 +449,7 @@ export function boldInlineColonHeadings()
 
 export function enDashToEmDash()
 {
+	forAll("p", normalizeHTML);
 	replaceInTextNodes(" – ", "—");
 }
 
