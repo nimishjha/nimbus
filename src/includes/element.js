@@ -448,7 +448,7 @@ export function createLinkInWrapper(tagName, text, href, id)
 	const wrapper = document.createElement(tagName);
 	const link = document.createElement("a");
 	link.textContent = text;
-	link.href = href;
+	if(href) link.href = href;
 	if(id) link.id = id;
 	wrapper.appendChild(link);
 	return wrapper;

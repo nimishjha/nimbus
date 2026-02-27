@@ -159,3 +159,9 @@ export function logAllClassesFor(selector)
 		logAllClassesFor("span");
 	}
 }
+
+export function logYellow(...args)
+{
+	const [ str, ...rest ] = args;
+	console.log(`%c${str}`, Nimbus.logColors.yellow, ...rest);
+}

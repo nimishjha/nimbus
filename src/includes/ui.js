@@ -4,6 +4,7 @@ import { insertStyle } from "./style";
 import { emptyElement, createElement } from "./element";
 import { KEYCODES } from "./keycodes";
 import { parseCommand, runCommand } from "./command";
+import { logYellow } from "./log";
 
 const config = {
 	messageTimeout: null
@@ -34,10 +35,12 @@ export function showMessage(message, msgClass, persist)
 	let messageElement;
 	if(typeof message === "string")
 	{
+		logYellow(message);
 		messageElement = document.createTextNode(message);
 	}
 	else
 	{
+		logYellow(message.text);
 		messageElement = document.createElement(message.tag);
 		messageElement.textContent = message.text;
 	}
@@ -45,6 +48,7 @@ export function showMessage(message, msgClass, persist)
 	messageInner.appendChild(messageContent);
 	messageContainer.appendChild(messageInner);
 	document.body.appendChild(messageContainer);
+
 	if(!getOne("#styleMessage"))
 		insertStyle(strStyle, "styleMessage", true);
 	if(!persist)

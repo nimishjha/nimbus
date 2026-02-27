@@ -197,6 +197,7 @@ export function cleanupBarebone()
 export function removeRedundantHrs()
 {
 	const makesHrRedundant = new Set([
+		"HGROUP",
 		"H1",
 		"H2",
 		"H3",
@@ -432,16 +433,16 @@ export function replaceCommonClasses()
 	replaceElementsBySelector("strong", "b");
 	replaceElementsBySelector("em", "i");
 
-	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle, .pt-num, .pt-title, .partno", "h1");
-	replaceElementsBySelector(".bmh, .cn, .ct, .chapnum, .chapternumber, .tochead, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chapno, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num", "h2");
+	replaceElementsBySelector('.pn, .pt, .partnum, .parttitle, .pt-num, .pt-title, .partno, p[class^="part-"]', "h1");
+	replaceElementsBySelector(".bmh, .cn, .ct, .chapnum, .chapternumber, .tochead, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chapno, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num, .toc-title", "h2");
 	replaceElementsBySelector(".cst, .h", "h3");
 	replaceElementsBySelector(".figcap", "figcaption");
 	replaceElementsBySelector(".fig-cap", "figcaption");
 	replaceElementsBySelector(".figure", "figure");
 	replaceElementsBySelector(".comment", "comment");
-	replaceElementsBySelector(".fn, .fn1, p[class*=footnote]", "footnote");
-	replaceElementsBySelector('p[class^="crt"]', "dt");
-	replaceElementsBySelector('p[class^="copyr"], .bib', "dt");
+	replaceElementsBySelector(".fn, .fn1, p[class*=note]", "footnote");
+	replaceElementsBySelector('p[class^="crt"], p[class^="copy"], .bib', "dt");
+	replaceElementsBySelector('p[class^="attri"]', "quoteauthor");
 
 	replaceElementsBySelector(".epub-i, .i", "i");
 	replaceElementsBySelector(".epub-b, .b", "b");
@@ -469,7 +470,8 @@ export function replaceCommonClasses()
 	replaceElementsBySelector("span[class*=small]", "small");
 
 	replaceElementsBySelector("body > div", "section");
-	deleteEmptyElements("section");
+	//	TODO: save IDs before deleting
+	// deleteEmptyElements("section");
 
 	removeAttributeOf("a, i, b, sup, small", "class");
 
@@ -478,6 +480,13 @@ export function replaceCommonClasses()
 		replaceElementsBySelector(".indexmain", "dt");
 		replaceElementsBySelector(".indexmain1", "dt");
 		replaceElementsBySelector(".indexsub", "dd");
+	}
+
+	if(getOne(".primary") && getOne(".secondary"))
+	{
+		replaceElementsBySelector(".primary, .primary1", "dt");
+		replaceElementsBySelector(".secondary", "dd");
+		replaceElementsBySelector(".tertiary, .ternary", "d3");
 	}
 
 	replaceElementsBySelector("div.indent", "p");

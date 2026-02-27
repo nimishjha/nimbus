@@ -3,7 +3,7 @@ import { showMessageBig, showMessageError } from "./ui";
 import { get, del, getNodeContainingSelection, getPreTextNodes, getFirstBlockParent, selectBySelectorAndText, selectByTagNameAndText } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
 import { insertStyleHighlight } from "./style";
-import { logString } from "./log";
+import { logString, logYellow } from "./log";
 import { getNext } from "./array";
 import { getNodeText, getTextLength } from "./node";
 import { containsOnlyPlainText } from "./elementAndNodeTests";
@@ -617,12 +617,6 @@ function getNodesSpanningString(nodeData, index1, index2)
 		nodesSpanningString.push(nodeData[indicesOfNodesSpanningString[j]]);
 
 	return nodesSpanningString;
-}
-
-function logYellow(...args)
-{
-	const [ str, ...rest ] = args;
-	console.log(`%c${str}`, Nimbus.logColors.yellow, ...rest);
 }
 
 function logNode(node, label)

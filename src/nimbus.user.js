@@ -207,6 +207,7 @@ import {
 	enableClickToCollectUrls,
 	fixInternalReferences,
 	humanizeUrl,
+	interlinkMarkedElements,
 	isEmptyLink,
 	logHrefsOnClick,
 	makeFileLinksRelative,
@@ -400,6 +401,7 @@ import {
 	deleteBySelectorAndText,
 	deleteBySelectorAndTextMatching,
 	deleteBySelectorAndTextNotMatching,
+	deleteCurrentElement,
 	deleteElements,
 	deleteEmptyBlockElements,
 	deleteEmptyElements,
@@ -1004,7 +1006,8 @@ function handleKeyMenuCommand(str)
 
 			case "BC": boldInlineColonHeadings(); break;
 			case "BG": buildGallery(); break;
-			case "BS": replaceBrsWithSpaces(".markd br"); break;
+			case "BS": replaceWithSpaces(".markd br"); unmarkAll(); break;
+			case "BT": splitElementsByChildren(".markd"); break;
 
 			case "CB": groupAdjacentElements(".markd", "blockquote", p); break;
 			case "CC": getContentByParagraphCount(); break;
@@ -1027,6 +1030,7 @@ function handleKeyMenuCommand(str)
 			case "DR": deleteResources(); break;
 			case "DS": customPrompt("Delete elements by selector").then(del); break;
 			case "DT": callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
+			case "DZ": deleteCurrentElement(); break;
 			case "DX": del("x"); break;
 			case "DY": deleteEmptyBlockElements(); break;
 
@@ -1052,6 +1056,8 @@ function handleKeyMenuCommand(str)
 			case "HW": callFunctionWithArgs("Highlight all matches with word expansion", highlightAllMatchesInDocumentWithWordExpansion, 1); break;
 
 			case "LI": retrieveLargeImages(); break;
+			case "LM": interlinkMarkedElements(); break;
+			case "LN": numberNumericReferencesByInterlinkedGroup(); break;
 
 			case "M1": setHighlightMapOptions(3, 0, 3); break;
 			case "M2": setHighlightMapOptions(4, 0, 4); break;

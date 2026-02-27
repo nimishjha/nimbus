@@ -106,7 +106,7 @@ export const SYMBOLS = {
 
 export const DIACRITIC_REGEXES_BY_LETTER = {
 	A: /[ÁÂÃÄÅ]/g,
-	a: /[àáâãäå]/g,
+	a: /[àáâãäåă]/g,
 	B: /[ß]/g,
 	C: /[ĆĈĊČ]/g,
 	c: /[ćĉċč]/g,
@@ -120,7 +120,7 @@ export const DIACRITIC_REGEXES_BY_LETTER = {
 	O: /[ÒÓÔÕÖŌŎŐ]/g,
 	o: /[ðòóôõöøōŏő]/g,
 	S: /[ŚŜŞŠ]/g,
-	s: /[śŝşš]/g,
+	s: /[śŝşšș]/g,
 	U: /[ÙÚÛÜ]/g,
 	u: /[ùúûü]/g,
 	N: /[ÑŃŅŇŊ]/g,

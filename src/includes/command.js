@@ -1,6 +1,7 @@
 import { Nimbus } from "./Nimbus";
 import { customPrompt, showMessageBig } from "./ui";
 import { arrayToStringTyped, isNumber } from "./misc";
+import { logYellow } from "./log";
 
 export function parseCommand(commandString)
 {
@@ -48,7 +49,7 @@ export function runCommand(commandString)
 			else args.push(n);
 		}
 		const argsString = arrayToStringTyped(args, ", ");
-		console.log(`%c${funcName}(${argsString})`, 'color: #FF0');
+		logYellow(`${funcName}(${argsString})`);
 		Nimbus.availableFunctions[funcName].apply(this, args);
 	}
 	else
@@ -70,13 +71,13 @@ export function callFunctionWithArgs(promptMessage, callback, numArgs, initialVa
 				callFunctionWithArgs(promptMessage, callback, numArgs);
 				return;
 			}
-			console.log(`%c${promptMessage}: ${args.join(", ")}`, 'color: #FF0');
+			logYellow(promptMessage + ": ", args.join(", "));
 			callback.apply(null, args);
 		}
 		else
 		{
 			userInput = userInput.replaceAll('"', "");
-			console.log(`%c${promptMessage} ${userInput}`, 'color: #FF0');
+			logYellow(promptMessage + ": ", userInput);
 			callback.call(null, userInput);
 		}
 	}
