@@ -1,3 +1,4 @@
+import { Nimbus } from "./Nimbus";
 import { showMessageBig } from "./ui";
 import { get, del, selectByClassOrIdContaining, selectBySelectorAndRegex, getNodeContainingSelection, selectBySelectorAndNormalizedText } from "./selectors";
 import { getMarkedElements } from "./mark";
@@ -244,4 +245,11 @@ export function deleteByClassOrIdContaining(str)
 export function deleteBySelectorAndNormalizedText(selector, str)
 {
 	del(selectBySelectorAndNormalizedText(selector, str));
+}
+
+export function deleteCurrentElement()
+{
+	const elem = Nimbus.goToNextElement.currentElement;
+	if(elem)
+		elem.remove();
 }
