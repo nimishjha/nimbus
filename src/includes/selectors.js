@@ -998,7 +998,7 @@ export function getFirstTextChild(elem)
 	return child;
 }
 
-export const getLinkAnchors = () => Array.from(document.querySelectorAll("a[id]")).filter(link => !link.href);
+export const getLinkAnchors = () => Array.from(document.querySelectorAll("a[id]")).filter(link => !link.href && !getTextLength(link));
 export const getSpanAnchors = () => Array.from(document.querySelectorAll("span[id]")).filter(span => !getTextLength(span));
 export const getLinksToId = (id) => document.querySelectorAll(`a[href="#${id}"]`);
 

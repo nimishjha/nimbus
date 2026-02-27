@@ -12,45 +12,66 @@ import { createUUID, createBulletAnchor, createUniqueID } from "./misc";
 import { removeQueryParameterFromUrl } from "./url";
 import { annotateElement } from "./dom";
 import { hasDuplicateIDs } from "./validations";
+import { fixTextAroundReferences } from "./cleanup";
+
+function findRecipientForID(elem, siblingSelector, parentSelector)
+{
+	const sibling = elem.nextElementSibling;
+	if(sibling && sibling.matches(siblingSelector) && !sibling.id)
+		return sibling;
+
+	const parent = elem.closest(parentSelector);
+	if(parent && !parent.id)
+		return parent;
+
+	return null;
+}
 
 export function replaceEmptyAnchors()
 {
 	const anchors = getLinkAnchors().concat(getSpanAnchors());
-	const parentsAndLinks = [];
-	const anchorsWithoutLinks = [];
 	const linksByHref = createLinksByHrefLookup();
+	let numIDsMoved = 0;
+	let numIDsRemoved = 0;
 
 	for(let i = 0, ii = anchors.length; i < ii; i++)
 	{
 		const anchor = anchors[i];
 		const linksToAnchor = linksByHref["#" + anchor.id];
-		if(!(linksToAnchor && linksToAnchor.length))
+		if(linksToAnchor)
 		{
-			anchorsWithoutLinks.push(anchor);
+			const recipient = findRecipientForID(anchor, "h1, h2, h3, h4, h5, h6, p", "h1, h2, h3, h4, h5, h6, p");
+			if(recipient)
+			{
+				recipient.id = anchor.id;
+				numIDsMoved++;
+				unwrapElement(anchor);
+			}
+			else
+			{
+				if(linksToAnchor.length === 1)
+				{
+					if(!linksToAnchor[0].id)
+						linksToAnchor[0].id = createUniqueID(i);
+					const ref = createLinkInWrapper("reference", anchor.id, "#" + linksToAnchor[0].id, anchor.id);
+					anchor.replaceWith(ref);
+				}
+				else
+				{
+					const ref = createLinkInWrapper("reference", anchor.id, null, anchor.id);
+					anchor.replaceWith(ref);
+				}
+				numIDsMoved++;
+			}
 		}
 		else
 		{
-			const parent = getFirstBlockParent(anchor);
-			if(!parent.id) parent.id = createUniqueID(i);
-			if(linksToAnchor.length) parentsAndLinks.push({ anchor, parent, linksToAnchor });
+			anchor.removeAttribute("id");
+			numIDsRemoved++;
 		}
 	}
 
-	let numLinks = 0;
-	for(let i = 0, ii = parentsAndLinks.length; i < ii; i++)
-	{
-		const anchorData = parentsAndLinks[i];
-		const links = anchorData.linksToAnchor;
-		numLinks += links.length;
-		for(let i = 0, ii = links.length; i < ii; i++)
-			links[i].setAttribute("href", "#" + anchorData.parent.id);
-		unwrapElement(anchorData.anchor);
-	}
-
-	for(const anchor of anchorsWithoutLinks)
-		unwrapElement(anchor);
-
-	showMessageBig(`Fixed ${numLinks} links to ${parentsAndLinks.length} anchors; deleted ${anchorsWithoutLinks.length} anchors without links`);
+	showMessageBig(`${numIDsMoved} IDs moved, ${numIDsRemoved} deleted, ${anchors.length} total`);
 }
 
 export function moveIdsFromSpans()
@@ -63,7 +84,7 @@ export function moveIdsFromSpans()
 		if(recipient && !recipient.id)
 		{
 			recipient.id = span.id;
-			if(getTextLength(span) === 0)
+			if(getTextLength(span) === 0 || span.children.length === span.childNodes.length)
 				unwrapElement(span);
 			else
 				span.removeAttribute("id");
@@ -80,6 +101,18 @@ export function moveIdsFromSpans()
 	}
 }
 
+export function getTargetElement(link)
+{
+	const href = link.getAttribute("href");
+	if(href && href.startsWith("#") && href.length > 1)
+	{
+		const target = document.querySelector(href);
+		if(target)
+			return target;
+	}
+	return null;
+}
+
 export function fixInternalReferences()
 {
 	if(hasDuplicateIDs())
@@ -87,6 +120,7 @@ export function fixInternalReferences()
 		showMessageError("Document has elements with duplicate IDs");
 		return;
 	}
+	removeUnreferencedIDs();
 	moveIdsFromSpans();
 	replaceEmptyAnchors();
 	makeFileLinksRelative();
@@ -99,20 +133,39 @@ export function fixInternalReferences()
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
 	{
 		const link = internalLinks[i];
+
+		if(!link.id)
+			link.id = createUniqueID(i);
+
 		let refText = link.textContent.trim();
 		if(regexIsNumeric.test(refText) || regexIsNumberInBraces.test(refText) || regexIsNumericWithPeriod.test(refText))
+		{
 			refText = refText.replace(/[^0-9]+/g, "");
-		if(!refText.length)
-			refText = "0" + i;
-		link.textContent = refText;
+			if(!refText.length)
+				refText = "0" + i;
+			link.textContent = refText;
+		}
+
 		if(link.parentNode && !tagsNotToMakeReferencesUnder.has(link.parentNode.tagName))
 			wrapElement(link, "reference");
+
+		const targetElement = getTargetElement(link);
+		if(targetElement)
+		{
+			if(targetElement.tagName === "A" && targetElement.getAttribute("href") === "")
+			{
+				targetElement.setAttribute("href", "#" + link.id);
+				if(targetElement.parentNode && !tagsNotToMakeReferencesUnder.has(targetElement.parentNode.tagName))
+					wrapElement(targetElement, "reference");
+			}
+		}
 	}
 	const redundantSups = select("sup", "hasChildrenOfType", "reference");
 	if(redundantSups)
 		for(let i = 0, ii = redundantSups.length; i < ii; i++)
 			unwrapElement(redundantSups[i]);
 	unwrapAll("reference a sup");
+	fixTextAroundReferences();
 }
 
 export function revealLinkAttributes()
