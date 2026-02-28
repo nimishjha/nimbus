@@ -12,6 +12,7 @@ import { ylog } from "./log";
 import { retrieve } from "./retrieve";
 import { isEmptyLink } from "./link";
 import { cleanupHead } from "./cleanup";
+import { replaceElementKeepingId } from "./replaceElements";
 
 export function deleteImagesSmallerThan(pixelArea)
 {
@@ -168,8 +169,24 @@ function createImagePlaceholder(img)
 	return wrapper;
 }
 
-export function toggleImagesAndPlaceholders()
+export function toggleBetweenImagesAndPlaceholders()
 {
+	function getPlaceholderSrc(elem)
+	{
+		const bSrcElem = elem.querySelector("b");
+		if(bSrcElem)
+		{
+			return bSrcElem.textContent;
+		}
+		else
+		{
+			const aSrcElem = elem.querySelector("a");
+			if(aSrcElem)
+				return aSrcElem.href;
+		}
+		return null;
+	}
+
 	if(getOne("rt"))
 	{
 		const imagePlaceholders = get("rt");
@@ -177,8 +194,11 @@ export function toggleImagesAndPlaceholders()
 		while(i--)
 		{
 			const image = document.createElement("img");
-			image.src = imagePlaceholders[i].getElementsByTagName("b").length ? imagePlaceholders[i].querySelector("b").textContent : imagePlaceholders[i].querySelector("a").href;
-			imagePlaceholders[i].replaceWith(image);
+			image.src = getPlaceholderSrc(imagePlaceholders[i]);
+			if(image.src)
+				imagePlaceholders[i].replaceWith(image);
+			else
+				console.error("Could not get src from placeholder");
 		}
 		del("#styleReplaceImages");
 		return;
@@ -199,6 +219,15 @@ export function toggleImagesAndPlaceholders()
 					image.replaceWith(imagePlaceholder);
 			}
 		}
+
+		const elems = get("rt");
+		for(let i = 0, ii = elems.length; i < ii; i++)
+		{
+			const parent = elems[i].parentNode;
+			if(parent && parent.children.length === 1 && parent.tagName !== "FIGURE")
+				replaceElementKeepingId(parent, "figure");
+		}
+
 		const s = 'rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px verdana; text-align: left; }' +
 		'rt a { color: #888; }' +
 		'rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }';
