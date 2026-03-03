@@ -57,9 +57,9 @@ export const Nimbus = {
 	moduleConfigs: {
 		highlightMapper: {
 			width: 300,
-			rowHeight: 4,
-			rowSpacing: 1,
-			minWidth: 4,
+			rowHeight: 3,
+			rowSpacing: 0,
+			minWidth: 3,
 			groupSize: 1,
 			canvasId: "highlightMapCanvas",
 			maxRows: 100,

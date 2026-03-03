@@ -208,7 +208,6 @@ import {
 	fixInternalReferences,
 	humanizeUrl,
 	interlinkMarkedElements,
-	isEmptyLink,
 	logHrefsOnClick,
 	makeFileLinksRelative,
 	markBrokenInternalLinks,
@@ -253,7 +252,7 @@ import {
 	toggleInvertImages,
 	persistStreamingImages,
 	removeQueryStringFromImageSources,
-	toggleImagesAndPlaceholders,
+	toggleBetweenImagesAndPlaceholders,
 	retrieveLargeImages,
 	setMinPersistSize,
 	shortenImageSrc,
@@ -528,6 +527,7 @@ import {
 	hasClassesStartingWith,
 	hasDirectChildrenOfType,
 	isBlockElement,
+	isEmptyElement,
 	isEmptyTextNode,
 } from "./includes/elementAndNodeTests";
 import {
@@ -842,7 +842,7 @@ const availableFunctions = {
 	replaceEmptyAnchors: replaceEmptyAnchors,
 	replaceEmptyParagraphsWithHr: replaceEmptyParagraphsWithHr,
 	replaceFontTags: replaceFontTags,
-	toggleImagesAndPlaceholders: toggleImagesAndPlaceholders,
+	toggleBetweenImagesAndPlaceholders: toggleBetweenImagesAndPlaceholders,
 	replaceInClassNames: replaceInClassNames,
 	replaceInlineStylesWithClasses: replaceInlineStylesWithClasses,
 	replaceInTextNodes: replaceInTextNodes,
@@ -1063,6 +1063,7 @@ function handleKeyMenuCommand(str)
 			case "M2": setHighlightMapOptions(4, 0, 4); break;
 			case "M3": setHighlightMapOptions(4, 1, 4); break;
 			case "M4": setHighlightMapOptions(4, 1, 20); break;
+			case "MB": callFunctionWithArgs("Mark block elements containing text", markBlockElementsContainingText, 1); break;
 			case "MC": markElementsWithSameClass(); break;
 			case "MD": replaceFirstLevelChildrenWith("dt"); break;
 			case "ME": callFunctionWithArgs("Replace marked element with element containing text", replaceMarkedWithTextElement, 2, "h2 "); break;
@@ -1081,6 +1082,7 @@ function handleKeyMenuCommand(str)
 			case "PT": callFunctionWithArgs("Make plain text", makePlainText, 1); break;
 			case "P1": setReplacementTag1("h1"); setReplacementTag2("h2"); break;
 			case "P2": setReplacementTag1("h2"); setReplacementTag2("h3"); break;
+			case "PH": replaceEmptyParagraphsWithHr(); break;
 			case "PQ": setReplacementTag1("quote"); setReplacementTag2("quoteauthor"); break;
 
 			case "RB": replaceBrs(); break;
@@ -1090,8 +1092,11 @@ function handleKeyMenuCommand(str)
 			case "RS": replaceSpecialCharacters(); break;
 			case "RT": replaceTables(); break;
 
+			case "SW": swapElementPositions(); break;
+
 			case "TX": deleteNonEnglishText(); makeTextLowerCase(); break;
 			case "TL": makeTextLowerCase(); break;
+			case "TT": deleteEmptyTextNodes(); break;
 
 			case "UA": callFunctionWithArgs("Unwrap all", unwrapAll, 1); break;
 			case "UE": callFunctionWithArgs("Unwrap all except", unwrapAllExcept, 1); break;
@@ -1323,7 +1328,7 @@ function handleKeyDown(e)
 		{
 			case KEYCODES.ZERO: editDocumentTitle(); break;
 			case KEYCODES.ONE: showResources(); break;
-			case KEYCODES.TWO: toggleImagesAndPlaceholders(); break;
+			case KEYCODES.TWO: toggleBetweenImagesAndPlaceholders(); break;
 			case KEYCODES.FOUR: deleteImagesSmallerThan(100, 100); break;
 			case KEYCODES.FIVE: buildSlideshow(); break;
 			case KEYCODES.A: annotate(); break;
@@ -1388,7 +1393,7 @@ function handleKeyDown(e)
 			case KEYCODES.O: customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
 			case KEYCODES.P: makeAnchorNodePlainText(); break;
 			case KEYCODES.R: toggleKeyMenu("R"); break;
-			case KEYCODES.S: callFunctionWithArgs("Mark block elements containing text", markBlockElementsContainingText, 1); break;
+			case KEYCODES.S: toggleKeyMenu("S"); break;
 			case KEYCODES.T: toggleStyle(STYLES.SHOW_TABLE_STRUCTURE, "styleShowTableStructure", true); break;
 			case KEYCODES.V: toggleStyle(STYLES.OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
 			case KEYCODES.X: customPrompt("Enter xPath").then(xPathMark); break;

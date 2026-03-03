@@ -1,7 +1,7 @@
 import { Nimbus } from "./Nimbus";
-import { createElement, deleteClass, removeAllAttributesExcept, setAttributeOf } from "./element";
+import { createElement, deleteClass, removeAllAttributesExcept, setAttributeOf, removeAllAttributesOf, createElementWithText, createElementWithChildren } from "./element";
+import { isEmptyElement } from "./elementAndNodeTests";
 import { get, getOne, del } from "./selectors";
-import { removeAllAttributesOf, createElementWithText, createElementWithChildren } from "./element";
 import { insertStyle } from "./style";
 import { containsAnyOfTheStrings, trimAt } from "./string";
 import { showMessage, showMessageBig } from "./ui";
@@ -10,7 +10,6 @@ import { getNext } from "./array";
 import { insertBefore } from "./dom";
 import { ylog } from "./log";
 import { retrieve } from "./retrieve";
-import { isEmptyLink } from "./link";
 import { cleanupHead } from "./cleanup";
 import { replaceElementKeepingId } from "./replaceElements";
 
@@ -350,7 +349,7 @@ export function addLinksToLargerImages()
 			if( /(\.png|\.jpg|\.jpeg|\.gif)/i.test(linkHref) && !imageLinks.includes(linkHref) )
 			{
 				link.parentNode.insertBefore(createElementWithChildren("rt", createElement("a", { href: linkHref, textContent: shortenImageSrc(linkHref) })), link);
-				if(isEmptyLink(link))
+				if(isEmptyElement(link))
 					del(link);
 			}
 		}

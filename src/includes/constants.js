@@ -98,6 +98,7 @@ export const SYMBOLS = {
 	sub2: "₂",
 	sub3: "₃",
 	degree: "°",
+	endash: "–",
 	emdash: "—",
 	pbar: "p̄",
 	qbar: "q̄",

@@ -110,6 +110,11 @@ export function isEmptyTextNode(node)
 	return node.data.replace(/\s+/g, "").length === 0;
 }
 
+export function isEmptyElement(elem)
+{
+	return !(getTextLength(elem) || elem.getElementsByTagName("img").length);
+}
+
 export function hasChildrenOfType(elem, selector)
 {
 	return elem.querySelector(selector) === null ? false: true;

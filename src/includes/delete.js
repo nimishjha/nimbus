@@ -59,18 +59,9 @@ export function deleteImages()
 export function deleteEmptyTextNodes(parentTagName)
 {
 	const parent = parentTagName || "body";
-	const nodes = getXpathResultAsArray(`//${parent}//text()`);
-	let count = 0;
-	for(let i = 0, ii = nodes.length; i < ii; i++)
-	{
-		const node = nodes[i];
-		if(isEmptyTextNode(node))
-		{
-			count++;
-			node.remove();
-		}
-	}
-	showMessageBig(`${count} empty text nodes removed`);
+	const nodes = getXpathResultAsArray(`.//text()[normalize-space() = '']`);
+	del(nodes);
+	showMessageBig(`${nodes.length} empty text nodes removed`);
 }
 
 export function deleteEmptyElements(selector)
