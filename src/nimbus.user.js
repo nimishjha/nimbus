@@ -89,11 +89,12 @@ import {
 	selectNodesBetweenMarkers,
 } from "./includes/selectors";
 import {
+	getEmptyTextNodesUnderElement,
 	getTextNodesUnderElement,
 	getTextNodesUnderElementMatching,
 	getTextNodesUnderSelector,
 	getXpathResultAsArray,
-	XpathNodesToArray,
+	xPathNodesToArray,
 	xPathSelect,
 } from "./includes/xpath";
 import {
@@ -913,6 +914,7 @@ const availableFunctions = {
 
 const consoleFunctions = [
 	del,
+	getEmptyTextNodesUnderElement,
 	getTextLength,
 	insertStyle,
 	logPropertiesMatching,
@@ -927,6 +929,7 @@ const consoleFunctions = [
 	trimNonAlphanumeric,
 	trimSpecialChars,
 	trimStartingAt,
+	xPathNodesToArray,
 ];
 
 Nimbus.blockElementSelector = BLOCK_TAGS.join();
