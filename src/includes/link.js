@@ -1,9 +1,9 @@
 import { Nimbus } from "./Nimbus";
 import { createElement, createElementWithChildren, createLinkInWrapper, unwrapElement, wrapElement, wrapElementInner, unwrapAll } from "./element";
-import { hasNonAlphabeticalText } from "./elementAndNodeTests";
+import { hasNonAlphabeticalText, isEmptyElement } from "./elementAndNodeTests";
 import { markElement, unmarkAll, getMarkedElements } from "./mark";
 import { showMessageBig, showMessageError } from "./ui";
-import { get, getOne, del, select, getLinkAnchors, getSpanAnchors, getFirstBlockParent } from "./selectors";
+import { get, getOne, del, select, getEmptyLinkAnchors, getEmptySpanAnchors, getFirstBlockParent } from "./selectors";
 import { getTextLength } from "./node";
 import { trimAt } from "./string";
 import { insertStyle } from "./style";
@@ -14,23 +14,28 @@ import { annotateElement } from "./dom";
 import { hasDuplicateIDs } from "./validations";
 import { fixTextAroundReferences } from "./cleanup";
 
-function findRecipientForID(elem, siblingSelector, parentSelector)
+function findSiblingOrParent(elem, siblingSelector, parentSelector)
 {
 	const sibling = elem.nextElementSibling;
 	if(sibling && sibling.matches(siblingSelector) && !sibling.id)
 		return sibling;
 
 	const parent = elem.closest(parentSelector);
-	if(parent && !parent.id)
+	if(parent)
 		return parent;
 
 	return null;
 }
 
-export function replaceEmptyAnchors()
+export function replaceEmptyAnchors(linksByHref)
 {
-	const anchors = getLinkAnchors().concat(getSpanAnchors());
-	const linksByHref = createLinksByHrefLookup();
+	const emptySpanAnchors = getEmptySpanAnchors();
+	const emptyLinkAnchors = getEmptyLinkAnchors();
+	console.log("emptyLinkAnchors:", emptyLinkAnchors.length, "emptySpanAnchors:", emptySpanAnchors.length);
+	const anchors = emptyLinkAnchors.concat(emptySpanAnchors);
+	if(!linksByHref)
+		linksByHref = createLinksByHrefLookup();
+
 	let numIDsMoved = 0;
 	let numIDsRemoved = 0;
 
@@ -40,10 +45,18 @@ export function replaceEmptyAnchors()
 		const linksToAnchor = linksByHref["#" + anchor.id];
 		if(linksToAnchor)
 		{
-			const recipient = findRecipientForID(anchor, "h1, h2, h3, h4, h5, h6, p", "h1, h2, h3, h4, h5, h6, p");
+			const recipient = findSiblingOrParent(anchor, "a", "h1, h2, h3, h4, h5, h6, p");
 			if(recipient)
 			{
-				recipient.id = anchor.id;
+				if(recipient.id)
+				{
+					for(let j = 0, jj = linksToAnchor.length; j < jj; j++)
+						linksToAnchor[j].setAttribute("href", "#" + recipient.id);
+				}
+				else
+				{
+					recipient.id = anchor.id;
+				}
 				numIDsMoved++;
 				unwrapElement(anchor);
 			}
@@ -66,7 +79,7 @@ export function replaceEmptyAnchors()
 		}
 		else
 		{
-			anchor.removeAttribute("id");
+			unwrapElement(anchor);
 			numIDsRemoved++;
 		}
 	}
@@ -74,31 +87,46 @@ export function replaceEmptyAnchors()
 	showMessageBig(`${numIDsMoved} IDs moved, ${numIDsRemoved} deleted, ${anchors.length} total`);
 }
 
-export function moveIdsFromSpans()
+export function moveIdsFromSpans(linksByHref)
 {
 	const spans = get("span[id]");
-	if(!spans) return;
-	for(const span of spans)
+	if(!spans)
 	{
+		console.log("moveIdsFromSpans: none found");
+		return;
+	}
+
+	if(!linksByHref)
+		linksByHref = createLinksByHrefLookup();
+
+	for(let i = 0, ii = spans.length; i < ii; i++)
+	{
+		const span = spans[i];
 		const recipient = span.querySelector("a") || span.closest("h1, h2, h3, h4, h5, h6, p") || span.nextElementSibling;
-		if(recipient && !recipient.id)
+		if(recipient)
 		{
-			recipient.id = span.id;
-			if(getTextLength(span) === 0 || span.children.length === span.childNodes.length)
-				unwrapElement(span);
+			if(recipient.id)
+			{
+				const links = linksByHref["#" + span.id];
+				for(let i = 0, ii = links.length; i < ii; i++)
+					links[i].setAttribute("href", "#" + recipient.id);
+			}
 			else
-				span.removeAttribute("id");
+			{
+				recipient.id = span.id;
+			}
 		}
 		else
 		{
-			const ref = createLinkInWrapper("reference", span.id, null, span.id);
-			span.removeAttribute("id");
-			if(getTextLength(span) === 0)
-				span.replaceWith(ref);
-			else
-				span.insertAdjacentElement("afterend", ref);
+			span.parentNode.appendChild(createLinkInWrapper("reference", span.id, null, span.id));
 		}
+
+		if(getTextLength(span) === 0 || span.children.length === span.childNodes.length)
+			unwrapElement(span);
+		else
+			span.removeAttribute("id");
 	}
+	console.log(`${spans.length} ids removed from spans`);
 }
 
 export function getTargetElement(link)
@@ -120,9 +148,11 @@ export function fixInternalReferences()
 		showMessageError("Document has elements with duplicate IDs");
 		return;
 	}
-	removeUnreferencedIDs();
-	moveIdsFromSpans();
-	replaceEmptyAnchors();
+	deleteUselessLinks();
+	const linksByHref = createLinksByHrefLookup();
+	removeUnreferencedIDs(linksByHref);
+	replaceEmptyAnchors(linksByHref);
+	moveIdsFromSpans(linksByHref);
 	makeFileLinksRelative();
 	const internalLinks = get('a[href^="#"]');
 	if(!internalLinks) return;
@@ -152,7 +182,7 @@ export function fixInternalReferences()
 		const targetElement = getTargetElement(link);
 		if(targetElement)
 		{
-			if(targetElement.tagName === "A" && targetElement.getAttribute("href") === "")
+			if(targetElement.tagName === "A" && !targetElement.getAttribute("href"))
 			{
 				targetElement.setAttribute("href", "#" + link.id);
 				if(targetElement.parentNode && !tagsNotToMakeReferencesUnder.has(targetElement.parentNode.tagName))
@@ -186,14 +216,12 @@ export function humanizeUrl(url)
 	return longestMatch;
 }
 
-export function isEmptyLink(link) { return !(getTextLength(link) || link.getElementsByTagName("img").length); }
-
 export function revealEmptyLinks()
 {
 	const links = get("a");
 	for(const link of links)
 	{
-		if(isEmptyLink(link))
+		if(isEmptyElement(link))
 		{
 			if(link.id)
 				annotateElement(link, "a1", link.id);
@@ -202,6 +230,16 @@ export function revealEmptyLinks()
 			if(link.name)
 				annotateElement(link, "a3", link.name);
 		}
+	}
+}
+
+export function deleteUselessLinks()
+{
+	for(let i = 0, ii = document.links.length; i < ii; i++)
+	{
+		const link = document.links[i];
+		if(isEmptyElement(link) && !link.id && !link.name)
+			unwrapElement(link);
 	}
 }
 
@@ -219,7 +257,7 @@ export function toggleShowEmptyLinksAndSpans()
 	for(let i = 0, ii = links.length; i < ii; i++)
 	{
 		const link = links[i];
-		if(isEmptyLink(link))
+		if(isEmptyElement(link))
 		{
 			if(!link.id && !link.name)
 			{
@@ -236,10 +274,17 @@ export function toggleShowEmptyLinksAndSpans()
 	for(let i = 0, ii = spans.length; i < ii; i++)
 	{
 		const span = spans[i];
-		if(!(span.textContent.length || span.getElementsByTagName("img").length))
+		if(isEmptyElement(span))
 		{
-			countSpans++;
-			markElement(span);
+			if(!span.id)
+			{
+				unwrapElement(span);
+			}
+			else
+			{
+				countSpans++;
+				markElement(span);
+			}
 		}
 	}
 	if(countLinks + countSpans === 0)
@@ -496,10 +541,11 @@ export function markBrokenInternalLinks()
 		showMessageBig("No broken internal links");
 }
 
-export function removeUnreferencedIDs()
+export function removeUnreferencedIDs(linksByHref)
 {
 	const anchors = document.querySelectorAll('body *[id]');
-	const linksByHref = createLinksByHrefLookup();
+	if(!linksByHref)
+		linksByHref = createLinksByHrefLookup();
 	let count = 0;
 	for(let i = 0, ii = anchors.length; i < ii; i++)
 	{
