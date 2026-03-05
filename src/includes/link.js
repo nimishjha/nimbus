@@ -158,7 +158,7 @@ export function fixInternalReferences()
 	if(!internalLinks) return;
 	const tagsNotToMakeReferencesUnder = new Set([ "REFERENCE", "H1", "H2", "H3", "H4", "H5", "H6", "DT", "DD" ]);
 	const regexIsNumeric = /^\d+$/;
-	const regexIsNumberInBraces = /^\{\d+\}$/;
+	const regexIsNumberInBracesOrBrackets = /^[\[\{]\d+[\}\]]$/;
 	const regexIsNumericWithPeriod = /^\d+\.$/;
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
 	{
@@ -168,7 +168,7 @@ export function fixInternalReferences()
 			link.id = createUniqueID(i);
 
 		let refText = link.textContent.trim();
-		if(regexIsNumeric.test(refText) || regexIsNumberInBraces.test(refText) || regexIsNumericWithPeriod.test(refText))
+		if(regexIsNumeric.test(refText) || regexIsNumberInBracesOrBrackets.test(refText) || regexIsNumericWithPeriod.test(refText))
 		{
 			refText = refText.replace(/[^0-9]+/g, "");
 			if(!refText.length)

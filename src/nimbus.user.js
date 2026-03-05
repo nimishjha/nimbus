@@ -86,6 +86,7 @@ import {
 	selectByTagNameMatching,
 	selectElementsEndingWithText,
 	selectElementsStartingWithText,
+	selectImagesSmallerThan,
 	selectNodesBetweenMarkers,
 } from "./includes/selectors";
 import {
@@ -1070,6 +1071,7 @@ function handleKeyMenuCommand(str)
 			case "MC": markElementsWithSameClass(); break;
 			case "MD": replaceFirstLevelChildrenWith("dt"); break;
 			case "ME": callFunctionWithArgs("Replace marked element with element containing text", replaceMarkedWithTextElement, 2, "h2 "); break;
+			case "MF": markAllFollowingSiblings(); break;
 			case "ML": makeLastChild(); break;
 			case "MM": toggleHighlightMap(); break;
 			case "MP": callFunctionWithArgs("Mark elements by class or id containing text", markByClassOrIdContaining, 1); break;
@@ -1093,7 +1095,8 @@ function handleKeyMenuCommand(str)
 			case "RE": replaceElementsBySelectorHelper(); break;
 			case "RM": callFunctionWithArgs("Replace children of marked elements by selector", replaceElementsBySelectorInMarked, 2); break;
 			case "RS": replaceSpecialCharacters(); break;
-			case "RT": replaceTables(); break;
+			case "RT": callFunctionWithArgs("Replace in all text nodes", replaceInTextNodes, 2); break;
+			case "RU": callFunctionWithArgs("Replace in text nodes under", replaceInTextNodesUnder, 3); break;
 
 			case "SW": swapElementPositions(); break;
 

@@ -1,7 +1,7 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig, showMessageError } from "./ui";
 import { insertStyle, insertStyleHighlight } from "./style";
-import { createElement } from "./element";
+import { createElement, deleteLeadingAndTrailingEmptyTextNodes } from "./element";
 import { hasDirectChildrenOfType } from "./elementAndNodeTests";
 import { markElement, getMarkedElements, unmarkAll, unmarkElement } from "./mark";
 import { xPathSelect, getTextNodesUnderSelector, getXpathResultAsArray } from "./xpath";
@@ -465,6 +465,7 @@ export function filterNodesWithFirstChildOfType(nodes, selector)
 	while(i--)
 	{
 		const node = nodes[i];
+		deleteLeadingAndTrailingEmptyTextNodes(node);
 		node.normalize();
 		const firstChild = node.firstElementChild;
 		if(firstChild && firstChild === node.firstChild && firstChild.matches(selector))

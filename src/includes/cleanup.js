@@ -391,7 +391,7 @@ export function cleanupStackOverflow()
 	del([
 		"#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair", "#launch-popover", ".comments-link", ".aside-cta", ".js-post-menu", "iframe",
 		".js-bottom-notice", ".votecell", ".comment-actions", ".js-share-link", ".js-suggest-edit-post", ".js-voting-container", "form", ".js-bottom-notice", ".js-menu-popup-container",
-		".js-post-menu", ".answers-subheader",
+		".js-post-menu", ".answers-subheader", ".s-modal",
 	]);
 
 	makePlainText(".comment-date");
@@ -442,7 +442,8 @@ export function replaceCommonClasses()
 	replaceElementsBySelector(".comment", "comment");
 	replaceElementsBySelector(".fn, .fn1, p[class*=note]", "footnote");
 	replaceElementsBySelector('p[class^="crt"], p[class^="copy"], .bib', "dt");
-	replaceElementsBySelector('p[class^="attri"]', "quoteauthor");
+	replaceElementsBySelector('.epiv, .cepiv', "quote");
+	replaceElementsBySelector('p[class^="attri"], .eps, .ceps', "quoteauthor");
 
 	replaceElementsBySelector(".epub-i, .i", "i");
 	replaceElementsBySelector(".epub-b, .b", "b");
