@@ -1,7 +1,7 @@
 import { Nimbus } from "./Nimbus";
 import { createElement, deleteClass, removeAllAttributesExcept, setAttributeOf, removeAllAttributesOf, createElementWithText, createElementWithChildren } from "./element";
 import { isEmptyElement } from "./elementAndNodeTests";
-import { get, getOne, del } from "./selectors";
+import { get, getOne, del, selectImagesSmallerThan } from "./selectors";
 import { insertStyle } from "./style";
 import { containsAnyOfTheStrings, trimAt } from "./string";
 import { showMessage, showMessageBig } from "./ui";
@@ -15,27 +15,9 @@ import { replaceElementKeepingId } from "./replaceElements";
 
 export function deleteImagesSmallerThan(pixelArea)
 {
-	const images = get('img');
-	let i = images.length;
-	let count = 0;
-	while(i--)
-	{
-		const image = images[i];
-		if(image.src.includes(".svg"))
-		{
-			if(image.width * image.height < pixelArea)
-			{
-				image.remove();
-				count++;
-			}
-		}
-		else if(image.naturalWidth * image.naturalHeight < pixelArea)
-		{
-			image.remove();
-			count++;
-		}
-	}
-	showMessageBig(`Deleted ${count} images smaller than ${pixelArea} pixels`);
+	const smallImages = selectImagesSmallerThan(pixelArea);
+	del(smallImages);
+	showMessageBig(`Deleted ${smallImages.length} images smaller than ${pixelArea} pixels`);
 }
 
 export function deleteSmallImages()

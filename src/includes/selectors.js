@@ -1008,3 +1008,14 @@ export function getFirstMarkedElement()
 	const markedElement = getOne(makeClassSelector(Nimbus.markerClass));
 	return markedElement ? markedElement : false;
 }
+
+export function selectImagesSmallerThan(pixelArea)
+{
+	const images = get('img');
+	let i = images.length;
+	const result = [];
+	while(i--)
+		if(images[i].src.includes(".svg") ? images[i].width * images[i].height : images[i].naturalWidth * images[i].naturalHeight < pixelArea)
+			result.push(images[i]);
+	return result;
+}
