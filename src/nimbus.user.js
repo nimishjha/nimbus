@@ -643,6 +643,9 @@ import {
 import {
 	checkSequence
 } from "./includes/validations";
+import {
+	interlinkFootnoteAndNonFootnoteReferencesByIndexInSections
+} from "./includes/reference";
 
 const isDebugMode = true;
 
@@ -764,6 +767,7 @@ const availableFunctions = {
 	insertAroundAll: insertAroundAll,
 	insertSpacesAround: insertSpacesAround,
 	inspect: inspect,
+	interlinkFootnoteAndNonFootnoteReferencesByIndexInSections: interlinkFootnoteAndNonFootnoteReferencesByIndexInSections,
 	iw: forceImageWidth,
 	joinAdjacentElements: joinAdjacentElements,
 	joinByBrs: joinByBrs,
