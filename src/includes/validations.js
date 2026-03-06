@@ -1,4 +1,5 @@
 import { Nimbus } from "./Nimbus";
+import { annotateElement } from "./dom";
 
 export function hasDuplicateIDs()
 {
@@ -18,4 +19,25 @@ export function hasDuplicateIDs()
 		seen.add(elem.id);
 	}
 	return false;
+}
+
+export function checkSequence(elems)
+{
+	let step = 0;
+	for(let i = 0; i < elems.length; i++)
+	{
+		const elem = elems[i];
+		const expectedIndex = i + 1 + step;
+		const actualIndex = parseInt(elem.textContent, 10);
+		if(isNaN(actualIndex))
+		{
+			elem.className = "statusWarning";
+		}
+		else if(actualIndex !== expectedIndex)
+		{
+			elem.className = "statusError";
+			annotateElement(elem, "x", `expected ${expectedIndex}`);
+			step += Math.abs(actualIndex - expectedIndex);
+		}
+	}
 }

@@ -639,7 +639,10 @@ import {
 } from "./includes/retrieve";
 import {
 	keyMenuOptionsByKey
-} from "./includes/keyMenu.js";
+} from "./includes/keyMenu";
+import {
+	checkSequence
+} from "./includes/validations";
 
 const isDebugMode = true;
 
@@ -653,6 +656,7 @@ const availableFunctions = {
 	buildGallery: buildGallery,
 	buildSlideshow: buildSlideshow,
 	capitalizeTitle: capitalizeTitle,
+	checkSequence: checkSequence,
 	cleanupAttributes: cleanupAttributes,
 	cleanupDocument: cleanupDocument,
 	cleanupHead: cleanupHead,
