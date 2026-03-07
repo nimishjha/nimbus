@@ -6,7 +6,7 @@ import { fixInternalReferences } from "./link";
 import { createElementWithChildren, removeAttributeOf, unwrapAll, removeAllAttributesOfTypes, deleteClass } from "./element";
 import { replaceDiacritics, replaceSpecialCharacters } from "./text";
 import { containsAnyOfTheStrings, containsAllOfTheStrings, removeWhitespace, trimSpecialChars, normalizeString, capitalize } from "./string";
-import { getXpathResultAsArray } from "./xpath";
+import { getXpathResultAsArray, getEmptyTextNodesUnderElement } from "./xpath";
 import { addLinksToLargerImages } from "./image";
 import { replaceElementsBySelector } from "./replaceElements";
 import { deleteEmptyElements, deleteEmptyBlockElements, deleteBySelectorAndRegex } from "./delete";
@@ -24,6 +24,7 @@ import { getAllClassesFor } from "./inspect";
 import { replaceClass } from "./dom";
 import { callFunctionWithArgs } from "./command";
 import { hasDuplicateIDs } from "./validations";
+import { BLOCK_TAGS_SET } from "./constants";
 
 function replaceIframes()
 {
@@ -768,23 +769,19 @@ export function cleanupLinks()
 
 export function removeRedundantDivs()
 {
-	const elems = get("div");
-	let i = elems.length;
-	while(i--)
+	let count = 0;
+	const divs = get("div");
+	for(let i = 0; i < divs.length; i++)
 	{
-		const elem = elems[i];
-		let isRedundant = true;
-		for(const child of elem.childNodes)
+		const div = divs[i];
+		del(getEmptyTextNodesUnderElement(div));
+		if(div.children.length === 1 && div.childNodes.length === 1 && BLOCK_TAGS_SET.has(div.firstChild.tagName))
 		{
-			if((child.nodeType === 3 && child.data.replace(/\s+/g, "").length > 0) || (child.nodeType === 1 && child.tagName !== "DIV"))
-			{
-				isRedundant = false;
-				break;
-			}
+			unwrapElement(div);
+			count++;
 		}
-		if(isRedundant)
-			unwrapElement(elem);
 	}
+	showMessageBig(`${count} redundant divs removed`);
 }
 
 export function sanitizeTitle(titleString)
