@@ -128,7 +128,7 @@ export function moveLeadingAndTrailingReferencesOutOfHighlight(highlightElement)
 
 export function highlightSelectedElement(tag)
 {
-	const MAX_LENGTH = 4000;
+	const MAX_LENGTH = 7000;
 	let node = getNodeContainingSelection();
 	if(node && node.parentNode && node.tagName !== "BODY" && node.textContent.length < MAX_LENGTH)
 	{

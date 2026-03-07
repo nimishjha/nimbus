@@ -440,7 +440,7 @@ export function replaceCommonClasses()
 	replaceElementsBySelector(".fig-cap", "figcaption");
 	replaceElementsBySelector(".figure", "figure");
 	replaceElementsBySelector(".comment", "comment");
-	replaceElementsBySelector(".fn, .fn1, p[class*=note]", "footnote");
+	replaceElementsBySelector('p[class^="fn"], p[class*=note]', "footnote");
 	replaceElementsBySelector('p[class^="crt"], p[class^="copy"], .bib', "dt");
 	replaceElementsBySelector('.epiv, .cepiv', "quote");
 	replaceElementsBySelector('p[class^="attri"], .eps, .ceps', "quoteauthor");
