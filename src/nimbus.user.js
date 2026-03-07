@@ -440,7 +440,6 @@ import {
 	makeUL,
 	mapIdsToClasses,
 	moveDataTestIdToClassName,
-	moveIdToChild,
 	moveElementUp,
 	replaceClass,
 	replaceInClassNames,
@@ -644,7 +643,8 @@ import {
 	checkSequence
 } from "./includes/validations";
 import {
-	interlinkFootnoteAndNonFootnoteReferencesByIndexInSections
+	interlinkFootnoteAndNonFootnoteReferencesByIndexInSections,
+	moveID,
 } from "./includes/reference";
 
 const isDebugMode = true;
@@ -803,7 +803,7 @@ const availableFunctions = {
 	markUppercaseElements: markUppercaseElements,
 	moveDataTestIdToClassName: moveDataTestIdToClassName,
 	moveIdsFromSpans: moveIdsFromSpans,
-	moveIdToChild: moveIdToChild,
+	moveID: moveID,
 	normaliseWhitespaceForParagraphs: normaliseWhitespaceForParagraphs,
 	normalizeAllWhitespace: normalizeAllWhitespace,
 	numberDivs: numberDivs,

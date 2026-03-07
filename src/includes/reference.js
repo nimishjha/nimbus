@@ -1,4 +1,8 @@
 import { Nimbus } from "./Nimbus";
+import { createLinksByHrefLookup } from "./link";
+import { get } from "./selectors";
+import { unwrapElement } from "./element";
+import { isEmptyElement } from "./elementAndNodeTests";
 
 export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 {
@@ -58,4 +62,82 @@ export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 			}
 		}
 	}
+}
+
+export function moveID(anchorSelector, recipientRelationship, recipientSelector)
+{
+	const RELATIONSHIP = {
+		PARENT: 1,
+		SIBLING: 2,
+		CHILD: 3
+	};
+	const elems = get(anchorSelector);
+
+	let numElementsWithIDs = 0;
+	let numRecipientAlreadyHasID = 0;
+	let numIDsMoved = 0;
+	let numRecipientsNotFound = 0;
+	const linksByHref = createLinksByHrefLookup();
+
+	function getParent(elem)
+	{
+		return elem.closest(recipientSelector);
+	}
+
+	function getChild(elem)
+	{
+		return elem.querySelector(recipientSelector);
+	}
+
+	function getSibling(elem)
+	{
+		const next = elem.nextElementSibling;
+		return next.matches(recipientSelector) ? next : null;
+	}
+
+	let getRecipient;
+	switch(recipientRelationship)
+	{
+		case RELATIONSHIP.PARENT: getRecipient = getParent; break;
+		case RELATIONSHIP.SIBLING: getRecipient = getSibling; break;
+		case RELATIONSHIP.CHILD: getRecipient = getChild; break;
+	}
+
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+		if(!elem.id)
+			continue;
+
+		numElementsWithIDs++;
+		const linksToAnchor = linksByHref["#" + elem.id];
+
+		const recipient = getRecipient(elem);
+		if(recipient)
+		{
+			if(!recipient.id)
+			{
+				recipient.id = elem.id;
+				recipient.className = "statusOk";
+				numIDsMoved++;
+			}
+			else
+			{
+				for(let j = 0, jj = linksToAnchor.length; j < jj; j++)
+					linksToAnchor[j].setAttribute("href", "#" + recipient.id);
+				numIDsMoved++;
+			}
+			if(isEmptyElement(elem))
+				elem.remove();
+			else
+				unwrapElement(elem);
+		}
+		else
+		{
+			numRecipientsNotFound++;
+			elem.className = "statusError";
+		}
+	}
+
+	console.log(`${numElementsWithIDs} IDs in ${elems.length} selected elements, ${numIDsMoved} IDs moved, ${numRecipientsNotFound} recipients not found`);
 }
