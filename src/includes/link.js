@@ -456,6 +456,12 @@ export function createLinksByHrefLookup()
 
 export function numberNumericReferencesByInterlinkedGroup()
 {
+	if(hasDuplicateIDs())
+	{
+		showMessageError("Document has elements with duplicate IDs");
+		return;
+	}
+
 	const linksByHref = createLinksByHrefLookup();
 
 	const allLinks = get('reference a[href^="#"]');
