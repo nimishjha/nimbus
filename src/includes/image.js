@@ -1,5 +1,5 @@
 import { Nimbus } from "./Nimbus";
-import { createElement, deleteClass, removeAllAttributesExcept, setAttributeOf, removeAllAttributesOf, createElementWithText, createElementWithChildren } from "./element";
+import { createElement, deleteClass, removeAllAttributesExcept, setAttributeOf, removeAllAttributesOf, createElementWithText, createElementWithChildren, createLinkInWrapper } from "./element";
 import { isEmptyElement } from "./elementAndNodeTests";
 import { get, getOne, del, selectImagesSmallerThan } from "./selectors";
 import { insertStyle } from "./style";
@@ -488,4 +488,44 @@ export function toggleInvertImages()
 		deleteClass("invert");
 	else
 		setAttributeOf("img", "class", "invert");
+}
+
+function createImageSrcPlaceholders(arr)
+{
+	const wrapper = document.createElement("aside");
+	for(const item of arr)
+	{
+		const rt = createLinkInWrapper("rt", item.size + ": " + item.src, item.src);
+		wrapper.appendChild(rt);
+	}
+	return wrapper;
+}
+
+export function inspectImages()
+{
+	const images = document.querySelectorAll("img");
+	for(let i = 0, ii = images.length; i < ii; i++)
+	{
+		const image = images[i];
+		let srcset = image.getAttribute("srcset") || image.getAttribute("data-srcset");
+		if(srcset)
+		{
+			let bestSource;
+			let sources = srcset.split(', ');
+			let sourcesArray = [];
+			for(let j = 0, jj = sources.length; j < jj; j++)
+			{
+				const splat = sources[j].trim().split(' ');
+				const src = splat[0];
+				const size = parseInt(splat[1].replace(/[^0-9]/g, ""), 10);
+				if(!isNaN(size))
+					sourcesArray.push({ size: size, src: src });
+			}
+			image.replaceWith(createImageSrcPlaceholders(sourcesArray));
+		}
+		else
+		{
+			image.replaceWith(createImagePlaceholder(image));
+		}
+	}
 }
