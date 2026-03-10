@@ -251,16 +251,17 @@ import {
 	getBestImageSrc,
 	getImageHeight,
 	getImageWidth,
-	toggleInvertImages,
+	inspectImages,
 	persistStreamingImages,
 	removeQueryStringFromImageSources,
-	toggleBetweenImagesAndPlaceholders,
 	retrieveLargeImages,
 	setMinPersistSize,
 	shortenImageSrc,
 	showSavedStreamingImages,
 	slideshowChangeSlide,
 	tagLargeImages,
+	toggleBetweenImagesAndPlaceholders,
+	toggleInvertImages,
 } from "./includes/image";
 import {
 	annotate,
@@ -1067,6 +1068,8 @@ function handleKeyMenuCommand(str)
 			case "HT": customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
 			case "HW": callFunctionWithArgs("Highlight all matches with word expansion", highlightAllMatchesInDocumentWithWordExpansion, 1); break;
 
+			case "II": inspectImages(); break;
+
 			case "LI": retrieveLargeImages(); break;
 			case "LM": interlinkMarkedElements(); break;
 			case "LN": numberNumericReferencesByInterlinkedGroup(); break;
@@ -1207,7 +1210,7 @@ function toggleKeyMenu(firstKey)
 		}
 		else
 		{
-			Nimbus.keyMenu.shouldExitMenuModeAfterCommand = false;
+			Nimbus.keyMenu.shouldExitMenuModeAfterCommand = true;
 			showMessageBig("Key menu enabled");
 		}
 

@@ -477,11 +477,17 @@ export function replaceCommonClasses()
 
 	removeAttributeOf("a, i, b, sup, small", "class");
 
-	if(getOne(".indexmain") && getOne(".indexsub"))
+	if(getOne(".indexmain"))
 	{
 		replaceElementsBySelector(".indexmain", "dt");
 		replaceElementsBySelector(".indexmain1", "dt");
 		replaceElementsBySelector(".indexsub", "dd");
+	}
+	if(getOne(".indexitem"))
+	{
+		replaceElementsBySelector(".indexitem", "dt");
+		replaceElementsBySelector(".indexitem1", "dt");
+		replaceElementsBySelector(".indexitem2", "dd");
 	}
 
 	if(getOne(".primary") && getOne(".secondary"))

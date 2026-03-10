@@ -84,7 +84,7 @@ export function getBestImageSrc()
 			{
 				const splat = sources[j].trim().split(' ');
 				const src = splat[0];
-				const size = parseFloat(splat[1], 10);
+				const size = parseInt(splat[1].replace(/[^0-9]/g, ""), 10);
 				if(!isNaN(size))
 					sourcesArray.push({ size: size, src: src });
 			}
