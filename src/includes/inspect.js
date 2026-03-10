@@ -439,11 +439,15 @@ export function numberDivs()
 export function getClassCounts(selector) {
 	function sortByCountDescending(a, b) { return b.count - a.count; }
 	const elements = get(selector);
-	const classMap = new Map();
-	for(const element of elements)
-		for(const className of element.classList)
-			classMap.set(className, (classMap.get(className) || 0) + 1);
-	return Array.from(classMap, ([className, count]) => ({className, count})).sort(sortByCountDescending);
+	if(elements)
+	{
+		const classMap = new Map();
+		for(const element of elements)
+			for(const className of element.classList)
+				classMap.set(className, (classMap.get(className) || 0) + 1);
+		return Array.from(classMap, ([className, count]) => ({className, count})).sort(sortByCountDescending);
+	}
+	return [];
 }
 
 export function getAllClassesFor(selector)
