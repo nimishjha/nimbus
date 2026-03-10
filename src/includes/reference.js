@@ -92,7 +92,7 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 	function getSibling(elem)
 	{
 		const next = elem.nextElementSibling;
-		return next.matches(recipientSelector) ? next : null;
+		return next && next.matches(recipientSelector) ? next : null;
 	}
 
 	let getRecipient;
@@ -129,8 +129,10 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 			}
 			if(isEmptyElement(elem))
 				elem.remove();
-			else
+			else if(recipientRelationship !== RELATIONSHIP.CHILD)
 				unwrapElement(elem);
+			else
+				elem.removeAttribute("id");
 		}
 		else
 		{
