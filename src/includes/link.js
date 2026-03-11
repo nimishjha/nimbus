@@ -16,9 +16,10 @@ import { fixTextAroundReferences } from "./cleanup";
 
 function findSiblingOrParent(elem, siblingSelector, parentSelector)
 {
-	const sibling = elem.nextElementSibling;
-	if(sibling && sibling.matches(siblingSelector) && !sibling.id)
-		return sibling;
+	if(elem.nextElementSibling && elem.nextElementSibling.matches(siblingSelector))
+		return elem.nextElementSibling;
+	else if(elem.previousElementSibling && elem.previousElementSibling.matches(siblingSelector))
+		return elem.previousElementSibling;
 
 	const parent = elem.closest(parentSelector);
 	if(parent)
@@ -31,8 +32,8 @@ export function replaceEmptyAnchors(linksByHref)
 {
 	const emptySpanAnchors = getEmptySpanAnchors();
 	const emptyLinkAnchors = getEmptyLinkAnchors();
-	console.log("emptyLinkAnchors:", emptyLinkAnchors.length, "emptySpanAnchors:", emptySpanAnchors.length);
 	const anchors = emptyLinkAnchors.concat(emptySpanAnchors);
+
 	if(!linksByHref)
 		linksByHref = createLinksByHrefLookup();
 
