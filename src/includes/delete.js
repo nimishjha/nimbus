@@ -5,7 +5,8 @@ import { getMarkedElements } from "./mark";
 import { getXpathResultAsArray } from "./xpath";
 import { getTextLength } from "./node";
 import { markElements } from "./mark";
-import { isEmptyTextNode } from "./elementAndNodeTests";
+import { createLinkInWrapper } from "./element";
+import { isEmptyTextNode, isEmptyElement } from "./elementAndNodeTests";
 import { selectByRelativePosition, selectBySelectorAndRelativePosition, selectNodesBetweenMarkers, selectBySelectorAndText, selectBySelectorAndExactText } from "./selectors";
 
 export function deleteMarkedElements()
@@ -73,21 +74,18 @@ export function deleteEmptyElements(selector)
 	while(i--)
 	{
 		const elem = elems[i];
-		if(elem.textContent)
+		if(isEmptyElement(elem))
 		{
-			if(getTextLength(elem) === 0 && !elem.getElementsByTagName("img").length && !elem.getElementsByTagName("video").length)
+			if(elem.id)
+			{
+				const anchor = createLinkInWrapper("reference", elem.id, null, elem.id);
+				elem.replaceWith(anchor);
+			}
+			else
 			{
 				elem.remove();
-				count++;
 			}
-		}
-		else
-		{
-			if(!elem.getElementsByTagName("img").length && !elem.getElementsByTagName("video").length)
-			{
-				elem.remove();
-				count++;
-			}
+			count++;
 		}
 	}
 	showMessageBig(`Deleted ${count} empty elements`);
