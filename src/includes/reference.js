@@ -123,9 +123,12 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 			}
 			else
 			{
-				for(let j = 0, jj = linksToAnchor.length; j < jj; j++)
-					linksToAnchor[j].setAttribute("href", "#" + recipient.id);
-				numIDsMoved++;
+				if(linksToAnchor)
+				{
+					for(let j = 0, jj = linksToAnchor.length; j < jj; j++)
+						linksToAnchor[j].setAttribute("href", "#" + recipient.id);
+					numIDsMoved++;
+				}
 			}
 			if(isEmptyElement(elem))
 				elem.remove();
