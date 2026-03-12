@@ -87,7 +87,7 @@ export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 
 		if(!(wrapperTagName && childTagName))
 		{
-			childTagName = elem.tagName;
+			childTagName = elem.tagName === "DIV" ? "P" : elem.tagName;
 			if(HEADING_TAGS_SET.has(childTagName))
 				wrapperTagName = "hgroup";
 			else if(childTagName === "BLOCKQUOTE")
