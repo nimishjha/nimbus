@@ -6,7 +6,7 @@ import { getMarkedElements, unmarkAll } from "./mark";
 import { getTextNodesUnderSelector, getTextNodesUnderElement } from "./xpath";
 import { replaceElementsBySelector } from "./replaceElements";
 import { makeClassSelector, forAll } from "./misc";
-import { showMessageBig } from "./ui";
+import { showMessageBig, showMessageError } from "./ui";
 import { replaceInTextNodes, replaceInTextNodesRegex } from "./textReplace";
 import { removeLineBreaks } from "./string";
 import { containsOnlyPlainText } from "./elementAndNodeTests";

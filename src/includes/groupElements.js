@@ -32,7 +32,8 @@ export function groupMarkedElements(tagName)
 	{
 		const elem = elemsToJoin[i];
 		const child = convertElement(elem, elem.tagName);
-		child.id = elem.id;
+		if(elem.id)
+			child.id = elem.id;
 		wrapper.appendChild(child);
 	}
 	insertBefore(elemsToJoin[0], wrapper);

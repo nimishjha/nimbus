@@ -498,7 +498,7 @@ function createImageSrcPlaceholders(arr)
 	const wrapper = document.createElement("aside");
 	for(const item of arr)
 	{
-		const rt = createLinkInWrapper("rt", item.size + ": " + item.src, item.src);
+		const rt = createLinkInWrapper("rt", item.size + ": " + shortenImageSrc(item.src), item.src);
 		wrapper.appendChild(rt);
 	}
 	return wrapper;

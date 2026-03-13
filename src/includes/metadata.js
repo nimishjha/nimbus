@@ -16,8 +16,10 @@ export function getMetadata()
 		return false;
 
 	const fields = headings4.splice(len - 3);
-	const domain = fields[0].querySelector("a").textContent;
-	const pageUrl = fields[1].querySelector("a").textContent;
+	const domainLink = fields[0].querySelector("a");
+	const domain = domainLink ? domainLink.textContent : fields[0].textContent;
+	const pageLink = fields[1].querySelector("a");
+	const pageUrl = pageLink ? pageLink.textContent : fields[1].textContent;
 	const saveTimestamp = fields[2].textContent;
 	return {
 		domain,

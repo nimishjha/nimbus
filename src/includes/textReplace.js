@@ -19,7 +19,7 @@ export function replaceInTextNodesUnder(selector, searchString, replacementStrin
 
 export function replaceInTextNodesRegex(selector, regex, replacement)
 {
-	const textNodes = getTextNodesUnderSelector(selector);
+	const textNodes = selector.startsWith(".") ? getTextNodesUnderSelector(null, selector.slice(1)) : getTextNodesUnderSelector(selector);
 	let replCount = 0;
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
