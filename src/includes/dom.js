@@ -7,6 +7,7 @@ import { forAll, makeClassSelector } from "./misc";
 import { splitByBrs, fixBullets } from "./text";
 import { groupAdjacentElements } from "./groupElements";
 import { removeAttributeOf, removeAllAttributesOfTypes, copyAttribute } from "./element"
+import { getTextNodesUnderElement } from "./xpath";
 
 export function swapElementPositions()
 {
@@ -81,14 +82,14 @@ export function toggleContentEditable()
 	{
 		showMessageBig("contentEditable OFF");
 		selectedNode.removeAttribute("contentEditable");
-		const tagName = selectedNode.tagName;
-		if(tagName !== "PRE")
-		{
-			if(["H1", "H2", "H3", "H4", "H5", "H6"].includes(tagName))
-				splitByBrs(selectedNode, "hgroup", tagName);
-			else
-				splitByBrs(selectedNode);
-		}
+
+		splitByBrs(selectedNode);
+
+		const textNodes = getTextNodesUnderElement(selectedNode);
+		for(const node of textNodes)
+			if(/\s+/.test(node.data))
+				node.data = node.data.replace(/\s+/g, " ");
+
 		Nimbus.isEditing = false;
 	}
 }
