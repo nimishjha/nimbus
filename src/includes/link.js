@@ -46,8 +46,8 @@ export function replaceEmptyAnchors(linksByHref)
 		const linksToAnchor = linksByHref["#" + anchor.id];
 		if(linksToAnchor)
 		{
-			const recipient = findSiblingOrParent(anchor, "a", "h1, h2, h3, h4, h5, h6, p");
-			if(recipient)
+			const recipient = findSiblingOrParent(anchor, "a", "p, h1, h2, h3, h4, h5, h6, blockquote, figure, figcaption, aside, dt");
+			if(recipient && getTextLength(recipient) > 0)
 			{
 				if(recipient.id)
 				{
@@ -92,10 +92,7 @@ export function moveIdsFromSpans(linksByHref)
 {
 	const spans = get("span[id]");
 	if(!spans)
-	{
-		console.log("moveIdsFromSpans: none found");
 		return;
-	}
 
 	if(!linksByHref)
 		linksByHref = createLinksByHrefLookup();
@@ -236,9 +233,10 @@ export function revealEmptyLinks()
 
 export function deleteUselessLinks()
 {
-	for(let i = 0, ii = document.links.length; i < ii; i++)
+	const links = Array.from(document.links);
+	for(let i = 0, ii = links.length; i < ii; i++)
 	{
-		const link = document.links[i];
+		const link = links[i];
 		if(isEmptyElement(link) && !link.id && !link.name)
 			unwrapElement(link);
 	}
