@@ -74,19 +74,22 @@ export function getBestImageSrc()
 		let srcset = set1 || set2;
 		if(!srcset)
 			continue;
-		srcset = srcset.replace(/, /g, "|");
+		srcset = srcset.replace(/, /g, ",");
 		if(srcset)
 		{
 			let bestSource;
-			let sources = srcset.split('|');
+			let sources = srcset.split(',');
 			let sourcesArray = [];
 			for(let j = 0, jj = sources.length; j < jj; j++)
 			{
 				const splat = sources[j].trim().split(' ');
-				const src = splat[0];
-				const size = parseInt(splat[1].replace(/[^0-9]/g, ""), 10);
-				if(!isNaN(size))
-					sourcesArray.push({ size: size, src: src });
+				if(splat.length === 2)
+				{
+					const src = splat[0];
+					const size = parseInt(splat[1].replace(/[^0-9]/g, ""), 10);
+					if(!isNaN(size))
+						sourcesArray.push({ size: size, src: src });
+				}
 			}
 			if(sourcesArray.length > 1)
 			{
@@ -510,7 +513,6 @@ export function inspectImages()
 		let srcset = image.getAttribute("srcset") || image.getAttribute("data-srcset");
 		if(srcset)
 		{
-			let bestSource;
 			let sources = srcset.split(', ');
 			let sourcesArray = [];
 			for(let j = 0, jj = sources.length; j < jj; j++)
