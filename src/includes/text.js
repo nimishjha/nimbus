@@ -9,6 +9,7 @@ import { makeClassSelector, forAll } from "./misc";
 import { showMessageBig } from "./ui";
 import { replaceInTextNodes, replaceInTextNodesRegex } from "./textReplace";
 import { removeLineBreaks } from "./string";
+import { containsOnlyPlainText } from "./elementAndNodeTests";
 import { DIACRITIC_REGEXES_BY_LETTER, HEADING_TAGS_SET } from "./constants";
 
 export function fixSpacesBetweenNestedQuotes()
@@ -357,31 +358,38 @@ export function italicizeSelection()
 		return;
 	}
 	const node = selection.anchorNode;
-	let selectionText = removeLineBreaks(selection.toString());
-	let index1 = Math.min(selection.anchorOffset, selection.focusOffset);
-	let index2 = Math.max(selection.anchorOffset, selection.focusOffset);
-	const precedingSpaces = selectionText.match(/^\s/);
-	const trailingSpaces = selectionText.match(/\s$/);
-	if(precedingSpaces) index1 += precedingSpaces.length;
-	if(trailingSpaces) index2 -= trailingSpaces.length;
-	selectionText = selectionText.trim();
-	const frag = document.createDocumentFragment();
-	if(index1 > 0)
+	if(containsOnlyPlainText(node))
 	{
-		let textBeforeSelection = node.textContent.substring(0, index1);
-		// if(/[a-zA-Z]/.test(textBeforeSelection[textBeforeSelection.length - 1]))
-		// 	textBeforeSelection += " ";
-		frag.appendChild(document.createTextNode(textBeforeSelection));
+		let selectionText = removeLineBreaks(selection.toString());
+		let index1 = Math.min(selection.anchorOffset, selection.focusOffset);
+		let index2 = Math.max(selection.anchorOffset, selection.focusOffset);
+		const precedingSpaces = selectionText.match(/^\s/);
+		const trailingSpaces = selectionText.match(/\s$/);
+		if(precedingSpaces) index1 += precedingSpaces.length;
+		if(trailingSpaces) index2 -= trailingSpaces.length;
+		selectionText = selectionText.trim();
+		const frag = document.createDocumentFragment();
+		if(index1 > 0)
+		{
+			let textBeforeSelection = node.textContent.substring(0, index1);
+			// if(/[a-zA-Z]/.test(textBeforeSelection[textBeforeSelection.length - 1]))
+			// 	textBeforeSelection += " ";
+			frag.appendChild(document.createTextNode(textBeforeSelection));
+		}
+		frag.appendChild(createElement(tagName, { textContent: selectionText }));
+		if(index2 < node.textContent.length)
+		{
+			let textAfterSelection = node.textContent.substring(index2);
+			// if(/[a-zA-Z]/.test(textAfterSelection[0]))
+			// 	textAfterSelection = " " + textAfterSelection;
+			frag.appendChild(document.createTextNode(textAfterSelection));
+		}
+		node.parentNode.replaceChild(frag, node);
 	}
-	frag.appendChild(createElement(tagName, { textContent: selectionText }));
-	if(index2 < node.textContent.length)
+	else
 	{
-		let textAfterSelection = node.textContent.substring(index2);
-		// if(/[a-zA-Z]/.test(textAfterSelection[0]))
-		// 	textAfterSelection = " " + textAfterSelection;
-		frag.appendChild(document.createTextNode(textAfterSelection));
+		showMessageError("Node needs to be plain text");
 	}
-	node.parentNode.replaceChild(frag, node);
 }
 
 export function makeTextLowerCase()
