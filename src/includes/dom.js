@@ -85,10 +85,13 @@ export function toggleContentEditable()
 
 		splitByBrs(selectedNode);
 
-		const textNodes = getTextNodesUnderElement(selectedNode);
-		for(const node of textNodes)
-			if(/\s+/.test(node.data))
-				node.data = node.data.replace(/\s+/g, " ");
+		if(selectedNode.tagName !== "PRE")
+		{
+			const textNodes = getTextNodesUnderElement(selectedNode);
+			for(const node of textNodes)
+				if(/\s+/.test(node.data))
+					node.data = node.data.replace(/\s+/g, " ");
+		}
 
 		Nimbus.isEditing = false;
 	}
