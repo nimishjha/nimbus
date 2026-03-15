@@ -13,9 +13,6 @@ import { normalizeHTML, makePlainText, unwrapElement, deleteClass, createElement
 import { removeLineBreaks } from "./string";
 import { BLOCK_TAGS_SET } from "./constants";
 
-const { green, blue, black, gray, yellow, purple } = Nimbus.logColors;
-const { styleHeading } = Nimbus.logStyles;
-
 export function highlightInPres(str, tagName = "markyellow")
 {
 	const regex = new RegExp(str, 'g');
@@ -300,7 +297,7 @@ export function highlightSelection(mode = "sentence")
 		normalizeHTML(element);
 	if(!element || element.tagName === undefined)
 	{
-		showMessageBig("Couldn't get anchorNode");
+		showMessageBig("Couldn't get element containing selection");
 		return;
 	}
 	if(selectionText.length)
@@ -345,7 +342,6 @@ export function highlightInElementTextNodes(element, searchString)
 	}
 	return false;
 }
-
 
 export function highlightInTextNode(textNode, searchString)
 {
@@ -621,6 +617,7 @@ function getNodesSpanningString(nodeData, index1, index2)
 
 function logNode(node, label)
 {
+	const { blue, black, gray, yellow } = Nimbus.logColors;
 	if(label)
 	{
 		if(node.nodeType === Node.TEXT_NODE)

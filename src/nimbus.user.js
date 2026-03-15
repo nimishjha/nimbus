@@ -1021,7 +1021,6 @@ function handleKeyMenuCommand(str)
 			case "BS": replaceWithSpaces(".markd br"); unmarkAll(); break;
 			case "BT": splitElementsByChildren(".markd"); break;
 
-			case "CB": groupAdjacentElements(".markd", "blockquote", p); break;
 			case "CC": getContentByParagraphCount(); break;
 			case "CD": cleanupDocument(); break;
 			case "CJ": toggleConsole("js"); break;
@@ -1109,6 +1108,7 @@ function handleKeyMenuCommand(str)
 			case "RT": callFunctionWithArgs("Replace in all text nodes", replaceInTextNodes, 2); break;
 			case "RU": callFunctionWithArgs("Replace in text nodes under", replaceInTextNodesUnder, 3); break;
 
+			case "SD": replaceElementsBySelector("section section", "div"); break;
 			case "SW": swapElementPositions(); break;
 
 			case "TX": deleteNonEnglishText(); makeTextLowerCase(); break;
