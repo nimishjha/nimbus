@@ -135,54 +135,6 @@ export function cleanupAttributes()
 	}
 }
 
-export function cleanupHeadings()
-{
-	const headings = get("h1, h2, h3, h4, h5, h6");
-	let i = headings.length;
-	const toUnwrap = [];
-	while(i--)
-	{
-		const heading = headings[i];
-		if(!getTextLength(heading))
-		{
-			heading.remove();
-			continue;
-		}
-		const children = heading.getElementsByTagName("*");
-		if(!children) continue;
-		for(let i = 0, ii = children.length; i < ii; i++)
-		{
-			const child = children[i];
-			if(child.tagName === "SPAN")
-			{
-				if(child.id)
-					heading.id = child.id;
-				toUnwrap.push(child);
-			}
-			else if(child.tagName === "A")
-			{
-				if(!getTextLength(child))
-				{
-					if(child.id)
-						heading.id = child.id;
-					else if(child.name)
-						heading.id = child.name;
-					toUnwrap.push(child);
-				}
-			}
-			else
-			{
-				toUnwrap.push(child);
-			}
-		}
-	}
-	for(let i = 0, ii = toUnwrap.length; i < ii; i++)
-	{
-		if(toUnwrap[i])
-			unwrapElement(toUnwrap[i]);
-	}
-}
-
 export function cleanupBarebone()
 {
 	removeAllAttributesOfTypes(["class", "style", "align"]);

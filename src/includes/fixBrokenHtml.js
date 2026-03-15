@@ -8,7 +8,7 @@ import { makeClassSelector } from "./misc";
 import { insertBefore } from "./dom";
 import { replaceBrs } from "./text";
 import { normalizeWhitespace } from "./string";
-import { cleanupHeadings, removeRedundantHrs } from "./cleanup";
+import { removeRedundantHrs } from "./cleanup";
 import { deleteEmptyTextNodes, deleteEmptyElements } from "./delete";
 import { convertElement } from "./replaceElements";
 import { isBlockElement, hasAdjacentBlockElement } from "./elementAndNodeTests";
