@@ -1,8 +1,10 @@
 import { Nimbus } from "./Nimbus";
 import { createLinksByHrefLookup } from "./link";
 import { get } from "./selectors";
-import { unwrapElement } from "./element";
+import { wrapElement, unwrapElement, unwrapAll } from "./element";
 import { isEmptyElement } from "./elementAndNodeTests";
+import { replaceElementKeepingId } from "./replaceElements";
+import { showMessageBig } from "./ui";
 
 export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 {
@@ -145,4 +147,59 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 	}
 
 	console.log(`${numElementsWithIDs} IDs in ${elems.length} selected elements, ${numIDsMoved} IDs moved, ${numRecipientsNotFound} recipients not found`);
+}
+
+export function createReferencesByTags()
+{
+	let numASup = 0;
+	let numSupA = 0;
+	let numFootnoteA = 0;
+
+	if(document.querySelector("a sup"))
+	{
+		const links = get("a");
+		for(let i = 0, ii = links.length; i < ii; i++)
+		{
+			const link = links[i];
+			const linkText = link.textContent.trim();
+			if(link.getElementsByTagName("sup").length && /^\d+$/.test(linkText))
+			{
+				link.textContent = linkText;
+				wrapElement(link, "reference");
+				numASup++;
+			}
+		}
+	}
+
+	if(document.querySelector("sup a"))
+	{
+		const sups = document.querySelectorAll("sup");
+		for(let i = 0, ii = sups.length; i < ii; i++)
+		{
+			if(sups[i].getElementsByTagName("a").length && /^\d+$/.test(sups[i].textContent.trim()))
+			{
+				replaceElementKeepingId(sups[i], "reference");
+				numSupA++;
+			}
+		}
+	}
+
+	if(document.querySelector("footnote a"))
+	{
+		const footnoteLinks = document.querySelectorAll("footnote a:first-child");
+		for(let i = 0, ii = footnoteLinks.length; i < ii; i++)
+		{
+			if(/^\d+$/.test(footnoteLinks[i].textContent.replaceAll(".", "").trim()))
+			{
+				wrapElement(footnoteLinks[i], "reference");
+				numFootnoteA++;
+			}
+		}
+	}
+
+	unwrapAll("reference sup");
+	unwrapAll("reference small");
+	unwrapAll("reference span");
+
+	showMessageBig(`${numASup} a > sup, ${numSupA} sup > a, ${numFootnoteA} footnote > a references created`);
 }

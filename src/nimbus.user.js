@@ -644,6 +644,7 @@ import {
 	checkSequence
 } from "./includes/validations";
 import {
+	createReferencesByTags,
 	interlinkFootnoteAndNonFootnoteReferencesByIndexInSections,
 	moveID,
 } from "./includes/reference";
@@ -1028,6 +1029,7 @@ function handleKeyMenuCommand(str)
 			case "CJ": toggleConsole("js"); break;
 			case "CS": toggleConsole("css"); break;
 			case "CO": makeOL(); break;
+			case "CR": createReferencesByTags(); break;
 			case "CT": capitalizeTitle(); break;
 			case "CU": makeUL(); break;
 
