@@ -1,6 +1,6 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig, showMessageError } from "./ui";
-import { selectByClassOrIdContaining, selectByTagNameMatching, getNodeContainingSelection, getFirstMarkedElement } from "./selectors";
+import { selectByClassOrIdContaining, selectByTagNameMatching, getNodeContainingSelection, getOneMarked } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
 import { get } from "./selectors";
 import { makeClassSelector } from "./misc";
@@ -247,7 +247,7 @@ export function replaceWithSpaces(selector)
 
 export function replaceElementsBySelectorInMarked(selector, tagName)
 {
-	if(getFirstMarkedElement())
+	if(getOneMarked())
 	{
 		const markClass = makeClassSelector(Nimbus.markerClass);
 		if(selector.includes(","))

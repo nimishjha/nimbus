@@ -2,7 +2,7 @@ import { Nimbus } from "./Nimbus";
 import { createElement, createElementWithText, unwrapElement } from "./element";
 import { showMessageBig } from "./ui";
 import { getMarkedElements, unmarkAll } from "./mark";
-import { get, getOne, getNodeContainingSelection, getFirstMarkedElement } from "./selectors";
+import { get, getOne, getNodeContainingSelection, getOneMarked } from "./selectors";
 import { forAll, makeClassSelector } from "./misc";
 import { splitByBrs, fixBullets } from "./text";
 import { groupAdjacentElements } from "./groupElements";
@@ -30,7 +30,7 @@ export function swapElementPositions()
 
 export function moveElementUp(position)
 {
-	const elem = getFirstMarkedElement();
+	const elem = getOneMarked();
 	if(!elem)
 	{
 		showMessageBig("Nothing marked");

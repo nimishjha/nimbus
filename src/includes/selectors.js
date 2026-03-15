@@ -1004,7 +1004,7 @@ export const getEmptyLinkAnchors = () => Array.from(document.querySelectorAll("a
 export const getEmptySpanAnchors = () => Array.from(document.querySelectorAll("span[id]")).filter(span => !getTextLength(span));
 export const getLinksToId = (id) => document.querySelectorAll(`a[href="#${id}"]`);
 
-export function getFirstMarkedElement()
+export function getOneMarked()
 {
 	const markedElement = getOne(makeClassSelector(Nimbus.markerClass));
 	return markedElement ? markedElement : false;

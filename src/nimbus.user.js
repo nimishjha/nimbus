@@ -61,7 +61,7 @@ import {
 	filterNodesWithTextLengthUnder,
 	get,
 	getFirstBlockParent,
-	getFirstMarkedElement,
+	getOneMarked,
 	getFirstTextChild,
 	getNodeContainingSelection,
 	getNonCodeTextNodes,
