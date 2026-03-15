@@ -647,8 +647,67 @@ function logDocumentFragment(frag, label)
 		logYellow("\t".repeat(5) + "end " + label + "\t".repeat(5));
 }
 
+export function italicizeSelection()
+{
+	const selection = window.getSelection();
+	const tagName = Nimbus.italicTag || "i";
+	if(!selection.toString().length)
+	{
+		showMessageBig("Nothing selected");
+		return;
+	}
+
+	let selectionText = removeLineBreaks(selection.toString());
+	const node = selection.anchorNode;
+	const focusNode = selection.focusNode;
+
+	if(node === focusNode)
+	{
+		let index1 = Math.min(selection.anchorOffset, selection.focusOffset);
+		let index2 = Math.max(selection.anchorOffset, selection.focusOffset);
+		const precedingSpaces = selectionText.match(/^\s/);
+		const trailingSpaces = selectionText.match(/\s$/);
+		if(precedingSpaces) index1 += precedingSpaces.length;
+		if(trailingSpaces) index2 -= trailingSpaces.length;
+		selectionText = selectionText.trim();
+
+		const frag = document.createDocumentFragment();
+		if(index1 > 0)
+		{
+			let textBeforeSelection = node.data.substring(0, index1);
+			frag.appendChild(document.createTextNode(textBeforeSelection));
+		}
+		frag.appendChild(createElement(tagName, { textContent: selectionText }));
+		if(index2 < node.textContent.length)
+		{
+			let textAfterSelection = node.data.substring(index2);
+			frag.appendChild(document.createTextNode(textAfterSelection));
+		}
+		node.parentNode.replaceChild(frag, node);
+	}
+	else
+	{
+		const firstNodeParent = getFirstBlockParent(node);
+		const lastNodeParent = getFirstBlockParent(focusNode);
+		if(firstNodeParent !== lastNodeParent)
+		{
+			showMessageError("Selection needs to be contained within a block element");
+		}
+		else
+		{
+			const tempHighlightTagName = Nimbus.highlightTagName;
+			Nimbus.highlightTagName = tagName;
+			highlightTextAcrossTags(node.parentNode, selectionText);
+			Nimbus.highlightTagName = tempHighlightTagName;
+		}
+	}
+}
+
 export function highlightTextAcrossTags(element, searchString)
 {
+	const { green, blue, black, gray, yellow, purple } = Nimbus.logColors;
+	const { styleHeading } = Nimbus.logStyles;
+
 	Nimbus.consoleLog(`%chighlightTextAcrossTags in %c${element.tagName}%c${searchString}`, styleHeading + black, styleHeading + blue, styleHeading + green);
 
 	const indivisibleElementTypes = new Set(["A", "B", "I", "EM", "STRONG", "REFERENCE"]);

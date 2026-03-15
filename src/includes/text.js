@@ -348,50 +348,6 @@ export function invertItalics(elem)
 	}
 }
 
-export function italicizeSelection()
-{
-	const selection = window.getSelection();
-	const tagName = Nimbus.italicTag || "i";
-	if(!selection.toString().length)
-	{
-		showMessageBig("Nothing selected");
-		return;
-	}
-	const node = selection.anchorNode;
-	if(containsOnlyPlainText(node))
-	{
-		let selectionText = removeLineBreaks(selection.toString());
-		let index1 = Math.min(selection.anchorOffset, selection.focusOffset);
-		let index2 = Math.max(selection.anchorOffset, selection.focusOffset);
-		const precedingSpaces = selectionText.match(/^\s/);
-		const trailingSpaces = selectionText.match(/\s$/);
-		if(precedingSpaces) index1 += precedingSpaces.length;
-		if(trailingSpaces) index2 -= trailingSpaces.length;
-		selectionText = selectionText.trim();
-		const frag = document.createDocumentFragment();
-		if(index1 > 0)
-		{
-			let textBeforeSelection = node.textContent.substring(0, index1);
-			// if(/[a-zA-Z]/.test(textBeforeSelection[textBeforeSelection.length - 1]))
-			// 	textBeforeSelection += " ";
-			frag.appendChild(document.createTextNode(textBeforeSelection));
-		}
-		frag.appendChild(createElement(tagName, { textContent: selectionText }));
-		if(index2 < node.textContent.length)
-		{
-			let textAfterSelection = node.textContent.substring(index2);
-			// if(/[a-zA-Z]/.test(textAfterSelection[0]))
-			// 	textAfterSelection = " " + textAfterSelection;
-			frag.appendChild(document.createTextNode(textAfterSelection));
-		}
-		node.parentNode.replaceChild(frag, node);
-	}
-	else
-	{
-		showMessageError("Node needs to be plain text");
-	}
-}
-
 export function makeTextLowerCase()
 {
 	const textNodes = getOne(makeClassSelector(Nimbus.markerClass)) ? getTextNodesUnderSelector(null, Nimbus.markerClass) : getTextNodesUnderSelector("body");
