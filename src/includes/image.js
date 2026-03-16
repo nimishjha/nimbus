@@ -278,15 +278,17 @@ export function persistStreamingImages(minSize)
 	}
 	if(!Nimbus.streamingImages)
 		Nimbus.streamingImages = [];
-	let images = Nimbus.streamingImages;
+	const images = Nimbus.streamingImages;
+	const seen = new Set();
 	const unsavedImages = document.querySelectorAll("img:not(.alreadySaved)");
 	for(let i = 0, ii = unsavedImages.length; i < ii; i++)
 	{
 		const image = unsavedImages[i];
 		const imgSrc = image.src;
-		if(images.includes(imgSrc) || image.naturalWidth * image.naturalHeight < minArea)
+		if(seen.has(imgSrc) || image.naturalWidth * image.naturalHeight < minArea)
 			continue;
 		images.push(imgSrc);
+		seen.add(imgSrc);
 		imageContainer.appendChild(createElement("img", { src: imgSrc, className: "alreadySaved" }));
 	}
 	const savedImages = get(".alreadySaved");

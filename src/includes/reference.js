@@ -146,7 +146,7 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 		}
 	}
 
-	console.log(`${numElementsWithIDs} IDs in ${elems.length} selected elements, ${numIDsMoved} IDs moved, ${numRecipientsNotFound} recipients not found`);
+	showMessageBig(`${numElementsWithIDs}/${elems.length} selected elements have IDs, ${numIDsMoved} IDs moved, ${numRecipientsNotFound} recipients not found`);
 }
 
 export function createReferencesByTags()
