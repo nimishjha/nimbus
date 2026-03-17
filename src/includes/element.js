@@ -463,3 +463,9 @@ export function normalizeHTML(element)
 {
 	element.innerHTML = element.innerHTML.replace(/&nbsp;/g, " ").replace(/\s+/g, " ");
 }
+
+export function createPlaceholderForElementAttribute(elem, attrName, tagName)
+{
+	const attrValue = elem.getAttribute(attrName) || "NO_VALUE";
+	return createLinkInWrapper(tagName, attrName + ": " + attrValue, attrValue);
+}

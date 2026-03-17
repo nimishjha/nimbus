@@ -47,10 +47,6 @@ function handleBlockEditClick(evt)
 	return true;
 }
 
-//	This function toggles "block edit mode," in which you can:
-//		- ctrl-shift-click to retrieve the clicked element
-//		- ctrl-click to delete the clicked element
-//		- shift-click to move the clicked element to a container div at the end of the document, which you can later retrieve using ctrl-shift-click
 export function toggleBlockEditMode()
 {
 	const db = document.body;

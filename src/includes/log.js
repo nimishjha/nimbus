@@ -160,8 +160,20 @@ export function logAllClassesFor(selector)
 	}
 }
 
+export function logRed(...args)
+{
+	const [ str, ...rest ] = args;
+	console.log(`%c${str}`, "background: #400; color: #a00;", ...rest);
+}
+
 export function logYellow(...args)
 {
 	const [ str, ...rest ] = args;
 	console.log(`%c${str}`, Nimbus.logColors.yellow, ...rest);
+}
+
+export function logGreen(...args)
+{
+	const [ str, ...rest ] = args;
+	console.log(`%c${str}`, "background: #030; color: #0a0;", ...rest);
 }

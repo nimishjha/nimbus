@@ -240,11 +240,7 @@ import {
 import {
 	addLinksToLargerImages,
 	buildGallery,
-	buildSlideshow,
-	deleteImageByNumber,
-	deleteImagesSmallerThan,
 	deletePersistedImages,
-	deleteSmallImages,
 	forceImageHeight,
 	forceImageWidth,
 	getBestImageSrc,
@@ -252,12 +248,10 @@ import {
 	getImageWidth,
 	inspectImages,
 	persistStreamingImages,
-	removeQueryStringFromImageSources,
 	retrieveLargeImages,
 	setMinPersistSize,
 	shortenImageSrc,
 	showSavedStreamingImages,
-	slideshowChangeSlide,
 	tagLargeImages,
 	toggleBetweenImagesAndPlaceholders,
 	toggleInvertImages,
@@ -410,6 +404,7 @@ import {
 	deleteFollowingNodesBySelector,
 	deleteIframes,
 	deleteImages,
+	deleteImagesSmallerThan,
 	deleteMarkedElements,
 	deleteNodesAfterAnchorNode,
 	deleteNodesBeforeAnchorNode,
@@ -419,6 +414,7 @@ import {
 	deleteNodesRelativeToAnchorNode,
 	deletePrecedingNodesBySelector,
 	deleteResources,
+	deleteSmallImages,
 	delRange,
 	markNodesBetweenMarkers,
 } from "./includes/delete";
@@ -658,7 +654,6 @@ const availableFunctions = {
 	appendMetadata: appendMetadata,
 	boldInlineColonHeadings: boldInlineColonHeadings,
 	buildGallery: buildGallery,
-	buildSlideshow: buildSlideshow,
 	capitalizeTitle: capitalizeTitle,
 	checkSequence: checkSequence,
 	cleanupAttributes: cleanupAttributes,
@@ -671,6 +666,7 @@ const availableFunctions = {
 	copyAttribute: copyAttribute,
 	count: count,
 	createListsFromBulletedParagraphs: createListsFromBulletedParagraphs,
+	cycleClass: cycleClass,
 	cycleFocusOverFormFields: cycleFocusOverFormFields,
 	cycleThroughDocumentHeadings: cycleThroughDocumentHeadings,
 	deleteByClassOrIdContaining: deleteByClassOrIdContaining,
@@ -685,7 +681,6 @@ const availableFunctions = {
 	deleteEmptyTextNodes: deleteEmptyTextNodes,
 	deleteFollowingNodesBySelector: deleteFollowingNodesBySelector,
 	deleteIframes: deleteIframes,
-	deleteImageByNumber: deleteImageByNumber,
 	deleteImages: deleteImages,
 	deleteImagesSmallerThan: deleteImagesSmallerThan,
 	deleteMessage: deleteMessage,
@@ -830,7 +825,6 @@ const availableFunctions = {
 	removeInlineStyles: removeInlineStyles,
 	removePeriodsFromAbbreviations: removePeriodsFromAbbreviations,
 	removeQueryParameterFromLinks: removeQueryParameterFromLinks,
-	removeQueryStringFromImageSources: removeQueryStringFromImageSources,
 	removeQueryStringFromLinks: removeQueryStringFromLinks,
 	removeQueryStringFromLinksMatching: removeQueryStringFromLinksMatching,
 	removeRedundantBrs: removeRedundantBrs,
@@ -1099,6 +1093,8 @@ function handleKeyMenuCommand(str)
 			case "P2": setReplacementTag1("h2"); setReplacementTag2("h3"); break;
 			case "PH": replaceEmptyParagraphsWithHr(); break;
 			case "PQ": setReplacementTag1("quote"); setReplacementTag2("quoteauthor"); break;
+			case "PF": cycleClass(document.documentElement, ["nimbusPreFontProportional", "nimbusPreFontMonospace"]); break;
+			case "PZ": cycleClass(document.documentElement, ["nimbusPreFontSizeSmall", "nimbusPreFontSizeMedium", "nimbusPreFontSizeLarge"]); break;
 
 			case "RB": replaceBrs(); break;
 			case "RC": forceReloadCss(); break;
@@ -1347,7 +1343,6 @@ function handleKeyDown(e)
 			case KEYCODES.ONE: showResources(); break;
 			case KEYCODES.TWO: toggleBetweenImagesAndPlaceholders(); break;
 			case KEYCODES.FOUR: deleteImagesSmallerThan(100, 100); break;
-			case KEYCODES.FIVE: buildSlideshow(); break;
 			case KEYCODES.A: annotate(); break;
 			case KEYCODES.C: deleteNonContentElements(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace marked element with text", replaceMarkedWithTextElement, 2, "h2 "); break;
