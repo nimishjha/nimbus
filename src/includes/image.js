@@ -1,39 +1,23 @@
 import { Nimbus } from "./Nimbus";
 import { createElement, deleteClass, removeAllAttributesExcept, setAttributeOf, removeAllAttributesOf, createElementWithText, createElementWithChildren, createLinkInWrapper } from "./element";
 import { isEmptyElement } from "./elementAndNodeTests";
-import { get, getOne, del, selectImagesSmallerThan } from "./selectors";
+import { get, getOne, del } from "./selectors";
 import { insertStyle } from "./style";
 import { containsAnyOfTheStrings, trimAt } from "./string";
 import { showMessage, showMessageBig } from "./ui";
-import { deleteBySelectorAndText } from "./delete";
+import { deleteBySelectorAndText, deleteImagesSmallerThan } from "./delete";
 import { getNext } from "./array";
 import { insertBefore } from "./dom";
 import { ylog } from "./log";
 import { retrieve } from "./retrieve";
 import { cleanupHead } from "./cleanup";
 import { replaceElementKeepingId } from "./replaceElements";
+import { replaceVideosWithPlaceholders, replacePicturesWithPlaceholders } from "./media";
+import { STYLES } from "./stylesheets";
 
-export function deleteImagesSmallerThan(pixelArea)
+function sortSources(a, b)
 {
-	const smallImages = selectImagesSmallerThan(pixelArea);
-	del(smallImages);
-	showMessageBig(`Deleted ${smallImages.length} images smaller than ${pixelArea} pixels`);
-}
-
-export function deleteSmallImages()
-{
-	deleteBySelectorAndText("img", "data:");
-	deleteBySelectorAndText("img", "emoji");
-	const nextThreshold = getNext(Nimbus.smallImageThreshold, Nimbus.smallImageThresholdList);
-	Nimbus.smallImageThreshold = nextThreshold;
-	deleteImagesSmallerThan(nextThreshold * nextThreshold);
-}
-
-export function deleteImageByNumber(num)
-{
-	if(!document.images) return;
-	if(document.images[num])
-		document.images[num].remove();
+	return b.size - a.size;
 }
 
 export function getBestImageSrc()
@@ -55,11 +39,6 @@ export function getBestImageSrc()
 		}
 		if(Nimbus.bestImagesData.length)
 			setTimeout(getBestImages, 1000);
-	}
-
-	function sortSources(a, b)
-	{
-		return b.size - a.size;
 	}
 
 	const images = document.querySelectorAll("img");
@@ -93,7 +72,7 @@ export function getBestImageSrc()
 			}
 			if(sourcesArray.length > 1)
 			{
-				sourcesArray = sourcesArray.sort(sortSources);
+				sourcesArray.sort(sortSources);
 				bestSource = sourcesArray[0].src;
 				Nimbus.bestImagesData.push({ image, bestSource });
 			}
@@ -113,115 +92,6 @@ function getLastSplit(str, splitter)
 	if(str.indexOf(splitter) === -1) return str;
 	const splat = str.split(splitter);
 	return splat[splat.length - 1];
-}
-
-export function shortenImageSrc(src)
-{
-	const splat = src.split("/");
-	let domain = "unknown domain";
-	let imageFileName = "image";
-
-	if(splat.length && splat.length > 2)
-	{
-		domain = splat[2];
-		imageFileName = unescape(splat[splat.length - 1]);
-		if(imageFileName.indexOf("/") !== -1)
-			imageFileName = getLastSplit(imageFileName, "/");
-	}
-
-	imageFileName = trimAt(imageFileName, "?");
-
-	if(domain.length)
-		return domain + " | " + imageFileName;
-	return imageFileName;
-}
-
-function createImagePlaceholder(img)
-{
-	const wrapper = document.createElement("rt");
-	if(img.src.startsWith("file:"))
-	{
-		const srcElem = document.createElement("b");
-		const srcSplat = img.src.split("/");
-		const folderName = srcSplat[srcSplat.length - 2];
-		const fileName = srcSplat[srcSplat.length - 1];
-		srcElem.textContent = `${folderName}/${fileName}`;
-		wrapper.appendChild(srcElem);
-	}
-	else
-	{
-		const srcElem = document.createElement("a");
-		srcElem.href = img.src;
-		srcElem.textContent = shortenImageSrc(img.src)
-		wrapper.appendChild(srcElem);
-	}
-	return wrapper;
-}
-
-export function toggleBetweenImagesAndPlaceholders()
-{
-	function getPlaceholderSrc(elem)
-	{
-		const bSrcElem = elem.querySelector("b");
-		if(bSrcElem)
-		{
-			return bSrcElem.textContent;
-		}
-		else
-		{
-			const aSrcElem = elem.querySelector("a");
-			if(aSrcElem)
-				return aSrcElem.href;
-		}
-		return null;
-	}
-
-	if(getOne("rt"))
-	{
-		const imagePlaceholders = get("rt");
-		let i = imagePlaceholders.length;
-		while(i--)
-		{
-			const image = document.createElement("img");
-			image.src = getPlaceholderSrc(imagePlaceholders[i]);
-			if(image.src)
-				imagePlaceholders[i].replaceWith(image);
-			else
-				console.error("Could not get src from placeholder");
-		}
-		del("#styleReplaceImages");
-		return;
-	}
-	else if(getOne("img"))
-	{
-		const images = get("img");
-		let i = images.length;
-		while(i--)
-		{
-			const image = images[i];
-			if(image.src)
-			{
-				const imagePlaceholder = createImagePlaceholder(image);
-				if(image.parentNode.tagName === "A")
-					image.parentNode.replaceWith(imagePlaceholder);
-				else
-					image.replaceWith(imagePlaceholder);
-			}
-		}
-
-		const elems = get("rt");
-		for(let i = 0, ii = elems.length; i < ii; i++)
-		{
-			const parent = elems[i].parentNode;
-			if(parent && parent.children.length === 1 && parent.tagName !== "FIGURE")
-				replaceElementKeepingId(parent, "figure");
-		}
-
-		const s = 'rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px verdana; text-align: left; }' +
-		'rt a { color: #888; }' +
-		'rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }';
-		insertStyle(s, "styleReplaceImages");
-	}
 }
 
 export function retrieveLargeImages()
@@ -257,15 +127,15 @@ export function getImageHeight(image)
 	return image.naturalHeight || image.clientHeight;
 }
 
-export function setMinPersistSize(side)
+export function setMinPersistSize(sideOfSquare)
 {
-	Nimbus.minPersistSize = side;
+	Nimbus.minPersistSize = sideOfSquare;
 }
 
-export function persistStreamingImages(minSize)
+export function persistStreamingImages(sideOfSquare)
 {
-	if(minSize)
-		Nimbus.minPersistSize = minSize;
+	if(sideOfSquare)
+		Nimbus.minPersistSize = sideOfSquare;
 	const minArea = Nimbus.minPersistSize * Nimbus.minPersistSize;
 	let imageContainer = getOne("#nimbusStreamingImageContainer");
 	if(!imageContainer)
@@ -411,77 +281,58 @@ export function buildGallery()
 	document.body.insertBefore(galleryElement, document.body.firstChild);
 }
 
-export function buildSlideshow()
+export function shortenImageSrc(src)
 {
-	if(getOne("#styleSlideshow"))
+	const splat = src.split("/");
+	let domain = "unknown domain";
+	let imageFileName = "image";
+
+	if(splat.length && splat.length > 2)
 	{
-		del("#styleSlideshow");
-		return;
+		domain = splat[2];
+		imageFileName = unescape(splat[splat.length - 1]);
+		if(imageFileName.indexOf("/") !== -1)
+			imageFileName = getLastSplit(imageFileName, "/");
 	}
-	if(!getOne("#nimbusGallery"))
-		buildGallery();
-	del("#styleGallery");
-	const gallery = getOne("#nimbusGallery");
-	const images = gallery.querySelectorAll("img");
-	if(!(gallery && images))
-		return;
-	const s = 'body { margin: 0; padding: 0; }' +
-	'#nimbusGallery { width: 100%; height: 100vh; background: #000; color: #999; position: absolute; top: 0; left: 0; z-index: 1999999999; }' +
-	'#nimbusGallery img { position: absolute; top: -1000em; left: -1000em; z-index: 2147483647; }' +
-	'#nimbusGallery img.currentImage { margin: auto; position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: block; }' +
-	'#nimbusGallery img.currentImage.aspectRatioPortrait { height: 100vh; width: auto; }' +
-	'#nimbusGallery img.currentImage.aspectRatioLandscape { width: 100vw; height: auto; }' +
-	'#nimbusGallery a { color: #000; }' +
-	'slideshow::after { content: ""; display: block; clear: both; }';
-	insertStyle(s, 'styleSlideshow', true);
-	images[0].classList.add("currentImage");
-	window.scrollTo(0, 0);
+
+	imageFileName = trimAt(imageFileName, "?");
+
+	if(domain.length)
+		return domain + " | " + imageFileName;
+	return imageFileName;
 }
 
-export function slideshowChangeSlide(direction)
+export function getPlaceholderSrc(elem)
 {
-	if(!getOne("#styleSlideshow"))
-		return;
-	const gallery = getOne("#nimbusGallery");
-	if(!gallery)
-		return;
-	const images = gallery.getElementsByTagName("img");
-	for(let i = 0, ii = images.length; i < ii; i++)
+	const bSrcElem = elem.querySelector("b");
+	if(bSrcElem)
 	{
-		if(images[i].classList.contains("currentImage"))
-		{
-			images[i].classList.remove("currentImage");
-			if(direction === "previous")
-			{
-				if(i === 0) images[ii - 1].classList.add("currentImage");
-				else images[i - 1].classList.add("currentImage");
-				break;
-			}
-			else if(direction === "next")
-			{
-				if(i === ii-1) images[0].classList.add("currentImage");
-				else images[i + 1].classList.add("currentImage");
-				break;
-			}
-		}
+		return bSrcElem.textContent;
 	}
+	else
+	{
+		const aSrcElem = elem.querySelector("a");
+		if(aSrcElem)
+			return aSrcElem.href;
+	}
+	return null;
 }
 
-export function removeQueryStringFromImageSources()
+export function toggleBetweenImagesAndPlaceholders()
 {
-	const images = get("img");
-	for(let i = 0, ii = images.length; i < ii; i++)
-	{
-		const image = images[i];
-		image.src = trimAt(image.src, "?");
-	}
-	const imagePlaceholders = get("rt a");
-	for(let i = 0, ii = imagePlaceholders.length; i < ii; i++)
-	{
-		const imagePlaceholder = imagePlaceholders[i];
-		imagePlaceholder.href = trimAt(imagePlaceholder.href, "?");
-		imagePlaceholder.textContent = imagePlaceholder.href;
-	}
+	const hasImages = Boolean(getOne("img"));
+	const hasImagePlaceholders = Boolean(getOne("rt"));
+
+	if(getOne("picture"))
+		replacePicturesWithPlaceholders();
+
+	if(hasImages)
+		replaceImagesWithPlaceholders();
+	else if(hasImagePlaceholders)
+		replaceImagePlaceholdersWithImages();
+
+	if(getOne("video"))
+		replaceVideosWithPlaceholders();
 }
 
 export function toggleInvertImages()
@@ -495,41 +346,135 @@ export function toggleInvertImages()
 		setAttributeOf("img", "class", "invert");
 }
 
-function createImageSrcPlaceholders(arr)
+export function parseSrcSet(srcset)
 {
-	const wrapper = document.createElement("aside");
-	for(const item of arr)
+	const sources = srcset.split(', ');
+	if(sources)
 	{
-		const rt = createLinkInWrapper("rt", item.size + ": " + shortenImageSrc(item.src), item.src);
-		wrapper.appendChild(rt);
+		const sourcesArray = [];
+		for(const source of sources)
+		{
+			const splat = source.trim().split(' ');
+			if(splat.length === 2)
+			{
+				const src = splat[0];
+				const size = parseInt(splat[1].replace(/[^0-9]/g, ""), 10);
+				sourcesArray.push({ size, src });
+			}
+			else
+			{
+				sourcesArray.push({ size: 0, src: source });
+			}
+		}
+		return sourcesArray;
+	}
+	else
+	{
+		console.log("parseSrcSet - srcset:", srcset);
+	}
+	return null;
+}
+
+export function createImagePlaceholder(img)
+{
+	const srcset = img.getAttribute("srcset") || img.getAttribute("data-srcset");
+	return srcset ? createImagePlaceholderFromSrcset(srcset) : createImagePlaceholderFromSrc(img.src);
+}
+
+export function createImagePlaceholderFromSrc(src)
+{
+	const wrapper = document.createElement("rt");
+	if(src.startsWith("file:"))
+	{
+		const srcElem = document.createElement("b");
+		const srcSplat = src.split("/");
+		const folderName = srcSplat[srcSplat.length - 2];
+		const fileName = srcSplat[srcSplat.length - 1];
+		srcElem.textContent = `${folderName}/${fileName}`;
+		wrapper.appendChild(srcElem);
+	}
+	else
+	{
+		const srcElem = document.createElement("a");
+		srcElem.href = src;
+		srcElem.textContent = shortenImageSrc(src)
+		wrapper.appendChild(srcElem);
 	}
 	return wrapper;
+}
+
+export function createImagePlaceholderFromSrcset(srcset)
+{
+	const sourcesArray = parseSrcSet(srcset);
+
+	if(sourcesArray.length)
+	{
+		sourcesArray.sort(sortSources);
+		const wrapper = document.createElement("imageph");
+		wrapper.appendChild(createImagePlaceholderFromSrc(sourcesArray[0].src));
+		if(sourcesArray.length > 1)
+			for(const item of sourcesArray)
+				wrapper.appendChild(createLinkInWrapper("div", item.size + ": " + shortenImageSrc(item.src), item.src));
+		return wrapper;
+	}
+
+	return null;
+}
+
+export function replaceImagePlaceholdersWithImages()
+{
+	const imagePlaceholders = get("rt");
+	let i = imagePlaceholders.length;
+	while(i--)
+	{
+		const image = document.createElement("img");
+		image.src = getPlaceholderSrc(imagePlaceholders[i]);
+		if(image.src)
+			imagePlaceholders[i].replaceWith(image);
+		else
+			console.error("Could not get src from placeholder");
+	}
+	del("#styleReplaceImages");
+}
+
+export function replaceImagesWithPlaceholders()
+{
+	const images = get("img");
+	let i = images.length;
+	while(i--)
+	{
+		const image = images[i];
+		if(image.src)
+		{
+			const imagePlaceholder = createImagePlaceholder(image);
+			if(image.parentNode.tagName === "A")
+				image.parentNode.replaceWith(imagePlaceholder);
+			else
+				image.replaceWith(imagePlaceholder);
+		}
+	}
+
+	const elems = get("rt");
+	i = elems.length;
+	while(i--)
+	{
+		const parent = elems[i].parentNode;
+		if(parent && parent.children.length === 1 && parent.tagName !== "FIGURE")
+			replaceElementKeepingId(parent, "figure");
+	}
+
+	insertStyle(STYLES.REPLACE_IMAGES, "styleReplaceImages");
 }
 
 export function inspectImages()
 {
 	const images = document.querySelectorAll("img");
-	for(let i = 0, ii = images.length; i < ii; i++)
+	for(const image of images)
 	{
-		const image = images[i];
-		let srcset = image.getAttribute("srcset") || image.getAttribute("data-srcset");
-		if(srcset)
-		{
-			let sources = srcset.split(', ');
-			let sourcesArray = [];
-			for(let j = 0, jj = sources.length; j < jj; j++)
-			{
-				const splat = sources[j].trim().split(' ');
-				const src = splat[0];
-				const size = parseInt(splat[1].replace(/[^0-9]/g, ""), 10);
-				if(!isNaN(size))
-					sourcesArray.push({ size: size, src: src });
-			}
-			image.replaceWith(createImageSrcPlaceholders(sourcesArray));
-		}
+		const placeholder = createImagePlaceholder(image);
+		if(image.parentNode.tagName === "A")
+			image.parentNode.replaceWith(placeholder);
 		else
-		{
-			image.replaceWith(createImagePlaceholder(image));
-		}
+			image.replaceWith(placeholder);
 	}
 }
