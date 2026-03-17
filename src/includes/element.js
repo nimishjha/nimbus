@@ -179,19 +179,23 @@ export function copyAttribute(selector, sourceAttribute, targetAttribute)
 export function setAttributeOf(selector, attribute, value)
 {
 	const elems = get(selector);
-	if(!elems) return;
-	let i = elems.length;
-	while(i--)
-		elems[i].setAttribute(attribute, value);
+	if(elems)
+	{
+		let i = elems.length;
+		while(i--)
+			elems[i].setAttribute(attribute, value);
+	}
 }
 
 export function removeAttributeOf(selector, attribute)
 {
 	const elems = get(selector);
-	if(!elems) return;
-	let i = elems.length;
-	while(i--)
-		elems[i].removeAttribute(attribute);
+	if(elems)
+	{
+		let i = elems.length;
+		while(i--)
+			elems[i].removeAttribute(attribute);
+	}
 }
 
 export function removeAllAttributesOfType(type)
@@ -201,17 +205,18 @@ export function removeAllAttributesOfType(type)
 
 export function removeAllAttributesOfTypes(attrNames)
 {
-	for(const attrName of attrNames)
-		removeAllAttributesOfType(attrName);
+	const elems = get("body *");
+	if(elems)
+		for(const elem of elems)
+			for(const attrName of attrNames)
+				elem.removeAttribute(attrName);
 }
 
 export function getAttributes(elem)
 {
 	const attributes = [];
-	const attrs = elem.attributes;
-	for(let i = 0, ii = attrs.length; i < ii; i++)
+	for(const attr of elem.attributes)
 	{
-		const attr = attrs[i];
 		if(attr)
 		{
 			attributes.push({

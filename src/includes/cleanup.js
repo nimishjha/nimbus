@@ -103,36 +103,12 @@ export function cleanupDocument()
 
 export function cleanupAttributes()
 {
-	const elems = document.getElementsByTagName('*');
-	document.body.removeAttribute("background");
-	for(let i = 0, ii = elems.length; i < ii; i++)
-	{
-		const elem = elems[i];
-		if(elem.attributes)
-		{
-			const attrs = elem.attributes;
-			for(let j = attrs.length - 1; j >= 0; j--)
-			{
-				const attr = attrs[j];
-				if(!attr) continue;
-				switch(attr.name)
-				{
-					case "href":
-					case "src":
-					case "srcset":
-					case "name":
-					case "colspan":
-					case "rowspan":
-					case "id":
-					case "class":
-						break;
-					default:
-						elem.removeAttribute(attr.name);
-						break;
-				}
-			}
-		}
-	}
+	const elems = document.getElementsByTagName("*");
+	const attrsToKeep = new Set(["id", "class", "href", "src", "srcset", "name", "colspan", "rowspan"]);
+	for(const elem of elems)
+		for(const attr of elem.attributes)
+			if(!attrsToKeep.has(attr.name))
+				elem.removeAttribute(attr.name);
 }
 
 export function cleanupBarebone()

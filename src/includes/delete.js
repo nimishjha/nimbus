@@ -1,6 +1,6 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig } from "./ui";
-import { get, del, selectByClassOrIdContaining, selectBySelectorAndRegex, getNodeContainingSelection, selectBySelectorAndNormalizedText } from "./selectors";
+import { get, del, selectByClassOrIdContaining, selectBySelectorAndRegex, getNodeContainingSelection, selectBySelectorAndNormalizedText, selectImagesSmallerThan } from "./selectors";
 import { getMarkedElements } from "./mark";
 import { getXpathResultAsArray } from "./xpath";
 import { getTextLength } from "./node";
@@ -8,6 +8,7 @@ import { markElements } from "./mark";
 import { createLinkInWrapper } from "./element";
 import { isEmptyTextNode, isEmptyElement } from "./elementAndNodeTests";
 import { selectByRelativePosition, selectBySelectorAndRelativePosition, selectNodesBetweenMarkers, selectBySelectorAndText, selectBySelectorAndExactText } from "./selectors";
+import { getNext } from "./array";
 
 export function deleteMarkedElements()
 {
@@ -241,4 +242,20 @@ export function deleteCurrentElement()
 	const elem = Nimbus.goToNextElement.currentElement;
 	if(elem)
 		elem.remove();
+}
+
+export function deleteImagesSmallerThan(pixelArea)
+{
+	const smallImages = selectImagesSmallerThan(pixelArea);
+	del(smallImages);
+	showMessageBig(`Deleted ${smallImages.length} images smaller than ${pixelArea} pixels`);
+}
+
+export function deleteSmallImages()
+{
+	deleteBySelectorAndText("img", "data:");
+	deleteBySelectorAndText("img", "emoji");
+	const nextThreshold = getNext(Nimbus.smallImageThreshold, Nimbus.smallImageThresholdList);
+	Nimbus.smallImageThreshold = nextThreshold;
+	deleteImagesSmallerThan(nextThreshold * nextThreshold);
 }

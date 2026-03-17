@@ -97,7 +97,7 @@ export const STYLES = {
 		*[id]::before { content: attr(id); color: #C00; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
 		*[id][class]::before { content: "#"attr(id)" ."attr(class); color: #C0C; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
 
-		header, footer, article, aside, section, div, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
+		header, footer, article, aside, section, div, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; padding: 10px; }
 		blockquote { box-shadow: inset 2px 2px #05a, inset -2px -2px #05a; }
 		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
 		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
@@ -164,6 +164,11 @@ export const STYLES = {
 		a[id][name] { box-shadow: inset -4px 0 #806 !important; }
 		a[id][href][name] { box-shadow: inset -4px 0 #c0a !important; }
 		a[id][href] { box-shadow: inset -4px 0 #0c0 !important; }
+	`,
+	REPLACE_IMAGES: `
+		rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px verdana; text-align: left; }
+		rt a { color: #888; }
+		rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }
 	`,
 	NEGATIVE: `html { background: #181818; font-size: 20px; }
 html body, #nimbus body { background: #242424; color: #999; border: 0; font-size: 20px; font-family: "swis721 cn bt"; font-style: normal; line-height: 1.35; }
