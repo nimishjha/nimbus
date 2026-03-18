@@ -139,6 +139,12 @@ export function getTargetElement(link)
 	return null;
 }
 
+export function looksLikeReference(str)
+{
+	str = str.trim();
+	return /^\d+$/.test(str) || /^[\[\{]\d+[\}\]]$/.test(str) || /^\d+\.$/.test(str);
+}
+
 export function fixInternalReferences()
 {
 	if(hasDuplicateIDs())
@@ -154,10 +160,7 @@ export function fixInternalReferences()
 	makeFileLinksRelative();
 	const internalLinks = get('a[href^="#"]');
 	if(!internalLinks) return;
-	const tagsNotToMakeReferencesUnder = new Set([ "REFERENCE", "H1", "H2", "H3", "H4", "H5", "H6", "DT", "DD" ]);
-	const regexIsNumeric = /^\d+$/;
-	const regexIsNumberInBracesOrBrackets = /^[\[\{]\d+[\}\]]$/;
-	const regexIsNumericWithPeriod = /^\d+\.$/;
+	const tagsNotToMakeReferencesUnder = new Set([ "REFERENCE", "H1", "H2", "H3", "H4", "H5", "H6", "DT", "DD", "D1", "D2", "D3", "D4" ]);
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
 	{
 		const link = internalLinks[i];
@@ -165,8 +168,8 @@ export function fixInternalReferences()
 		if(!link.id)
 			link.id = createUniqueID(i);
 
-		let refText = link.textContent.trim();
-		if(regexIsNumeric.test(refText) || regexIsNumberInBracesOrBrackets.test(refText) || regexIsNumericWithPeriod.test(refText))
+		let refText = link.textContent;
+		if(looksLikeReference(refText))
 		{
 			refText = refText.replace(/[^0-9]+/g, "");
 			if(!refText.length)

@@ -1,10 +1,10 @@
 import { Nimbus } from "./Nimbus";
-import { createLinksByHrefLookup } from "./link";
+import { createLinksByHrefLookup, looksLikeReference } from "./link";
 import { get } from "./selectors";
 import { wrapElement, unwrapElement, unwrapAll } from "./element";
 import { isEmptyElement } from "./elementAndNodeTests";
-import { replaceElementKeepingId } from "./replaceElements";
-import { showMessageBig } from "./ui";
+import { replaceElement, replaceElementKeepingId } from "./replaceElements";
+import { showMessageBig, showMessageError } from "./ui";
 
 export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 {
@@ -73,6 +73,13 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 		SIBLING: 2,
 		CHILD: 3
 	};
+
+	if(!(typeof recipientRelationship === "number" && (recipientRelationship > 0 && recipientRelationship < 4)))
+	{
+		showMessageError("recipientRelationship needs to be 1, 2, or 3");
+		return;
+	}
+
 	const elems = get(anchorSelector);
 
 	let numElementsWithIDs = 0;
@@ -149,6 +156,13 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 	showMessageBig(`${numElementsWithIDs}/${elems.length} selected elements have IDs, ${numIDsMoved} IDs moved, ${numRecipientsNotFound} recipients not found`);
 }
 
+function cleanReferenceText(str)
+{
+	if(/[0-9]/.test(str))
+		return str.replace(/[^0-9]+/g, "");
+	return str;
+}
+
 export function createReferencesByTags()
 {
 	let numASup = 0;
@@ -162,9 +176,9 @@ export function createReferencesByTags()
 		{
 			const link = links[i];
 			const linkText = link.textContent.trim();
-			if(link.getElementsByTagName("sup").length && /^\d+$/.test(linkText))
+			if(link.getElementsByTagName("sup").length && looksLikeReference(linkText))
 			{
-				link.textContent = linkText;
+				link.textContent = cleanReferenceText(linkText);
 				wrapElement(link, "reference");
 				numASup++;
 			}
@@ -176,9 +190,19 @@ export function createReferencesByTags()
 		const sups = document.querySelectorAll("sup");
 		for(let i = 0, ii = sups.length; i < ii; i++)
 		{
-			if(sups[i].getElementsByTagName("a").length && /^\d+$/.test(sups[i].textContent.trim()))
+			const supLink = sups[i].querySelector("a");
+			if(supLink && looksLikeReference(supLink.textContent))
 			{
-				replaceElementKeepingId(sups[i], "reference");
+				supLink.textContent = cleanReferenceText(supLink.textContent);
+				if(sups[i].id && !supLink.id)
+				{
+					supLink.id = sups[i].id;
+					replaceElement(sups[i], "reference");
+				}
+				else
+				{
+					replaceElementKeepingId(sups[i], "reference");
+				}
 				numSupA++;
 			}
 		}
@@ -189,8 +213,9 @@ export function createReferencesByTags()
 		const footnoteLinks = document.querySelectorAll("footnote a:first-child");
 		for(let i = 0, ii = footnoteLinks.length; i < ii; i++)
 		{
-			if(/^\d+$/.test(footnoteLinks[i].textContent.replaceAll(".", "").trim()))
+			if(looksLikeReference(footnoteLinks[i].textContent))
 			{
+				footnoteLinks[i].textContent = cleanReferenceText(footnoteLinks[i].textContent);
 				wrapElement(footnoteLinks[i], "reference");
 				numFootnoteA++;
 			}
