@@ -39,6 +39,10 @@ export const Nimbus = {
 		green: "background: #040; color: #0C0;",
 		red: "background: #600; color: #C00;",
 		purple: "background: #204; color: #C7E;",
+		success: "background: #030; color: #0a0;",
+		info: "background: #000; color: #aaa;",
+		warning: "background: #420; color: #C70;",
+		error: "background: #400; color: #a00;",
 	},
 	logStyles: {
 		styleHeading: "font-size: 22px;",

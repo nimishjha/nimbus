@@ -5,6 +5,7 @@ import { wrapElement, unwrapElement, unwrapAll } from "./element";
 import { isEmptyElement } from "./elementAndNodeTests";
 import { replaceElement, replaceElementKeepingId } from "./replaceElements";
 import { showMessageBig, showMessageError } from "./ui";
+import { logInfo, logWarning, logSuccess } from "./log";
 
 export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 {
@@ -18,12 +19,12 @@ export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 		const footnoteRefs = section.querySelectorAll("footnote reference a");
 		if(!allRefs)
 		{
-			console.log(`Did not find any references in section ${sectionIndex}`, "background: #444; color: #aaa;");
+			logInfo(`Did not find any references in section ${sectionIndex}`);
 			continue;
 		}
 		if(!footnoteRefs)
 		{
-			console.log(`Did not find any references inside footnotes in section ${sectionIndex}`, "background: #444; color: #aaa;");
+			logInfo(`Did not find any references inside footnotes in section ${sectionIndex}`);
 			continue;
 		}
 
@@ -36,7 +37,7 @@ export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 		{
 			if(footnoteRefs.length === nonFootnoteRefs.length)
 			{
-				console.log(`%cSection ${sectionIndex}: ${allRefs.length} total refs, ${footnoteRefs.length} footnote refs, ${nonFootnoteRefs.length} non-footnote refs`, "background: #030; color: #0b0;");
+				logSuccess(`Section ${sectionIndex}: ${allRefs.length} total refs, ${footnoteRefs.length} footnote refs, ${nonFootnoteRefs.length} non-footnote refs`);
 
 				for(let j = 0; j < nonFootnoteRefs.length; j++)
 				{
@@ -59,7 +60,7 @@ export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 			}
 			else
 			{
-				console.log(`%cSection ${sectionIndex}: lengths mismatch - ${footnoteRefs.length} footnote refs, ${nonFootnoteRefs.length} non-footnote refs`, "background: #420; color: #c90;");
+				logWarning(`Section ${sectionIndex}: lengths mismatch - ${footnoteRefs.length} footnote refs, ${nonFootnoteRefs.length} non-footnote refs`);
 				section.className = Nimbus.markerClass;
 			}
 		}
