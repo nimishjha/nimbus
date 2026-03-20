@@ -203,7 +203,6 @@ import {
 	unescapeHTML,
 } from "./includes/string";
 import {
-	createBackLink,
 	disableClickToCollectUrls,
 	enableClickToCollectUrls,
 	fixInternalReferences,
@@ -1089,6 +1088,7 @@ function handleKeyMenuCommand(str)
 			case "ML": makeLastChild(); break;
 			case "MM": toggleHighlightMap(); break;
 			case "MP": callFunctionWithArgs("Mark elements by class or id containing text", markByClassOrIdContaining, 1); break;
+			case "MR": callFunctionWithArgs("Mark elements by selector and regex", markBySelectorAndRegex, 2); break;
 			case "MS": callFunctionWithArgs("Mark elements by selector and containing text", markBySelectorAndText, 2); break;
 			case "MT": markByIdenticalText(); break;
 			case "MU": unmarkAll(); break;

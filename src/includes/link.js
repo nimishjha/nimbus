@@ -307,26 +307,6 @@ export function toggleShowEmptyLinksAndSpans()
 	}
 }
 
-export function createBackLink(id)
-{
-	const idLink = "#" + id;
-	const linksToId = get(`a[href="${idLink}"]`);
-	const backLinkContainer = document.createElement("reference");
-	for(let i = 0, ii = linksToId.length; i < ii; i++)
-	{
-		const link = linksToId[i];
-		const linkText = link.textContent;
-		const linkId = link.id || createUUID();
-		if(!link.id) link.id = linkId;
-		const backLink = createElement("a", { href: "#" + linkId, textContent: linkText });
-		backLinkContainer.appendChild(backLink);
-	}
-	if(linksToId.length)
-		return backLinkContainer;
-	else
-		return createBulletAnchor(id);
-}
-
 export function logHrefsOnClick(evt)
 {
 	evt.preventDefault();
