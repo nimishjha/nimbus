@@ -108,29 +108,37 @@ export function moveIdsFromSpans(linksByHref)
 		const span = spans[i];
 		const recipient = span.querySelector("a") || span.closest("h1, h2, h3, h4, h5, h6, p") || span.nextElementSibling;
 		if(recipient)
-		{
-			if(recipient.id)
-			{
-				const links = linksByHref["#" + span.id];
-				for(let i = 0, ii = links.length; i < ii; i++)
-					links[i].setAttribute("href", "#" + recipient.id);
-			}
-			else
-			{
-				recipient.id = span.id;
-			}
-		}
+			moveIDToRecipient(span, recipient, linksByHref);
 		else
-		{
 			span.parentNode.appendChild(createLinkInWrapper("reference", span.id, null, span.id));
-		}
 
 		if(getTextLength(span) === 0 || span.children.length === span.childNodes.length)
 			unwrapElement(span);
 		else
 			span.removeAttribute("id");
 	}
-	console.log(`${spans.length} ids removed from spans`);
+	console.log(`${spans.length} ids moved from spans`);
+}
+
+export function moveIdsFromImages(linksByHref)
+{
+	const images = get("img[id]");
+	if(!images)
+		return;
+
+	if(!linksByHref)
+		linksByHref = createLinksByHrefLookup();
+
+	for(const image of images)
+	{
+		const recipient = image.closest("figure, p, div") || image.nextElementSibling;
+		if(recipient)
+			moveIDToRecipient(image, recipient, linksByHref);
+		else
+			image.parentNode.appendChild(createLinkInWrapper("reference", image.id, null, image.id));
+		image.removeAttribute("id");
+	}
+	console.log(`${images.length} ids moved from images`);
 }
 
 export function getTargetElement(link)
@@ -165,6 +173,7 @@ export function fixInternalReferences()
 	removeUnreferencedIDs(linksByHref);
 	replaceEmptyAnchors(linksByHref);
 	moveIdsFromSpans(linksByHref);
+	moveIdsFromImages(linksByHref);
 	makeFileLinksRelative();
 	const internalLinks = get('a[href^="#"]');
 	if(!internalLinks) return;
