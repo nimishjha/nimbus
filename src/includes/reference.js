@@ -142,8 +142,8 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 			}
 			if(isEmptyElement(elem))
 				elem.remove();
-			else if(recipientRelationship !== RELATIONSHIP.CHILD)
-				unwrapElement(elem);
+			// else if(recipientRelationship !== RELATIONSHIP.CHILD)
+			// 	unwrapElement(elem);
 			else
 				elem.removeAttribute("id");
 		}

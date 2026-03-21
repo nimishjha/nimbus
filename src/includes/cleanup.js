@@ -363,7 +363,7 @@ export function replaceCommonClasses()
 	replaceElementsBySelector("em", "i");
 
 	replaceElementsBySelector('.pn, .pt, .partnum, .parttitle, .pt-num, .pt-title, .partno, p[class^="part-"]', "h1");
-	replaceElementsBySelector(".bmh, .cn, .ct, .chapnum, .chapternumber, .tochead, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chapno, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num, .toc-title", "h2");
+	replaceElementsBySelector(".bmh, .cn, .ct, .chapnum, .chapternumber, .tochead, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chapno, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num, .toc-title, .cht", "h2");
 	replaceElementsBySelector(".cst, .h", "h3");
 	replaceElementsBySelector(".figcap", "figcaption");
 	replaceElementsBySelector(".fig-cap", "figcaption");
