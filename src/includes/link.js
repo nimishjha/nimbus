@@ -142,6 +142,8 @@ export function getTargetElement(link)
 export function looksLikeReference(str)
 {
 	str = str.trim();
+	if(str.length > 0 && str.length < 4 && /[^A-Za-z0-9]/.test(str))
+		return true;
 	return /^\d+$/.test(str) || /^[\[\{]\d+[\}\]]$/.test(str) || /^\d+\.$/.test(str);
 }
 
