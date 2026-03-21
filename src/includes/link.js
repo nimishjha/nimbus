@@ -28,6 +28,20 @@ function findSiblingOrParent(elem, siblingSelector, parentSelector)
 	return null;
 }
 
+function moveIDToRecipient(anchor, recipient, linksByHref)
+{
+	if(recipient.id)
+	{
+		const linksToAnchor = linksByHref["#" + anchor.id];
+		for(const link of linksToAnchor)
+			link.setAttribute("href", "#" + recipient.id);
+	}
+	else
+	{
+		recipient.id = anchor.id;
+	}
+}
+
 export function replaceEmptyAnchors(linksByHref)
 {
 	const emptySpanAnchors = getEmptySpanAnchors();
@@ -49,15 +63,7 @@ export function replaceEmptyAnchors(linksByHref)
 			const recipient = findSiblingOrParent(anchor, "a", "p, h1, h2, h3, h4, h5, h6, blockquote, figure, figcaption, aside, dt");
 			if(recipient && getTextLength(recipient) > 0)
 			{
-				if(recipient.id)
-				{
-					for(let j = 0, jj = linksToAnchor.length; j < jj; j++)
-						linksToAnchor[j].setAttribute("href", "#" + recipient.id);
-				}
-				else
-				{
-					recipient.id = anchor.id;
-				}
+				moveIDToRecipient(anchor, recipient, linksByHref);
 				numIDsMoved++;
 				unwrapElement(anchor);
 			}
