@@ -18,7 +18,7 @@ import { appendMetadata } from "./metadata";
 import { toggleStyleNegative, insertStyleHighlight } from "./style";
 import { showMessageBig, showMessageError } from "./ui";
 import { retrieve } from "./retrieve";
-import { replaceEmptyAnchors, createLinksByHrefLookup } from "./link";
+import { moveIDsFromEmptyAnchors, createLinksByHrefLookup } from "./link";
 import { isCurrentDomainLink } from "./url";
 import { getAllClassesFor } from "./inspect";
 import { replaceClass } from "./dom";
@@ -475,7 +475,7 @@ export function fixBody()
 export function removeSpanTags(isOkToLoseIds)
 {
 	if(!isOkToLoseIds)
-		replaceEmptyAnchors();
+		moveIDsFromEmptyAnchors();
 	unwrapAll("span");
 }
 

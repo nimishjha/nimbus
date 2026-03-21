@@ -42,7 +42,7 @@ function moveIDToRecipient(anchor, recipient, linksByHref)
 	}
 }
 
-export function replaceEmptyAnchors(linksByHref)
+export function moveIDsFromEmptyAnchors(linksByHref)
 {
 	const emptySpanAnchors = getEmptySpanAnchors();
 	const emptyLinkAnchors = getEmptyLinkAnchors();
@@ -94,7 +94,7 @@ export function replaceEmptyAnchors(linksByHref)
 	showMessageBig(`${numIDsMoved} IDs moved, ${numIDsRemoved} deleted, ${anchors.length} total`);
 }
 
-export function moveIdsFromSpans(linksByHref)
+export function moveIDsFromSpans(linksByHref)
 {
 	const spans = get("span[id]");
 	if(!spans)
@@ -120,7 +120,7 @@ export function moveIdsFromSpans(linksByHref)
 	console.log(`${spans.length} ids moved from spans`);
 }
 
-export function moveIdsFromImages(linksByHref)
+export function moveIDsFromImages(linksByHref)
 {
 	const images = get("img[id]");
 	if(!images)
@@ -171,9 +171,9 @@ export function fixInternalReferences()
 	deleteUselessLinks();
 	const linksByHref = createLinksByHrefLookup();
 	removeUnreferencedIDs(linksByHref);
-	replaceEmptyAnchors(linksByHref);
-	moveIdsFromSpans(linksByHref);
-	moveIdsFromImages(linksByHref);
+	moveIDsFromEmptyAnchors(linksByHref);
+	moveIDsFromSpans(linksByHref);
+	moveIDsFromImages(linksByHref);
 	makeFileLinksRelative();
 	const internalLinks = get('a[href^="#"]');
 	if(!internalLinks) return;
