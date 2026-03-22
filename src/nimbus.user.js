@@ -373,7 +373,6 @@ import {
 	getTextLength,
 } from "./includes/node";
 import {
-	createListsFromBulletedParagraphs,
 	fixParagraphs,
 	normaliseWhitespaceForParagraphs,
 	replaceEmptyParagraphsWithHr,
@@ -669,7 +668,6 @@ const availableFunctions = {
 	convertLineBreaksToBrs: convertLineBreaksToBrs,
 	copyAttribute: copyAttribute,
 	count: count,
-	createListsFromBulletedParagraphs: createListsFromBulletedParagraphs,
 	cycleClass: cycleClass,
 	cycleFocusOverFormFields: cycleFocusOverFormFields,
 	cycleThroughDocumentHeadings: cycleThroughDocumentHeadings,

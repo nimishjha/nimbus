@@ -117,39 +117,6 @@ export function rescueOrphanedTextNodes()
 	}
 }
 
-export function createListsFromBulletedParagraphs()
-{
-	const paras = get("p");
-	let i = paras.length;
-	while(i--)
-	{
-		const para = paras[i];
-		if(/\u2022/.test(para.textContent))
-		{
-			markElement(para);
-			para.innerHTML = para.innerHTML.replace(/\u2022/, "");
-		}
-	}
-
-	const elems = getMarkedElements();
-	for(let i = 0, ii = elems.length; i < ii; i++)
-	{
-		const elem = elems[i];
-		let nextElem = elem.nextElementSibling;
-		const parent = document.createElement("ul");
-		insertBefore(elem, parent);
-		parent.appendChild(elem);
-		while(nextElem && nextElem.classList.contains(Nimbus.markerClass))
-		{
-			i++;
-			const nextElemTemp = nextElem.nextElementSibling;
-			parent.appendChild(nextElem);
-			nextElem = nextElemTemp;
-		}
-	}
-	replaceElementsBySelector(makeClassSelector(Nimbus.markerClass), "li");
-}
-
 export function replaceFontTags()
 {
 	const fontElements = get("font");
