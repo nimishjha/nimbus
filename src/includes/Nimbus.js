@@ -92,4 +92,6 @@ export const Nimbus = {
 		keys: [],
 	},
 	showKeyCodes: false,
+	bestImagesData: [],
+	largeImagesData: [],
 };

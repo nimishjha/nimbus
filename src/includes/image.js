@@ -20,10 +20,21 @@ function sortSources(a, b)
 	return b.size - a.size;
 }
 
+function getLargeImages()
+{
+	const link = Nimbus.largeImagesData.pop();
+	if(link)
+	{
+		const image = document.createElement("img");
+		image.src = link.href;
+		link.replaceWith(image);
+	}
+	if(Nimbus.largeImagesData.length)
+		setTimeout(getLargeImages, 2000);
+}
+
 export function getBestImageSrc()
 {
-	Nimbus.bestImagesData = [];
-
 	function getBestImages()
 	{
 		const imageData = Nimbus.bestImagesData.pop();
@@ -38,8 +49,10 @@ export function getBestImageSrc()
 			}
 		}
 		if(Nimbus.bestImagesData.length)
-			setTimeout(getBestImages, 1000);
+			setTimeout(getBestImages, 2000);
 	}
+
+	Nimbus.bestImagesData = [];
 
 	const images = document.querySelectorAll("img");
 	if(!images)
@@ -96,25 +109,30 @@ function getLastSplit(str, splitter)
 
 export function retrieveLargeImages()
 {
+	Nimbus.largeImagesData = [];
 	const links = get("a");
-	let i = links.length;
-	let count = 0;
-	while(i--)
+	if(links)
 	{
-		const link = links[i];
-		if(link.parentNode.tagName === "RT")
-			continue;
-		const linkHref = link.href;
-		if(containsAnyOfTheStrings(linkHref.toLowerCase(), [".png", ".jpg", ".gif", ".jpe"]))
+		let count = 0;
+		let i = links.length;
+		while(i--)
 		{
-			if(link.parentNode)
+			const link = links[i];
+			if(link.parentNode.tagName === "RT")
+				continue;
+			const linkHref = link.href;
+			if(containsAnyOfTheStrings(linkHref.toLowerCase(), [".png", ".jpg", ".gif", ".jpe", ".webp"]))
 			{
-				link.replaceWith(createElement("img", { src: linkHref }));
-				count++;
+				if(link.parentNode)
+				{
+					Nimbus.largeImagesData.push(link);
+					count++;
+				}
 			}
 		}
+		showMessageBig(`Retrieving ${count} large images`);
+		getLargeImages();
 	}
-	showMessageBig(`Retrieved ${count} large images`);
 }
 
 export function getImageWidth(image)
