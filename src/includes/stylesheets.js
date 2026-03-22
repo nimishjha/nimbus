@@ -170,8 +170,8 @@ export const STYLES = {
 		rt a { color: #888; }
 		rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }
 	`,
-	NEGATIVE: `html { background: #181818; font-size: 20px; }
-html body, #nimbus body { background: #242424; color: #999; border: 0; font-size: 20px; font-family: "swis721 cn bt"; font-style: normal; line-height: 1.35; }
+	NEGATIVE: `html { background: #080808; font-size: 20px; }
+html body, #nimbus body { background: #121212; color: rgba(100, 100, 100, 0.66); border: 0; font-size: 20px; font-family: "swis721 cn bt"; font-style: normal; line-height: 1.35; }
 form { font-family: inherit; font-size: 20px; }
 
 body.pad100 { padding: 100px 200px; }
@@ -179,9 +179,9 @@ body.pad100 table { width: 100%; }
 body.pad100 td, body.pad100 th { padding: 3px 10px; vertical-align: top; text-align: left; }
 body.pad100 ul { list-style: none; }
 body.pad100 li { padding: 5px 0 5px 10px; margin: 0 0 2px 0; }
-body.pad100 ul li { border-left: 5px solid #0C0C0C; }
+body.pad100 ul li { border-width: 0 0 0 5px; border-style: solid; }
 body.pad100 img { max-width: 100%; display: block; }
-body.pad100 section { padding: 10px; border: 2px solid #111; margin: 100px 0; }
+body.pad100 section { padding: 10px; border-width: 3px; border-style: solid; margin: 100px 0; }
 body.xwrap { width: 1200px; margin: 0 auto; padding: 100px 200px; }
 
 h1, h1[class], h2, h2[class], h3, h3[class], h4, h4[class], h5, h5[class], h6, h6[class]
@@ -196,12 +196,15 @@ body.pad100 h1, body.pad100 h1[class], body.pad100 h2, body.pad100 h2[class], bo
 .pad100 h5 { font-size: 1.2rem; }
 .pad100 h6 { font-size: 1.0rem; }
 
-quote { display: block; padding: 1rem 2rem; margin: 2px 0; background: #181818; border-width: 0 0 0 20px; border-style: solid; border-color: #0C0C0C; color: #808080; font-size: 1rem; }
-quoteauthor { display: block;  padding: 0.5rem 2rem; margin: 2px 0; background: #202020; border-width: 0 0 0 20px; border-style: solid; border-color: #0C0C0C; font-size: 1rem; text-align: right; }
-footnote { display: block; padding: 0.5em 10px; margin: 2px 0; background: #181818; border-width: 0 0 0 10px; border-style: solid; border-color: #181818; color: #808080; }
-right { display: block; text-align: right; }
-documentheading { display: block; margin: 0 0 100px 0; padding: 10px 0; border-top: 10px solid #141414; border-bottom: 10px solid #141414; }
-documentheading h1 { font-size: 2.8rem; }
+section, quote, quoteauthor, body.pad100 ul li { border-color: rgba(100, 100, 100, 0.1); }
+footnote, quote, quoteauthor { display: block; margin: 2px 0; border-style: solid; border-width: 0 0 0 20px; color: rgba(100, 100, 100, 0.66); font-size: 1rem; }
+footnote { border-color: rgba(100, 100, 100, 0.25); }
+rp { border-color: rgba(100, 100, 100, 0.05); }
+
+quote { padding: 1rem 2rem; }
+quoteauthor { padding: 0.5rem 2rem; border-style: solid; text-align: right; }
+footnote { padding: 0.5em 10px; border-width: 0 0 0 10px; }
+documentheading { display: block; margin: 0 0 100px 0; padding: 10px 0; border-width: 10px 0; }
 slideshow { display: block; background: #111; padding: 10px; }
 slideshow::after { content: " "; clear: both; display: block; }
 img { opacity: 0.5; }
@@ -237,10 +240,10 @@ container { border: 2px solid #F00; margin: 10px; display: block; padding: 10px;
 figure { border: 0; background: #111; padding: 10px 0; margin: 2px 0 0 0; }
 figcaption { background: #111; color: #AAA; padding: 10px 20px; margin-left: 20px; }
 annotation { background: #444; color: inherit; padding: 1rem 2rem; display: block; margin: 10px 0 10px -30px; border-style: solid; border-color: #AAA; border-width: 2px 2px 2px 20px; }
-ruby { margin: 10px 0; background: #F90; color: #FFF; padding: 20px 30px; display: block; font-size: 20px; border-left: 10px solid #F90; }
-rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 20px "swis721 cn bt"; border-top: 50px solid #000; border-bottom: 50px solid #000; }
+ruby { margin: 10px 0; background: #C60; color: #FFF; padding: 20px 30px; display: block; font-size: 20px; border-left: 10px solid #F90; }
+rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 20px "swis721 cn bt"; border-style: solid; border-width: 50px 0; overflow-x: hidden; }
 rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px Verdana; text-align: left; }
-rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }
+rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #808080; float: left; margin: -3px 20px 0 0; }
 
 button, select, textarea, input, input[class], input[type] { background: #151515; color: #909090; -moz-appearance: none; border-radius: 0; border: 0; font-family: inherit; font-size: 20px; }
 select, textarea { border: 0; box-shadow: none; }
