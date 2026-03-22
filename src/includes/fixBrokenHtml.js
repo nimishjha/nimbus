@@ -153,14 +153,9 @@ export function fixParagraphs()
 
 export function normaliseWhitespaceForParagraphs()
 {
-	const textNodes = getTextNodesUnderSelector("body");
-	for(let i = 0, ii = textNodes.length; i < ii; i++)
-	{
-		const textNode = textNodes[i];
-		const blockParent = getFirstBlockParent(textNode);
-		if(blockParent && blockParent.tagName === "P")
-			textNode.data = normalizeWhitespace(textNode.data);
-	}
+	const pTextNodes = getTextNodesUnderSelector("p");
+	for(const node of pTextNodes)
+		node.data = normalizeWhitespace(node.data);
 }
 
 export function replaceEmptyParagraphsWithHr()
