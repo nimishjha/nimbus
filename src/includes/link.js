@@ -329,18 +329,12 @@ export function logHrefsOnClick(evt)
 {
 	evt.preventDefault();
 	evt.stopPropagation();
-	const MAX_DEPTH = 5;
-	let link = evt.target.closest("a");
-	if(!link)
-		return;
-	link.classList.add(Nimbus.markerClass);
-	const href = link.href;
-	if(href)
+	const link = evt.target.closest("a");
+	if(link)
 	{
-		const clickedLink = document.createElement("a");
-		clickedLink.textContent = clickedLink.href = href;
-		const clickedLinkWrapper = createElementWithChildren("h6", clickedLink);
-		document.body.appendChild(clickedLinkWrapper);
+		link.classList.add(Nimbus.markerClass);
+		if(link.href)
+			document.body.appendChild(createLinkInWrapper("h6", link.href, link.href));
 	}
 	return false;
 }
@@ -414,26 +408,26 @@ export function removeQueryStringFromLinks()
 export function removeQueryStringFromLinksMatching(text)
 {
 	const links = get(`a[href*=${text}]`);
-	if(!(links && links.length)) return;
-	for(const link of links)
-	{
-		if(!link.href) continue;
-		link.href = trimAt(link.href, "?");
-	}
+	if(links)
+		for(const link of links)
+			if(link.href)
+				link.href = trimAt(link.href, "?");
 }
 
 export function removeQueryParameterFromLinks(paramName, selector="a[href]")
 {
 	const links = get(selector);
-	for(const link of links)
-		link.href = removeQueryParameterFromUrl(link.href, paramName);
+	if(links)
+		for(const link of links)
+			link.href = removeQueryParameterFromUrl(link.href, paramName);
 }
 
 export function removeAllQueryParametersExcept(paramName, selector="a[href]")
 {
 	const links = get(selector);
-	for(const link of links)
-		link.href = removeQueryParameterFromUrl(link.href, paramName, true);
+	if(links)
+		for(const link of links)
+			link.href = removeQueryParameterFromUrl(link.href, paramName, true);
 }
 
 export function createLinksByHrefLookup()
