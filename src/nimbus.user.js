@@ -1302,7 +1302,7 @@ function handleKeyDown(e)
 			case KEYCODES.P: toggleKeyMenu("P"); break;
 			case KEYCODES.Q: resetHighlightTag(); Nimbus.selectionHighlightMode = "sentence"; break;
 			case KEYCODES.R: toggleHighlight(); break;
-			case KEYCODES.S: toggleContentEditable(); break;
+			case KEYCODES.S: toggleKeyMenu("S"); break;
 			case KEYCODES.T: toggleKeyMenu("T"); break;
 			case KEYCODES.U: toggleKeyMenu("U"); break;
 			case KEYCODES.V: toggleKeyMenu("V"); break;
@@ -1415,7 +1415,7 @@ function handleKeyDown(e)
 			case KEYCODES.O: customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
 			case KEYCODES.P: makeAnchorNodePlainText(); break;
 			case KEYCODES.R: toggleKeyMenu("R"); break;
-			case KEYCODES.S: toggleKeyMenu("S"); break;
+			case KEYCODES.S: toggleContentEditable(); break;
 			case KEYCODES.T: toggleStyle(STYLES.SHOW_TABLE_STRUCTURE, "styleShowTableStructure", true); break;
 			case KEYCODES.V: toggleStyle(STYLES.OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
 			case KEYCODES.X: customPrompt("Enter xPath").then(xPathMark); break;
