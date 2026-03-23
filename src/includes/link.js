@@ -193,10 +193,10 @@ export function fixInternalReferences()
 			if(!refText.length)
 				refText = "0" + i;
 			link.textContent = refText;
-		}
 
-		if(link.parentNode && !tagsNotToMakeReferencesUnder.has(link.parentNode.tagName))
-			wrapElement(link, "reference");
+			if(link.parentNode && !tagsNotToMakeReferencesUnder.has(link.parentNode.tagName))
+				wrapElement(link, "reference");
+		}
 
 		const targetElement = getTargetElement(link);
 		if(targetElement)
