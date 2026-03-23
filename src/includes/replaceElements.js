@@ -98,6 +98,19 @@ export function replaceElementKeepingId(elem, tagName)
 	elem.replaceWith(replacement);
 }
 
+export function replaceElementKeepingIdAndClass(elem, tagName)
+{
+	const replacement = document.createElement(tagName);
+	while(elem.firstChild)
+		replacement.appendChild(elem.firstChild);
+	const elemId = elem.id;
+	if(elemId)
+		replacement.id = elemId;
+	if(elem.className)
+		replacement.className = elem.className;
+	elem.replaceWith(replacement);
+}
+
 export function replaceElementsOfMarkedTypeWith(tagName)
 {
 	const marked = getMarkedElements();
@@ -204,18 +217,21 @@ export function replaceSelectedElement(tagName)
 export function convertDivsToParagraphs()
 {
 	const elems = get("div");
-	if(!elems) return;
-	for(const elem of elems)
+	if(elems)
 	{
-		if(elem.querySelector("div") === null)
+		for(const elem of elems)
 		{
-			const fc = elem.firstChild;
-			if(!fc) continue;
-			if(fc.nodeType === Node.TEXT_NODE || INLINE_TAGS_SET.has(fc.tagName))
-				replaceElementKeepingId(elem, "p");
+			if(elem.querySelector("div") === null)
+			{
+				const fc = elem.firstChild;
+				if(!fc) continue;
+				if(fc.nodeType === Node.TEXT_NODE || INLINE_TAGS_SET.has(fc.tagName))
+					replaceElementKeepingIdAndClass(elem, "p");
+			}
 		}
 	}
 }
+
 
 export function setReplacementTag1(tagName) { Nimbus.replacementTagName1 = tagName; }
 export function setReplacementTag2(tagName) { Nimbus.replacementTagName2 = tagName; }
