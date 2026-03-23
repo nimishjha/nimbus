@@ -1,7 +1,7 @@
 import { Nimbus } from "./Nimbus";
 import { showMessage, showMessageBig, showMessageError } from "./ui";
 import { removeWhitespace } from "./string";
-import { get, getOne, getOneMarked, select, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining } from "./selectors";
+import { get, getOne, getOneMarked, select, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining, selectImagesSmallerThan } from "./selectors";
 import { getTextLength } from "./node";
 import { makeClassSelector } from "./misc";
 import { insertStyle, insertStyleHighlight, getAllCssRulesForElement } from "./style";
@@ -365,4 +365,9 @@ export function markByIdenticalText()
 				markElements(select(marked.tagName, "text", "equals", text));
 		}
 	}
+}
+
+export function markImagesSmallerThan(pixelArea)
+{
+	markElements(selectImagesSmallerThan(pixelArea));
 }

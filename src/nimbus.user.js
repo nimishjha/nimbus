@@ -578,6 +578,7 @@ import {
 	markByTagNameAndText,
 	markElements,
 	markElementsWithSameClass,
+	markImagesSmallerThan,
 	markNavigationalLists,
 	markNumericElements,
 	markSelectionAnchorNode,
@@ -794,6 +795,7 @@ const availableFunctions = {
 	markByTagNameAndText: markByTagNameAndText,
 	markElementsWithChildrenSpanning: markElementsWithChildrenSpanning,
 	markElementsWithSameClass: markElementsWithSameClass,
+	markImagesSmallerThan: markImagesSmallerThan,
 	markNavigationalLists: markNavigationalLists,
 	markNodesBetweenMarkers: markNodesBetweenMarkers,
 	markNumericElements: markNumericElements,
@@ -1071,6 +1073,7 @@ function handleKeyMenuCommand(str)
 			case "HW": callFunctionWithArgs("Highlight all matches with word expansion", highlightAllMatchesInDocumentWithWordExpansion, 1); break;
 
 			case "II": inspectImages(); break;
+			case "IS": callFunctionWithArgs("Mark images smaller than a given pixel area", markImagesSmallerThan, 1); break;
 
 			case "LI": retrieveLargeImages(); break;
 			case "LM": interlinkMarkedElements(); break;
