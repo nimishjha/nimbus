@@ -69,13 +69,8 @@ export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 
 export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 {
-	const RELATIONSHIP = {
-		PARENT: 1,
-		SIBLING: 2,
-		CHILD: 3
-	};
-
-	if(!(typeof recipientRelationship === "number" && (recipientRelationship > 0 && recipientRelationship < 4)))
+	const validRelationships = new Set(["p", "s", "c", "ns", "ps"]);
+	if(!(typeof recipientRelationship === "string" && validRelationships.has(recipientRelationship)))
 	{
 		showMessageError("recipientRelationship needs to be 1, 2, or 3");
 		return;
@@ -108,12 +103,28 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 		return null;
 	}
 
+	function getNextSibling(elem)
+	{
+		const next = elem.nextElementSibling;
+		if(next && next.matches(recipientSelector)) return next;
+		return null;
+	}
+
+	function getPreviousSibling(elem)
+	{
+		const prev = elem.previousElementSibling;
+		if(prev && prev.matches(recipientSelector)) return prev;
+		return null;
+	}
+
 	let getRecipient;
 	switch(recipientRelationship)
 	{
-		case RELATIONSHIP.PARENT: getRecipient = getParent; break;
-		case RELATIONSHIP.SIBLING: getRecipient = getSibling; break;
-		case RELATIONSHIP.CHILD: getRecipient = getChild; break;
+		case "p": getRecipient = getParent; break;
+		case "s": getRecipient = getSibling; break;
+		case "ns": getRecipient = getNextSibling; break;
+		case "ps": getRecipient = getPreviousSibling; break;
+		case "c": getRecipient = getChild; break;
 	}
 
 	for(let i = 0, ii = elems.length; i < ii; i++)
