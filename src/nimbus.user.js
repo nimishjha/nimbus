@@ -1149,9 +1149,11 @@ function handleKeyMenuCommand(str)
 
 			case "ZB": markBrokenInternalLinks(); break;
 			case "ZD": showDuplicateIDs(); break;
+			case "ZE": deleteClass("statusError"); break;
 			case "ZI": removeUnreferencedIDs(); break;
 			case "ZK": toggleShowKeyCodes(); break;
 			case "ZL": showLinksToIds(); break;
+			case "ZO": deleteClass("statusOk"); break;
 			case "ZZ": cloneBody(); break;
 
 			default: showMessageBig(`Unknown command ${str}`);

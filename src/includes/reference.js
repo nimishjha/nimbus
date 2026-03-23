@@ -102,7 +102,10 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 	function getSibling(elem)
 	{
 		const next = elem.nextElementSibling;
-		return next && next.matches(recipientSelector) ? next : null;
+		if(next && next.matches(recipientSelector)) return next;
+		const prev = elem.previousElementSibling;
+		if(prev && prev.matches(recipientSelector)) return prev;
+		return null;
 	}
 
 	let getRecipient;
@@ -226,6 +229,7 @@ export function createReferencesByTags()
 	unwrapAll("reference sup");
 	unwrapAll("reference small");
 	unwrapAll("reference span");
+	unwrapAll("reference reference");
 
 	showMessageBig(`${numASup} a > sup, ${numSupA} sup > a, ${numFootnoteA} footnote > a references created`);
 }
