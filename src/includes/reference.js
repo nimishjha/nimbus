@@ -154,12 +154,8 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 					numIDsMoved++;
 				}
 			}
-			if(isEmptyElement(elem))
-				elem.remove();
-			// else if(recipientRelationship !== RELATIONSHIP.CHILD)
-			// 	unwrapElement(elem);
-			else
-				elem.removeAttribute("id");
+			elem.removeAttribute("id");
+			elem.className = "statusWarning";
 		}
 		else
 		{
