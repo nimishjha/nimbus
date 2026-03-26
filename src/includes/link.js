@@ -46,7 +46,7 @@ export function moveIDsFromEmptyAnchors(linksByHref)
 {
 	const emptySpanAnchors = getEmptySpanAnchors();
 	const emptyLinkAnchors = getEmptyLinkAnchors();
-	const anchors = emptyLinkAnchors.concat(emptySpanAnchors);
+	const emptyLinkAnchorsRemaining = [];
 
 	if(!linksByHref)
 		linksByHref = createLinksByHrefLookup();
@@ -54,13 +54,42 @@ export function moveIDsFromEmptyAnchors(linksByHref)
 	let numIDsMoved = 0;
 	let numIDsRemoved = 0;
 
+	for(const link of emptyLinkAnchors)
+	{
+		const next = link.nextSibling;
+		const nextElement = link.nextElementSibling;
+		if(next && nextElement && next === nextElement && nextElement.tagName === "A" && getTextLength(next) !== 0)
+		{
+			moveIDToRecipient(link, next, linksByHref);
+			link.remove();
+			numIDsMoved++;
+		}
+		else
+		{
+			const prev = link.previousSibling;
+			const prevElement = link.previousElementSibling;
+			if(prev && prevElement && prev === prevElement && prevElement.tagName === "A" && getTextLength(prev) !== 0)
+			{
+				moveIDToRecipient(link, prev, linksByHref);
+				link.remove();
+				numIDsMoved++;
+			}
+			else
+			{
+				emptyLinkAnchorsRemaining.push(link);
+			}
+		}
+	}
+
+	const anchors = emptyLinkAnchorsRemaining.concat(emptySpanAnchors);
+
 	for(let i = 0, ii = anchors.length; i < ii; i++)
 	{
 		const anchor = anchors[i];
 		const linksToAnchor = linksByHref["#" + anchor.id];
 		if(linksToAnchor)
 		{
-			const recipient = findSiblingOrParent(anchor, "a", "p, h1, h2, h3, h4, h5, h6, blockquote, figure, figcaption, aside, dt");
+			const recipient = anchor.closest("p, h1, h2, h3, h4, h5, h6, blockquote, figure, figcaption, aside, dt");
 			if(recipient && getTextLength(recipient) > 0)
 			{
 				moveIDToRecipient(anchor, recipient, linksByHref);
