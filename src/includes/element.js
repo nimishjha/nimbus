@@ -180,22 +180,16 @@ export function setAttributeOf(selector, attribute, value)
 {
 	const elems = get(selector);
 	if(elems)
-	{
-		let i = elems.length;
-		while(i--)
-			elems[i].setAttribute(attribute, value);
-	}
+		for(const elem of elems)
+			setAttributeOrProperty(elem, attribute, value);
 }
 
 export function removeAttributeOf(selector, attribute)
 {
 	const elems = get(selector);
 	if(elems)
-	{
-		let i = elems.length;
-		while(i--)
-			elems[i].removeAttribute(attribute);
-	}
+		for(const elem of elems)
+			elem.removeAttribute(attribute);
 }
 
 export function removeAllAttributesOfType(type)

@@ -22,6 +22,7 @@ export const BLOCK_TAGS = [
 	"HGROUP",
 	"HR",
 	"LI",
+	"MAIN",
 	"MESSAGE",
 	"NAV",
 	"OL",

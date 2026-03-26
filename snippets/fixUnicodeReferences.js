@@ -11,16 +11,6 @@ function replaceUnicodeSuperscriptDigitsInReferences()
 		"⁷": "7",
 		"⁸": "8",
 		"⁹": "9",
-		// "₀": "0",
-		// "₁": "1",
-		// "₂": "2",
-		// "₃": "3",
-		// "₄": "4",
-		// "₅": "5",
-		// "₆": "6",
-		// "₇": "7",
-		// "₈": "8",
-		// "₉": "9",
 	};
 
 	const regularExpressions = {};
