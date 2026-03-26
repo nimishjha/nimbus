@@ -14,27 +14,14 @@ import { annotateElement } from "./dom";
 import { hasDuplicateIDs } from "./validations";
 import { fixTextAroundReferences } from "./cleanup";
 
-function findSiblingOrParent(elem, siblingSelector, parentSelector)
-{
-	if(elem.nextElementSibling && elem.nextElementSibling.matches(siblingSelector))
-		return elem.nextElementSibling;
-	else if(elem.previousElementSibling && elem.previousElementSibling.matches(siblingSelector))
-		return elem.previousElementSibling;
-
-	const parent = elem.closest(parentSelector);
-	if(parent)
-		return parent;
-
-	return null;
-}
-
 function moveIDToRecipient(anchor, recipient, linksByHref)
 {
 	if(recipient.id)
 	{
 		const linksToAnchor = linksByHref["#" + anchor.id];
-		for(const link of linksToAnchor)
-			link.setAttribute("href", "#" + recipient.id);
+		if(linksToAnchor)
+			for(const link of linksToAnchor)
+				link.setAttribute("href", "#" + recipient.id);
 	}
 	else
 	{
@@ -189,6 +176,7 @@ export function looksLikeReference(str)
 		return true;
 	if(str.length > 0 && str.length < 4 && /[^A-Za-z0-9]/.test(str))
 		return true;
+	return false;
 }
 
 export function fixInternalReferences()
@@ -344,8 +332,8 @@ export function toggleShowEmptyLinksAndSpans()
 	{
 		const style = `
 			a.${Nimbus.markerClass} { padding: 0 5px; }
-			a.${Nimbus.markerClass}::before { content: "id: "attr(id)", name: "attr(name); color: #C90; }
-			a.${Nimbus.markerClass}::after { content: attr(href); color: #07C; }
+			a.${Nimbus.markerClass}::before { content: attr(id);  padding: 1px 5px; background: #000; color: #C0A; font-weight: bold; }
+			a.${Nimbus.markerClass}::after { content: attr(href); padding: 1px 5px; background: #000; color: #07C; }
 			span.${Nimbus.markerClass} { padding: 0 10px; }
 			span.${Nimbus.markerClass}::before { content: attr(id)" "; color: #0C0; }
 		`;
@@ -575,6 +563,7 @@ export function removeUnreferencedIDs(linksByHref)
 	const anchors = document.querySelectorAll('body *[id]');
 	if(!linksByHref)
 		linksByHref = createLinksByHrefLookup();
+
 	let count = 0;
 	for(let i = 0, ii = anchors.length; i < ii; i++)
 	{
@@ -586,6 +575,7 @@ export function removeUnreferencedIDs(linksByHref)
 			count++;
 		}
 	}
+
 	if(count)
 		showMessageBig(`${count} unreferenced IDs removed`);
 	else
