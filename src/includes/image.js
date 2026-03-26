@@ -4,7 +4,7 @@ import { isEmptyElement } from "./elementAndNodeTests";
 import { get, getOne, del } from "./selectors";
 import { insertStyle } from "./style";
 import { containsAnyOfTheStrings, trimAt } from "./string";
-import { showMessage, showMessageBig } from "./ui";
+import { showMessage, showMessageBig, showMessageError } from "./ui";
 import { deleteBySelectorAndText, deleteImagesSmallerThan } from "./delete";
 import { getNext } from "./array";
 import { insertBefore } from "./dom";
@@ -458,11 +458,17 @@ export function replaceImagePlaceholdersWithImages()
 export function replaceImagesWithPlaceholders()
 {
 	const images = get("img");
+	let numImagesWithIDs = 0;
 	let i = images.length;
 	while(i--)
 	{
 		const image = images[i];
-		if(image.src)
+		if(image.id)
+		{
+			numImagesWithIDs++;
+			image.className = "statusError";
+		}
+		else if(image.src)
 		{
 			const imagePlaceholder = createImagePlaceholder(image);
 			if(image.parentNode.tagName === "A")
@@ -470,6 +476,12 @@ export function replaceImagesWithPlaceholders()
 			else
 				image.replaceWith(imagePlaceholder);
 		}
+	}
+
+	if(numImagesWithIDs)
+	{
+		showMessageError(`${numImagesWithIDs} have IDs; move IDs before replacing`);
+		return;
 	}
 
 	const elems = get("rt");
