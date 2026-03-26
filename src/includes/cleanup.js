@@ -1,14 +1,14 @@
 import { Nimbus } from "./Nimbus";
 import { makePlainText, removeAllAttributesOf, emptyElement, createElement, unwrapElement } from "./element";
 import { get, getOne, del, select } from "./selectors";
-import { markElement, getMarkedElements, markNavigationalLists, unmarkAll } from "./mark";
+import { markElement, getMarkedElements, markNavigationalLists, markElements, unmarkAll } from "./mark";
 import { fixInternalReferences } from "./link";
 import { createElementWithChildren, removeAttributeOf, unwrapAll, removeAllAttributesOfTypes, deleteClass } from "./element";
 import { replaceDiacritics, replaceSpecialCharacters } from "./text";
 import { containsAnyOfTheStrings, containsAllOfTheStrings, removeWhitespace, trimSpecialChars, normalizeString, capitalize } from "./string";
 import { getXpathResultAsArray, getEmptyTextNodesUnderElement } from "./xpath";
 import { addLinksToLargerImages } from "./image";
-import { replaceElementsBySelector } from "./replaceElements";
+import { replaceElementsBySelector, replaceElementKeepingIdAndClass } from "./replaceElements";
 import { deleteEmptyElements, deleteEmptyBlockElements, deleteBySelectorAndRegex } from "./delete";
 import { getTextLength } from "./node";
 import { deleteIframes, deleteByClassOrIdContaining, deleteBySelectorAndTextMatching } from "./delete";
@@ -355,6 +355,99 @@ export function cleanupStackOverflow()
 
 	const observer = new MutationObserver(handleMutations);
 	observer.observe(getOne("head"), { childList: true });
+}
+
+export function replaceCommonClassesNew()
+{
+	function looksLikeH2(str)
+	{
+		return /^(ch|fb).*ti/.test(str) ||
+			/^ch.*n/.test(str) ||
+			/^ch.*(head|label)/.test(str) ||
+			/^[bf]m.*tit/.test(str) ||
+			/^[bf]mh/.test(str) ||
+			/^[bf]msh/.test(str) ||
+			str.startsWith("parthead") ||
+			str.startsWith("parttitle") ||
+			str.startsWith("contentshead") ||
+			str.startsWith("h2") ||
+			str.startsWith("cst") ||
+			str.startsWith("gmh") ||
+			/^pt.*(num|tit)/.test(str);
+	}
+
+	function looksLikeH4(str)
+	{
+		return str.startsWith("h4");
+	}
+
+	function looksLikeFigcaption(str)
+	{
+		return /^fig.*cap/.test(str) || str.startsWith("cap");
+	}
+
+	function looksLikeFigure(str)
+	{
+		return str.startsWith("fig") || str.includes("image");
+	}
+
+	function looksLikeFootnote(str)
+	{
+		for(const prefix of ["note", "end", "footn", "fn", "ntx"])
+			if(str.startsWith(prefix))
+				return true;
+		return false;
+	}
+
+	function looksLikeDT(str)
+	{
+		return str.startsWith("bib") || str.startsWith("ref") || str.startsWith("copy");
+	}
+
+	function looksLikeQuoteSource(str)
+	{
+		return str.startsWith("epigraphs");
+	}
+
+	function looksLikeQuote(str)
+	{
+		return str.startsWith("epigraph");
+	}
+
+	function looksLikeBlockquote(str)
+	{
+		return /quote/.test(str) || /block/.test(str);
+	}
+
+	replaceElementsBySelector("table p", "div");
+	replaceElementsBySelector("strong,.epub-b, .b", "b");
+	replaceElementsBySelector("em, .epub-i, .i", "i");
+	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle, .pt-num, .pt-title, .partno, .ptno, .pttit", "h1");
+	replaceElementsBySelector("body > div", "section");
+	replaceElementsBySelector("section section", "div");
+	replaceElementsBySelector(".epub-sc, .small", "small");
+	replaceElementsBySelector(".atx1, div.block, .afmtx, .afmtx1", "blockquote");
+
+	const elems = get("p");
+	if(elems)
+	{
+		for(const elem of elems)
+		{
+			const classNorm = elem.className.toLowerCase().replace(/[^0-9a-z]/g, "");
+			if(classNorm.length)
+			{
+				if(looksLikeH2(classNorm)) replaceElementKeepingIdAndClass(elem, "h2");
+				else if(looksLikeH4(classNorm)) replaceElementKeepingIdAndClass(elem, "h4");
+				else if(looksLikeFigcaption(classNorm)) replaceElementKeepingIdAndClass(elem, "figcaption");
+				else if(looksLikeFigure(classNorm)) replaceElementKeepingIdAndClass(elem, "figure");
+				else if(looksLikeDT(classNorm)) replaceElementKeepingIdAndClass(elem, "dt");
+				else if(looksLikeFootnote(classNorm)) replaceElementKeepingIdAndClass(elem, "footnote");
+				else if(looksLikeQuoteSource(classNorm)) replaceElementKeepingIdAndClass(elem, "quoteauthor");
+				else if(looksLikeQuote(classNorm)) replaceElementKeepingIdAndClass(elem, "quote");
+				else if(looksLikeBlockquote(classNorm)) replaceElementKeepingIdAndClass(elem, "blockquote");
+			}
+		}
+	}
 }
 
 export function replaceCommonClasses()
