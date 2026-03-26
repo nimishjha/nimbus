@@ -455,8 +455,9 @@ export function replaceCommonClasses()
 	replaceElementsBySelector("strong", "b");
 	replaceElementsBySelector("em", "i");
 
-	replaceElementsBySelector('.pn, .pt, .partnum, .parttitle, .pt-num, .pt-title, .partno, p[class^="part-"]', "h1");
-	replaceElementsBySelector(".bmh, .cn, .ct, .chapnum, .chapternumber, .tochead, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chapno, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num, .toc-title, .cht", "h2");
+	replaceElementsBySelector('.pn, .pt, .partnum, .parttitle, .pt-num, .pt-title, .partno, p[class^="part-"], .ptno, .pttit', "h1");
+	replaceElementsBySelector(".bmh, .cn, .ct, .chapnum, .chapternumber, .tochead, .chaptitle, .chaptertitle, .chap-num, .chap-title, .fmh, .fmht, .fmtitle, .fm-title, .chapno, .chno, .chnum, .chtitle, .ch-num, .ch-title, .chap-tit, .title-num, .toc-title, .cht, .chaptit", "h2");
+	replaceElementsBySelector('p[class*="fmtitle"], p[class*="chtitle"]', "h2");
 	replaceElementsBySelector(".cst, .h", "h3");
 	replaceElementsBySelector(".figcap", "figcaption");
 	replaceElementsBySelector(".fig-cap", "figcaption");
@@ -464,8 +465,8 @@ export function replaceCommonClasses()
 	replaceElementsBySelector(".comment", "comment");
 	replaceElementsBySelector('p[class^="fn"], p[class*=note]', "footnote");
 	replaceElementsBySelector('p[class^="crt"], p[class^="copy"], .bib', "dt");
-	replaceElementsBySelector('.epiv, .cepiv', "quote");
-	replaceElementsBySelector('p[class^="attri"], .eps, .ceps', "quoteauthor");
+	replaceElementsBySelector('.epiv, .cepiv, .epigraph', "quote");
+	replaceElementsBySelector('p[class^="attri"], .eps, .ceps, .epigraph-source', "quoteauthor");
 
 	replaceElementsBySelector(".epub-i, .i", "i");
 	replaceElementsBySelector(".epub-b, .b", "b");
@@ -493,8 +494,7 @@ export function replaceCommonClasses()
 	replaceElementsBySelector("span[class*=small]", "small");
 
 	replaceElementsBySelector("body > div", "section");
-	//	TODO: save IDs before deleting
-	// deleteEmptyElements("section");
+	replaceElementsBySelector("section section", "div");
 
 	removeAttributeOf("a, i, b, sup, small", "class");
 
