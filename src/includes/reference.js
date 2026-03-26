@@ -270,3 +270,102 @@ export function createReferencesByTags()
 	showMessageBig(`${numASup} a sup, ${numSupA} sup a, ${numFootnoteA} footnote a, ${numNonAlphanumericA} non-alphanumeric references created`);
 }
 
+export function analyzeReferences()
+{
+	if(getOne("footnote"))
+	{
+		const footnoteLinks = document.querySelectorAll("footnote a");
+		let numEmptyFootnoteLinks = 0;
+		for(const link of footnoteLinks)
+		{
+			if(getTextLength(link) === 0)
+				numEmptyFootnoteLinks++;
+		}
+		if(numEmptyFootnoteLinks)
+			logError(`${numEmptyFootnoteLinks} empty links inside footnotes`);
+		else
+			logSuccess("No empty links inside footnotes");
+
+		let numSectionsWithReferences = 0;
+		const sections = get("section");
+		for(const section of sections)
+			if(section.querySelector("footnote") !== null)
+				numSectionsWithReferences++;
+		if(numSectionsWithReferences === 1)
+			logInfo("All footnotes are contained within one section");
+		else if(numSectionsWithReferences > 1)
+			logInfo("More than one section contains footnotes");
+	}
+
+	const allRefs = document.querySelectorAll("reference a");
+	const footnoteRefs = document.querySelectorAll("footnote reference a");
+
+	if(allRefs.length === 0)
+	{
+		logInfo("Could not find any references at all");
+		return;
+	}
+	if(footnoteRefs.length === 0)
+	{
+		logInfo("Could not find any footnote references");
+		return;
+	}
+
+	const nonFootnoteRefs = [];
+	for(const ref of allRefs)
+		if(!ref.closest("footnote"))
+			nonFootnoteRefs.push(ref);
+
+	if(nonFootnoteRefs.length === footnoteRefs.length)
+		logSuccess(`${nonFootnoteRefs.length} non-footnote refs, ${footnoteRefs.length} footnote refs`);
+	else
+		logError(`${nonFootnoteRefs.length} non-footnote refs, ${footnoteRefs.length} footnote refs: cannot interlink by index`);
+
+	const footnotes = document.querySelectorAll("footnote");
+	if(footnotes.length === footnoteRefs.length)
+		logSuccess(`${footnotes.length} footnotes, ${footnoteRefs.length} footnote references`);
+	else
+		logWarning(`${footnotes.length} footnotes, ${footnoteRefs.length} footnote references`);
+
+	let numNonMatchingText = 0;
+	for(let i = 0; i < Math.max(footnoteRefs.length, nonFootnoteRefs.length); i++)
+	{
+		const fRef = footnoteRefs[i];
+		const nfRef = nonFootnoteRefs[i];
+		if(fRef && nfRef)
+		{
+			const fRefText = fRef.textContent.trim()
+			const nfRefText = nfRef.textContent.trim()
+			if(fRefText !== nfRefText)
+			{
+				numNonMatchingText++;
+				if(numNonMatchingText === 1)
+				{
+					logError(`\t footnote reference ${fRefText} and non-footnote reference ${nfRefText} text mismatch`);
+					markElement(fRef);
+					markElement(nfRef);
+				}
+			}
+		}
+		else
+		{
+			if(fRef)
+			{
+				markElement(fRef);
+				logError(`index ${i}: footnote ref has text ${fRef.textContent}, non-footnote ref is undefined`);
+			}
+			else
+			{
+				markElement(nfRef);
+				logError(`index ${i}: non-footnote ref has text ${nfRef.textContent}, footnote ref is undefined`);
+			}
+		}
+	}
+	if(numNonMatchingText)
+		logError(`${numNonMatchingText} footnote and non-footnote references have differing text`);
+	else if(nonFootnoteRefs.length === footnoteRefs.length)
+	{
+		showMessageBig(`All footnote and non-footnote references have matching text; interlinking`);
+		interlinkReferencesByIndex(footnoteRefs, nonFootnoteRefs);
+	}
+}
