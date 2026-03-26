@@ -1022,3 +1022,54 @@ export function replaceSmallCapsWithLowercase()
 		}
 	}
 }
+
+export function removeUnnecessarySpans()
+{
+	let numSpansThatHaveNoTextOrAreRedundantWrappers = 0;
+	let numSpansWithNoClass = 0;
+	let numOrnamentalSpans = 0;
+
+	const spans = get("span");
+	if(spans)
+	{
+		for(let i = 0, ii = spans.length; i < ii; i++)
+		{
+			const span = spans[i];
+
+			del(getEmptyTextNodesUnderElement(span));
+
+			if(span.id && span.id.length)
+			{
+			}
+			else
+			{
+				if(getTextLength(span) === 0 || span.children.length === span.childNodes.length)
+				{
+					unwrapElement(span);
+					numSpansThatHaveNoTextOrAreRedundantWrappers++;
+				}
+				else if(span.className.length === 0)
+				{
+					unwrapElement(span);
+					numSpansWithNoClass++;
+				}
+				else if(span.className.includes("dropcap") || span.className.includes("stickup"))
+				{
+					unwrapElement(span);
+					numOrnamentalSpans++;
+				}
+			}
+		}
+
+		const totalSpansRemoved = numSpansThatHaveNoTextOrAreRedundantWrappers + numSpansWithNoClass + numOrnamentalSpans;
+		if(totalSpansRemoved === spans.length)
+			showMessageBig("All spans removed");
+		else
+			showMessageBig(`Removed ${totalSpansRemoved} out of ${spans.length} spans`);
+	}
+	else
+	{
+		showMessageBig("No spans in document");
+	}
+}
+
