@@ -93,28 +93,27 @@ export const STYLES = {
 		img { background: #800; padding: 2px; box-sizing: border-box; }
 	`,
 	SHOW_SELECTORS: `
-		*[class]::before { content: attr(class); color: #C90; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
-		*[id]::before { content: attr(id); color: #C00; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
-		*[id][class]::before { content: "#"attr(id)" ."attr(class); color: #C0C; background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
+		*[class]::before { content: attr(class); color: #C90; background: #000; padding: 3px 6px; font: bold 18px "Swis721 Cn BT"; }
+		*[id]::before { content: attr(id); color: #C00; background: #000; padding: 3px 6px; font: bold 18px "Swis721 Cn BT"; }
+		*[id][class]::before { content: "#"attr(id)" ."attr(class); color: #C05; background: #000; padding: 3px 6px; font: bold 18px "Swis721 Cn BT"; }
 
-		header, footer, article, aside, section, div, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; padding: 10px; }
-		blockquote { box-shadow: inset 2px 2px #05a, inset -2px -2px #05a; }
-		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
-		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
-		th { box-shadow: inset 2px 2px #048, inset -2px -2px #048; }
-		ul, ol { box-shadow: inset 2px 2px #0A0, inset -2px -2px #0A0; }
-		li { box-shadow: inset 2px 2px #070, inset -2px -2px #070; }
-		sup, sub { box-shadow: inset 2px 2px #68A, inset -2px -2px #68A; }
-		font { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; }
-		abbr { box-shadow: inset 2px 2px #A40, inset -2px -2px #A40; }
-		nobr { box-shadow: inset 2px 2px #A0A, inset -2px -2px #A0A; }
-		cite { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0A0; }
-		small { box-shadow: inset 2px 2px #088, inset -2px -2px #088; }
-		p { box-shadow: inset 2px 2px #909, inset -2px -2px #505; }
-		span { box-shadow: inset 0 -100px #040; padding: 4px; border: 2px solid #0A0; }
+		header, footer, article, aside, section, div, canvas { box-shadow: inset 3px 3px #500, inset -3px -3px #500; padding: 10px; }
+		form, input, button, label { box-shadow: inset 3px 3px #C60, inset -3px -3px #C60; background: rgba(255, 150, 0, 0.2); }
+		table, tr, td { box-shadow: inset 3px 3px #644, inset -3px -3px #644; }
+		th { box-shadow: inset 3px 3px #644, inset -3px -3px #644; }
+		ul, ol { box-shadow: inset 3px 3px #0A0, inset -3px -3px #0A0; }
+		li { box-shadow: inset 3px 3px #070, inset -3px -3px #070; }
+		sup, sub { box-shadow: inset 3px 3px #864, inset -3px -3px #864; background: #000; }
+		font { box-shadow: inset 3px 3px #C60, inset -3px -3px #C60; }
+		abbr { box-shadow: inset 3px 3px #A40, inset -3px -3px #A40; }
+		nobr { box-shadow: inset 3px 3px #A0A, inset -3px -3px #A0A; }
+		cite { box-shadow: inset 3px 3px #0C0, inset -3px -3px #0A0; }
+		small { box-shadow: inset 3px 3px #088, inset -3px -3px #088; }
+		p { box-shadow: inset 3px 3px #505, inset -3px -3px #505; }
+		span { box-shadow: inset 0 -100px #420; padding: 4px; border: 3px solid #a70; }
 		span span { padding: 0px; }
 
-		h1::after, h2::after, h3::after, h4::after, h5::after, h6::after { color: #AAA; background: #000; padding: 2px 6px; font: bold 18px "SF Mono"; float: right; }
+		h1::after, h2::after, h3::after, h4::after, h5::after, h6::after { color: #AAA; background: #000; padding: 3px 6px; font: bold 18px "SF Mono"; float: right; }
 		h1::after { content: "h1"; }
 		h2::after { content: "h2"; }
 		h3::after { content: "h3"; }
@@ -124,6 +123,15 @@ export const STYLES = {
 
 		message::before, autocompleteinputwrapper::before, autocompleteinputwrapper *::before, #userInputWrapper::before, #userInputWrapper *::before, .excludeFromMutations::before { content: none; }
 		message, message *, autocompleteinputwrapper, autocompleteinputwrapper *, #userInputWrapper, #userInputWrapper * { box-shadow: none; }
+
+		sup, sub, span, small { margin: 0 10px 0 0; padding: 3px 5px; }
+		sup::before, sub::before, span::before, small::before { display: inline-block; padding: 1px 5px; background: #000; color: #999; font-size: 20px; font-weight: bold; }
+		sup::before { content: "sup"; }
+		sub::before { content: "sub"; }
+		span::before { content: "span"; }
+		small::before { content: "small"; }
+
+		span[id], sup[id], sub[id], small[id] { box-shadow: inset 3px 3px #c00, inset -3px -3px #c00; }
 
 		.excludeFromMutations::before, .excludeFromMutations *::before { content: none; }
 		.excludeFromMutations[id]::before, .excludeFromMutations[id] *::after { content: none; }
@@ -164,6 +172,11 @@ export const STYLES = {
 		a[id][name] { box-shadow: inset -4px 0 #806 !important; }
 		a[id][href][name] { box-shadow: inset -4px 0 #c0a !important; }
 		a[id][href] { box-shadow: inset -4px 0 #0c0 !important; }
+	`,
+	REVEAL_LINK_ID_AND_HREF: `
+		a[href]::after, a[id]::before { background: #000; padding: 2px 6px; font: bold 18px "Swis721 Cn BT"; }
+		a[href]::after { content: attr(href); color: #07b; }
+		a[id]::before { content: attr(id); color: #c09; }
 	`,
 	REPLACE_IMAGES: `
 		rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px verdana; text-align: left; }
