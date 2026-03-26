@@ -574,7 +574,7 @@ export function removeSpanTags(isOkToLoseIds)
 
 export function removeUnnecessaryClasses()
 {
-	removeAttributeOf("table, tbody, thead, th, tr, td, i, em, b, strong, a, ul, ol, li, sup, sub, small, pre, code, h1, h2, h3, h4, h5, h6, dt, dd, dl, blockquote", "class");
+	removeAttributeOf("table, tbody, thead, th, tr, td, i, em, b, strong, a, ul, ol, li, sup, sub, small, pre, code, h1, h2, h3, h4, h5, h6, dt, dd, dl, blockquote, footnote", "class");
 }
 
 export function simplifyClassNames(selector)
