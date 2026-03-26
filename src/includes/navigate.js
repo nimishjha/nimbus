@@ -155,6 +155,10 @@ export function goToNextElement(selector)
 			config.currentElement.scrollIntoView();
 			window.scrollBy(0, -100);
 		}
+		else
+		{
+			showMessageBig(`No elements matching ${selector}`);
+		}
 	}
 	else
 	{
@@ -164,6 +168,10 @@ export function goToNextElement(selector)
 			config.currentElement = elementToScrollTo;
 			elementToScrollTo.scrollIntoView();
 			window.scrollBy(0, -100);
+		}
+		else
+		{
+			showMessageBig(`Could not find element to scroll to`);
 		}
 	}
 }
@@ -181,6 +189,10 @@ export function goToPrevElement(selector)
 			config.currentElement.scrollIntoView();
 			window.scrollBy(0, -100);
 		}
+		else
+		{
+			showMessageBig(`No elements matching ${selector}`);
+		}
 	}
 	else
 	{
@@ -190,6 +202,10 @@ export function goToPrevElement(selector)
 			config.currentElement = elementToScrollTo;
 			elementToScrollTo.scrollIntoView();
 			window.scrollBy(0, -100);
+		}
+		else
+		{
+			showMessageBig(`Could not find element to scroll to`);
 		}
 	}
 }
