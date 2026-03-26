@@ -1073,3 +1073,13 @@ export function removeUnnecessarySpans()
 	}
 }
 
+export function normalizeClassnames()
+{
+	const elems = get("body *");
+	for(const elem of elems)
+	{
+		if(elem.className.length)
+			elem.className = elem.tagName.toLowerCase() + elem.className.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+	}
+}
+
