@@ -154,7 +154,7 @@ export function moveIDsFromImages(linksByHref)
 			image.parentNode.appendChild(createLinkInWrapper("reference", image.id, null, image.id));
 		image.removeAttribute("id");
 	}
-	console.log(`${images.length} ids moved from images`);
+	showMessageBig(`${images.length} ids moved from images`);
 }
 
 export function getTargetElement(link)
@@ -175,6 +175,8 @@ export function looksLikeReference(str)
 	if(/^\d+$/.test(str) || /^[\[\{]\d+[\}\]]$/.test(str) || /^\d+\.$/.test(str))
 		return true;
 	if(str.length > 0 && str.length < 4 && /[^A-Za-z0-9]/.test(str))
+		return true;
+	if(str.length === 1 && /[a-z]/.test(str))
 		return true;
 	return false;
 }
