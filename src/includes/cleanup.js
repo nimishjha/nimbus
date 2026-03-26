@@ -1083,3 +1083,45 @@ export function normalizeClassnames()
 	}
 }
 
+export function deleteIndexSection()
+{
+	function getClass()
+	{
+		let elem = getOne('p[class^="index"]');
+		if(elem)
+			return "." + elem.className;
+
+		elem = getOne('p[class^="ind-tx"]');
+		if(elem)
+			return "." + elem.className;
+
+		return false;
+	}
+
+	const classToSeek = getClass();
+	if(classToSeek)
+	{
+		const sections = select("section", "hasChildrenOfType", classToSeek);
+		if(sections)
+		{
+			if(sections.length === 1)
+			{
+				sections[0].remove();
+				showMessageBig("Deleted index section");
+			}
+			else
+			{
+				markElements(sections);
+				showMessageBig("More than one index section");
+			}
+		}
+		else
+		{
+			showMessageBig("Did not find any matching sections");
+		}
+	}
+	else
+	{
+		showMessageBig("Did not find classname for index entries");
+	}
+}
