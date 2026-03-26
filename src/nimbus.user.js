@@ -138,6 +138,7 @@ import {
 	cloneBody,
 	convertClassesToCustomElements,
 	deleteHtmlComments,
+	deleteIndexSection,
 	deleteNonContentElements,
 	deleteNonContentLinks,
 	deleteNonContentLists,
@@ -146,14 +147,17 @@ import {
 	fixTextAroundReferences,
 	getBestDomainSegment,
 	getContentByParagraphCount,
+	normalizeClassnames,
 	removeEventListeners,
 	removeInlineStyles,
 	removeRedundantDivs,
 	removeRedundantHrs,
 	removeSpanTags,
 	removeUnnecessaryClasses,
+	removeUnnecessarySpans,
 	replaceAudio,
 	replaceCommonClasses,
+	replaceCommonClassesNew,
 	replaceInlineStylesWithClasses,
 	replaceSmallCapsWithLowercase,
 	setDocTitle,
@@ -643,6 +647,7 @@ import {
 	checkSequence
 } from "./includes/validations";
 import {
+	analyzeReferences,
 	createReferencesByTags,
 	interlinkFootnoteAndNonFootnoteReferencesByIndexInSections,
 	moveID,
@@ -653,6 +658,7 @@ const isDebugMode = true;
 const availableFunctions = {
 	addDateToTitle: addDateToTitle,
 	addLinksToLargerImages: addLinksToLargerImages,
+	analyzeReferences: analyzeReferences,
 	annotate: annotate,
 	annotateElement: annotateElement,
 	appendMetadata: appendMetadata,
@@ -686,6 +692,7 @@ const availableFunctions = {
 	deleteIframes: deleteIframes,
 	deleteImages: deleteImages,
 	deleteImagesSmallerThan: deleteImagesSmallerThan,
+	deleteIndexSection: deleteIndexSection,
 	deleteMessage: deleteMessage,
 	deleteNodesBetweenMarkers: deleteNodesBetweenMarkers,
 	deleteNodesBySelectorAndRelativePosition: deleteNodesBySelectorAndRelativePosition,
@@ -806,6 +813,7 @@ const availableFunctions = {
 	moveID: moveID,
 	normaliseWhitespaceForParagraphs: normaliseWhitespaceForParagraphs,
 	normalizeAllWhitespace: normalizeAllWhitespace,
+	normalizeClassnames: normalizeClassnames,
 	numberDivs: numberDivs,
 	numberNumericReferencesByInterlinkedGroup: numberNumericReferencesByInterlinkedGroup,
 	numberTableRowsAndColumns: numberTableRowsAndColumns,
@@ -838,7 +846,6 @@ const availableFunctions = {
 	rrd: removeRedundantDivs,
 	rrh: removeRedundantHrs,
 	removeSpanTags: removeSpanTags,
-	removeUnnecessaryClasses: removeUnnecessaryClasses,
 	replaceAllDiacritics: replaceAllDiacritics,
 	replaceAudio: replaceAudio,
 	replaceBrs: replaceBrs,
@@ -1100,6 +1107,9 @@ function handleKeyMenuCommand(str)
 			case "NI": goToNextElement("img"); break;
 			case "NM": goToNextElement(".markd"); break;
 			case "NS": customPrompt("Go to next element by selector").then(goToNextElement); break;
+			case "NE": goToNextElement(".statusError"); break;
+			case "NW": goToNextElement(".statusWarning"); break;
+			case "NO": goToNextElement(".statusOk"); break;
 
 			case "PT": callFunctionWithArgs("Make plain text", makePlainText, 1); break;
 			case "P1": setReplacementTag1("h1"); setReplacementTag2("h2"); break;
@@ -1109,8 +1119,9 @@ function handleKeyMenuCommand(str)
 			case "PF": cycleClass(document.documentElement, ["nimbusPreFontProportional", "nimbusPreFontMonospace"]); break;
 			case "PZ": cycleClass(document.documentElement, ["nimbusPreFontSizeSmall", "nimbusPreFontSizeMedium", "nimbusPreFontSizeLarge"]); break;
 
+			case "RA": analyzeReferences(); break;
 			case "RB": replaceBrs(); break;
-			case "RC": forceReloadCss(); break;
+			case "RC": replaceCommonClassesNew(); break;
 			case "RE": replaceElementsBySelectorHelper(); break;
 			case "RM": callFunctionWithArgs("Replace children of marked elements by selector", replaceElementsBySelectorInMarked, 2); break;
 			case "RS": replaceSpecialCharacters(); break;
@@ -1134,6 +1145,7 @@ function handleKeyMenuCommand(str)
 			case "VH": removeRedundantHrs(); break;
 			case "VI": shortenIds(); break;
 			case "VU": removeUnnecessaryClasses(); break;
+			case "VS": removeUnnecessarySpans(); break;
 
 			case "WA": callFunctionWithArgs("Wrap all", wrapAll, 2); break;
 			case "WI": callFunctionWithArgs("Wrap all inner", wrapAllInner, 2); break;
@@ -1141,7 +1153,7 @@ function handleKeyMenuCommand(str)
 			case "YF": toggleStyle(STYLES.FONT_01, "styleFont01", true); break;
 			case "YH": insertStyleHighlight(); break;
 			case "YI": toggleStyle(STYLES.INVERT_IMAGES, "styleInvertImages", true); break;
-			case "YL": toggleStyle(STYLES.INDICATE_LINK_ATTRIBUTES, "styleIndicateLinkAttributes", true); break;
+			case "YL": toggleStyle(STYLES.REVEAL_LINK_ID_AND_HREF, "styleRevealLinkIDAndHref", true); break;
 			case "YN": toggleStyleNegative(); break;
 			case "YO": toggleStyle(STYLES.OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
 			case "YS": toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
@@ -1154,6 +1166,7 @@ function handleKeyMenuCommand(str)
 			case "ZK": toggleShowKeyCodes(); break;
 			case "ZL": showLinksToIds(); break;
 			case "ZO": deleteClass("statusOk"); break;
+			case "ZW": deleteClass("statusWarning"); break;
 			case "ZZ": cloneBody(); break;
 
 			default: showMessageBig(`Unknown command ${str}`);
