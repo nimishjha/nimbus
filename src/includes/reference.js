@@ -1,11 +1,15 @@
 import { Nimbus } from "./Nimbus";
 import { createLinksByHrefLookup, looksLikeReference } from "./link";
-import { get } from "./selectors";
+import { get, getOne } from "./selectors";
 import { wrapElement, unwrapElement, unwrapAll } from "./element";
 import { isEmptyElement } from "./elementAndNodeTests";
 import { replaceElement, replaceElementKeepingId } from "./replaceElements";
 import { showMessageBig, showMessageError } from "./ui";
-import { logInfo, logWarning, logSuccess } from "./log";
+import { logInfo, logError, logWarning, logSuccess } from "./log";
+import { markElement } from "./mark";
+import { getTextLength } from "./node";
+import { interlinkReferencesByIndex } from "./interlinkReferences";
+import { fixTextAroundReferences } from "./cleanup";
 
 export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 {
@@ -155,7 +159,10 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 				}
 			}
 			elem.removeAttribute("id");
-			elem.className = "statusWarning";
+			if(elem.tagName === "A" || elem.tagName === "SPAN" && getTextLength(elem) === 0)
+				elem.remove();
+			else
+				elem.className = "statusWarning";
 		}
 		else
 		{
