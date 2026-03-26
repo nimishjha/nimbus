@@ -186,6 +186,7 @@ export function createReferencesByTags()
 	let numASup = 0;
 	let numSupA = 0;
 	let numFootnoteA = 0;
+	let numNonAlphanumericA = 0;
 
 	if(document.querySelector("a sup"))
 	{
@@ -228,15 +229,35 @@ export function createReferencesByTags()
 
 	if(document.querySelector("footnote a"))
 	{
-		const footnoteLinks = document.querySelectorAll("footnote a:first-child");
-		for(let i = 0, ii = footnoteLinks.length; i < ii; i++)
+		if(document.querySelector("footnote span"))
 		{
-			if(looksLikeReference(footnoteLinks[i].textContent))
+			logWarning("Footnotes contain spans, remove them before trying to create references from footnote links");
+		}
+		else
+		{
+			const footnoteLinks = document.querySelectorAll("footnote a:first-child");
+			for(let i = 0, ii = footnoteLinks.length; i < ii; i++)
 			{
-				footnoteLinks[i].textContent = cleanReferenceText(footnoteLinks[i].textContent);
-				wrapElement(footnoteLinks[i], "reference");
-				numFootnoteA++;
+				if(looksLikeReference(footnoteLinks[i].textContent) && !footnoteLinks[i].closest("reference"))
+				{
+					footnoteLinks[i].textContent = cleanReferenceText(footnoteLinks[i].textContent);
+					wrapElement(footnoteLinks[i], "reference");
+					numFootnoteA++;
+				}
 			}
+		}
+	}
+
+	const links = get("a");
+	for(const link of links)
+	{
+		if(link.closest("reference") || link.querySelector("img"))
+			continue;
+		const str = link.textContent.trim();
+		if(str.length > 0 && str.length < 4 && /^[^A-Za-z0-9]$/.test(str))
+		{
+			wrapElement(link, "reference");
+			numNonAlphanumericA++;
 		}
 	}
 
@@ -244,6 +265,8 @@ export function createReferencesByTags()
 	unwrapAll("reference small");
 	unwrapAll("reference span");
 	unwrapAll("reference reference");
+	fixTextAroundReferences();
 
-	showMessageBig(`${numASup} a > sup, ${numSupA} sup > a, ${numFootnoteA} footnote > a references created`);
+	showMessageBig(`${numASup} a sup, ${numSupA} sup a, ${numFootnoteA} footnote a, ${numNonAlphanumericA} non-alphanumeric references created`);
 }
+
