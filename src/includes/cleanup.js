@@ -427,6 +427,14 @@ export function replaceCommonClassesNew()
 	replaceElementsBySelector("section section", "div");
 	replaceElementsBySelector(".epub-sc, .small", "small");
 	replaceElementsBySelector(".atx1, div.block, .afmtx, .afmtx1", "blockquote");
+	replaceElementsBySelector("span[class*=ital], span[class*=txit], span[class*=epub-i]", "i");
+	replaceElementsBySelector("span[class*=bold], span[class*=txbd], span[class*=epub-b]", "b");
+	replaceElementsBySelector("span[class*=small]", "small");
+
+	unwrapAll('span[class*=dropcap]');
+	unwrapAll('span[class*=stickup]');
+
+	removeAttributeOf("a, i, b, sup, small", "class");
 
 	const elems = get("p");
 	if(elems)
@@ -468,11 +476,6 @@ export function replaceCommonClasses()
 	replaceElementsBySelector('.epiv, .cepiv, .epigraph', "quote");
 	replaceElementsBySelector('p[class^="attri"], .eps, .ceps, .epigraph-source', "quoteauthor");
 
-	replaceElementsBySelector(".epub-i, .i", "i");
-	replaceElementsBySelector(".epub-b, .b", "b");
-	replaceElementsBySelector(".epub-sc, .small", "small");
-	replaceElementsBySelector("div.block, .afmtx, .afmtx1", "blockquote");
-
 	replaceElementsBySelector("div[class*=comment-author]", "h5");
 	replaceElementsBySelector("div[class*=comment-meta]", "h6");
 	replaceElementsBySelector("div[class*=comment-footer]", "h6");
@@ -483,20 +486,9 @@ export function replaceCommonClasses()
 	replaceElementsBySelector("p[class*=subtitle], div[class*=subtitle], p[class*=subhead], div[class*=subhead]", "h3");
 	replaceElementsBySelector("p[class*=image], div[class*=image]", "figure");
 	replaceElementsBySelector("p[class*=caption], div[class*=caption]", "figcaption");
-	replaceElementsBySelector("p[class*=quote], div[class*=quote]", "blockquote");
 	replaceElementsBySelector("p[class*=author], div[class*=author]", "h4");
 	replaceElementsBySelector("p[class*=date], div[class*=date]", "h5");
 	replaceElementsBySelector("p[class*=quote], div[class*=quote]", "blockquote");
-	replaceElementsBySelector("p[class*=quote], div[class*=quote]", "blockquote");
-
-	replaceElementsBySelector("span[class*=ital], span[class*=txit], span[class*=epub-i]", "i");
-	replaceElementsBySelector("span[class*=bold], span[class*=txbd], span[class*=epub-b]", "b");
-	replaceElementsBySelector("span[class*=small]", "small");
-
-	replaceElementsBySelector("body > div", "section");
-	replaceElementsBySelector("section section", "div");
-
-	removeAttributeOf("a, i, b, sup, small", "class");
 
 	if(getOne(".indexmain"))
 	{
@@ -520,10 +512,6 @@ export function replaceCommonClasses()
 
 	replaceElementsBySelector("div.indent", "p");
 	deleteClass("indent");
-
-	unwrapAll(".dropcap");
-	unwrapAll(".dropcaps");
-	unwrapAll(".stickup");
 }
 
 export function clearBootstrapClasses()
@@ -574,7 +562,7 @@ export function removeSpanTags(isOkToLoseIds)
 
 export function removeUnnecessaryClasses()
 {
-	removeAttributeOf("table, tbody, thead, th, tr, td, i, em, b, strong, a, ul, ol, li, sup, sub, small, pre, code, h1, h2, h3, h4, h5, h6, dt, dd, dl, blockquote, footnote", "class");
+	removeAttributeOf("table, tbody, thead, th, tr, td, i, em, b, strong, a, ul, ol, li, sup, sub, small, pre, code, h1, h2, h3, h4, h5, h6, dt, dd, dl, blockquote, footnote, figure, figcaption", "class");
 }
 
 export function simplifyClassNames(selector)

@@ -161,7 +161,7 @@ export const STYLES = {
 		#inspector div { box-shadow: none; margin: 0; padding: 0; }
 		#inspector::after, #inspector div::after { display: none; }
 	`,
-	INVERT_IMAGES: "img { filter: invert(1) hue-rotate(180deg); }",
+	INVERT_IMAGES: "img, img:hover { filter: invert(1) hue-rotate(180deg); }",
 	INDICATE_LINK_ATTRIBUTES: `
 		*[id]::before { content: " "; background: #c00; width: 10px; height: 10px; margin-right: 6px; display: inline-block; border: 5px solid #000; }
 		a[id]::before { content: none; }

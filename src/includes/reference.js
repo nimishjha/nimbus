@@ -8,7 +8,7 @@ import { showMessageBig, showMessageError } from "./ui";
 import { logInfo, logError, logWarning, logSuccess } from "./log";
 import { markElement } from "./mark";
 import { getTextLength } from "./node";
-import { interlinkReferencesByIndex } from "./interlinkReferences";
+import { interlink, interlinkReferencesByIndex } from "./interlinkReferences";
 import { fixTextAroundReferences } from "./cleanup";
 
 export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
@@ -46,20 +46,7 @@ export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 				for(let j = 0; j < nonFootnoteRefs.length; j++)
 				{
 					const refIndex = j + 1;
-					const link1 = nonFootnoteRefs[j];
-					const link2 = footnoteRefs[j];
-
-					link1.id = `s${sectionIndex}r${refIndex}`;
-					link2.id = `s${sectionIndex}r${refIndex}b`;
-
-					link1.textContent = refIndex;
-					link2.textContent = refIndex;
-
-					link1.setAttribute("href", "#" + link2.id);
-					link2.setAttribute("href", "#" + link1.id);
-
-					link1.className = "statusOk";
-					link2.className = "statusOk";
+					interlink(nonFootnoteRefs[j], footnoteRefs[j], refIndex, `s${sectionIndex}r${refIndex}`);
 				}
 			}
 			else
@@ -76,7 +63,7 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 	const validRelationships = new Set(["p", "s", "c", "ns", "ps"]);
 	if(!(typeof recipientRelationship === "string" && validRelationships.has(recipientRelationship)))
 	{
-		showMessageError("recipientRelationship needs to be 1, 2, or 3");
+		showMessageError("recipientRelationship needs to be one of [p, s, c, ns, ps]");
 		return;
 	}
 
@@ -302,7 +289,7 @@ export function analyzeReferences()
 
 	if(allRefs.length === 0)
 	{
-		logInfo("Could not find any references at all");
+		logInfo("Could not find any references");
 		return;
 	}
 	if(footnoteRefs.length === 0)
@@ -361,6 +348,7 @@ export function analyzeReferences()
 			}
 		}
 	}
+
 	if(numNonMatchingText)
 		logError(`${numNonMatchingText} footnote and non-footnote references have differing text`);
 	else if(nonFootnoteRefs.length === footnoteRefs.length)
