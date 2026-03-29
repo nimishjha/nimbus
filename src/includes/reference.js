@@ -1,5 +1,5 @@
 import { Nimbus } from "./Nimbus";
-import { createLinksByHrefLookup, looksLikeReference } from "./link";
+import { createLinksByHrefLookup, looksLikeReference, getTargetElement } from "./link";
 import { get, getOne } from "./selectors";
 import { wrapElement, unwrapElement, unwrapAll } from "./element";
 import { isEmptyElement } from "./elementAndNodeTests";
@@ -356,4 +356,84 @@ export function analyzeReferences()
 		showMessageBig(`All footnote and non-footnote references have matching text; interlinking`);
 		interlinkReferencesByIndex(footnoteRefs, nonFootnoteRefs);
 	}
+}
+
+export function orderFootnotesByNonFootnoteRefs()
+{
+	const allRefs = document.querySelectorAll("reference a");
+	const footnoteRefs = document.querySelectorAll("footnote reference a");
+
+	if(allRefs && footnoteRefs)
+	{
+		const nonFootnoteRefs = [];
+		for(const ref of allRefs)
+			if(!ref.closest("footnote"))
+				nonFootnoteRefs.push(ref);
+
+		if(nonFootnoteRefs.length === footnoteRefs.length)
+		{
+			let numNoTarget = 0
+			let numNoFootnote = 0;
+			let numNonLinkTargets = 0;
+
+			const footnoteWrapper = document.createElement("article");
+			const footnotesInOrder = [];
+
+			for(let i = 0, ii = nonFootnoteRefs.length; i < ii; i++)
+			{
+				const nfRef = nonFootnoteRefs[i];
+				const refIndex = (i + 1).toString();
+				const fRef = getTargetElement(nfRef);
+				if(fRef)
+				{
+					if(fRef.tagName === "A")
+					{
+						const footnote = fRef.closest("footnote");
+						if(footnote)
+						{
+							nfRef.textContent = fRef.textContent = refIndex;
+							footnotesInOrder.push(footnote);
+						}
+						else
+						{
+							numNoFootnote++;
+							fRef.className = "statusWarning";
+						}
+					}
+					else
+					{
+						numNonLinkTargets++;
+					}
+				}
+				else
+				{
+					numNoTarget++;
+					nfRef.className = "statusError";
+				}
+			}
+
+			if(numNoTarget === 0 && numNoFootnote === 0 && numNonLinkTargets === 0)
+			{
+				for(const footnote of footnotesInOrder)
+					footnoteWrapper.appendChild(footnote);
+				document.body.appendChild(footnoteWrapper);
+			}
+			else
+			{
+				logError(`${numNoTarget} targets not found, ${numNonLinkTargets} non-link targets, ${numNoFootnote} footnotes not found; cannot place footnotes in order`);
+			}
+		}
+		else
+		{
+			logError(`${nonFootnoteRefs.length} non-footnote refs, ${footnoteRefs.length} footnote refs`);
+		}
+	}
+	else
+	{
+		if(!allRefs)
+			logError("Could not find any references");
+		if(!footnoteRefs)
+			logError("Could not find any footnote references");
+	}
+
 }

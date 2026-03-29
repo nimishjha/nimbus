@@ -651,6 +651,7 @@ import {
 	createReferencesByTags,
 	interlinkFootnoteAndNonFootnoteReferencesByIndexInSections,
 	moveID,
+	orderFootnotesByNonFootnoteRefs,
 } from "./includes/reference";
 
 const isDebugMode = true;
@@ -817,6 +818,7 @@ const availableFunctions = {
 	numberDivs: numberDivs,
 	numberNumericReferencesByInterlinkedGroup: numberNumericReferencesByInterlinkedGroup,
 	numberTableRowsAndColumns: numberTableRowsAndColumns,
+	orderFootnotesByNonFootnoteRefs: orderFootnotesByNonFootnoteRefs,
 	persistStreamingImages: persistStreamingImages,
 	preMakeDivsFromLineBreaks: preMakeDivsFromLineBreaks,
 	preRemoveMultiLineBreaks: preRemoveMultiLineBreaks,
