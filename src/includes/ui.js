@@ -133,6 +133,39 @@ export function closeCustomPrompt()
 export function autoCompleteInputBox()
 {
 	const inputComponent = Nimbus.autoCompleteInputComponent;
+	createShortCodesLookup();
+
+	function getUppercaseChars(str)
+	{
+		const strWithCapsCollapsed = str.replace(/([A-Z])[A-Z]+/g, "$1");
+		const matches = strWithCapsCollapsed.match(/[A-Z]/g);
+		if(matches)
+			return strWithCapsCollapsed[0] + matches.join("").toLowerCase();
+		return false;
+	}
+
+	function createShortCodesLookup()
+	{
+		const commands = Object.keys(Nimbus.availableFunctions);
+		const lookup = {};
+		const shortCodes = [];
+		for(const command of commands)
+		{
+			const shortCode = getUppercaseChars(command);
+			if(shortCode)
+			{
+				if(lookup[shortCode])
+					lookup[shortCode].push(command);
+				else
+					lookup[shortCode] = [command];
+				shortCodes.push(shortCode);
+			}
+		}
+
+		Nimbus.autoCompleteInputComponent.commands = commands;
+		Nimbus.autoCompleteInputComponent.commandsByShortCode = lookup;
+		Nimbus.autoCompleteInputComponent.shortCodes = shortCodes;
+	}
 
 	function updateInputField()
 	{
@@ -206,23 +239,31 @@ export function autoCompleteInputBox()
 		matchesContainer.appendChild(matchList);
 	}
 
+	function findMatches(str)
+	{
+		const matches = new Set();
+		for(const shortCode of inputComponent.shortCodes)
+			if(shortCode.startsWith(str))
+				for(const command of inputComponent.commandsByShortCode[shortCode])
+					matches.add(command);
+
+		if(matches.size === 0)
+			for(const command of inputComponent.commands)
+				if(command.toLowerCase().includes(str))
+					matches.add(command);
+
+		return Array.from(matches);
+	}
+
 	function showMatches(str)
 	{
-		if(!str || !str.length || str.length < 2)
+		if(str.length === 0)
 		{
 			emptyElement(getOne("#autoCompleteMatches"));
 			inputComponent.currentIndex = -1;
 			return;
 		}
-		str = str.toLowerCase().trim();
-
-		inputComponent.matches = [];
-		const commands = Object.keys(Nimbus.availableFunctions);
-		for(let i = 0, ii = commands.length; i < ii; i++)
-		{
-			if(~commands[i].toLowerCase().indexOf(str))
-				inputComponent.matches.push(commands[i]);
-		}
+		inputComponent.matches = findMatches(str.toLowerCase().trim());
 		renderMatches();
 	}
 

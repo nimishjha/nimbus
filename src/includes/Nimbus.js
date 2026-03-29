@@ -8,6 +8,9 @@ export const Nimbus = {
 	autoCompleteInputComponent: {
 		matches: [],
 		currentIndex: -1,
+		commands: [],
+		commandsByShortCode: {},
+		shortCodes: [],
 	},
 	highlightTagName: "mark",
 	highlightTagNameList: ["mark", "markyellow", "markpurple", "markgreen", "markblue", "markred", "markwhite"],
