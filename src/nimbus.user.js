@@ -893,6 +893,7 @@ const availableFunctions = {
 	setReplacementTag2: setReplacementTag2,
 	shortenIds: shortenIds,
 	showAttributes: showAttributes,
+	showAvailableCommands: showAvailableCommands,
 	showHtmlComments: showHtmlComments,
 	showLinksToIds: showLinksToIds,
 	showPrintLink: showPrintLink,
@@ -973,6 +974,14 @@ function disableConsoleLogs()
 function showVersion()
 {
 	showMessageBig("Nimbus version " + Nimbus.version);
+}
+
+function showAvailableCommands()
+{
+	const arr = [];
+	for(const shortCode of Object.keys(Nimbus.autoCompleteInputComponent.commandsByShortCode))
+		arr.push(`${shortCode}: ${Nimbus.autoCompleteInputComponent.commandsByShortCode[shortCode]}`);
+	console.log(arr.join("\n"));
 }
 
 function inject()
