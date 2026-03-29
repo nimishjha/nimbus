@@ -247,10 +247,9 @@ export function autoCompleteInputBox()
 				for(const command of inputComponent.commandsByShortCode[shortCode])
 					matches.add(command);
 
-		if(matches.size === 0)
-			for(const command of inputComponent.commands)
-				if(command.toLowerCase().includes(str))
-					matches.add(command);
+		for(const command of inputComponent.commands)
+			if(command.toLowerCase().includes(str))
+				matches.add(command);
 
 		return Array.from(matches);
 	}
