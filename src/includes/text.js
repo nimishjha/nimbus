@@ -374,11 +374,8 @@ export function deleteNonEnglishText()
 export function normalizeAllWhitespace()
 {
 	const textNodes = getTextNodesUnderSelector("body");
-	for(let i = 0, ii = textNodes.length; i < ii; i++)
-	{
-		const textNode = textNodes[i];
-		textNode.data = textNode.data.replace(/\s+/g, " ");
-	}
+	for(const textNode of textNodes)
+		textNode.data = textNode.data.replace(/[\s\u2000-\u200A]+/g, " ");
 }
 
 export function boldInlineColonHeadings()
