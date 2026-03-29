@@ -73,46 +73,25 @@ export const STYLES = {
 		.jw-text-track-cue { background: transparent; line-height: 1.4; font-size: 14px; }
 	`,
 	OUTLINE_ELEMENTS: `
-		header, footer, article, aside, section, div, canvas { box-shadow: inset 2px 2px #06C, inset -2px -2px #06C; }
-		blockquote { box-shadow: inset 2px 2px #05a, inset -2px -2px #05a; }
-		form, input, button, label { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; background: rgba(255, 150, 0, 0.2); }
-		table, tr, td { box-shadow: inset 2px 2px #04C, inset -2px -2px #04C; }
-		th { box-shadow: inset 2px 2px #048, inset -2px -2px #048; }
-		ul, ol { box-shadow: inset 2px 2px #0A0, inset -2px -2px #0A0; }
-		li { box-shadow: inset 2px 2px #070, inset -2px -2px #070; }
-		sup, sub { box-shadow: inset 2px 2px #68A, inset -2px -2px #68A; }
-		span { box-shadow: inset 2px 2px #AA0, inset -2px -2px #AA0; }
-		font { box-shadow: inset 2px 2px #C60, inset -2px -2px #C60; }
-		abbr { box-shadow: inset 2px 2px #A40, inset -2px -2px #A40; }
-		nobr { box-shadow: inset 2px 2px #A0A, inset -2px -2px #A0A; }
-		cite { box-shadow: inset 2px 2px #0C0, inset -2px -2px #0A0; }
-		small { box-shadow: inset 2px 2px #088, inset -2px -2px #088; }
-		p { box-shadow: inset 2px 2px #909, inset -2px -2px #505; }
-		mark, markyellow, markred, markgreen, markblue, markpurple, markwhite { box-shadow: inset 2px 2px #888, inset -2px -2px #888; }
-		a, a * { background: rgba(180, 255, 0, 0.25); }
-		img { background: #800; padding: 2px; box-sizing: border-box; }
-	`,
-	SHOW_SELECTORS: `
-		*[class]::before { content: attr(class); color: #C90; background: #000; padding: 3px 6px; font: bold 18px "Swis721 Cn BT"; }
-		*[id]::before { content: attr(id); color: #C00; background: #000; padding: 3px 6px; font: bold 18px "Swis721 Cn BT"; }
-		*[id][class]::before { content: "#"attr(id)" ."attr(class); color: #C05; background: #000; padding: 3px 6px; font: bold 18px "Swis721 Cn BT"; }
-
 		header, footer, article, aside, section, div, canvas { box-shadow: inset 3px 3px #500, inset -3px -3px #500; padding: 10px; }
 		form, input, button, label { box-shadow: inset 3px 3px #C60, inset -3px -3px #C60; background: rgba(255, 150, 0, 0.2); }
 		table, tr, td { box-shadow: inset 3px 3px #644, inset -3px -3px #644; }
 		th { box-shadow: inset 3px 3px #644, inset -3px -3px #644; }
 		ul, ol { box-shadow: inset 3px 3px #0A0, inset -3px -3px #0A0; }
 		li { box-shadow: inset 3px 3px #070, inset -3px -3px #070; }
-		sup, sub { box-shadow: inset 3px 3px #864, inset -3px -3px #864; background: #000; }
 		font { box-shadow: inset 3px 3px #C60, inset -3px -3px #C60; }
 		abbr { box-shadow: inset 3px 3px #A40, inset -3px -3px #A40; }
 		nobr { box-shadow: inset 3px 3px #A0A, inset -3px -3px #A0A; }
 		cite { box-shadow: inset 3px 3px #0C0, inset -3px -3px #0A0; }
-		small { box-shadow: inset 3px 3px #088, inset -3px -3px #088; }
 		p { box-shadow: inset 3px 3px #505, inset -3px -3px #505; }
-		span { box-shadow: inset 0 -100px #420; padding: 4px; border: 3px solid #a70; }
-		span span { padding: 0px; }
-
+		sup, sub, small, span, label { box-shadow: inset 0 -100px #420; padding: 4px; border: 3px solid #a70; margin: 0 10px 0 0; padding: 3px 5px; }
+		sup[id], sub[id], small[id], span[id], label[id] { box-shadow: inset 3px 3px #c00, inset -3px -3px #c00; }
+		.excludeFromMutations { box-shadow: none; }
+	`,
+	SHOW_SELECTORS: `
+		*[class]::before { content: attr(class); color: #C90; background: #000; padding: 3px 6px; font: bold 18px "Swis721 Cn BT"; }
+		*[id]::before { content: attr(id); color: #C00; background: #000; padding: 3px 6px; font: bold 18px "Swis721 Cn BT"; }
+		*[id][class]::before { content: "#"attr(id)" ."attr(class); color: #C05; background: #000; padding: 3px 6px; font: bold 18px "Swis721 Cn BT"; }
 		h1::after, h2::after, h3::after, h4::after, h5::after, h6::after { color: #AAA; background: #000; padding: 3px 6px; font: bold 18px "SF Mono"; float: right; }
 		h1::after { content: "h1"; }
 		h2::after { content: "h2"; }
@@ -120,19 +99,14 @@ export const STYLES = {
 		h4::after { content: "h4"; }
 		h5::after { content: "h5"; }
 		h6::after { content: "h6"; }
-
+		sup::after, sub::after, span::after, small::after { display: inline-block; padding: 1px 5px; background: #000; color: #999; font-size: 20px; font-weight: bold; }
+		sup::after { content: "sup"; }
+		sub::after { content: "sub"; }
+		span::after { content: "span"; }
+		small::after { content: "small"; }
+		label::after { content: "label"; }
 		message::before, autocompleteinputwrapper::before, autocompleteinputwrapper *::before, #userInputWrapper::before, #userInputWrapper *::before, .excludeFromMutations::before { content: none; }
 		message, message *, autocompleteinputwrapper, autocompleteinputwrapper *, #userInputWrapper, #userInputWrapper * { box-shadow: none; }
-
-		sup, sub, span, small { margin: 0 10px 0 0; padding: 3px 5px; }
-		sup::before, sub::before, span::before, small::before { display: inline-block; padding: 1px 5px; background: #000; color: #999; font-size: 20px; font-weight: bold; }
-		sup::before { content: "sup"; }
-		sub::before { content: "sub"; }
-		span::before { content: "span"; }
-		small::before { content: "small"; }
-
-		span[id], sup[id], sub[id], small[id] { box-shadow: inset 3px 3px #c00, inset -3px -3px #c00; }
-
 		.excludeFromMutations::before, .excludeFromMutations *::before { content: none; }
 		.excludeFromMutations[id]::before, .excludeFromMutations[id] *::after { content: none; }
 		.excludeFromMutations[class]::before, .excludeFromMutations[class] *::after { content: none; }

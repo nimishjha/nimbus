@@ -1075,14 +1075,9 @@ export function deleteIndexSection()
 {
 	function getClass()
 	{
-		let elem = getOne('p[class^="index"]');
+		let elem = getOne(".index") || getOne(".IX") || getOne('p[class^="index"]') || getOne('p[class^="ind-tx"]');
 		if(elem)
 			return "." + elem.className;
-
-		elem = getOne('p[class^="ind-tx"]');
-		if(elem)
-			return "." + elem.className;
-
 		return false;
 	}
 
