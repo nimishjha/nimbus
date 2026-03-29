@@ -16,6 +16,11 @@ export function getEmptyTextNodesUnderElement(elem)
 	return xPathNodesToArray(document.evaluate(".//text()[normalize-space() = '']", elem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null));
 }
 
+export function getEmptyElementsOfType(tagName)
+{
+	return xPathNodesToArray(document.evaluate(`.//${tagName}[normalize-space() = '']`, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null));
+}
+
 export function getTextNodesUnderElementMatching(elem, text)
 {
 	return xPathNodesToArray(document.evaluate(`.//text()[contains(., "${text}")]`, elem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null));

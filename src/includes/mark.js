@@ -7,7 +7,7 @@ import { makeClassSelector } from "./misc";
 import { insertStyle, insertStyleHighlight, getAllCssRulesForElement } from "./style";
 import { ylog } from "./log";
 import { createSelector, createClassSelector } from "./element";
-import { xPathSelect } from "./xpath";
+import { xPathSelect, getEmptyElementsOfType } from "./xpath";
 
 export function markElements(elements)
 {
@@ -370,4 +370,9 @@ export function markByIdenticalText()
 export function markImagesSmallerThan(pixelArea)
 {
 	markElements(selectImagesSmallerThan(pixelArea));
+}
+
+export function markEmptyElementsOfType(tagName)
+{
+	markElements(getEmptyElementsOfType(tagName));
 }
