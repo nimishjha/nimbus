@@ -365,6 +365,24 @@ export function orderFootnotesByNonFootnoteRefs()
 
 	if(allRefs && footnoteRefs)
 	{
+		const footnotes = get("footnote");
+		if(footnotes)
+		{
+			for(const footnote of footnotes)
+			{
+				if(footnote.querySelector("reference") === null)
+				{
+					showMessageError("Some footnotes don't have references, cannot proceed");
+					return;
+				}
+			}
+		}
+		else
+		{
+			showMessageError("No footnotes in document, cannot proceed");
+			return;
+		}
+
 		const nonFootnoteRefs = [];
 		for(const ref of allRefs)
 			if(!ref.closest("footnote"))
