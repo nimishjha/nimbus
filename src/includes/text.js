@@ -18,26 +18,6 @@ export function fixSpacesBetweenNestedQuotes()
 	replaceInTextNodes("\" '", "\"'");
 }
 
-export function fixLineBreaks()
-{
-	const spans = get("span");
-	if(spans)
-	{
-		for(let i = 0, ii = spans.length; i < ii; i++)
-		{
-			const span = spans[i];
-			if(span.textContent.endsWith('\n'))
-				span.appendChild(document.createElement("br"));
-		}
-	}
-	var marked = getOne(makeClassSelector(Nimbus.markerClass));
-	if(marked)
-	{
-		marked.innerHTML = marked.innerHTML.replace(/\n+/g, "<br>");
-		splitByBrs(makeClassSelector(Nimbus.markerClass));
-	}
-}
-
 export function joinByBrs(selector)
 {
 	const brs = get(selector + " br");
@@ -449,43 +429,4 @@ export function fixDashes()
 
 	const t2 = new Date();
 	console.log(`fixDashes: ${t2 - t1} ms`);
-}
-
-export function toggleDashes()
-{
-	const node = getNodeContainingSelection();
-	const EMDASH = "\u2014";
-	const HYPHEN = "-";
-	if(node)
-	{
-		if(node.textContent.indexOf(HYPHEN) !== -1)
-			node.textContent = node.textContent.replace(/-/g, EMDASH);
-		else if(node.textContent.indexOf(EMDASH) !== -1)
-			node.textContent = node.textContent.replaceAll(EMDASH, HYPHEN);
-	}
-}
-
-export function removeAllEmphasis() { unwrapAll("b, strong, i, em, u"); }
-
-function replaceHyphensWithDashesInClickedElement(evt)
-{
-	const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
-	if(!evt[ctrlOrMeta]) return;
-	const clickedElement = getNodeContainingSelection();
-	const textNodes = getTextNodesUnderElement(clickedElement);
-	for(const node of textNodes)
-	{
-		if(node.data.includes("-"))
-			node.data = node.data.replace(/-/g, "—");
-	}
-}
-
-export function enableHyphensToDashesOnClick()
-{
-	document.addEventListener('click', replaceHyphensWithDashesInClickedElement, false);
-}
-
-export function disableHyphensToDashesOnClick()
-{
-	document.removeEventListener('click', replaceHyphensWithDashesInClickedElement);
 }
