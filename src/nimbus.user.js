@@ -649,6 +649,7 @@ import {
 	moveID,
 	orderFootnotesByNonFootnoteRefs,
 } from "./includes/reference";
+import { interlinkReferencesUsingFootnoteReferences } from "./includes/interlinkReferences";
 
 const isDebugMode = true;
 
@@ -767,6 +768,7 @@ const availableFunctions = {
 	insertSpacesAround: insertSpacesAround,
 	inspect: inspect,
 	interlinkFootnoteAndNonFootnoteReferencesByIndexInSections: interlinkFootnoteAndNonFootnoteReferencesByIndexInSections,
+	interlinkReferencesUsingFootnoteReferences: interlinkReferencesUsingFootnoteReferences,
 	joinAdjacentElements: joinAdjacentElements,
 	joinByBrs: joinByBrs,
 	joinMarkedElements: joinMarkedElements,
