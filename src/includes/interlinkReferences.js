@@ -2,6 +2,7 @@ import { createUniqueID } from "./misc";
 import { logSuccess, logError, logWarning, logYellow } from "./log";
 import { showMessageBig, showMessageError } from "./ui";
 import { createLinksByHrefLookup } from "./link";
+import { wrapElement } from "./element";
 
 export function getSafePrefixForSequentialIDs(prefix)
 {
@@ -28,15 +29,11 @@ export function getSafePrefixForSequentialIDs(prefix)
 			prefixToTest = prefix + String.fromCharCode(charCode);
 			charCode++;
 			if(charCode > 122)
-			{
-				prefix += "_";
-				charCode = 97;
-			}
+				return false;
 		}
 		else
 			return prefixToTest;
 	}
-	return false;
 }
 
 export function interlink(primaryLink, secondaryLink, text, id)
@@ -104,6 +101,8 @@ export function interlinkReferencesUsingFootnoteReferences()
 			primaryRefLink.id = prefix + index;
 			primaryRefLink.textContent = index;
 			interlink(primaryRefLink, links[0], primaryRefLink.textContent, primaryRefLink.id);
+			if(links[0].parentNode.tagName !== "REFERENCE")
+				wrapElement(links[0], "reference");
 
 			if(links.length > 1)
 			{
