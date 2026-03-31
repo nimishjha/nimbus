@@ -1,3 +1,15 @@
+export const REGEXES_GLOBAL = {
+	UNICODE_SPACES: /[\u2000-\u200F]+/g,
+	SPACES: /[\s\u2000-\u200F]+/g,
+	PRINTABLE_ASCII: /[\x20-\x7E]+/g,
+};
+
+export const REGEXES = {
+	UNICODE_SPACES: /[\u2000-\u200F]/,
+	SPACES: /[\s\u2000-\u200F]/,
+	PRINTABLE_ASCII: /[\x20-\x7E]/,
+};
+
 export const BLOCK_TAGS = [
 	"ANNOTATION",
 	"ARTICLE",
