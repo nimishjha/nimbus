@@ -241,7 +241,7 @@ export function createReferencesByTags()
 		if(link.closest("reference") || link.querySelector("img"))
 			continue;
 		const str = link.textContent.trim();
-		if(str.length > 0 && str.length < 4 && /^[^A-Za-z0-9]$/.test(str))
+		if(str.length > 0 && str.length < 4 && /^[^A-Za-z0-9]+$/.test(str))
 		{
 			wrapElement(link, "reference");
 			numNonAlphanumericA++;
