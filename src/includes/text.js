@@ -10,7 +10,7 @@ import { showMessageBig, showMessageError } from "./ui";
 import { replaceInTextNodes, replaceInTextNodesRegex } from "./textReplace";
 import { removeLineBreaks } from "./string";
 import { containsOnlyPlainText } from "./elementAndNodeTests";
-import { DIACRITIC_REGEXES_BY_LETTER, HEADING_TAGS_SET } from "./constants";
+import { REGEXES, REGEXES_GLOBAL, DIACRITIC_REGEXES_BY_LETTER, HEADING_TAGS_SET } from "./constants";
 
 export function fixSpacesBetweenNestedQuotes()
 {
@@ -237,6 +237,13 @@ export function replaceSpecialCharacters()
 		const textNode = textNodes[i];
 		let nodeText = textNode.data;
 		let textHasChanged = false;
+
+		if(REGEXES.UNICODE_SPACES.test(nodeText))
+		{
+			nodeText = nodeText.replace(REGEXES_GLOBAL.SPACES, " ");
+			textHasChanged = true;
+		}
+
 		for(let j = 0, jj = keys.length; j < jj; j++)
 		{
 			const key = keys[j];
@@ -348,14 +355,14 @@ export function removeEmojis()
 
 export function deleteNonEnglishText()
 {
-	replaceInTextNodesRegex("body", /[^A-Za-z0-9 :\-]/g, "");
+	replaceInTextNodesRegex("body", REGEXES_GLOBAL.PRINTABLE_ASCII, "");
 }
 
 export function normalizeAllWhitespace()
 {
 	const textNodes = getTextNodesUnderSelector("body");
 	for(const textNode of textNodes)
-		textNode.data = textNode.data.replace(/[\s\u2000-\u200A]+/g, " ");
+		textNode.data = textNode.data.replace(REGEXES_GLOBAL.SPACES, " ");
 }
 
 export function boldInlineColonHeadings()

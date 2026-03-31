@@ -1,3 +1,5 @@
+import { REGEXES_GLOBAL } from "./constants";
+
 export function getNodeText(node)
 {
 	if(!node.nodeType)
@@ -9,5 +11,5 @@ export function getNodeText(node)
 export function getTextLength(node)
 {
 	const text = node.nodeType === 1 ? node.textContent : node.data;
-	return text.replace(/[\s\u200B]+/g, "").length;
+	return text.replace(REGEXES_GLOBAL.SPACES, "").length;
 }
