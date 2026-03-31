@@ -24,6 +24,7 @@ export function hasDuplicateIDs()
 export function checkSequence(elems)
 {
 	let step = 0;
+	let numNonSequential = 0;
 	for(let i = 0; i < elems.length; i++)
 	{
 		const elem = elems[i];
@@ -38,6 +39,16 @@ export function checkSequence(elems)
 			elem.className = "statusError";
 			annotateElement(elem, "x", `expected ${expectedIndex}`);
 			step += Math.abs(actualIndex - expectedIndex);
+			numNonSequential++;
+			if(numNonSequential > 10)
+				return;
 		}
 	}
+}
+
+export function checkSequenceBySelector(selector)
+{
+	const elems = document.querySelectorAll(selector);
+	if(elems)
+		checkSequence(elems);
 }
