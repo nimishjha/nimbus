@@ -1,4 +1,4 @@
-import { BLOCK_TAGS_SET, INLINE_TAGS_SET } from "./constants";
+import { BLOCK_TAGS_SET, INLINE_TAGS_SET, REGEXES_GLOBAL } from "./constants";
 import { getTextLength } from "./node";
 
 export function hasClassesContaining(element, arrStr)
@@ -37,7 +37,7 @@ export function containsPlainTextNodes(node)
 export function containsNonEmptyPlainTextNodes(node)
 {
 	for(const child of node.childNodes)
-		if(child.nodeType === 3 && child.data.replace(/\s+/g, "").length > 0) return true;
+		if(child.nodeType === 3 && child.data.replace(REGEXES_GLOBAL.SPACES, "").length > 0) return true;
 	return false;
 }
 
