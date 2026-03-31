@@ -84,8 +84,8 @@ export const STYLES = {
 		nobr { box-shadow: inset 3px 3px #A0A, inset -3px -3px #A0A; }
 		cite { box-shadow: inset 3px 3px #0C0, inset -3px -3px #0A0; }
 		p { box-shadow: inset 3px 3px #505, inset -3px -3px #505; }
-		sup, sub, small, span, label { box-shadow: inset 0 -100px #420; padding: 4px; border: 3px solid #a70; margin: 0 10px 0 0; padding: 3px 5px; }
-		sup[id], sub[id], small[id], span[id], label[id] { box-shadow: inset 3px 3px #c00, inset -3px -3px #c00; }
+		sup, sub, small, span, label { display: inline-block; margin: 0 10px 0 0; padding: 3px 5px; border: 2px solid #600; padding: 3px 5px; }
+		sup[id], sub[id], small[id], span[id], label[id] { box-shadow: inset 3px 3px #a00, inset -3px -3px #a00; }
 		.excludeFromMutations { box-shadow: none; }
 	`,
 	SHOW_SELECTORS: `
@@ -105,6 +105,7 @@ export const STYLES = {
 		span::after { content: "span"; }
 		small::after { content: "small"; }
 		label::after { content: "label"; }
+		span::before { content: attr(class); background: #000; color: #aa0; font-weight: bold; padding: 1px 5px; margin: 0 2px; }
 		message::before, autocompleteinputwrapper::before, autocompleteinputwrapper *::before, #userInputWrapper::before, #userInputWrapper *::before, .excludeFromMutations::before { content: none; }
 		message, message *, autocompleteinputwrapper, autocompleteinputwrapper *, #userInputWrapper, #userInputWrapper * { box-shadow: none; }
 		.excludeFromMutations::before, .excludeFromMutations *::before { content: none; }

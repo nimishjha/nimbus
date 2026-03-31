@@ -166,7 +166,7 @@ export function replaceClass(class1, class2)
 		e[i].classList.replace(class1, class2);
 }
 
-export function mapIdsToClasses()
+export function mapIDsToClasses()
 {
 	const elems = get("*[id]");
 	for(const elem of elems)

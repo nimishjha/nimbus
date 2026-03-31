@@ -2,7 +2,6 @@ import { Nimbus } from "./Nimbus";
 import { makePlainText, removeAllAttributesOf, emptyElement, createElement, unwrapElement } from "./element";
 import { get, getOne, del, select } from "./selectors";
 import { markElement, getMarkedElements, markNavigationalLists, markElements, unmarkAll } from "./mark";
-import { fixInternalReferences } from "./link";
 import { createElementWithChildren, removeAttributeOf, unwrapAll, removeAllAttributesOfTypes, deleteClass } from "./element";
 import { replaceDiacritics, replaceSpecialCharacters } from "./text";
 import { containsAnyOfTheStrings, containsAllOfTheStrings, removeWhitespace, trimSpecialChars, normalizeString, capitalize } from "./string";
@@ -18,7 +17,7 @@ import { appendMetadata } from "./metadata";
 import { toggleStyleNegative, insertStyleHighlight } from "./style";
 import { showMessageBig, showMessageError } from "./ui";
 import { retrieve } from "./retrieve";
-import { moveIDsFromEmptyAnchors, createLinksByHrefLookup } from "./link";
+import { moveIDsFromEmptyAnchors, createLinksByHrefLookup, fixInternalReferences, removeUnreferencedIDs } from "./link";
 import { isCurrentDomainLink } from "./url";
 import { getAllClassesFor } from "./inspect";
 import { replaceClass } from "./dom";
@@ -117,6 +116,8 @@ export function cleanupBarebone()
 	del("noscript");
 	if(get("span[id]"))
 		fixInternalReferences();
+	else
+		removeUnreferencedIDs();
 	unwrapAll("span");
 	deleteHtmlComments();
 	removeInlineStyles();
@@ -215,6 +216,7 @@ export function getContentByParagraphCount()
 		unmarkAll();
 		deleteIframes();
 		deleteEmptyBlockElements();
+		removeUnreferencedIDs();
 		return;
 	}
 	del("nav");
@@ -553,9 +555,9 @@ export function fixBody()
 	newBody.replaceWith(replacement);
 }
 
-export function removeSpanTags(isOkToLoseIds)
+export function removeSpanTags(isOkToLoseIDs)
 {
-	if(!isOkToLoseIds)
+	if(!isOkToLoseIDs)
 		moveIDsFromEmptyAnchors();
 	unwrapAll("span");
 }
@@ -603,7 +605,7 @@ export function simplifyClassNames(selector)
 	}
 }
 
-export function shortenIds()
+export function shortenIDs()
 {
 	if(hasDuplicateIDs())
 	{

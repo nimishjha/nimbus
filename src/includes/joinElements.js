@@ -3,7 +3,7 @@ import { markElement, unmarkAll, getMarkedElements } from "./mark";
 import { insertBefore } from "./dom";
 import { deleteMessage } from "./ui";
 import { deleteEmptyTextNodes } from "./delete";
-import { saveIdsToElement } from "./element";
+import { saveIDsToElement } from "./element";
 
 export function joinAdjacentElements(selector)
 {
@@ -28,7 +28,7 @@ export function joinAdjacentElements(selector)
 			nextElem = nextElem.nextElementSibling;
 			appendedElem.remove();
 		}
-		saveIdsToElement(elem, idsToSave);
+		saveIDsToElement(elem, idsToSave);
 	}
 }
 
@@ -106,7 +106,7 @@ export function joinElements(elemsToJoin)
 			wrapper.appendChild(document.createTextNode(" "));
 		}
 	}
-	saveIdsToElement(wrapper, idsToSave);
+	saveIDsToElement(wrapper, idsToSave);
 	insertBefore(elemsToJoin[0], wrapper);
 	del(elemsToJoin);
 	deleteMessage();

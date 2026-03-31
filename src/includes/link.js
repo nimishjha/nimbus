@@ -584,7 +584,7 @@ export function removeUnreferencedIDs(linksByHref)
 		showMessageBig("No unreferenced anchors");
 }
 
-export function showLinksToIds(selector = "body *[id]")
+export function showLinksToIDs(selector = "body *[id]")
 {
 	const elems = document.querySelectorAll(selector);
 	const linksByHref = createLinksByHrefLookup();

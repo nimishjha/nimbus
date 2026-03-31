@@ -115,15 +115,15 @@ export function unwrapAll(selector)
 	if(elems)
 	{
 		const numElems = elems.length || 0;
-		let numIdsLost = 0;
+		let numIDsLost = 0;
 		for(let i = 0, ii = numElems; i < ii; i++)
 		{
 			const elem = elems[i];
-			if(elem.id) ++numIdsLost;
+			if(elem.id) ++numIDsLost;
 			unwrapElement(elem);
 		}
-		if(numIdsLost)
-			showMessageError(`${numElems} ${selector} unwrapped; ${numIdsLost} ids lost`);
+		if(numIDsLost)
+			showMessageError(`${numElems} ${selector} unwrapped; ${numIDsLost} ids lost`);
 		else
 			showMessageBig(`${numElems} ${selector} unwrapped`);
 	}
@@ -222,7 +222,7 @@ export function getAttributes(elem)
 	return attributes;
 }
 
-export function saveIdsToElement(element, ids)
+export function saveIDsToElement(element, ids)
 {
 	if(ids.length === 1 && !element.id)
 	{

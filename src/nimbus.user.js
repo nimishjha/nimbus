@@ -162,7 +162,7 @@ import {
 	replaceSmallCapsWithLowercase,
 	setDocTitle,
 	setDocumentHeading,
-	shortenIds,
+	shortenIDs,
 	simplifyClassNames,
 	splitElementsByChildren,
 	unwrapLinksInsideHeadings,
@@ -226,7 +226,7 @@ import {
 	moveIDsFromEmptyAnchors,
 	revealEmptyLinks,
 	revealLinkAttributes,
-	showLinksToIds,
+	showLinksToIDs,
 	toggleShowEmptyLinksAndSpans,
 } from "./includes/link";
 import {
@@ -353,7 +353,7 @@ import {
 	removeAllAttributesOfTypes,
 	removeAttributeOf,
 	removeColorsFromInlineStyles,
-	saveIdsToElement,
+	saveIDsToElement,
 	setAttributeOf,
 	setAttributeOrProperty,
 	toggleClass,
@@ -435,7 +435,7 @@ import {
 	makeList,
 	makeOL,
 	makeUL,
-	mapIdsToClasses,
+	mapIDsToClasses,
 	moveDataTestIdToClassName,
 	moveElementUp,
 	replaceClass,
@@ -640,7 +640,8 @@ import {
 	keyMenuOptionsByKey
 } from "./includes/keyMenu";
 import {
-	checkSequence
+	checkSequence,
+	checkSequenceBySelector,
 } from "./includes/validations";
 import {
 	analyzeReferences,
@@ -664,6 +665,7 @@ const availableFunctions = {
 	buildGallery: buildGallery,
 	capitalizeTitle: capitalizeTitle,
 	checkSequence: checkSequence,
+	checkSequenceBySelector: checkSequenceBySelector,
 	cleanupAttributes: cleanupAttributes,
 	cleanupDocument: cleanupDocument,
 	cleanupHead: cleanupHead,
@@ -785,7 +787,7 @@ const availableFunctions = {
 	makeParagraphsByLineBreaks: makeParagraphsByLineBreaks,
 	makePlainText: makePlainText,
 	makeUL: makeUL,
-	mapIdsToClasses: mapIdsToClasses,
+	mapIDsToClasses: mapIDsToClasses,
 	mark: mark,
 	markAllFollowingSiblings: markAllFollowingSiblings,
 	markBlockElementsContainingText: markBlockElementsContainingText,
@@ -886,11 +888,11 @@ const availableFunctions = {
 	setQueryParameter: setQueryParameter,
 	setReplacementTag1: setReplacementTag1,
 	setReplacementTag2: setReplacementTag2,
-	shortenIds: shortenIds,
+	shortenIDs: shortenIDs,
 	showAttributes: showAttributes,
 	showAvailableCommands: showAvailableCommands,
 	showHtmlComments: showHtmlComments,
-	showLinksToIds: showLinksToIds,
+	showLinksToIDs: showLinksToIDs,
 	showPrintLink: showPrintLink,
 	showResources: showResources,
 	showSavedStreamingImages: showSavedStreamingImages,
@@ -1053,6 +1055,7 @@ function handleKeyMenuCommand(str)
 			case "DI": deleteImages(); break;
 			case "DJ": removeEmojis(); break;
 			case "DN": deleteNonContentElements(); break;
+			case "DO": del(getXpathResultAsArray(`//body//comment()`)); break;
 			case "DP": callFunctionWithArgs("Delete elements with class or id containing text", deleteByClassOrIdContaining); break;
 			case "DR": deleteResources(); break;
 			case "DS": customPrompt("Delete elements by selector").then(del); break;
@@ -1146,7 +1149,7 @@ function handleKeyMenuCommand(str)
 			case "VC": simplifyClassNames(); break;
 			case "VD": removeRedundantDivs(); break;
 			case "VH": removeRedundantHrs(); break;
-			case "VI": shortenIds(); break;
+			case "VI": shortenIDs(); break;
 			case "VU": removeUnnecessaryClasses(); break;
 			case "VS": removeUnnecessarySpans(); break;
 
@@ -1163,14 +1166,15 @@ function handleKeyMenuCommand(str)
 			case "YM": toggleStyle(STYLES.SHOW_SELECTORS_MINIMAL, "styleShowSelectorsMinimal", true); break;
 
 			case "ZB": markBrokenInternalLinks(); break;
+			case "ZC": removeAttributeOf(".markd", "class"); break;
 			case "ZD": showDuplicateIDs(); break;
 			case "ZE": deleteClass("statusError"); break;
 			case "ZI": removeUnreferencedIDs(); break;
 			case "ZK": toggleShowKeyCodes(); break;
-			case "ZL": showLinksToIds(); break;
+			case "ZL": showLinksToIDs(); break;
 			case "ZO": deleteClass("statusOk"); break;
 			case "ZW": deleteClass("statusWarning"); break;
-			case "ZZ": cloneBody(); break;
+			case "ZZ": markSelectionAnchorNode(); break;
 
 			default: showMessageBig(`Unknown command ${str}`);
 		}
@@ -1432,7 +1436,7 @@ function handleKeyDown(e)
 			case KEYCODES.K: deleteNodesAfterAnchorNode(); break;
 			case KEYCODES.L: deleteNodesBetweenMarkers(); break;
 			case KEYCODES.M: Nimbus.autoCompleteCommandPrompt.open(); break;
-			case KEYCODES.N: toggleStyle(STYLES.INDICATE_LINK_ATTRIBUTES, "styleShowIdsAndHrefs", true); break;
+			case KEYCODES.N: toggleStyle(STYLES.INDICATE_LINK_ATTRIBUTES, "styleShowIDsAndHrefs", true); break;
 			case KEYCODES.O: customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
 			case KEYCODES.P: makeAnchorNodePlainText(); break;
 			case KEYCODES.R: toggleKeyMenu("R"); break;
