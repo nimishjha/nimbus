@@ -207,9 +207,12 @@ export function markElementsWithChildrenSpanning(parentSelector, childSelector)
 			continue;
 		const children = Array.from(parent.querySelectorAll(childSelector));
 		let parentTextLength = getTextLength(parent);
-		const childrenTextLength = children.reduce((acc, child) => acc + getTextLength(child), 0);
-		if(parentTextLength === childrenTextLength)
-			markElement(parent);
+		if(parentTextLength > 0)
+		{
+			const childrenTextLength = children.reduce((acc, child) => acc + getTextLength(child), 0);
+			if(parentTextLength === childrenTextLength)
+				markElement(parent);
+		}
 	}
 }
 
