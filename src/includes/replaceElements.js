@@ -34,7 +34,7 @@ export function replaceElementsBySelector(selector, tagName)
 		showMessageBig(`Replacing ${toReplace.length} ${selector} with ${tagName}`);
 		let deletedTextLength = 0;
 		let i = toReplace.length;
-		if(tagName === "hr" && toReplace[0].tagName !== "RT")
+		if(tagName === "hr" && toReplace[0].tagName !== "RT" && toReplace[0].tagName !== "FIGURE")
 		{
 			while(i--)
 			{
@@ -92,9 +92,8 @@ export function replaceElementKeepingId(elem, tagName)
 	const replacement = document.createElement(tagName);
 	while(elem.firstChild)
 		replacement.appendChild(elem.firstChild);
-	const elemId = elem.id;
-	if(elemId)
-		replacement.id = elemId;
+	if(elem.id)
+		replacement.id = elem.id;
 	elem.replaceWith(replacement);
 }
 
@@ -103,9 +102,8 @@ export function replaceElementKeepingIdAndClass(elem, tagName)
 	const replacement = document.createElement(tagName);
 	while(elem.firstChild)
 		replacement.appendChild(elem.firstChild);
-	const elemId = elem.id;
-	if(elemId)
-		replacement.id = elemId;
+	if(elem.id)
+		replacement.id = elem.id;
 	if(elem.className)
 		replacement.className = elem.className;
 	elem.replaceWith(replacement);
@@ -195,9 +193,24 @@ export function replaceMarkedWithTextElement(tagName, text)
 	{
 		for(const elem of elems)
 		{
-			const replacement = document.createElement(tagName);
-			replacement.textContent = text;
-			elem.replaceWith(replacement);
+			if(text.includes("|"))
+			{
+				const splat = text.split("|");
+				const wrapper = document.createElement("hgroup");
+				for(const str of splat)
+				{
+					const replacement = document.createElement(tagName);
+					replacement.textContent = str;
+					wrapper.appendChild(replacement);
+				}
+				elem.replaceWith(wrapper);
+			}
+			else
+			{
+				const replacement = document.createElement(tagName);
+				replacement.textContent = text;
+				elem.replaceWith(replacement);
+			}
 		}
 	}
 }
