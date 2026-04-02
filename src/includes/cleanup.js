@@ -421,10 +421,13 @@ export function replaceCommonClassesNew()
 		return /quote/.test(str) || /block/.test(str);
 	}
 
+	replaceElementsBySelector("p[class*=subhe]", "h3");
 	replaceElementsBySelector("table p", "div");
 	replaceElementsBySelector("strong,.epub-b, .b", "b");
 	replaceElementsBySelector("em, .epub-i, .i", "i");
 	replaceElementsBySelector(".pn, .pt, .partnum, .parttitle, .pt-num, .pt-title, .partno, .ptno, .pttit", "h1");
+	replaceElementsBySelector(".fig", "figure");
+	replaceElementsBySelector(".fcap", "figcaption");
 	replaceElementsBySelector("body > div", "section");
 	replaceElementsBySelector("section section", "div");
 	replaceElementsBySelector(".epub-sc, .small", "small");
@@ -954,38 +957,6 @@ export function splitElementsByChildren(selector = "h1, h2, h3, h4", parentTagNa
 			}
 		}
 		showMessageBig(`${count} elements affected`);
-	}
-}
-
-export function createAnchorInside(element, id)
-{
-	const anchor = document.createElement("cite");
-	anchor.textContent = anchor.id = id;
-	element.appendChild(anchor);
-}
-
-export function unwrapLinksInsideHeadings(selector = "h1 a, h2 a, h3 a, h4 a")
-{
-	const elems = get(selector);
-	if(elems)
-	{
-		let count = 0;
-		for(const elem of elems)
-		{
-			if(elem.getAttribute("href") !== null)
-				continue;
-			const parent = elem.closest("h1, h2, h3, h4, h5, h6");
-			if(parent)
-			{
-				if(!parent.id)
-					parent.id = elem.id;
-				else
-					createAnchorInside(parent, elem.id);
-				unwrapElement(elem);
-				count++;
-			}
-		}
-		showMessageBig(`${count} links unwrapped`);
 	}
 }
 
