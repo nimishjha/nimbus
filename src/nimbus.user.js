@@ -165,7 +165,6 @@ import {
 	shortenIDs,
 	simplifyClassNames,
 	splitElementsByChildren,
-	unwrapLinksInsideHeadings,
 } from "./includes/cleanup";
 import {
 	autoCompleteInputBox,
@@ -217,7 +216,7 @@ import {
 	markBrokenInternalLinks,
 	moveIDsFromImages,
 	moveIDsFromSpans,
-	numberNumericReferencesByInterlinkedGroup,
+	numberReferencesByInterlinkedGroup,
 	removeAllQueryParametersExcept,
 	removeUnreferencedIDs,
 	removeQueryParameterFromLinks,
@@ -352,6 +351,7 @@ import {
 	removeAllAttributesOfType,
 	removeAllAttributesOfTypes,
 	removeAttributeOf,
+	removeClassOf,
 	removeColorsFromInlineStyles,
 	saveIDsToElement,
 	setAttributeOf,
@@ -385,6 +385,7 @@ import {
 	changePageByUrl,
 	cycleThroughDocumentHeadings,
 	goToLastElement,
+	goToLastHighlight,
 	goToNextElement,
 	goToPrevElement,
 	setElementsToCycleThrough,
@@ -407,6 +408,7 @@ import {
 	deleteIframes,
 	deleteImages,
 	deleteImagesSmallerThan,
+	deleteInMarkedBySelector,
 	deleteMarkedElements,
 	deleteNodesAfterAnchorNode,
 	deleteNodesBeforeAnchorNode,
@@ -575,7 +577,9 @@ import {
 	markBySelectorAndRegex,
 	markBySelectorAndText,
 	markByTagNameAndText,
+	markCurrentElement,
 	markElements,
+	markElementsIdenticalToCurrentElement,
 	markElementsWithSameClass,
 	markEmptyElementsOfType,
 	markImagesSmallerThan,
@@ -689,10 +693,12 @@ const availableFunctions = {
 	deleteEmptyHeadings: deleteEmptyHeadings,
 	deleteEmptyTextNodes: deleteEmptyTextNodes,
 	deleteFollowingNodesBySelector: deleteFollowingNodesBySelector,
+	deleteHtmlComments: deleteHtmlComments,
 	deleteIframes: deleteIframes,
 	deleteImages: deleteImages,
 	deleteImagesSmallerThan: deleteImagesSmallerThan,
 	deleteIndexSection: deleteIndexSection,
+	deleteInMarkedBySelector: deleteInMarkedBySelector,
 	deleteMessage: deleteMessage,
 	deleteNodesBetweenMarkers: deleteNodesBetweenMarkers,
 	deleteNodesBySelectorAndRelativePosition: deleteNodesBySelectorAndRelativePosition,
@@ -797,6 +803,8 @@ const availableFunctions = {
 	markBySelectorAndNormalizedText: markBySelectorAndNormalizedText,
 	markBySelectorAndRegex: markBySelectorAndRegex,
 	markByTagNameAndText: markByTagNameAndText,
+	markCurrentElement: markCurrentElement,
+	markElementsIdenticalToCurrentElement: markElementsIdenticalToCurrentElement,
 	markElementsWithChildrenSpanning: markElementsWithChildrenSpanning,
 	markElementsWithSameClass: markElementsWithSameClass,
 	markEmptyElementsOfType: markEmptyElementsOfType,
@@ -813,7 +821,7 @@ const availableFunctions = {
 	normalizeAllWhitespace: normalizeAllWhitespace,
 	normalizeClassnames: normalizeClassnames,
 	numberDivs: numberDivs,
-	numberNumericReferencesByInterlinkedGroup: numberNumericReferencesByInterlinkedGroup,
+	numberReferencesByInterlinkedGroup: numberReferencesByInterlinkedGroup,
 	numberTableRowsAndColumns: numberTableRowsAndColumns,
 	orderFootnotesByNonFootnoteRefs: orderFootnotesByNonFootnoteRefs,
 	persistStreamingImages: persistStreamingImages,
@@ -829,6 +837,7 @@ const availableFunctions = {
 	removeAllHighlights: removeAllHighlights,
 	removeAllQueryParametersExcept: removeAllQueryParametersExcept,
 	removeAttributeOf: removeAttributeOf,
+	removeClassOf: removeClassOf,
 	removeColorsFromInlineStyles: removeColorsFromInlineStyles,
 	removeEmojis: removeEmojis,
 	removeEventListeners: removeEventListeners,
@@ -913,7 +922,6 @@ const availableFunctions = {
 	unmarkFromEnd: unmarkFromEnd,
 	unwrapAll: unwrapAll,
 	unwrapAllExcept: unwrapAllExcept,
-	unwrapLinksInsideHeadings: unwrapLinksInsideHeadings,
 	uwa: unwrapAll,
 	uwe: unwrapAllExcept,
 	wrapAll: wrapAll,
@@ -1088,9 +1096,17 @@ function handleKeyMenuCommand(str)
 			case "II": inspectImages(); break;
 			case "IS": callFunctionWithArgs("Mark images smaller than a given pixel area", markImagesSmallerThan, 1); break;
 
+			case "J1": replaceSelectedElement("h1"); break;
+			case "J2": replaceSelectedElement("h2"); break;
+			case "J3": replaceSelectedElement("h3"); break;
+			case "J4": replaceSelectedElement("h4"); break;
+			case "J5": replaceSelectedElement("h5"); break;
+			case "J6": replaceSelectedElement("h6"); break;
+
 			case "LI": retrieveLargeImages(); break;
 			case "LM": interlinkMarkedElements(); break;
-			case "LN": numberNumericReferencesByInterlinkedGroup(); break;
+			case "LN": numberReferencesByInterlinkedGroup(); break;
+			case "LS": customPrompt("Go to last element by selector").then(goToLastElement); break;
 
 			case "M1": setHighlightMapOptions(3, 0, 3); break;
 			case "M2": setHighlightMapOptions(4, 0, 4); break;
@@ -1110,6 +1126,7 @@ function handleKeyMenuCommand(str)
 			case "MU": unmarkAll(); break;
 			case "MX": customPrompt("Mark by xPath").then(xPathMark); break;
 
+			case "NH": goToNextElement("h1, h2, h3"); break;
 			case "NI": goToNextElement("img"); break;
 			case "NM": goToNextElement(".markd"); break;
 			case "NS": customPrompt("Go to next element by selector").then(goToNextElement); break;
@@ -1160,10 +1177,11 @@ function handleKeyMenuCommand(str)
 			case "YH": insertStyleHighlight(); break;
 			case "YI": toggleStyle(STYLES.INVERT_IMAGES, "styleInvertImages", true); break;
 			case "YL": toggleStyle(STYLES.REVEAL_LINK_ID_AND_HREF, "styleRevealLinkIDAndHref", true); break;
+			case "YM": toggleStyle(STYLES.SHOW_SELECTORS_MINIMAL, "styleShowSelectorsMinimal", true); break;
 			case "YN": toggleStyleNegative(); break;
 			case "YO": toggleStyle(STYLES.OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
 			case "YS": toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
-			case "YM": toggleStyle(STYLES.SHOW_SELECTORS_MINIMAL, "styleShowSelectorsMinimal", true); break;
+			case "YT": toggleStyle(STYLES.SHOW_LINK_TARGET, "styleShowLinkTarget", true); break;
 
 			case "ZB": markBrokenInternalLinks(); break;
 			case "ZC": removeAttributeOf(".markd", "class"); break;
@@ -1341,7 +1359,7 @@ function handleKeyDown(e)
 			case KEYCODES.SQUARE_BRACKET_CLOSE: modifyMark("next"); break;
 			case KEYCODES.MINUS: insertElementBeforeSelectionAnchor(); break;
 			case KEYCODES.BACK_SLASH: italicizeSelection(); break;
-			case KEYCODES.END: deleteMessage(); goToLastElement("mark"); break;
+			case KEYCODES.END: goToLastHighlight(); break;
 			default: shouldPreventDefault = false;
 		}
 		if(shouldPreventDefault)
