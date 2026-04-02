@@ -981,11 +981,28 @@ function showVersion()
 	showMessageBig("Nimbus version " + Nimbus.version);
 }
 
-function showAvailableCommands()
+function showAvailableCommands(str)
 {
 	const arr = [];
-	for(const shortCode of Object.keys(Nimbus.autoCompleteInputComponent.commandsByShortCode))
-		arr.push(`${shortCode}: ${Nimbus.autoCompleteInputComponent.commandsByShortCode[shortCode]}`);
+	if(str)
+	{
+		for(const shortCode of Object.keys(Nimbus.autoCompleteInputComponent.commandsByShortCode))
+		{
+			const commands = Nimbus.autoCompleteInputComponent.commandsByShortCode[shortCode];
+			for(const command of commands)
+				if(command.toLowerCase().includes(str))
+					arr.push(`${shortCode}: ${command}`);
+		}
+	}
+	else
+	{
+		for(const shortCode of Object.keys(Nimbus.autoCompleteInputComponent.commandsByShortCode))
+		{
+			const commands = Nimbus.autoCompleteInputComponent.commandsByShortCode[shortCode];
+			for(const command of commands)
+				arr.push(`${shortCode}: ${command}`);
+		}
+	}
 	console.log(arr.join("\n"));
 }
 
