@@ -4,22 +4,17 @@ function assignIdsIfMissing(elems)
 	{
 		const elem = elems[i];
 		if(!elem.id)
-			elem.id = elem.tagName.toLowerCase() + "_" +  i;
+			elem.id = createUniqueID(`heading${i + 1}`);
 	}
-}
-
-function annotateElement(elem, str)
-{
-	const annotation = document.createElement("x");
-	annotation.textContent = " " + str;
-	elem.appendChild(annotation);
 }
 
 function relinkTableOfContents(linksSelector, headingsSelector)
 {
 	function normalizeText(str)
 	{
-		return str.toLowerCase().trim().replace(/[^A-Za-z]/g, "");
+		return str.toLowerCase().trim()
+			.replaceAll("chapter", "")
+			.replace(/[^A-Za-z]+/g, "");
 	}
 
 	const links = get(linksSelector);
@@ -42,6 +37,8 @@ function relinkTableOfContents(linksSelector, headingsSelector)
 	for(const heading of headings)
 		headingsByText[normalizeText(heading.textContent)] = heading;
 
+	logInfo("headingsByText:", Object.keys(headingsByText).join(", "));
+
 	let numLinksFixed = 0;
 
 	for(const link of links)
@@ -52,17 +49,16 @@ function relinkTableOfContents(linksSelector, headingsSelector)
 		{
 			link.setAttribute("href", "#" + heading.id);
 			link.className = "statusOk";
-			// annotateElement(link, "●");
 			numLinksFixed++;
 		}
 		else
 		{
 			link.className = "statusError";
-			// annotateElement(link, "○");
+			logError(`Did not find heading with normalized text ${linkTextLower}`);
 		}
 	}
 
 	showMessageBig(`${numLinksFixed} links fixed`);
 }
 
-relinkTableOfContents("li a", "h1, h2, h3, h4, h5, h6");
+relinkTableOfContents(".markd", "h1, h2, h3, h4, h5, h6");
