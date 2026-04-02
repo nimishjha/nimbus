@@ -6,7 +6,7 @@ import { createElementWithChildren, removeAttributeOf, unwrapAll, removeAllAttri
 import { replaceDiacritics, replaceSpecialCharacters } from "./text";
 import { containsAnyOfTheStrings, containsAllOfTheStrings, removeWhitespace, trimSpecialChars, normalizeString, capitalize } from "./string";
 import { getXpathResultAsArray, getEmptyTextNodesUnderElement } from "./xpath";
-import { addLinksToLargerImages } from "./image";
+import { convertImageLinksToPlaceholders } from "./image";
 import { replaceElementsBySelector, replaceElementKeepingIdAndClass } from "./replaceElements";
 import { deleteEmptyElements, deleteEmptyBlockElements, deleteBySelectorAndRegex } from "./delete";
 import { getTextLength } from "./node";
@@ -67,7 +67,7 @@ export function cleanupDocument()
 	removeAllAttributesOf(document.documentElement);
 	removeAllAttributesOf(document.body);
 	replaceIframes();
-	addLinksToLargerImages();
+	convertImageLinksToPlaceholders();
 	replaceIncorrectHeading();
 	replaceSpecialCharacters();
 	replaceElementsBySelector("center", "div");

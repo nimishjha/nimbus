@@ -274,7 +274,7 @@ export function replaceWithSpaces(selector)
 	showMessageBig(`${elems.length} ${selector} replaced`);
 }
 
-export function replaceElementsBySelectorInMarked(selector, tagName)
+export function replaceInMarkedBySelector(selector, tagName)
 {
 	if(getOneMarked())
 	{

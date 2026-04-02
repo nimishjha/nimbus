@@ -33,6 +33,43 @@ function getLargeImages()
 		setTimeout(getLargeImages, 2000);
 }
 
+function createSetOfImageSources()
+{
+	const imageSourcesSet = new Set();
+
+	const images = get("img");
+	if(images)
+		for(const image of images)
+			imageSourcesSet.add(image.src);
+
+	const imagePlaceholders = get("rt");
+	if(imagePlaceholders)
+		for(const ph of imagePlaceholders)
+			imageSourcesSet.add(getPlaceholderSrc(ph));
+
+	return imageSourcesSet;
+}
+
+export function convertImageLinksToPlaceholders()
+{
+	const imageSourcesSet = createSetOfImageSources();
+	const links = get("a");
+	if(links)
+	{
+		for(const link of links)
+		{
+			if( /(\.png|\.jpg|\.jpeg|\.gif)/i.test(link.href) && !imageSourcesSet.has(link.href) )
+			{
+				let parent = link.parentNode;
+				if(parent.tagName === "A") parent = parent.parentNode;
+				parent.insertAdjacentElement("afterbegin", createImagePlaceholderFromSrc(link.href));
+				if(isEmptyElement(link))
+					link.remove();
+			}
+		}
+	}
+}
+
 export function getBestImageSrc()
 {
 	function getBestImages()
@@ -205,35 +242,6 @@ export function showSavedStreamingImages()
 		removeAllAttributesExcept(image, "src");
 	}
 	ylog(images.length + " images", "h2");
-}
-
-export function addLinksToLargerImages()
-{
-	const imageLinks = [];
-	const images = get("img");
-	if(images)
-		for(let i = 0, ii = images.length; i < ii; i++)
-			imageLinks.push(images[i].src);
-	const imagePlaceholders = get("rt a");
-	if(imagePlaceholders)
-		for(let i = 0, ii = imagePlaceholders.length; i < ii; i++)
-			imageLinks.push(imagePlaceholders[i].href);
-	const links = get("a");
-	if(links)
-	{
-		let i = links.length;
-		while(i--)
-		{
-			const link = links[i];
-			const linkHref = link.href;
-			if( /(\.png|\.jpg|\.jpeg|\.gif)/i.test(linkHref) && !imageLinks.includes(linkHref) )
-			{
-				link.parentNode.insertBefore(createElementWithChildren("rt", createElement("a", { href: linkHref, textContent: shortenImageSrc(linkHref) })), link);
-				if(isEmptyElement(link))
-					del(link);
-			}
-		}
-	}
 }
 
 export function tagLargeImages(threshold = 500)

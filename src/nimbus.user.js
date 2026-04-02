@@ -245,7 +245,6 @@ import {
 	ylog,
 } from "./includes/log";
 import {
-	addLinksToLargerImages,
 	buildGallery,
 	deletePersistedImages,
 	forceImageHeight,
@@ -606,10 +605,10 @@ import {
 	replaceElements,
 	replaceElementsBySelector,
 	replaceElementsBySelectorHelper,
-	replaceElementsBySelectorInMarked,
 	replaceElementsByTagNameMatching,
 	replaceElementsOfMarkedTypeWith,
 	replaceFirstLevelChildrenWith,
+	replaceInMarkedBySelector,
 	replaceMarkedElements,
 	replaceMarkedWithTextElement,
 	replaceNonStandardElements,
@@ -660,7 +659,6 @@ const isDebugMode = true;
 
 const availableFunctions = {
 	addDateToTitle: addDateToTitle,
-	addLinksToLargerImages: addLinksToLargerImages,
 	analyzeReferences: analyzeReferences,
 	annotate: annotate,
 	annotateElement: annotateElement,
@@ -860,6 +858,7 @@ const availableFunctions = {
 	replaceDiacritics: replaceDiacritics,
 	replaceElementsBySelector: replaceElementsBySelector,
 	replaceElementsOfMarkedTypeWith: replaceElementsOfMarkedTypeWith,
+	replaceInMarkedBySelector: replaceInMarkedBySelector,
 	moveIDsFromEmptyAnchors: moveIDsFromEmptyAnchors,
 	replaceEmptyParagraphsWithHr: replaceEmptyParagraphsWithHr,
 	replaceFontTags: replaceFontTags,
@@ -1163,7 +1162,7 @@ function handleKeyMenuCommand(str)
 			case "RB": replaceBrs(); break;
 			case "RC": replaceCommonClassesNew(); break;
 			case "RE": replaceElementsBySelectorHelper(); break;
-			case "RM": callFunctionWithArgs("Replace children of marked elements by selector", replaceElementsBySelectorInMarked, 2); break;
+			case "RM": callFunctionWithArgs("Replace children of marked elements by selector", replaceInMarkedBySelector, 2); break;
 			case "RS": replaceSpecialCharacters(); break;
 			case "RT": callFunctionWithArgs("Replace in all text nodes", replaceInTextNodes, 2); break;
 			case "RU": callFunctionWithArgs("Replace in text nodes under", replaceInTextNodesUnder, 3); break;
