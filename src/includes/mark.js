@@ -346,24 +346,32 @@ export function markAllFollowingSiblings()
 	}
 }
 
+function getElementsIdenticalTo(elem)
+{
+	if(elem.tagName === "IMG")
+	{
+		const src = elem.getAttribute("src");
+		if(src)
+			return select("img", "src", "equals", src);
+	}
+	else
+	{
+		const text = elem.textContent.trim();
+		if(text.length)
+			return select(elem.tagName, "text", "equals", text);
+	}
+	return null;
+}
+
 export function markByIdenticalText()
 {
 	const marked = getOneMarked();
 	if(marked)
 	{
 		unmarkAll();
-		if(marked.tagName === "IMG")
-		{
-			const src = marked.getAttribute("src");
-			if(src)
-				markElements(select("img", "src", "equals", src));
-		}
-		else
-		{
-			const text = marked.textContent.trim();
-			if(text.length)
-				markElements(select(marked.tagName, "text", "equals", text));
-		}
+		const elems = getElementsIdenticalTo(marked);
+		if(elems)
+			markElements(elems);
 	}
 }
 
@@ -375,4 +383,22 @@ export function markImagesSmallerThan(pixelArea)
 export function markEmptyElementsOfType(tagName)
 {
 	markElements(getEmptyElementsOfType(tagName));
+}
+
+export function markCurrentElement()
+{
+	const elem = Nimbus.goToNextElement.currentElement;
+	if(elem)
+		markElement(elem);
+}
+
+export function markElementsIdenticalToCurrentElement()
+{
+	const elem = Nimbus.goToNextElement.currentElement;
+	if(elem)
+	{
+		const elems = getElementsIdenticalTo(elem);
+		if(elems)
+			markElements(elems);
+	}
 }
