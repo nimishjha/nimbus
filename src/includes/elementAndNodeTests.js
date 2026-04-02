@@ -46,58 +46,6 @@ export function containsOnlyPlainText(node)
 	return node.children.length === 0;
 }
 
-export function hasAdjacentBlockElement(elem)
-{
-	if(!elem) return false;
-
-	let node = elem.previousSibling;
-	if(node)
-	{
-		if(node.nodeType === Node.ELEMENT_NODE)
-			return BLOCK_TAGS_SET.has(node.tagName);
-
-		if(node.nodeType === Node.TEXT_NODE)
-		{
-			if(getTextLength(node) > 0)
-				return false;
-
-			node = node.previousSibling;
-			while(node)
-			{
-				if(node.nodeType === Node.ELEMENT_NODE)
-					return BLOCK_TAGS_SET.has(node.tagName);
-				if(node.nodeType === Node.TEXT_NODE && getTextLength(node) > 0)
-					return false;
-				node = node.previousSibling;
-			}
-		}
-	}
-
-	node = elem.nextSibling;
-	if(node)
-	{
-		if(node.nodeType === Node.ELEMENT_NODE)
-			return BLOCK_TAGS_SET.has(node.tagName);
-
-		if(node.nodeType === Node.TEXT_NODE)
-		{
-			if(getTextLength(node) > 0)
-				return false;
-
-			node = node.nextSibling;
-			while(node)
-			{
-				if(node.nodeType === Node.ELEMENT_NODE)
-					return BLOCK_TAGS_SET.has(node.tagName);
-				if(node.nodeType === Node.TEXT_NODE && getTextLength(node) > 0)
-					return false;
-				node = node.nextSibling;
-			}
-		}
-	}
-	return false;
-}
-
 export function isBlockElement(node)
 {
 	if(node.nodeType !== 1) return false;
@@ -138,17 +86,32 @@ export function hasOnlyChildOfType(elem, selector)
 	return false;
 }
 
-export function hasNumericText(elem)
+export function hasAdjacentBlockElement(elem)
 {
-	return /^\d+$/.test(elem.textContent.replace(/\s+/g, ""));
-}
+	for(const prop of ["previousSibling", "nextSibling"])
+	{
+		let node = elem[prop];
+		if(node)
+		{
+			if(node.nodeType === Node.ELEMENT_NODE)
+			{
+				if(BLOCK_TAGS_SET.has(node.tagName)) return true;
+			}
+			else if(node.nodeType === Node.TEXT_NODE)
+			{
+				if(getTextLength(node) > 0) return false;
+				node = node[prop];
+				while(node)
+				{
+					if(node.nodeType === Node.ELEMENT_NODE)
+						if(BLOCK_TAGS_SET.has(node.tagName)) return true;
+					else if(node.nodeType === Node.TEXT_NODE)
+						if(getTextLength(node) > 0) return false;
+					node = node[prop];
+				}
+			}
+		}
+	}
 
-export function hasNonAlphabeticalText(elem)
-{
-	return !/[a-zA-Z]/.test(elem.textContent);
-}
-
-export function hasNonAlphanumericText(elem)
-{
-	return !/[a-zA-Z0-9]/.test(elem.textContent);
+	return false;
 }
