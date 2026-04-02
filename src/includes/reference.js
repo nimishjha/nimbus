@@ -158,7 +158,7 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 		}
 	}
 
-	showMessageBig(`${numElementsWithIDs}/${elems.length} selected elements have IDs, ${numIDsMoved} IDs moved, ${numRecipientsNotFound} recipients not found`);
+	showMessageBig(`${numElementsWithIDs}/${elems.length} ${anchorSelector}s have IDs, ${numIDsMoved} IDs moved, ${numRecipientsNotFound} recipients not found`);
 }
 
 function cleanReferenceText(str)
@@ -331,6 +331,7 @@ export function analyzeReferences()
 					logError(`\t footnote reference ${fRefText} and non-footnote reference ${nfRefText} text mismatch`);
 					markElement(fRef);
 					markElement(nfRef);
+					break;
 				}
 			}
 		}
@@ -350,7 +351,7 @@ export function analyzeReferences()
 	}
 
 	if(numNonMatchingText)
-		logError(`${numNonMatchingText} footnote and non-footnote references have differing text`);
+		logError(`At least one footnote and non-footnote references have differing text. The first such pair has been marked.`);
 	else if(nonFootnoteRefs.length === footnoteRefs.length)
 	{
 		showMessageBig(`All footnote and non-footnote references have matching text; interlinking`);
