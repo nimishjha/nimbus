@@ -1,6 +1,6 @@
 import { Nimbus } from "./Nimbus";
 import { createElement, createElementWithChildren, createLinkInWrapper, unwrapElement, wrapElement, wrapElementInner, unwrapAll } from "./element";
-import { hasNonAlphabeticalText, isEmptyElement } from "./elementAndNodeTests";
+import { isEmptyElement } from "./elementAndNodeTests";
 import { markElement, unmarkAll, getMarkedElements } from "./mark";
 import { showMessageBig, showMessageError } from "./ui";
 import { get, getOne, del, select, getEmptyLinkAnchors, getEmptySpanAnchors, getFirstBlockParent } from "./selectors";
@@ -467,7 +467,16 @@ export function createLinksByHrefLookup()
 	return linksByHref;
 }
 
-export function numberNumericReferencesByInterlinkedGroup()
+function getReferenceLinks()
+{
+	const filterFunc = elem => looksLikeReference(elem.textContent);
+	const allLinks = get('reference a[href^="#"]');
+	if(allLinks)
+		return allLinks.filter(filterFunc);
+	return false;
+}
+
+export function numberReferencesByInterlinkedGroup()
 {
 	if(hasDuplicateIDs())
 	{
@@ -477,11 +486,7 @@ export function numberNumericReferencesByInterlinkedGroup()
 
 	const linksByHref = createLinksByHrefLookup();
 
-	const allLinks = get('reference a[href^="#"]');
-	if(!(allLinks && allLinks.length))
-		return;
-
-	const links = allLinks.filter(hasNonAlphabeticalText);
+	const links = getReferenceLinks();
 	if(!(links && links.length))
 		return;
 
