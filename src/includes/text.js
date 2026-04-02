@@ -216,10 +216,6 @@ export function replaceSpecialCharacters()
 		"\u201c": '"',
 		"\u201d": '"',
 		"\u2026": "...",
-		"\u2002": " ",
-		"\u2003": " ",
-		"\u2009": " ",
-		// "\u2013": "—",
 		"\u2122": "(tm)"
 	};
 
@@ -355,7 +351,7 @@ export function removeEmojis()
 
 export function deleteNonEnglishText()
 {
-	replaceInTextNodesRegex("body", REGEXES_GLOBAL.PRINTABLE_ASCII, "");
+	replaceInTextNodesRegex("body", REGEXES_GLOBAL.EVERYTHING_EXCEPT_PRINTABLE_ASCII, "");
 }
 
 export function normalizeAllWhitespace()
