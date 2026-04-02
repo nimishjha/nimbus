@@ -1,6 +1,6 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig } from "./ui";
-import { get, getOne, del, select } from "./selectors";
+import { get, getOne, del, select, getFirstBlockParent } from "./selectors";
 import { setDocTitle, sanitizeTitle, getTitleWithoutDomainTag } from "./cleanup";
 import { containsAnyOfTheStrings, trimAt, startsWithAnyOfTheStrings } from "./string";
 import { parseQueryString } from "./url";
@@ -222,6 +222,24 @@ export function goToLastElement(selector)
 			config.currentElement = config.elements[config.elements.length - 1];
 			config.currentElement.scrollIntoView();
 		}
+	}
+}
+
+function sortByPosition(nodeOne, nodeTwo)
+{
+	const relativePosition = nodeOne.compareDocumentPosition(nodeTwo);
+	if(relativePosition && Node.DOCUMENT_POSITION_FOLLOWING) return -1;
+	if(relativePosition && Node.DOCUMENT_POSITION_PRECEDING) return 1;
+	return 0;
+}
+
+export function goToLastHighlight()
+{
+	const highlights = get("mark, markyellow, markpurple, markgreen, markblue, markred, markwhite");
+	if(highlights)
+	{
+		const elem = highlights[highlights.length - 1];
+		elem.scrollIntoView();
 	}
 }
 
