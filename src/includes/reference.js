@@ -146,7 +146,7 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 				}
 			}
 			elem.removeAttribute("id");
-			if(elem.tagName === "A" || elem.tagName === "SPAN" && getTextLength(elem) === 0)
+			if((elem.tagName === "A" || elem.tagName === "SPAN") && getTextLength(elem) === 0)
 				elem.remove();
 			else
 				elem.className = "statusWarning";
