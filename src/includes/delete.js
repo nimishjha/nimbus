@@ -9,6 +9,7 @@ import { createLinkInWrapper } from "./element";
 import { isEmptyTextNode, isEmptyElement } from "./elementAndNodeTests";
 import { selectByRelativePosition, selectBySelectorAndRelativePosition, selectNodesBetweenMarkers, selectBySelectorAndText, selectBySelectorAndExactText } from "./selectors";
 import { getNext } from "./array";
+import { makeClassSelector } from "./misc";
 
 export function deleteMarkedElements()
 {
@@ -258,4 +259,14 @@ export function deleteSmallImages()
 	const nextThreshold = getNext(Nimbus.smallImageThreshold, Nimbus.smallImageThresholdList);
 	Nimbus.smallImageThreshold = nextThreshold;
 	deleteImagesSmallerThan(nextThreshold * nextThreshold);
+}
+
+export function deleteInMarkedBySelector(selector)
+{
+	const elems = get(makeClassSelector(Nimbus.markerClass) + " " + selector);
+	if(elems)
+	{
+		del(elems);
+		showMessageBig(`Deleted ${elems.length} ${selector}s inside marked elemenst`);
+	}
 }
