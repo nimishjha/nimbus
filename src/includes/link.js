@@ -122,7 +122,7 @@ export function moveIDsFromSpans(linksByHref)
 	for(let i = 0, ii = spans.length; i < ii; i++)
 	{
 		const span = spans[i];
-		const recipient = span.querySelector("a") || span.closest("h1, h2, h3, h4, h5, h6, p") || span.nextElementSibling;
+		const recipient = span.querySelector("a") || span.closest("p, h1, h2, h3, h4, h5, h6") || span.nextElementSibling || span.previousElementSibling;
 		if(recipient)
 			moveIDToRecipient(span, recipient, linksByHref);
 		else
