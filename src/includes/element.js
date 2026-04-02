@@ -192,6 +192,11 @@ export function removeAttributeOf(selector, attribute)
 			elem.removeAttribute(attribute);
 }
 
+export function removeClassOf(selector)
+{
+	removeAttributeOf(selector, "class");
+}
+
 export function removeAllAttributesOfType(type)
 {
 	removeAttributeOf("body *", type);
