@@ -22,7 +22,7 @@ export const STYLES = {
 		*, *[class], *[class][class] { background: rgba(0,0,0,0.4); color: #B0B0B0; border-color: transparent; background-image: none; border-radius: 0; font-size: calc(16px + 0.00001vh); font-family: "swis721 cn bt"; }
 		*::before, *::after { opacity: 0.25; }
 		span, input, button { border-radius: 0; }
-		h1, h2, h3, h4, h5, h6, b, strong, em, i { color: #EEE; }
+		h1, h2, h3, h4, h5, h6, b, strong, em, i { color: #AAA; }
 		mark { color: #FF0; }
 		a, a[class] *, * a[class] { color: #05C; }
 		a:hover, a:hover *, a[class]:hover *, * a[class]:hover { color: #CCC; }
@@ -84,8 +84,9 @@ export const STYLES = {
 		nobr { box-shadow: inset 3px 3px #A0A, inset -3px -3px #A0A; }
 		cite { box-shadow: inset 3px 3px #0C0, inset -3px -3px #0A0; }
 		p { box-shadow: inset 3px 3px #505, inset -3px -3px #505; }
-		sup, sub, small, span, label { display: inline-block; margin: 0 10px 0 0; padding: 3px 5px; border: 2px solid #600; padding: 3px 5px; }
+		sup, sub, small, span, label { display: inline-block; margin: 0 10px 0 0; padding: 3px 5px; border: 2px solid #950; padding: 3px 5px; }
 		sup[id], sub[id], small[id], span[id], label[id] { box-shadow: inset 3px 3px #a00, inset -3px -3px #a00; }
+		footnote span { border: 3px solid #c09; }
 		.excludeFromMutations { box-shadow: none; }
 	`,
 	SHOW_SELECTORS: `
@@ -158,6 +159,10 @@ export const STYLES = {
 		rt a { color: #888; }
 		rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #AAA; float: left; margin: -3px 20px 0 0; }
 	`,
+	SHOW_LINK_TARGET: `
+		:target { box-shadow: inset 2px 2px #486, inset -2px -2px #486; }
+		:target::before { background: #000; color: #486; padding: 1px 5px; content: attr(id); font-weight: bold; }
+	`,
 	NEGATIVE: `html { background: #080808; font-size: 20px; }
 html body, #nimbus body { background: #121212; color: rgba(100, 100, 100, 0.66); border: 0; font-size: 20px; font-family: "swis721 cn bt"; font-style: normal; line-height: 1.35; }
 form { font-family: inherit; font-size: 20px; }
@@ -219,8 +224,8 @@ abbr, acronym, address, applet, area, audio, b, base, bdo, big, cite, code, comm
 sub, sup { font-size: 16px; font-family: inherit; line-height: 1.2; }
 header, header[class], footer, footer[class], nav, nav[class] { background: #111; }
 span, span[class] { font-family: inherit; font-size: inherit; line-height: inherit; color: inherit; background: inherit; }
-span.italic, span.txit { color: #FF0; }
-span.bold, span.txbd { color: #FF0; font-weight: bold; }
+span.italic, span.txit { color: #CC0; }
+span.bold, span.txbd { color: #CC0; font-weight: bold; }
 
 hr { height: 4px; background: #111; border-color: #111; border-style: solid; border-width: 0; margin: 40px 0; }
 legend { background: #181818; }
@@ -245,11 +250,11 @@ span[class*="button"]:hover, span[class*="button"]:focus { background: #090909; 
 autocompleteinputwrapper input, autocompleteinputwrapper input[class] { font-size: 40px; color: #FFF; }
 autocompleteinputwrapper input div, autocompleteinputwrapper input[class] div { color: #FFF; }
 
-a, a:link, a[class], a[id] { color: #77C; text-decoration: none; text-shadow: none; font: inherit; border: 0; background: inherit; }
+a, a:link, a[class], a[id] { color: #A60; text-decoration: none; text-shadow: none; font: inherit; border: 0; background: inherit; }
 a[class*="btn"] { background: #333; }
-button[class*="active"], a[class*="active"], a[class*="selected"] { outline: 2px solid #6F0; }
-a:visited, a:visited * { color: #357; text-decoration: none; }
-a:active, a:hover, a:focus, a:hover *, a:focus * { color: #09F; text-decoration: none; outline: 0; }
+button[class*="active"], a[class*="active"], a[class*="selected"] { outline: 2px solid #6c0; }
+a:visited, a:visited * { color: #840; text-decoration: none; }
+a:active, a:hover, a:focus, a:hover *, a:focus * { color: #C90; text-decoration: none; outline: 0; }
 .pagination a:link { font: bold 30px "swis721 cn bt"; border: 0; background: #111; padding: 10px; }
 
 p { margin: 0; padding: 5px 0; }
@@ -267,8 +272,8 @@ dl, dl[class] { border-left: 20px solid #111; background: #181818; font: inherit
 dt, dt[class] { padding: 0.5em 10px; margin: 2px 0; background: #181818; border-width: 0 0 0 20px; border-style: solid; border-color: #0C0C0C; font: inherit; line-height: inherit; }
 dd, dd[class] { padding: 0.25em 10px; margin: 2px 0; background: #202020; border-width: 0 0 0 60px; border-style: solid; border-color: #0C0C0C; font: inherit; line-height: inherit; }
 
-cite, u, em, i { font-weight: normal; font-style: normal; text-decoration: none; color: #CCC; }
-b, strong { font-weight: bold; font-style: normal; text-decoration: none; color: #CCC; }
+cite, u, em, i { font-weight: normal; font-style: normal; text-decoration: none; color: #AAA; }
+b, strong { font-weight: bold; font-style: normal; text-decoration: none; color: #AAA; }
 a u, a em, a i, a b, a strong, a div, a span { color: inherit; }
 small { font-size: 80%; }
 
