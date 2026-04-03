@@ -718,10 +718,9 @@ export function getBestDomainSegment(hostname)
 
 export function removeInlineStyles()
 {
-	const e = get("*");
-	let i = e.length;
-	while(i--)
-		e[i].removeAttribute("style");
+	const elems = get("*[style]");
+	for(const elem of elems)
+		elem.removeAttribute("style");
 }
 
 export function replaceInlineStylesWithClasses(selector = "span[style]")
