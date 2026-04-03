@@ -102,12 +102,12 @@ export function cleanupDocument()
 
 export function cleanupAttributes()
 {
-	const elems = document.getElementsByTagName("*");
+	const elems = document.querySelectorAll("*");
 	const attrsToKeep = new Set(["id", "class", "href", "src", "srcset", "name", "colspan", "rowspan"]);
 	for(const elem of elems)
-		for(const attr of elem.attributes)
-			if(!attrsToKeep.has(attr.name))
-				elem.removeAttribute(attr.name);
+		for(const attr of elem.getAttributeNames())
+			if(!attrsToKeep.has(attr))
+				elem.removeAttribute(attr);
 }
 
 export function cleanupBarebone()

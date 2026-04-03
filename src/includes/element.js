@@ -242,14 +242,8 @@ export function saveIDsToElement(element, ids)
 
 export function removeAllAttributesOf(elem)
 {
-	const attrs = elem.attributes;
-	let i = attrs.length;
-	while(i--)
-	{
-		const attr = attrs[i];
-		if(attr)
-			elem.removeAttribute(attr.name);
-	}
+	for(const attr of elem.getAttributeNames())
+		elem.removeAttribute(attr);
 }
 
 export function removeAllAttributesExcept(selectorOrElement, attrToKeep)
@@ -258,14 +252,9 @@ export function removeAllAttributesExcept(selectorOrElement, attrToKeep)
 	const elems = typeof selectorOrElement === "string" ? get(selectorOrElement) : [selectorOrElement];
 	for(const elem of elems)
 	{
-		const attrs = elem.attributes;
-		let i = attrs.length;
-		while(i--)
-		{
-			const attr = attrs[i];
-			if(attr && attr.name.toLowerCase() !== attrToKeepLower)
-				elem.removeAttribute(attr.name);
-		}
+		for(const attr of elem.getAttributeNames())
+			if(attr.toLowerCase() !== attrToKeepLower)
+				elem.removeAttribute(attr);
 	}
 }
 
