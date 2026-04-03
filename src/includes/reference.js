@@ -162,7 +162,7 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 	showMessageBig(`${numElementsWithIDs}/${elems.length} ${anchorSelector}s have IDs, ${numIDsMoved} IDs moved, ${numRecipientsNotFound} recipients not found`);
 }
 
-function cleanReferenceText(str)
+export function cleanReferenceText(str)
 {
 	if(REGEXES.DIGITS_ENDING_IN_PERIOD.test(str))
 		return str.slice(0, str.length - 1);

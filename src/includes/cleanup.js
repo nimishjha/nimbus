@@ -24,6 +24,7 @@ import { replaceClass } from "./dom";
 import { callFunctionWithArgs } from "./command";
 import { hasDuplicateIDs } from "./validations";
 import { BLOCK_TAGS_SET } from "./constants";
+import { cleanReferenceText } from "./reference";
 
 function replaceIframes()
 {
@@ -903,6 +904,16 @@ export function fixTextAroundReferences(selector = "footnote reference")
 		}
 	}
 	showMessageBig(`${count} text nodes fixed`);
+}
+
+export function fixTextWithinReferences()
+{
+	const refLinks = get("reference a");
+	if(refLinks)
+	{
+		for(const link of refLinks)
+			link.textContent = cleanReferenceText(link.textContent);
+	}
 }
 
 export function splitElementsByChildren(selector = "h1, h2, h3, h4", parentTagName, childTagName)
