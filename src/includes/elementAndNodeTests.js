@@ -1,6 +1,42 @@
 import { BLOCK_TAGS_SET, INLINE_TAGS_SET, REGEXES_GLOBAL } from "./constants";
 import { getTextLength } from "./node";
 
+export function getFirstElementOrNonEmptyTextNode(node, siblingType)
+{
+	let currentNode = node[siblingType];
+	while(currentNode)
+	{
+		if(currentNode.nodeType === Node.ELEMENT_NODE)
+			return currentNode;
+		if(currentNode.nodeType === Node.TEXT_NODE && getTextLength(currentNode) > 0)
+			return currentNode;
+		currentNode = currentNode[siblingType];
+	}
+	return null;
+}
+
+export function isBlockElement(node)
+{
+	if(node && node.nodeType === Node.ELEMENT_NODE)
+		return BLOCK_TAGS_SET.has(node.tagName);
+	return false;
+}
+
+export function hasAdjacentBlockElementPreceding(node)
+{
+	return isBlockElement(getFirstElementOrNonEmptyTextNode(node, "previousSibling"));
+}
+
+export function hasAdjacentBlockElementFollowing(node)
+{
+	return isBlockElement(getFirstElementOrNonEmptyTextNode(node, "nextSibling"));
+}
+
+export function hasAdjacentBlockElement(node)
+{
+	return hasAdjacentBlockElementPreceding(node) || hasAdjacentBlockElementFollowing(node);
+}
+
 export function hasClassesContaining(element, arrStr)
 {
 	const classes = element.className.toLowerCase().replace(/[^a-z\-]+/g, "");
@@ -46,13 +82,6 @@ export function containsOnlyPlainText(node)
 	return node.children.length === 0;
 }
 
-export function isBlockElement(node)
-{
-	if(node.nodeType !== 1) return false;
-	if(INLINE_TAGS_SET.has(node.tagName)) return false;
-	return true;
-}
-
 export function isEmptyTextNode(node)
 {
 	return getTextLength(node) === 0;
@@ -83,35 +112,5 @@ export function hasOnlyChildOfType(elem, selector)
 	if(!children.length) return false;
 	if(children.length !== 1) return false;
 	if(children[0].matches(selector)) return true;
-	return false;
-}
-
-export function hasAdjacentBlockElement(elem)
-{
-	for(const prop of ["previousSibling", "nextSibling"])
-	{
-		let node = elem[prop];
-		if(node)
-		{
-			if(node.nodeType === Node.ELEMENT_NODE)
-			{
-				if(BLOCK_TAGS_SET.has(node.tagName)) return true;
-			}
-			else if(node.nodeType === Node.TEXT_NODE)
-			{
-				if(getTextLength(node) > 0) return false;
-				node = node[prop];
-				while(node)
-				{
-					if(node.nodeType === Node.ELEMENT_NODE)
-						if(BLOCK_TAGS_SET.has(node.tagName)) return true;
-					else if(node.nodeType === Node.TEXT_NODE)
-						if(getTextLength(node) > 0) return false;
-					node = node[prop];
-				}
-			}
-		}
-	}
-
 	return false;
 }
