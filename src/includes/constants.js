@@ -9,6 +9,9 @@ export const REGEXES = {
 	UNICODE_SPACES: /[\u2000-\u200F]/,
 	SPACES: /[\s\u2000-\u200F]/,
 	PRINTABLE_ASCII: /[\x20-\x7E]/,
+	DIGITS_ENDING_IN_PERIOD: /^\d+\.$/,
+	DIGITS_IN_SQUARE_BRACKETS: /^\[\d+\]$/,
+	DIGITS_IN_CURLY_BRACES: /^{\d+}$/,
 };
 
 export const BLOCK_TAGS = [

@@ -10,6 +10,7 @@ import { markElement } from "./mark";
 import { getTextLength } from "./node";
 import { interlink, interlinkReferencesByIndex } from "./interlinkReferences";
 import { fixTextAroundReferences } from "./cleanup";
+import { REGEXES } from "./constants";
 
 export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 {
@@ -163,8 +164,12 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 
 function cleanReferenceText(str)
 {
-	if(/[0-9]/.test(str))
-		return str.replace(/[^0-9]+/g, "");
+	if(REGEXES.DIGITS_ENDING_IN_PERIOD.test(str))
+		return str.slice(0, str.length - 1);
+	if(REGEXES.DIGITS_IN_SQUARE_BRACKETS.test(str))
+		return str.replace(/[\[\]]/g, "");
+	if(REGEXES.DIGITS_IN_CURLY_BRACES.test(str))
+		return str.replace(/[{}]/g, "");
 	return str;
 }
 
