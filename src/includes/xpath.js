@@ -8,12 +8,17 @@ export function xPathNodesToArray(nodes)
 
 export function getTextNodesUnderElement(elem)
 {
-	return xPathNodesToArray(document.evaluate(".//text()", elem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null));
+	return xPathNodesToArray(document.evaluate(`.//text()`, elem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null));
 }
 
 export function getEmptyTextNodesUnderElement(elem)
 {
-	return xPathNodesToArray(document.evaluate(".//text()[normalize-space() = '']", elem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null));
+	return xPathNodesToArray(document.evaluate(`.//text()[normalize-space() = '']`, elem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null));
+}
+
+export function getEmptyTextNodesUnderTagName(tagName)
+{
+	return getXpathResultAsArray(`.//${tagName}//text()[normalize-space() = '']`);
 }
 
 export function getEmptyElementsOfType(tagName)
