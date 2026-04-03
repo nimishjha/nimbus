@@ -55,7 +55,7 @@ export function isBlockElement(node)
 
 export function isEmptyTextNode(node)
 {
-	return node.data.replace(/\s+/g, "").length === 0;
+	return getTextLength(node) === 0;
 }
 
 export function isEmptyElement(elem)
