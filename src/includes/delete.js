@@ -2,7 +2,7 @@ import { Nimbus } from "./Nimbus";
 import { showMessageBig } from "./ui";
 import { get, del, selectByClassOrIdContaining, selectBySelectorAndRegex, getNodeContainingSelection, selectBySelectorAndNormalizedText, selectImagesSmallerThan } from "./selectors";
 import { getMarkedElements } from "./mark";
-import { getXpathResultAsArray } from "./xpath";
+import { getXpathResultAsArray, getEmptyTextNodesUnderTagName } from "./xpath";
 import { getTextLength } from "./node";
 import { markElements } from "./mark";
 import { createLinkInWrapper } from "./element";
@@ -59,12 +59,24 @@ export function deleteImages()
 	}
 }
 
-export function deleteEmptyTextNodes(parentTagName)
+export function deleteEmptyTextNodes()
 {
-	const parent = parentTagName || "body";
-	const nodes = getXpathResultAsArray(`.//text()[normalize-space() = '']`);
-	del(nodes);
-	showMessageBig(`${nodes.length} empty text nodes removed`);
+	deleteEmptyTextNodesUnderTagName("html");
+}
+
+export function deleteEmptyTextNodesUnderTagName(tagName)
+{
+	const parent = tagName || "html";
+	const nodes = getEmptyTextNodesUnderTagName(tagName);
+	if(nodes.length)
+	{
+		del(nodes);
+		showMessageBig(`${nodes.length} empty text nodes removed`);
+	}
+	else
+	{
+		showMessageBig(`No empty text nodes under ${tagName}`);
+	}
 }
 
 export function deleteEmptyElements(selector)
