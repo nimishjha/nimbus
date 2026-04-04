@@ -9,7 +9,7 @@ import { makeClassSelector, forAll } from "./misc";
 import { showMessageBig, showMessageError } from "./ui";
 import { replaceInTextNodes, replaceInTextNodesRegex } from "./textReplace";
 import { removeLineBreaks } from "./string";
-import { containsOnlyPlainText } from "./elementAndNodeTests";
+import { containsOnlyPlainText, hasAdjacentPrecedingElementSiblingOfType } from "./elementAndNodeTests";
 import { REGEXES, REGEXES_GLOBAL, DIACRITIC_REGEXES_BY_LETTER, HEADING_TAGS_SET } from "./constants";
 
 export function fixSpacesBetweenNestedQuotes()
@@ -122,14 +122,12 @@ export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 export function removeRedundantBrs()
 {
 	const elems = get("br");
-	const toDelete = [];
 	let i = elems.length;
 	while(i--)
 	{
-		if(hasAdjacentBlockElement(elems[i]))
-			toDelete.push(elems[i]);
+		if(hasAdjacentBlockElement(elems[i]) || hasAdjacentPrecedingElementSiblingOfType(elems[i], "br"))
+			elems[i].remove();
 	}
-	del(toDelete);
 }
 
 export function replaceBrs()
