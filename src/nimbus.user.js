@@ -446,7 +446,7 @@ import {
 	swapElementPositions,
 	toggleContentEditable,
 } from "./includes/dom";
-import { findStringsInProximity } from "./includes/proximitySearch";
+import { proximitySearch as findMultipleStringsInProximity } from "./includes/proximitySearchV2";
 import { generateTableOfContents, inlineFootnotes } from "./includes/ebook";
 import { highlightCode } from "./includes/code";
 import { toggleBlockEditMode } from "./includes/blockEdit";
@@ -724,7 +724,6 @@ const availableFunctions = {
 	enableClickToCollectUrls,
 	enableConsoleLogs,
 	enDashToEmDash,
-	findStringsInProximity,
 	fixBody,
 	fixBullets,
 	fixDashes,
@@ -834,6 +833,7 @@ const availableFunctions = {
 	preReplaceBrs,
 	preSnakeCaseToCamelCase,
 	preTabifySpaces,
+	findMultipleStringsInProximity,
 	remove,
 	removeAllAttributesExcept,
 	removeAllAttributesOf,

@@ -374,7 +374,7 @@ export function highlightInTextNode(textNode, searchString)
 export function highlightInTextNodeRegex(textNode, regex, highlightTagName)
 {
 	const tagName = highlightTagName || Nimbus.highlightTagName;
-	const nodeText = textNode.data;
+	const nodeText = textNode.data.replace(/\s+/g, " ");
 	if(nodeText.search(regex) === -1)
 		return;
 	const parentNode = textNode.parentNode;

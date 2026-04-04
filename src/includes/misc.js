@@ -174,3 +174,8 @@ export function createUniqueID(base)
 
 	return newID;
 }
+
+export function getBitmask(num)
+{
+	return num.toString(2).padStart(10, '0');
+}
