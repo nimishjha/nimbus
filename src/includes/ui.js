@@ -242,14 +242,19 @@ export function autoCompleteInputBox()
 	function findMatches(str)
 	{
 		const matches = new Set();
+		const USE_SIMPLE_STRING_MATCHING = false;
+
 		for(const shortCode of inputComponent.shortCodes)
 			if(shortCode.startsWith(str))
 				for(const command of inputComponent.commandsByShortCode[shortCode])
 					matches.add(command);
 
-		for(const command of inputComponent.commands)
-			if(command.toLowerCase().includes(str))
-				matches.add(command);
+		if(USE_SIMPLE_STRING_MATCHING)
+		{
+			for(const command of inputComponent.commands)
+				if(command.toLowerCase().includes(str))
+					matches.add(command);
+		}
 
 		return Array.from(matches);
 	}
