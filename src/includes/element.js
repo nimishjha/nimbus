@@ -5,6 +5,7 @@ import { createBulletAnchor, makeClassSelector } from "./misc";
 import { getMarkedElements } from "./mark";
 import { removeLineBreaks } from "./string";
 import { preReplaceBrs } from "./preformatted";
+import { getTextLength } from "./node";
 
 export function createElement(tag, props)
 {
@@ -413,13 +414,10 @@ export function createReplacementElement(tagName, sourceElement, propertyMapping
 
 export function deleteLeadingAndTrailingEmptyTextNodes(element)
 {
-	const first = element.firstChild;
-	if(first && first.nodeType === Node.TEXT_NODE && first.data.replace(/\s+/g, "").length === 0)
-		first.remove();
-
-	const last = element.lastChild;
-	if(last && last.nodeType === Node.TEXT_NODE && last.data.replace(/\s+/g, "").length === 0)
-		last.remove();
+	if(element.firstChild && element.firstChild.nodeType === Node.TEXT_NODE && getTextLength(element.firstChild) === 0)
+		element.firstChild.remove();
+	if(element.lastChild && element.lastChild.nodeType === Node.TEXT_NODE && getTextLength(element.lastChild) === 0)
+		element.lastChild.remove();
 }
 
 export function getFirstTextNode(element)
