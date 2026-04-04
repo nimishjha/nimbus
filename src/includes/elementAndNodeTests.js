@@ -15,6 +15,24 @@ export function getFirstElementOrNonEmptyTextNode(node, siblingType)
 	return null;
 }
 
+function hasAdjacentElementSiblingOfType(elem, selector, previousOrNext)
+{
+	const sibling = getFirstElementOrNonEmptyTextNode(elem, previousOrNext);
+	if(sibling.nodeType === Node.TEXT_NODE)
+		return false;
+	return (sibling && sibling.matches(selector));
+}
+
+export function hasAdjacentPrecedingElementSiblingOfType(elem, selector)
+{
+	return hasAdjacentElementSiblingOfType(elem, selector, "previousSibling");
+}
+
+export function hasAdjacentFollowingElementSiblingOfType(elem, selector)
+{
+	return hasAdjacentElementSiblingOfType(elem, selector, "nextSibling");
+}
+
 export function isBlockElement(node)
 {
 	if(node && node.nodeType === Node.ELEMENT_NODE)
