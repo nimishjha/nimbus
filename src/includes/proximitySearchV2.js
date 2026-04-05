@@ -38,18 +38,28 @@ export function proximitySearch(...args)
 	if(!elems) return;
 
 	const MAX_DISTANCE = 6;
+	const HIGHLIGHT_ALL_MATCHES = false;
 
 	const lookups = [];
 	const stringsLower = [];
 	const matchFlagsByParagraphIndex = {};
 
-	Nimbus.highlightTagName = "markgreen";
-	for(const str of args)
+	if(HIGHLIGHT_ALL_MATCHES)
 	{
-		stringsLower.push(str.toLowerCase());
-		highlightAllMatchesInDocument(str);
+		Nimbus.highlightTagName = "markgreen";
+		for(const str of args)
+		{
+			stringsLower.push(str.toLowerCase());
+			highlightAllMatchesInDocument(str);
+		}
+		resetHighlightTag();
 	}
-	resetHighlightTag();
+	else
+	{
+		for(const str of args)
+			stringsLower.push(str.toLowerCase());
+	}
+
 
 	const indexesOfParagraphsWithMatches = [];
 	for(let i = 0, ii = elems.length; i < ii; i++)
