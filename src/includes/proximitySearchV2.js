@@ -28,9 +28,9 @@ function clusterNumbers(sortedArr, distance)
 
 export function proximitySearch(...args)
 {
-	if(args.length > 6)
+	if(args.length < 2 || args.length > 6)
 	{
-		showMessageError("A maximum of six strings is supported");
+		showMessageError("Provide at least two or up to six strings to search for");
 		return;
 	}
 
@@ -43,6 +43,7 @@ export function proximitySearch(...args)
 	const lookups = [];
 	const stringsLower = [];
 	const matchFlagsByParagraphIndex = {};
+	const indexesOfParagraphsWithMatches = [];
 
 	if(HIGHLIGHT_ALL_MATCHES)
 	{
@@ -60,8 +61,6 @@ export function proximitySearch(...args)
 			stringsLower.push(str.toLowerCase());
 	}
 
-
-	const indexesOfParagraphsWithMatches = [];
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
@@ -91,14 +90,7 @@ export function proximitySearch(...args)
 			matchFlagsByParagraphIndex[paraIndex] = maxBitmask;
 	}
 
-	const highlightTagByBitCount = {
-		1: "mark",
-		2: "markyellow",
-		3: "markwhite",
-		4: "markpurple",
-		5: "markblue",
-		6: "markred",
-	};
+	const highlightTagByBitCount = [ "none", "mark", "markyellow", "markwhite", "markpurple", "markblue", "markred" ];
 
 	let allStringsWereFound = false;
 	for(const index of Object.keys(matchFlagsByParagraphIndex))

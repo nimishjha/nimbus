@@ -236,11 +236,16 @@ function handleMouseOver(evt)
 				}
 			}
 			inspectorPanel.appendChild(frag);
-			// const keys = Object.keys(elem);
-			// const elemKeys = document.createElement("em");
-			// for(let i = 0, ii = keys.length; i < ii; i++)
-			// 	elemKeys.appendChild(document.createTextNode(keys[i] + " "));
-			// inspectorPanel.appendChild(elemKeys);
+
+			const SHOW_KEYS = false;
+			if(SHOW_KEYS)
+			{
+				const keys = Object.keys(elem);
+				const elemKeys = document.createElement("em");
+				for(let i = 0, ii = keys.length; i < ii; i++)
+					elemKeys.appendChild(document.createTextNode(keys[i] + " "));
+				inspectorPanel.appendChild(elemKeys);
+			}
 			const inspectorElem = document.getElementById("inspector");
 			inspectorElem.appendChild(inspectorPanel);
 		}
