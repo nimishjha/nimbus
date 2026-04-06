@@ -13,6 +13,7 @@ import { removeQueryParameterFromUrl } from "./url";
 import { annotateElement } from "./dom";
 import { hasDuplicateIDs } from "./validations";
 import { fixTextAroundReferences } from "./cleanup";
+import { REFERENCE_TAGNAME } from "./constants";
 
 function moveIDToRecipient(anchor, recipient, linksByHref)
 {
@@ -89,12 +90,12 @@ export function moveIDsFromEmptyAnchors(linksByHref)
 				{
 					if(!linksToAnchor[0].id)
 						linksToAnchor[0].id = createUniqueID(i);
-					const ref = createLinkInWrapper("reference", anchor.id, "#" + linksToAnchor[0].id, anchor.id);
+					const ref = createLinkInWrapper(REFERENCE_TAGNAME, anchor.id, "#" + linksToAnchor[0].id, anchor.id);
 					anchor.replaceWith(ref);
 				}
 				else
 				{
-					const ref = createLinkInWrapper("reference", anchor.id, null, anchor.id);
+					const ref = createLinkInWrapper(REFERENCE_TAGNAME, anchor.id, null, anchor.id);
 					anchor.replaceWith(ref);
 				}
 				numIDsMoved++;
@@ -126,7 +127,7 @@ export function moveIDsFromSpans(linksByHref)
 		if(recipient)
 			moveIDToRecipient(span, recipient, linksByHref);
 		else
-			span.parentNode.appendChild(createLinkInWrapper("reference", span.id, null, span.id));
+			span.parentNode.appendChild(createLinkInWrapper(REFERENCE_TAGNAME, span.id, null, span.id));
 
 		if(getTextLength(span) === 0 || span.children.length === span.childNodes.length)
 			unwrapElement(span);
@@ -151,7 +152,7 @@ export function moveIDsFromImages(linksByHref)
 		if(recipient)
 			moveIDToRecipient(image, recipient, linksByHref);
 		else
-			image.parentNode.appendChild(createLinkInWrapper("reference", image.id, null, image.id));
+			image.parentNode.appendChild(createLinkInWrapper(REFERENCE_TAGNAME, image.id, null, image.id));
 		image.removeAttribute("id");
 	}
 	showMessageBig(`${images.length} ids moved from images`);
@@ -197,7 +198,7 @@ export function fixInternalReferences()
 	makeFileLinksRelative();
 	const internalLinks = get('a[href^="#"]');
 	if(!internalLinks) return;
-	const tagsNotToMakeReferencesUnder = new Set([ "REFERENCE", "H1", "H2", "H3", "H4", "H5", "H6", "DT", "DD", "D1", "D2", "D3", "D4" ]);
+	const tagsNotToMakeReferencesUnder = new Set([ REFERENCE_TAGNAME, "H1", "H2", "H3", "H4", "H5", "H6", "DT", "DD", "D1", "D2", "D3", "D4" ]);
 	for(let i = 0, ii = internalLinks.length; i < ii; i++)
 	{
 		const link = internalLinks[i];
@@ -214,7 +215,7 @@ export function fixInternalReferences()
 			link.textContent = refText;
 
 			if(link.parentNode && !tagsNotToMakeReferencesUnder.has(link.parentNode.tagName))
-				wrapElement(link, "reference");
+				wrapElement(link, REFERENCE_TAGNAME);
 		}
 
 		const targetElement = getTargetElement(link);
@@ -224,15 +225,15 @@ export function fixInternalReferences()
 			{
 				targetElement.setAttribute("href", "#" + link.id);
 				if(targetElement.parentNode && !tagsNotToMakeReferencesUnder.has(targetElement.parentNode.tagName))
-					wrapElement(targetElement, "reference");
+					wrapElement(targetElement, REFERENCE_TAGNAME);
 			}
 		}
 	}
-	const redundantSups = select("sup", "hasChildrenOfType", "reference");
+	const redundantSups = select("sup", "hasChildrenOfType", REFERENCE_TAGNAME);
 	if(redundantSups)
 		for(let i = 0, ii = redundantSups.length; i < ii; i++)
 			unwrapElement(redundantSups[i]);
-	unwrapAll("reference a sup");
+	unwrapAll(REFERENCE_TAGNAME + " a sup");
 	fixTextAroundReferences();
 }
 
@@ -470,7 +471,7 @@ export function createLinksByHrefLookup()
 function getReferenceLinks()
 {
 	const filterFunc = elem => looksLikeReference(elem.textContent);
-	const allLinks = get('reference a[href^="#"]');
+	const allLinks = get(REFERENCE_TAGNAME + ' a[href^="#"]');
 	if(allLinks)
 		return allLinks.filter(filterFunc);
 	return false;

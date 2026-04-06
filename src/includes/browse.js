@@ -9,6 +9,7 @@ import { get, getOne, del, selectByRelativePosition } from "./selectors";
 import { cleanupStackOverflow } from "./cleanup";
 import { runCommand } from "./command";
 import { STYLES } from "./stylesheets";
+import { REFERENCE_TAGNAME } from "./constants";
 
 export function logout()
 {
@@ -240,6 +241,6 @@ export function doWebsiteSpecificTasksInternal()
 
 export function hideReferences()
 {
-	const style = "reference { display: none; }";
+	const style = REFERENCE_TAGNAME + " { display: none; }";
 	insertStyle(style, "styleHideReferences", true);
 }

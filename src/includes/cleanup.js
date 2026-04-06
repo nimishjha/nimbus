@@ -23,7 +23,7 @@ import { getAllClassesFor } from "./inspect";
 import { replaceClass } from "./dom";
 import { callFunctionWithArgs } from "./command";
 import { hasDuplicateIDs } from "./validations";
-import { BLOCK_TAGS_SET } from "./constants";
+import { BLOCK_TAGS_SET, REFERENCE_TAGNAME } from "./constants";
 import { cleanReferenceText } from "./reference";
 
 function replaceIframes()
@@ -720,8 +720,9 @@ export function getBestDomainSegment(hostname)
 export function removeInlineStyles()
 {
 	const elems = get("*[style]");
-	for(const elem of elems)
-		elem.removeAttribute("style");
+	if(elems)
+		for(const elem of elems)
+			elem.removeAttribute("style");
 }
 
 export function replaceInlineStylesWithClasses(selector = "span[style]")
@@ -874,7 +875,7 @@ export function replaceIncorrectHeading()
 	}
 }
 
-export function fixTextAroundReferences(selector = "footnote reference")
+export function fixTextAroundReferences(selector = "footnote " + REFERENCE_TAGNAME)
 {
 	const regexPeriodOrClosingBracket = /^[\]\.]/;
 	const regexOpeningBracket = /\[$/;
@@ -908,7 +909,7 @@ export function fixTextAroundReferences(selector = "footnote reference")
 
 export function fixTextWithinReferences()
 {
-	const refLinks = get("reference a");
+	const refLinks = get(REFERENCE_TAGNAME + " a");
 	if(refLinks)
 	{
 		for(const link of refLinks)

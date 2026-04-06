@@ -10,6 +10,7 @@ import { isEmptyTextNode, isEmptyElement } from "./elementAndNodeTests";
 import { selectByRelativePosition, selectBySelectorAndRelativePosition, selectNodesBetweenMarkers, selectBySelectorAndText, selectBySelectorAndExactText } from "./selectors";
 import { getNext } from "./array";
 import { makeClassSelector } from "./misc";
+import { REFERENCE_TAGNAME } from "./constants";
 
 export function deleteMarkedElements()
 {
@@ -92,7 +93,7 @@ export function deleteEmptyElements(selector)
 		{
 			if(elem.id)
 			{
-				const anchor = createLinkInWrapper("reference", elem.id, null, elem.id);
+				const anchor = createLinkInWrapper(REFERENCE_TAGNAME, elem.id, null, elem.id);
 				elem.replaceWith(anchor);
 			}
 			else

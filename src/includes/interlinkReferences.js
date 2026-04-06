@@ -3,6 +3,7 @@ import { logSuccess, logError, logWarning, logYellow } from "./log";
 import { showMessageBig, showMessageError } from "./ui";
 import { createLinksByHrefLookup } from "./link";
 import { wrapElement } from "./element";
+import { REFERENCE_TAGNAME } from "./constants";
 
 export function getSafePrefixForSequentialIDs(prefix)
 {
@@ -72,7 +73,7 @@ export function interlinkReferencesByIndex(footnoteRefs, nonFootnoteRefs)
 
 export function interlinkReferencesUsingFootnoteReferences()
 {
-	const primaryRefLinks = document.querySelectorAll("footnote reference a");
+	const primaryRefLinks = document.querySelectorAll(`footnote ${REFERENCE_TAGNAME} a`);
 	if(!primaryRefLinks)
 	{
 		logError("Did not find any footnote references");
@@ -101,15 +102,15 @@ export function interlinkReferencesUsingFootnoteReferences()
 			primaryRefLink.id = prefix + index;
 			primaryRefLink.textContent = index;
 			interlink(primaryRefLink, links[0], primaryRefLink.textContent, primaryRefLink.id);
-			if(links[0].parentNode.tagName !== "REFERENCE")
-				wrapElement(links[0], "reference");
+			if(links[0].parentNode.tagName !== REFERENCE_TAGNAME)
+				wrapElement(links[0], REFERENCE_TAGNAME);
 
 			if(links.length > 1)
 			{
 				logYellow(`${primaryRefLink.textContent} has ${links.length} links to it`);
 				for(let j = 1, jj = links.length; j < jj; j++)
 				{
-					const dupRef = document.createElement("reference");
+					const dupRef = document.createElement(REFERENCE_TAGNAME);
 					const dupRefLink = document.createElement("a");
 					const dupRefLinkText = `${primaryRefLink.textContent}-${j + 1}`;
 					const dupRefLinkID = primaryRefLink.id + "dup" + (j + 1).toString();

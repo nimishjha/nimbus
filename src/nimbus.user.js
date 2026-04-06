@@ -1102,6 +1102,7 @@ function handleKeyMenuCommand(str)
 
 			case "FD": fixDashes(); break;
 			case "FI": fixInternalReferences(); break;
+			case "FM": callFunctionWithArgs("findMultipleStringsInProximity", findMultipleStringsInProximity); break;
 			case "FP": fixParagraphs(); break;
 			case "FR": fixTextAroundReferences(); break;
 

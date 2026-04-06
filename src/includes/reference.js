@@ -10,7 +10,7 @@ import { markElement } from "./mark";
 import { getTextLength } from "./node";
 import { interlink, interlinkReferencesByIndex } from "./interlinkReferences";
 import { fixTextAroundReferences } from "./cleanup";
-import { REGEXES } from "./constants";
+import { REGEXES, REFERENCE_TAGNAME } from "./constants";
 
 export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 {
@@ -20,8 +20,8 @@ export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 		const section = sections[i];
 		const sectionIndex = i + 1;
 
-		const allRefs = section.querySelectorAll("reference a");
-		const footnoteRefs = section.querySelectorAll("footnote reference a");
+		const allRefs = section.querySelectorAll(REFERENCE_TAGNAME + " a");
+		const footnoteRefs = section.querySelectorAll(`footnote ${REFERENCE_TAGNAME} a`);
 		if(!allRefs)
 		{
 			logInfo(`Did not find any references in section ${sectionIndex}`);
@@ -190,7 +190,7 @@ export function createReferencesByTags()
 			if(link.getElementsByTagName("sup").length && looksLikeReference(linkText))
 			{
 				link.textContent = cleanReferenceText(linkText);
-				wrapElement(link, "reference");
+				wrapElement(link, REFERENCE_TAGNAME);
 				numASup++;
 			}
 		}
@@ -208,11 +208,11 @@ export function createReferencesByTags()
 				if(sups[i].id && !supLink.id)
 				{
 					supLink.id = sups[i].id;
-					replaceElement(sups[i], "reference");
+					replaceElement(sups[i], REFERENCE_TAGNAME);
 				}
 				else
 				{
-					replaceElementKeepingId(sups[i], "reference");
+					replaceElementKeepingId(sups[i], REFERENCE_TAGNAME);
 				}
 				numSupA++;
 			}
@@ -230,10 +230,10 @@ export function createReferencesByTags()
 			const footnoteLinks = document.querySelectorAll("footnote a:first-child");
 			for(let i = 0, ii = footnoteLinks.length; i < ii; i++)
 			{
-				if(looksLikeReference(footnoteLinks[i].textContent) && !footnoteLinks[i].closest("reference"))
+				if(looksLikeReference(footnoteLinks[i].textContent) && !footnoteLinks[i].closest(REFERENCE_TAGNAME))
 				{
 					footnoteLinks[i].textContent = cleanReferenceText(footnoteLinks[i].textContent);
-					wrapElement(footnoteLinks[i], "reference");
+					wrapElement(footnoteLinks[i], REFERENCE_TAGNAME);
 					numFootnoteA++;
 				}
 			}
@@ -243,20 +243,20 @@ export function createReferencesByTags()
 	const links = get("a");
 	for(const link of links)
 	{
-		if(link.closest("reference") || link.querySelector("img"))
+		if(link.closest(REFERENCE_TAGNAME) || link.querySelector("img"))
 			continue;
 		const str = link.textContent.trim();
 		if(str.length > 0 && str.length < 4 && /^[^A-Za-z0-9]+$/.test(str))
 		{
-			wrapElement(link, "reference");
+			wrapElement(link, REFERENCE_TAGNAME);
 			numNonAlphanumericA++;
 		}
 	}
 
-	unwrapAll("reference sup");
-	unwrapAll("reference small");
-	unwrapAll("reference span");
-	unwrapAll("reference reference");
+	unwrapAll(REFERENCE_TAGNAME + " sup");
+	unwrapAll(REFERENCE_TAGNAME + " small");
+	unwrapAll(REFERENCE_TAGNAME + " span");
+	unwrapAll(REFERENCE_TAGNAME + " " + REFERENCE_TAGNAME);
 	fixTextAroundReferences();
 
 	showMessageBig(`${numASup} a sup, ${numSupA} sup a, ${numFootnoteA} footnote a, ${numNonAlphanumericA} non-alphanumeric references created`);
@@ -289,8 +289,8 @@ export function analyzeReferences()
 			logInfo("More than one section contains footnotes");
 	}
 
-	const allRefs = document.querySelectorAll("reference a");
-	const footnoteRefs = document.querySelectorAll("footnote reference a");
+	const allRefs = document.querySelectorAll(REFERENCE_TAGNAME + " a");
+	const footnoteRefs = document.querySelectorAll(`footnote ${REFERENCE_TAGNAME} a`);
 
 	if(allRefs.length === 0)
 	{
@@ -366,8 +366,8 @@ export function analyzeReferences()
 
 export function orderFootnotesByNonFootnoteRefs()
 {
-	const allRefs = document.querySelectorAll("reference a");
-	const footnoteRefs = document.querySelectorAll("footnote reference a");
+	const allRefs = document.querySelectorAll(REFERENCE_TAGNAME + " a");
+	const footnoteRefs = document.querySelectorAll(`footnote ${REFERENCE_TAGNAME} a`);
 
 	if(allRefs && footnoteRefs)
 	{
@@ -376,7 +376,7 @@ export function orderFootnotesByNonFootnoteRefs()
 		{
 			for(const footnote of footnotes)
 			{
-				if(footnote.querySelector("reference") === null)
+				if(footnote.querySelector(REFERENCE_TAGNAME) === null)
 				{
 					showMessageError("Some footnotes don't have references, cannot proceed");
 					return;

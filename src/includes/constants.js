@@ -148,3 +148,5 @@ export const DIACRITIC_REGEXES_BY_LETTER = {
 	Z: /[ŹŻŽ]/g,
 	z: /[źżžż]/g,
 };
+
+export const REFERENCE_TAGNAME = "reference";

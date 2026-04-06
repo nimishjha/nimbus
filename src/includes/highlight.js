@@ -11,7 +11,7 @@ import { getTextNodesUnderPre, getTextNodesUnderSelector, getTextNodesUnderEleme
 import { escapeForRegExp } from "./misc";
 import { normalizeHTML, makePlainText, unwrapElement, deleteClass, createElement, unwrapAll, wrapElement, wrapElementInner, deleteLeadingAndTrailingEmptyTextNodes } from "./element";
 import { removeLineBreaks } from "./string";
-import { BLOCK_TAGS_SET } from "./constants";
+import { BLOCK_TAGS_SET, REFERENCE_TAGNAME } from "./constants";
 
 export function highlightInPres(str, tagName = "markyellow")
 {
@@ -116,10 +116,10 @@ export function toggleHighlight()
 export function moveLeadingAndTrailingReferencesOutOfHighlight(highlightElement)
 {
 	const firstChild = highlightElement.firstChild;
-	if(firstChild && firstChild.nodeType === 1 && firstChild.tagName === "REFERENCE")
+	if(firstChild && firstChild.nodeType === 1 && firstChild.tagName === REFERENCE_TAGNAME)
 		highlightElement.insertAdjacentElement("beforebegin", firstChild);
 	const lastChild = highlightElement.lastChild;
-	if(lastChild && lastChild.nodeType === 1 && lastChild.tagName === "REFERENCE")
+	if(lastChild && lastChild.nodeType === 1 && lastChild.tagName === REFERENCE_TAGNAME)
 		highlightElement.insertAdjacentElement("afterend", lastChild);
 }
 
@@ -707,7 +707,7 @@ export function highlightTextAcrossTags(element, searchString)
 
 	Nimbus.consoleLog(`%chighlightTextAcrossTags in %c${element.tagName}%c${searchString}`, styleHeading + black, styleHeading + blue, styleHeading + green);
 
-	const indivisibleElementTypes = new Set(["A", "B", "I", "EM", "STRONG", "REFERENCE"]);
+	const indivisibleElementTypes = new Set(["A", "B", "I", "EM", "STRONG", REFERENCE_TAGNAME]);
 	const nodeData = createNodeData(element);
 	const elemText = normalizeText(element.textContent);
 	const index1 = elemText.indexOf(searchString);
