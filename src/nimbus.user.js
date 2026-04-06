@@ -658,6 +658,7 @@ import {
 	orderFootnotesByNonFootnoteRefs,
 } from "./includes/reference";
 import { interlinkReferencesUsingFootnoteReferences } from "./includes/interlinkReferences";
+import { enableEditTextOnClick } from "./includes/edit";
 
 const isDebugMode = true;
 
@@ -1097,6 +1098,7 @@ function handleKeyMenuCommand(str)
 			case "DY": deleteEmptyBlockElements(); break;
 
 			case "ET": editDocumentTitle(); break;
+			case "EC": enableEditTextOnClick(); break;
 
 			case "FD": fixDashes(); break;
 			case "FI": fixInternalReferences(); break;
