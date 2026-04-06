@@ -31,6 +31,13 @@ export function getTextNodesUnderElementMatching(elem, text)
 	return xPathNodesToArray(document.evaluate(`.//text()[contains(., "${text}")]`, elem, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null));
 }
 
+export function getTextNodesUnderPre(directDescendantsOnly, markedOnly)
+{
+	const selectorPre = markedOnly ? "pre[contains(@class, 'markd')]" : "pre";
+	if(directDescendantsOnly) return getXpathResultAsArray(`//${selectorPre}/text()`);
+	return getXpathResultAsArray(`//${selectorPre}//text()`);
+}
+
 export function getTextNodesUnderSelector(tagName, strClass)
 {
 	let xpathString;

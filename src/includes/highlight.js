@@ -1,13 +1,13 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig, showMessageError } from "./ui";
-import { get, del, getNodeContainingSelection, getPreTextNodes, getFirstBlockParent, selectBySelectorAndText, selectByTagNameAndText } from "./selectors";
+import { get, del, getNodeContainingSelection, getFirstBlockParent, selectBySelectorAndText, selectByTagNameAndText } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
 import { insertStyleHighlight } from "./style";
 import { logString, logYellow } from "./log";
 import { getNext } from "./array";
 import { getNodeText, getTextLength } from "./node";
 import { containsOnlyPlainText } from "./elementAndNodeTests";
-import { getTextNodesUnderSelector, getTextNodesUnderElement, xPathSelect } from "./xpath";
+import { getTextNodesUnderPre, getTextNodesUnderSelector, getTextNodesUnderElement, xPathSelect } from "./xpath";
 import { escapeForRegExp } from "./misc";
 import { normalizeHTML, makePlainText, unwrapElement, deleteClass, createElement, unwrapAll, wrapElement, wrapElementInner, deleteLeadingAndTrailingEmptyTextNodes } from "./element";
 import { removeLineBreaks } from "./string";
@@ -21,7 +21,7 @@ export function highlightInPres(str, tagName = "markyellow")
 
 export function highlightCodeInPreTextNodes(regex, tagName)
 {
-	const nodes = getPreTextNodes();
+	const nodes = getTextNodesUnderPre();
 	if(!nodes) return;
 	for(const node of nodes)
 		highlightInTextNodeRegex(node, regex, tagName);

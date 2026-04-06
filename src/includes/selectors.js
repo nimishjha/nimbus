@@ -718,13 +718,6 @@ export function getNonCodeTextNodes()
 	return textNodes;
 }
 
-export function getPreTextNodes(directDescendantsOnly, markedOnly)
-{
-	const selectorPre = markedOnly ? "pre[contains(@class, 'markd')]" : "pre";
-	if(directDescendantsOnly) return getXpathResultAsArray(`//${selectorPre}/text()`);
-	return getXpathResultAsArray(`//${selectorPre}//text()`);
-}
-
 export function getNodeContainingSelection()
 {
 	const selection = window.getSelection();
