@@ -446,7 +446,7 @@ import {
 	swapElementPositions,
 	toggleContentEditable,
 } from "./includes/dom";
-import { proximitySearch as findMultipleStringsInProximity } from "./includes/proximitySearchV2";
+import { proximitySearch as findMultipleStringsInProximity } from "./includes/proximitySearch";
 import { generateTableOfContents, inlineFootnotes } from "./includes/ebook";
 import { highlightCode } from "./includes/code";
 import { toggleBlockEditMode } from "./includes/blockEdit";
