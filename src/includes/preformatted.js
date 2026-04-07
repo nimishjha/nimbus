@@ -1,19 +1,17 @@
 import { get } from "./selectors";
 import { emptyElement } from "./element";
 
-export function preReplaceBrs()
+export function replaceBrsInPres()
 {
 	const brs = document.querySelectorAll("pre br");
-	for(let i = 0, ii = brs.length; i < ii; i++)
-	{
-		const br = brs[i];
+	for(const br of brs)
 		br.replaceWith(document.createTextNode("\n"));
-	}
 }
 
-export function preTabifySpaces()
+export function tabifySpacesInPres()
 {
 	const pres = get("pre");
+	if(!pres) return;
 	for(const pre of pres)
 	{
 		let s = pre.innerHTML;
@@ -62,7 +60,7 @@ export function preSnakeCaseToCamelCase()
 	}
 }
 
-export function preMakeDivsFromLineBreaks()
+export function replaceLineBreaksInPres()
 {
 	const pres = get("pre");
 	for(const pre of pres)
@@ -82,7 +80,7 @@ export function preMakeDivsFromLineBreaks()
 	}
 }
 
-export function preRemoveMultiLineBreaks()
+export function collapseMultipleLineBreaksInPres()
 {
 	const elems = get("pre");
 	if(!elems) return;

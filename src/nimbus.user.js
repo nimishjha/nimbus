@@ -624,11 +624,11 @@ import {
 	setReplacementTag2,
 } from "./includes/replaceElements";
 import {
-	preMakeDivsFromLineBreaks,
-	preRemoveMultiLineBreaks,
-	preReplaceBrs,
+	collapseMultipleLineBreaksInPres,
 	preSnakeCaseToCamelCase,
-	preTabifySpaces,
+	replaceBrsInPres,
+	replaceLineBreaksInPres,
+	tabifySpacesInPres,
 } from "./includes/preformatted";
 import {
 	isCurrentDomainLink,
@@ -829,11 +829,11 @@ const availableFunctions = {
 	numberTableRowsAndColumns,
 	orderFootnotesByNonFootnoteRefs,
 	persistStreamingImages,
-	preMakeDivsFromLineBreaks,
-	preRemoveMultiLineBreaks,
-	preReplaceBrs,
+	replaceLineBreaksInPres,
+	collapseMultipleLineBreaksInPres,
+	replaceBrsInPres,
 	preSnakeCaseToCamelCase,
-	preTabifySpaces,
+	tabifySpacesInPres,
 	findMultipleStringsInProximity,
 	remove,
 	removeAllAttributesExcept,
@@ -1220,6 +1220,8 @@ function handleKeyMenuCommand(str)
 			case "ZO": deleteClass("statusOk"); break;
 			case "ZW": deleteClass("statusWarning"); break;
 			case "ZZ": markSelectionAnchorNode(); break;
+			case "Z5": setBodyOpacity(5); break;
+			case "Z0": setBodyOpacity(10); break;
 
 			default: showMessageBig(`Unknown command ${str}`);
 		}

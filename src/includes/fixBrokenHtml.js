@@ -69,7 +69,7 @@ export function rescueOrphanedTextNodes()
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
 		let node = textNodes[i];
-		if(!getTextLength(node)) continue;
+		if(getTextLength(node) === 0) continue;
 		if(hasAdjacentBlockElement(node))
 		{
 			const nodeParent = node.parentNode;
@@ -107,7 +107,6 @@ export function rescueOrphanedTextNodes()
 			if(allOrphanedNodes.length)
 			{
 				const wrapper = document.createElement(WRAPPER_TAGNAME);
-				// wrapper.className = Nimbus.markerClass;
 				for(const orphan of allOrphanedNodes)
 					wrapper.appendChild(orphan.cloneNode(true));
 				nodeParent.insertBefore(wrapper, orphanedNodes[0]);

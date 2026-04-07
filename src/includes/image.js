@@ -62,7 +62,12 @@ export function convertImageLinksToPlaceholders()
 			{
 				let parent = link.parentNode;
 				if(parent.tagName === "A") parent = parent.parentNode;
-				parent.insertAdjacentElement("afterbegin", createImagePlaceholderFromSrc(link.href));
+
+				if(link.href.includes("File:"))
+					parent.insertAdjacentElement("afterbegin", createLinkInWrapper("dt", link.href, link.href));
+				else
+					parent.insertAdjacentElement("afterbegin", createImagePlaceholderFromSrc(link.href));
+
 				if(isEmptyElement(link))
 					link.remove();
 			}

@@ -4,7 +4,7 @@ import { get } from "./selectors";
 import { createBulletAnchor, makeClassSelector } from "./misc";
 import { getMarkedElements } from "./mark";
 import { removeLineBreaks } from "./string";
-import { preReplaceBrs } from "./preformatted";
+import { replaceBrsInPres } from "./preformatted";
 import { getTextLength } from "./node";
 
 export function createElement(tag, props)
@@ -388,7 +388,7 @@ export function makePlainText(selector)
 {
 	const elements = get(selector);
 	if(!elements) return;
-	if(selector === "pre") preReplaceBrs();
+	if(selector === "pre") replaceBrsInPres();
 	for(let i = 0, ii = elements.length; i < ii; i++)
 		makeElementPlainText(elements[i]);
 }

@@ -1,11 +1,12 @@
 import { unwrapAll, removeAttributeOf, makePlainText } from "./element";
 import { get } from "./selectors";
 import { replaceInlineStylesWithClasses, convertClassesToCustomElements } from "./cleanup";
-import { preReplaceBrs } from "./preformatted";
+import { replaceBrsInPres } from "./preformatted";
 
 export function highlightCode(shouldHighlightKeywords)
 {
 	removeAttributeOf("pre", "class");
+	replaceBrsInPres();
 	if(get("pre span[style]"))
 	{
 		replaceInlineStylesWithClasses();
@@ -25,20 +26,15 @@ export function highlightCode(shouldHighlightKeywords)
 		unwrapAll("pre code");
 		return;
 	}
+}
 
-	preReplaceBrs();
-	makePlainText("pre");
-
-	const preBlocks = get("pre");
-	let i = preBlocks.length;
-	while(i--)
+function deletePresWithoutLetters()
+{
+	const pres = get("pre");
+	if(pres)
 	{
-		const preElement = preBlocks[i];
-		// delete the <pre>s that only contain line numbers
-		if(preElement.textContent && !/[a-z]/.test(preElement.textContent))
-		{
-			preElement.remove();
-			continue;
-		}
+		for(const pre of pres)
+			if(!/[a-z]/.test(pre.textContent))
+				pre.remove();
 	}
 }
