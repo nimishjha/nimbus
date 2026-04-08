@@ -87,7 +87,7 @@ export const STYLES = {
 		sup, sub, small, span, label { display: inline-block; margin: 0 10px 0 0; padding: 3px 5px; border: 2px solid #950; padding: 3px 5px; }
 		sup[id], sub[id], small[id], span[id], label[id] { box-shadow: inset 3px 3px #a00, inset -3px -3px #a00; }
 		footnote span { border: 3px solid #c09; }
-		.excludeFromMutations { box-shadow: none; }
+		.excludeFromMutations, .excludeFromMutations * { box-shadow: none; }
 	`,
 	SHOW_SELECTORS: `
 		*[class]::before { content: attr(class); color: #C90; background: #000; padding: 3px 6px; font: bold 18px "Swis721 Cn BT"; }

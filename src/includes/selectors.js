@@ -2,6 +2,7 @@ import { Nimbus } from "./Nimbus";
 import { showMessageBig, showMessageError } from "./ui";
 import { insertStyle, insertStyleHighlight } from "./style";
 import { createElement, deleteLeadingAndTrailingEmptyTextNodes } from "./element";
+import { getFirstElementOrNonEmptyTextNode } from "./elementAndNodeTests";
 import { hasDirectChildrenOfType } from "./elementAndNodeTests";
 import { markElement, getMarkedElements, unmarkAll, unmarkElement } from "./mark";
 import { xPathSelect, getTextNodesUnderSelector, getXpathResultAsArray } from "./xpath";

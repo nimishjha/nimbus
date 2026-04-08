@@ -1073,6 +1073,7 @@ function handleKeyMenuCommand(str)
 
 			case "CC": getContentByParagraphCount(); break;
 			case "CD": cleanupDocument(); break;
+			case "CE": customPrompt("Count elements by selector").then(count); break;
 			case "CJ": toggleConsole("js"); break;
 			case "CS": toggleConsole("css"); break;
 			case "CO": makeOL(); break;
