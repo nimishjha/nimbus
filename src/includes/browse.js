@@ -4,7 +4,7 @@ import { containsAnyOfTheStrings, normalizeString, trimAt } from "./string";
 import { markElement } from "./mark";
 import { insertStyle, toggleStyle, toggleWebsiteSpecificStyle } from "./style";
 import { looksLikeUrl } from "./misc";
-import { wrapElement, deleteClass, cycleClass, createElementWithChildren } from "./element";
+import { wrapElement, deleteClass, cycleClass, createElementWithChildren, setClassByPrefix } from "./element";
 import { get, getOne, del, selectByRelativePosition } from "./selectors";
 import { cleanupStackOverflow } from "./cleanup";
 import { runCommand } from "./command";
@@ -209,11 +209,6 @@ export function createPagerFromSelect()
 export function cycleTheme()
 {
 	cycleClass(document.documentElement, ["nimbusThemeSepia", "nimbusThemeRed", "nimbusThemeBlack", "nimbusThemeHideLinks", "nimbusThemeDimGrey", "none"]);
-}
-
-export function setTheme(str)
-{
-	document.documentElement.className = str;
 }
 
 export function setBodyOpacity(n)

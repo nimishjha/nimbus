@@ -356,6 +356,7 @@ import {
 	saveIDsToElement,
 	setAttributeOf,
 	setAttributeOrProperty,
+	setClassByPrefix,
 	toggleClass,
 	unwrapAll,
 	unwrapAllExcept,
@@ -462,7 +463,6 @@ import {
 	logout,
 	makeButtonsReadable,
 	setBodyOpacity,
-	setTheme,
 	showPrintLink,
 	toggleNonVideoContent,
 	toggleViewVideoMode,
@@ -1058,13 +1058,13 @@ function handleKeyMenuCommand(str)
 	{
 		switch(str)
 		{
-			case "AB": setTheme("nimbusThemeBlack"); break;
-			case "AD": setTheme("nimbusThemeDimGrey"); break;
-			case "AG": setTheme("nimbusThemeGrey"); break;
-			case "AL": setTheme("nimbusThemeHideLinks"); break;
-			case "AN": setTheme("none"); break;
-			case "AR": setTheme("nimbusThemeRed"); break;
-			case "AS": setTheme("nimbusThemeSepia"); break;
+			case "AB": setClassByPrefix(document.documentElement, "nimbusThemeBlack", "nimbusTheme"); break;
+			case "AD": setClassByPrefix(document.documentElement, "nimbusThemeDimGrey", "nimbusTheme"); break;
+			case "AG": setClassByPrefix(document.documentElement, "nimbusThemeGrey", "nimbusTheme"); break;
+			case "AL": setClassByPrefix(document.documentElement, "nimbusThemeHideLinks", "nimbusTheme"); break;
+			case "AN": setClassByPrefix(document.documentElement, "nimbusThemeNone", "nimbusTheme"); break;
+			case "AR": setClassByPrefix(document.documentElement, "nimbusThemeRed", "nimbusTheme"); break;
+			case "AS": setClassByPrefix(document.documentElement, "nimbusThemeSepia", "nimbusTheme"); break;
 
 			case "BC": boldInlineColonHeadings(); break;
 			case "BG": buildGallery(); break;
