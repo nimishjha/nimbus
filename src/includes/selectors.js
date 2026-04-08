@@ -72,7 +72,8 @@ export function selectElementsStartingWithText(selector, text)
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
-		if(elem.textContent && elem.textContent.trim().indexOf(text) === 0)
+		const elemText = elems[i].textContent.trim();
+		if(elem.textContent.length && elem.textContent.trim().startsWith(text))
 			selected.push(elem);
 	}
 	return selected;
@@ -88,7 +89,7 @@ export function selectElementsEndingWithText(selector, text)
 	{
 		const elem = elems[i];
 		const elemText = elem.textContent.trim();
-		if(elemText && elemText.length && elemText.lastIndexOf(text) === elemText.length - textLength)
+		if(elemText.length && elemText.endsWith(text))
 			selected.push(elem);
 	}
 	return selected;
@@ -218,9 +219,7 @@ export function markElementsWithChildrenSpanning(parentSelector, childSelector)
 
 function filterNodesByAttributeEqualTo(nodes, attribute, value)
 {
-	if(typeof value === "number")
-		value += "";
-	value = value.trim();
+	value = value.toString().trim();
 	let i = nodes.length;
 	const result = [];
 	if(attribute === "text" || attribute === "textContent")
@@ -578,9 +577,7 @@ export function filterNodesFollowingNodesOfType(nodes, selector)
 	while(i--)
 	{
 		const node = nodes[i];
-		// const prevSibling = node.previousSibling;
-		const prevElement = node.previousElementSibling;
-		// if(prevElement && prevElement === prevSibling && prevElement.matches(selector))
+		const prevElement = getFirstElementOrNonEmptyTextNode(node, "previousSibling");
 		if(prevElement && prevElement.matches(selector))
 			result.push(node);
 	}
@@ -594,9 +591,7 @@ export function filterNodesPrecedingNodesOfType(nodes, selector)
 	while(i--)
 	{
 		const node = nodes[i];
-		// const nextSibling = node.nextSibling;
-		const nextElement = node.nextElementSibling;
-		// if(nextElement && nextElement === nextSibling && nextElement.matches(selector))
+		const nextElement = getFirstElementOrNonEmptyTextNode(node, "nextSibling");
 		if(nextElement && nextElement.matches(selector))
 			result.push(node);
 	}
@@ -995,7 +990,6 @@ export function getFirstTextChild(elem)
 	return child;
 }
 
-// export const getEmptyLinkAnchors = () => Array.from(document.querySelectorAll("a[id]")).filter(link => !link.href && !getTextLength(link));
 export const getEmptyLinkAnchors = () => Array.from(document.querySelectorAll("a[id]")).filter(link => !getTextLength(link));
 export const getEmptySpanAnchors = () => Array.from(document.querySelectorAll("span[id]")).filter(span => !getTextLength(span));
 export const getLinksToId = (id) => document.querySelectorAll(`a[href="#${id}"]`);

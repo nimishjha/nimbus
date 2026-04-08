@@ -59,18 +59,12 @@ export function trimBetween(str, sub1, sub2)
 
 export function padLeft(str, width)
 {
-	let spaces = "";
-	for(let i = 0, ii = width - str.length; i < ii; i++)
-		spaces += " ";
-	return spaces + str;
+	return ' '.repeat(width - str.length) + str;
 }
 
 export function padRight(str, width)
 {
-	let spaces = "";
-	for(let i = 0, ii = width - str.length; i < ii; i++)
-		spaces += " ";
-	return str + spaces;
+	return str + ' '.repeat(width - str.length);
 }
 
 export function normalizeWhitespace(str) { return str.replace(/\s+/g, " "); }
@@ -109,11 +103,11 @@ export function unescapeHTML(html)
 
 export function containsAnyOfTheStrings(s, arrStrings)
 {
-	if(!s || typeof s !== "string")
+	if(typeof s !== "string")
 		return false;
 	let i = arrStrings.length;
 	while(i--)
-		if(~s.indexOf(arrStrings[i]))
+		if(s.includes(arrStrings[i]))
 			return true;
 	return false;
 }
@@ -125,7 +119,7 @@ export function containsAllOfTheStrings(s, arrStrings)
 	let i = arrStrings.length;
 	let found = 0;
 	while(i--)
-		if(~s.indexOf(arrStrings[i]))
+		if(s.includes(arrStrings[i]))
 			found++;
 	if(found === arrStrings.length)
 		return true;
@@ -134,10 +128,10 @@ export function containsAllOfTheStrings(s, arrStrings)
 
 export function startsWithAnyOfTheStrings(s, arrStrings)
 {
-	if(!s || typeof s !== "string")
+	if(typeof s !== "string")
 		return false;
 	for(let i = 0, ii = arrStrings.length; i < ii; i++)
-		if(s.indexOf(arrStrings[i]) === 0)
+		if(s.startsWith(arrStrings[i]))
 			return true;
 	return false;
 }
