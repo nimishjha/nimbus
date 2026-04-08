@@ -18,9 +18,13 @@ export function getFirstElementOrNonEmptyTextNode(node, siblingType)
 function hasAdjacentElementSiblingOfType(elem, selector, previousOrNext)
 {
 	const sibling = getFirstElementOrNonEmptyTextNode(elem, previousOrNext);
-	if(sibling.nodeType === Node.TEXT_NODE)
-		return false;
-	return (sibling && sibling.matches(selector));
+	if(sibling)
+	{
+		if(sibling.nodeType === Node.TEXT_NODE)
+			return false;
+		return sibling.matches(selector);
+	}
+	return false;
 }
 
 export function hasAdjacentPrecedingElementSiblingOfType(elem, selector)
