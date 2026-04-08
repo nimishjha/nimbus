@@ -927,6 +927,7 @@ export function splitElementsByChildren(selector = "h1, h2, h3, h4", parentTagNa
 		for(const elem of elems)
 		{
 			elem.normalize();
+			del(getEmptyTextNodesUnderElement(elem));
 
 			let linkHrefToRestore = null;
 			let linkIDToRestore = null;
