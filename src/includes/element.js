@@ -373,6 +373,23 @@ export function cycleClass(elem, arrClasses)
 	}
 }
 
+export function setClassByPrefix(elem, className, prefix)
+{
+	function hasPrefix(str)
+	{
+		return str.startsWith(prefix);
+	}
+
+	const elemClasses = Array.from(elem.classList);
+	if(elemClasses.length)
+	{
+		const existingClassesWithPrefix = elemClasses.filter(hasPrefix);
+		for(const cn of existingClassesWithPrefix)
+			elem.classList.remove(cn);
+	}
+	elem.classList.add(className);
+}
+
 export function getElemPropSafe(elem, prop)
 {
 	if(!elem)
