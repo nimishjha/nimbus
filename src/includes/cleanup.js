@@ -1,8 +1,7 @@
 import { Nimbus } from "./Nimbus";
-import { makePlainText, removeAllAttributesOf, emptyElement, createElement, unwrapElement } from "./element";
+import { makePlainText, removeAllAttributesOf, emptyElement, createElement, unwrapElement, createElementWithChildren, removeAttributeOf, unwrapAll, removeAllAttributesOfTypes, deleteClass, createLinkInWrapper } from "./element";
 import { get, getOne, del, select } from "./selectors";
 import { markElement, getMarkedElements, markNavigationalLists, markElements, unmarkAll } from "./mark";
-import { createElementWithChildren, removeAttributeOf, unwrapAll, removeAllAttributesOfTypes, deleteClass } from "./element";
 import { replaceDiacritics, replaceSpecialCharacters } from "./text";
 import { containsAnyOfTheStrings, containsAllOfTheStrings, removeWhitespace, trimSpecialChars, normalizeString, capitalize } from "./string";
 import { getXpathResultAsArray, getEmptyTextNodesUnderElement } from "./xpath";
@@ -929,8 +928,22 @@ export function splitElementsByChildren(selector = "h1, h2, h3, h4", parentTagNa
 		{
 			elem.normalize();
 
+			let linkHrefToRestore = null;
+			let linkIDToRestore = null;
+
 			if(elem.childNodes.length === 1)
-				continue;
+			{
+				if(elem.firstChild.nodeType === Node.ELEMENT_NODE && elem.firstChild.tagName === "A")
+				{
+					if(elem.firstChild.id)
+						linkIDToRestore = elem.firstChild.id;
+					if(elem.firstChild.getAttribute("href"))
+						linkHrefToRestore = elem.firstChild.getAttribute("href");
+					unwrapElement(elem.firstChild);
+				}
+				else
+					continue;
+			}
 
 			const wrapper = document.createElement(wrapperTagName);
 			for(let i = 0, ii = elem.childNodes.length; i < ii; i++)
@@ -963,6 +976,12 @@ export function splitElementsByChildren(selector = "h1, h2, h3, h4", parentTagNa
 			{
 				if(elem.id)
 					wrapper.id = elem.id;
+				if(linkHrefToRestore || linkIDToRestore)
+				{
+					const href = linkHrefToRestore ? "#" + linkHrefToRestore : null;
+					const linkRepl = createLinkInWrapper("reference", linkIDToRestore, href);
+					wrapper.appendChild(linkRepl);
+				}
 				elem.replaceWith(wrapper);
 				count++;
 			}
