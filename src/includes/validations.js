@@ -1,5 +1,6 @@
 import { Nimbus } from "./Nimbus";
 import { annotateElement } from "./dom";
+import { showMessageBig } from "./ui";
 
 export function hasDuplicateIDs()
 {
@@ -44,6 +45,15 @@ export function checkSequence(elems)
 				return;
 		}
 	}
+	if(numNonSequential)
+	{
+		showMessageBig("Non-sequential text found");
+		const elem = document.querySelector(".statusError");
+		if(elem)
+			elem.scrollIntoView();
+	}
+	else
+		showMessageBig("Everything is in order");
 }
 
 export function checkSequenceBySelector(selector)

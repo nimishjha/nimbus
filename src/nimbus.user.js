@@ -670,7 +670,6 @@ const availableFunctions = {
 	boldInlineColonHeadings,
 	buildGallery,
 	capitalizeTitle,
-	checkSequence,
 	checkSequenceBySelector,
 	cleanupAttributes,
 	cleanupDocument,
@@ -938,6 +937,7 @@ const availableFunctions = {
 };
 
 const consoleFunctions = [
+	checkSequence,
 	del,
 	getEmptyTextNodesUnderElement,
 	getTextLength,
