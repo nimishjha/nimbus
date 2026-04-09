@@ -4,10 +4,11 @@ import { showMessageBig } from "./ui";
 import { getMarkedElements, unmarkAll } from "./mark";
 import { get, getOne, getNodeContainingSelection, getOneMarked } from "./selectors";
 import { forAll, makeClassSelector } from "./misc";
-import { splitByBrs, fixBullets } from "./text";
+import { fixBullets } from "./text";
 import { groupAdjacentElements } from "./groupElements";
-import { removeAttributeOf, removeAllAttributesOfTypes, copyAttribute } from "./element"
+import { removeAttributeOf, removeAllAttributesOfTypes, copyAttribute } from "./element";
 import { getTextNodesUnderElement } from "./xpath";
+import { splitByBrs } from "./cleanup";
 
 export function swapElementPositions()
 {

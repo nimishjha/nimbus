@@ -22,8 +22,9 @@ import { getAllClassesFor } from "./inspect";
 import { replaceClass } from "./dom";
 import { callFunctionWithArgs } from "./command";
 import { hasDuplicateIDs } from "./validations";
-import { BLOCK_TAGS_SET, REFERENCE_TAGNAME } from "./constants";
+import { BLOCK_TAGS_SET, HEADING_TAGS_SET, REFERENCE_TAGNAME } from "./constants";
 import { cleanReferenceText } from "./reference";
+import { hasDirectChildrenOfType, hasAdjacentBlockElement, hasAdjacentPrecedingElementSiblingOfType } from "./elementAndNodeTests";
 
 function replaceIframes()
 {
@@ -167,6 +168,18 @@ export function removeRedundantHrs()
 		}
 		showMessageBig(count + " redundant hrs removed");
 	}
+}
+
+export function removeRedundantBrs()
+{
+	const elems = get("br");
+	let i = elems.length;
+	while(i--)
+	{
+		if(hasAdjacentBlockElement(elems[i]) || hasAdjacentPrecedingElementSiblingOfType(elems[i], "br"))
+			elems[i].remove();
+	}
+	del("br:last-child");
 }
 
 export function deleteNonContentLists()
@@ -1110,5 +1123,105 @@ export function deleteIndexSection()
 	else
 	{
 		showMessageBig("Did not find classname for index entries");
+	}
+}
+
+export function replaceBrs()
+{
+	const brs = get("br");
+	if(!brs) return;
+
+	removeRedundantBrs();
+
+	const inlineTags = new Set(["I", "EM", "B", "STRONG"]);
+
+	const elementsWithBrs = new Set();
+	for(let i = 0, ii = brs.length; i < ii; i++)
+	{
+		const parent = brs[i].parentNode;
+		if(parent)
+		{
+			if(inlineTags.has(parent.tagName))
+			{
+				elementsWithBrs.add(parent.parentNode);
+				unwrapElement(parent);
+			}
+			else
+			{
+				elementsWithBrs.add(parent);
+			}
+		}
+	}
+
+	for(const elem of elementsWithBrs.entries())
+	{
+		splitByBrs(elem[0]);
+	}
+
+	const brsRemaining = get("br");
+	if(!brsRemaining)
+		showMessageBig(`${brs.length} BRs deleted`);
+	else
+		replaceElementsBySelector("br", "brk");
+}
+
+export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
+{
+	const elems = typeof selectorOrElement === "string" ? get(selectorOrElement) : [selectorOrElement];
+
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const elem = elems[i];
+
+		if(!(wrapperTagName && childTagName))
+		{
+			childTagName = elem.tagName === "DIV" ? "P" : elem.tagName;
+			if(HEADING_TAGS_SET.has(childTagName))
+				wrapperTagName = "hgroup";
+			else if(childTagName === "BLOCKQUOTE")
+			{
+				wrapperTagName = "blockquote";
+				childTagName = "p";
+			}
+			else
+				wrapperTagName = "comment";
+		}
+
+		if(!hasDirectChildrenOfType(elem, "BR"))
+			continue;
+
+		const elemChildNodes = elem.childNodes;
+		const groups = [];
+		let nodeGroup = [];
+
+		for(let i = 0, ii = elemChildNodes.length; i < ii; i++)
+		{
+			let node = elemChildNodes[i];
+			if(node.nodeType === 1 && node.tagName === "BR")
+			{
+				if(nodeGroup.length)
+				{
+					groups.push(nodeGroup.slice());
+					nodeGroup = [];
+				}
+			}
+			else
+			{
+				nodeGroup.push(node);
+			}
+		}
+
+		if(nodeGroup.length)
+			groups.push(nodeGroup);
+
+		if(groups.length > 1)
+		{
+			const replacementWrapper = document.createElement(wrapperTagName);
+			for(let i = 0, ii = groups.length; i < ii; i++)
+				replacementWrapper.appendChild(createElementWithChildren(childTagName, ...groups[i]));
+			if(elem.id)
+				replacementWrapper.id = elem.id;
+			elem.replaceWith(replacementWrapper);
+		}
 	}
 }

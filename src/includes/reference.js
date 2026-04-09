@@ -8,56 +8,9 @@ import { showMessageBig, showMessageError } from "./ui";
 import { logInfo, logError, logWarning, logSuccess } from "./log";
 import { markElement } from "./mark";
 import { getTextLength } from "./node";
-import { interlink, interlinkReferencesByIndex } from "./interlinkReferences";
+import { interlinkReferencesByIndex, interlinkFootnoteAndNonFootnoteReferencesByIndexInSections } from "./interlinkReferences";
 import { fixTextAroundReferences } from "./cleanup";
 import { REGEXES, REFERENCE_TAGNAME } from "./constants";
-
-export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
-{
-	const sections = Array.from(document.getElementsByTagName("section"));
-	for(let i = 0; i < sections.length; i++)
-	{
-		const section = sections[i];
-		const sectionIndex = i + 1;
-
-		const allRefs = section.querySelectorAll(REFERENCE_TAGNAME + " a");
-		const footnoteRefs = section.querySelectorAll(`footnote ${REFERENCE_TAGNAME} a`);
-		if(!allRefs)
-		{
-			logInfo(`Did not find any references in section ${sectionIndex}`);
-			continue;
-		}
-		if(!footnoteRefs)
-		{
-			logInfo(`Did not find any references inside footnotes in section ${sectionIndex}`);
-			continue;
-		}
-
-		const nonFootnoteRefs = [];
-		for(const ref of allRefs)
-			if(!ref.closest("footnote"))
-				nonFootnoteRefs.push(ref);
-
-		if(footnoteRefs.length > 0 && nonFootnoteRefs.length > 0)
-		{
-			if(footnoteRefs.length === nonFootnoteRefs.length)
-			{
-				logSuccess(`Section ${sectionIndex}: ${allRefs.length} total refs, ${footnoteRefs.length} footnote refs, ${nonFootnoteRefs.length} non-footnote refs`);
-
-				for(let j = 0; j < nonFootnoteRefs.length; j++)
-				{
-					const refIndex = j + 1;
-					interlink(nonFootnoteRefs[j], footnoteRefs[j], refIndex, `s${sectionIndex}r${refIndex}`);
-				}
-			}
-			else
-			{
-				logWarning(`Section ${sectionIndex}: lengths mismatch - ${footnoteRefs.length} footnote refs, ${nonFootnoteRefs.length} non-footnote refs`);
-				section.className = Nimbus.markerClass;
-			}
-		}
-	}
-}
 
 export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 {

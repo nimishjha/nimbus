@@ -152,11 +152,13 @@ import {
 	removeEventListeners,
 	removeInlineStyles,
 	removeRedundantDivs,
+	removeRedundantBrs,
 	removeRedundantHrs,
 	removeSpanTags,
 	removeUnnecessaryClasses,
 	removeUnnecessarySpans,
 	replaceAudio,
+	replaceBrs,
 	replaceCommonClasses,
 	replaceCommonClassesNew,
 	replaceInlineStylesWithClasses,
@@ -165,6 +167,7 @@ import {
 	setDocumentHeading,
 	shortenIDs,
 	simplifyClassNames,
+	splitByBrs,
 	splitElementsByChildren,
 } from "./includes/cleanup";
 import {
@@ -309,7 +312,6 @@ import {
 	boldInlineColonHeadings,
 	convertLineBreaksToBrs,
 	deleteNonEnglishText,
-	removeRedundantBrs,
 	enDashToEmDash,
 	fixBullets,
 	fixDashes,
@@ -322,11 +324,9 @@ import {
 	removeEmojis,
 	removePeriodsFromAbbreviations,
 	replaceAllDiacritics,
-	replaceBrs,
 	replaceDiacritics,
 	replaceSpecialCharacters,
 	singleQuotesToDoubleQuotes,
-	splitByBrs,
 } from "./includes/text";
 import {
 	convertToFragment,
@@ -653,11 +653,10 @@ import {
 import {
 	analyzeReferences,
 	createReferencesByTags,
-	interlinkFootnoteAndNonFootnoteReferencesByIndexInSections,
 	moveID,
 	orderFootnotesByNonFootnoteRefs,
 } from "./includes/reference";
-import { interlinkReferencesUsingFootnoteReferences } from "./includes/interlinkReferences";
+import { interlinkReferencesUsingFootnoteReferences, interlinkFootnoteAndNonFootnoteReferencesByIndexInSections } from "./includes/interlinkReferences";
 import { enableEditTextOnClick } from "./includes/edit";
 
 const isDebugMode = true;
