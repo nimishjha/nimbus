@@ -128,6 +128,7 @@ export function removeRedundantBrs()
 		if(hasAdjacentBlockElement(elems[i]) || hasAdjacentPrecedingElementSiblingOfType(elems[i], "br"))
 			elems[i].remove();
 	}
+	del("br:last-child");
 }
 
 export function replaceBrs()
