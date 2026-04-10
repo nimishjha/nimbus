@@ -204,7 +204,7 @@ function highlightMapper()
 			const isFirstVisibleElement = firstVisibleElement && elem === firstVisibleElement;
 			const highlightLengthsItem = createHighlightLengthsObject(elem.textContent.length, isFirstVisibleElement);
 			highlightData.maxParagraphLength = Math.max(highlightData.maxParagraphLength, highlightLengthsItem.plaintext);
-			for(const tag of ["mark", "markyellow", "markpurple", "markgreen", "markblue", "markred", "markwhite"])
+			for(const tag of Nimbus.highlightTagNameList)
 			{
 				const highlightElements = elem.querySelectorAll(tag);
 				if(!highlightElements.length) continue;
