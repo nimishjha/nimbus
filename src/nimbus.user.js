@@ -1166,8 +1166,8 @@ function handleKeyMenuCommand(str)
 			case "P2": setReplacementTag1("h2"); setReplacementTag2("h3"); break;
 			case "PH": replaceEmptyParagraphsWithHr(); break;
 			case "PQ": setReplacementTag1("quote"); setReplacementTag2("quoteauthor"); break;
-			case "PP": setClassByPrefix(document.documentElement, "nimbusPreFontProportional", "nimbusPreFont"); break;
-			case "PM": setClassByPrefix(document.documentElement, "nimbusPreFontMonospace", "nimbusPreFont"); break;
+			case "PP": setClassByPrefix(document.documentElement, "nimbusPreFontFaceProportional", "nimbusPreFontFace"); break;
+			case "PM": setClassByPrefix(document.documentElement, "nimbusPreFontFaceMonospace", "nimbusPreFontFace"); break;
 			case "PJ": setClassByPrefix(document.documentElement, "nimbusPreFontSizeSmall", "nimbusPreFontSize"); break;
 			case "PK": setClassByPrefix(document.documentElement, "nimbusPreFontSizeMedium", "nimbusPreFontSize"); break;
 			case "PL": setClassByPrefix(document.documentElement, "nimbusPreFontSizeLarge", "nimbusPreFontSize"); break;
