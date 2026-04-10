@@ -1139,12 +1139,15 @@ export function replaceBrs()
 	for(let i = 0, ii = brs.length; i < ii; i++)
 	{
 		const parent = brs[i].parentNode;
-		if(parent)
+		if(parent && parent.tagName !== "BODY")
 		{
 			if(inlineTags.has(parent.tagName))
 			{
-				elementsWithBrs.add(parent.parentNode);
-				unwrapElement(parent);
+				if(parent.parentNode.tagName !== "BODY")
+				{
+					elementsWithBrs.add(parent.parentNode);
+					unwrapElement(parent);
+				}
 			}
 			else
 			{
