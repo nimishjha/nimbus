@@ -72,63 +72,6 @@ export function interlinkReferencesByIndex(footnoteRefs, nonFootnoteRefs)
 	}
 }
 
-export function interlinkReferencesUsingFootnoteReferences()
-{
-	const primaryRefLinks = document.querySelectorAll(`footnote ${REFERENCE_TAGNAME} a`);
-	if(!primaryRefLinks)
-	{
-		logError("Did not find any footnote references");
-		return;
-	}
-
-	const lookup = createLinksByHrefLookup();
-	let count = 0;
-
-	const prefix = getSafePrefixForSequentialIDs("ref");
-	if(!prefix)
-	{
-		showMessageBig("Could not find a safe prefix; cannot proceed");
-		return;
-	}
-
-	for(let i = 0, ii = primaryRefLinks.length; i < ii; i++)
-	{
-		const primaryRefLink = primaryRefLinks[i];
-		const index = i + 1;
-
-		const links = lookup["#" + primaryRefLink.id];
-		if(links)
-		{
-			count++;
-			primaryRefLink.id = prefix + index;
-			primaryRefLink.textContent = index;
-			interlink(primaryRefLink, links[0], primaryRefLink.textContent, primaryRefLink.id);
-			if(links[0].parentNode.tagName !== REFERENCE_TAGNAME)
-				wrapElement(links[0], REFERENCE_TAGNAME);
-
-			if(links.length > 1)
-			{
-				logYellow(`${primaryRefLink.textContent} has ${links.length} links to it`);
-				for(let j = 1, jj = links.length; j < jj; j++)
-				{
-					const dupRef = document.createElement(REFERENCE_TAGNAME);
-					const dupRefLink = document.createElement("a");
-					const dupRefLinkText = `${primaryRefLink.textContent}-${j + 1}`;
-					const dupRefLinkID = primaryRefLink.id + "dup" + (j + 1).toString();
-					interlink(dupRefLink, links[j], dupRefLinkText, dupRefLinkID);
-					dupRef.appendChild(dupRefLink);
-					primaryRefLink.parentNode.insertAdjacentElement("afterend", dupRef);
-				}
-			}
-		}
-		else
-		{
-			logWarning("No links to #" + primaryRefLink.id);
-		}
-	}
-	showMessageBig(`${count} reference groups interlinked`);
-}
-
 export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 {
 	const sections = Array.from(document.getElementsByTagName("section"));
@@ -174,4 +117,73 @@ export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
 			}
 		}
 	}
+}
+
+export function interlinkReferencesUsingFootnoteReferences()
+{
+	const primaryRefLinks = document.querySelectorAll(`footnote ${REFERENCE_TAGNAME} a`);
+	if(!primaryRefLinks)
+	{
+		logError("Did not find any footnote references");
+		return;
+	}
+
+	const lookup = createLinksByHrefLookup();
+	let count = 0;
+
+	const prefix = getSafePrefixForSequentialIDs("ref");
+	if(!prefix)
+	{
+		showMessageBig("Could not find a safe prefix; cannot proceed");
+		return;
+	}
+
+	for(let i = 0, ii = primaryRefLinks.length; i < ii; i++)
+	{
+		const primaryRefLink = primaryRefLinks[i];
+		const index = i + 1;
+
+		if(!primaryRefLink.id.length)
+		{
+			logWarning(`ID for reference ${primaryRefLink.textContent} is empty`);
+			primaryRefLink.className = "statusError";
+		}
+		else
+		{
+			const links = lookup["#" + primaryRefLink.id];
+			if(links)
+			{
+				count++;
+				primaryRefLink.id = prefix + index;
+				primaryRefLink.textContent = index;
+				interlink(primaryRefLink, links[0], primaryRefLink.textContent, primaryRefLink.id);
+				if(links[0].parentNode.tagName !== REFERENCE_TAGNAME)
+				{
+					logInfo(`links[0].parentNode.tagName is ${links[0].parentNode.tagName}`);
+					wrapElement(links[0], REFERENCE_TAGNAME);
+				}
+
+				if(links.length > 1)
+				{
+					logYellow(`${primaryRefLink.textContent} has ${links.length} links to it`);
+					for(let j = 1, jj = links.length; j < jj; j++)
+					{
+						const dupRef = document.createElement(REFERENCE_TAGNAME);
+						const dupRefLink = document.createElement("a");
+						const dupRefLinkText = `${primaryRefLink.textContent}-${j + 1}`;
+						const dupRefLinkID = primaryRefLink.id + "dup" + (j + 1).toString();
+						interlink(dupRefLink, links[j], dupRefLinkText, dupRefLinkID);
+						dupRef.appendChild(dupRefLink);
+						primaryRefLink.parentNode.insertAdjacentElement("afterend", dupRef);
+					}
+				}
+			}
+			else
+			{
+				logWarning(`No links to ID "${primaryRefLink.id}"`);
+				primaryRefLink.className = "statusWarning";
+			}
+		}
+	}
+	showMessageBig(`${count} reference groups interlinked`);
 }
