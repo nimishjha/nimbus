@@ -141,7 +141,7 @@ export function autoCompleteInputBox()
 		const matches = strWithCapsCollapsed.match(/[A-Z]/g);
 		if(matches)
 			return strWithCapsCollapsed[0] + matches.join("").toLowerCase();
-		return false;
+		return str;
 	}
 
 	function createShortCodesLookup()
