@@ -579,7 +579,7 @@ export function filterNodesFollowingNodesOfType(nodes, selector)
 	{
 		const node = nodes[i];
 		const prevElement = getFirstElementOrNonEmptyTextNode(node, "previousSibling");
-		if(prevElement && prevElement.matches(selector))
+		if(prevElement && prevElement.nodeType === Node.ELEMENT_NODE && prevElement.matches(selector))
 			result.push(node);
 	}
 	return result;
@@ -593,7 +593,7 @@ export function filterNodesPrecedingNodesOfType(nodes, selector)
 	{
 		const node = nodes[i];
 		const nextElement = getFirstElementOrNonEmptyTextNode(node, "nextSibling");
-		if(nextElement && nextElement.matches(selector))
+		if(nextElement && nextElement.nodeType === Node.ELEMENT_NODE && nextElement.matches(selector))
 			result.push(node);
 	}
 	return result;
