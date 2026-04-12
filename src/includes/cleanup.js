@@ -1228,3 +1228,28 @@ export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 		}
 	}
 }
+
+export function removeNestedDuplicates(selector)
+{
+	const elems = get(selector);
+	if(elems)
+	{
+		for(const elem of elems)
+		{
+			del(getEmptyTextNodesUnderElement(elem));
+			let numChildrenOfOtherType = 0;
+			if(elem.childNodes.length === elem.children.length)
+			{
+				for(const child of elem.children)
+					if(child.tagName !== elem.tagName)
+						numChildrenOfOtherType++;
+				if(numChildrenOfOtherType === 0)
+					unwrapElement(elem);
+			}
+		}
+	}
+	else
+	{
+		showMessageBig(`Nothing matched ${selector}`);
+	}
+}
