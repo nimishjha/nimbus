@@ -85,6 +85,10 @@ export const Nimbus = {
 				markwhite: "#E0E0E0",
 			}
 		},
+		proximitySearch: {
+			maxDistance: 6,
+			highlightAllMatches: false,
+		},
 	},
 	consoleLog: noop,
 	consoleWarn: noop,

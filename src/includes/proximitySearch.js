@@ -3,6 +3,8 @@ import { showMessageBig, showMessageError } from "./ui";
 import { resetHighlightTag, highlightAllMatchesInDocument } from "./highlight";
 import { Nimbus } from "./Nimbus";
 
+const MODULE_NAME = "proximitySearch";
+
 function getBitCount(num)
 {
 	return num.toString(2).split('1').length - 1;
@@ -37,8 +39,9 @@ export function proximitySearch(...args)
 	const elems = document.querySelectorAll("p");
 	if(!elems) return;
 
-	const MAX_DISTANCE = 6;
-	const HIGHLIGHT_ALL_MATCHES = false;
+	const config = Nimbus.moduleConfigs[MODULE_NAME];
+	const MAX_DISTANCE = config.maxDistance;
+	const HIGHLIGHT_ALL_MATCHES = config.highlightAllMatches;
 
 	const lookups = [];
 	const stringsLower = [];
