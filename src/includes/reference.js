@@ -87,7 +87,6 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 			if(!recipient.id)
 			{
 				recipient.id = elem.id;
-				recipient.className = "statusOk";
 				numIDsMoved++;
 			}
 			else
@@ -103,7 +102,7 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 			if((elem.tagName === "A" || elem.tagName === "SPAN") && getTextLength(elem) === 0)
 				elem.remove();
 			else
-				elem.className = "statusWarning";
+				elem.className = "statusOk";
 		}
 		else
 		{
@@ -112,7 +111,12 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 		}
 	}
 
-	showMessageBig(`${numElementsWithIDs}/${elems.length} ${anchorSelector}s have IDs, ${numIDsMoved} IDs moved, ${numRecipientsNotFound} recipients not found`);
+	if(numElementsWithIDs === 0)
+		showMessageBig("None of the selected elements have IDs");
+	else if(numElementsWithIDs === numIDsMoved)
+		showMessageBig(`${numElementsWithIDs} IDs moved, none remaining`);
+	else if(numRecipientsNotFound)
+		showMessageBig(`${numIDsMoved} IDs moved, ${numRecipientsNotFound} recipients not found`);
 }
 
 export function cleanReferenceText(str)
