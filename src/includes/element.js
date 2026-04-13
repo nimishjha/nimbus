@@ -6,6 +6,7 @@ import { getMarkedElements } from "./mark";
 import { removeLineBreaks } from "./string";
 import { replaceBrsInPres } from "./preformatted";
 import { getTextLength } from "./node";
+import { getTextNodesUnderElement } from "./xpath";
 
 export function createElement(tag, props)
 {
@@ -464,7 +465,19 @@ export function createLinkInWrapper(tagName, text, href, id)
 
 export function normalizeHTML(element)
 {
-	element.innerHTML = element.innerHTML.replace(/&nbsp;/g, " ").replace(/\s+/g, " ");
+	element.normalize();
+	const textNodes = getTextNodesUnderElement(element);
+	for(const node of textNodes)
+	{
+		if(/\s+/.test(node.data))
+		{
+			const normalized = node.data.replace(/\s+/g, " ");
+			if(normalized.length)
+				node.data = normalized;
+			else
+				node.remove();
+		}
+	}
 }
 
 export function createPlaceholderForElementAttribute(elem, attrName, tagName)
