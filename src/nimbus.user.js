@@ -229,6 +229,7 @@ import {
 	removeQueryStringFromLinks,
 	removeQueryStringFromLinksMatching,
 	moveIDsFromEmptyAnchors,
+	relinkTableOfContents,
 	revealEmptyLinks,
 	revealLinkAttributes,
 	showLinksToIDs,
@@ -869,6 +870,7 @@ const availableFunctions = {
 	replaceElementsOfMarkedTypeWith,
 	replaceInMarkedBySelector,
 	moveIDsFromEmptyAnchors,
+	relinkTableOfContents,
 	replaceEmptyParagraphsWithHr,
 	replaceFontTags,
 	toggleBetweenImagesAndPlaceholders,
@@ -1031,10 +1033,6 @@ function inject()
 		enableConsoleLogs();
 	setTimeout(doWebsiteSpecificTasks, 1000);
 }
-
-//
-//
-//
 
 function disableKeyMenu()
 {
@@ -1304,10 +1302,6 @@ function toggleKeyMenu(firstKey)
 		Nimbus.keyMenu.isActive = true;
 	}
 }
-
-//
-//
-//
 
 function handleKeyDown(e)
 {

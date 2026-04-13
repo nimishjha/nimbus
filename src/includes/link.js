@@ -14,6 +14,7 @@ import { annotateElement } from "./dom";
 import { hasDuplicateIDs } from "./validations";
 import { fixTextAroundReferences } from "./cleanup";
 import { REFERENCE_TAGNAME } from "./constants";
+import { logError, logInfo } from "./log";
 
 function moveIDToRecipient(anchor, recipient, linksByHref)
 {
@@ -647,4 +648,62 @@ export function interlinkMarkedElements()
 	link2.setAttribute("href", "#" + link1.id);
 
 	unmarkAll();
+}
+
+export function relinkTableOfContents(linksSelector = ".markd", headingsSelector = "h1, h2, h3, h4, h5, h6")
+{
+	function normalizeText(str)
+	{
+		return str.toLowerCase().trim()
+			.replaceAll("chapter", "")
+			.replace(/[^A-Za-z]+/g, "");
+	}
+
+	const links = get(linksSelector);
+	const headings = get(headingsSelector);
+	if(!(links && headings))
+	{
+		showMessageError("Failed to get one or both of links and headings");
+		return;
+	}
+
+	if(links[0].tagName !== "A")
+	{
+		showMessageError(`Expected <a>, found ${links[0].tagName}`);
+		return;
+	}
+
+	const headingsByText = {};
+	for(const heading of headings)
+		headingsByText[normalizeText(heading.textContent)] = heading;
+
+	let numLinksFixed = 0;
+	let numHeadingNotFound = 0;
+
+	for(const link of links)
+	{
+		const linkTextLower = normalizeText(link.textContent);
+		const heading = headingsByText[linkTextLower];
+		if(heading)
+		{
+			if(!heading.id)
+				heading.id = createUniqueID(normalizeText(heading.textContent));
+			link.setAttribute("href", "#" + heading.id);
+			link.className = "statusOk";
+			numLinksFixed++;
+		}
+		else
+		{
+			link.className = "statusError";
+			numHeadingNotFound++;
+			logError(`Did not find heading with normalized text ${linkTextLower}`);
+		}
+	}
+
+	if(numHeadingNotFound > 0)
+	{
+		logInfo("headingsByText:", Object.keys(headingsByText).join(", "));
+	}
+
+	showMessageBig(`${numLinksFixed} links fixed, ${numHeadingNotFound} headings not found`);
 }
