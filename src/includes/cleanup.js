@@ -19,7 +19,7 @@ import { retrieve } from "./retrieve";
 import { moveIDsFromEmptyAnchors, createLinksByHrefLookup, fixInternalReferences, removeUnreferencedIDs } from "./link";
 import { isCurrentDomainLink } from "./url";
 import { getAllClassesFor } from "./inspect";
-import { replaceClass } from "./dom";
+import { replaceClass, insertAsFirstChild } from "./dom";
 import { callFunctionWithArgs } from "./command";
 import { hasDuplicateIDs } from "./validations";
 import { BLOCK_TAGS_SET, HEADING_TAGS_SET, REFERENCE_TAGNAME } from "./constants";
@@ -1252,4 +1252,32 @@ export function removeNestedDuplicates(selector)
 	{
 		showMessageBig(`Nothing matched ${selector}`);
 	}
+}
+
+export function createHeadingsFromLinks(selector)
+{
+	const links = get(selector);
+	let count = 0;
+	for(let i = 0; i < links.length; i++)
+	{
+		const link = links[i];
+		const href = link.getAttribute("href");
+		if(href && href.startsWith("#"))
+		{
+			const target = getOne(href);
+			if(target)
+			{
+				const heading = document.createElement("h2");
+				heading.appendChild(link.cloneNode(true));
+				const headingLinks = heading.querySelectorAll("a");
+				for(const link of headingLinks)
+					unwrapElement(link);
+				link.className = "statusOk";
+				heading.className = "statusWarning";
+				insertAsFirstChild(target, heading);
+				count++;
+			}
+		}
+	}
+	showMessageBig(`${count} headings created`);
 }
