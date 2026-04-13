@@ -449,7 +449,7 @@ import {
 	toggleContentEditable,
 } from "./includes/dom";
 import { proximitySearch as findMultipleStringsInProximity } from "./includes/proximitySearch";
-import { generateTableOfContents, inlineFootnotes } from "./includes/ebook";
+import { generateTableOfContents, inlineFootnotes, cleanupEbook } from "./includes/ebook";
 import { highlightCode } from "./includes/code";
 import { toggleBlockEditMode } from "./includes/blockEdit";
 import {
@@ -819,7 +819,7 @@ const availableFunctions = {
 	moveDataTestIdToClassName,
 	moveIDsFromImages,
 	moveIDsFromSpans,
-	moveID,
+	moveid: moveID,
 	normaliseWhitespaceForParagraphs,
 	normalizeAllWhitespace,
 	normalizeClassnames,
@@ -1103,6 +1103,7 @@ function handleKeyMenuCommand(str)
 			case "EC": enableEditTextOnClick(); break;
 
 			case "FD": fixDashes(); break;
+			case "FE": cleanupEbook(); break;
 			case "FI": fixInternalReferences(); break;
 			case "FM": callFunctionWithArgs("findMultipleStringsInProximity", findMultipleStringsInProximity); break;
 			case "FP": fixParagraphs(); break;

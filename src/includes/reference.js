@@ -216,7 +216,8 @@ export function createReferencesByTags()
 	unwrapAll(REFERENCE_TAGNAME + " " + REFERENCE_TAGNAME);
 	fixTextAroundReferences();
 
-	showMessageBig(`${numASup} a sup, ${numSupA} sup a, ${numFootnoteA} footnote a, ${numNonAlphanumericA} non-alphanumeric references created`);
+	const nonFootnoteRefsCreated = numASup + numSupA + numNonAlphanumericA;
+	showMessageBig(`${numFootnoteA} footnote references, ${nonFootnoteRefsCreated} non-footnote references created`);
 }
 
 export function analyzeReferences()

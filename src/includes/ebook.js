@@ -3,6 +3,8 @@ import { insertAfter, insertAsFirstChild } from "./dom";
 import { createElement } from "./element";
 import { get, getOne } from "./selectors";
 import { createUniqueID } from "./misc";
+import { replaceSpecialCharacters } from "./text";
+import { replaceCommonClassesNew } from "./cleanup";
 
 export function generateTableOfContents(selector = "h1, h2, h3, h4, h5, h6", shouldUseHierarchicalHeadings = false)
 {
@@ -73,4 +75,10 @@ export function inlineFootnotes()
 		}
 	}
 	showMessageBig(`Inlined ${numFootnotesFixed} footnotes, ${numFootnotesNotFound} footnote elements not found`);
+}
+
+export function cleanupEbook()
+{
+	replaceSpecialCharacters();
+	replaceCommonClassesNew();
 }
