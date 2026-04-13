@@ -287,8 +287,9 @@ export function fixDashes()
 	const t1 = new Date();
 
 	const ps = get("p, li, blockquote");
-	for(const p of ps)
-		p.innerHTML = removeLineBreaks(p.innerHTML);
+	if(ps)
+		for(const p of ps)
+			normalizeHTML(p);
 
 	let replCount = 0;
 	const regexBadDashes = /(\s+[-–—]\s+|\s+[-–—]|[-–—]\s+|--)/g;
