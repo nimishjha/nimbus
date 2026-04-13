@@ -1,7 +1,7 @@
 import { Nimbus } from "./Nimbus";
 import { createLinksByHrefLookup, looksLikeReference, getTargetElement } from "./link";
 import { get, getOne } from "./selectors";
-import { wrapElement, unwrapElement, unwrapAll } from "./element";
+import { wrapElement, unwrapElement, unwrapAll, deleteClass } from "./element";
 import { isEmptyElement } from "./elementAndNodeTests";
 import { replaceElement, replaceElementKeepingId } from "./replaceElements";
 import { showMessageBig, showMessageError } from "./ui";
@@ -114,7 +114,10 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 	if(numElementsWithIDs === 0)
 		showMessageBig("None of the selected elements have IDs");
 	else if(numElementsWithIDs === numIDsMoved)
+	{
 		showMessageBig(`${numElementsWithIDs} IDs moved, none remaining`);
+		deleteClass("statusOk");
+	}
 	else if(numRecipientsNotFound)
 		showMessageBig(`${numIDsMoved} IDs moved, ${numRecipientsNotFound} recipients not found`);
 }
