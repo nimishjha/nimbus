@@ -215,6 +215,11 @@ export function replaceMarkedWithTextElement(tagName, text)
 	}
 }
 
+export function replaceMarkedWithString(str)
+{
+	replaceMarkedWithTextElement("kbd", str);
+}
+
 //	If the user has selected some text, this function takes that selection's first block parent,
 //	and replaces that element with an element of type tagName.
 export function replaceSelectedElement(tagName)

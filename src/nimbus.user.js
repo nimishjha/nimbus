@@ -617,6 +617,7 @@ import {
 	replaceFirstLevelChildrenWith,
 	replaceInMarkedBySelector,
 	replaceMarkedElements,
+	replaceMarkedWithString,
 	replaceMarkedWithTextElement,
 	replaceNonStandardElements,
 	replaceSelectedElement,
@@ -675,6 +676,7 @@ const availableFunctions = {
 	capitalizeTitle,
 	checkSequenceBySelector,
 	cleanupAttributes,
+	cleanupBarebone,
 	cleanupDocument,
 	cleanupHead,
 	cleanupLinks,
@@ -1520,12 +1522,13 @@ function handleKeyDown(e)
 			case KEYCODES.ZERO: capitalizeTitle(); break;
 			case KEYCODES.A: annotate("after"); break;
 			case KEYCODES.B: toggleShowSelectors(); break;
-			case KEYCODES.D: deselect(); break;
+			case KEYCODES.D: deleteCurrentElement(); break;
+			case KEYCODES.E: customPrompt("Enter replacement text").then(replaceMarkedWithString); break;
 			case KEYCODES.G: callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
 			case KEYCODES.Z: deselect(); break;
 			case KEYCODES.E: callFunctionWithArgs("Replace elements by class or id containing", replaceByClassOrIdContaining, 2); break;
 			case KEYCODES.H: unmarkAll(); break;
-			case KEYCODES.M: toggleHighlightMap(); break;
+			case KEYCODES.M: markCurrentElement(); break;
 			case KEYCODES.S: forceReloadCss(); break;
 			case KEYCODES.V: replaceCommonClasses(); break;
 			case KEYCODES.F11: inspect(true); break;
