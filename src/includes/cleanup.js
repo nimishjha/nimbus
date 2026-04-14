@@ -175,11 +175,8 @@ export function removeRedundantBrs()
 	const elems = get("br");
 	let i = elems.length;
 	while(i--)
-	{
-		if(hasAdjacentBlockElement(elems[i]) || hasAdjacentPrecedingElementSiblingOfType(elems[i], "br"))
+		if(elems[i].previousSibling === null || elems[i].nextSibling === null || hasAdjacentBlockElement(elems[i]) || hasAdjacentPrecedingElementSiblingOfType(elems[i], "br"))
 			elems[i].remove();
-	}
-	del("br:last-child");
 }
 
 export function deleteNonContentLists()
