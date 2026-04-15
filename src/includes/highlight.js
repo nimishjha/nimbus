@@ -413,32 +413,11 @@ export function highlightByTagNameAndText(tagName, str)
 		highlightElements(elems);
 }
 
-export function highlightQuotes()
-{
-	const UTF8_SINGLEQUOTEOPEN = '\u2018';
-	const UTF8_SINGLEQUOTECLOSE = '\u2019';
-	document.body.innerHTML = document.body.innerHTML.replace(/\u201C/g, '<markwhite>"').replace(/\u201D/g, '"</markwhite>');
-}
-
 export function highlightTableRows(rows)
 {
 	const trHighlightClass = Nimbus.trHighlightClass[Nimbus.highlightTagName];
 	for(let i = 0, ii = rows.length; i < ii; i++)
 		rows[i].classList.add(trHighlightClass);
-}
-
-export function highlightFirstParentByText(str)
-{
-	const highlightTagName = Nimbus.highlightTagName;
-	const textNodes = getTextNodesUnderSelector("body");
-	const escapedString = "(\\w*" + escapeForRegExp(str) + "\\w*)";
-	let regex = new RegExp(escapedString, "gi");
-	for(let i = 0, ii = textNodes.length; i < ii; i++)
-	{
-		const textNode = textNodes[i];
-		if(regex.test(textNode.data))
-			wrapElementInner(textNode.parentNode, highlightTagName);
-	}
 }
 
 export function highlightAllTextNodesMatching(str)
