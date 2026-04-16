@@ -23,7 +23,7 @@ function editTextNodeOnClick(evt)
 	}
 
 	if(node && node.nodeType === Node.TEXT_NODE)
-		customPrompt("Edit text", node.data.replace(/\s+/g, " ").trim()).then(setText);
+		customPrompt("Edit text", node.data.replace(/\s+/g, " ")).then(setText);
 }
 
 export function enableEditTextOnClick()
