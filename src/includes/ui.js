@@ -91,25 +91,18 @@ export function customPrompt(message, initialValue)
 			'#xxdialog #xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0 0; margin: 0; border-width: 0 10px; border-color: #000; width: 100%; height: 60px; overflow: hidden; box-sizing: border-box; }';
 		insertStyle(s, "style-xxdialog", true);
 		dialogInput.focus();
-		const func = function(resolve, reject) {
-			dialogInput.addEventListener("keydown", function handleCustomPromptInput(evt){
+		const func = function(resolve) {
+			function handleCustomPromptInput(evt)
+			{
 				evt.stopPropagation();
 				switch(evt.keyCode)
 				{
-					case KEYCODES.ESCAPE:
-						evt.preventDefault();
-						reject(closeCustomPrompt());
-						break;
-					case KEYCODES.ENTER:
-						evt.preventDefault();
-						resolve(closeCustomPrompt());
-						break;
-					case KEYCODES.UPARROW:
-						evt.preventDefault();
-						restoreCustomPromptHistory(evt.target);
-						break;
+					case KEYCODES.ESCAPE: closeCustomPrompt(); evt.preventDefault(); break;
+					case KEYCODES.ENTER: resolve(closeCustomPrompt()); evt.preventDefault(); break;
+					case KEYCODES.UPARROW: restoreCustomPromptHistory(evt.target); evt.preventDefault(); break;
 				}
-			}, false);
+			}
+			dialogInput.addEventListener("keydown", handleCustomPromptInput, false);
 		};
 		return new Promise(func);
 	}
