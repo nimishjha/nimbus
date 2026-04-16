@@ -29,6 +29,7 @@ export function joinAdjacentElements(selector)
 			appendedElem.remove();
 		}
 		saveIDsToElement(elem, idsToSave);
+		elem.normalize();
 	}
 }
 
@@ -108,6 +109,7 @@ export function joinElements(elemsToJoin)
 	}
 	saveIDsToElement(wrapper, idsToSave);
 	insertBefore(elemsToJoin[0], wrapper);
+	wrapper.normalize();
 	del(elemsToJoin);
 	deleteMessage();
 }
