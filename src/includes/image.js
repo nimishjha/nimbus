@@ -437,18 +437,13 @@ export function createImagePlaceholderFromSrc(src)
 export function createImagePlaceholderFromSrcset(srcset)
 {
 	const sourcesArray = parseSrcSet(srcset);
-
 	if(sourcesArray.length)
 	{
 		sourcesArray.sort(sortSources);
 		const wrapper = document.createElement("imageph");
 		wrapper.appendChild(createImagePlaceholderFromSrc(sourcesArray[0].src));
-		if(sourcesArray.length > 1)
-			for(const item of sourcesArray)
-				wrapper.appendChild(createLinkInWrapper("div", item.size + ": " + shortenImageSrc(item.src), item.src));
 		return wrapper;
 	}
-
 	return null;
 }
 
