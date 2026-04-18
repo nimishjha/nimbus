@@ -412,6 +412,7 @@ import {
 	deleteFollowingNodesBySelector,
 	deleteIframes,
 	deleteImages,
+	deleteImagePlaceholders,
 	deleteImagesSmallerThan,
 	deleteInMarkedBySelector,
 	deleteMarkedElements,
@@ -1030,6 +1031,7 @@ function inject()
 	if(isDebugMode)
 		enableConsoleLogs();
 	setTimeout(doWebsiteSpecificTasks, 1000);
+	console.log(`%cNimbus version ${Nimbus.version} loaded`, "font-size: 24px; background: #000; color: #cc0;");
 }
 
 function disableKeyMenu()
@@ -1088,7 +1090,7 @@ function handleKeyMenuCommand(str)
 			case "DI": deleteImages(); break;
 			case "DJ": removeEmojis(); break;
 			case "DN": deleteNonContentElements(); break;
-			case "DO": del(getXpathResultAsArray(`//body//comment()`)); break;
+			case "DO": deleteImagePlaceholders(); break;
 			case "DP": callFunctionWithArgs("Delete elements with class or id containing text", deleteByClassOrIdContaining); break;
 			case "DR": deleteResources(); break;
 			case "DS": customPrompt("Delete elements by selector").then(del); break;
@@ -1548,7 +1550,7 @@ function main()
 	if(!excludedDomains[location.hostname])
 		setTimeout(inject, 200);
 	else
-		console.log("Nimbus: is excluded domain, not injecting");
+		console.log(`%cNimbus: ${location.hostname} is excluded domain, not injecting`, "font-size: 24px; background: #000; color: #c00;");
 }
 
 main();
