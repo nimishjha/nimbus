@@ -239,3 +239,15 @@ export function hideReferences()
 	const style = REFERENCE_TAGNAME + " { display: none; }";
 	insertStyle(style, "styleHideReferences", true);
 }
+
+export function setPreFontProportional()
+{
+	setClassByPrefix(document.documentElement, "nimbusPreFontFaceProportional", "nimbusPreFontFace");
+	setClassByPrefix(document.documentElement, "nimbusPreFontSizeLarge", "nimbusPreFontSize");
+}
+
+export function setPreFontMonospace()
+{
+	setClassByPrefix(document.documentElement, "nimbusPreFontFaceMonospace", "nimbusPreFontFace");
+	setClassByPrefix(document.documentElement, "nimbusPreFontSizeMedium", "nimbusPreFontSize");
+}
