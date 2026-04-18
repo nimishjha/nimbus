@@ -41,24 +41,26 @@ export function deleteIframes()
 
 export function deleteImages()
 {
-	del(["svg", "canvas", "picture source"]);
-	deleteEmptyElements("picture");
-	const images = get("img");
-	const imagePlaceholders = get("rt");
+	const images = document.querySelectorAll(["svg", "canvas", "picture", "img"]);
 	if(images.length)
 	{
-		del(["img", "slideshow"]);
-		showMessageBig("Deleted " + images.length + " images");
-	}
-	else if(imagePlaceholders.length)
-	{
-		del("rt");
-		showMessageBig("Deleted " + imagePlaceholders.length + " image placeholders");
+		del(images);
+		showMessageBig(`${images.length} images deleted`);
 	}
 	else
+		showMessageBig("No images in document");
+}
+
+export function deleteImagePlaceholders()
+{
+	const elems = document.querySelectorAll(["rt", "imageph"]);
+	if(elems.length)
 	{
-		showMessageBig("No images found");
+		del(elems);
+		showMessageBig(`${elems.length} image placeholders deleted`);
 	}
+	else
+		showMessageBig("No image placeholders in document");
 }
 
 export function deleteEmptyTextNodes()
