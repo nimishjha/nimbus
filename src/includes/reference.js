@@ -124,12 +124,8 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 
 export function cleanReferenceText(str)
 {
-	if(REGEXES.DIGITS_ENDING_IN_PERIOD.test(str))
-		return str.slice(0, str.length - 1);
-	if(REGEXES.DIGITS_IN_SQUARE_BRACKETS.test(str))
-		return str.replace(/[\[\]]/g, "");
-	if(REGEXES.DIGITS_IN_CURLY_BRACES.test(str))
-		return str.replace(/[{}]/g, "");
+	if(REGEXES.DIGITS_ENDING_IN_PERIOD.test(str) || REGEXES.DIGITS_IN_SQUARE_BRACKETS.test(str) || REGEXES.DIGITS_IN_CURLY_BRACES.test(str))
+		return str.replace(/[^\d+]/g, "");
 	return str;
 }
 
