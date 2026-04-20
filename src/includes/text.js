@@ -319,3 +319,17 @@ export function fixDashes()
 	const t2 = new Date();
 	console.log(`fixDashes: ${t2 - t1} ms`);
 }
+
+export function snakeCaseToCamelCase(snakeCase)
+{
+	const splat = snakeCase.split("_");
+	if(!splat || !splat.length) return snakeCase;
+	let camelCase = splat[0];
+	for(let i = 1, ii = splat.length; i < ii; i++)
+	{
+		const segment = splat[i];
+		if(!(segment && typeof segment === "string")) return snakeCase;
+		camelCase += segment[0].toUpperCase() + segment.substring(1);
+	}
+	return camelCase;
+}
