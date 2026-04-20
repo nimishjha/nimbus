@@ -861,10 +861,21 @@ export function addDateToTitle()
 
 export function setDocTitle(newTitle)
 {
-	let headingText = sanitizeTitle(newTitle || chooseDocumentHeading());
+	const headingText = sanitizeTitle(newTitle || chooseDocumentHeading());
 	setDocumentHeading(headingText);
 	const domainSegment = getBestDomainSegment(location.hostname);
 	document.title = headingText + domainSegment;
+}
+
+export function setDocTitleFromURL()
+{
+	function hasLength(str)
+	{
+		return str.length;
+	}
+	const path = location.pathname.split("/").filter(hasLength).join("-");
+	document.title = location.hostname.replaceAll(".", "-") + "_" + path;
+	setDocumentHeading(document.title);
 }
 
 export function replaceIncorrectHeading()
