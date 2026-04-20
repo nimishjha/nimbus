@@ -1,5 +1,7 @@
 import { get } from "./selectors";
 import { emptyElement } from "./element";
+import { getTextNodesUnderElement } from "./xpath";
+import { logError } from "./log";
 
 export function replaceBrsInPres()
 {
@@ -10,20 +12,41 @@ export function replaceBrsInPres()
 
 export function tabifySpacesInPres()
 {
-	const pres = get("pre");
-	if(!pres) return;
+	const pres = document.querySelectorAll("pre");
+	const REGEX_MULTIPLE_CONSECUTIVE_SPACES_AFTER_NEWLINE = /\n {2,}/;
+	const REGEX_MULTIPLE_CONSECUTIVE_SPACES_AFTER_NEWLINE_GLOBAL = /\n {2,}/g;
+
 	for(const pre of pres)
 	{
-		let s = pre.innerHTML;
-		if(/\n  [^ ]/.test(s))
-			s = s.replace(/ {2}/g, "\t");
-		else if(/\n   [^ ]/.test(s))
-			s = s.replace(/ {3}/g, "\t");
-		else if(/\n    [^ ]/.test(s))
-			s = s.replace(/ {4}/g, "\t");
-		else
-			s = s.replace(/ {4}/g, "\t");
-		pre.innerHTML = s;
+		pre.normalize();
+
+		const indentsSet = new Set();
+		const nodes = getTextNodesUnderElement(pre);
+		let isIndentedWithSpaces = false;
+		for(const node of nodes)
+		{
+			if(REGEX_MULTIPLE_CONSECUTIVE_SPACES_AFTER_NEWLINE.test(node.data))
+			{
+				isIndentedWithSpaces = true;
+				const matches = node.data.match(REGEX_MULTIPLE_CONSECUTIVE_SPACES_AFTER_NEWLINE_GLOBAL);
+				for(const match of matches)
+					indentsSet.add(match.length - 1);
+			}
+		}
+
+		if(isIndentedWithSpaces)
+		{
+			const indents = Array.from(indentsSet);
+			const smallestIndent = Math.min(...indents);
+			if(isNaN(smallestIndent))
+				logError("smallestIndent is NaN, this should never happen");
+			else
+			{
+				const spacesPerIndent = " ".repeat(smallestIndent);
+				for(const node of nodes)
+					node.data = node.data.replaceAll(spacesPerIndent, "\t");
+			}
+		}
 	}
 }
 
