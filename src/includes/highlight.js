@@ -24,7 +24,7 @@ export function highlightCodeInPreTextNodes(regex, tagName)
 	const nodes = getTextNodesUnderPre();
 	if(!nodes) return;
 	for(const node of nodes)
-		highlightInTextNodeRegex(node, regex, tagName);
+		highlightInTextNodeRegex(node, regex, tagName, true);
 }
 
 export function highlightCodePunctuation()
@@ -371,10 +371,10 @@ export function highlightInTextNode(textNode, searchString)
 	}
 }
 
-export function highlightInTextNodeRegex(textNode, regex, highlightTagName)
+export function highlightInTextNodeRegex(textNode, regex, highlightTagName, doNotCollapseSpaces)
 {
 	const tagName = highlightTagName || Nimbus.highlightTagName;
-	const nodeText = textNode.data.replace(/\s+/g, " ");
+	const nodeText = doNotCollapseSpaces ? textNode.data : textNode.data.replace(/\s+/g, " ");
 	if(nodeText.search(regex) === -1)
 		return;
 	const parentNode = textNode.parentNode;
