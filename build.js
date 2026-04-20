@@ -38,7 +38,10 @@ const buildResult = await Bun.build({
 	banner: bannerText,
 	format: "cjs",
 	minify: {
-		whitespace: true
+		identifiers: true,
+		keepNames: true,
+		whitespace: true,
+		syntax: false
 	}
 });
 

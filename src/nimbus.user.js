@@ -166,6 +166,7 @@ import {
 	replaceInlineStylesWithClasses,
 	replaceSmallCapsWithLowercase,
 	setDocTitle,
+	setDocTitleFromURL,
 	setDocumentHeading,
 	shortenIDs,
 	simplifyClassNames,
@@ -899,6 +900,7 @@ const availableFunctions = {
 	setBodyOpacity,
 	setClassByDepth,
 	setDocTitle,
+	setDocTitleFromURL,
 	setElementsToCycleThrough,
 	setGroupTagName,
 	setHighlightMapOptions,
@@ -1493,7 +1495,7 @@ function handleKeyDown(e)
 			case     KEYCODES.P:                    makeAnchorNodePlainText(); break;
 			case     KEYCODES.R:                    toggleKeyMenu("R"); break;
 			case     KEYCODES.S:                    toggleContentEditable(); break;
-			case     KEYCODES.T:                    toggleStyle(STYLES.SHOW_TABLE_STRUCTURE, "styleShowTableStructure", true); break;
+			case     KEYCODES.T:                    tabifySpacesInPres(); break;
 			case     KEYCODES.V:                    toggleStyle(STYLES.OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
 			case     KEYCODES.X:                    customPrompt("Enter xPath").then(xPathMark); break;
 			case     KEYCODES.Z:                    markSelectionAnchorNode(); break;
