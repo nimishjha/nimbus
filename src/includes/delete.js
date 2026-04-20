@@ -88,24 +88,36 @@ export function deleteEmptyElements(selector)
 	const elems = get(selector);
 	if(!elems) return;
 	let count = 0;
-	let i = elems.length;
-	while(i--)
+
+	if(location.protocol.startsWith("http"))
 	{
-		const elem = elems[i];
-		if(isEmptyElement(elem))
+		for(const elem of elems)
 		{
-			if(elem.id)
-			{
-				const anchor = createLinkInWrapper(REFERENCE_TAGNAME, elem.id, null, elem.id);
-				elem.replaceWith(anchor);
-			}
-			else
+			if(isEmptyElement(elem))
 			{
 				elem.remove();
+				count++;
 			}
-			count++;
 		}
 	}
+	else
+	{
+		for(const elem of elems)
+		{
+			if(isEmptyElement(elem))
+			{
+				if(elem.id)
+				{
+					const anchor = createLinkInWrapper(REFERENCE_TAGNAME, elem.id, null, elem.id);
+					elem.replaceWith(anchor);
+				}
+				else
+					elem.remove();
+				count++;
+			}
+		}
+	}
+
 	showMessageBig(`Deleted ${count} empty elements`);
 }
 
