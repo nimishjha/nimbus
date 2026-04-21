@@ -1232,6 +1232,10 @@ function handleKeyMenuCommand(str)
 			case "ZW": deleteClass("statusWarning"); break;
 			case "ZZ": markSelectionAnchorNode(); break;
 			case "Z5": setBodyOpacity(5); break;
+			case "Z6": setBodyOpacity(6); break;
+			case "Z7": setBodyOpacity(7); break;
+			case "Z8": setBodyOpacity(8); break;
+			case "Z9": setBodyOpacity(9); break;
 			case "Z0": setBodyOpacity(10); break;
 
 			default: showMessageBig(`Unknown command ${str}`);
