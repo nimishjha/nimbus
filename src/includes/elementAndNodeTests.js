@@ -59,29 +59,19 @@ export function hasAdjacentBlockElement(node)
 	return hasAdjacentBlockElementPreceding(node) || hasAdjacentBlockElementFollowing(node);
 }
 
-export function hasClassesContaining(element, arrStr)
+export function hasClassesContaining(element, str)
 {
-	const classes = element.className.toLowerCase().replace(/[^a-z\-]+/g, "");
-	let i = arrStr.length;
-	while(i--)
-	{
-		const str = arrStr[i].toLowerCase();
-		if(~classes.indexOf(str))
+	for(const className of element.classList)
+		if(className.toLowerCase().includes(str))
 			return true;
-	}
 	return false;
 }
 
-export function hasClassesStartingWith(element, arrStr)
+export function hasClassesStartingWith(element, str)
 {
-	const classes = element.className.toLowerCase();
-	let i = arrStr.length;
-	while(i--)
-	{
-		const str = arrStr[i].toLowerCase();
-		if(classes.indexOf(str) === 0 || classes.indexOf(" " + str) !== -1)
+	for(const className of element.classList)
+		if(className.toLowerCase().startsWith(str))
 			return true;
-	}
 	return false;
 }
 
@@ -95,7 +85,7 @@ export function containsPlainTextNodes(node)
 export function containsNonEmptyPlainTextNodes(node)
 {
 	for(const child of node.childNodes)
-		if(child.nodeType === 3 && child.data.replace(REGEXES_GLOBAL.SPACES, "").length > 0) return true;
+		if(child.nodeType === Node.TEXT_NODE && child.data.replace(REGEXES_GLOBAL.SPACES, "").length > 0) return true;
 	return false;
 }
 
