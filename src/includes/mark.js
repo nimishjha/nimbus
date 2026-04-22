@@ -1,7 +1,7 @@
 import { Nimbus } from "./Nimbus";
 import { showMessage, showMessageBig, showMessageError } from "./ui";
 import { removeWhitespace } from "./string";
-import { get, getOne, getOneMarked, select, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining, selectImagesSmallerThan } from "./selectors";
+import { get, getOne, getOneMarked, select, mark, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining, selectImagesSmallerThan } from "./selectors";
 import { getTextLength } from "./node";
 import { makeClassSelector } from "./misc";
 import { insertStyle, insertStyleHighlight, getAllCssRulesForElement } from "./style";
@@ -402,3 +402,18 @@ export function markElementsIdenticalToCurrentElement()
 			markElements(elems);
 	}
 }
+
+export function markByHasChildrenOfType         (parentSelector, childSelector)                 { mark(parentSelector, "hasChildrenOfType", childSelector); }
+export function markByDoesNotHaveChildrenOfType (parentSelector, childSelector)                 { mark(parentSelector, "doesNotHaveChildrenOfType", childSelector); }
+export function markByHasFirstChildOfType       (parentSelector, childSelector)                 { mark(parentSelector, "hasFirstChildOfType", childSelector); }
+export function markByHasDirectChildrenOfType   (parentSelector, childSelector)                 { mark(parentSelector, "hasDirectChildrenOfType", childSelector); }
+
+export function markByHasAttribute              (selector, attribute, value)                    { mark(selector, "hasAttribute", attribute); }
+export function markByDoesNotHaveAttribute      (selector, attribute, value)                    { mark(selector, "doesNotHaveAttribute", attribute); }
+export function markByAttributeEqualTo          (selector, attribute, value)                    { mark(selector, attribute, "=", value); }
+export function markByAttributeNotEqualTo       (selector, attribute, value)                    { mark(selector, attribute, "!=", value); }
+export function markByAttributeContains         (selector, attribute, value)                    { mark(selector, attribute, "contains", value); }
+export function markByAttributeDoesNotContain   (selector, attribute, value)                    { mark(selector, attribute, "contains", value); }
+
+export function markByFollowsElementOfType      (selector1, selector2)                          { mark(selector1, "following", selector2); }
+export function markByPrecedesElementOfType     (selector1, selector2)                          { mark(selector1, "preceding", selector2); }

@@ -604,6 +604,18 @@ import {
 	unmarkFromBeginningOrEnd,
 	unmarkFromEnd,
 	xPathMark,
+	markByHasChildrenOfType,
+	markByDoesNotHaveChildrenOfType,
+	markByHasFirstChildOfType,
+	markByHasDirectChildrenOfType,
+	markByHasAttribute,
+	markByDoesNotHaveAttribute,
+	markByAttributeEqualTo,
+	markByAttributeNotEqualTo,
+	markByAttributeContains,
+	markByAttributeDoesNotContain,
+	markByFollowsElementOfType,
+	markByPrecedesElementOfType,
 } from "./includes/mark";
 import {
 	convertDivsToParagraphs,
@@ -811,6 +823,20 @@ const availableFunctions = {
 	markBySelectorAndNormalizedText,
 	markBySelectorAndRegex,
 	markByTagNameAndText,
+
+	markByHasChildrenOfType,
+	markByDoesNotHaveChildrenOfType,
+	markByHasFirstChildOfType,
+	markByHasDirectChildrenOfType,
+	markByHasAttribute,
+	markByDoesNotHaveAttribute,
+	markByAttributeEqualTo,
+	markByAttributeNotEqualTo,
+	markByAttributeContains,
+	markByAttributeDoesNotContain,
+	markByFollowsElementOfType,
+	markByPrecedesElementOfType,
+
 	markCurrentElement,
 	markElementsIdenticalToCurrentElement,
 	markElementsWithChildrenSpanning,
@@ -1063,6 +1089,7 @@ function handleKeyMenuCommand(str)
 	{
 		switch(str)
 		{
+			case "AA": setClassByPrefix(document.documentElement, "nimbusThemeAmber", "nimbusTheme"); break;
 			case "AB": setClassByPrefix(document.documentElement, "nimbusThemeBlack", "nimbusTheme"); break;
 			case "AD": setClassByPrefix(document.documentElement, "nimbusThemeDimGrey", "nimbusTheme"); break;
 			case "AG": setClassByPrefix(document.documentElement, "nimbusThemeGrey", "nimbusTheme"); break;
