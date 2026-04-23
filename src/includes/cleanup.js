@@ -336,6 +336,7 @@ export function cleanupStackOverflow()
 	]);
 
 	makePlainText(".comment-date");
+	del(select("img", "src", "contains", "gravatar"));
 	replaceElementsBySelector(".comments-list", "dl");
 	replaceElementsBySelector(".comment", "dd");
 	replaceElementsBySelector(".comment-copy", "quote");

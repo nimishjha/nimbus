@@ -249,7 +249,7 @@ export function autoCompleteInputBox()
 					matches.add(command);
 		}
 
-		return Array.from(matches);
+		return Array.from(matches).sort();
 	}
 
 	function showMatches(str)
