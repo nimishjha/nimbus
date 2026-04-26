@@ -115,6 +115,19 @@ export function modifyMark(action, keepSelection)
 	showMarkedElementInfo(nextElement);
 }
 
+export function moveAllMarksUp()
+{
+	const elems = getMarkedElements();
+	if(elems)
+	{
+		for(const elem of elems)
+		{
+			elem.parentNode.classList.add(Nimbus.markerClass);
+			elem.classList.remove(Nimbus.markerClass);
+		}
+	}
+}
+
 export function markByCssRule(prop, value, selector)
 {
 	const sel = selector || "*";
