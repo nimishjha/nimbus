@@ -27,7 +27,7 @@ function handleConsoleInput(evt, consoleType)
 		Nimbus.jsConsoleText = inputText;
 	else if(consoleType === "css")
 		Nimbus.cssConsoleText = inputText;
-	const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
+	const ctrlOrMeta = navigator.userAgent.includes("Macintosh") ? "metaKey" : "ctrlKey";
 	switch(evt.keyCode)
 	{
 		case KEYCODES.ENTER:
@@ -102,9 +102,10 @@ export function toggleConsole(consoleType)
 		return;
 	}
 	let dialogStyle;
-	const consoleBackgroundColor = consoleType === "css" ? "#036" : "#000";
-	dialogStyle = '#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; }' +
-		'#userInput { background: ' + consoleBackgroundColor + '; color: #CCC; font-family: "SF Mono", Consolas, Verdana; font-size: 18px; font-weight: bold; width: 100%; height: 100%; padding: 10px 40px; border: 0; outline: 0; }';
+	const consoleBackgroundColor = consoleType === "css" ? "#012" : "#000";
+	dialogStyle = `
+		#userInputWrapper { position: fixed; bottom: 0; left: 0; right: 0; height: 30vh; z-index: 1000000000; box-sizing: border-box; }
+		#userInput { background: ${consoleBackgroundColor}; color: #AAA; font-family: "SF Mono", Consolas, Verdana; font-size: 18px; font-weight: bold; width: 100%; height: 100%; padding: 10px 40px; border: 0; outline: 0; box-sizing: border-box; }`;
 	insertStyle(dialogStyle, "styleUserInputWrapper", true);
 
 	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper", class: "excludeFromMutations" });
