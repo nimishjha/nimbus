@@ -426,7 +426,7 @@ export function markByDoesNotHaveAttribute      (selector, attribute, value)    
 export function markByAttributeEqualTo          (selector, attribute, value)                    { mark(selector, attribute, "=", value); }
 export function markByAttributeNotEqualTo       (selector, attribute, value)                    { mark(selector, attribute, "!=", value); }
 export function markByAttributeContains         (selector, attribute, value)                    { mark(selector, attribute, "contains", value); }
-export function markByAttributeDoesNotContain   (selector, attribute, value)                    { mark(selector, attribute, "contains", value); }
+export function markByAttributeDoesNotContain   (selector, attribute, value)                    { mark(selector, attribute, "doesNotContain", value); }
 
 export function markByFollowsElementOfType      (selector1, selector2)                          { mark(selector1, "following", selector2); }
 export function markByPrecedesElementOfType     (selector1, selector2)                          { mark(selector1, "preceding", selector2); }
