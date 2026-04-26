@@ -1286,7 +1286,7 @@ function showKeyMenuOptions(key)
 
 function handleKeyMenu(evt)
 {
-	const ctrlOrMeta = ~navigator.userAgent.indexOf("Macintosh") ? "metaKey" : "ctrlKey";
+	const ctrlOrMeta = navigator.userAgent.includes("Macintosh") ? "metaKey" : "ctrlKey";
 	if(evt.altKey || evt.shiftKey || evt[ctrlOrMeta])
 		return;
 	if(evt.keyCode === KEYCODES.ESCAPE)
