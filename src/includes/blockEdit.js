@@ -5,33 +5,30 @@ import { insertStyle } from "./style";
 function handleBlockEditClick(evt)
 {
 	evt.stopPropagation();
-	let targ;
-	let ctrlOrMeta = "ctrlKey";
-	if(~navigator.userAgent.indexOf("Macintosh"))
-		ctrlOrMeta = "metaKey";
-	if(!evt)
-		evt = window.event;
-	if(evt.target)
-		targ = evt.target;
+	const ctrlOrMeta = navigator.userAgent.includes("Macintosh") ? "metaKey" : "ctrlKey";
+	const targ = evt.target;
+	if(targ.tagName.toLowerCase() === 'body')
+		return;
+
 	const tagNameLower = targ.tagName.toLowerCase();
-	// Retrieve clicked element
+
 	if(evt[ctrlOrMeta] && evt.shiftKey)
 	{
-		document.body.innerHTML = targ.innerHTML;
+		const clone = targ.cloneNode(true);
+		while(document.body.firstChild)
+			document.body.firstChild.remove();
+		document.body.appendChild(clone);
 		toggleBlockEditMode();
 		return;
 	}
-	// delete clicked element
 	else if(evt[ctrlOrMeta] && !evt.shiftKey)
 	{
 		if(tagNameLower === 'body')
 			return;
-		if(tagNameLower === "li" || tagNameLower === "p" && targ.parentNode && targ.parentNode !== document.body)
-			targ = targ.parentNode;
-		targ.remove();
-		return false;
+		const node = tagNameLower === "li" && targ.parentNode && targ.parentNode !== document.body ? targ.parentNode : targ;
+		node.remove();
+		return;
 	}
-	// append clicked element to a div
 	else if(evt.shiftKey)
 	{
 		if(!document.getElementById("newbody"))
@@ -40,8 +37,6 @@ function handleBlockEditClick(evt)
 			newbody.id = "newbody";
 			document.body.appendChild(newbody);
 		}
-		if(targ.tagName.toLowerCase() === 'body')
-			return;
 		document.getElementById("newbody").appendChild(targ);
 	}
 	return true;
@@ -54,13 +49,11 @@ export function toggleBlockEditMode()
 	{
 		del("#styleToggleBlockEditMode");
 		db.removeEventListener("mouseup", handleBlockEditClick, false);
-		db.classList.remove("debug");
 		showMessageBig("Block edit mode off");
 	}
 	else
 	{
 		db.addEventListener("mouseup", handleBlockEditClick, false);
-		db.classList.add("debug");
 		const style = `
 			html body.debug header, html body.debug footer, html body.debug article, html body.debug aside, html body.debug section, html body.debug div { box-shadow: inset 2px 2px #555, inset -2px -2px #555; margin: 10px; padding: 10px; }
 			html body.debug header:hover, html body.debug footer:hover, html body.debug article:hover, html body.debug aside:hover, html body.debug section:hover, html body.debug div:hover { box-shadow: inset 2px 2px #888, inset -2px -2px #888; }
