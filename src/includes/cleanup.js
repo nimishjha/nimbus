@@ -182,14 +182,9 @@ export function removeRedundantBrs()
 export function deleteNonContentLists()
 {
 	const lists = select("ul", "doesNotHaveChildrenOfType", "ul");
-	if(!lists) return;
-	for(let i = 0, ii = lists.length; i < ii; i++)
-	{
-		const list = lists[i];
-		const listText = list.textContent;
-		if(listText && (containsAllOfTheStrings(listText, ["witter", "acebook"]) || containsAllOfTheStrings(listText, ["hare", "weet"])))
+	for(const list of lists)
+		if(list.getElementsByTagName("li").length === list.getElementsByTagName("a").length && list.textContent.includes("acebook"))
 			list.remove();
-	}
 }
 
 export function deleteNonContentLinks()
