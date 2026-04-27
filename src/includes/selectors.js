@@ -659,6 +659,8 @@ export function select(...args)
 			}
 		}
 	}
+
+	return [];
 }
 
 export function mark(...args)
