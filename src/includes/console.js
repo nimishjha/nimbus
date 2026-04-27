@@ -5,6 +5,8 @@ import { createElement } from "./element";
 import { insertStyle } from "./style";
 import { makeIdSelector } from "./misc";
 import { showMessageBig, showMessageError } from "./ui";
+import { logInfo } from "./log";
+import { runCommand } from "./command";
 
 function handleConsoleInput(evt, consoleType)
 {
@@ -35,15 +37,9 @@ function handleConsoleInput(evt, consoleType)
 			{
 				if(consoleType === "js")
 				{
-					try
-					{
-						eval(inputText);
-					}
-					catch(err)
-					{
-						console.log(err);
-					}
-					return;
+					const commands = inputText.split("\n");
+					for(const command of commands)
+						runCommand(command.trim());
 				}
 				else if(consoleType === "css")
 				{
@@ -53,7 +49,7 @@ function handleConsoleInput(evt, consoleType)
 			break;
 		case KEYCODES.TAB:
 			insertTab(evt);
-			return false;
+			break;
 		case KEYCODES.ESCAPE:
 			toggleConsole();
 			break;
