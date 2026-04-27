@@ -37,12 +37,7 @@ const buildResult = await Bun.build({
 	outdir: './dist',
 	banner: bannerText,
 	format: "cjs",
-	minify: {
-		identifiers: true,
-		keepNames: true,
-		whitespace: true,
-		syntax: false
-	}
+	minify: true,
 });
 
 console.log("buildResult.success:", buildResult.success);
