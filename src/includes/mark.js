@@ -42,7 +42,7 @@ export function forAllMarked(func)
 			func.call(null, elements[i]);
 }
 
-export function unmarkFromBeginningOrEnd(whichEnd = "end", n)
+function unmarkFromBeginningOrEnd(whichEnd = "end", n)
 {
 	const marked = getMarkedElements();
 	if(!(marked && marked.length))
