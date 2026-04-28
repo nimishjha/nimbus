@@ -111,30 +111,26 @@ export function showIframeCount()
 
 export function showScripts()
 {
+	const SHOW_SCRIPT_LINKS = false;
+	const normalize = s => s.replace(/[^A-Za-z0-9]+/g, "");
 	let numScripts = 0;
-	const scripts = get("script");
-	if(!scripts) return;
-	for(let i = 0, ii = scripts.length; i < ii; i++)
+	const scripts = document.querySelectorAll("script");
+	for(const script of scripts)
 	{
-		const script = scripts[i];
 		if(script.src)
 		{
 			numScripts++;
-			const uuid = createUUID();
-			script.id = uuid;
-			renderResourceInfo(script.src, uuid);
+			renderResourceInfo(script.src, normalize(script.src));
 		}
 	}
-	const scriptlinks = get("link[href*=\\.js]");
-	if(scriptlinks)
+
+	if(SHOW_SCRIPT_LINKS)
 	{
-		for(let i = 0, ii = scriptlinks.length; i < ii; i++)
+		const scriptlinks = document.querySelectorAll("link[href*=\\.js]");
+		for(const scriptlink of scriptlinks)
 		{
-			const scriptlink = scriptlinks[i];
 			numScripts++;
-			const uuid = createUUID();
-			scriptlink.id = uuid;
-			renderResourceInfo(scriptlink.href, uuid);
+			renderResourceInfo(scriptlink.href, normalize(scriptlink.href));
 		}
 	}
 	if(numScripts)
@@ -193,6 +189,7 @@ export function showResources()
 	if(get(".xlog"))
 	{
 		del(".xlog");
+		document.body.removeEventListener('mouseup', deleteResource, false);
 		return;
 	}
 
