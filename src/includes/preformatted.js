@@ -15,9 +15,16 @@ export function tabifySpacesInPres()
 	const pres = document.querySelectorAll("pre");
 	const REGEX_MULTIPLE_CONSECUTIVE_SPACES_AFTER_NEWLINE = /\n {2,}/;
 	const REGEX_MULTIPLE_CONSECUTIVE_SPACES_AFTER_NEWLINE_GLOBAL = /\n {2,}/g;
+	const REGEX_LEADING_SPACES = /^ +/;
 
 	for(const pre of pres)
 	{
+		if(pre.children.length > 0)
+		{
+			pre.classList.add("statusWarning");
+			continue;
+		}
+
 		pre.normalize();
 
 		const indentsSet = new Set();
@@ -38,13 +45,25 @@ export function tabifySpacesInPres()
 		{
 			const indents = Array.from(indentsSet);
 			const smallestIndent = Math.min(...indents);
+
 			if(isNaN(smallestIndent))
 				logError("smallestIndent is NaN, this should never happen");
 			else
 			{
-				const spacesPerIndent = " ".repeat(smallestIndent);
 				for(const node of nodes)
-					node.data = node.data.replaceAll(spacesPerIndent, "\t");
+				{
+					const lines = node.data.split("\n");
+					const newLines = [];
+					for(const line of lines)
+					{
+						const match = REGEX_LEADING_SPACES.exec(line);
+						if(match)
+							newLines.push( line.replace(REGEX_LEADING_SPACES, "\t".repeat(match[0].length / smallestIndent)) );
+						else
+							newLines.push(line);
+					}
+					node.data = newLines.join("\n");
+				}
 			}
 		}
 	}
