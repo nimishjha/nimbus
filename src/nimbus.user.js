@@ -478,7 +478,6 @@ import {
 import {
 	groupAdjacentElements,
 	groupMarkedElements,
-	groupUnderHeading,
 	groupUnderHeadings,
 	makeDocumentHierarchical,
 	setGroupTagName,
@@ -876,7 +875,6 @@ const availableFunctions = {
 	goToPrevElement,
 	groupAdjacentElements,
 	groupMarkedElements,
-	groupUnderHeading,
 	groupUnderHeadings,
 	hasAdjacentBlockElement,
 	hasAdjacentFollowingElementSiblingOfType,

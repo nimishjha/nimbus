@@ -114,7 +114,7 @@ export function groupUnderHeadings(selector, selectorToBreakOn)
 		groupUnderHeading(headings[i], selectorToBreakOn);
 }
 
-export function groupUnderHeading(heading, selectorToBreakOn)
+function groupUnderHeading(heading, selectorToBreakOn)
 {
 	const WRAPPER_ELEMENT_TAGNAME = "section";
 	const headingTagName = heading.tagName;
