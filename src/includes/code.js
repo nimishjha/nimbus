@@ -12,19 +12,16 @@ export function highlightCode(shouldHighlightKeywords)
 		replaceInlineStylesWithClasses();
 		convertClassesToCustomElements("pre span", "x");
 		unwrapAll("pre span");
-		return;
 	}
-	if(get("pre span[class]"))
+	else if(get("pre span[class]"))
 	{
 		convertClassesToCustomElements("pre span", "x");
 		unwrapAll("pre span");
-		return;
 	}
 	else if(get("pre code[class]"))
 	{
 		convertClassesToCustomElements("pre code", "x");
 		unwrapAll("pre code");
-		return;
 	}
 }
 

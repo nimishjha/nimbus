@@ -45,7 +45,6 @@ export function moveElementUp(position)
 	}
 }
 
-//	Takes two or more marked elements, and appends all but the first to the first
 export function makeChildOf()
 {
 	const marked = getMarkedElements();

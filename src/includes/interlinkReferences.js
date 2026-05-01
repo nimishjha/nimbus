@@ -72,7 +72,7 @@ export function interlinkReferencesByIndex(footnoteRefs, nonFootnoteRefs)
 	}
 }
 
-export function interlinkFootnoteAndNonFootnoteReferencesByIndexInSections()
+export function interlinkReferencesByIndexInSections()
 {
 	const sections = Array.from(document.getElementsByTagName("section"));
 	for(let i = 0; i < sections.length; i++)

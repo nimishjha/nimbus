@@ -673,7 +673,7 @@ import {
 	moveID,
 	orderFootnotesByNonFootnoteRefs,
 } from "./includes/reference";
-import { interlinkReferencesUsingFootnoteReferences, interlinkFootnoteAndNonFootnoteReferencesByIndexInSections } from "./includes/interlinkReferences";
+import { interlinkReferencesUsingFootnoteReferences, interlinkReferencesByIndexInSections } from "./includes/interlinkReferences";
 import { enableEditTextOnClick } from "./includes/edit";
 
 const isDebugMode = true;
@@ -936,7 +936,7 @@ const availableFunctions = {
 	insertStyleShowErrors,
 	inspect,
 	inspectImages,
-	interlinkFootnoteAndNonFootnoteReferencesByIndexInSections,
+	interlinkReferencesByIndexInSections,
 	interlinkMarkedElements,
 	interlinkReferencesUsingFootnoteReferences,
 	invertItalics,

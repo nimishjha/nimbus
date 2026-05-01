@@ -8,7 +8,7 @@ import { showMessageBig, showMessageError } from "./ui";
 import { logInfo, logError, logWarning, logSuccess } from "./log";
 import { markElement } from "./mark";
 import { getTextLength } from "./node";
-import { interlinkReferencesByIndex, interlinkFootnoteAndNonFootnoteReferencesByIndexInSections } from "./interlinkReferences";
+import { interlinkReferencesByIndex } from "./interlinkReferences";
 import { fixTextAroundReferences } from "./cleanup";
 import { REGEXES, REFERENCE_TAGNAME } from "./constants";
 
