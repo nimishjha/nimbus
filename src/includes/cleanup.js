@@ -2,7 +2,7 @@ import { Nimbus } from "./Nimbus";
 import { makePlainText, removeAllAttributesOf, emptyElement, createElement, unwrapElement, createElementWithChildren, removeAttributeOf, unwrapAll, removeAllAttributesOfTypes, deleteClass, createLinkInWrapper } from "./element";
 import { get, getOne, del, select } from "./selectors";
 import { markElement, getMarkedElements, markNavigationalLists, markElements, unmarkAll } from "./mark";
-import { replaceDiacritics, replaceSpecialCharacters } from "./text";
+import { replaceDiacritics, replaceSpecialCharacters, snakeCaseToCamelCase } from "./text";
 import { containsAnyOfTheStrings, containsAllOfTheStrings, removeWhitespace, trimSpecialChars, normalizeString, capitalize } from "./string";
 import { getXpathResultAsArray, getEmptyTextNodesUnderElement } from "./xpath";
 import { convertImageLinksToPlaceholders } from "./image";
@@ -869,8 +869,8 @@ export function setDocTitleFromURL()
 	{
 		return str.length;
 	}
-	const path = location.pathname.split("/").filter(hasLength).join("-");
-	document.title = location.hostname.replaceAll(".", "-") + "_" + path;
+	const path = location.pathname.split("/").filter(hasLength).join("_").replace(/[^A-Za-z0-9_]+/g, "_");
+	document.title = snakeCaseToCamelCase(path);
 	setDocumentHeading(document.title);
 }
 
