@@ -219,8 +219,8 @@ export function annotateElement(elem, tagName, str)
 
 export function makeLastChild()
 {
-	const elem = getOne(makeClassSelector(Nimbus.markerClass));
-	if(elem)
+	const elems = getMarkedElements();
+	for(const elem of elems)
 	{
 		document.body.appendChild(elem);
 		elem.classList.remove("markd");
