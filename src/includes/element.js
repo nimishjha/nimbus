@@ -242,22 +242,22 @@ export function saveIDsToElement(element, ids)
 	}
 }
 
-export function removeAllAttributesOf(elem)
+export function removeAllAttributesOf(selectorOrElement)
 {
-	for(const attr of elem.getAttributeNames())
-		elem.removeAttribute(attr);
+	const elems = typeof selectorOrElement === "string" ? document.querySelectorAll(selectorOrElement) : [selectorOrElement];
+	for(const elem of elems)
+		for(const attr of elem.getAttributeNames())
+			elem.removeAttribute(attr);
 }
 
 export function removeAllAttributesExcept(selectorOrElement, attrToKeep)
 {
 	const attrToKeepLower = attrToKeep.toLowerCase();
-	const elems = typeof selectorOrElement === "string" ? get(selectorOrElement) : [selectorOrElement];
+	const elems = typeof selectorOrElement === "string" ? document.querySelectorAll(selectorOrElement) : [selectorOrElement];
 	for(const elem of elems)
-	{
 		for(const attr of elem.getAttributeNames())
 			if(attr.toLowerCase() !== attrToKeepLower)
 				elem.removeAttribute(attr);
-	}
 }
 
 //	Takes an element, an integer depth, and a tagName, and wraps that element in that many levels of <tagName>
