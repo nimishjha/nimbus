@@ -442,8 +442,8 @@ import {
 	makeChildOf,
 	makeLastChild,
 	makeList,
-	makeOL,
-	makeUL,
+	makeOrderedList,
+	makeUnorderedList,
 	mapIDsToClasses,
 	moveDataTestIdToClassName,
 	moveElementUp,
@@ -977,11 +977,11 @@ const availableFunctions = {
 	makeIdSelector,
 	makeLastChild,
 	makeList,
-	makeOL,
+	makeOrderedList,
 	makeParagraphsByLineBreaks,
 	makePlainText,
 	makeTextLowerCase,
-	makeUL,
+	makeUnorderedList,
 	mapIDsToClasses,
 	mark,
 	markAllFollowingSiblings,
@@ -1024,7 +1024,7 @@ const availableFunctions = {
 	moveAllMarksUp,
 	moveDataTestIdToClassName,
 	moveElementUp,
-	moveID,
+	moveid: moveID,
 	moveIDsFromEmptyAnchors,
 	moveIDsFromImages,
 	moveIDsFromSpans,
@@ -1361,10 +1361,10 @@ function handleKeyMenuCommand(str)
 			case "CE": customPrompt("Count elements by selector").then(count); break;
 			case "CJ": toggleConsole("js"); break;
 			case "CS": toggleConsole("css"); break;
-			case "CO": makeOL(); break;
+			case "CO": makeOrderedList(); break;
 			case "CR": createReferencesByTags(); break;
 			case "CT": capitalizeTitle(); break;
-			case "CU": makeUL(); break;
+			case "CU": makeUnorderedList(); break;
 
 			case "DA": deleteNodesAfterAnchorNode(); break;
 			case "DB": deleteNodesBeforeAnchorNode(); break;
@@ -1400,8 +1400,7 @@ function handleKeyMenuCommand(str)
 
 			case "HA": getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatchesInDocument, true); break;
 			case "HE": callFunctionWithArgs("Highlight elements by tag name containing text", highlightByTagNameAndText, 2); break;
-			case "HC": callFunctionWithArgs("Set highlight map color", setHighlightMapColor, 2); break;
-			case "HP": highlightCode(true); break;
+			case "HC": highlightCode(); break;
 			case "HR": removeAllHighlights(); break;
 			case "HS": getSelectionOrUserInput("Highlight all occurrences of string (case-sensitive)", highlightAllMatchesInDocumentCaseSensitive, true); break;
 			case "HT": customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
@@ -1473,6 +1472,7 @@ function handleKeyMenuCommand(str)
 
 			case "TX": deleteNonEnglishText(); makeTextLowerCase(); break;
 			case "TL": makeTextLowerCase(); break;
+			case "TP": setDocTitleFromURL(); break;
 			case "TT": deleteEmptyTextNodes(); break;
 
 			case "UA": callFunctionWithArgs("Unwrap all", unwrapAll, 1); break;

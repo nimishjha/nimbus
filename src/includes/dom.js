@@ -98,19 +98,19 @@ export function toggleContentEditable()
 	}
 }
 
-export function makeUL() { makeList("ul"); }
-export function makeOL() { makeList("ol"); }
+export function makeUnorderedList() { makeList("ul"); }
+export function makeOrderedList() { makeList("ol"); }
 
 export function makeList(listTagName)
 {
 	const groups = groupAdjacentElements(makeClassSelector(Nimbus.markerClass), listTagName, "li");
 	if(groups.length)
 	{
-		for(let i = 0, ii = groups.length; i < ii; i++)
+		for(const group of groups)
 		{
-			const elems = groups[i].querySelectorAll("li");
-			if(elems)
-				fixBullets(elems);
+			const lis = group.querySelectorAll("li");
+			if(lis.length)
+				fixBullets(lis);
 		}
 	}
 }
