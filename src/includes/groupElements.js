@@ -24,21 +24,14 @@ export function setGroupTagName(tagName)
 export function groupMarkedElements(tagName)
 {
 	const groupTagName = tagName || "ul";
-	const elemsToJoin = getMarkedElements();
-	if(!elemsToJoin.length)
-		return;
-	const wrapper = document.createElement(groupTagName);
-	for(let i = 0, ii = elemsToJoin.length; i < ii; i++)
+	const elems = getMarkedElements();
+	if(elems && elems.length)
 	{
-		const elem = elemsToJoin[i];
-		const child = convertElement(elem, elem.tagName);
-		if(elem.id)
-			child.id = elem.id;
-		wrapper.appendChild(child);
+		const wrapper = document.createElement(groupTagName);
+		insertBefore(elems[0], wrapper);
+		for(const elem of elems)
+			wrapper.appendChild(elem);
 	}
-	insertBefore(elemsToJoin[0], wrapper);
-	del(makeClassSelector(Nimbus.markerClass));
-	deleteMessage();
 }
 
 export function groupAdjacentElements(selector, parentTag, childTag)
