@@ -136,8 +136,7 @@ export function deleteEmptyHeadings()
 export function deleteEmptyBlockElements()
 {
 	del("noscript");
-	const SELECTOR = "div, p, blockquote, h1, h2, h3, h4, h5, h6, li, figure, figcaption, pre, dl, dt, dd, message, annotation, quote, quoteauthor, aside, section, article, nav, ul, ol, fieldset, figure, header, footer, fieldset";
-	deleteEmptyElements(SELECTOR);
+	deleteEmptyElements("div, p, blockquote, h1, h2, h3, h4, h5, h6, li, figure, figcaption, pre, dl, dt, dd, message, annotation, quote, quoteauthor, aside, section, article, nav, ul, ol, fieldset, figure, header, footer, fieldset");
 }
 
 export function delRange(m, n)

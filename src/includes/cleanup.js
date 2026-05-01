@@ -2,7 +2,7 @@ import { Nimbus } from "./Nimbus";
 import { makePlainText, removeAllAttributesOf, emptyElement, createElement, unwrapElement, createElementWithChildren, removeAttributeOf, unwrapAll, removeAllAttributesOfTypes, deleteClass, createLinkInWrapper } from "./element";
 import { get, getOne, del, select } from "./selectors";
 import { markElement, getMarkedElements, markNavigationalLists, markElements, unmarkAll } from "./mark";
-import { replaceDiacritics, replaceSpecialCharacters, snakeCaseToCamelCase } from "./text";
+import { replaceDiacritics, replaceSpecialCharacters, snakeCaseToCamelCase, normalizeAllWhitespace } from "./text";
 import { containsAnyOfTheStrings, containsAllOfTheStrings, removeWhitespace, trimSpecialChars, normalizeString, capitalize } from "./string";
 import { getXpathResultAsArray, getEmptyTextNodesUnderElement } from "./xpath";
 import { convertImageLinksToPlaceholders } from "./image";
@@ -69,7 +69,7 @@ export function cleanupDocument()
 	removeAllAttributesOf(document.body);
 	replaceIframes();
 	convertImageLinksToPlaceholders();
-	replaceIncorrectHeading();
+	// replaceIncorrectHeading();
 	replaceSpecialCharacters();
 	replaceElementsBySelector("center", "div");
 	setDocTitle();
@@ -80,12 +80,6 @@ export function cleanupDocument()
 	replaceElementsBySelector("summary", "h3");
 	deleteEmptyBlockElements();
 	deleteBySelectorAndRegex("a", /^[¶§#]$/);
-	const footers = get("footer");
-	if(footers && footers.length > 1)
-	{
-		replaceElementsBySelector("footer", "h6");
-		makePlainText("h6");
-	}
 	makePlainText("li header");
 	replaceAudio();
 	appendMetadata();
@@ -94,11 +88,8 @@ export function cleanupDocument()
 	document.body.className = "pad100 xwrap";
 	document.documentElement.id = "nimbus";
 	document.documentElement.className = "";
-	document.body.id = "nimbus";
 	if(~navigator.userAgent.indexOf("Chrome"))
-	{
 		toggleStyleNegative();
-	}
 }
 
 export function cleanupAttributes()
@@ -123,6 +114,7 @@ export function cleanupBarebone()
 	deleteHtmlComments();
 	removeInlineStyles();
 	unwrapAll("pre code");
+	normalizeAllWhitespace();
 }
 
 export function removeRedundantHrs()
