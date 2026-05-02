@@ -1,29 +1,35 @@
 import { showMessageBig } from "./ui";
 import { getTextNodesUnderSelector } from "./xpath";
 
-export function replaceInTextNodes(searchString, replacementString)
+export function createRegexFromString(str, isGlobal, isCaseInsensitive)
 {
-	const textNodes = getTextNodesUnderSelector("body");
-	for(const textNode of textNodes)
-		if(textNode.data.includes(searchString))
-			textNode.data = textNode.data.replaceAll(searchString, replacementString);
+	const g = isGlobal ? "g" : "";
+	const ci = isCaseInsensitive ? "i" : "";
+	return new RegExp(str, g + ci);
 }
 
 export function replaceInTextNodesUnder(selector, searchString, replacementString)
 {
 	const textNodes = selector.startsWith(".") ? getTextNodesUnderSelector(null, selector.slice(1)) : getTextNodesUnderSelector(selector);
+	let replCount = 0;
 	for(const textNode of textNodes)
+	{
 		if(textNode.data.includes(searchString))
+		{
+			replCount++;
 			textNode.data = textNode.data.replaceAll(searchString, replacementString);
+		}
+	}
+	if(replCount)
+		showMessageBig(`${replCount} occurrences of "${searchString}" replaced with "${replacementString}"`);
 }
 
 export function replaceInTextNodesRegex(selector, regex, replacement)
 {
 	const textNodes = selector.startsWith(".") ? getTextNodesUnderSelector(null, selector.slice(1)) : getTextNodesUnderSelector(selector);
 	let replCount = 0;
-	for(let i = 0, ii = textNodes.length; i < ii; i++)
+	for(const textNode of textNodes)
 	{
-		const textNode = textNodes[i];
 		if(regex.test(textNode.data))
 		{
 			replCount++;
@@ -32,4 +38,14 @@ export function replaceInTextNodesRegex(selector, regex, replacement)
 	}
 	if(replCount)
 		showMessageBig(`${replCount} occurrences of "${regex}" replaced with "${replacement}"`);
+}
+
+export function replaceInTextNodes(searchString, replacementString)
+{
+	replaceInTextNodesUnder("body", searchString, replacementString)
+}
+
+export function replaceInTextNodesRegexFromString(selector, str, replacement, g, ci)
+{
+	replaceInTextNodesRegex(selector, createRegexFromString(str, g, ci), replacement);
 }
