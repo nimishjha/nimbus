@@ -38,6 +38,11 @@ export function getTextNodesUnderPre(directDescendantsOnly, markedOnly)
 	return getXpathResultAsArray(`//${selectorPre}//text()`);
 }
 
+export function getTextNodesNotUnderPre()
+{
+	return getXpathResultAsArray(`//text()[not(ancestor::pre)]`);
+}
+
 export function getTextNodesUnderSelector(tagName, strClass)
 {
 	let xpathString;
@@ -60,3 +65,4 @@ export function xPathSelect(xpath, context)
 	const xPathContext = context || document;
 	return xPathNodesToArray(document.evaluate(xpath, xPathContext, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null));
 }
+

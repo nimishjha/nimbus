@@ -3,7 +3,7 @@ import { emptyElement, createElementWithChildren, createElement, wrapElement, un
 import { hasDirectChildrenOfType, hasAdjacentBlockElement } from "./elementAndNodeTests";
 import { get, getOne, del, getFirstTextChild, getNonCodeTextNodes, getNodeContainingSelection } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
-import { getTextNodesUnderSelector, getTextNodesUnderElement } from "./xpath";
+import { getTextNodesUnderSelector, getTextNodesUnderElement, getTextNodesNotUnderPre } from "./xpath";
 import { replaceElementsBySelector } from "./replaceElements";
 import { makeClassSelector, forAll } from "./misc";
 import { showMessageBig, showMessageError } from "./ui";
@@ -241,7 +241,7 @@ export function deleteNonEnglishText()
 
 export function normalizeAllWhitespace()
 {
-	const textNodes = getTextNodesUnderSelector("body");
+	const textNodes = getTextNodesNotUnderPre();
 	for(const textNode of textNodes)
 		textNode.data = textNode.data.replace(REGEXES_GLOBAL.SPACES, " ");
 }
