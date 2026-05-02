@@ -302,61 +302,6 @@ function replaceParentWithChild(parentSelector, childSelector)
 	}
 }
 
-export function cleanupStackOverflow()
-{
-	function handleMutations(mutations)
-	{
-		console.log("handleMutations");
-		for(let i = 0, ii = mutations.length; i < ii; i++)
-			if(mutations[i].addedNodes.length)
-			{
-				console.log("\t deleting resources...");
-				del(["link", "script", "iframe"]);
-			}
-	}
-
-	retrieve("#content");
-	del([
-		"#sidebar", ".signup-prompt", ".post-menu", ".user-gravatar32", "form", ".d-none", ".-flair", "#launch-popover", ".comments-link", ".aside-cta", ".js-post-menu", "iframe",
-		".js-bottom-notice", ".votecell", ".comment-actions", ".js-share-link", ".js-suggest-edit-post", ".js-voting-container", "form", ".js-bottom-notice", ".js-menu-popup-container",
-		".js-post-menu", ".answers-subheader", ".s-modal",
-	]);
-
-	makePlainText(".comment-date");
-	del(select("img", "src", "contains", "gravatar"));
-	replaceElementsBySelector(".comments-list", "dl");
-	replaceElementsBySelector(".comment", "dd");
-	replaceElementsBySelector(".comment-copy", "quote");
-	replaceElementsBySelector(".comment-user", "postauthor");
-	replaceElementsBySelector(".comment-date", "postdate");
-	replaceElementsBySelector(".user-action-time", "postdate");
-	replaceElementsBySelector(".comment-score", "kbd");
-	replaceElementsBySelector(".user-details", "postauthor");
-	replaceElementsBySelector(".post-tag", "tag");
-	deleteByClassOrIdContaining("comments-link");
-	replaceElementsBySelector(".answercell", "dt");
-	replaceElementsBySelector(".user-action-time", "postdate");
-	makePlainText("pre");
-	makePlainText("h6");
-	makePlainText("postauthor");
-	makePlainText("postdate");
-	replaceParentWithChild(".ai-center", ".ai-center postauthor");
-
-	unwrapAll(".js-post-tag-list-item");
-	replaceElementsBySelector(".js-post-tag-list-wrapper", "footer");
-
-	deleteBySelectorAndTextMatching("h2", "Not the answer");
-
-	cleanupDocument();
-	removeAllAttributesOfTypes(["class", "style", "align", "id"]);
-	unwrapAll("span");
-	makePlainText("user");
-	unwrapAll("user");
-
-	const observer = new MutationObserver(handleMutations);
-	observer.observe(getOne("head"), { childList: true });
-}
-
 export function replaceCommonClassesNew()
 {
 	function looksLikeH2(str)

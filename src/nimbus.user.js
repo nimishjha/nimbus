@@ -132,7 +132,6 @@ import {
 	cleanupDocument,
 	cleanupHead,
 	cleanupLinks,
-	cleanupStackOverflow,
 	cleanupTitle,
 	clearBootstrapClasses,
 	cloneBody,
@@ -460,7 +459,6 @@ import {
 	createPagerFromSelect,
 	cycleTheme,
 	doWebsiteSpecificTasks,
-	doWebsiteSpecificTasksInternal,
 	getCurrentlyPlayingVideo,
 	getPageNavLinks,
 	hideNonVideoContent,
@@ -701,7 +699,6 @@ const availableFunctions = {
 	cleanupEbook,
 	cleanupHead,
 	cleanupLinks,
-	cleanupStackOverflow,
 	cleanupTitle,
 	clearBootstrapClasses,
 	cloneBody,
@@ -1148,7 +1145,6 @@ function inject()
 		insertStyleHighlight();
 	xlog("Referrer: " + document.referrer);
 	xlog("Page loaded at " + getTimestamp());
-	doWebsiteSpecificTasksInternal();
 	Nimbus.pageMetadata = getMetadata();
 	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
 	if(isDebugMode)

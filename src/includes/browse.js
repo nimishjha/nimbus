@@ -6,7 +6,6 @@ import { insertStyle, toggleStyle, toggleWebsiteSpecificStyle } from "./style";
 import { looksLikeUrl } from "./misc";
 import { wrapElement, deleteClass, cycleClass, createElementWithChildren, setClassByPrefix } from "./element";
 import { get, getOne, del, selectByRelativePosition } from "./selectors";
-import { cleanupStackOverflow } from "./cleanup";
 import { runCommand } from "./command";
 import { STYLES } from "./stylesheets";
 import { REFERENCE_TAGNAME } from "./constants";
@@ -226,13 +225,6 @@ export function doWebsiteSpecificTasks()
 	del("#website-specific-commands");
 	for(const command of commands)
 		runCommand(command);
-}
-
-export function doWebsiteSpecificTasksInternal()
-{
-	const sites = ["stackexchange", "stackoverflow", "superuser", "serverfault", "askubuntu"];
-	if(containsAnyOfTheStrings(location.hostname, sites) && /questions\/[0-9]+/.test(location.href))
-		cleanupStackOverflow();
 }
 
 export function hideReferences()
