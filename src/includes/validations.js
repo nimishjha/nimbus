@@ -22,8 +22,9 @@ export function hasDuplicateIDs()
 	return false;
 }
 
-export function checkSequence(elems)
+export function checkSequence(selectorOrElements)
 {
+	const elems = typeof selectorOrElements === "string" ? document.querySelectorAll(selectorOrElements) : selectorOrElements;
 	let step = 0;
 	let numNonSequential = 0;
 	for(let i = 0; i < elems.length; i++)
@@ -54,11 +55,4 @@ export function checkSequence(elems)
 	}
 	else
 		showMessageBig("Everything is in order");
-}
-
-export function checkSequenceBySelector(selector)
-{
-	const elems = document.querySelectorAll(selector);
-	if(elems)
-		checkSequence(elems);
 }

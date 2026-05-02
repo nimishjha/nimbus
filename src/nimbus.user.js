@@ -665,7 +665,6 @@ import {
 } from "./includes/keyMenu";
 import {
 	checkSequence,
-	checkSequenceBySelector,
 } from "./includes/validations";
 import {
 	analyzeReferences,
@@ -695,7 +694,6 @@ const availableFunctions = {
 	changePage,
 	changePageByUrl,
 	checkSequence,
-	checkSequenceBySelector,
 	chooseDocumentHeading,
 	cleanupAttributes,
 	cleanupBarebone,
