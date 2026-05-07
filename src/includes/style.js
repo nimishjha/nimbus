@@ -2,7 +2,6 @@ import { Nimbus } from "./Nimbus";
 import { del, get, getOne } from "./selectors";
 import { showMessageBig } from "./ui";
 import { ylog } from "./log";
-import { STYLES } from "./stylesheets";
 
 export function insertStyle(str, id, important)
 {
@@ -54,11 +53,6 @@ export function insertStyleShowErrors()
 {
 	const s = ".error { box-shadow: inset 2000px 2000px rgba(255, 0, 0, 1);";
 	insertStyle(s, "styleShowErrors", true);
-}
-
-export function toggleStyleNegative()
-{
-	toggleStyle(STYLES.NEGATIVE, "styleNegative", true);
 }
 
 export function toggleNimbusStyles()

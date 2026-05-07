@@ -8,7 +8,7 @@ import { wrapElement, deleteClass, cycleClass, createElementWithChildren, setCla
 import { get, getOne, del, selectByRelativePosition } from "./selectors";
 import { runCommand } from "./command";
 import { showMessageError } from "./ui";
-import { STYLES } from "./stylesheets";
+import { STYLE_VIEW_VIDEO_01 } from "./stylesheets";
 import { REFERENCE_TAGNAME } from "./constants";
 
 export function logout()
@@ -156,7 +156,7 @@ export function makeButtonsReadable()
 
 export function toggleViewVideoMode()
 {
-	toggleStyle(STYLES.VIEW_VIDEO_01, "styleViewVideo", true);
+	toggleStyle(STYLE_VIEW_VIDEO_01, "styleViewVideo", true);
 	toggleWebsiteSpecificStyle();
 }
 

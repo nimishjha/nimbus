@@ -8,7 +8,7 @@ import { createUUID } from "./misc";
 import { trimAt } from "./string";
 import { xlog, ylog } from "./log";
 import { toggleStyle, insertStyle } from "./style";
-import { STYLES } from "./stylesheets";
+import { STYLE_INSPECTOR, STYLE_SHOW_SELECTORS } from "./stylesheets";
 import { BLOCK_TAGS, INLINE_TAGS } from "./constants";
 import { identifyClassSetup } from "./identifyClass";
 import { getMarkedElements } from "./mark";
@@ -272,7 +272,7 @@ export function inspect(onTop)
 		document.body.addEventListener('mouseover', handleMouseOver, false);
 		document.body.addEventListener('contextmenu', handleClick, false);
 		document.body.classList.add("inspector");
-		insertStyle(STYLES.INSPECTOR, "styleInspector", true);
+		insertStyle(STYLE_INSPECTOR, "styleInspector", true);
 	}
 	else
 	{
@@ -424,7 +424,7 @@ export function setClassByDepth(selector = "div")
 		}
 		elems[i].className = "level" + level;
 	}
-	toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true);
+	toggleStyle(STYLE_SHOW_SELECTORS, "styleShowSelectors", true);
 }
 
 export function numberDivs()
@@ -435,7 +435,7 @@ export function numberDivs()
 		e[i].id = "i" + i;
 	for(let i = 0, ii = document.images.length; i < ii; i++)
 		document.images[i].id = "img" + i;
-	toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true);
+	toggleStyle(STYLE_SHOW_SELECTORS, "styleShowSelectors", true);
 }
 
 export function getClassCounts(selector) {

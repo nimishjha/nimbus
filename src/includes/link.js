@@ -7,7 +7,7 @@ import { get, getOne, del, select, getEmptyLinkAnchors, getEmptySpanAnchors, get
 import { getTextLength } from "./node";
 import { trimAt } from "./string";
 import { insertStyle } from "./style";
-import { STYLES } from "./stylesheets";
+import { STYLE_REVEAL_LINK_ATTRIBUTES } from "./stylesheets";
 import { createUUID, createBulletAnchor, createUniqueID } from "./misc";
 import { removeQueryParameterFromUrl } from "./url";
 import { annotateElement } from "./dom";
@@ -240,7 +240,7 @@ export function fixInternalReferences()
 
 export function revealLinkAttributes()
 {
-	insertStyle(STYLES.REVEAL_LINK_ATTRIBUTES, "styleRevealLinkAttributes", true);
+	insertStyle(STYLE_REVEAL_LINK_ATTRIBUTES, "styleRevealLinkAttributes", true);
 }
 
 export function humanizeUrl(url)

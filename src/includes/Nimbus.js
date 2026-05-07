@@ -1,8 +1,5 @@
-import { version } from "./version";
-import { noop } from "./misc";
-
 export const Nimbus = {
-	version,
+	version: "",
 	logString: "",
 	autoCompleteInputComponent: {
 		matches: [],
@@ -72,9 +69,6 @@ export const Nimbus = {
 			highlightAllMatches: false,
 		},
 	},
-	consoleLog: noop,
-	consoleWarn: noop,
-	consoleError: noop,
 	keyMenu: {
 		isActive: false,
 		shouldExitMenuModeAfterCommand: false,

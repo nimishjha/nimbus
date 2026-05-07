@@ -13,7 +13,8 @@ import { deleteIframes, deleteByClassOrIdContaining, deleteBySelectorAndTextMatc
 import { makeClassSelector, getTimestamp, createUniqueID } from "./misc";
 import { getBestImageSrc } from "./image";
 import { appendMetadata } from "./metadata";
-import { toggleStyleNegative, insertStyleHighlight } from "./style";
+import { toggleStyle, insertStyleHighlight } from "./style";
+import { STYLE_NEGATIVE } from "./stylesheets";
 import { showMessageBig, showMessageError } from "./ui";
 import { retrieve } from "./retrieve";
 import { moveIDsFromEmptyAnchors, createLinksByHrefLookup, fixInternalReferences, removeUnreferencedIDs } from "./link";
@@ -89,7 +90,7 @@ export function cleanupDocument()
 	document.documentElement.id = "nimbus";
 	document.documentElement.className = "";
 	if(~navigator.userAgent.indexOf("Chrome"))
-		toggleStyleNegative();
+		toggleStyle(STYLE_NEGATIVE, "styleNegative", true);
 }
 
 export function cleanupAttributes()

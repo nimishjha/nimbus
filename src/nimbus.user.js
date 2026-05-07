@@ -32,10 +32,25 @@
 "use strict";
 
 import { Nimbus } from "./includes/Nimbus";
+import { version } from "./includes/version";
 import { Cyclable } from "./includes/Cyclable";
-import { STYLES } from "./includes/stylesheets";
+import {
+	STYLE_DIM_BODY,
+	STYLE_FONT_01,
+	STYLE_GITHUB_HIDE_DELETE_DIFFS,
+	STYLE_INDICATE_LINK_ATTRIBUTES,
+	STYLE_INVERT_IMAGES,
+	STYLE_MIN_FONT_SIZE,
+	STYLE_NEGATIVE,
+	STYLE_OUTLINE_ELEMENTS,
+	STYLE_REVEAL_LINK_ID_AND_HREF,
+	STYLE_SHOW_LINK_TARGET,
+	STYLE_SHOW_SELECTORS,
+	STYLE_SHOW_SELECTORS_MINIMAL,
+	STYLE_SIMPLE_NEGATIVE_3,
+} from "./includes/stylesheets";
 import { KEYCODES, KEYCODES_REVERSE } from "./includes/keycodes";
-import { SYMBOLS, BLOCK_TAGS } from "./includes/constants";
+import { SYMBOLS, BLOCK_TAGS, INLINE_TAGS } from "./includes/constants";
 import { parseCommand, runCommand, callFunctionWithArgs } from "./includes/command";
 import {
 	count,
@@ -116,7 +131,6 @@ import {
 	insertStyleShowErrors,
 	toggleNimbusStyles,
 	toggleStyle,
-	toggleStyleNegative,
 	toggleWebsiteSpecificStyle,
 } from "./includes/style";
 import {
@@ -1072,7 +1086,6 @@ const availableFunctions = {
 	toggleShowKeyCodes,
 	toggleShowSelectors,
 	toggleStyle,
-	toggleStyleNegative,
 	toggleVideoFilter,
 	toggleViewVideoMode,
 	toggleWebsiteSpecificStyle,
@@ -1152,6 +1165,11 @@ function inject()
 		insertStyleHighlight();
 	xlog("Referrer: " + document.referrer);
 	xlog("Page loaded at " + getTimestamp());
+
+	Nimbus.version = version;
+	Nimbus.consoleLog = noop;
+	Nimbus.consoleWarn = noop;
+	Nimbus.consoleError = noop;
 	Nimbus.pageMetadata = getMetadata();
 	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
 	Nimbus.identifyClass.classes = new Cyclable([]);
@@ -1161,6 +1179,7 @@ function inject()
 
 	if(isDebugMode)
 		enableConsoleLogs();
+
 	setTimeout(doWebsiteSpecificTasks, 1000);
 	console.log(`%cNimbus version ${Nimbus.version} loaded`, "font-size: 24px; background: #000; color: #cc0;");
 }
@@ -1339,15 +1358,15 @@ function handleKeyMenuCommand(str)
 			case "WA": callFunctionWithArgs("Wrap all", wrapAll, 2); break;
 			case "WI": callFunctionWithArgs("Wrap all inner", wrapAllInner, 2); break;
 
-			case "YF": toggleStyle(STYLES.FONT_01, "styleFont01", true); break;
+			case "YF": toggleStyle(STYLE_FONT_01, "styleFont01", true); break;
 			case "YH": insertStyleHighlight(); break;
-			case "YI": toggleStyle(STYLES.INVERT_IMAGES, "styleInvertImages", true); break;
-			case "YL": toggleStyle(STYLES.REVEAL_LINK_ID_AND_HREF, "styleRevealLinkIDAndHref", true); break;
-			case "YM": toggleStyle(STYLES.SHOW_SELECTORS_MINIMAL, "styleShowSelectorsMinimal", true); break;
-			case "YN": toggleStyleNegative(); break;
-			case "YO": toggleStyle(STYLES.OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
-			case "YS": toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
-			case "YT": toggleStyle(STYLES.SHOW_LINK_TARGET, "styleShowLinkTarget", true); break;
+			case "YI": toggleStyle(STYLE_INVERT_IMAGES, "styleInvertImages", true); break;
+			case "YL": toggleStyle(STYLE_REVEAL_LINK_ID_AND_HREF, "styleRevealLinkIDAndHref", true); break;
+			case "YM": toggleStyle(STYLE_SHOW_SELECTORS_MINIMAL, "styleShowSelectorsMinimal", true); break;
+			case "YN": toggleStyle(STYLE_NEGATIVE, "styleNegative", true); break;
+			case "YO": toggleStyle(STYLE_OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
+			case "YS": toggleStyle(STYLE_SHOW_SELECTORS, "styleShowSelectors", true); break;
+			case "YT": toggleStyle(STYLE_SHOW_LINK_TARGET, "styleShowLinkTarget", true); break;
 
 			case "ZB": markBrokenInternalLinks(); break;
 			case "ZC": removeAttributeOf(".markd", "class"); break;
@@ -1603,32 +1622,32 @@ function handleKeyDown(e)
 			case     KEYCODES.DOWNARROW:            modifyMark("contract"); break;
 			case     KEYCODES.LEFTARROW:            modifyMark("previous"); break;
 			case     KEYCODES.RIGHTARROW:           modifyMark("next"); break;
-			case     KEYCODES.ONE:                  toggleStyleNegative(); break;
-			case     KEYCODES.TWO:                  toggleStyle(STYLES.DIM_BODY + STYLES.FONT_01, "style2", true); break;
-			case     KEYCODES.THREE:                toggleStyle(STYLES.FONT_01, "styleFont01", true); break;
-			case     KEYCODES.FOUR:                 toggleStyle(STYLES.SIMPLE_NEGATIVE_3, "styleSimpleNegative3", true); break;
-			case     KEYCODES.FIVE:                 toggleStyle(STYLES.MIN_FONT_SIZE, "styleMinFontSize", true); break;
-			case     KEYCODES.SIX:                  toggleStyle(STYLES.GITHUB_HIDE_DELETE_DIFFS, "styleGithubHideDeleteDiffs", true); break;
+			case     KEYCODES.ONE:                  toggleStyle(STYLE_NEGATIVE, "styleNegative", true); break;
+			case     KEYCODES.TWO:                  toggleStyle(STYLE_DIM_BODY + STYLE_FONT_01, "style2", true); break;
+			case     KEYCODES.THREE:                toggleStyle(STYLE_FONT_01, "styleFont01", true); break;
+			case     KEYCODES.FOUR:                 toggleStyle(STYLE_SIMPLE_NEGATIVE_3, "styleSimpleNegative3", true); break;
+			case     KEYCODES.FIVE:                 toggleStyle(STYLE_MIN_FONT_SIZE, "styleMinFontSize", true); break;
+			case     KEYCODES.SIX:                  toggleStyle(STYLE_GITHUB_HIDE_DELETE_DIFFS, "styleGithubHideDeleteDiffs", true); break;
 			case     KEYCODES.ZERO:                 clearBootstrapClasses(); toggleViewVideoMode(); break;
 			case     KEYCODES.A:                    toggleShowEmptyLinksAndSpans(); break;
-			case     KEYCODES.B:                    toggleStyle(STYLES.SHOW_SELECTORS, "styleShowSelectors", true); break;
+			case     KEYCODES.B:                    toggleStyle(STYLE_SHOW_SELECTORS, "styleShowSelectors", true); break;
 			case     KEYCODES.C:                    getContentByParagraphCount(); break;
 			case     KEYCODES.E:                    replaceElementsBySelectorHelper(); break;
 			case     KEYCODES.F:                    del(["object", "embed", "video", "iframe"]); break;
 			case     KEYCODES.G:                    callFunctionWithArgs("Delete elements with class or id containing the string", deleteByClassOrIdContaining); break;
 			case     KEYCODES.H:                    callFunctionWithArgs("Mark elements by selector", markBySelector, 1); break;
-			case     KEYCODES.I:                    toggleStyle(STYLES.INVERT_IMAGES, "styleInvertImages", true); break;
+			case     KEYCODES.I:                    toggleStyle(STYLE_INVERT_IMAGES, "styleInvertImages", true); break;
 			case     KEYCODES.J:                    deleteNodesBeforeAnchorNode(); break;
 			case     KEYCODES.K:                    deleteNodesAfterAnchorNode(); break;
 			case     KEYCODES.L:                    deleteNodesBetweenMarkers(); break;
 			case     KEYCODES.M:                    Nimbus.autoCompleteCommandPrompt.open(); break;
-			case     KEYCODES.N:                    toggleStyle(STYLES.INDICATE_LINK_ATTRIBUTES, "styleShowIDsAndHrefs", true); break;
+			case     KEYCODES.N:                    toggleStyle(STYLE_INDICATE_LINK_ATTRIBUTES, "styleShowIDsAndHrefs", true); break;
 			case     KEYCODES.O:                    customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
 			case     KEYCODES.P:                    makeAnchorNodePlainText(); break;
 			case     KEYCODES.R:                    toggleKeyMenu("R"); break;
 			case     KEYCODES.S:                    toggleContentEditable(); break;
 			case     KEYCODES.T:                    tabifySpacesInPres(); break;
-			case     KEYCODES.V:                    toggleStyle(STYLES.OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
+			case     KEYCODES.V:                    toggleStyle(STYLE_OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
 			case     KEYCODES.X:                    customPrompt("Enter xPath").then(xPathMark); break;
 			case     KEYCODES.Z:                    markSelectionAnchorNode(); break;
 			case     KEYCODES.MINUS:                insertElementAfterSelectionAnchor(); break;

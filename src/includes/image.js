@@ -13,7 +13,7 @@ import { retrieve } from "./retrieve";
 import { cleanupHead } from "./cleanup";
 import { replaceElementKeepingId } from "./replaceElements";
 import { replaceVideosWithPlaceholders, replacePicturesWithPlaceholders } from "./media";
-import { STYLES } from "./stylesheets";
+import { STYLE_REPLACE_IMAGES } from "./stylesheets";
 
 function sortSources(a, b)
 {
@@ -499,7 +499,7 @@ export function replaceImagesWithPlaceholders()
 			replaceElementKeepingId(parent, "figure");
 	}
 
-	insertStyle(STYLES.REPLACE_IMAGES, "styleReplaceImages");
+	insertStyle(STYLE_REPLACE_IMAGES, "styleReplaceImages");
 }
 
 export function inspectImages()
