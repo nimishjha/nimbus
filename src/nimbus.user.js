@@ -670,7 +670,11 @@ import {
 	moveID,
 	orderFootnotesByNonFootnoteRefs,
 } from "./includes/reference";
-import { interlinkReferencesUsingFootnoteReferences, interlinkReferencesByIndexInSections } from "./includes/interlinkReferences";
+import {
+	interlinkReferencesByChapterAndFootnoteContainerSelectors,
+	interlinkReferencesByIndexInSections,
+	interlinkReferencesUsingFootnoteReferences,
+} from "./includes/interlinkReferences";
 import { enableEditTextOnClick } from "./includes/edit";
 
 const isDebugMode = true;
@@ -840,6 +844,7 @@ const availableFunctions = {
 	insertStyleShowErrors,
 	inspect,
 	inspectImages,
+	interlinkReferencesByChapterAndFootnoteContainerSelectors,
 	interlinkReferencesByIndexInSections,
 	interlinkMarkedElements,
 	interlinkReferencesUsingFootnoteReferences,

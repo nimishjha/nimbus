@@ -4,6 +4,7 @@ import { logSuccess, logError, logWarning, logYellow, logInfo } from "./log";
 import { showMessageBig, showMessageError } from "./ui";
 import { createLinksByHrefLookup } from "./link";
 import { wrapElement } from "./element";
+import { get } from "./selectors";
 import { REFERENCE_TAGNAME } from "./constants";
 
 export function getSafePrefixForSequentialIDs(prefix)
@@ -116,6 +117,64 @@ export function interlinkReferencesByIndexInSections()
 				section.className = Nimbus.markerClass;
 			}
 		}
+	}
+}
+
+export function interlinkReferencesByChapterAndFootnoteContainerSelectors(chapterSelector, footnotesContainerSelector)
+{
+	const chapterElements = get(chapterSelector);
+	const footnoteContainerElements = get(footnotesContainerSelector);
+
+	if(!(chapterElements && footnoteContainerElements))
+	{
+		logError("Could not get containers");
+		return;
+	}
+
+	if(chapterElements.length !== footnoteContainerElements.length)
+	{
+		logError("Container counts mismatch");
+		return;
+	}
+
+	for(let i = 0, ii = chapterElements.length; i < ii; i++)
+	{
+		const chapterContainerIndex = i + 1;
+		const chapterHeading = chapterElements[i].querySelector("h1, h2");
+		const chapterHeadingText = chapterHeading ? chapterHeading.textContent : `CHAPTER_${chapterContainerIndex}_NO_HEADING`;
+		const chapterRefLinks = chapterElements[i].querySelectorAll("reference a");
+		const footnoteContainerRefLinks = footnoteContainerElements[i].querySelectorAll("reference a");
+
+		if(chapterRefLinks.length === footnoteContainerRefLinks.length)
+		{
+			logInfo(`${chapterHeadingText}: ${chapterRefLinks.length} chapter references, ${footnoteContainerRefLinks.length} footnote references`);
+		}
+		else
+		{
+			logError(`${chapterHeadingText}: reference counts mismatch: ${chapterRefLinks.length} chapter references, ${footnoteContainerRefLinks.length} footnote references`);
+			continue;
+		}
+
+		let numInterlinked = 0;
+		for(let j = 0, jj = chapterRefLinks.length; j < jj; j++)
+		{
+			const index = j + 1;
+			if(chapterRefLinks[j].textContent.trim() === footnoteContainerRefLinks[j].textContent.trim())
+			{
+				interlink(chapterRefLinks[j], footnoteContainerRefLinks[j], index, `r${i}_${index}`);
+				numInterlinked++;
+			}
+			else
+			{
+				logWarning(`${chapterHeadingText}: reference texts do not match`);
+				break;
+			}
+		}
+
+		if(numInterlinked === chapterRefLinks.length)
+			logSuccess(`Linked ${chapterRefLinks.length} references in chapter ${chapterContainerIndex}: ${chapterHeadingText}`);
+		else
+			logError(`Failed to interlink references in chapter ${chapterContainerIndex}: ${chapterHeadingText}`);
 	}
 }
 
