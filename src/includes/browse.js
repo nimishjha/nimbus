@@ -7,6 +7,7 @@ import { looksLikeUrl } from "./misc";
 import { wrapElement, deleteClass, cycleClass, createElementWithChildren, setClassByPrefix } from "./element";
 import { get, getOne, del, selectByRelativePosition } from "./selectors";
 import { runCommand } from "./command";
+import { showMessageError } from "./ui";
 import { STYLES } from "./stylesheets";
 import { REFERENCE_TAGNAME } from "./constants";
 
@@ -243,4 +244,12 @@ export function setPreFontMonospace()
 {
 	setClassByPrefix(document.documentElement, "nimbusPreFontFaceMonospace", "nimbusPreFontFace");
 	setClassByPrefix(document.documentElement, "nimbusPreFontSizeMedium", "nimbusPreFontSize");
+}
+
+export function scrollToPercent(percent)
+{
+	if(typeof percent === "number" && percent >= 0 && percent <= 100)
+		window.scrollTo({ top: (document.documentElement.scrollHeight - window.innerHeight) * (percent * 0.01) });
+	else
+		showMessageError("Invalid percentage value");
 }
