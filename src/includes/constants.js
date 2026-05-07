@@ -135,6 +135,8 @@ export const DIACRITIC_REGEXES_BY_LETTER = {
 	oe: /[\u0153]/g,
 	I: /[ÌÍÎÏ]/g,
 	i: /[ìíîï]/g,
+	L: /Ł/g,
+	l: /ł/g,
 	O: /[ÒÓÔÕÖŌŎŐ]/g,
 	o: /[ðòóôõöøōŏő]/g,
 	S: /[ŚŜŞŠ]/g,
