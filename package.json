@@ -7,6 +7,7 @@
   "scripts": {
     "lintandbuild": "bun run lint && bun run build.js",
     "lab": "bun run lint && bun run build.js",
+    "nimble": "bun run lint && bun run buildNimble.js",
     "lint": "oxlint -f stylish src/**/*.js",
     "lintconcise": "oxlint -f unix src/**/*.js",
     "lintverbose": "oxlint -f default src/**/*.js",
