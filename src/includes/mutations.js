@@ -4,6 +4,7 @@ import { forAll } from "./misc";
 import { insertStyle } from "./style";
 import { get, getOne, del } from "./selectors";
 import { createSelector } from "./element";
+import { logColors } from "./log";
 
 function showClonedElements()
 {
@@ -19,7 +20,6 @@ function showClonedElements()
 function logMutations(mutations)
 {
 	function clone(elem) { Nimbus.clonedNodesContainer.appendChild(elem.cloneNode(true)); }
-	const colors = Nimbus.logColors;
 	for(let i = 0, ii = mutations.length; i < ii; i++)
 	{
 		const mutation = mutations[i];
@@ -34,7 +34,7 @@ function logMutations(mutations)
 					const addedNode = mutation.addedNodes[j];
 					if(addedNode.className && addedNode.classList.contains("excludeFromMutations"))
 						continue;
-					console.log(`%cadded:   %c${createSelector(addedNode)} %c${addedNode.textContent}`, colors.green, colors.gray, colors.blue);
+					console.log(`%cadded:   %c${createSelector(addedNode)} %c${addedNode.textContent}`, logColors.green, logColors.gray, logColors.blue);
 					clone(addedNode);
 				}
 			}
@@ -45,7 +45,7 @@ function logMutations(mutations)
 					const removedNode = mutation.removedNodes[j];
 					if( removedNode.className && removedNode.classList.contains("excludeFromMutations") )
 						continue;
-					console.log(`%cremoved: %c${createSelector(removedNode)} %c${removedNode.textContent}`, colors.red, colors.gray, colors.blue);
+					console.log(`%cremoved: %c${createSelector(removedNode)} %c${removedNode.textContent}`, logColors.red, logColors.gray, logColors.blue);
 				}
 			}
 		}
@@ -53,7 +53,7 @@ function logMutations(mutations)
 		{
 			if(!Nimbus.attributeFilter || (Nimbus.attributeFilter && mutation.attributeName.includes(Nimbus.attributeFilter)))
 			{
-				console.log(`%c${mutation.attributeName}: %c${createSelector(mutation.target)}`, colors.green, colors.gray);
+				console.log(`%c${mutation.attributeName}: %c${createSelector(mutation.target)}`, logColors.green, logColors.gray);
 			}
 		}
 	}

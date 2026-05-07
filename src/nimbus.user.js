@@ -1154,6 +1154,11 @@ function inject()
 	xlog("Page loaded at " + getTimestamp());
 	Nimbus.pageMetadata = getMetadata();
 	Nimbus.autoCompleteCommandPrompt = autoCompleteInputBox();
+	Nimbus.identifyClass.classes = new Cyclable([]);
+	Nimbus.BLOCK_TAGS_SET = new Set(BLOCK_TAGS);
+	Nimbus.INLINE_TAGS_SET = new Set(INLINE_TAGS);
+	Nimbus.HEADING_TAGS_SET = new Set(["H1", "H2", "H3", "H4", "H5", "H6"]);
+
 	if(isDebugMode)
 		enableConsoleLogs();
 	setTimeout(doWebsiteSpecificTasks, 1000);

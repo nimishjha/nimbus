@@ -1,4 +1,3 @@
-import { Cyclable } from "./Cyclable";
 import { version } from "./version";
 import { noop } from "./misc";
 
@@ -33,26 +32,9 @@ export const Nimbus = {
 	selectionHighlightMode: "sentence",
 	GROUP_TAGNAME: "blockquote",
 	italicTag: "i",
-	logColors: {
-		black: "background: #000; color: #AAA;",
-		gray: "background: #555; color: #AAA;",
-		blue: "background: #008; color: #ACE;",
-		yellow: "background: #000; color: #CC0;",
-		orange: "background: #420; color: #C80;",
-		green: "background: #040; color: #0C0;",
-		red: "background: #600; color: #C00;",
-		purple: "background: #204; color: #C7E;",
-		success: "background: #030; color: #0a0;",
-		info: "background: #000; color: #aaa;",
-		warning: "background: #420; color: #C70;",
-		error: "background: #400; color: #a00;",
-	},
-	logStyles: {
-		styleHeading: "font-size: 22px;",
-	},
 	identifyClass: {
 		style: "{ box-shadow: inset 2px 2px #09C, inset -2px -2px #09C; }",
-		classes: new Cyclable([]),
+		classes: {},
 		markedClasses: [],
 	},
 	goToNextElement: {

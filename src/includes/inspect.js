@@ -9,7 +9,7 @@ import { trimAt } from "./string";
 import { xlog, ylog } from "./log";
 import { toggleStyle, insertStyle } from "./style";
 import { STYLES } from "./stylesheets";
-import { BLOCK_TAGS, BLOCK_TAGS_SET, INLINE_TAGS } from "./constants";
+import { BLOCK_TAGS, INLINE_TAGS } from "./constants";
 import { identifyClassSetup } from "./identifyClass";
 import { getMarkedElements } from "./mark";
 import { annotateElement } from "./dom";
@@ -341,7 +341,7 @@ export function showSelectors(tagName)
 
 	if(tagName)
 	{
-		const style = BLOCK_TAGS_SET.has(tagName.toUpperCase()) ? generateBlockStyleRule(tagName) : generateInlineStyleRule(tagName);
+		const style = Nimbus.BLOCK_TAGS_SET.has(tagName.toUpperCase()) ? generateBlockStyleRule(tagName) : generateInlineStyleRule(tagName);
 		insertStyle(style, "styleShowSelectors", true);
 	}
 	else

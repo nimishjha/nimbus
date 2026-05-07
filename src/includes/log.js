@@ -7,6 +7,25 @@ import { getNodeText } from "./node";
 import { arrayToString } from "./misc";
 import { getClassCounts } from "./inspect";
 
+export const logColors = {
+	black: "background: #000; color: #AAA;",
+	gray: "background: #555; color: #AAA;",
+	blue: "background: #008; color: #ACE;",
+	yellow: "background: #000; color: #CC0;",
+	orange: "background: #420; color: #C80;",
+	green: "background: #040; color: #0C0;",
+	red: "background: #600; color: #C00;",
+	purple: "background: #204; color: #C7E;",
+	success: "background: #030; color: #0a0;",
+	info: "background: #000; color: #aaa;",
+	warning: "background: #420; color: #C70;",
+	error: "background: #400; color: #a00;",
+};
+
+export const logStyles = {
+	styleHeading: "font-size: 22px;",
+};
+
 export function elemToString(elem)
 {
 	return elem.tagName + ": " + elem.textContent.substring(0, 10);
@@ -75,9 +94,8 @@ export function log2(str)
 
 export function logString(str, label)
 {
-	const colors = Nimbus.logColors;
-	if(label) console.log(`%c${label} %c${str}`, colors.blue, colors.green);
-	else console.log(`%c${str}`, colors.gray);
+	if(label) console.log(`%c${label} %c${str}`, logColors.blue, logColors.green);
+	else console.log(`%c${str}`, logColors.gray);
 }
 
 export function logTable(...args)
@@ -163,29 +181,29 @@ export function logAllClassesFor(selector)
 export function logYellow(...args)
 {
 	const [ str, ...rest ] = args;
-	console.log(`%c${str}`, Nimbus.logColors.yellow, ...rest);
+	console.log(`%c${str}`, logColors.yellow, ...rest);
 }
 
 export function logSuccess(...args)
 {
 	const [ str, ...rest ] = args;
-	console.log(`%c${str}`, Nimbus.logColors.success, ...rest);
+	console.log(`%c${str}`, logColors.success, ...rest);
 }
 
 export function logInfo(...args)
 {
 	const [ str, ...rest ] = args;
-	console.log(`%c${str}`, Nimbus.logColors.info, ...rest);
+	console.log(`%c${str}`, logColors.info, ...rest);
 }
 
 export function logWarning(...args)
 {
 	const [ str, ...rest ] = args;
-	console.log(`%c${str}`, Nimbus.logColors.warning, ...rest);
+	console.log(`%c${str}`, logColors.warning, ...rest);
 }
 
 export function logError(...args)
 {
 	const [ str, ...rest ] = args;
-	console.log(`%c${str}`, Nimbus.logColors.error, ...rest);
+	console.log(`%c${str}`, logColors.error, ...rest);
 }

@@ -1,4 +1,5 @@
-import { BLOCK_TAGS_SET, INLINE_TAGS_SET, REGEXES_GLOBAL } from "./constants";
+import { Nimbus } from "./Nimbus";
+import { REGEXES_GLOBAL } from "./constants";
 import { getTextLength } from "./node";
 
 export function getFirstElementOrNonEmptyTextNode(node, siblingType)
@@ -40,7 +41,7 @@ export function hasAdjacentFollowingElementSiblingOfType(elem, selector)
 export function isBlockElement(node)
 {
 	if(node && node.nodeType === Node.ELEMENT_NODE)
-		return BLOCK_TAGS_SET.has(node.tagName);
+		return Nimbus.BLOCK_TAGS_SET.has(node.tagName);
 	return false;
 }
 

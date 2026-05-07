@@ -7,7 +7,6 @@ import { makeClassSelector } from "./misc";
 import { getAlphanumericTextLength, createElement, createClassSelector } from "./element";
 import { xlog, showLog } from "./log";
 import { callFunctionWithArgs } from "./command";
-import { BLOCK_TAGS_SET, INLINE_TAGS_SET, HEADING_TAGS_SET } from "./constants";
 
 export function replaceElementsByTagNameMatching(text, tagName)
 {
@@ -29,42 +28,35 @@ export function replaceElementsBySelector(selector, tagName)
 {
 	const toReplace = get(selector);
 	if(!toReplace) return;
-	if(toReplace.length)
+	let deletedTextLength = 0;
+	let i = toReplace.length;
+	if(tagName === "hr" && toReplace[0].tagName !== "RT" && toReplace[0].tagName !== "FIGURE")
 	{
-		showMessageBig(`Replacing ${toReplace.length} ${selector} with ${tagName}`);
-		let deletedTextLength = 0;
-		let i = toReplace.length;
-		if(tagName === "hr" && toReplace[0].tagName !== "RT" && toReplace[0].tagName !== "FIGURE")
+		let numNonEmptyElements = 0;
+		while(i--)
 		{
-			while(i--)
-			{
-				const elem = toReplace[i];
-				const textLength = getAlphanumericTextLength(elem);
-				if(textLength !== 0)
-				{
-					deletedTextLength += textLength;
-					xlog(elem.textContent);
-				}
+			const elem = toReplace[i];
+			const textLength = getAlphanumericTextLength(elem);
+			if(textLength === 0)
 				elem.replaceWith(createElement(tagName));
-			}
-			if(deletedTextLength)
+			else
 			{
-				showMessageError(`${deletedTextLength} characters of text were lost`);
-				setTimeout(showLog, 100);
+				numNonEmptyElements++;
+				elem.insertAdjacentElement("beforebegin", createElement(tagName));
+				elem.className = "statusError";
 			}
 		}
-		else
+		if(numNonEmptyElements)
 		{
-			while(i--)
-			{
-				replaceElementKeepingId(toReplace[i], tagName);
-			}
+			showMessageError(`${numNonEmptyElements} non-empty elements would have been replaced`);
+			const elem = document.querySelector(".statusError");
+			elem.scrollIntoView();
 		}
 	}
-	else if(toReplace && toReplace.parentNode)
+	else
 	{
-		showMessageBig("Replacing one " + selector);
-		replaceElementKeepingId(toReplace, tagName);
+		while(i--)
+			replaceElementKeepingId(toReplace[i], tagName);
 	}
 }
 
@@ -168,7 +160,7 @@ export function replaceNonStandardElements()
 		const elem = elems[i];
 		if(!elem.tagName)
 			continue;
-		if(!( BLOCK_TAGS_SET.has(elem.tagName) || INLINE_TAGS_SET.has(elem.tagName) ))
+		if(!( Nimbus.BLOCK_TAGS_SET.has(elem.tagName) || Nimbus.INLINE_TAGS_SET.has(elem.tagName) ))
 		{
 			const replacement = convertElement(elem, "div");
 			replacement.className = elem.tagName;
@@ -243,7 +235,7 @@ export function convertDivsToParagraphs()
 			{
 				const fc = elem.firstChild;
 				if(!fc) continue;
-				if(fc.nodeType === Node.TEXT_NODE || INLINE_TAGS_SET.has(fc.tagName))
+				if(fc.nodeType === Node.TEXT_NODE || Nimbus.INLINE_TAGS_SET.has(fc.tagName))
 					replaceElementKeepingIdAndClass(elem, "p");
 			}
 		}
@@ -261,7 +253,7 @@ export function replaceFirstLevelChildrenWith(tagName)
 	{
 		const elems = document.querySelectorAll(".markd > *");
 		for(const elem of elems)
-			if(!HEADING_TAGS_SET.has(elem.tagName))
+			if(!Nimbus.HEADING_TAGS_SET.has(elem.tagName))
 				replaceElementKeepingId(elem, tagName);
 		unmarkAll();
 	}

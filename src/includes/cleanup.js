@@ -22,7 +22,7 @@ import { getAllClassesFor } from "./inspect";
 import { replaceClass, insertAsFirstChild } from "./dom";
 import { callFunctionWithArgs } from "./command";
 import { hasDuplicateIDs } from "./validations";
-import { BLOCK_TAGS_SET, HEADING_TAGS_SET, REFERENCE_TAGNAME } from "./constants";
+import { REFERENCE_TAGNAME } from "./constants";
 import { cleanReferenceText } from "./reference";
 import { hasDirectChildrenOfType, hasAdjacentBlockElement, hasAdjacentPrecedingElementSiblingOfType } from "./elementAndNodeTests";
 
@@ -738,7 +738,7 @@ export function removeRedundantDivs()
 	{
 		const div = divs[i];
 		del(getEmptyTextNodesUnderElement(div));
-		if(div.children.length === 1 && div.childNodes.length === 1 && BLOCK_TAGS_SET.has(div.firstChild.tagName))
+		if(div.children.length === 1 && div.childNodes.length === 1 && Nimbus.BLOCK_TAGS_SET.has(div.firstChild.tagName))
 		{
 			unwrapElement(div);
 			count++;
@@ -1120,7 +1120,7 @@ export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 		if(!(wrapperTagName && childTagName))
 		{
 			childTagName = elem.tagName === "DIV" ? "P" : elem.tagName;
-			if(HEADING_TAGS_SET.has(childTagName))
+			if(Nimbus.HEADING_TAGS_SET.has(childTagName))
 				wrapperTagName = "hgroup";
 			else if(childTagName === "BLOCKQUOTE")
 			{

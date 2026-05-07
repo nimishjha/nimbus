@@ -3,14 +3,11 @@ import { emptyElement } from "./element";
 import { showMessageBig, showMessageError } from "./ui";
 import { get, getOne, del, selectBySelectorAndText } from "./selectors";
 
-//	This function takes a selector and replaces the document's content with elements that match that selector.
-//	Useful for marking content blocks and deleting everything else, for instance.
 export function retrieve(selector)
 {
 	retrieveElements(get(selector));
 }
 
-//	Given an array of selectors, retrieve the corresponding elements, grouping them by index.
 export function retrieveGrouped(selectors, wrapperTagName = "section", groupTagName = "hgroup")
 {
 	const numSelectors = selectors.length;

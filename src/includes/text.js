@@ -10,7 +10,7 @@ import { showMessageBig, showMessageError } from "./ui";
 import { replaceInTextNodes, replaceInTextNodesRegex } from "./textReplace";
 import { removeLineBreaks } from "./string";
 import { containsOnlyPlainText, hasAdjacentPrecedingElementSiblingOfType } from "./elementAndNodeTests";
-import { REGEXES, REGEXES_GLOBAL, DIACRITIC_REGEXES_BY_LETTER, HEADING_TAGS_SET } from "./constants";
+import { REGEXES, REGEXES_GLOBAL, DIACRITIC_REGEXES_BY_LETTER } from "./constants";
 
 export function fixSpacesBetweenNestedQuotes()
 {

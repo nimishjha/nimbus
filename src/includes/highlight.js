@@ -3,7 +3,7 @@ import { showMessageBig, showMessageError } from "./ui";
 import { get, del, getNodeContainingSelection, getFirstBlockParent, selectBySelectorAndText, selectByTagNameAndText } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
 import { insertStyleHighlight } from "./style";
-import { logString, logYellow } from "./log";
+import { logString, logYellow, logColors, logStyles } from "./log";
 import { getNext } from "./array";
 import { getNodeText, getTextLength } from "./node";
 import { containsOnlyPlainText } from "./elementAndNodeTests";
@@ -11,7 +11,7 @@ import { getTextNodesUnderPre, getTextNodesUnderSelector, getTextNodesUnderEleme
 import { escapeForRegExp } from "./misc";
 import { normalizeHTML, makePlainText, unwrapElement, deleteClass, createElement, unwrapAll, wrapElement, wrapElementInner, deleteLeadingAndTrailingEmptyTextNodes } from "./element";
 import { removeLineBreaks } from "./string";
-import { BLOCK_TAGS_SET, REFERENCE_TAGNAME } from "./constants";
+import { REFERENCE_TAGNAME } from "./constants";
 
 export function highlightInPres(str, tagName = "markyellow")
 {
@@ -205,7 +205,7 @@ export function highlightElements(elems)
 		highlightTableRows(elements);
 		return;
 	}
-	else if(BLOCK_TAGS_SET.has(firstElement.tagName))
+	else if(Nimbus.BLOCK_TAGS_SET.has(firstElement.tagName))
 	{
 		for(let i = 0, ii = elements.length; i < ii; i++)
 			wrapElementInner(elements[i], highlightTagName);
@@ -596,7 +596,7 @@ function getNodesSpanningString(nodeData, index1, index2)
 
 function logNode(node, label)
 {
-	const { blue, black, gray, yellow } = Nimbus.logColors;
+	const { blue, black, gray, yellow } = logColors;
 	if(label)
 	{
 		if(node.nodeType === Node.TEXT_NODE)
@@ -681,8 +681,8 @@ export function italicizeSelection()
 
 export function highlightTextAcrossTags(element, searchString)
 {
-	const { green, blue, black, gray, yellow, purple } = Nimbus.logColors;
-	const { styleHeading } = Nimbus.logStyles;
+	const { green, blue, black, gray, yellow, purple } = logColors;
+	const { styleHeading } = logStyles;
 
 	Nimbus.consoleLog(`%chighlightTextAcrossTags in %c${element.tagName}%c${searchString}`, styleHeading + black, styleHeading + blue, styleHeading + green);
 
