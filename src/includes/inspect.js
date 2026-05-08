@@ -96,17 +96,15 @@ export function deleteResource(evt)
 export function showImageCount()
 {
 	const images = get("img");
-	const numImages = images ? images.length : 0;
-	if(numImages)
-		ylog(numImages + " images", "h2", true);
+	if(images)
+		ylog(`${images.length} images`, "h2");
 }
 
 export function showIframeCount()
 {
 	const iframes = get("iframe");
-	const numIframes = iframes ? iframes.length : 0;
-	if(numIframes)
-		ylog(numIframes + " iframes", "h2", true);
+	if(iframes)
+		ylog(`${iframes.length} iframes`, "h2");
 }
 
 export function showScripts()
@@ -134,7 +132,7 @@ export function showScripts()
 		}
 	}
 	if(numScripts)
-		ylog(numScripts + " scripts", "h2", true);
+		ylog(numScripts + " scripts", "h2");
 }
 
 export function showExternalStyles()
@@ -154,21 +152,21 @@ export function showExternalStyles()
 		}
 	}
 	if(numLinks)
-		ylog(numLinks + " external styles", "h2", true);
+		ylog(numLinks + " external styles", "h2");
 }
 
 export function showInlineStyles()
 {
 	const styles = get("style");
-	if(styles && styles.length)
+	if(styles)
 	{
 		for(const style of styles)
 		{
 			const styleId = style.id;
 			if(styleId)
-				ylog(styleId, "dd", true);
+				ylog(styleId, "dd");
 		}
-		ylog(styles.length + " inline styles", "h2", true);
+		ylog(`${styles.length} inline styles`, "h2");
 	}
 }
 

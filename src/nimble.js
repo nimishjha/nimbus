@@ -1,17 +1,13 @@
 import { del, get, getOne } from "./includes/selectors";
 import { forAll } from "./includes/misc";
-import { logInfo, logError, logWarning, logSuccess, logYellow } from "./includes/log";
 import { cleanupAttributes, deleteHtmlComments, cleanupHead } from "./includes/cleanup";
 import { removeAllAttributesOf } from "./includes/element";
 
-export function appendMetadata()
+function appendMetadata()
 {
 	const { protocol, hostname, pathname, search } = window.location;
 
 	const urlWithoutHash = protocol + "//" + hostname + pathname + search;
-	let documentUrl = removeQueryParameterFromUrl(urlWithoutHash, "utm_source");
-	documentUrl = removeQueryParameterFromUrl(documentUrl, "utm_medium");
-	documentUrl = removeQueryParameterFromUrl(documentUrl, "utm_campaign");
 
 	const domainLinkWrapper = createElement("h4", { textContent: "Domain: " });
 	const domainLink = createElement("a", { textContent: hostname, href: protocol + "//" + hostname });
@@ -19,7 +15,7 @@ export function appendMetadata()
 	document.body.appendChild(domainLinkWrapper);
 
 	const documentLinkWrapper = createElement("h4", { textContent: "URL: " });
-	const documentLink = createElement("a", { textContent: documentUrl, href: documentUrl });
+	const documentLink = createElement("a", { textContent: urlWithoutHash, href: urlWithoutHash });
 	documentLinkWrapper.appendChild(documentLink);
 	document.body.appendChild(documentLinkWrapper);
 
@@ -46,10 +42,9 @@ function main()
 	window.del = del;
 	window.getOne = getOne;
 	window.forAll = forAll;
-	window.logInfo = logInfo;
-	window.logError = logError;
 	window.cleanupDocument = cleanupDocument;
 	window.cleanupAttributes = cleanupAttributes;
+	window.appendMetadata = appendMetadata;
 }
 
 main();

@@ -5,7 +5,6 @@ import { getMarkedElements, unmarkAll } from "./mark";
 import { get } from "./selectors";
 import { makeClassSelector } from "./misc";
 import { getAlphanumericTextLength, createElement, createClassSelector } from "./element";
-import { xlog, showLog } from "./log";
 import { callFunctionWithArgs } from "./command";
 
 export function replaceElementsByTagNameMatching(text, tagName)

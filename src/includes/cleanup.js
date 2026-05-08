@@ -89,8 +89,6 @@ export function cleanupDocument()
 	document.body.className = "pad100 xwrap";
 	document.documentElement.id = "nimbus";
 	document.documentElement.className = "";
-	if(~navigator.userAgent.indexOf("Chrome"))
-		toggleStyle(STYLE_NEGATIVE, "styleNegative", true);
 }
 
 export function cleanupAttributes()
@@ -283,7 +281,10 @@ export function getContentByParagraphCount()
 	}
 	deleteClass("longParagraph");
 	if(contentDiv)
+	{
 		markElement(contentDiv);
+		showMessageBig("Marked content div");
+	}
 	else
 		showMessageError("Could not find content");
 }

@@ -8,7 +8,7 @@
 // @include        *
 // @include        file:///*
 // @run-at         document-end
-// @grant		none
+// @grant          none
 // ==/UserScript==
 
 //
@@ -262,6 +262,7 @@ import {
 	printPropOfObjectArray,
 	printPropsContaining,
 	showLog,
+	clearLog,
 	xlog,
 	ylog,
 } from "./includes/log";
@@ -1055,6 +1056,7 @@ const availableFunctions = {
 	showInlineStyles,
 	showLinksToIDs,
 	showLog,
+	clearLog,
 	showMarkedElementInfo,
 	showPanel,
 	showPrintLink,
@@ -1399,7 +1401,7 @@ function showKeyMenuOptions(key)
 	if(options)
 		showPanel(options);
 	else
-		showMessageBig(`No commands starting with ${key}`);
+		showMessageBig(`No commands starting with ${key}`, false, true);
 }
 
 function handleKeyMenu(evt)
@@ -1427,7 +1429,7 @@ function handleKeyMenu(evt)
 	}
 	else
 	{
-		showMessageBig(Nimbus.keyMenu.keys[0], true);
+		showMessageBig(Nimbus.keyMenu.keys[0], true, false);
 	}
 }
 
@@ -1438,7 +1440,7 @@ function toggleKeyMenu(firstKey)
 		document.removeEventListener("keydown", handleKeyMenu, false);
 		Nimbus.keyMenu.keys = [];
 		Nimbus.keyMenu.isActive = false;
-		showMessageBig("Key menu disabled");
+		showMessageBig("Key menu disabled", false, true);
 	}
 	else
 	{
@@ -1446,12 +1448,12 @@ function toggleKeyMenu(firstKey)
 		{
 			Nimbus.keyMenu.shouldExitMenuModeAfterCommand = true;
 			Nimbus.keyMenu.keys = [firstKey];
-			showMessageBig(firstKey, true);
+			showMessageBig(firstKey, true, true);
 		}
 		else
 		{
 			Nimbus.keyMenu.shouldExitMenuModeAfterCommand = true;
-			showMessageBig("Key menu enabled");
+			showMessageBig("Key menu enabled", false, true);
 		}
 
 		document.addEventListener("keydown", handleKeyMenu, false);

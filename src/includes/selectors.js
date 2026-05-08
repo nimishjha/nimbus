@@ -20,7 +20,7 @@ export function get(selector)
 	}
 	catch(error)
 	{
-		logError(`Invalid selector: ${selector}`);
+		// logError(`Invalid selector: ${selector}`);
 		return false;
 	}
 	if(nodes.length)

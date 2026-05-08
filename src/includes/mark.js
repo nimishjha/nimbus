@@ -5,7 +5,6 @@ import { get, getOne, getOneMarked, select, mark, getNodeContainingSelection, se
 import { getTextLength } from "./node";
 import { makeClassSelector } from "./misc";
 import { insertStyle, insertStyleHighlight, getAllCssRulesForElement } from "./style";
-import { ylog } from "./log";
 import { createSelector, createClassSelector } from "./element";
 import { xPathSelect, getEmptyElementsOfType } from "./xpath";
 

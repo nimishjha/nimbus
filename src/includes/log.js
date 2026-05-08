@@ -6,6 +6,7 @@ import { getPropValueSafe } from "./object";
 import { getNodeText } from "./node";
 import { arrayToString } from "./misc";
 import { getClassCounts } from "./inspect";
+import { del } from "./selectors";
 
 export const logColors = {
 	black: "background: #000; color: #AAA;",
@@ -69,27 +70,17 @@ export function logElements(elements)
 
 export function xlog(str, logTag)
 {
-	let tag;
-	if(logTag && logTag.length)
-		tag = logTag;
-	else
-		tag = "h6";
-	Nimbus.logString += '<' + tag + ' class="xlog">' + str + '</' + tag + '>\r\n';
+	const tag = logTag && logTag.length ? logTag : "h6";
+	Nimbus.logMessages.push({ tag, str });
 }
 
-export function ylog(str, tag, prepend, logClassName = "xlog")
+export function ylog(str, tag = "h6", prepend = true)
 {
-	const tagName = tag || "h6";
-	const logElement = createElement(tagName, { className: logClassName, innerHTML: str });
+	const logElement = createElement(tag, { className: "xlog", textContent: str });
 	if(prepend)
 		document.body.insertBefore(logElement, document.body.firstChild);
 	else
 		document.body.appendChild(logElement);
-}
-
-export function log2(str)
-{
-	document.body.appendChild(createElement("h2", { className: "xlog", innerHTML: str }));
 }
 
 export function logString(str, label)
@@ -121,21 +112,31 @@ export function logElementsWithText(elems)
 
 export function showLog(prepend)
 {
-	let logDiv;
-	if(Nimbus.logString.length > 0)
+	if(Nimbus.logMessages.length > 0)
 	{
-		logDiv = document.createElement("log");
-		logDiv.innerHTML = Nimbus.logString;
+		const logWrapper = document.createElement("footer");
+		logWrapper.className = "xlog";
+		for(const msg of Nimbus.logMessages)
+		{
+			const elem = document.createElement(msg.tag);
+			elem.textContent = msg.str;
+			logWrapper.appendChild(elem);
+		}
+
 		if(prepend === true)
-			document.body.insertBefore(logDiv, document.body.firstChild);
+			document.body.insertBefore(logWrapper, document.body.firstChild);
 		else
-			document.body.appendChild(logDiv);
-		Nimbus.logString = "";
+			document.body.appendChild(logWrapper);
+		Nimbus.logMessages = [];
 	}
 	else
-	{
 		ylog("No logs");
-	}
+}
+
+export function clearLog()
+{
+	del(".xlog");
+	Nimbus.logMessages = [];
 }
 
 export function debugVars(params)

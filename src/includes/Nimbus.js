@@ -1,6 +1,6 @@
 export const Nimbus = {
 	version: "",
-	logString: "",
+	logMessages: [],
 	autoCompleteInputComponent: {
 		matches: [],
 		currentIndex: -1,

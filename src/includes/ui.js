@@ -10,7 +10,7 @@ const config = {
 	messageTimeout: null
 }
 
-export function showMessage(message, msgClass, persist)
+export function showMessage(message, msgClass, persist, doNotLogToConsole)
 {
 	const MESSAGE_TIMEOUT = 2000;
 	clearTimeout(config.messageTimeout);
@@ -35,12 +35,14 @@ export function showMessage(message, msgClass, persist)
 	let messageElement;
 	if(typeof message === "string")
 	{
-		logYellow(message);
+		if(!doNotLogToConsole)
+			logYellow(message);
 		messageElement = document.createTextNode(message);
 	}
 	else
 	{
-		logYellow(message.text);
+		if(!doNotLogToConsole)
+			logYellow(message.text);
 		messageElement = document.createElement(message.tag);
 		messageElement.textContent = message.text;
 	}
@@ -55,9 +57,9 @@ export function showMessage(message, msgClass, persist)
 		config.messageTimeout = setTimeout(deleteMessage, MESSAGE_TIMEOUT);
 }
 
-export function showMessageBig(message, persist = false)
+export function showMessageBig(message, persist = false, doNotLogToConsole = false)
 {
-	showMessage(message, "messagebig", persist);
+	showMessage(message, "messagebig", persist, doNotLogToConsole);
 }
 
 export function showMessageError(message, persist = false)

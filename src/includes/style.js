@@ -121,7 +121,7 @@ export function getAllCssRulesForElement(elem)
 	return rulesArray;
 }
 
-export function getAllCssRulesMatching(selectorOrPropertyOrValue)
+export function getAllCssRulesMatching(str)
 {
 	const styleSheets = document.styleSheets;
 	let i = styleSheets.length;
@@ -131,12 +131,14 @@ export function getAllCssRulesMatching(selectorOrPropertyOrValue)
 		if(styleSheet.href && styleSheet.href.indexOf(location.hostname) === -1)
 			continue;
 		const rules = styleSheet.cssRules;
-		if(!rules)
-			continue;
-		let j = rules.length;
-		while(j--)
-			if(~rules[j].cssText.indexOf(selectorOrPropertyOrValue))
-				ylog(rules[j].cssText.replace(selectorOrPropertyOrValue, "<mark>" + selectorOrPropertyOrValue + "</mark>"));
+		if(rules)
+		{
+			const matches = [];
+			let j = rules.length;
+			while(j--)
+				if(rules[j].cssText.includes(str))
+					ylog(rules[j].cssText);
+		}
 	}
 }
 
