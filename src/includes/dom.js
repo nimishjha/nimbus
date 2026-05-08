@@ -83,7 +83,7 @@ export function toggleContentEditable()
 		showMessageBig("contentEditable OFF");
 		selectedNode.removeAttribute("contentEditable");
 
-		splitByBrs(selectedNode);
+		splitByBrs(selectedNode, "none", selectedNode.tagName);
 
 		if(selectedNode.tagName !== "PRE")
 		{

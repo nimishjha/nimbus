@@ -1162,7 +1162,7 @@ export function splitByBrs(selectorOrElement, wrapperTagName, childTagName)
 
 		if(groups.length > 1)
 		{
-			const replacementWrapper = document.createElement(wrapperTagName);
+			const replacementWrapper = wrapperTagName === "none" ? document.createDocumentFragment() : document.createElement(wrapperTagName);
 			for(let i = 0, ii = groups.length; i < ii; i++)
 				replacementWrapper.appendChild(createElementWithChildren(childTagName, ...groups[i]));
 			if(elem.id)
