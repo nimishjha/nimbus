@@ -1065,6 +1065,7 @@ const availableFunctions = {
 	showScripts,
 	showSelectors,
 	showTags,
+	showVersion,
 	simplifyClassNames,
 	singleQuotesToDoubleQuotes,
 	splitByBrs,

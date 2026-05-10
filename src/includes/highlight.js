@@ -508,14 +508,14 @@ export function highlightLinksWithHrefContaining(str)
 
 export function setHighlightTag(tagName)
 {
-	showMessageBig({ text: `Highlight tag is ${tagName}`, tag: tagName });
+	showMessageBig({ text: `Highlight tag is ${tagName}`, tag: tagName }, false, true);
 	Nimbus.highlightTagName = tagName;
 }
 
 export function cycleHighlightTag()
 {
 	const nextTag = getNext(Nimbus.highlightTagName, Nimbus.highlightTagNameList);
-	showMessageBig({ text: `Highlight tag is ${nextTag}`, tag: nextTag });
+	showMessageBig({ text: `Highlight tag is ${nextTag}`, tag: nextTag }, false, true);
 	Nimbus.highlightTagName = nextTag;
 }
 
@@ -524,7 +524,7 @@ export function resetHighlightTag()
 	const nextTag = Nimbus.highlightTagNameList[0];
 	if(Nimbus.highlightTagName === nextTag)
 		return;
-	showMessageBig({ text: `Highlight tag is ${nextTag}`, tag: nextTag });
+	showMessageBig({ text: `Highlight tag is ${nextTag}`, tag: nextTag }, false, true);
 	Nimbus.highlightTagName = nextTag;
 }
 
