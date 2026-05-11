@@ -629,6 +629,7 @@ import {
 	markByAttributeDoesNotContain,
 	markByFollowsElementOfType,
 	markByPrecedesElementOfType,
+	markBySelectorAndExactText,
 } from "./includes/mark";
 import {
 	convertDivsToParagraphs,
@@ -914,6 +915,7 @@ const availableFunctions = {
 	markByIdenticalText,
 	markByPrecedesElementOfType,
 	markBySelector,
+	markBySelectorAndExactText,
 	markBySelectorAndNormalizedText,
 	markBySelectorAndRegex,
 	markBySelectorAndText,

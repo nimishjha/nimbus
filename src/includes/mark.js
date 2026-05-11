@@ -1,7 +1,7 @@
 import { Nimbus } from "./Nimbus";
 import { showMessage, showMessageBig, showMessageError } from "./ui";
 import { removeWhitespace } from "./string";
-import { get, getOne, getOneMarked, select, mark, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining, selectImagesSmallerThan } from "./selectors";
+import { get, getOne, getOneMarked, select, mark, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining, selectImagesSmallerThan, selectBySelectorAndExactText } from "./selectors";
 import { getTextLength } from "./node";
 import { makeClassSelector } from "./misc";
 import { insertStyle, insertStyleHighlight, getAllCssRulesForElement } from "./style";
@@ -335,6 +335,15 @@ export function markBlockElementsContainingText(text)
 export function markBySelectorAndNormalizedText(selector, str)
 {
 	markElements(selectBySelectorAndNormalizedText(selector, str));
+}
+
+export function markBySelectorAndExactText(selector, str, boolInvertSelection = false)
+{
+	const selected = selectBySelectorAndExactText(selector, str, boolInvertSelection);
+	if(selected)
+		markElements(selected);
+	else
+		showMessageBig("markBySelectorAndExactText: no elements found");
 }
 
 export function markByClassOrIdContaining(str)
