@@ -692,7 +692,10 @@ import {
 	interlinkReferencesByIndexInSections,
 	interlinkReferencesUsingFootnoteReferences,
 } from "./includes/interlinkReferences";
-import { enableEditTextOnClick } from "./includes/edit";
+import {
+	enableEditTextOnClick,
+	editWordOnClick,
+} from "./includes/edit";
 
 const isDebugMode = true;
 
@@ -1653,6 +1656,7 @@ function handleKeyDown(e)
 			case     KEYCODES.S:                    toggleContentEditable(); break;
 			case     KEYCODES.T:                    tabifySpacesInPres(); break;
 			case     KEYCODES.V:                    toggleStyle(STYLE_OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
+			case     KEYCODES.W:                    editWordOnClick(); break;
 			case     KEYCODES.X:                    customPrompt("Enter xPath").then(xPathMark); break;
 			case     KEYCODES.Z:                    markSelectionAnchorNode(); break;
 			case     KEYCODES.MINUS:                insertElementAfterSelectionAnchor(); break;
