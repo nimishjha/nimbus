@@ -21,7 +21,7 @@ export function replaceInTextNodesUnder(selector, searchString, replacementStrin
 		}
 	}
 	if(replCount)
-		showMessageBig(`${replCount} text nodes affected"`);
+		showMessageBig(`${replCount} text nodes affected`);
 }
 
 export function replaceInTextNodesRegex(selector, regex, replacement)
@@ -37,7 +37,7 @@ export function replaceInTextNodesRegex(selector, regex, replacement)
 		}
 	}
 	if(replCount)
-		showMessageBig(`${replCount} text nodes affected"`);
+		showMessageBig(`${replCount} text nodes affected`);
 }
 
 export function replaceInTextNodes(searchString, replacementString)

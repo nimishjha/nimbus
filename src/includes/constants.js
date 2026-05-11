@@ -123,7 +123,7 @@ export const DIACRITIC_REGEXES_BY_LETTER = {
 	a: /[àáâãäåă]/g,
 	B: /[ß]/g,
 	C: /[ĆĈĊČ]/g,
-	c: /[ćĉċč]/g,
+	c: /[ćĉċčç]/g,
 	E: /[ÈÉÊËĒĔĖĘĚ]/g,
 	e: /[èéêëēĕėęě]/g,
 	AE: /[\u00c6]/g,
