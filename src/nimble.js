@@ -1,7 +1,8 @@
 import { del, get, getOne } from "./includes/selectors";
 import { forAll } from "./includes/misc";
 import { cleanupAttributes, deleteHtmlComments, cleanupHead } from "./includes/cleanup";
-import { removeAllAttributesOf } from "./includes/element";
+import { removeAllAttributesOf, createElement } from "./includes/element";
+import { getTimestamp } from "./includes/misc";
 
 function appendMetadata()
 {
