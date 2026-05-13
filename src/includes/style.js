@@ -1,16 +1,15 @@
 import { Nimbus } from "./Nimbus";
-import { del, get, getOne } from "./selectors";
+import { del } from "./selectors";
 import { showMessageBig } from "./ui";
 import { ylog } from "./log";
 
 export function insertStyle(str, id, important)
 {
-	if(id && id.length && getOne("#" + id))
+	if(id && id.length && document.querySelector("#" + id))
 		del("#" + id);
 	if(important)
 		str = str.replace(/!important/g, " ").replace(/;/g, " !important;");
-	str = "\n" + str.replace(/\n\t+/g, "\n");
-	let head = getOne("head");
+	let head = document.querySelector("head");
 	if(!head)
 	{
 		head = document.createElement("head");
@@ -30,7 +29,7 @@ export function insertStyle(str, id, important)
 
 export function insertStyleHighlight()
 {
-	if(getOne("#styleHighlight")) return;
+	if(document.querySelector("#styleHighlight")) return;
 	const s = `
 		.${Nimbus.markerClass} { box-shadow: inset 2px 2px #c00, inset -2px -2px #c00; padding: 2px; background: #000; }
 		.focused { box-shadow: inset 0px 1000px #000; color: #FFF; }
@@ -49,34 +48,27 @@ export function insertStyleHighlight()
 	insertStyle(s, "styleHighlight", true);
 }
 
-export function insertStyleShowErrors()
-{
-	const s = ".error { box-shadow: inset 2000px 2000px rgba(255, 0, 0, 1);";
-	insertStyle(s, "styleShowErrors", true);
-}
-
 export function toggleNimbusStyles()
 {
-	const styles = Array.from(document.querySelectorAll("style"));
 	function isNimbusStyle(item)
 	{
 		return item.id && item.id.indexOf("style") === 0;
 	}
-	const nimbusStyles = styles.filter(isNimbusStyle);
+	const nimbusStyles = Array.from(document.querySelectorAll("style")).filter(isNimbusStyle);
 	for(const style of nimbusStyles)
 		style.disabled = !style.disabled;
 }
 
 export function toggleWebsiteSpecificStyle()
 {
-	const style = getOne("#websiteSpecificStyle");
+	const style = document.querySelector("#websiteSpecificStyle");
 	if(style)
 		style.disabled = !style.disabled;
 }
 
 export function toggleStyle(str, id, important)
 {
-	if(id && id.length && getOne("#" + id))
+	if(id && id.length && document.querySelector("#" + id))
 	{
 		del("#" + id);
 		return;
@@ -87,59 +79,51 @@ export function toggleStyle(str, id, important)
 export function getAllInlineStyles()
 {
 	let styleText = "";
-	const styleElements = get("style");
-	if(!styleElements)
-		return;
-	for(let j = 0, jj = styleElements.length; j < jj; j++)
-	{
-		const styleElement = styleElements[j];
-		const rules = styleElement.sheet.cssRules;
-		for(let i = 0, ii = rules.length; i < ii; i++)
-			styleText += rules[i].cssText + "\n";
-	}
+	const styleElements = document.querySelectorAll("style");
+	for(const styleElement of styleElements)
+		for(const rule of styleElement.sheet.cssRules)
+			styleText += rule.cssText + "\n";
 	return styleText;
+}
+
+export function getNonNimbusStylesheets()
+{
+	function excludeNimbusStylesheets(styleSheet)
+	{
+		return !(styleSheet.id && styleSheet.id.startsWith("style"));
+	}
+	return Array.from(document.styleSheets).filter(excludeNimbusStylesheets);
 }
 
 export function getAllCssRulesForElement(elem)
 {
-	const styleSheets = document.styleSheets;
-	const rulesArray = [];
-	let i = styleSheets.length;
-	while(i--)
-	{
-		const styleSheet = styleSheets[i];
-		if(styleSheet.href && styleSheet.href.indexOf(location.hostname) === -1)
-			continue;
-		const rules = styleSheet.cssRules;
-		if(!rules)
-			continue;
-		let j = rules.length;
-		while(j--)
-			if(elem.matches(rules[j].selectorText))
-				rulesArray.push(rules[j].cssText);
-	}
-	return rulesArray;
+	const styleSheets = getNonNimbusStylesheets();
+	const rules = [];
+	for(const styleSheet of styleSheets)
+		for(const rule of styleSheet.cssRules)
+			if(elem.matches(rule.selectorText))
+				rules.push(rule.cssText);
+	return rules;
 }
 
 export function getAllCssRulesMatching(str)
 {
-	const styleSheets = document.styleSheets;
-	let i = styleSheets.length;
-	while(i--)
+	const styleSheets = getNonNimbusStylesheets();
+	const matchingRules = [];
+	for(const styleSheet of styleSheets)
 	{
-		const styleSheet = styleSheets[i];
-		if(styleSheet.href && styleSheet.href.indexOf(location.hostname) === -1)
-			continue;
-		const rules = styleSheet.cssRules;
-		if(rules)
-		{
-			const matches = [];
-			let j = rules.length;
-			while(j--)
-				if(rules[j].cssText.includes(str))
-					ylog(rules[j].cssText);
-		}
+		const rules = Array.from(styleSheet.cssRules).filter(rule => rule.cssText.includes(str));
+		for(const rule of rules)
+			matchingRules.push(rule);
 	}
+	return matchingRules;
+}
+
+export function showAllCssRulesMatching(str)
+{
+	const rules = getAllCssRulesMatching(str);
+	for(const rule of rules)
+		ylog(rule.cssText);
 }
 
 export function forceReloadCss()
