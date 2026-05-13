@@ -1,11 +1,10 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig, showMessageError } from "./ui";
-import { get, del, getNodeContainingSelection, getFirstBlockParent, selectBySelectorAndText, selectByTagNameAndText } from "./selectors";
+import { get, getNodeContainingSelection, getFirstBlockParent, selectBySelectorAndText, selectByTagNameAndText } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
 import { insertStyleHighlight } from "./style";
 import { logString, logYellow, logColors, logStyles } from "./log";
 import { getNext } from "./array";
-import { getNodeText, getTextLength } from "./node";
 import { containsOnlyPlainText } from "./elementAndNodeTests";
 import { getTextNodesUnderPre, getTextNodesUnderSelector, getTextNodesUnderElement, xPathSelect } from "./xpath";
 import { escapeForRegExp } from "./misc";
@@ -275,7 +274,7 @@ export function expandSelectionToSentenceBoundaries(node, selection)
 	return stripLeadingAndTrailingReferenceNumbers(expandedSelection).trim();
 }
 
-function getFirstElementParent(node)
+export function getFirstElementParent(node)
 {
 	if(node.nodeType === Node.ELEMENT_NODE)
 		return node;
@@ -681,7 +680,7 @@ export function italicizeSelection()
 
 export function highlightTextAcrossTags(element, searchString)
 {
-	const { green, blue, black, gray, yellow, purple } = logColors;
+	const { green, blue, black, yellow } = logColors;
 	const { styleHeading } = logStyles;
 
 	Nimbus.consoleLog(`%chighlightTextAcrossTags in %c${element.tagName}%c${searchString}`, styleHeading + black, styleHeading + blue, styleHeading + green);

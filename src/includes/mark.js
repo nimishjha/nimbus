@@ -4,7 +4,7 @@ import { removeWhitespace } from "./string";
 import { get, getOne, getOneMarked, select, mark, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining, selectImagesSmallerThan, selectBySelectorAndExactText } from "./selectors";
 import { getTextLength } from "./node";
 import { makeClassSelector } from "./misc";
-import { insertStyle, insertStyleHighlight, getAllCssRulesForElement } from "./style";
+import { insertStyleHighlight } from "./style";
 import { createSelector, createClassSelector } from "./element";
 import { xPathSelect, getEmptyElementsOfType } from "./xpath";
 
@@ -429,8 +429,8 @@ export function markByDoesNotHaveChildrenOfType (parentSelector, childSelector) 
 export function markByHasFirstChildOfType       (parentSelector, childSelector)                 { mark(parentSelector, "hasFirstChildOfType", childSelector); }
 export function markByHasDirectChildrenOfType   (parentSelector, childSelector)                 { mark(parentSelector, "hasDirectChildrenOfType", childSelector); }
 
-export function markByHasAttribute              (selector, attribute, value)                    { mark(selector, "hasAttribute", attribute); }
-export function markByDoesNotHaveAttribute      (selector, attribute, value)                    { mark(selector, "doesNotHaveAttribute", attribute); }
+export function markByHasAttribute              (selector, attribute)                           { mark(selector, "hasAttribute", attribute); }
+export function markByDoesNotHaveAttribute      (selector, attribute)                           { mark(selector, "doesNotHaveAttribute", attribute); }
 export function markByAttributeEqualTo          (selector, attribute, value)                    { mark(selector, attribute, "=", value); }
 export function markByAttributeNotEqualTo       (selector, attribute, value)                    { mark(selector, attribute, "!=", value); }
 export function markByAttributeContains         (selector, attribute, value)                    { mark(selector, attribute, "contains", value); }

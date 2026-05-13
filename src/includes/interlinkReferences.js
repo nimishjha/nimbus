@@ -1,5 +1,4 @@
 import { Nimbus } from "./Nimbus";
-import { createUniqueID } from "./misc";
 import { logSuccess, logError, logWarning, logYellow, logInfo } from "./log";
 import { showMessageBig, showMessageError } from "./ui";
 import { createLinksByHrefLookup } from "./link";

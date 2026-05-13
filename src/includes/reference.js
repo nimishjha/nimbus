@@ -1,8 +1,6 @@
-import { Nimbus } from "./Nimbus";
 import { createLinksByHrefLookup, looksLikeReference, getTargetElement } from "./link";
 import { get, getOne } from "./selectors";
-import { wrapElement, unwrapElement, unwrapAll, deleteClass } from "./element";
-import { isEmptyElement } from "./elementAndNodeTests";
+import { wrapElement, unwrapAll, deleteClass } from "./element";
 import { replaceElement, replaceElementKeepingId } from "./replaceElements";
 import { showMessageBig, showMessageError } from "./ui";
 import { logInfo, logError, logWarning, logSuccess } from "./log";
@@ -24,7 +22,6 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 	const elems = get(anchorSelector);
 
 	let numElementsWithIDs = 0;
-	let numRecipientAlreadyHasID = 0;
 	let numIDsMoved = 0;
 	let numRecipientsNotFound = 0;
 	const linksByHref = createLinksByHrefLookup();

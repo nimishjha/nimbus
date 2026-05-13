@@ -3,18 +3,17 @@ import { makePlainText, removeAllAttributesOf, emptyElement, createElement, unwr
 import { get, getOne, del, select } from "./selectors";
 import { markElement, getMarkedElements, markNavigationalLists, markElements, unmarkAll } from "./mark";
 import { replaceDiacritics, replaceSpecialCharacters, snakeCaseToCamelCase, normalizeAllWhitespace } from "./text";
-import { containsAnyOfTheStrings, containsAllOfTheStrings, removeWhitespace, trimSpecialChars, normalizeString, capitalize } from "./string";
+import { containsAnyOfTheStrings, removeWhitespace, trimSpecialChars, normalizeString, capitalize } from "./string";
 import { getXpathResultAsArray, getEmptyTextNodesUnderElement } from "./xpath";
 import { convertImageLinksToPlaceholders } from "./image";
 import { replaceElementsBySelector, replaceElementKeepingIdAndClass } from "./replaceElements";
 import { deleteEmptyElements, deleteEmptyBlockElements, deleteBySelectorAndRegex } from "./delete";
 import { getTextLength } from "./node";
-import { deleteIframes, deleteByClassOrIdContaining, deleteBySelectorAndTextMatching } from "./delete";
+import { deleteIframes } from "./delete";
 import { makeClassSelector, getTimestamp, createUniqueID } from "./misc";
 import { getBestImageSrc } from "./image";
 import { appendMetadata } from "./metadata";
-import { toggleStyle, insertStyleHighlight } from "./style";
-import { STYLE_NEGATIVE } from "./stylesheets";
+import { insertStyleHighlight } from "./style";
 import { showMessageBig, showMessageError } from "./ui";
 import { retrieve } from "./retrieve";
 import { moveIDsFromEmptyAnchors, createLinksByHrefLookup, fixInternalReferences, removeUnreferencedIDs } from "./link";
@@ -289,7 +288,7 @@ export function getContentByParagraphCount()
 		showMessageError("Could not find content");
 }
 
-function replaceParentWithChild(parentSelector, childSelector)
+export function replaceParentWithChild(parentSelector, childSelector)
 {
 	const children = get(childSelector);
 	if(!children) return;

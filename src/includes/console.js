@@ -1,11 +1,10 @@
 import { Nimbus } from "./Nimbus";
-import { get, getOne, del } from "./selectors";
+import { getOne, del } from "./selectors";
 import { KEYCODES } from "./keycodes";
 import { createElement } from "./element";
 import { insertStyle } from "./style";
 import { makeIdSelector } from "./misc";
 import { showMessageBig, showMessageError } from "./ui";
-import { logInfo } from "./log";
 import { runCommand } from "./command";
 
 function handleConsoleInput(evt, consoleType)

@@ -43,7 +43,6 @@ export function proximitySearch(...args)
 	const MAX_DISTANCE = config.maxDistance;
 	const HIGHLIGHT_ALL_MATCHES = config.highlightAllMatches;
 
-	const lookups = [];
 	const stringsLower = [];
 	const matchFlagsByParagraphIndex = {};
 	const indexesOfParagraphsWithMatches = [];

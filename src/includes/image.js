@@ -1,13 +1,11 @@
 import { Nimbus } from "./Nimbus";
-import { createElement, deleteClass, removeAllAttributesExcept, setAttributeOf, removeAllAttributesOf, createElementWithText, createElementWithChildren, createLinkInWrapper } from "./element";
+import { createElement, deleteClass, removeAllAttributesExcept, setAttributeOf, createLinkInWrapper } from "./element";
 import { isEmptyElement } from "./elementAndNodeTests";
 import { get, getOne, del } from "./selectors";
 import { insertStyle } from "./style";
 import { containsAnyOfTheStrings, trimAt } from "./string";
 import { showMessage, showMessageBig, showMessageError } from "./ui";
-import { deleteBySelectorAndText, deleteImagesSmallerThan } from "./delete";
-import { getNext } from "./array";
-import { insertBefore } from "./dom";
+import { deleteImagesSmallerThan } from "./delete";
 import { ylog } from "./log";
 import { retrieve } from "./retrieve";
 import { cleanupHead } from "./cleanup";

@@ -68,7 +68,7 @@ export function logValuesMatching(obj, str)
 	traverse(obj, str);
 }
 
-function parseObject(o, indentLevel, parent)
+export function parseObject(o, indentLevel, parent)
 {
 	if(typeof indentLevel === "undefined")
 		indentLevel = 0;

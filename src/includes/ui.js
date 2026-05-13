@@ -1,5 +1,5 @@
 import { Nimbus } from "./Nimbus";
-import { get, getOne, getOrCreate, del } from "./selectors";
+import { getOne, getOrCreate, del } from "./selectors";
 import { insertStyle } from "./style";
 import { emptyElement, createElement } from "./element";
 import { KEYCODES } from "./keycodes";
@@ -30,8 +30,6 @@ export function showMessage(message, msgClass, persist, doNotLogToConsole)
 	messageContainer.className = "excludeFromMutations";
 	const messageInner = document.createElement(messageInnerTagName);
 	const messageContent = document.createElement("div");
-	let messageText;
-	let messageTag;
 	let messageElement;
 	if(typeof message === "string")
 	{
@@ -77,21 +75,23 @@ export function deleteMessage()
 
 export function customPrompt(message, initialValue)
 {
-	if(!getOne("#xxdialog"))
+	if(!getOne("#customPrompt"))
 	{
-		del("#style-xxdialog");
-		const dialog = createElement("div", { id: "xxdialog", class: "excludeFromMutations" });
+		del("#styleCustomPrompt");
+		const dialog = createElement("div", { id: "customPrompt", class: "excludeFromMutations" });
 		const dialogHeading = createElement("heading", { textContent: message });
-		const dialogInput = createElement("input", { id: "xxdialoginput", autocomplete: "off" });
+		const dialogInput = createElement("input", { id: "customPromptInput", autocomplete: "off" });
 		if(initialValue)
 			dialogInput.value = initialValue;
 		dialog.appendChild(dialogHeading);
 		dialog.appendChild(dialogInput);
 		document.body.insertBefore(dialog, document.body.firstChild);
-		const s = '#xxdialog { position: fixed; margin: auto; z-index: 10000; height: 90px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #FFF; border: 10px solid #000; display: block; text-transform: none; width: 60vw; }' +
-			'#xxdialog heading { height: 30px; line-height: 30px; padding: 0 10px; background: #111; display: block; margin: 0; }' +
-			'#xxdialog #xxdialoginput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #FFF; padding: 0 0; margin: 0; border-width: 0 10px; border-color: #000; width: 100%; height: 60px; overflow: hidden; box-sizing: border-box; }';
-		insertStyle(s, "style-xxdialog", true);
+		const s = `
+			#customPrompt { position: fixed; margin: auto; z-index: 10000; height: 90px; top: 0; left: 0px; bottom: 0px; right: 0; background: #111; color: #AAA; border: 10px solid #000; display: block; text-transform: none; width: 60vw; }
+			#customPrompt heading { height: 30px; line-height: 30px; padding: 0 10px; background: #111; display: block; margin: 0; }
+			#customPrompt #customPromptInput { font: 32px "swis721 cn bt"; line-height: 60px; verdana; background: #000; color: #AAA; padding: 0 0; margin: 0; border-width: 0 10px; border-color: #000; width: 100%; height: 60px; overflow: hidden; box-sizing: border-box; }
+		`;
+		insertStyle(s, "styleCustomPrompt", true);
 		dialogInput.focus();
 		const func = function(resolve) {
 			function handleCustomPromptInput(evt)
@@ -119,9 +119,9 @@ export function restoreCustomPromptHistory(inputElement)
 
 export function closeCustomPrompt()
 {
-	const command = getOne("#xxdialoginput").value;
-	del("#xxdialog");
-	del("#style-xxdialog");
+	const command = getOne("#customPromptInput").value;
+	del("#customPrompt");
+	del("#styleCustomPrompt");
 	return command;
 }
 

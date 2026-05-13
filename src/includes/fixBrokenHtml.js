@@ -1,11 +1,6 @@
-import { Nimbus } from "./Nimbus";
-import { get, getOne, del, getFirstBlockParent } from "./selectors";
-import { markElement, getMarkedElements } from "./mark";
+import { get, del } from "./selectors";
 import { getTextNodesUnderSelector } from "./xpath";
-import { replaceElementsBySelector } from "./replaceElements";
 import { getTextLength } from "./node";
-import { makeClassSelector } from "./misc";
-import { insertBefore } from "./dom";
 import { normalizeWhitespace } from "./string";
 import { removeRedundantHrs, replaceBrs } from "./cleanup";
 import { deleteEmptyTextNodes, deleteEmptyElements } from "./delete";
@@ -63,8 +58,6 @@ export function rescueOrphanedTextNodes()
 {
 	const WRAPPER_TAGNAME = "p";
 	const textNodes = getTextNodesUnderSelector("body");
-	const numNodes = textNodes.length;
-	let count = 0;
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
 		let node = textNodes[i];

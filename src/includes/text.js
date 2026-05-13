@@ -1,15 +1,11 @@
 import { Nimbus } from "./Nimbus";
-import { emptyElement, createElementWithChildren, createElement, wrapElement, unwrapElement, unwrapAll, getFirstTextNode, normalizeHTML } from "./element";
-import { hasDirectChildrenOfType, hasAdjacentBlockElement } from "./elementAndNodeTests";
-import { get, getOne, del, getFirstTextChild, getNonCodeTextNodes, getNodeContainingSelection } from "./selectors";
+import { emptyElement, wrapElement, unwrapElement, getFirstTextNode, normalizeHTML } from "./element";
+import { get, getOne, getFirstTextChild, getNonCodeTextNodes } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
-import { getTextNodesUnderSelector, getTextNodesUnderElement, getTextNodesNotUnderPre } from "./xpath";
-import { replaceElementsBySelector } from "./replaceElements";
+import { getTextNodesUnderSelector, getTextNodesNotUnderPre } from "./xpath";
 import { makeClassSelector, forAll } from "./misc";
-import { showMessageBig, showMessageError } from "./ui";
+import { showMessageBig } from "./ui";
 import { replaceInTextNodes, replaceInTextNodesRegex } from "./textReplace";
-import { removeLineBreaks } from "./string";
-import { containsOnlyPlainText, hasAdjacentPrecedingElementSiblingOfType } from "./elementAndNodeTests";
 import { REGEXES, REGEXES_GLOBAL, DIACRITIC_REGEXES_BY_LETTER } from "./constants";
 
 export function fixSpacesBetweenNestedQuotes()
@@ -321,14 +317,17 @@ export function fixDashes()
 
 export function snakeCaseToCamelCase(snakeCase)
 {
-	const splat = snakeCase.split("_");
-	if(!splat || !splat.length) return snakeCase;
-	let camelCase = splat[0];
-	for(let i = 1, ii = splat.length; i < ii; i++)
+	if(snakeCase.includes("_"))
 	{
-		const segment = splat[i];
-		if(!(segment && typeof segment === "string")) return snakeCase;
-		camelCase += segment[0].toUpperCase() + segment.substring(1);
+		const splat = snakeCase.split("_");
+		let camelCase = splat[0];
+		for(let i = 1, ii = splat.length; i < ii; i++)
+			if(splat[i].length)
+				camelCase += splat[i][0].toUpperCase() + splat[i].substring(1);
+		return camelCase;
 	}
-	return camelCase;
+	else
+	{
+		return snakeCase;
+	}
 }

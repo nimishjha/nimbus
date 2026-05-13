@@ -362,5 +362,5 @@ info { background: #035; border-color: #07C; }
 error { background: #600; border-color: #D40; }
 tag { background: #333 !important; color: #888 !important; padding: 2px 4px !important; margin: 0 5px 0 0 !important; }
 
-.markd { box-shadow: inset 2px 2px #C00, inset -2px -2px #C00 !important; background: #000 !important; }
+.markd { box-shadow: inset 2px 2px #C00, inset -2px -2px #C00; background: #000; }
 `;

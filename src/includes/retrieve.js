@@ -1,7 +1,7 @@
 import { Nimbus } from "./Nimbus";
 import { emptyElement } from "./element";
 import { showMessageBig, showMessageError } from "./ui";
-import { get, getOne, del, selectBySelectorAndText } from "./selectors";
+import { get, del, selectBySelectorAndText } from "./selectors";
 
 export function retrieve(selector)
 {

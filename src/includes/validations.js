@@ -1,4 +1,3 @@
-import { Nimbus } from "./Nimbus";
 import { annotateElement } from "./dom";
 import { showMessageBig } from "./ui";
 

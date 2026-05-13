@@ -27,7 +27,6 @@ export function replaceElementsBySelector(selector, tagName)
 {
 	const toReplace = get(selector);
 	if(!toReplace) return;
-	let deletedTextLength = 0;
 	let i = toReplace.length;
 	if(tagName === "hr" && toReplace[0].tagName !== "RT" && toReplace[0].tagName !== "FIGURE")
 	{

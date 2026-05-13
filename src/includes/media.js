@@ -1,6 +1,6 @@
 import { get } from "./selectors";
 import { createLinkInWrapper, createPlaceholderForElementAttribute } from "./element";
-import { parseSrcSet, shortenImageSrc, createImagePlaceholderFromSrcset } from "./image";
+import { shortenImageSrc, createImagePlaceholderFromSrcset } from "./image";
 
 export function replaceVideosWithPlaceholders()
 {

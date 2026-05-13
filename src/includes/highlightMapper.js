@@ -99,7 +99,7 @@ function highlightMapper()
 	function drawHighlightMap(highlightData)
 	{
 		const { highlightLengths, maxParagraphLength } = highlightData;
-		const { ctx, width: canvasWidth, height } = initCanvas(highlightLengths.length);
+		const { ctx, width: canvasWidth } = initCanvas(highlightLengths.length);
 		const widthScale = (canvasWidth - config.padding) / maxParagraphLength;
 		const rowHeightPlusSpacing = config.rowHeight + config.rowSpacing;
 

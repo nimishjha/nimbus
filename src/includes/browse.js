@@ -1,13 +1,12 @@
 import { createElement } from "./element";
-import { showMessage, showMessageBig } from "./ui";
-import { containsAnyOfTheStrings, normalizeString, trimAt } from "./string";
+import { showMessageError, showMessageBig } from "./ui";
+import { normalizeString, trimAt } from "./string";
 import { markElement } from "./mark";
 import { insertStyle, toggleStyle, toggleWebsiteSpecificStyle } from "./style";
 import { looksLikeUrl } from "./misc";
-import { wrapElement, deleteClass, cycleClass, createElementWithChildren, setClassByPrefix } from "./element";
-import { get, getOne, del, selectByRelativePosition } from "./selectors";
+import { deleteClass, cycleClass, createElementWithChildren, setClassByPrefix } from "./element";
+import { get, del, selectByRelativePosition } from "./selectors";
 import { runCommand } from "./command";
-import { showMessageError } from "./ui";
 import { STYLE_VIEW_VIDEO_01 } from "./stylesheets";
 import { REFERENCE_TAGNAME } from "./constants";
 

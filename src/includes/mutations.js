@@ -2,7 +2,7 @@ import { Nimbus } from "./Nimbus";
 import { showMessageBig } from "./ui";
 import { forAll } from "./misc";
 import { insertStyle } from "./style";
-import { get, getOne, del } from "./selectors";
+import { getOne, del } from "./selectors";
 import { createSelector } from "./element";
 import { logColors } from "./log";
 

@@ -1,9 +1,9 @@
-import { unwrapAll, removeAttributeOf, makePlainText } from "./element";
+import { unwrapAll, removeAttributeOf } from "./element";
 import { get } from "./selectors";
 import { replaceInlineStylesWithClasses, convertClassesToCustomElements } from "./cleanup";
 import { replaceBrsInPres } from "./preformatted";
 
-export function highlightCode(shouldHighlightKeywords)
+export function highlightCode()
 {
 	removeAttributeOf("pre", "class");
 	replaceBrsInPres();
@@ -25,7 +25,7 @@ export function highlightCode(shouldHighlightKeywords)
 	}
 }
 
-function deletePresWithoutLetters()
+export function deletePresWithoutLetters()
 {
 	const pres = get("pre");
 	if(pres)

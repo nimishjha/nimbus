@@ -1,9 +1,9 @@
 import { Nimbus } from "./Nimbus";
-import { emptyElement, createElement, createElementWithChildren } from "./element";
+import { emptyElement, createElement } from "./element";
 import { replaceElement } from "./replaceElements";
 import { get, getOne, del } from "./selectors";
 import { getXpathResultAsArray } from "./xpath";
-import { removeAttributeOf, createSelector } from "./element";
+import { createSelector } from "./element";
 import { createUUID } from "./misc";
 import { trimAt } from "./string";
 import { xlog, ylog } from "./log";

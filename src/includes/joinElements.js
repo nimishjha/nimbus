@@ -1,4 +1,4 @@
-import { get, getOne, del, selectNodesContainingSelection } from "./selectors";
+import { get, del, selectNodesContainingSelection } from "./selectors";
 import { markElement, unmarkAll, getMarkedElements } from "./mark";
 import { insertBefore } from "./dom";
 import { deleteMessage } from "./ui";

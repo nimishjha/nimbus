@@ -1,12 +1,11 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig } from "./ui";
-import { get, getOne, del, select, getFirstBlockParent } from "./selectors";
+import { get, del, select } from "./selectors";
 import { setDocTitle, sanitizeTitle, getTitleWithoutDomainTag } from "./cleanup";
 import { containsAnyOfTheStrings, trimAt, startsWithAnyOfTheStrings } from "./string";
 import { parseQueryString } from "./url";
 import { getPrevious, getNext } from "./array";
 import { deleteEmptyHeadings } from "./delete";
-import { markElement, unmarkAll } from "./mark";
 
 export function changePageByUrl(direction)
 {
@@ -225,7 +224,7 @@ export function goToLastElement(selector)
 	}
 }
 
-function sortByPosition(nodeOne, nodeTwo)
+export function sortByPosition(nodeOne, nodeTwo)
 {
 	const relativePosition = nodeOne.compareDocumentPosition(nodeTwo);
 	if(relativePosition && Node.DOCUMENT_POSITION_FOLLOWING) return -1;

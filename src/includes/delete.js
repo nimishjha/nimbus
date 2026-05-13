@@ -2,11 +2,11 @@ import { Nimbus } from "./Nimbus";
 import { showMessageBig } from "./ui";
 import { get, del, selectByClassOrIdContaining, selectBySelectorAndRegex, getNodeContainingSelection, selectBySelectorAndNormalizedText, selectImagesSmallerThan } from "./selectors";
 import { getMarkedElements } from "./mark";
-import { getXpathResultAsArray, getEmptyTextNodesUnderTagName } from "./xpath";
+import { getEmptyTextNodesUnderTagName } from "./xpath";
 import { getTextLength } from "./node";
 import { markElements } from "./mark";
 import { createLinkInWrapper } from "./element";
-import { isEmptyTextNode, isEmptyElement } from "./elementAndNodeTests";
+import { isEmptyElement } from "./elementAndNodeTests";
 import { selectByRelativePosition, selectBySelectorAndRelativePosition, selectNodesBetweenMarkers, selectBySelectorAndText, selectBySelectorAndExactText } from "./selectors";
 import { getNext } from "./array";
 import { makeClassSelector } from "./misc";
@@ -70,7 +70,6 @@ export function deleteEmptyTextNodes()
 
 export function deleteEmptyTextNodesUnderTagName(tagName)
 {
-	const parent = tagName || "html";
 	const nodes = getEmptyTextNodesUnderTagName(tagName);
 	if(nodes.length)
 	{
@@ -78,9 +77,7 @@ export function deleteEmptyTextNodesUnderTagName(tagName)
 		showMessageBig(`${nodes.length} empty text nodes removed`);
 	}
 	else
-	{
 		showMessageBig(`No empty text nodes under ${tagName}`);
-	}
 }
 
 export function deleteEmptyElements(selector)

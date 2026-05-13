@@ -1,14 +1,14 @@
 import { Nimbus } from "./Nimbus";
-import { createElement, createElementWithChildren, createLinkInWrapper, unwrapElement, wrapElement, wrapElementInner, unwrapAll } from "./element";
+import { createLinkInWrapper, unwrapElement, wrapElement, wrapElementInner, unwrapAll } from "./element";
 import { isEmptyElement } from "./elementAndNodeTests";
 import { markElement, unmarkAll, getMarkedElements } from "./mark";
 import { showMessageBig, showMessageError } from "./ui";
-import { get, getOne, del, select, getEmptyLinkAnchors, getEmptySpanAnchors, getFirstBlockParent } from "./selectors";
+import { get, getOne, del, select, getEmptyLinkAnchors, getEmptySpanAnchors } from "./selectors";
 import { getTextLength } from "./node";
 import { trimAt } from "./string";
 import { insertStyle } from "./style";
 import { STYLE_REVEAL_LINK_ATTRIBUTES } from "./stylesheets";
-import { createUUID, createBulletAnchor, createUniqueID } from "./misc";
+import { createUniqueID } from "./misc";
 import { removeQueryParameterFromUrl } from "./url";
 import { annotateElement } from "./dom";
 import { hasDuplicateIDs } from "./validations";
@@ -346,7 +346,7 @@ export function toggleShowEmptyLinksAndSpans()
 	}
 }
 
-export function logHrefsOnClick(evt)
+function logHrefsOnClick(evt)
 {
 	evt.preventDefault();
 	evt.stopPropagation();

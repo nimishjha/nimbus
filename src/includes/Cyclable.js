@@ -24,7 +24,7 @@ export class Cyclable
 		return this.values[this.currentIndex];
 	}
 
-	getCurrentIndex(index)
+	getCurrentIndex()
 	{
 		return this.currentIndex;
 	}

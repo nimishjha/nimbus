@@ -1,10 +1,8 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig } from "./ui";
-import { get, getOne, del } from "./selectors";
+import { get, del } from "./selectors";
 import { getMarkedElements } from "./mark";
-import { makeClassSelector } from "./misc";
 import { convertElement } from "./replaceElements";
-import { deleteMessage } from "./ui";
 import { insertBefore } from "./dom";
 
 

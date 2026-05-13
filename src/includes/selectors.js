@@ -1,14 +1,13 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig, showMessageError } from "./ui";
-import { insertStyle, insertStyleHighlight } from "./style";
+import { insertStyleHighlight } from "./style";
 import { createElement, deleteLeadingAndTrailingEmptyTextNodes } from "./element";
 import { getFirstElementOrNonEmptyTextNode } from "./elementAndNodeTests";
 import { hasDirectChildrenOfType } from "./elementAndNodeTests";
 import { markElement, getMarkedElements, unmarkAll, unmarkElement } from "./mark";
-import { xPathSelect, getTextNodesUnderSelector, getXpathResultAsArray } from "./xpath";
+import { xPathSelect, getTextNodesUnderSelector } from "./xpath";
 import { getTextLength } from "./node";
 import { escapeForRegExp, makeClassSelector } from "./misc";
-import { logError } from "./log";
 
 export function get(selector)
 {
@@ -20,7 +19,7 @@ export function get(selector)
 	}
 	catch(error)
 	{
-		// logError(`Invalid selector: ${selector}`);
+		console.error(error);
 		return false;
 	}
 	if(nodes.length)
@@ -73,7 +72,6 @@ export function selectElementsStartingWithText(selector, text)
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{
 		const elem = elems[i];
-		const elemText = elems[i].textContent.trim();
 		if(elem.textContent.length && elem.textContent.trim().startsWith(text))
 			selected.push(elem);
 	}
@@ -84,7 +82,6 @@ export function selectElementsEndingWithText(selector, text)
 {
 	const elems = get(selector);
 	if(!elems) return;
-	const textLength = text.length;
 	const selected = [];
 	for(let i = 0, ii = elems.length; i < ii; i++)
 	{

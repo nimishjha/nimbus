@@ -1,4 +1,4 @@
-import { get, getOne, del } from "./selectors";
+import { del } from "./selectors";
 import { insertStyle } from "./style";
 import { showMessageBig } from "./ui";
 import { Cyclable } from "./Cyclable";
@@ -60,7 +60,7 @@ export function addVideoFilter(style)
 	applyVideoFilter();
 }
 
-export function applyVideoFilter(index)
+export function applyVideoFilter()
 {
 	const currentVideoFilter = VideoFilter.filters.getCurrentValue();
 	insertStyle(currentVideoFilter, "styleVideoFilter", true);
