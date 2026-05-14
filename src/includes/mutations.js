@@ -32,7 +32,7 @@ function logMutations(mutations)
 				for(let j = 0, jj = mutation.addedNodes.length; j < jj; j++)
 				{
 					const addedNode = mutation.addedNodes[j];
-					if(addedNode.className && addedNode.classList.contains("excludeFromMutations"))
+					if(addedNode.className && addedNode.classList.contains("nimbusUI"))
 						continue;
 					console.log(`%cadded:   %c${createSelector(addedNode)} %c${addedNode.textContent}`, logColors.green, logColors.gray, logColors.blue);
 					clone(addedNode);
@@ -43,7 +43,7 @@ function logMutations(mutations)
 				for(let j = 0, jj = mutation.removedNodes.length; j < jj; j++)
 				{
 					const removedNode = mutation.removedNodes[j];
-					if( removedNode.className && removedNode.classList.contains("excludeFromMutations") )
+					if( removedNode.className && removedNode.classList.contains("nimbusUI") )
 						continue;
 					console.log(`%cremoved: %c${createSelector(removedNode)} %c${removedNode.textContent}`, logColors.red, logColors.gray, logColors.blue);
 				}

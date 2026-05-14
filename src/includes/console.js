@@ -103,7 +103,7 @@ export function toggleConsole(consoleType)
 		#userInput { background: ${consoleBackgroundColor}; color: #AAA; font-family: "SF Mono", Consolas, Verdana; font-size: 18px; font-weight: bold; width: 100%; height: 100%; padding: 10px 40px; border: 0; outline: 0; box-sizing: border-box; }`;
 	insertStyle(dialogStyle, "styleUserInputWrapper", true);
 
-	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper", class: "excludeFromMutations" });
+	const inputTextareaWrapper = createElement("div", { id: "userInputWrapper", class: "nimbusUI" });
 	const inputTextarea = createElement("textarea", { id: "userInput", class: "monospace", value: getConsoleHistory(consoleType) });
 	const handleKeyDown = function(event){ handleConsoleInput(event, consoleType); };
 	inputTextarea.addEventListener("keydown", handleKeyDown);

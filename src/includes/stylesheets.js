@@ -95,7 +95,7 @@ export const STYLE_OUTLINE_ELEMENTS = `
 	sup, sub, small, span, label { display: inline-block; margin: 0 10px 0 0; padding: 3px 5px; border: 2px solid #950; padding: 3px 5px; }
 	sup[id], sub[id], small[id], span[id], label[id] { box-shadow: inset 3px 3px #a00, inset -3px -3px #a00; }
 	footnote span { border: 3px solid #c09; }
-	.excludeFromMutations, .excludeFromMutations * { box-shadow: none; }
+	.nimbusUI, .nimbusUI * { box-shadow: none; }
 `;
 
 export const STYLE_SHOW_SELECTORS = `
@@ -116,11 +116,11 @@ export const STYLE_SHOW_SELECTORS = `
 	small::after { content: "small"; }
 	label::after { content: "label"; }
 	span::before { content: attr(class); background: #000; color: #aa0; font-weight: bold; padding: 1px 5px; margin: 0 2px; }
-	message::before, autocompleteinputwrapper::before, autocompleteinputwrapper *::before, #userInputWrapper::before, #userInputWrapper *::before, .excludeFromMutations::before { content: none; }
+	message::before, autocompleteinputwrapper::before, autocompleteinputwrapper *::before, #userInputWrapper::before, #userInputWrapper *::before, .nimbusUI::before { content: none; }
 	message, message *, autocompleteinputwrapper, autocompleteinputwrapper *, #userInputWrapper, #userInputWrapper * { box-shadow: none; }
-	.excludeFromMutations::before, .excludeFromMutations *::before { content: none; }
-	.excludeFromMutations[id]::before, .excludeFromMutations[id] *::after { content: none; }
-	.excludeFromMutations[class]::before, .excludeFromMutations[class] *::after { content: none; }
+	.nimbusUI::before, .nimbusUI *::before { content: none; }
+	.nimbusUI[id]::before, .nimbusUI[id] *::after { content: none; }
+	.nimbusUI[class]::before, .nimbusUI[class] *::after { content: none; }
 `;
 
 export const STYLE_SHOW_SELECTORS_MINIMAL = `
@@ -129,9 +129,9 @@ export const STYLE_SHOW_SELECTORS_MINIMAL = `
 	*[id]::before { content: attr(id); color: #C00; background: #000; }
 	*[id][class]::before { content: "#"attr(id)" ."attr(class); color: #C0C; background: #000; }
 
-	.excludeFromMutations::before, .excludeFromMutations *::before { content: none; }
-	.excludeFromMutations[id]::before, .excludeFromMutations[id] *::after { content: none; }
-	.excludeFromMutations[class]::before, .excludeFromMutations[class] *::after { content: none; }
+	.nimbusUI::before, .nimbusUI *::before { content: none; }
+	.nimbusUI[id]::before, .nimbusUI[id] *::after { content: none; }
+	.nimbusUI[class]::before, .nimbusUI[class] *::after { content: none; }
 `;
 
 export const STYLE_PAD_BLOCK_ELEMENTS = "div, p, hgroup, article, nav, footnote, header, footer { margin: 4px; padding: 4px; }";

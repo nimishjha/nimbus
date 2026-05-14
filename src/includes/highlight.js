@@ -457,7 +457,7 @@ export function highlightOnMutation(str)
 			{
 				for(const addedNode of mutationRecord.addedNodes)
 				{
-					if((addedNode.tagName && addedNode.tagName === HIGHLIGHT_TAGNAME) || (addedNode.className && addedNode.classList.contains("excludeFromMutations")))
+					if((addedNode.tagName && addedNode.tagName === HIGHLIGHT_TAGNAME) || (addedNode.className && addedNode.classList.contains("nimbusUI")))
 					{
 						shouldHandleThisMutation = false;
 						break;

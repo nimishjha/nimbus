@@ -27,7 +27,7 @@ export function showMessage(message, msgClass, persist, doNotLogToConsole)
 		del("message");
 	}
 	const messageContainer = document.createElement("message");
-	messageContainer.className = "excludeFromMutations";
+	messageContainer.className = "nimbusUI";
 	const messageInner = document.createElement(messageInnerTagName);
 	const messageContent = document.createElement("div");
 	let messageElement;
@@ -78,7 +78,7 @@ export function customPrompt(message, initialValue)
 	if(!getOne("#customPrompt"))
 	{
 		del("#styleCustomPrompt");
-		const dialog = createElement("div", { id: "customPrompt", class: "excludeFromMutations" });
+		const dialog = createElement("div", { id: "customPrompt", class: "nimbusUI" });
 		const dialogHeading = createElement("heading", { textContent: message });
 		const dialogInput = createElement("input", { id: "customPromptInput", autocomplete: "off" });
 		if(initialValue)
@@ -214,7 +214,7 @@ export function autoCompleteInputBox()
 	function renderMatches()
 	{
 		const matchList = document.createElement("div");
-		matchList.className = "excludeFromMutations";
+		matchList.className = "nimbusUI";
 		const numMatches = inputComponent.matches.length;
 		if(numMatches === 1)
 		{
@@ -224,7 +224,7 @@ export function autoCompleteInputBox()
 		for(let i = 0, ii = numMatches; i < ii; i++)
 		{
 			const match = document.createElement("match");
-			match.className = "excludeFromMutations";
+			match.className = "nimbusUI";
 			if(inputComponent.currentIndex === i) match.className = "current";
 			match.textContent = inputComponent.matches[i];
 			matchList.appendChild(match);
@@ -285,7 +285,7 @@ export function autoCompleteInputBox()
 			autocompleteinputwrapper match.current { background: #303030; color: #FFF; }
 			autocompleteinputwrapper em { display: inline-block; width: 200px; }`;
 		insertStyle(style, "styleAutoCompleteInputBox", true);
-		const dialogWrapper = createElement("autocompleteinputwrapper", { id: "autoCompleteInputWrapper", class: "excludeFromMutations" });
+		const dialogWrapper = createElement("autocompleteinputwrapper", { id: "autoCompleteInputWrapper", class: "nimbusUI" });
 		const inputElementWrapper = createElement("inputelementwrapper");
 		const inputElement = createElement("input", { id: "autoCompleteInput", autocomplete: "off" });
 		const optionsList = createElement("matches", { id: "autoCompleteMatches" });
@@ -353,7 +353,7 @@ export function showPanel(panelText)
 		del("panel");
 
 	const messageContainer = document.createElement("panel");
-	messageContainer.className = "excludeFromMutations";
+	messageContainer.className = "nimbusUI";
 	const messageInner = document.createElement("panelinner");
 	messageInner.textContent = panelText;
 	messageContainer.appendChild(messageInner);
