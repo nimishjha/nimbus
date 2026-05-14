@@ -694,6 +694,7 @@ import {
 import {
 	enableEditTextOnClick,
 	editWordOnClick,
+	editWordAndPunctuationOnClick,
 } from "./includes/edit";
 
 const isDebugMode = true;
@@ -1694,6 +1695,7 @@ function handleKeyDown(e)
 			case     KEYCODES.M:                    markCurrentElement(); break;
 			case     KEYCODES.S:                    forceReloadCss(); break;
 			case     KEYCODES.V:                    replaceCommonClasses(); break;
+			case     KEYCODES.W:                    editWordAndPunctuationOnClick(); break;
 			case     KEYCODES.F11:                  inspect(true); break;
 			case     KEYCODES.UPARROW:              modifyMark("expand", true); break;
 			case     KEYCODES.DOWNARROW:            modifyMark("contract", true); break;

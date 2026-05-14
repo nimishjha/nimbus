@@ -1,5 +1,10 @@
 import { showMessageBig, customPrompt } from "./ui";
 
+const EDIT_WHAT = {
+	WORD: 0,
+	WORD_INCLUDING_PUNCTUATION: 1
+}
+
 function editTextNodeOnClick(evt)
 {
 	evt.preventDefault();
@@ -32,9 +37,8 @@ export function enableEditTextOnClick()
 	showMessageBig("Click on a text node to edit it");
 }
 
-function findIndicesOfAdjacentSpaces(text, offset)
+function splitTextByOffsetAndRegex(text, offset, regex)
 {
-	const regex = /[\w\d]/;
 	let index1 = offset;
 
 	while(text[index1] && regex.test(text[index1]))
@@ -45,31 +49,58 @@ function findIndicesOfAdjacentSpaces(text, offset)
 	while(text[index2] && regex.test(text[index2]))
 		index2++;
 
-	return ([index1, index2]);
-}
-
-function handleEditWordOnClick()
-{
-	const selection = window.getSelection();
-	const node = selection.anchorNode;
-	const [index1, index2] = findIndicesOfAdjacentSpaces(node.data, selection.focusOffset);
 	if(index1 >= 0 && index2 > index1)
 	{
-		const textBeforeWord = node.data.substring(0, index1);
-		const textAfterWord = node.data.substring(index2);
-		const textToEdit = node.data.substring(index1, index2);
-
-		function replaceWord(str)
-		{
-			node.data = `${textBeforeWord}${str}${textAfterWord}`;
-		}
-
-		customPrompt("Edit word", textToEdit).then(replaceWord);
+		return [
+			text.substring(0, index1),
+			text.substring(index1, index2),
+			text.substring(index2),
+			false
+		];
 	}
+
+	return [null, null, null, true];
+}
+
+function handleEditOnClick(regex)
+{
+	return function()
+	{
+		const selection = window.getSelection();
+		const node = selection.anchorNode;
+		if(node)
+		{
+			const [preceding, textToEdit, following, error] = splitTextByOffsetAndRegex(node.data, selection.focusOffset, regex);
+
+			function replaceWord(str)
+			{
+				node.data = `${preceding}${str}${following}`;
+			}
+
+			if(!error)
+				customPrompt("Edit text", textToEdit).then(replaceWord);
+		}
+	}
+}
+
+function createEditHandler(whatToEdit)
+{
+	if(whatToEdit === EDIT_WHAT.WORD)
+		return handleEditOnClick(/\w/);
+	else if(whatToEdit === EDIT_WHAT.WORD_INCLUDING_PUNCTUATION)
+		return handleEditOnClick(/[\w\x21-\x2F\u2013\u2014]/);
+	else
+		return handleEditOnClick(/\w/);
 }
 
 export function editWordOnClick()
 {
-	document.addEventListener('click', handleEditWordOnClick, { capture: true, once: true });
+	document.addEventListener('click', createEditHandler(EDIT_WHAT.WORD), { capture: true, once: true });
 	showMessageBig("Click on a word to edit it");
+}
+
+export function editWordAndPunctuationOnClick()
+{
+	document.addEventListener('click', createEditHandler(EDIT_WHAT.WORD_INCLUDING_PUNCTUATION), { capture: true, once: true });
+	showMessageBig("Click on some text to edit it");
 }
