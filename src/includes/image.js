@@ -467,10 +467,11 @@ export function replaceImagesWithPlaceholders()
 	const images = get("img");
 	let numImagesWithIDs = 0;
 	let i = images.length;
+	const doNotLoseIDs = location.protocol === "file:";
 	while(i--)
 	{
 		const image = images[i];
-		if(image.id)
+		if(doNotLoseIDs && image.id)
 		{
 			numImagesWithIDs++;
 			image.className = "statusError";
