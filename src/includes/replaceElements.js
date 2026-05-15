@@ -1,6 +1,6 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig, showMessageError } from "./ui";
-import { selectByClassOrIdContaining, selectByTagNameMatching, getNodeContainingSelection, getOneMarked } from "./selectors";
+import { selectByClassOrIdContaining, selectByTagNameMatching, getNodeContainingSelection, getOneMarked, selectByIDContaining } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
 import { get } from "./selectors";
 import { makeClassSelector } from "./misc";
@@ -21,6 +21,13 @@ export function replaceElementsBySelectorHelper()
 		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2, makeClassSelector(Nimbus.markerClass) + " ");
 	else
 		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2);
+}
+
+export function replaceElementsBySelectorSimple(selector, tagName)
+{
+	const elems = document.querySelectorAll(selector);
+	for(const elem of elems)
+		replaceElement(elem, tagName);
 }
 
 export function replaceElementsBySelector(selector, tagName)
@@ -56,6 +63,13 @@ export function replaceElementsBySelector(selector, tagName)
 		while(i--)
 			replaceElementKeepingId(toReplace[i], tagName);
 	}
+}
+
+export function replaceElementsWithIDContaining(str, tagName)
+{
+	const elems = selectByIDContaining(str);
+	for(const elem of elems)
+		replaceElement(elem, tagName);
 }
 
 export function convertElement(elem, tagName)
