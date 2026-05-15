@@ -28,7 +28,10 @@ function getLargeImages()
 		link.replaceWith(image);
 	}
 	if(Nimbus.largeImagesData.length)
+	{
+		showMessageBig(`${Nimbus.largeImagesData.length} large images left to retrieve`);
 		setTimeout(getLargeImages, 2000);
+	}
 }
 
 function createSetOfImageSources()
