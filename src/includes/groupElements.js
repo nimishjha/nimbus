@@ -1,10 +1,9 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig } from "./ui";
 import { get, del } from "./selectors";
-import { getMarkedElements } from "./mark";
+import { getMarkedElements, unmarkAll } from "./mark";
 import { convertElement } from "./replaceElements";
 import { insertBefore } from "./dom";
-
 
 export function setGroupTagName(tagName)
 {
@@ -30,6 +29,7 @@ export function groupMarkedElements(tagName)
 		for(const elem of elems)
 			wrapper.appendChild(elem);
 	}
+	unmarkAll();
 }
 
 export function groupAdjacentElements(selector, parentTag, childTag)
