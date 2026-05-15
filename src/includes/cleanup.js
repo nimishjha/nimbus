@@ -1,5 +1,5 @@
 import { Nimbus } from "./Nimbus";
-import { makePlainText, removeAllAttributesOf, emptyElement, createElement, unwrapElement, createElementWithChildren, removeAttributeOf, unwrapAll, removeAllAttributesOfTypes, deleteClass, createLinkInWrapper } from "./element";
+import { makePlainText, removeAllAttributesOf, emptyElement, createElement, unwrapElement, createElementWithChildren, removeAttributeOf, unwrapAll, removeAllAttributesOfTypes, removeAllAttributesExcept, deleteClass, createLinkInWrapper } from "./element";
 import { get, getOne, del, select } from "./selectors";
 import { markElement, getMarkedElements, markNavigationalLists, markElements, unmarkAll } from "./mark";
 import { replaceDiacritics, replaceSpecialCharacters, snakeCaseToCamelCase, normalizeAllWhitespace } from "./text";
@@ -717,18 +717,9 @@ export function cleanupHead()
 
 export function cleanupLinks()
 {
-	const links = get("a");
-	let i = links.length;
-	while(i--)
-	{
-		const link = links[i];
-		const newLink = document.createElement("a");
-		if(link.id) newLink.id = link.id;
-		if(link.href) newLink.href = link.href;
-		while (link.firstChild)
-			newLink.appendChild(link.firstChild);
-		link.replaceWith(newLink);
-	}
+	const links = document.querySelectorAll("a");
+	for(const link of links)
+		removeAllAttributesExcept(link, ["id", "href"]);
 }
 
 export function removeRedundantDivs()
