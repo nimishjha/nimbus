@@ -216,30 +216,21 @@ export function removeAllAttributesOfTypes(attrNames)
 export function getAttributes(elem)
 {
 	const attributes = [];
-	for(const attr of elem.attributes)
-	{
-		if(attr)
-		{
-			attributes.push({
-				name: attr.name,
-				value: attr.value
-			});
-		}
-	}
+	for(const attrName of elem.getAttributeNames())
+		attributes.push({
+			name: attrName,
+			value: elem.getAttribute(attrName)
+		});
 	return attributes;
 }
 
 export function saveIDsToElement(element, ids)
 {
 	if(ids.length === 1 && !element.id)
-	{
 		element.id = ids[0];
-	}
 	else
-	{
 		for(let j = 0, jj = ids.length; j < jj; j++)
 			element.appendChild(createBulletAnchor(ids[j]));
-	}
 }
 
 export function removeAllAttributesOf(selectorOrElement)
