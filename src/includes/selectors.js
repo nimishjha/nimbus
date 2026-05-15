@@ -110,6 +110,20 @@ export function selectByTagNameMatching(text)
 	return selected;
 }
 
+export function selectByIDContaining(str)
+{
+	const strLower = str.toLowerCase();
+	const elems = document.querySelectorAll("body *[id]");
+	const selected = [];
+	for(let i = 0, ii = elems.length; i < ii; i++)
+	{
+		const node = elems[i];
+		if(node && node.id.toLowerCase().includes(strLower))
+			selected.push(node);
+	}
+	return selected;
+}
+
 export function selectByClassOrIdContaining(str)
 {
 	const strLower = str.toLowerCase();
