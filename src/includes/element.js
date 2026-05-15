@@ -250,14 +250,28 @@ export function removeAllAttributesOf(selectorOrElement)
 			elem.removeAttribute(attr);
 }
 
-export function removeAllAttributesExcept(selectorOrElement, attrToKeep)
+export function removeAllAttributesExcept(selectorOrElement, stringOrArrayOfStrings)
 {
-	const attrToKeepLower = attrToKeep.toLowerCase();
 	const elems = typeof selectorOrElement === "string" ? document.querySelectorAll(selectorOrElement) : [selectorOrElement];
-	for(const elem of elems)
-		for(const attr of elem.getAttributeNames())
-			if(attr.toLowerCase() !== attrToKeepLower)
-				elem.removeAttribute(attr);
+	if(Array.isArray(stringOrArrayOfStrings))
+	{
+		const attrNamesLower = stringOrArrayOfStrings.map(str => str.toLowerCase());
+		const toKeep = new Set(attrNamesLower);
+		for(const elem of elems)
+			for(const attrName of elem.getAttributeNames())
+				if(!toKeep.has(attrName.toLowerCase()))
+					elem.removeAttribute(attrName);
+	}
+	else if(typeof stringOrArrayOfStrings === "string")
+	{
+		const strLower = stringOrArrayOfStrings.toLowerCase();
+		for(const elem of elems)
+			for(const attrName of elem.getAttributeNames())
+				if(attrName.toLowerCase() !== strLower)
+					elem.removeAttribute(attrName);
+	}
+	else
+		throw new Error(`Expected string or array of strings, received ${typeof stringOrArrayOfStrings}`);
 }
 
 //	Takes an element, an integer depth, and a tagName, and wraps that element in that many levels of <tagName>
