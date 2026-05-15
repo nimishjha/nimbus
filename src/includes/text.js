@@ -231,7 +231,7 @@ export function removeEmojis(shouldReplace = false)
 
 export function deleteNonEnglishText()
 {
-	replaceInTextNodesRegex("body", REGEXES_GLOBAL.EVERYTHING_EXCEPT_PRINTABLE_ASCII, "");
+	replaceInTextNodesRegex("body", REGEXES_GLOBAL.EVERYTHING_EXCEPT_PRINTABLE_ASCII_AND_DASHES, "");
 }
 
 export function normalizeAllWhitespace()
@@ -292,7 +292,7 @@ export function fixDashes()
 	const textNodes = getNonCodeTextNodes();
 	for(const textNode of textNodes)
 	{
-		if(~textNode.data.indexOf("--"))
+		if(textNode.data.includes("--"))
 		{
 			replCount++;
 			textNode.data = textNode.data.replace(/-+/g, "—");

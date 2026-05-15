@@ -3,6 +3,7 @@ export const REGEXES_GLOBAL = {
 	SPACES: /[\s\u2000-\u200F]+/g,
 	PRINTABLE_ASCII: /[\x20-\x7E]+/g,
 	EVERYTHING_EXCEPT_PRINTABLE_ASCII: /[^\x20-\x7E]+/g,
+	EVERYTHING_EXCEPT_PRINTABLE_ASCII_AND_DASHES: /[^\x20-\x7E\u2013\u2014]+/g,
 };
 
 export const REGEXES = {
