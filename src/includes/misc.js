@@ -179,3 +179,10 @@ export function getBitmask(num)
 {
 	return num.toString(2).padStart(10, '0');
 }
+
+export function createRegexFromString(str, isGlobal, isCaseInsensitive)
+{
+	const g = isGlobal ? "g" : "";
+	const ci = isCaseInsensitive ? "i" : "";
+	return new RegExp(str, g + ci);
+}

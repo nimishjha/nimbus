@@ -1,12 +1,6 @@
 import { showMessageBig } from "./ui";
 import { getTextNodesUnderSelector } from "./xpath";
-
-export function createRegexFromString(str, isGlobal, isCaseInsensitive)
-{
-	const g = isGlobal ? "g" : "";
-	const ci = isCaseInsensitive ? "i" : "";
-	return new RegExp(str, g + ci);
-}
+import { createRegexFromString } from "./misc";
 
 export function replaceInTextNodesUnder(selector, searchString, replacementString)
 {

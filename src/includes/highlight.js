@@ -11,6 +11,7 @@ import { escapeForRegExp } from "./misc";
 import { normalizeHTML, makePlainText, unwrapElement, deleteClass, createElement, unwrapAll, wrapElement, wrapElementInner, deleteLeadingAndTrailingEmptyTextNodes } from "./element";
 import { removeLineBreaks } from "./string";
 import { REFERENCE_TAGNAME } from "./constants";
+import { createRegexFromString } from "./misc";
 
 export function highlightInPres(str, tagName = "markyellow")
 {
@@ -60,6 +61,11 @@ export function highlightInTextNodes(regex, tagName)
 	if(!nodes) return;
 	for(const node of nodes)
 		highlightInTextNodeRegex(node, regex, tagName);
+}
+
+export function highlightInTextNodesCreatingRegexFromString(str, g, ci)
+{
+	highlightInTextNodes(createRegexFromString(str, g, ci), Nimbus.highlightTagName);
 }
 
 export function highlightMatchesUnderSelector(selector, str, isCaseSensitive = false)
