@@ -8,7 +8,7 @@ import { showMessageBig } from "./ui";
 import { replaceInTextNodes, replaceInTextNodesRegex } from "./textReplace";
 import { REGEXES, REGEXES_GLOBAL, DIACRITIC_REGEXES_BY_LETTER } from "./constants";
 
-export function fixSpacesBetweenNestedQuotes()
+export function removeSpacesBetweenNestedQuotes()
 {
 	replaceInTextNodes("' \"", "'\"");
 	replaceInTextNodes("\" '", "\"'");
