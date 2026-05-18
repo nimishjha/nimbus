@@ -50,67 +50,17 @@ import {
 	STYLE_SIMPLE_NEGATIVE_3,
 } from "./includes/stylesheets";
 import { KEYCODES, KEYCODES_REVERSE } from "./includes/keycodes";
-import { SYMBOLS, BLOCK_TAGS, INLINE_TAGS } from "./includes/constants";
-import { parseCommand, runCommand, callFunctionWithArgs } from "./includes/command";
+import { BLOCK_TAGS, INLINE_TAGS } from "./includes/constants";
+import { callFunctionWithArgs } from "./includes/command";
 import {
 	count,
 	del,
-	filterNodesByAttributeContaining,
-	filterNodesByAttributeExistence,
-	filterNodesByAttributeMatching,
-	filterNodesByAttributeNonExistence,
-	filterNodesByAttributeNotContaining,
-	filterNodesByAttributeNotEqualTo,
-	filterNodesByAttributeValueGreaterThan,
-	filterNodesByAttributeValueLessThan,
-	filterNodesFollowingNodesOfType,
-	filterNodesPrecedingNodesOfType,
-	filterNodesWithChildrenOfType,
-	filterNodesWithDirectChildrenOfType,
-	filterNodesWithFirstChildOfType,
-	filterNodesWithLastChildOfType,
-	filterNodesWithoutChildrenOfType,
-	filterNodesWithoutDirectChildrenOfType,
-	filterNodesWithoutParentOfType,
-	filterNodesWithTextLengthOver,
-	filterNodesWithTextLengthUnder,
-	get,
-	getFirstBlockParent,
-	getOneMarked,
-	getFirstTextChild,
-	getNodeContainingSelection,
-	getNonCodeTextNodes,
-	getOne,
-	getOrCreate,
 	mark,
 	markByChildrenHavingTheExactText,
 	markElementsWithChildrenSpanning,
 	remove,
-	select,
-	selectBlockElementsContainingText,
-	selectByChildrenWithText,
-	selectByClassOrIdContaining,
-	selectByRelativePosition,
-	selectBySelectorAndExactText,
-	selectBySelectorAndNormalizedText,
-	selectBySelectorAndRegex,
-	selectBySelectorAndRelativePosition,
-	selectBySelectorAndText,
-	selectByTagNameAndText,
-	selectByTagNameMatching,
-	selectElementsEndingWithText,
-	selectElementsStartingWithText,
-	selectImagesSmallerThan,
-	selectNodesBetweenMarkers,
 } from "./includes/selectors";
 import {
-	getEmptyTextNodesUnderElement,
-	getTextNodesUnderElement,
-	getTextNodesUnderElementMatching,
-	getTextNodesUnderPre,
-	getTextNodesUnderSelector,
-	getXpathResultAsArray,
-	xPathNodesToArray,
 	xPathSelect,
 } from "./includes/xpath";
 import {
@@ -123,9 +73,6 @@ import {
 } from "./includes/identifyClass";
 import {
 	forceReloadCss,
-	getAllCssRulesForElement,
-	getAllCssRulesMatching,
-	getAllInlineStyles,
 	insertStyle,
 	insertStyleHighlight,
 	showAllCssRulesMatching,
@@ -160,7 +107,6 @@ import {
 	fixBody,
 	fixTextAroundReferences,
 	fixTextWithinReferences,
-	getBestDomainSegment,
 	getContentByParagraphCount,
 	normalizeClassnames,
 	removeEventListeners,
@@ -192,44 +138,25 @@ import {
 	customPrompt,
 	deleteMessage,
 	getSelectionOrUserInput,
-	restoreCustomPromptHistory,
 	showMessage,
 	showMessageBig,
 	showMessageError,
 	showPanel,
-	showStatus,
 } from "./includes/ui";
 import { replaceInTextNodes, replaceInTextNodesUnder, replaceInTextNodesRegexFromString } from "./includes/textReplace";
 import { toggleHighlightMap, setHighlightMapColor, setHighlightMapOptions } from "./includes/highlightMapper";
-import { getPrevious, getNext } from "./includes/array";
 import { logPropertiesMatching, logValuesMatching } from "./includes/object";
 import {
 	capitalize,
-	containsAllOfTheStrings,
-	containsAnyOfTheStrings,
 	escapeHTML,
 	ltrim,
-	normalizeString,
-	normalizeWhitespace,
-	padLeft,
-	padRight,
 	removeLineBreaks,
-	removeNonAlpha,
 	removeWhitespace,
-	startsWithAnyOfTheStrings,
-	trimAt,
-	trimAtInclusive,
-	trimBetween,
-	trimNonAlphanumeric,
-	trimSpecialChars,
-	trimStartingAt,
-	unescapeHTML,
 } from "./includes/string";
 import {
 	disableClickToCollectUrls,
 	enableClickToCollectUrls,
 	fixInternalReferences,
-	humanizeUrl,
 	interlinkMarkedElements,
 	makeFileLinksRelative,
 	markBrokenInternalLinks,
@@ -249,17 +176,7 @@ import {
 	toggleShowEmptyLinksAndSpans,
 } from "./includes/link";
 import {
-	debugVars,
 	logAllClassesFor,
-	logElements,
-	logError,
-	logInfo,
-	logString,
-	logSuccess,
-	logTable,
-	logWarning,
-	printPropOfObjectArray,
-	printPropsContaining,
 	showLog,
 	clearLog,
 	xlog,
@@ -271,13 +188,10 @@ import {
 	forceImageHeight,
 	forceImageWidth,
 	getBestImageSrc,
-	getImageHeight,
-	getImageWidth,
 	inspectImages,
 	persistStreamingImages,
 	retrieveLargeImages,
 	setMinPersistSize,
-	shortenImageSrc,
 	showSavedStreamingImages,
 	tagLargeImages,
 	toggleBetweenImagesAndPlaceholders,
@@ -288,7 +202,6 @@ import {
 	deselect,
 	insertElementAfterSelectionAnchor,
 	insertElementBeforeSelectionAnchor,
-	insertElementNextToAnchorNode,
 	makeAnchorNodePlainText,
 	wrapAnchorNodeInTag,
 } from "./includes/selection";
@@ -298,21 +211,10 @@ import {
 } from "./includes/metadata";
 import {
 	arrayToString,
-	createUniqueID,
-	forAll,
 	getTimestamp,
-	getUniqueClassNames,
-	getViewportHeight,
-	getViewportSize,
 	isChrome,
-	isIframe,
-	makeClassSelector,
-	makeIdSelector,
 	noop,
-	selectRandom,
 	toggleShowKeyCodes,
-	toNumber,
-	zeroPad,
 } from "./includes/misc";
 import {
 	addVideoFilter,
@@ -348,21 +250,10 @@ import {
 import {
 	convertToFragment,
 	copyAttribute,
-	createClassSelector,
-	createElement,
-	createElementWithChildren,
-	createElementWithText,
-	createReplacementElement,
-	createSelector,
 	cycleClass,
 	deleteClass,
-	emptyElement,
-	getAlphanumericTextLength,
-	getAttributes,
-	getElemPropSafe,
 	makeElementPlainText,
 	makePlainText,
-	normalizeHTML,
 	removeAllAttributesExcept,
 	removeAllAttributesOf,
 	removeAllAttributesOfType,
@@ -371,7 +262,6 @@ import {
 	removeClassOf,
 	removeColorsFromInlineStyles,
 	setAttributeOf,
-	setAttributeOrProperty,
 	setClassByPrefix,
 	toggleClass,
 	unwrapAll,
@@ -384,10 +274,6 @@ import {
 	wrapElementInner,
 	wrapMarkedElement,
 } from "./includes/element";
-import {
-	getNodeText,
-	getTextLength,
-} from "./includes/node";
 import {
 	fixParagraphs,
 	normaliseWhitespaceForParagraphs,
@@ -444,11 +330,7 @@ import {
 import {
 	annotateElement,
 	duplicateMarkedElement,
-	insertAfter,
 	insertAroundAll,
-	insertAsFirstChild,
-	insertAsLastChild,
-	insertBefore,
 	insertHrBeforeAll,
 	insertSpacesAround,
 	makeChildOf,
@@ -472,7 +354,6 @@ import {
 	createPagerFromSelect,
 	cycleTheme,
 	doWebsiteSpecificTasks,
-	getCurrentlyPlayingVideo,
 	getPageNavLinks,
 	hideNonVideoContent,
 	hideReferences,
@@ -529,7 +410,6 @@ import {
 	highlightTextAcrossTags,
 	highlightTextInElement,
 	italicizeSelection,
-	moveLeadingAndTrailingReferencesOutOfHighlight,
 	removeAllHighlights,
 	removeHighlightsFromMarkedElements,
 	resetHighlightTag,
@@ -538,22 +418,6 @@ import {
 	toggleHighlightSelectionMode,
 } from "./includes/highlight";
 import {
-	containsNonEmptyPlainTextNodes,
-	containsOnlyPlainText,
-	containsPlainTextNodes,
-	hasAdjacentBlockElement,
-	hasAdjacentFollowingElementSiblingOfType,
-	hasAdjacentPrecedingElementSiblingOfType,
-	hasClassesContaining,
-	hasClassesStartingWith,
-	hasDirectChildrenOfType,
-	isBlockElement,
-	isEmptyElement,
-	isEmptyTextNode,
-} from "./includes/elementAndNodeTests";
-import {
-	deleteResource,
-	getAllClassesFor,
 	getClassCounts,
 	getMarkedHTML,
 	inspect,
@@ -575,7 +439,6 @@ import {
 	showSelectors,
 	showTags,
 	toggleShowSelectors,
-	traceLineage,
 } from "./includes/inspect";
 import {
 	joinAdjacentElements,
@@ -586,7 +449,6 @@ import {
 } from "./includes/joinElements";
 import {
 	forAllMarked,
-	getMarkedElements,
 	markAllFollowingSiblings,
 	markBlockElementsContainingText,
 	markByClassOrIdContaining,
@@ -634,9 +496,6 @@ import {
 	convertDivsToParagraphs,
 	convertElement,
 	replaceByClassOrIdContaining,
-	replaceElement,
-	replaceElementKeepingId,
-	replaceElements,
 	replaceElementsBySelector,
 	replaceElementsBySelectorHelper,
 	replaceElementsByTagNameMatching,
@@ -662,8 +521,6 @@ import {
 	tabifySpacesInPres,
 } from "./includes/preformatted";
 import {
-	isCurrentDomainLink,
-	parseQueryString,
 	removeQueryParameterFromUrl,
 	replaceQueryParameter,
 	setQueryParameter,
@@ -785,11 +642,13 @@ const availableFunctions = {
 	delRange,
 	deselect,
 	disableClickToCollectUrls,
+	disableConsoleLogs,
 	disableVideoFilter,
 	duplicateMarkedElement,
 	editDocumentTitle,
 	editStyleById,
 	enableClickToCollectUrls,
+	enableConsoleLogs,
 	enDashToEmDash,
 	escapeHTML,
 	expandSelectionToSentenceBoundaries,
@@ -885,7 +744,6 @@ const availableFunctions = {
 	makeAnchorNodePlainText,
 	makeButtonsReadable,
 	makeChildOf,
-	makeClassSelector,
 	makeDocumentHierarchical,
 	makeElementPlainText,
 	makeFileLinksRelative,
@@ -1029,7 +887,6 @@ const availableFunctions = {
 	revealEmptyLinks,
 	revealLinkAttributes,
 	scrollToPercent,
-	selectNodesBetweenMarkers,
 	setAttributeOf,
 	setBodyOpacity,
 	setClassByDepth,
@@ -1064,6 +921,9 @@ const availableFunctions = {
 	clearLog,
 	showAllCssRulesMatching,
 	showMarkedElementInfo,
+	showMessage,
+	showMessageBig,
+	showMessageError,
 	showPanel,
 	showPrintLink,
 	showResources,
@@ -1687,7 +1547,6 @@ function handleKeyDown(e)
 			case     KEYCODES.A:                    annotate("after"); break;
 			case     KEYCODES.B:                    toggleShowSelectors(); break;
 			case     KEYCODES.D:                    deleteCurrentElement(); break;
-			case     KEYCODES.E:                    customPrompt("Enter replacement text").then(replaceMarkedWithString); break;
 			case     KEYCODES.G:                    callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
 			case     KEYCODES.Z:                    deselect(); break;
 			case     KEYCODES.E:                    callFunctionWithArgs("Replace elements by class or id containing", replaceByClassOrIdContaining, 2); break;
