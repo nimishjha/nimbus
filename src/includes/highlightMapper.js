@@ -96,11 +96,18 @@ function highlightMapper()
 		return config.minWidth ? Math.max(width, config.minWidth) : width;
 	}
 
+	function getRelativeBarWidth(highlightLength, plaintextLength, widthScale)
+	{
+		const width = (highlightLength / plaintextLength) * widthScale;
+		return config.minWidth ? Math.max(width, config.minWidth) : width;
+	}
+
 	function drawHighlightMap(highlightData)
 	{
 		const { highlightLengths, maxParagraphLength } = highlightData;
 		const { ctx, width: canvasWidth } = initCanvas(highlightLengths.length);
 		const widthScale = (canvasWidth - config.padding) / maxParagraphLength;
+		const availableWidth = (canvasWidth - config.padding);
 		const rowHeightPlusSpacing = config.rowHeight + config.rowSpacing;
 
 		const colorsByHighlightType = config.colorsByHighlightType;
@@ -116,15 +123,20 @@ function highlightMapper()
 			}
 
 			x = 0;
-			ctx.fillStyle = colorsByHighlightType["plaintext"];
-			const width = getBarWidth(highlightLengths[i]["plaintext"], widthScale);
-			ctx.fillRect(x, y, width, config.rowHeight);
+
+			if(!config.useRelativeWidth)
+			{
+				ctx.fillStyle = colorsByHighlightType["plaintext"];
+				const width = getBarWidth(highlightLengths[i]["plaintext"], widthScale);
+				ctx.fillRect(x, y, width, config.rowHeight);
+			}
+
 			for(const key of ["mark", "markyellow", "markpurple", "markgreen", "markblue", "markred", "markwhite"])
 			{
 				ctx.fillStyle = colorsByHighlightType[key];
 				const highlightLength = highlightLengths[i][key];
 				if(highlightLength === 0) continue;
-				const width = getBarWidth(highlightLength, widthScale);
+				const width = config.useRelativeWidth ? getRelativeBarWidth(highlightLength, highlightLengths[i]["plaintext"], availableWidth) : getBarWidth(highlightLength, widthScale);
 				ctx.fillRect(x, y, width, config.rowHeight);
 				x += width;
 				if(config.drawGaps)
@@ -261,10 +273,14 @@ export function setHighlightMapColor(marktype, color)
 	config.colorsByHighlightType[marktype] = color;
 }
 
-export function setHighlightMapOptions(rowHeight, rowSpacing, minWidth)
+export function setHighlightMapOptions(rowHeight, rowSpacing, minWidth, useRelativeWidth)
 {
 	const config = Nimbus.moduleConfigs[MODULE_NAME];
 	if(typeof rowHeight === "number") config.rowHeight = rowHeight;
 	if(typeof rowSpacing === "number") config.rowSpacing = rowSpacing;
 	if(typeof minWidth === "number") config.minWidth = minWidth;
+	if(typeof useRelativeWidth === "number")
+		config.useRelativeWidth = Boolean(useRelativeWidth);
+	else
+		config.useRelativeWidth = false;
 }

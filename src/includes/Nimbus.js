@@ -52,6 +52,7 @@ export const Nimbus = {
 			padding: 20,
 			drawGaps: false,
 			elements: [],
+			useRelativeWidth: false,
 			colorsByHighlightType: {
 				plaintext: "#303030",
 				currentLocation: "#A0A0A0",

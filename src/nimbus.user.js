@@ -1162,6 +1162,7 @@ function handleKeyMenuCommand(str)
 			case "M2": setHighlightMapOptions(4, 0, 4); break;
 			case "M3": setHighlightMapOptions(4, 1, 4); break;
 			case "M4": setHighlightMapOptions(4, 1, 20); break;
+			case "M5": setHighlightMapOptions(3, 0, 3, 1); break;
 			case "MB": callFunctionWithArgs("Mark block elements containing text", markBlockElementsContainingText, 1); break;
 			case "MC": markElementsWithSameClass(); break;
 			case "MD": replaceFirstLevelChildrenWith("dt"); break;
