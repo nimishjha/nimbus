@@ -201,7 +201,7 @@ export function removeClassOf(selector)
 
 export function removeAllAttributesOfType(type)
 {
-	removeAttributeOf("body *", type);
+	removeAttributeOf("body *[type]", type);
 }
 
 export function removeAllAttributesOfTypes(attrNames)
