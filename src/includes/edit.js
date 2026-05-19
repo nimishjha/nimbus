@@ -88,7 +88,7 @@ function createEditHandler(whatToEdit)
 	if(whatToEdit === EDIT_WHAT.WORD)
 		return handleEditOnClick(/\w/);
 	else if(whatToEdit === EDIT_WHAT.WORD_INCLUDING_PUNCTUATION)
-		return handleEditOnClick(/[\w\x21-\x2F\u2013\u2014]/);
+		return handleEditOnClick(/[\w\x21-\x2F\x3A\x3B\u2013\u2014]/);
 	else
 		return handleEditOnClick(/\w/);
 }
