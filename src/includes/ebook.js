@@ -1,6 +1,6 @@
 import { showMessageBig } from "./ui";
 import { insertAfter, insertAsFirstChild } from "./dom";
-import { createElement } from "./element";
+import { createElement, removeAllAttributesOfType } from "./element";
 import { get, getOne } from "./selectors";
 import { createUniqueID } from "./misc";
 import { replaceSpecialCharacters } from "./text";
@@ -83,4 +83,5 @@ export function cleanupEbook()
 	replaceSpecialCharacters();
 	replaceCommonClassesNew();
 	removeUnreferencedIDs();
+	removeAllAttributesOfType("hidden");
 }
