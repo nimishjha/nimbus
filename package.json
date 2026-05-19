@@ -9,9 +9,9 @@
     "lab": "bun run lint && bun run build.js",
     "nimble": "bun run lint && bun run buildNimble.js",
     "nimbleUnminified": "bun run lint && bun run buildNimbleUnminified.js",
-    "lint": "oxlint -f stylish src/**/*.js",
-    "lintconcise": "oxlint -f unix src/**/*.js",
-    "lintverbose": "oxlint -f default src/**/*.js",
+    "lint": "oxlint -f stylish src/*.js src/**/*.js",
+    "lintconcise": "oxlint -f unix src/*.js src/**/*.js",
+    "lintverbose": "oxlint -f default src/*.js src/**/*.js",
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^20.0.11"

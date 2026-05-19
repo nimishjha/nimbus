@@ -157,7 +157,7 @@ export function replaceEmptyParagraphsWithHr()
 	let i = elems.length;
 	while(i--)
 	{
-		if(getTextLength(elems[i]) === 0 || /^[_•\*—]+$/.test(elems[i].textContent.replace(/\s+/g, "")))
+		if(getTextLength(elems[i]) === 0 || elems[i].textContent.replace(/[^a-zA-Z0-9]/g, "").length === 0)
 		{
 			elems[i].replaceWith(document.createElement("hr"));
 			count++;
