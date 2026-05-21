@@ -549,9 +549,8 @@ import {
 	interlinkReferencesUsingFootnoteReferences,
 } from "./includes/interlinkReferences";
 import {
-	enableEditTextOnClick,
-	editWordOnClick,
-	editWordAndPunctuationOnClick,
+	editWordsOnClick,
+	enableEditTextOnClick
 } from "./includes/edit";
 
 const isDebugMode = true;
@@ -1518,7 +1517,7 @@ function handleKeyDown(e)
 			case     KEYCODES.S:                    toggleContentEditable(); break;
 			case     KEYCODES.T:                    tabifySpacesInPres(); break;
 			case     KEYCODES.V:                    toggleStyle(STYLE_OUTLINE_ELEMENTS, "styleOutlineElements", true); break;
-			case     KEYCODES.W:                    editWordOnClick(); break;
+			case     KEYCODES.W:                    editWordsOnClick(); break;
 			case     KEYCODES.X:                    customPrompt("Enter xPath").then(xPathMark); break;
 			case     KEYCODES.Z:                    markSelectionAnchorNode(); break;
 			case     KEYCODES.MINUS:                insertElementAfterSelectionAnchor(); break;
@@ -1555,7 +1554,6 @@ function handleKeyDown(e)
 			case     KEYCODES.M:                    markCurrentElement(); break;
 			case     KEYCODES.S:                    forceReloadCss(); break;
 			case     KEYCODES.V:                    replaceCommonClasses(); break;
-			case     KEYCODES.W:                    editWordAndPunctuationOnClick(); break;
 			case     KEYCODES.F11:                  inspect(true); break;
 			case     KEYCODES.UPARROW:              modifyMark("expand", true); break;
 			case     KEYCODES.DOWNARROW:            modifyMark("contract", true); break;
