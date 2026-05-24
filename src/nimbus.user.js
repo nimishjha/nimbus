@@ -1176,6 +1176,7 @@ function handleKeyMenuCommand(str)
 			case "MU": unmarkAll(); break;
 			case "MX": customPrompt("Mark by xPath").then(xPathMark); break;
 
+			case "NB": document.body.normalize(); break;
 			case "NH": goToNextElement("h1, h2, h3"); break;
 			case "NI": goToNextElement("img"); break;
 			case "NM": goToNextElement(".markd"); break;
