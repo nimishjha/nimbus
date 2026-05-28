@@ -385,20 +385,33 @@ export function highlightInTextNodeRegex(textNode, regex, highlightTagName, doNo
 	const parentNode = textNode.parentNode;
 	if(!parentNode)
 		return;
-	const matches = regex.global ? nodeText.matchAll(regex) : nodeText.match(regex);
 	const replacementNodes = [];
-	let lastIndex = 0;
-	for(const match of matches)
+	if(regex.global)
 	{
+		const matches = nodeText.matchAll(regex);
+		let lastIndex = 0;
+		for(const match of matches)
+		{
+			const matchedString = match[0];
+			const matchIndex = match.index;
+			if(matchIndex > lastIndex)
+				replacementNodes.push(document.createTextNode(nodeText.substring(lastIndex, matchIndex)));
+			replacementNodes.push(createElement(tagName, { textContent: matchedString }));
+			lastIndex = matchIndex + matchedString.length;
+		}
+		if(lastIndex < nodeText.length)
+			replacementNodes.push(document.createTextNode(nodeText.substring(lastIndex)));
+	}
+	else
+	{
+		const match = nodeText.match(regex);
 		const matchedString = match[0];
 		const matchIndex = match.index;
-		if(matchIndex > lastIndex)
-			replacementNodes.push(document.createTextNode(nodeText.substring(lastIndex, matchIndex)));
+		if(matchIndex > 0)
+			replacementNodes.push(document.createTextNode(nodeText.substring(0, matchIndex)));
 		replacementNodes.push(createElement(tagName, { textContent: matchedString }));
-		lastIndex = matchIndex + matchedString.length;
+		replacementNodes.push(document.createTextNode(nodeText.substring(matchIndex + matchedString.length)));
 	}
-	if(lastIndex < nodeText.length)
-		replacementNodes.push(document.createTextNode(nodeText.substring(lastIndex)));
 	const frag = document.createDocumentFragment();
 	for(const node of replacementNodes)
 		frag.appendChild(node);
