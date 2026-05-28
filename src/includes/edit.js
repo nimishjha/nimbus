@@ -34,7 +34,7 @@ export function enableEditTextOnClick()
 
 export function splitTextByWords(text, offset)
 {
-	const NUM_WORDS = 1;
+	const NUM_WORDS = 0;
 
 	let index1 = offset;
 	let countSpacesLeft = 0;
@@ -47,6 +47,8 @@ export function splitTextByWords(text, offset)
 		index1--;
 	}
 	index1++;
+	if(text[index1] === " ")
+		index1++;
 
 	let index2 = offset;
 	while(text[index2] && countSpacesRight < NUM_WORDS + 1)
@@ -55,6 +57,8 @@ export function splitTextByWords(text, offset)
 			countSpacesRight++;
 		index2++;
 	}
+	if(countSpacesRight)
+		index2--;
 
 	if(index2 > index1)
 	{
