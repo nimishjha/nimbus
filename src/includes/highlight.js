@@ -3,7 +3,7 @@ import { showMessageBig, showMessageError } from "./ui";
 import { get, getNodeContainingSelection, getFirstBlockParent, selectBySelectorAndText, selectByTagNameAndText } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
 import { insertStyleHighlight } from "./style";
-import { logString, logYellow, logColors, logStyles } from "./log";
+import { logString, logYellow, logError, logColors, logStyles } from "./log";
 import { getNext } from "./array";
 import { containsOnlyPlainText } from "./elementAndNodeTests";
 import { getTextNodesUnderPre, getTextNodesUnderSelector, getTextNodesUnderElement, xPathSelect } from "./xpath";
@@ -233,10 +233,34 @@ function stripLeadingAndTrailingReferenceNumbers(str)
 	return str.replace(/([\."'])\d+$/, "$1").replace(/^\d+ ([A-Z])/, "$1");
 }
 
-export function expandSelectionToWordBoundaries(node, selection)
+function getIndexNearSelection(text, searchString, startIndex)
 {
+	const sortFunc = (a, b) => a.diff - b.diff;
+	const index = text.toLowerCase().indexOf(searchString.toLowerCase());
+	const diffs = [];
+	if(index + searchString.length < startIndex)
+	{
+		const matches = text.matchAll(new RegExp(searchString, "gi"));
+		for(const match of matches)
+			diffs.push({
+				index: match.index,
+				diff: Math.abs(startIndex - match.index)
+			});
+
+		if(diffs.length)
+		{
+			diffs.sort(sortFunc);
+			return diffs[0].index;
+		}
+	}
+	return index;
+}
+
+export function expandSelectionToWordBoundaries(node, selection, startIndex)
+{
+	const EMDASH = "\u2014";
 	const text = node.textContent.replace(/\s+/g, " ");
-	let index1 = text.indexOf(selection);
+	let index1 = getIndexNearSelection(text, selection, startIndex);
 	if(index1 === -1)
 		return selection;
 	let index2 = index1 + selection.length;
@@ -244,7 +268,7 @@ export function expandSelectionToWordBoundaries(node, selection)
 	const regexRight = /[\w\.\?!,;'"\(\)\u2019\u201D]/;
 	while(regexLeft.test(text[index1]) && index1 > 0)
 		index1--;
-	if(text[index1] === "\u2014") // em dash
+	if(text[index1] === EMDASH)
 		index1++;
 	while(text[index2] && regexRight.test(text[index2]) && index2 < text.length)
 		index2++;
@@ -252,10 +276,10 @@ export function expandSelectionToWordBoundaries(node, selection)
 	return stripLeadingAndTrailingReferenceNumbers(expandedSelection).trim();
 }
 
-export function expandSelectionToSentenceBoundaries(node, selection)
+export function expandSelectionToSentenceBoundaries(node, selection, startIndex)
 {
 	const text = node.textContent.replace(/\s+/g, " ");
-	let index1 = text.toLowerCase().indexOf(selection.toLowerCase());
+	let index1 = getIndexNearSelection(text, selection, startIndex);
 	if(index1 === -1)
 		return selection;
 	let index2 = index1 + selection.length;
@@ -282,52 +306,91 @@ export function expandSelectionToSentenceBoundaries(node, selection)
 
 export function getFirstElementParent(node)
 {
-	if(node.nodeType === Node.ELEMENT_NODE)
-		return node;
-	else
-		return node.parentNode;
+	return node.nodeType === Node.ELEMENT_NODE ? node : node.parentNode;
+}
+
+function getNodeOffset(element, node)
+{
+	const textNodes = getTextNodesUnderElement(element);
+	let offset = 0;
+	for(const textNode of textNodes)
+	{
+		if(textNode === node)
+			break;
+		offset += textNode.data.length;
+	}
+	return offset;
 }
 
 export function highlightSelection(mode = "sentence")
 {
 	const selection = window.getSelection();
-	if(!selection.toString().length)
+	if(!selection)
 	{
 		showMessageBig("Nothing selected");
 		return;
 	}
+
+	if(!selection.toString().length)
+	{
+		selection.modify("extend", "forward", "word");
+		selection.modify("extend", "backward", "word");
+	}
+
 	const element = getFirstBlockParent(selection.anchorNode);
-	let selectionText = removeLineBreaks(selection.toString()).trim();
-	if(element.tagName !== "PRE")
-		normalizeHTML(element);
-	if(!element || element.tagName === undefined)
+	if(!element)
 	{
 		showMessageBig("Couldn't get element containing selection");
 		return;
 	}
+
+	const startIndex = Math.min(selection.anchorOffset, selection.focusOffset) + getNodeOffset(element, selection.anchorNode);
+	const selectionText = removeLineBreaks(selection.toString()).trim();
+
+	if(element.tagName !== "PRE")
+		normalizeHTML(element);
+
 	if(selectionText.length)
 	{
-		if(Nimbus.selectionHighlightMode === "sentence" && mode !== "word")
-			selectionText = expandSelectionToSentenceBoundaries(element, selectionText);
+		const expandedSelectionText = Nimbus.selectionHighlightMode === "sentence" && mode !== "word" ?
+			expandSelectionToSentenceBoundaries(element, selectionText, startIndex) :
+			expandSelectionToWordBoundaries(element, selectionText, startIndex);
+
+		if(selection.anchorNode === selection.focusNode && selection.anchorNode.data.includes(expandedSelectionText))
+			highlightInTextNode(selection.anchorNode, expandedSelectionText);
 		else
-			selectionText = expandSelectionToWordBoundaries(element, selectionText);
-		highlightTextInElement(element, selectionText);
+			highlightTextInElement(element, expandedSelectionText, startIndex);
 	}
 }
 
-export function highlightTextInElement(element, searchString)
+export function highlightTextInElement(element, searchString, startIndex)
 {
-	const isPlainTextMatch = highlightInElementTextNodes(element, searchString);
+	const isPlainTextMatch = highlightInElementTextNodes(element, searchString, startIndex);
 	if(!isPlainTextMatch)
-		highlightTextAcrossTags(element, searchString);
+		highlightTextAcrossTags(element, searchString, startIndex);
 }
 
-export function highlightInElementTextNodes(element, searchString)
+function getNodeContainingIndex(element, startIndex)
 {
 	const nodes = getTextNodesUnderElement(element);
+	let len = 0;
 	for(const node of nodes)
 	{
-		const index = node.data.indexOf(searchString);
+		len += node.data.length;
+		if(startIndex <= len)
+			return node;
+	}
+	return null;
+}
+
+export function highlightInElementTextNodes(element, searchString, startIndex)
+{
+	const nodes = getTextNodesUnderElement(element);
+	const node = nodes.length === 1 ? nodes[0] : getNodeContainingIndex(element, startIndex);
+	if(node)
+	{
+		// todo: handle the case when the search string occurs multiple times in the same node
+		const index = nodes.length === 1 ? getIndexNearSelection(node.data, searchString, startIndex) : node.data.indexOf(searchString);
 		if(index !== -1)
 		{
 			const textBeforeMatch = node.data.substring(0, index);
@@ -345,6 +408,11 @@ export function highlightInElementTextNodes(element, searchString)
 			return true;
 		}
 	}
+	else
+	{
+		logError("could not get node");
+	}
+
 	return false;
 }
 
@@ -697,7 +765,7 @@ export function italicizeSelection()
 	}
 }
 
-export function highlightTextAcrossTags(element, searchString)
+export function highlightTextAcrossTags(element, searchString, startIndex)
 {
 	const { green, blue, black, yellow } = logColors;
 	const { styleHeading } = logStyles;
@@ -707,7 +775,7 @@ export function highlightTextAcrossTags(element, searchString)
 	const indivisibleElementTypes = new Set(["A", "B", "I", "EM", "STRONG", REFERENCE_TAGNAME]);
 	const nodeData = createNodeData(element);
 	const elemText = normalizeText(element.textContent);
-	const index1 = elemText.indexOf(searchString);
+	const index1 = getIndexNearSelection(elemText, searchString, startIndex);
 	const index2 = index1 + searchString.length;
 
 	if(index1 === -1)
