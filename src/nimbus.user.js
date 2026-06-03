@@ -550,7 +550,8 @@ import {
 } from "./includes/interlinkReferences";
 import {
 	editWordsOnClick,
-	enableEditTextOnClick
+	enableEditTextOnClick,
+	editTextOfSelectionAnchorNode,
 } from "./includes/edit";
 
 const isDebugMode = true;
@@ -646,6 +647,7 @@ const availableFunctions = {
 	duplicateMarkedElement,
 	editDocumentTitle,
 	editStyleById,
+	editTextOfSelectionAnchorNode,
 	enableClickToCollectUrls,
 	enableConsoleLogs,
 	enDashToEmDash,
@@ -1555,6 +1557,7 @@ function handleKeyDown(e)
 			case     KEYCODES.M:                    markCurrentElement(); break;
 			case     KEYCODES.S:                    forceReloadCss(); break;
 			case     KEYCODES.V:                    replaceCommonClasses(); break;
+			case     KEYCODES.W:                    editTextOfSelectionAnchorNode(); break;
 			case     KEYCODES.F11:                  inspect(true); break;
 			case     KEYCODES.UPARROW:              modifyMark("expand", true); break;
 			case     KEYCODES.DOWNARROW:            modifyMark("contract", true); break;

@@ -73,26 +73,50 @@ export function splitTextByWords(text, offset)
 	return [null, null, null, true];
 }
 
-function editWordsOnClickHandler()
+function editWordsAroundSelection()
 {
 	const selection = window.getSelection();
-	const node = selection.anchorNode;
-	if(node)
+	if(selection)
 	{
-		const [preceding, textToEdit, following, error] = splitTextByWords(node.data, selection.focusOffset);
-
-		function replaceWord(str)
+		const node = selection.anchorNode;
+		if(node)
 		{
-			node.data = `${preceding}${str}${following}`;
-		}
+			const [preceding, textToEdit, following, error] = splitTextByWords(node.data, selection.anchorOffset);
 
-		if(!error)
-			customPrompt("Edit text", textToEdit).then(replaceWord);
+			function replaceWord(str)
+			{
+				node.data = `${preceding}${str}${following}`;
+			}
+
+			if(!error)
+				customPrompt("Edit text", textToEdit).then(replaceWord);
+		}
 	}
 }
 
 export function editWordsOnClick()
 {
-	document.addEventListener('click', editWordsOnClickHandler, { capture: true, once: true });
+	document.addEventListener('click', editWordsAroundSelection, { capture: true, once: true });
 	showMessageBig("Click on some text to edit it");
+}
+
+export function editTextOfSelectionAnchorNode()
+{
+	const selection = window.getSelection();
+	if(selection)
+	{
+		const node = selection.anchorNode;
+		if(node)
+		{
+			const [preceding, textToEdit, following, error] = splitTextByWords(node.data, selection.anchorOffset);
+
+			function replaceWord(str)
+			{
+				node.data = `${preceding}${str}${following}`;
+			}
+
+			if(!error)
+				customPrompt("Edit text", textToEdit).then(replaceWord);
+		}
+	}
 }
