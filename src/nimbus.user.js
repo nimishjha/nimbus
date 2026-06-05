@@ -377,8 +377,6 @@ import {
 } from "./includes/groupElements";
 import {
 	cycleHighlightTag,
-	expandSelectionToSentenceBoundaries,
-	expandSelectionToWordBoundaries,
 	highlightAllMatchesInDocument,
 	highlightAllMatchesInDocumentCaseSensitive,
 	highlightAllMatchesInDocumentRegex,
@@ -652,8 +650,6 @@ const availableFunctions = {
 	enableConsoleLogs,
 	enDashToEmDash,
 	escapeHTML,
-	expandSelectionToSentenceBoundaries,
-	expandSelectionToWordBoundaries,
 	fixBody,
 	fixBullets,
 	fixDashes,

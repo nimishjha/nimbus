@@ -256,51 +256,69 @@ function getIndexNearSelection(text, searchString, startIndex)
 	return index;
 }
 
-export function expandSelectionToWordBoundaries(node, selection, startIndex)
+function replacePeriodsInAcronyms(text)
+{
+	return text.replace(
+		/\b([A-Za-z0-9](?:\.[A-Za-z0-9])+)\.?/g,
+		(match, acronym) => {
+			const withUnderscores = acronym.replace(/\./g, '_');
+			return match.endsWith('.') ? withUnderscores + '_' : withUnderscores;
+		}
+	);
+}
+
+function normalizeForSelectionExpansion(str)
+{
+	const strSpacesNormalized = str.replace(/\s+/g, " ");
+	const strAbbreviationsReplaced = replacePeriodsInAcronyms(strSpacesNormalized);
+	return [strSpacesNormalized, strAbbreviationsReplaced];
+}
+
+function expandSelectionToWordBoundaries(node, selection, startIndex)
 {
 	const EMDASH = "\u2014";
-	const text = node.textContent.replace(/\s+/g, " ");
-	let index1 = getIndexNearSelection(text, selection, startIndex);
+	const [strSpacesNormalized, strAbbreviationsReplaced] = normalizeForSelectionExpansion(node.textContent);
+	let index1 = getIndexNearSelection(strAbbreviationsReplaced, selection, startIndex);
 	if(index1 === -1)
 		return selection;
 	let index2 = index1 + selection.length;
 	const regexLeft = /[\w\.\?!,'"\(\)\u2018\u201C]/;
 	const regexRight = /[\w\.\?!,;'"\(\)\u2019\u201D]/;
-	while(regexLeft.test(text[index1]) && index1 > 0)
+	while(regexLeft.test(strAbbreviationsReplaced[index1]) && index1 > 0)
 		index1--;
-	if(text[index1] === EMDASH)
+	if(strAbbreviationsReplaced[index1] === EMDASH)
 		index1++;
-	while(text[index2] && regexRight.test(text[index2]) && index2 < text.length)
+	while(strAbbreviationsReplaced[index2] && regexRight.test(strAbbreviationsReplaced[index2]) && index2 < strAbbreviationsReplaced.length)
 		index2++;
-	const expandedSelection = text.substring(index1, index2).replace(/\s+/g, " ").trim();
+	const expandedSelection = strSpacesNormalized.substring(index1, index2).trim();
 	return stripLeadingAndTrailingReferenceNumbers(expandedSelection).trim();
 }
 
-export function expandSelectionToSentenceBoundaries(node, selection, startIndex)
+function expandSelectionToSentenceBoundaries(node, selection, startIndex)
 {
-	const text = node.textContent.replace(/\s+/g, " ");
-	let index1 = getIndexNearSelection(text, selection, startIndex);
+	const [strSpacesNormalized, strAbbreviationsReplaced] = normalizeForSelectionExpansion(node.textContent);
+	let index1 = getIndexNearSelection(strSpacesNormalized, selection, startIndex);
 	if(index1 === -1)
 		return selection;
 	let index2 = index1 + selection.length;
 	const regexLeft = /[\.\?!]/;
 	const regexRight = /[\.\?!]/;
-	while(!regexLeft.test(text[index1]) && index1 > 0)
+	while(!regexLeft.test(strAbbreviationsReplaced[index1]) && index1 > 0)
 		index1--;
-	while(text[index2] && !regexRight.test(text[index2]) && index2 < text.length)
+	while(strAbbreviationsReplaced[index2] && !regexRight.test(strAbbreviationsReplaced[index2]) && index2 < strAbbreviationsReplaced.length)
 		index2++;
-	if(index2 < text.length - 1 && /['"\)]/.test(text[index2 + 1]) )
+	if(index2 < strAbbreviationsReplaced.length - 1 && /['"\)]/.test(strAbbreviationsReplaced[index2 + 1]) )
 		index2++;
 	index1++;
-	if(/['"\)]/.test(text[index1]))
+	if(/['"\)]/.test(strAbbreviationsReplaced[index1]))
 		index1++;
 	if(index1 < 4)
 		index1 = 0;
-	if(index2 < text.length - 1)
+	if(index2 < strAbbreviationsReplaced.length - 1)
 		index2++;
-	if(index2 > text.length - 4)
-		index2 = text.length;
-	const expandedSelection = text.substring(index1, index2).replace(/\s+/g, " ").trim();
+	if(index2 > strAbbreviationsReplaced.length - 4)
+		index2 = strAbbreviationsReplaced.length;
+	const expandedSelection = strSpacesNormalized.substring(index1, index2).trim();
 	return stripLeadingAndTrailingReferenceNumbers(expandedSelection).trim();
 }
 
