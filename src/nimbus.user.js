@@ -413,7 +413,6 @@ import {
 	resetHighlightTag,
 	setHighlightTag,
 	toggleHighlight,
-	toggleHighlightSelectionMode,
 } from "./includes/highlight";
 import {
 	getClassCounts,
@@ -943,7 +942,6 @@ const availableFunctions = {
 	toggleContentEditable,
 	toggleHighlight,
 	toggleHighlightMap,
-	toggleHighlightSelectionMode,
 	toggleInvertImages,
 	toggleMutationObserver,
 	toggleNimbusStyles,

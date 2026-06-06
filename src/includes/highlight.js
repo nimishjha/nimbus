@@ -222,12 +222,6 @@ export function highlightElements(elems)
 	}
 }
 
-export function toggleHighlightSelectionMode()
-{
-	Nimbus.selectionHighlightMode = Nimbus.selectionHighlightMode === "sentence" ? "word" : "sentence";
-	showMessageBig(`Highlight mode is ${Nimbus.selectionHighlightMode}`);
-}
-
 function stripLeadingAndTrailingReferenceNumbers(str)
 {
 	return str.replace(/([\."'])\d+$/, "$1").replace(/^\d+ ([A-Z])/, "$1");
@@ -370,9 +364,9 @@ export function highlightSelection(mode = "sentence")
 
 	if(selectionText.length)
 	{
-		const expandedSelectionText = Nimbus.selectionHighlightMode === "sentence" && mode !== "word" ?
-			expandSelectionToSentenceBoundaries(element, selectionText, startIndex) :
-			expandSelectionToWordBoundaries(element, selectionText, startIndex);
+		const expandedSelectionText = mode === "word" ?
+			expandSelectionToWordBoundaries(element, selectionText, startIndex) :
+			expandSelectionToSentenceBoundaries(element, selectionText, startIndex);
 
 		if(selection.anchorNode === selection.focusNode && selection.anchorNode.data.includes(expandedSelectionText))
 			highlightInTextNode(selection.anchorNode, expandedSelectionText);

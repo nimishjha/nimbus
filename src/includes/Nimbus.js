@@ -26,7 +26,6 @@ export const Nimbus = {
 	markerClass: "markd",
 	minPersistSize: 800,
 	HEADING_CONTAINER_TAGNAME: "documentheading",
-	selectionHighlightMode: "sentence",
 	GROUP_TAGNAME: "blockquote",
 	italicTag: "i",
 	identifyClass: {
