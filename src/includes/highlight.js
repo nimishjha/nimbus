@@ -343,10 +343,14 @@ export function highlightSelection(mode = "sentence")
 		return;
 	}
 
-	if(!selection.toString().length)
+	if(selection.anchorOffset === selection.focusOffset)
 	{
+		const range = document.createRange();
+		range.setStart(selection.anchorNode, selection.anchorOffset - 1);
+		range.setEnd(selection.anchorNode, selection.anchorOffset + 1);
+		selection.removeAllRanges();
+		selection.addRange(range);
 		selection.modify("extend", "forward", "word");
-		selection.modify("extend", "backward", "word");
 	}
 
 	const element = getFirstBlockParent(selection.anchorNode);
@@ -373,6 +377,8 @@ export function highlightSelection(mode = "sentence")
 		else
 			highlightTextInElement(element, expandedSelectionText, startIndex);
 	}
+	else
+		showMessageBig("Could not get selection text");
 }
 
 export function highlightTextInElement(element, searchString, startIndex)
