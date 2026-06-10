@@ -1,7 +1,7 @@
 import { Nimbus } from "./Nimbus";
 import { makePlainText, removeAllAttributesOf, emptyElement, createElement, unwrapElement, createElementWithChildren, removeAttributeOf, unwrapAll, removeAllAttributesOfTypes, removeAllAttributesExcept, deleteClass, createLinkInWrapper } from "./element";
 import { get, getOne, del, select } from "./selectors";
-import { markElement, getMarkedElements, markNavigationalLists, markElements, unmarkAll } from "./mark";
+import { markElement, showMarkedElementInfo, getMarkedElements, markNavigationalLists, markElements, unmarkAll } from "./mark";
 import { replaceDiacritics, replaceSpecialCharacters, snakeCaseToCamelCase, normalizeAllWhitespace } from "./text";
 import { containsAnyOfTheStrings, removeWhitespace, trimSpecialChars, normalizeString, capitalize } from "./string";
 import { getXpathResultAsArray, getEmptyTextNodesUnderElement } from "./xpath";
@@ -279,10 +279,11 @@ export function getContentByParagraphCount()
 		}
 	}
 	deleteClass("longParagraph");
+
 	if(contentDiv)
 	{
 		markElement(contentDiv);
-		showMessageBig("Marked content div");
+		showMarkedElementInfo(contentDiv);
 	}
 	else
 		showMessageError("Could not find content");
