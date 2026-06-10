@@ -59,6 +59,7 @@ export function rescueOrphanedTextNodes()
 {
 	const WRAPPER_TAGNAME = "p";
 	const textNodes = getTextNodesUnderSelector("body");
+	let count = 0;
 	for(let i = 0, ii = textNodes.length; i < ii; i++)
 	{
 		let node = textNodes[i];
@@ -99,6 +100,7 @@ export function rescueOrphanedTextNodes()
 
 			if(allOrphanedNodes.length)
 			{
+				count += allOrphanedNodes.length;
 				const wrapper = document.createElement(WRAPPER_TAGNAME);
 				for(const orphan of allOrphanedNodes)
 					wrapper.appendChild(orphan.cloneNode(true));
@@ -107,6 +109,7 @@ export function rescueOrphanedTextNodes()
 			}
 		}
 	}
+	showMessageBig(`${count} orphaned text nodes adopted`);
 }
 
 export function replaceFontTags()
