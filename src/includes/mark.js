@@ -234,19 +234,18 @@ export function markSelectionAnchorNode()
 	showMarkedElementInfo(node);
 }
 
-export function showMarkedElementInfo(node)
+export function showMarkedElementInfo(element)
 {
-	const classSelector = createClassSelector(node);
-	const fullSelector = createSelector(node);
-	const tagName = node.tagName.toLowerCase();
-	const elems = classSelector ? get(classSelector) : get(tagName);
-	if(elems)
+	const fullSelector = createSelector(element);
+	if(element.className && element.className !== Nimbus.markerClass)
 	{
-		const count = elems.length;
-		if(count === 1)
-			showMessage(`${fullSelector}: unique`, "messageinner", true);
-		else
-			showMessage(`${fullSelector}: ${count} instances`, "messageinner", true);
+		const elems = document.querySelectorAll(createClassSelector(element));
+		const countMessage = elems.length === 1 ? "unique" : `${elems.length} instances`;
+		showMessage(`${fullSelector}: ${countMessage}`, "messageinner", true);
+	}
+	else
+	{
+		showMessage(`${fullSelector}`);
 	}
 }
 
