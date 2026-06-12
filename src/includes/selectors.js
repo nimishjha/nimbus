@@ -1020,7 +1020,15 @@ export function selectImagesSmallerThan(pixelArea)
 	let i = images.length;
 	const result = [];
 	while(i--)
-		if(images[i].src.includes(".svg") ? images[i].width * images[i].height : images[i].naturalWidth * images[i].naturalHeight < pixelArea)
+	{
+		let area = 0;
+		if(images[i].src.includes(".svg") && !images[i].src.includes(".svg.png"))
+			area = images[i].width * images[i].height;
+		else
+			area = images[i].naturalWidth * images[i].naturalHeight;
+
+		if(area < pixelArea)
 			result.push(images[i]);
+	}
 	return result;
 }

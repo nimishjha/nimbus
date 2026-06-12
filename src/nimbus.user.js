@@ -520,7 +520,6 @@ import {
 import {
 	removeQueryParameterFromUrl,
 	replaceQueryParameter,
-	setQueryParameter,
 } from "./includes/url";
 import {
 	retrieve,
@@ -848,8 +847,7 @@ const availableFunctions = {
 	replaceCommonClasses,
 	replaceCommonClassesNew,
 	replaceDiacritics,
-	replaceElementsBySelector,
-	replaceElementsBySelectorHelper,
+	replaceElementsBySelector: replaceElementsBySelectorHelper,
 	replaceElementsByTagNameMatching,
 	replaceElementsOfMarkedTypeWith,
 	replaceEmptyParagraphsWithHr,
@@ -900,7 +898,6 @@ const availableFunctions = {
 	setMinPersistSize,
 	setPreFontMonospace,
 	setPreFontProportional,
-	setQueryParameter,
 	setReplacementTag1,
 	setReplacementTag2,
 	showAttributes,
@@ -1204,7 +1201,7 @@ function handleKeyMenuCommand(str)
 			case "SD": replaceElementsBySelector("section section", "div"); break;
 			case "SW": swapElementPositions(); break;
 
-			case "TX": deleteNonEnglishText(); makeTextLowerCase(); break;
+			case "TX": deleteNonEnglishText(); makeTextLowerCase(); normalizeAllWhitespace(); break;
 			case "TL": makeTextLowerCase(); break;
 			case "TP": setDocTitleFromURL(); break;
 			case "TT": deleteEmptyTextNodes(); break;

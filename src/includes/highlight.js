@@ -272,9 +272,12 @@ function expandSelectionToWordBoundaries(node, selection, startIndex)
 {
 	const EMDASH = "\u2014";
 	const [strSpacesNormalized, strAbbreviationsReplaced] = normalizeForSelectionExpansion(node.textContent);
-	let index1 = getIndexNearSelection(strAbbreviationsReplaced, selection, startIndex);
+	let index1 = getIndexNearSelection(strSpacesNormalized, selection, startIndex);
 	if(index1 === -1)
+	{
+		logError("expandSelectionToWordBoundaries: could not find selection in text");
 		return selection;
+	}
 	let index2 = index1 + selection.length;
 	const regexLeft = /[\w\.\?!,'"\(\)\u2018\u201C]/;
 	const regexRight = /[\w\.\?!,;'"\(\)\u2019\u201D]/;
@@ -293,7 +296,10 @@ function expandSelectionToSentenceBoundaries(node, selection, startIndex)
 	const [strSpacesNormalized, strAbbreviationsReplaced] = normalizeForSelectionExpansion(node.textContent);
 	let index1 = getIndexNearSelection(strSpacesNormalized, selection, startIndex);
 	if(index1 === -1)
+	{
+		logError("expandSelectionToSentenceBoundaries: could not find selection in text");
 		return selection;
+	}
 	let index2 = index1 + selection.length;
 	const regexLeft = /[\.\?!]/;
 	const regexRight = /[\.\?!]/;

@@ -68,7 +68,7 @@ export function removeColorsFromInlineStyles()
 
 export function wrapElement(elem, tagName, className)
 {
-	const wrapper = createElement(tagName);
+	const wrapper = document.createElement(tagName);
 	if(className) wrapper.className = className;
 	const newElem = elem.cloneNode(true);
 	wrapper.appendChild(newElem);
@@ -87,7 +87,7 @@ export function wrapMarkedElement(tagName)
 
 export function wrapElementInner(elem, tagName)
 {
-	const wrapper = createElement(tagName);
+	const wrapper = document.createElement(tagName);
 	const newElem = document.createElement(elem.tagName);
 	if(elem.tagName === "A" && elem.href && elem.href.length)
 		newElem.href = elem.href;
@@ -473,16 +473,8 @@ export function normalizeHTML(element)
 	element.normalize();
 	const textNodes = getTextNodesUnderElement(element);
 	for(const node of textNodes)
-	{
 		if(/\s+/.test(node.data))
-		{
-			const normalized = node.data.replace(/\s+/g, " ");
-			if(normalized.length)
-				node.data = normalized;
-			else
-				node.remove();
-		}
-	}
+			node.data = node.data.replace(/\s+/g, " ");
 }
 
 export function createPlaceholderForElementAttribute(elem, attrName, tagName)
