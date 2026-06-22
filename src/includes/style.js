@@ -119,7 +119,7 @@ export function getAllCssRulesMatching(str)
 	return matchingRules;
 }
 
-export function showAllCssRulesMatching(str)
+export function showCssRulesMatching(str)
 {
 	const rules = getAllCssRulesMatching(str);
 	for(const rule of rules)
