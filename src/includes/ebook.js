@@ -4,7 +4,7 @@ import { createElement, removeAllAttributesOfType } from "./element";
 import { get, getOne } from "./selectors";
 import { createUniqueID } from "./misc";
 import { replaceSpecialCharacters } from "./text";
-import { replaceCommonClassesNew } from "./cleanup";
+import { replaceCommonClassesNew, removeInlineStyles } from "./cleanup";
 import { removeUnreferencedIDs } from "./link";
 
 export function generateTableOfContents(selector = "h1, h2, h3, h4, h5, h6", shouldUseHierarchicalHeadings = false)
@@ -83,5 +83,6 @@ export function cleanupEbook()
 	replaceSpecialCharacters();
 	replaceCommonClassesNew();
 	removeUnreferencedIDs();
+	removeInlineStyles();
 	removeAllAttributesOfType("hidden");
 }

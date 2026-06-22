@@ -246,6 +246,8 @@ import {
 	replaceDiacritics,
 	replaceSpecialCharacters,
 	singleQuotesToDoubleQuotes,
+	enableHyphensToDashesOnClick,
+	disableHyphensToDashesOnClick,
 } from "./includes/text";
 import {
 	convertToFragment,
@@ -645,6 +647,8 @@ const availableFunctions = {
 	editStyleById,
 	editTextOfSelectionAnchorNode,
 	enableClickToCollectUrls,
+	enableHyphensToDashesOnClick,
+	disableHyphensToDashesOnClick,
 	enableConsoleLogs,
 	enDashToEmDash,
 	escapeHTML,

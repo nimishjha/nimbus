@@ -331,3 +331,31 @@ export function snakeCaseToCamelCase(snakeCase)
 		return snakeCase;
 	}
 }
+
+function convertHyphensToDashes(evt)
+{
+	const PADDING = 3;
+	if(evt.ctrlKey)
+	{
+		const selection = window.getSelection();
+		if(selection)
+		{
+			const textAroundCaret = selection.anchorNode.data.substring(selection.focusOffset - PADDING, selection.focusOffset + PADDING);
+			if(textAroundCaret.includes("-"))
+			{
+				const textAroundCaretFixed = textAroundCaret.replace(/\s*-\s*/, "—");
+				selection.anchorNode.data = selection.anchorNode.data.replace(textAroundCaret, textAroundCaretFixed);
+			}
+		}
+	}
+}
+
+export function enableHyphensToDashesOnClick()
+{
+	document.addEventListener('click', convertHyphensToDashes, { capture: true });
+}
+
+export function disableHyphensToDashesOnClick()
+{
+	document.removeEventListener('click', convertHyphensToDashes, { capture: true });
+}
