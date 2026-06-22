@@ -361,3 +361,13 @@ export function showPanel(panelText)
 	if(!getOne("#stylePanel"))
 		insertStyle(strStyle, "stylePanel", true);
 }
+
+export function outputToTextarea(str)
+{
+	const ta = document.createElement("textarea");
+	ta.value = str;
+	ta.setAttribute("style", "width: 98%; height: 400px;");
+	document.body.insertBefore(ta, document.body.firstChild);
+	ta.focus();
+	ta.scrollIntoView();
+}

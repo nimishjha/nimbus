@@ -349,7 +349,7 @@ import {
 	toggleContentEditable,
 } from "./includes/dom";
 import { proximitySearch as findMultipleStringsInProximity } from "./includes/proximitySearch";
-import { generateTableOfContents, inlineFootnotes, cleanupEbook } from "./includes/ebook";
+import { generateTableOfContents, inlineFootnotes, cleanupEbook, renameImagesInDocumentByIndex } from "./includes/ebook";
 import { highlightCode } from "./includes/code";
 import { toggleBlockEditMode } from "./includes/blockEdit";
 import {
@@ -841,6 +841,7 @@ const availableFunctions = {
 	removeUnnecessarySpans,
 	removeUnreferencedIDs,
 	removeWhitespace,
+	renameImagesInDocumentByIndex,
 	renderResourceInfo,
 	replaceAllDiacritics,
 	replaceAudio,

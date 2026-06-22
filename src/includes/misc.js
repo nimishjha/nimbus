@@ -186,3 +186,15 @@ export function createRegexFromString(str, isGlobal, isCaseInsensitive)
 	const ci = isCaseInsensitive ? "i" : "";
 	return new RegExp(str, g + ci);
 }
+
+export function getExtension(filename)
+{
+	if(filename.includes("/"))
+		throw new Error("getExtension: filename must not contain directory separators");
+
+	const lastPeriodIndex = filename.lastIndexOf(".");
+	if(lastPeriodIndex !== -1)
+		return filename.substring(lastPeriodIndex + 1);
+
+	return false;
+}

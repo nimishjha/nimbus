@@ -1,8 +1,8 @@
-import { showMessageBig } from "./ui";
+import { showMessageBig, outputToTextarea } from "./ui";
 import { insertAfter, insertAsFirstChild } from "./dom";
 import { createElement, removeAllAttributesOfType } from "./element";
 import { get, getOne } from "./selectors";
-import { createUniqueID } from "./misc";
+import { createUniqueID, getExtension, zeroPad } from "./misc";
 import { replaceSpecialCharacters } from "./text";
 import { replaceCommonClassesNew, removeInlineStyles } from "./cleanup";
 import { removeUnreferencedIDs } from "./link";
@@ -85,4 +85,51 @@ export function cleanupEbook()
 	removeUnreferencedIDs();
 	removeInlineStyles();
 	removeAllAttributesOfType("hidden");
+}
+
+function removeFolderName(relativePath)
+{
+	return relativePath.replace("images/", "");
+}
+
+function addFolderName(filename)
+{
+	return "images/" + filename;
+}
+
+export function renameImagesInDocumentByIndex()
+{
+	const elems = document.querySelectorAll("rt b");
+	if(elems.length)
+	{
+		const renameCommands = [];
+		const uniqueImagesSet = new Set();
+		for(let i = 0, ii = elems.length; i < ii; i++)
+			uniqueImagesSet.add(unescape(removeFolderName(elems[i].textContent)));
+
+		const uniqueImages = Array.from(uniqueImagesSet);
+
+		const namesMap = {};
+		for(let i = 0, ii = uniqueImages.length; i < ii; i++)
+		{
+			const oldName = uniqueImages[i];
+			const ext = getExtension(oldName);
+			const newName = "image" + zeroPad(i + 1, 4) + "." + ext;
+			namesMap[oldName] = newName;
+			renameCommands.push(`mv "${oldName}" ${newName}`);
+		}
+
+		for(const elem of elems)
+		{
+			const relativePath = elem.textContent;
+			const filename = unescape(removeFolderName(relativePath));
+			elem.textContent = addFolderName(namesMap[filename]);
+		}
+
+		outputToTextarea(renameCommands.join("\n"));
+	}
+	else
+	{
+		showMessageBig("Did not find any image placeholders");
+	}
 }
