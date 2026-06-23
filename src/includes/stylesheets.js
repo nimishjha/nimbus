@@ -40,8 +40,8 @@ export const STYLE_SIMPLE_NEGATIVE = `
 `;
 
 export const STYLE_SIMPLE_NEGATIVE_2 = `
-	html { background: #000; }
-	body { background: #181818; color: #777; font-family: "swis721 cn bt"; }
+	html { background: #000; font-size: 20px; }
+	body { background: #181818; color: #888; font-family: "swis721 cn bt"; max-width: 1200px; margin: 0 auto; padding: 100px; }
 	* { box-shadow: none; background-image: none; font-family: inherit; border-radius: 0; }
 	*::before, *::after { opacity: 0.25; }
 	table { border-collapse: collapse; }
@@ -50,9 +50,9 @@ export const STYLE_SIMPLE_NEGATIVE_2 = `
 	td { background: #1C1C1C; }
 	ol, ul, li { background: transparent; }
 	div, tr, td { border: 0; }
-	a:link { color: #05C; background: #111; }
-	a:visited { color: #C55; background: #111; }
-	a:hover, a:focus { color: #0CC; background: #222; }
+	a:link { color: #c50; background: #111; }
+	a:visited { color: #a55; background: #111; }
+	a:hover, a:focus { color: #cc5; background: #222; }
 	span, input, button { border-radius: 0; }
 	span { border: 0; color: inherit; }
 	input { background: #111; border: 1px solid #333; }

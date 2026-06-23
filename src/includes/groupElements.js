@@ -35,6 +35,9 @@ export function groupMarkedElements(tagName)
 export function groupAdjacentElements(selector, parentTag, childTag)
 {
 	const elems = get(selector);
+	if(!elems)
+		return;
+
 	const firstElemTagName = elems[0].tagName;
 	let parentTagName = parentTag || "";
 	let childTagName = childTag || "";

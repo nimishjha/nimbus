@@ -148,7 +148,6 @@ import { toggleHighlightMap, setHighlightMapColor, setHighlightMapOptions } from
 import { logPropertiesMatching, logValuesMatching } from "./includes/object";
 import {
 	capitalize,
-	escapeHTML,
 	ltrim,
 	removeLineBreaks,
 	removeWhitespace,
@@ -651,7 +650,6 @@ const availableFunctions = {
 	disableHyphensToDashesOnClick,
 	enableConsoleLogs,
 	enDashToEmDash,
-	escapeHTML,
 	fixBody,
 	fixBullets,
 	fixDashes,
