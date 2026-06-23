@@ -37,6 +37,43 @@ function cleanupDocument()
 	document.documentElement.id = "nimbus";
 }
 
+function getXpathResultAsArray(xpath)
+{
+	const nodes = document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	let selected = Array.from({ length: nodes.snapshotLength });
+	for(let i = 0, ii = selected.length; i < ii; i++)
+		selected[i] = nodes.snapshotItem(i);
+	return selected;
+}
+
+function getTextNodesUnderSelector(tagName, strClass)
+{
+	let xpathString;
+	if(tagName && strClass)
+		xpathString = `//${tagName}[contains(@class, '${strClass}')]//text()`;
+	else if(tagName)
+		xpathString = `//${tagName}//text()`;
+	else if(strClass)
+		xpathString = `//*[contains(@class, '${strClass}')]//text()`;
+	return getXpathResultAsArray(xpathString);
+}
+
+function replaceInTextNodesUnder(selector, searchString, replacementString)
+{
+	const textNodes = selector.startsWith(".") ? getTextNodesUnderSelector(null, selector.slice(1)) : getTextNodesUnderSelector(selector);
+	let replCount = 0;
+	for(const textNode of textNodes)
+	{
+		if(textNode.data.includes(searchString))
+		{
+			replCount++;
+			textNode.data = textNode.data.replaceAll(searchString, replacementString);
+		}
+	}
+	if(replCount)
+		console.log(`${replCount} text nodes affected`);
+}
+
 function main()
 {
 	window.get = get;
@@ -46,6 +83,9 @@ function main()
 	window.cleanupDocument = cleanupDocument;
 	window.cleanupAttributes = cleanupAttributes;
 	window.appendMetadata = appendMetadata;
+	window.getXpathResultAsArray = getXpathResultAsArray;
+	window.getTextNodesUnderSelector = getTextNodesUnderSelector;
+	window.replaceInTextNodesUnder = replaceInTextNodesUnder;
 }
 
 main();
