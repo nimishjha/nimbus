@@ -1,6 +1,6 @@
 import { Nimbus } from "./Nimbus";
 import { makePlainText, removeAllAttributesOf, emptyElement, createElement, unwrapElement, createElementWithChildren, removeAttributeOf, unwrapAll, removeAllAttributesOfTypes, removeAllAttributesExcept, deleteClass, createLinkInWrapper } from "./element";
-import { get, getOne, del, select } from "./selectors";
+import { get, getOne, del, select, selectByTagNameAndClassMatchingRegex } from "./selectors";
 import { markElement, showMarkedElementInfo, getMarkedElements, markNavigationalLists, markElements, unmarkAll } from "./mark";
 import { replaceDiacritics, replaceSpecialCharacters, snakeCaseToCamelCase, normalizeAllWhitespace } from "./text";
 import { containsAnyOfTheStrings, removeWhitespace, trimSpecialChars, normalizeString, capitalize } from "./string";
@@ -365,6 +365,15 @@ export function replaceCommonClassesNew()
 	{
 		return /quote/.test(str) || /block/.test(str);
 	}
+
+	function removeUnnecessaryClasses()
+	{
+		const elems = selectByTagNameAndClassMatchingRegex("p", /chap.*open/i);
+		for(const elem of elems)
+			elem.removeAttribute("class");
+	}
+
+	removeUnnecessaryClasses();
 
 	replaceElementsBySelector("p[class*=subhe]", "h3");
 	replaceElementsBySelector("table p", "div");
