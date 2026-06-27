@@ -139,6 +139,26 @@ export function selectByClassOrIdContaining(str)
 	return selected;
 }
 
+export function selectByClassMatchingRegex(regex)
+{
+	function filterFunc(elem)
+	{
+		return regex.test(elem.className);
+	}
+
+	return Array.from(document.querySelectorAll("body *[class]")).filter(filterFunc);
+}
+
+export function selectByTagNameAndClassMatchingRegex(tagName, regex)
+{
+	function filterFunc(elem)
+	{
+		return regex.test(elem.className);
+	}
+
+	return Array.from(document.querySelectorAll(`${tagName}[class]`)).filter(filterFunc);
+}
+
 export function selectByChildrenWithText(params)
 {
 	const { parentTagName, parentClass, childTagName, text, exactMatch } = params;
