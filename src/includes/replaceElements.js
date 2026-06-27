@@ -1,6 +1,6 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig, showMessageError } from "./ui";
-import { selectByClassOrIdContaining, selectByTagNameMatching, getNodeContainingSelection, getOneMarked, selectByIDContaining } from "./selectors";
+import { selectByClassOrIdContaining, selectByTagNameMatching, getNodeContainingSelection, getOneMarked, selectByIDContaining, selectByTagNameAndClassMatchingRegex } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
 import { get } from "./selectors";
 import { makeClassSelector } from "./misc";
@@ -305,4 +305,11 @@ export function replaceInMarkedBySelector(selector, tagName)
 	{
 		showMessageError("Expected at least one marked element, found none");
 	}
+}
+
+export function replaceByTagNameAndClassMatchingRegex(tagName, regex, newTagName)
+{
+	const elems = selectByTagNameAndClassMatchingRegex("p", /chap.*open/i);
+	for(const elem of elems)
+		replaceElementKeepingId(elem, newTagName);
 }
