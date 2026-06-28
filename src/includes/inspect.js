@@ -176,8 +176,8 @@ export function showHtmlTextRatio()
 	const bytesText = document.body.textContent.length;
 	const kilobytesHtml = Math.round(bytesHtml / 100) / 10;
 	const kilobytesText = Math.round(bytesText / 100) / 10;
-	const textToHtmlRatio = (Math.round((bytesText / bytesHtml) * 100)) / 100;
-	const str = `${kilobytesHtml} KB : ${kilobytesText} KB (${textToHtmlRatio})`;
+	const htmlToTextRatio = (Math.round((bytesHtml / bytesText) * 100)) / 100;
+	const str = `${kilobytesHtml} KB : ${kilobytesText} KB (${htmlToTextRatio} : 1)`;
 	ylog(str, "h2", true);
 	xlog(str);
 }
