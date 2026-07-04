@@ -50,6 +50,23 @@ export class Cyclable
 		this.values.push(value);
 	}
 
+	delete()
+	{
+		if(this.currentIndex !== -1 && this.values.length)
+		{
+			this.values.splice(this.currentIndex, 1);
+			if(this.values.length)
+			{
+				if(this.currentIndex > this.values.length - 1)
+					this.currentIndex = this.values.length - 1;
+			}
+			else
+			{
+				this.currentIndex = -1;
+			}
+		}
+	}
+
 	addAndSelect(value)
 	{
 		this.values.push(value);
@@ -79,6 +96,16 @@ export class Cyclable
 		this.currentIndex--;
 		if(this.currentIndex < 0) this.currentIndex = this.values.length - 1;
 		return this.values[this.currentIndex]
+	}
+
+	lastValue()
+	{
+		if(this.values.length)
+		{
+			this.currentIndex = this.values.length - 1;
+			return this.values[this.currentIndex];
+		}
+		return null;
 	}
 
 	getLength()
