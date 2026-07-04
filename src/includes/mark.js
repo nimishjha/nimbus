@@ -1,7 +1,7 @@
 import { Nimbus } from "./Nimbus";
 import { showMessage, showMessageBig, showMessageError } from "./ui";
 import { removeWhitespace } from "./string";
-import { get, getOne, getOneMarked, select, mark, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining, selectImagesSmallerThan, selectBySelectorAndExactText } from "./selectors";
+import { get, getOne, getOneMarked, mark, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining, selectImagesSmallerThan, selectBySelectorAndExactText, selectElementsIdenticalTo } from "./selectors";
 import { getTextLength } from "./node";
 import { makeClassSelector } from "./misc";
 import { insertStyleHighlight } from "./style";
@@ -366,30 +366,13 @@ export function markAllFollowingSiblings()
 	}
 }
 
-function getElementsIdenticalTo(elem)
-{
-	if(elem.tagName === "IMG")
-	{
-		const src = elem.getAttribute("src");
-		if(src)
-			return select("img", "src", "equals", src);
-	}
-	else
-	{
-		const text = elem.textContent.trim();
-		if(text.length)
-			return select(elem.tagName, "text", "equals", text);
-	}
-	return null;
-}
-
 export function markByIdenticalText()
 {
 	const marked = getOneMarked();
 	if(marked)
 	{
 		unmarkAll();
-		const elems = getElementsIdenticalTo(marked);
+		const elems = selectElementsIdenticalTo(marked);
 		if(elems)
 			markElements(elems);
 	}
@@ -403,24 +386,6 @@ export function markImagesSmallerThan(pixelArea)
 export function markEmptyElementsOfType(tagName)
 {
 	markElements(getEmptyElementsOfType(tagName));
-}
-
-export function markCurrentElement()
-{
-	const elem = Nimbus.goToNextElement.currentElement;
-	if(elem)
-		markElement(elem);
-}
-
-export function markElementsIdenticalToCurrentElement()
-{
-	const elem = Nimbus.goToNextElement.currentElement;
-	if(elem)
-	{
-		const elems = getElementsIdenticalTo(elem);
-		if(elems)
-			markElements(elems);
-	}
 }
 
 export function markByHasChildrenOfType         (parentSelector, childSelector)                 { mark(parentSelector, "hasChildrenOfType", childSelector); }

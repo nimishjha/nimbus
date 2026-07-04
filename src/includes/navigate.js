@@ -1,10 +1,10 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig } from "./ui";
-import { get, del, select } from "./selectors";
+import { get, del } from "./selectors";
 import { setDocTitle, sanitizeTitle, getTitleWithoutDomainTag } from "./cleanup";
 import { containsAnyOfTheStrings, trimAt, startsWithAnyOfTheStrings } from "./string";
 import { parseQueryString } from "./url";
-import { getPrevious, getNext } from "./array";
+import { getNext } from "./array";
 import { deleteEmptyHeadings } from "./delete";
 
 export function changePageByUrl(direction)
@@ -141,89 +141,6 @@ export function cycleThroughDocumentHeadings()
 	return Nimbus.currentHeadingText;
 }
 
-export function goToNextElement(selector)
-{
-	const config = Nimbus.goToNextElement;
-	if(selector)
-	{
-		config.selector = selector;
-		config.elements = get(selector);
-		if(config.elements.length)
-		{
-			config.currentElement = config.elements[0];
-			config.currentElement.scrollIntoView();
-			window.scrollBy(0, -100);
-		}
-		else
-		{
-			showMessageBig(`No elements matching ${selector}`);
-		}
-	}
-	else
-	{
-		const elementToScrollTo = getNext(config.currentElement, config.elements);
-		if(elementToScrollTo)
-		{
-			config.currentElement = elementToScrollTo;
-			elementToScrollTo.scrollIntoView();
-			window.scrollBy(0, -100);
-		}
-		else
-		{
-			showMessageBig(`Could not find element to scroll to`);
-		}
-	}
-}
-
-export function goToPrevElement(selector)
-{
-	const config = Nimbus.goToNextElement;
-	if(selector)
-	{
-		config.selector = selector;
-		config.elements = get(selector);
-		if(config.elements.length)
-		{
-			config.currentElement = config.elements[0];
-			config.currentElement.scrollIntoView();
-			window.scrollBy(0, -100);
-		}
-		else
-		{
-			showMessageBig(`No elements matching ${selector}`);
-		}
-	}
-	else
-	{
-		const elementToScrollTo = getPrevious(config.currentElement, config.elements);
-		if(elementToScrollTo)
-		{
-			config.currentElement = elementToScrollTo;
-			elementToScrollTo.scrollIntoView();
-			window.scrollBy(0, -100);
-		}
-		else
-		{
-			showMessageBig(`Could not find element to scroll to`);
-		}
-	}
-}
-
-export function goToLastElement(selector)
-{
-	const config = Nimbus.goToNextElement;
-	if(selector)
-	{
-		config.selector = selector;
-		config.elements = get(selector);
-		if(config.elements.length)
-		{
-			config.currentElement = config.elements[config.elements.length - 1];
-			config.currentElement.scrollIntoView();
-		}
-	}
-}
-
 export function sortByPosition(nodeOne, nodeTwo)
 {
 	const relativePosition = nodeOne.compareDocumentPosition(nodeTwo);
@@ -240,14 +157,4 @@ export function goToLastHighlight()
 		const elem = highlights[highlights.length - 1];
 		elem.scrollIntoView();
 	}
-}
-
-export function setElementsToCycleThrough(selector, str)
-{
-	if(!(typeof selector === "string" && selector.length && typeof str === "string" && str.length))
-		return;
-	Nimbus.goToNextElement.elements = select(selector, "text", "contains", str).reverse();
-	showMessageBig(`${Nimbus.goToNextElement.elements.length} elements found`);
-	if(Nimbus.goToNextElement.elements.length)
-		goToNextElement();
 }

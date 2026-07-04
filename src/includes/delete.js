@@ -11,7 +11,6 @@ import { selectByRelativePosition, selectBySelectorAndRelativePosition, selectNo
 import { getNext } from "./array";
 import { makeClassSelector } from "./misc";
 import { REFERENCE_TAGNAME } from "./constants";
-import { goToNextElement } from "./navigate";
 
 export function deleteMarkedElements()
 {
@@ -260,16 +259,6 @@ export function deleteByClassOrIdContaining(str)
 export function deleteBySelectorAndNormalizedText(selector, str)
 {
 	del(selectBySelectorAndNormalizedText(selector, str));
-}
-
-export function deleteCurrentElement()
-{
-	const elem = Nimbus.goToNextElement.currentElement;
-	if(elem)
-	{
-		elem.remove();
-		goToNextElement();
-	}
 }
 
 export function deleteImagesSmallerThan(pixelArea)
