@@ -33,12 +33,8 @@ export const Nimbus = {
 		classes: {},
 		markedClasses: [],
 	},
-	goToNextElement: {
-		selector: null,
-		elements: [],
-		currentElement: null,
-	},
 	symbolsString: "∆∑σ√∫αβγλμνπΦϕΨψρστυ≃°θΩω⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉—",
+	elementCycler: {},
 	moduleConfigs: {
 		highlightMapper: {
 			width: 300,

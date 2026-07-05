@@ -288,12 +288,17 @@ import {
 	changePage,
 	changePageByUrl,
 	cycleThroughDocumentHeadings,
-	goToLastElement,
 	goToLastHighlight,
+} from "./includes/navigate";
+import {
+	deleteCurrentElement,
+	goToLastElement,
 	goToNextElement,
 	goToPrevElement,
+	markCurrentElement,
+	markElementsIdenticalToCurrentElement,
 	setElementsToCycleThrough,
-} from "./includes/navigate";
+} from "./includes/elementCycler";
 import {
 	deleteByClassOrIdContaining,
 	deleteBySelectorAndExactText,
@@ -302,7 +307,6 @@ import {
 	deleteBySelectorAndText,
 	deleteBySelectorAndTextMatching,
 	deleteBySelectorAndTextNotMatching,
-	deleteCurrentElement,
 	deleteElements,
 	deleteEmptyBlockElements,
 	deleteEmptyElements,
@@ -457,9 +461,7 @@ import {
 	markBySelectorAndRegex,
 	markBySelectorAndText,
 	markByTagNameAndText,
-	markCurrentElement,
 	markElements,
-	markElementsIdenticalToCurrentElement,
 	markElementsWithSameClass,
 	markEmptyElementsOfType,
 	markImagesSmallerThan,

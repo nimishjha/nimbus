@@ -1052,3 +1052,20 @@ export function selectImagesSmallerThan(pixelArea)
 	}
 	return result;
 }
+
+export function selectElementsIdenticalTo(elem)
+{
+	if(elem.tagName === "IMG")
+	{
+		const src = elem.getAttribute("src");
+		if(src)
+			return select("img", "src", "equals", src);
+	}
+	else
+	{
+		const text = elem.textContent.trim();
+		if(text.length)
+			return select(elem.tagName, "text", "equals", text);
+	}
+	return null;
+}
