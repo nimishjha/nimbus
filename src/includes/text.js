@@ -238,7 +238,7 @@ export function normalizeAllWhitespace()
 {
 	const textNodes = getTextNodesNotUnderPre();
 	for(const textNode of textNodes)
-		textNode.data = textNode.data.replace(REGEXES_GLOBAL.SPACES, " ");
+		textNode.data = textNode.data.replace(REGEXES_GLOBAL.SPACES_AND_NEWLINES, " ");
 }
 
 export function boldInlineColonHeadings()
