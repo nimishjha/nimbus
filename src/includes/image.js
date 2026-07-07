@@ -405,10 +405,10 @@ export function parseSrcSet(srcset)
 	return null;
 }
 
-export function createImagePlaceholder(img)
+export function createImagePlaceholder(img, boolShowAllSources)
 {
 	const srcset = img.getAttribute("srcset") || img.getAttribute("data-srcset");
-	return srcset ? createImagePlaceholderFromSrcset(srcset) : createImagePlaceholderFromSrc(img.src);
+	return srcset ? createImagePlaceholderFromSrcset(srcset, boolShowAllSources) : createImagePlaceholderFromSrc(img.src);
 }
 
 export function createImagePlaceholderFromSrc(src)
@@ -427,13 +427,13 @@ export function createImagePlaceholderFromSrc(src)
 	{
 		const srcElem = document.createElement("a");
 		srcElem.href = src;
-		srcElem.textContent = shortenImageSrc(src)
+		srcElem.textContent = shortenImageSrc(src);
 		wrapper.appendChild(srcElem);
 	}
 	return wrapper;
 }
 
-export function createImagePlaceholderFromSrcset(srcset)
+export function createImagePlaceholderFromSrcset(srcset, boolShowAllSources)
 {
 	const sourcesArray = parseSrcSet(srcset);
 	if(sourcesArray.length)
@@ -441,6 +441,14 @@ export function createImagePlaceholderFromSrcset(srcset)
 		sourcesArray.sort(sortSources);
 		const wrapper = document.createElement("imageph");
 		wrapper.appendChild(createImagePlaceholderFromSrc(sourcesArray[0].src));
+		if(boolShowAllSources)
+		{
+			for(const srcItem of sourcesArray)
+			{
+				const link = createLinkInWrapper("div", srcItem.size, srcItem.src)
+				wrapper.appendChild(link);
+			}
+		}
 		return wrapper;
 	}
 	return null;
@@ -509,7 +517,7 @@ export function inspectImages()
 	const images = document.querySelectorAll("img");
 	for(const image of images)
 	{
-		const placeholder = createImagePlaceholder(image);
+		const placeholder = createImagePlaceholder(image, true);
 		if(image.parentNode.tagName === "A")
 			image.parentNode.replaceWith(placeholder);
 		else
