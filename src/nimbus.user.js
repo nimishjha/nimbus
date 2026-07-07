@@ -497,7 +497,7 @@ import {
 	convertElement,
 	replaceByClassOrIdContaining,
 	replaceElementsBySelector,
-	replaceElementsBySelectorHelper,
+	showPromptReplaceElementsBySelector,
 	replaceElementsByTagNameMatching,
 	replaceElementsOfMarkedTypeWith,
 	replaceFirstLevelChildrenWith,
@@ -852,7 +852,8 @@ const availableFunctions = {
 	replaceCommonClasses,
 	replaceCommonClassesNew,
 	replaceDiacritics,
-	replaceElementsBySelector: replaceElementsBySelectorHelper,
+	replaceElementsBySelector,
+	showPromptReplaceElementsBySelector,
 	replaceElementsByTagNameMatching,
 	replaceElementsOfMarkedTypeWith,
 	replaceEmptyParagraphsWithHr,
@@ -1197,7 +1198,7 @@ function handleKeyMenuCommand(str)
 			case "RA": analyzeReferences(); break;
 			case "RB": replaceBrs(); break;
 			case "RC": replaceCommonClassesNew(); break;
-			case "RE": replaceElementsBySelectorHelper(); break;
+			case "RE": showPromptReplaceElementsBySelector(); break;
 			case "RM": callFunctionWithArgs("Replace children of marked elements by selector", replaceInMarkedBySelector, 2); break;
 			case "RS": replaceSpecialCharacters(); break;
 			case "RT": callFunctionWithArgs("Replace in all text nodes", replaceInTextNodes, 2); break;
@@ -1500,7 +1501,7 @@ function handleKeyDown(e)
 			case     KEYCODES.A:                    toggleShowEmptyLinksAndSpans(); break;
 			case     KEYCODES.B:                    toggleStyle(STYLE_SHOW_SELECTORS, "styleShowSelectors", true); break;
 			case     KEYCODES.C:                    getContentByParagraphCount(); break;
-			case     KEYCODES.E:                    replaceElementsBySelectorHelper(); break;
+			case     KEYCODES.E:                    showPromptReplaceElementsBySelector(); break;
 			case     KEYCODES.F:                    del(["object", "embed", "video", "iframe"]); break;
 			case     KEYCODES.G:                    callFunctionWithArgs("Delete elements with class or id containing the string", deleteByClassOrIdContaining); break;
 			case     KEYCODES.H:                    callFunctionWithArgs("Mark elements by selector", markBySelector, 1); break;

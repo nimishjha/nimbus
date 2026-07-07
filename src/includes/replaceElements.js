@@ -15,7 +15,7 @@ export function replaceElementsByTagNameMatching(text, tagName)
 		replaceElement(elems[i], newTagName);
 }
 
-export function replaceElementsBySelectorHelper()
+export function showPromptReplaceElementsBySelector()
 {
 	if(getMarkedElements().length)
 		callFunctionWithArgs("Replace elements by selector", replaceElementsBySelector, 2, makeClassSelector(Nimbus.markerClass) + " ");
