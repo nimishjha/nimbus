@@ -445,7 +445,7 @@ export function createImagePlaceholderFromSrcset(srcset, boolShowAllSources)
 		{
 			for(const srcItem of sourcesArray)
 			{
-				const link = createLinkInWrapper("div", srcItem.size, srcItem.src)
+				const link = createLinkInWrapper("code", srcItem.size, srcItem.src)
 				wrapper.appendChild(link);
 			}
 		}

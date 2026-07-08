@@ -1107,7 +1107,7 @@ function handleKeyMenuCommand(str)
 			case "DE": callFunctionWithArgs("Delete elements (optionally containing text)", deleteBySelectorAndTextMatching); break;
 			case "DF": deleteIframes(); break;
 			case "DI": deleteImages(); break;
-			case "DJ": removeEmojis(); break;
+			case "DJ": removeEmojis(true); break;
 			case "DN": deleteNonContentElements(); break;
 			case "DO": deleteImagePlaceholders(); break;
 			case "DP": callFunctionWithArgs("Delete elements with class or id containing text", deleteByClassOrIdContaining); break;

@@ -19,8 +19,9 @@ export function setElementsToCycleThrough(selector, str)
 		return;
 	}
 
-	showMessageBig(`${Nimbus.elementCycler.getLength()} elements found`);
-	if(Nimbus.elementCycler.getLength())
+	const numElements = Nimbus.elementCycler.getLength();
+	showMessageBig(`${numElements} elements found`);
+	if(numElements)
 		goToNextElement();
 }
 
