@@ -35,7 +35,7 @@ export function replaceElementsBySelector(selector, tagName)
 	const toReplace = get(selector);
 	if(!toReplace) return;
 	let i = toReplace.length;
-	if(tagName === "hr" && toReplace[0].tagName !== "RT" && toReplace[0].tagName !== "FIGURE")
+	if(tagName.toLowerCase() === "hr" && toReplace[0].tagName !== "RT" && toReplace[0].tagName !== "FIGURE")
 	{
 		let numNonEmptyElements = 0;
 		while(i--)
@@ -86,16 +86,18 @@ export function convertElement(elem, tagName)
 export function replaceElement(elem, tagName)
 {
 	const replacement = document.createElement(tagName);
-	while(elem.firstChild)
-		replacement.appendChild(elem.firstChild);
+	if(tagName !== "HR")
+		while(elem.firstChild)
+			replacement.appendChild(elem.firstChild);
 	elem.replaceWith(replacement);
 }
 
 export function replaceElementKeepingId(elem, tagName)
 {
 	const replacement = document.createElement(tagName);
-	while(elem.firstChild)
-		replacement.appendChild(elem.firstChild);
+	if(tagName !== "HR")
+		while(elem.firstChild)
+			replacement.appendChild(elem.firstChild);
 	if(elem.id)
 		replacement.id = elem.id;
 	elem.replaceWith(replacement);
@@ -104,8 +106,9 @@ export function replaceElementKeepingId(elem, tagName)
 export function replaceElementKeepingIdAndClass(elem, tagName)
 {
 	const replacement = document.createElement(tagName);
-	while(elem.firstChild)
-		replacement.appendChild(elem.firstChild);
+	if(tagName !== "HR")
+		while(elem.firstChild)
+			replacement.appendChild(elem.firstChild);
 	if(elem.id)
 		replacement.id = elem.id;
 	if(elem.className)
