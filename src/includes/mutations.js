@@ -17,6 +17,19 @@ function showClonedElements()
 	}
 }
 
+function nodeToString(node)
+{
+	if(node.nodeType === Node.ELEMENT_NODE)
+		return createSelector(node);
+	else
+	{
+		const parent = node.parentNode;
+		if(parent)
+			return createSelector(parent);
+	}
+	return "text node";
+}
+
 function logMutations(mutations)
 {
 	function clone(elem) { Nimbus.clonedNodesContainer.appendChild(elem.cloneNode(true)); }
@@ -34,7 +47,7 @@ function logMutations(mutations)
 					const addedNode = mutation.addedNodes[j];
 					if(addedNode.className && addedNode.classList.contains("nimbusUI"))
 						continue;
-					console.log(`%cadded:   %c${createSelector(addedNode)} %c${addedNode.textContent}`, logColors.green, logColors.gray, logColors.blue);
+					console.log(`%cadded:   %c${nodeToString(addedNode)} %c${addedNode.textContent}`, logColors.green, logColors.gray, logColors.blue);
 					clone(addedNode);
 				}
 			}
