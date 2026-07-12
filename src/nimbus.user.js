@@ -1143,6 +1143,8 @@ function handleKeyMenuCommand(str)
 
 			case "II": inspectImages(); break;
 			case "IS": callFunctionWithArgs("Mark images smaller than a given pixel area", markImagesSmallerThan, 1); break;
+			case "IC": identifyClassSetup(".markd, .markd *"); break;
+			case "ID": identifyClassSetup(".markd, .markd div"); break;
 
 			case "J1": replaceSelectedElement("h1"); break;
 			case "J2": replaceSelectedElement("h2"); break;

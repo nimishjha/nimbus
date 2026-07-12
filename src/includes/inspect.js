@@ -436,7 +436,8 @@ export function numberDivs()
 	toggleStyle(STYLE_SHOW_SELECTORS, "styleShowSelectors", true);
 }
 
-export function getClassCounts(selector) {
+export function getClassCounts(selector)
+{
 	function sortByCountDescending(a, b) { return b.count - a.count; }
 	const elements = get(selector);
 	if(elements)

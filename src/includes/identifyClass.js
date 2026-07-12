@@ -5,6 +5,7 @@ import { makeClassSelector } from "./misc";
 import { getAllClassesFor, getClassCounts } from "./inspect";
 import { get, del } from "./selectors";
 import { insertStyle } from "./style";
+import { logInfo } from "./log";
 
 export function identifyClassSetup(selector, atomic = true)
 {
@@ -60,11 +61,12 @@ export function identifyClassMark(str)
 	else
 	{
 		config.markedClasses.push(`.${currentClass} {} /* ${str} */`);
+		identifyClassShowMarked();
 		showMessageBig(`Marked ${currentClass} with tag ${str}`);
 	}
 }
 
 export function identifyClassShowMarked()
 {
-	console.log(Nimbus.identifyClass.markedClasses.join("\n"));
+	logInfo(Nimbus.identifyClass.markedClasses.join("\n"));
 }
