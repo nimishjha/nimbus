@@ -234,13 +234,21 @@ export function analyzeReferences()
 
 		let numSectionsWithReferences = 0;
 		const sections = get("section");
-		for(const section of sections)
-			if(section.querySelector("footnote") !== null)
-				numSectionsWithReferences++;
-		if(numSectionsWithReferences === 1)
-			logInfo("All footnotes are contained within one section");
-		else if(numSectionsWithReferences > 1)
-			logInfo("More than one section contains footnotes");
+		if(sections)
+		{
+			for(const section of sections)
+				if(section.querySelector("footnote") !== null)
+					numSectionsWithReferences++;
+			if(numSectionsWithReferences === 1)
+				logInfo("All footnotes are contained within one section");
+			else if(numSectionsWithReferences > 1)
+				logInfo("More than one section contains footnotes");
+		}
+		else
+		{
+			showMessageError("No sections in document, aborting");
+			return;
+		}
 	}
 
 	const allRefs = document.querySelectorAll(REFERENCE_TAGNAME + " a");
