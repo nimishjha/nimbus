@@ -1,8 +1,8 @@
 import { Nimbus } from "./Nimbus";
-import { logSuccess, logError, logWarning, logYellow, logInfo } from "./log";
+import { logSuccess, logError, logWarning, logInfo } from "./log";
 import { showMessageBig, showMessageError } from "./ui";
 import { createLinksByHrefLookup } from "./link";
-import { wrapElement, wrapElementInner } from "./element";
+import { wrapElementInner } from "./element";
 import { annotateElement } from "./dom";
 import { get } from "./selectors";
 import { REFERENCE_TAGNAME } from "./constants";
@@ -284,7 +284,7 @@ export function interlinkReferencesUsingFootnoteReferences()
 	}
 
 	const lookup = createLinksByHrefLookup();
-	let count = 0;
+	let numInterlinked = 0;
 
 	const prefix = getSafePrefixForSequentialIDs("ref");
 	if(!prefix)
@@ -308,30 +308,7 @@ export function interlinkReferencesUsingFootnoteReferences()
 			const links = lookup["#" + primaryRefLink.id];
 			if(links)
 			{
-				count++;
-				primaryRefLink.id = prefix + index;
-				primaryRefLink.textContent = index;
-				interlink(primaryRefLink, links[0], primaryRefLink.textContent, primaryRefLink.id);
-				if(links[0].parentNode.tagName !== REFERENCE_TAGNAME)
-				{
-					logInfo(`links[0].parentNode.tagName is ${links[0].parentNode.tagName}`);
-					wrapElement(links[0], REFERENCE_TAGNAME);
-				}
-
-				if(links.length > 1)
-				{
-					logYellow(`${primaryRefLink.textContent} has ${links.length} links to it`);
-					for(let j = 1, jj = links.length; j < jj; j++)
-					{
-						const dupRef = document.createElement(REFERENCE_TAGNAME);
-						const dupRefLink = document.createElement("a");
-						const dupRefLinkText = `${primaryRefLink.textContent}-${j + 1}`;
-						const dupRefLinkID = primaryRefLink.id + "dup" + (j + 1).toString();
-						interlink(dupRefLink, links[j], dupRefLinkText, dupRefLinkID);
-						dupRef.appendChild(dupRefLink);
-						primaryRefLink.parentNode.insertAdjacentElement("afterend", dupRef);
-					}
-				}
+				numInterlinked += interlinkMultiple(primaryRefLink, links, index, prefix + index);
 			}
 			else
 			{
@@ -340,5 +317,5 @@ export function interlinkReferencesUsingFootnoteReferences()
 			}
 		}
 	}
-	showMessageBig(`${count} reference groups interlinked`);
+	showMessageBig(`${numInterlinked} reference groups interlinked`);
 }
