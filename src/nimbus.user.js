@@ -545,6 +545,7 @@ import {
 import {
 	interlinkReferencesByChapterAndFootnoteContainerSelectors,
 	interlinkReferencesByIndexInSections,
+	interlinkReferencesByTextInSections,
 	interlinkReferencesUsingFootnoteReferences,
 } from "./includes/interlinkReferences";
 import {
@@ -724,6 +725,7 @@ const availableFunctions = {
 	inspectImages,
 	interlinkReferencesByChapterAndFootnoteContainerSelectors,
 	interlinkReferencesByIndexInSections,
+	interlinkReferencesByTextInSections,
 	interlinkMarkedElements,
 	interlinkReferencesUsingFootnoteReferences,
 	invertItalics,

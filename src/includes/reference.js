@@ -288,8 +288,8 @@ export function analyzeReferences()
 		const nfRef = nonFootnoteRefs[i];
 		if(fRef && nfRef)
 		{
-			const fRefText = fRef.textContent.trim()
-			const nfRefText = nfRef.textContent.trim()
+			const fRefText = fRef.textContent.trim();
+			const nfRefText = nfRef.textContent.trim();
 			if(fRefText !== nfRefText)
 			{
 				numNonMatchingText++;

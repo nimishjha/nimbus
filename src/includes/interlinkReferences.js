@@ -2,7 +2,8 @@ import { Nimbus } from "./Nimbus";
 import { logSuccess, logError, logWarning, logYellow, logInfo } from "./log";
 import { showMessageBig, showMessageError } from "./ui";
 import { createLinksByHrefLookup } from "./link";
-import { wrapElement } from "./element";
+import { wrapElement, wrapElementInner } from "./element";
+import { annotateElement } from "./dom";
 import { get } from "./selectors";
 import { REFERENCE_TAGNAME } from "./constants";
 
@@ -139,6 +140,80 @@ export function interlinkReferencesByIndexInSections()
 			}
 		}
 	}
+}
+
+function doesNotHaveFootnoteParent(elem)
+{
+	return !elem.closest("footnote");
+}
+
+export function interlinkReferencesByTextInSections()
+{
+	const sections = document.querySelectorAll("section");
+	if(!sections.length)
+	{
+		showMessageError("Could not find any sections in document");
+		return;
+	}
+
+	let numInterlinked = 0;
+	let numFootnoteRefs = 0;
+	let uniqueRefNumber = 0;
+
+	for(let i = 0, ii = sections.length; i < ii; i++)
+	{
+		const section = sections[i];
+		const footnoteRefLinks = section.querySelectorAll("footnote reference a");
+		if(!footnoteRefLinks.length)
+		{
+			logInfo(`No footnote reference links in section ${i}`);
+			continue;
+		}
+
+		numFootnoteRefs += footnoteRefLinks.length;
+
+		const allRefs = Array.from(section.querySelectorAll("reference"));
+		if(!allRefs.length)
+		{
+			logInfo(`No references in section ${i}`);
+			continue;
+		}
+
+		const nonFootnoteRefs = allRefs.filter(doesNotHaveFootnoteParent);
+		if(!nonFootnoteRefs.length)
+		{
+			logInfo(`No non-footnote references in section ${i}`);
+			continue;
+		}
+
+		for(const ref of nonFootnoteRefs)
+			if(!ref.querySelector("a"))
+				wrapElementInner(ref, "a");
+
+		const nonFootnoteRefLinksByText = {};
+		for(const ref of nonFootnoteRefs)
+		{
+			const refText = ref.textContent.trim();
+			const refLink = ref.querySelector("a");
+			if(nonFootnoteRefLinksByText[refText])
+				nonFootnoteRefLinksByText[refText].push(refLink);
+			else
+				nonFootnoteRefLinksByText[refText] = [refLink];
+		}
+
+		for(const link of footnoteRefLinks)
+		{
+			uniqueRefNumber++;
+			const linkText = link.textContent.trim();
+			const backlinks = nonFootnoteRefLinksByText[linkText];
+			if(backlinks)
+				numInterlinked += interlinkMultiple(link, backlinks, uniqueRefNumber, "ref" + uniqueRefNumber);
+			else
+				annotateElement(link.parentNode, "x", "no matching refs");
+		}
+	}
+
+	showMessageBig(`${numInterlinked} reference pairs interlinked; ${numFootnoteRefs} footnote references total`);
 }
 
 export function interlinkReferencesByChapterAndFootnoteContainerSelectors(chapterSelector, footnotesContainerSelector)
