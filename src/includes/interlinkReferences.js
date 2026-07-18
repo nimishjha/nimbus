@@ -47,6 +47,28 @@ export function interlink(primaryLink, secondaryLink, text, id)
 	secondaryLink.setAttribute("href", "#" + primaryLink.id);
 }
 
+export function interlinkMultiple(link, backlinks, text, id)
+{
+	let numInterlinked = 0;
+	interlink(link, backlinks[0], text, id);
+	numInterlinked++;
+
+	for(let i = 1, ii = backlinks.length; i < ii; i++)
+	{
+		const refLink = backlinks[i];
+		const dupRef = document.createElement(REFERENCE_TAGNAME);
+		const dupRefLink = document.createElement("a");
+		const dupRefLinkText = `${text}-${i + 1}`;
+		const dupRefLinkID = id + "dup" + (i + 1).toString();
+		interlink(dupRefLink, refLink, dupRefLinkText, dupRefLinkID);
+		dupRef.appendChild(dupRefLink);
+		link.insertAdjacentElement("afterend", dupRef);
+		numInterlinked++;
+	}
+
+	return numInterlinked;
+}
+
 export function interlinkReferencesByIndex(footnoteRefs, nonFootnoteRefs)
 {
 	if(nonFootnoteRefs.length === footnoteRefs.length)
