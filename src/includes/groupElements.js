@@ -1,6 +1,6 @@
 import { Nimbus } from "./Nimbus";
 import { showMessageBig } from "./ui";
-import { get, del } from "./selectors";
+import { get, del, selectNodesContainingSelection } from "./selectors";
 import { getMarkedElements, unmarkAll } from "./mark";
 import { convertElement } from "./replaceElements";
 import { insertBefore } from "./dom";
@@ -18,18 +18,30 @@ export function setGroupTagName(tagName)
 	}
 }
 
+export function groupElements(elems, tagName)
+{
+	const groupContainer = document.createElement(tagName);
+	const placeholder = document.createElement("div");
+	insertBefore(elems[0], placeholder);
+	for(const elem of elems)
+		groupContainer.appendChild(elem);
+	placeholder.replaceWith(groupContainer);
+}
+
 export function groupMarkedElements(tagName)
 {
 	const groupTagName = tagName || "ul";
 	const elems = getMarkedElements();
 	if(elems && elems.length)
-	{
-		const wrapper = document.createElement(groupTagName);
-		insertBefore(elems[0], wrapper);
-		for(const elem of elems)
-			wrapper.appendChild(elem);
-	}
+		groupElements(elems, groupTagName);
 	unmarkAll();
+}
+
+export function groupElementsContainingSelection(tagName)
+{
+	const elems = selectNodesContainingSelection();
+	if(elems && elems.length)
+		groupElements(elems, tagName);
 }
 
 export function groupAdjacentElements(selector, parentTag, childTag)

@@ -1,7 +1,7 @@
 import { Nimbus } from "./Nimbus";
 import { showMessage, showMessageBig, showMessageError } from "./ui";
 import { removeWhitespace } from "./string";
-import { get, getOne, getOneMarked, mark, getNodeContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining, selectImagesSmallerThan, selectBySelectorAndExactText, selectElementsIdenticalTo } from "./selectors";
+import { get, getOne, getOneMarked, mark, getNodeContainingSelection, selectNodesContainingSelection, selectBySelectorAndText, selectByTagNameAndText, selectBlockElementsContainingText, selectBySelectorAndNormalizedText, selectByClassOrIdContaining, selectImagesSmallerThan, selectBySelectorAndExactText, selectElementsIdenticalTo } from "./selectors";
 import { getTextLength } from "./node";
 import { makeClassSelector } from "./misc";
 import { insertStyleHighlight } from "./style";
@@ -232,6 +232,13 @@ export function markSelectionAnchorNode()
 	markElement(node);
 	insertStyleHighlight();
 	showMarkedElementInfo(node);
+}
+
+export function markElementsContainingSelection()
+{
+	const elems = selectNodesContainingSelection();
+	if(!elems) return;
+	markElements(elems);
 }
 
 export function showMarkedElementInfo(element)

@@ -375,6 +375,7 @@ import {
 } from "./includes/browse";
 import {
 	groupAdjacentElements,
+	groupElementsContainingSelection,
 	groupMarkedElements,
 	groupUnderHeadings,
 	makeDocumentHierarchical,
@@ -491,6 +492,7 @@ import {
 	markByFollowsElementOfType,
 	markByPrecedesElementOfType,
 	markBySelectorAndExactText,
+	markElementsContainingSelection,
 } from "./includes/mark";
 import {
 	convertDivsToParagraphs,
@@ -784,6 +786,7 @@ const availableFunctions = {
 	markByTagNameAndText,
 	markCurrentElement,
 	markElements,
+	markElementsContainingSelection,
 	markElementsIdenticalToCurrentElement,
 	markElementsWithChildrenSpanning,
 	markElementsWithSameClass,
@@ -1552,13 +1555,15 @@ function handleKeyDown(e)
 			case     KEYCODES.B:                    toggleShowSelectors(); break;
 			case     KEYCODES.D:                    deleteCurrentElement(); break;
 			case     KEYCODES.G:                    callFunctionWithArgs("Delete elements not containing text", deleteBySelectorAndTextNotMatching, 2); break;
-			case     KEYCODES.Z:                    deselect(); break;
 			case     KEYCODES.E:                    callFunctionWithArgs("Replace elements by class or id containing", replaceByClassOrIdContaining, 2); break;
 			case     KEYCODES.H:                    unmarkAll(); break;
 			case     KEYCODES.M:                    markCurrentElement(); break;
 			case     KEYCODES.S:                    forceReloadCss(); break;
 			case     KEYCODES.V:                    replaceCommonClasses(); break;
 			case     KEYCODES.W:                    editTextOfSelectionAnchorNode(); break;
+			case     KEYCODES.X:                    markElementsContainingSelection(); break;
+			case     KEYCODES.Y:                    groupElementsContainingSelection(Nimbus.GROUP_TAGNAME); break;
+			case     KEYCODES.Z:                    deselect(); break;
 			case     KEYCODES.F11:                  inspect(true); break;
 			case     KEYCODES.UPARROW:              modifyMark("expand", true); break;
 			case     KEYCODES.DOWNARROW:            modifyMark("contract", true); break;
