@@ -421,7 +421,7 @@ import {
 	toggleHighlight,
 } from "./includes/highlight";
 import {
-	getClassCounts,
+	showClassCounts,
 	getMarkedHTML,
 	inspect,
 	listSelectorsWithLightBackgrounds,
@@ -669,7 +669,7 @@ const availableFunctions = {
 	forceReloadCss,
 	generateTableOfContents,
 	getBestImageSrc,
-	getClassCounts,
+	showClassCounts,
 	getContentByParagraphCount,
 	getMarkedHTML,
 	goToLastElement,
@@ -1494,6 +1494,7 @@ function handleKeyDown(e)
 		shouldPreventDefault = true;
 		switch(k)
 		{
+			case     KEYCODES.NUMPAD1:              toggleNimbusStyles(); break;
 			case     KEYCODES.UPARROW:              modifyMark("expand"); break;
 			case     KEYCODES.DOWNARROW:            modifyMark("contract"); break;
 			case     KEYCODES.LEFTARROW:            modifyMark("previous"); break;

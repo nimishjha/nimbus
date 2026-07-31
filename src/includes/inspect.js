@@ -451,6 +451,11 @@ export function getClassCounts(selector)
 	return [];
 }
 
+export function showClassCounts(selector)
+{
+	console.log(getClassCounts(selector));
+}
+
 export function getAllClassesFor(selector)
 {
 	const sel = typeof selector === "string" ? selector : "*";
