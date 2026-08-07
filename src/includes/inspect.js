@@ -205,7 +205,17 @@ function handleClick(evt)
 {
 	evt.stopPropagation();
 	if(evt.ctrlKey)
-		identifyClassSetup("." + Array.from(evt.target.classList).join("."));
+	{
+		const elem = evt.target.closest("span, div");
+		if(elem)
+		{
+			if(elem.classList.length)
+				identifyClassSetup("." + Array.from(elem.classList).join("."));
+			else
+				showMessageBig("Element has no classes");
+		}
+
+	}
 	else
 		evt.target.classList.add(Nimbus.markerClass);
 }
