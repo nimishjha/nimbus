@@ -1,5 +1,4 @@
 import { createLinksByHrefLookup, looksLikeReference, getTargetElement } from "./link";
-import { get, getOne } from "./selectors";
 import { wrapElement, unwrapAll, deleteClass } from "./element";
 import { replaceElement, replaceElementKeepingId } from "./replaceElements";
 import { showMessageBig, showMessageError } from "./ui";
@@ -19,7 +18,12 @@ export function moveID(anchorSelector, recipientRelationship, recipientSelector)
 		return;
 	}
 
-	const elems = get(anchorSelector);
+	const elems = document.querySelectorAll(anchorSelector);
+	if(!elems.length)
+	{
+		showMessageError(`No elements found matching ${anchorSelector}`);
+		return;
+	}
 
 	let numElementsWithIDs = 0;
 	let numIDsMoved = 0;
@@ -126,6 +130,27 @@ export function cleanReferenceText(str)
 	return str;
 }
 
+export function mergeLinksInsideElement(elem)
+{
+	const links = elem.querySelectorAll("a");
+	if(links.length === 2)
+	{
+		const id = links[0].id || links[1].id;
+		const href = links[0].getAttribute("href") || links[1].getAttribute("href");
+		if(id && href)
+		{
+			links[0].id = id;
+			links[0].setAttribute("href", href);
+			links[1].remove();
+		}
+	}
+	else
+	{
+		logError("Too many links");
+		elem.className = "statusError";
+	}
+}
+
 export function createReferencesByTags()
 {
 	let numASup = 0;
@@ -135,7 +160,7 @@ export function createReferencesByTags()
 
 	if(document.querySelector("a sup"))
 	{
-		const links = get("a");
+		const links = document.querySelectorAll("a");
 		for(let i = 0, ii = links.length; i < ii; i++)
 		{
 			const link = links[i];
@@ -154,6 +179,9 @@ export function createReferencesByTags()
 		const sups = document.querySelectorAll("sup");
 		for(let i = 0, ii = sups.length; i < ii; i++)
 		{
+			if(sups[i].getElementsByTagName("a").length > 1)
+				mergeLinksInsideElement(sups[i]);
+
 			const supLink = sups[i].querySelector("a");
 			if(supLink && looksLikeReference(supLink.textContent))
 			{
@@ -176,7 +204,7 @@ export function createReferencesByTags()
 	{
 		if(document.querySelector("footnote span"))
 		{
-			logWarning("Footnotes contain spans, remove them before trying to create references from footnote links");
+			showMessageError("Footnotes contain spans, remove them before trying to create references from footnote links");
 		}
 		else
 		{
@@ -193,7 +221,7 @@ export function createReferencesByTags()
 		}
 	}
 
-	const links = get("a");
+	const links = document.querySelectorAll("a");
 	for(const link of links)
 	{
 		if(link.closest(REFERENCE_TAGNAME) || link.querySelector("img"))
@@ -218,7 +246,7 @@ export function createReferencesByTags()
 
 export function analyzeReferences()
 {
-	if(getOne("footnote"))
+	if(document.querySelector("footnote"))
 	{
 		const footnoteLinks = document.querySelectorAll("footnote a");
 		let numEmptyFootnoteLinks = 0;
@@ -233,8 +261,8 @@ export function analyzeReferences()
 			logSuccess("No empty links inside footnotes");
 
 		let numSectionsWithReferences = 0;
-		const sections = get("section");
-		if(sections)
+		const sections = document.querySelectorAll("section");
+		if(sections.length)
 		{
 			for(const section of sections)
 				if(section.querySelector("footnote") !== null)
@@ -333,8 +361,8 @@ export function orderFootnotesByNonFootnoteRefs()
 
 	if(allRefs && footnoteRefs)
 	{
-		const footnotes = get("footnote");
-		if(footnotes)
+		const footnotes = document.querySelectorAll("footnote");
+		if(footnotes.length)
 		{
 			for(const footnote of footnotes)
 			{
