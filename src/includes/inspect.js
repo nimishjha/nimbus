@@ -6,7 +6,7 @@ import { getXpathResultAsArray } from "./xpath";
 import { createSelector } from "./element";
 import { createUUID } from "./misc";
 import { trimAt } from "./string";
-import { xlog, ylog } from "./log";
+import { xlog, ylog, logInfo } from "./log";
 import { toggleStyle, insertStyle } from "./style";
 import { STYLE_INSPECTOR, STYLE_SHOW_SELECTORS } from "./stylesheets";
 import { BLOCK_TAGS, INLINE_TAGS } from "./constants";
@@ -206,7 +206,7 @@ function handleClick(evt)
 	evt.stopPropagation();
 	if(evt.ctrlKey)
 	{
-		const elem = evt.target.closest("span, div");
+		const elem = evt.target.closest("div[class], span[class]");
 		if(elem)
 		{
 			if(elem.classList.length)
@@ -214,10 +214,13 @@ function handleClick(evt)
 			else
 				showMessageBig("Element has no classes");
 		}
-
 	}
 	else
 		evt.target.classList.add(Nimbus.markerClass);
+
+	const inspectorElem = document.getElementById("inspector");
+	if(inspectorElem)
+		logInfo(inspectorElem.textContent);
 }
 
 function handleMouseOver(evt)
@@ -240,6 +243,7 @@ function handleMouseOver(evt)
 					frag.appendChild(document.createTextNode('"' + attr.value + '"'));
 				}
 			}
+			frag.appendChild(document.createTextNode("\n"));
 			inspectorPanel.appendChild(frag);
 
 			const SHOW_KEYS = false;
