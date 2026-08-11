@@ -32,6 +32,7 @@ function nodeToString(node)
 
 function logMutations(mutations)
 {
+	const EXCLUDED_ATTRIBUTES_SET = new Set(["opacity"]);
 	function clone(elem) { Nimbus.clonedNodesContainer.appendChild(elem.cloneNode(true)); }
 	for(let i = 0, ii = mutations.length; i < ii; i++)
 	{
@@ -66,7 +67,8 @@ function logMutations(mutations)
 		{
 			if(!Nimbus.attributeFilter || (Nimbus.attributeFilter && mutation.attributeName.includes(Nimbus.attributeFilter)))
 			{
-				console.log(`%c${mutation.attributeName}: %c${createSelector(mutation.target)}`, logColors.green, logColors.gray);
+				if(!EXCLUDED_ATTRIBUTES_SET.has(mutation.attributeName))
+					console.log(`%c${mutation.attributeName}: %c${createSelector(mutation.target)}`, logColors.green, logColors.gray);
 			}
 		}
 	}
