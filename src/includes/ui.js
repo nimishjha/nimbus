@@ -279,11 +279,13 @@ export function autoCompleteInputBox()
 			return;
 		const style = `autocompleteinputwrapper { display: block; width: 800px; height: 40vh; position: fixed; left: 0; top: 0; right: 0; bottom: 0; margin: auto; z-index: 2147483647; font-family: "swis721 cn bt"; }
 			inputelementwrapper { display: block; border: 2px solid #07C; }
-			autocompleteinputwrapper input { width: 100%; height: 3rem; font-size: 32px; background: #000; color: #DDD; outline: 0; display: block; font-family: inherit; }
+			autocompleteinputwrapper input { width: calc(100% - 4px); height: 3rem; font-size: 32px; background: #000; color: #DDD; outline: 0; display: block; font-family: inherit; }
 			autocompleteinputwrapper matches { display: block; background: #222; color: #CCC; }
 			autocompleteinputwrapper match { display: block; padding: 2px 10px; font-size: 24px; }
 			autocompleteinputwrapper match.current { background: #303030; color: #FFF; }
-			autocompleteinputwrapper em { display: inline-block; width: 200px; }`;
+			autocompleteinputwrapper em { display: inline-block; width: 200px; }
+			:focus-visible { outline: none; }
+			`;
 		insertStyle(style, "styleAutoCompleteInputBox", true);
 		const dialogWrapper = createElement("autocompleteinputwrapper", { id: "autoCompleteInputWrapper", class: "nimbusUI" });
 		const inputElementWrapper = createElement("inputelementwrapper");
