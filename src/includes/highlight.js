@@ -389,7 +389,7 @@ export function highlightSelection(mode = "sentence")
 
 export function highlightTextInElement(element, searchString, startIndex)
 {
-	const isPlainTextMatch = highlightInElementTextNodes(element, searchString, startIndex);
+	const isPlainTextMatch = highlightInElementTextNodesStartingAtIndex(element, searchString, startIndex);
 	if(!isPlainTextMatch)
 		highlightTextAcrossTags(element, searchString, startIndex);
 }
@@ -407,7 +407,15 @@ function getNodeContainingIndex(element, startIndex)
 	return null;
 }
 
-export function highlightInElementTextNodes(element, searchString, startIndex)
+export function highlightInElementTextNodes(element, searchString, tagName)
+{
+	const nodes = getTextNodesUnderElement(element);
+	const regex = new RegExp(searchString, "gi");
+	for(const node of nodes)
+		highlightInTextNodeRegex(node, regex, tagName);
+}
+
+export function highlightInElementTextNodesStartingAtIndex(element, searchString, startIndex)
 {
 	const nodes = getTextNodesUnderElement(element);
 	const node = nodes.length === 1 ? nodes[0] : getNodeContainingIndex(element, startIndex);
