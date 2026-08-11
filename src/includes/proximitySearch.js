@@ -1,6 +1,6 @@
 import { wrapElementInner } from "./element";
 import { showMessageBig, showMessageError } from "./ui";
-import { resetHighlightTag, highlightAllMatchesInDocument } from "./highlight";
+import { resetHighlightTag, highlightAllMatchesInDocument, highlightInElementTextNodes } from "./highlight";
 import { Nimbus } from "./Nimbus";
 
 const MODULE_NAME = "proximitySearch";
@@ -114,4 +114,47 @@ export function proximitySearch(...args)
 	}
 	else
 		showMessageBig("Not all strings were found in proximity");
+}
+
+export function proximitySearchWithinParagraphs(...args)
+{
+	if(args.length > 4)
+	{
+		showMessageBig("Too many strings");
+		return;
+	}
+
+	const highlightTagsByCount = {
+		2: "mark",
+		3: "markyellow",
+		4: "markwhite",
+	};
+
+	const highlightTagsByIndex = {
+		0: "kbd",
+		1: "tt",
+		2: "samp",
+		3: "code",
+	};
+
+	let numMultipleMatches = 0;
+	const elems = document.querySelectorAll("p");
+	for(const elem of elems)
+	{
+		const text = elem.textContent.replace(/\s+/g, " ").toLowerCase();
+		let count = 0;
+		for(let i = 0, ii = args.length; i < ii; i++)
+			if(text.includes(args[i]))
+				count++;
+
+		if(count > 1)
+		{
+			numMultipleMatches++;
+			wrapElementInner(elem, highlightTagsByCount[count]);
+			for(let i = 0, ii = args.length; i < ii; i++)
+				highlightInElementTextNodes(elem, args[i], highlightTagsByIndex[i]);
+		}
+	}
+
+	showMessageBig(`${numMultipleMatches} paragraphs with multiple matches`);
 }

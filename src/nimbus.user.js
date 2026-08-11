@@ -351,7 +351,7 @@ import {
 	swapElementPositions,
 	toggleContentEditable,
 } from "./includes/dom";
-import { proximitySearch as findMultipleStringsInProximity } from "./includes/proximitySearch";
+import { proximitySearch as findMultipleStringsInProximity, proximitySearchWithinParagraphs } from "./includes/proximitySearch";
 import { generateTableOfContents, inlineFootnotes, cleanupEbook, renameImagesInDocumentByIndex } from "./includes/ebook";
 import { highlightCode } from "./includes/code";
 import { toggleBlockEditMode } from "./includes/blockEdit";
@@ -816,6 +816,7 @@ const availableFunctions = {
 	persistStreamingImages,
 	preSnakeCaseToCamelCase,
 	previousVideoFilter,
+	proximitySearchWithinParagraphs,
 	relinkTableOfContents,
 	remove,
 	removeAllAttributesExcept,
