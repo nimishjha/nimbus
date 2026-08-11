@@ -1,10 +1,10 @@
 import { Nimbus } from "./Nimbus";
 import { emptyElement, createElement } from "./element";
 import { replaceElement } from "./replaceElements";
-import { get, getOne, del } from "./selectors";
+import { get, getOne, getOrCreate, del } from "./selectors";
 import { getXpathResultAsArray } from "./xpath";
 import { createSelector } from "./element";
-import { createUUID } from "./misc";
+import { createUUID, forAll } from "./misc";
 import { trimAt } from "./string";
 import { xlog, ylog, logInfo } from "./log";
 import { toggleStyle, insertStyle } from "./style";
@@ -201,18 +201,35 @@ export function showResources()
 	window.scrollTo(0, 0);
 }
 
+function cloneElement(elem)
+{
+	function removeStyle(x) { x.removeAttribute("style"); }
+	const cloneContainer = getOrCreate("div", "cloneContainer", document.body);
+	if(cloneContainer)
+	{
+		const clone = document.createElement("aside");
+		clone.innerHTML = elem.innerHTML;
+		cloneContainer.appendChild(clone);
+		forAll("#cloneContainer *", removeStyle);
+	}
+	if(!document.querySelector("#styleCloneContainer"))
+		insertStyle("#cloneContainer { position: fixed; top: 10px; left: 10px; width: 400px; height: 400px; border: 2px solid #333; z-index: 2147483647; }", "styleCloneContainer", true);
+}
+
 function handleClick(evt)
 {
 	evt.stopPropagation();
 	if(evt.ctrlKey)
 	{
-		const elem = evt.target.closest("div[class], span[class]");
+		const elem = evt.target.closest("div[class], span[class]") || evt.target.closest("div, span");
 		if(elem)
 		{
 			if(elem.classList.length)
 				identifyClassSetup("." + Array.from(elem.classList).join("."));
 			else
 				showMessageBig("Element has no classes");
+
+			cloneElement(elem);
 		}
 	}
 	else
