@@ -61,7 +61,7 @@ export const Nimbus = {
 			}
 		},
 		proximitySearch: {
-			maxDistance: 6,
+			maxDistance: 2,
 			highlightAllMatches: false,
 		},
 	},

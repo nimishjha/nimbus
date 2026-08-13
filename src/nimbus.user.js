@@ -1381,6 +1381,7 @@ function handleKeyDown(e)
 			case     KEYCODES.F2:                   replaceSelectedElement(Nimbus.replacementTagName2); break;
 			case     KEYCODES.F3:                   customPrompt("Enter tag name to replace elements of the marked type with").then(replaceElementsOfMarkedTypeWith); break;
 			case     KEYCODES.F11:                  inspect(); break;
+			case     KEYCODES.F12:                  highlightCode(); break;
 			case     KEYCODES.ONE:                  setHighlightTag("mark"); break;
 			case     KEYCODES.TWO:                  setHighlightTag("markyellow"); break;
 			case     KEYCODES.THREE:                setHighlightTag("markpurple"); break;
