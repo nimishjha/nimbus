@@ -453,18 +453,15 @@ export function removeAllQueryParametersExcept(paramName, selector="a[href]")
 
 export function createLinksByHrefLookup()
 {
-	const links = get('a[href^="#"]');
+	const links = document.querySelectorAll('a[href^="#"]');
 	const linksByHref = {};
-	if(links)
+	for(const link of links)
 	{
-		for(const link of links)
-		{
-			const href = link.getAttribute("href");
-			if(linksByHref[href])
-				linksByHref[href].push(link);
-			else
-				linksByHref[href] = [link];
-		}
+		const href = link.getAttribute("href");
+		if(linksByHref[href])
+			linksByHref[href].push(link);
+		else
+			linksByHref[href] = [link];
 	}
 	return linksByHref;
 }
