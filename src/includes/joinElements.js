@@ -87,6 +87,17 @@ export function joinMarkedElements()
 	}
 }
 
+function getLastTextNode(element)
+{
+	if(element && element.nodeType === Node.ELEMENT_NODE)
+	{
+		const result = document.evaluate(".//text()[normalize-space() != '']", element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+		if(result.snapshotLength)
+			return result.snapshotItem(result.snapshotLength - 1);
+	}
+	return null;
+}
+
 export function joinElements(elemsToJoin)
 {
 	if(!elemsToJoin.length)
@@ -104,7 +115,17 @@ export function joinElements(elemsToJoin)
 		while(originalElement.firstChild)
 		{
 			wrapper.appendChild(originalElement.firstChild);
-			wrapper.appendChild(document.createTextNode(" "));
+			if(wrapper.textContent.endsWith("-"))
+			{
+				const lastNode = getLastTextNode(wrapper);
+				if(lastNode)
+					lastNode.data = lastNode.data.substring(0, lastNode.data.length - 1);
+			}
+			else
+			{
+				wrapper.appendChild(document.createTextNode(" "));
+			}
+
 		}
 	}
 	saveIDsToElement(wrapper, idsToSave);
