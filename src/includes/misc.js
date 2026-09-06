@@ -1,4 +1,3 @@
-import { get } from "./selectors";
 import { createElement } from "./element";
 import { Nimbus } from "./Nimbus";
 
@@ -106,8 +105,7 @@ export function selectRandom(arr)
 
 export function forAll(selector, callback)
 {
-	const elems = get(selector);
-	if(!elems) return;
+	const elems = document.querySelectorAll(selector);
 	const len = elems.length;
 	let i = -1;
 	while(++i < len)
