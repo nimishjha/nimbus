@@ -445,15 +445,23 @@ export function deleteLeadingAndTrailingEmptyTextNodes(element)
 
 export function getFirstTextNode(element)
 {
-	if(!element || element.nodeType !== Node.ELEMENT_NODE)
-		return null;
+	if(element && element.nodeType === Node.ELEMENT_NODE)
+	{
+		const result = document.evaluate(".//text()[normalize-space() != '']", element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+		if(result.snapshotLength)
+			return result.snapshotItem(0);
+	}
+	return null;
+}
 
-	const xpath = ".//text()[normalize-space() != '']";
-	const result = document.evaluate(xpath, element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-
-	if (result.snapshotLength > 0)
-		return result.snapshotItem(0);
-
+export function getLastTextNode(element)
+{
+	if(element && element.nodeType === Node.ELEMENT_NODE)
+	{
+		const result = document.evaluate(".//text()[normalize-space() != '']", element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+		if(result.snapshotLength)
+			return result.snapshotItem(result.snapshotLength - 1);
+	}
 	return null;
 }
 

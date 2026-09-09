@@ -3,7 +3,7 @@ import { markElement, unmarkAll, getMarkedElements } from "./mark";
 import { insertBefore } from "./dom";
 import { deleteMessage } from "./ui";
 import { deleteEmptyTextNodes } from "./delete";
-import { saveIDsToElement } from "./element";
+import { saveIDsToElement, getLastTextNode } from "./element";
 
 export function joinAdjacentElements(selector)
 {
@@ -85,17 +85,6 @@ export function joinMarkedElements()
 		unmarkAll();
 		joinElements(marked);
 	}
-}
-
-function getLastTextNode(element)
-{
-	if(element && element.nodeType === Node.ELEMENT_NODE)
-	{
-		const result = document.evaluate(".//text()[normalize-space() != '']", element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-		if(result.snapshotLength)
-			return result.snapshotItem(result.snapshotLength - 1);
-	}
-	return null;
 }
 
 export function joinElements(elemsToJoin)
