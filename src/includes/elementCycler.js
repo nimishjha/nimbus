@@ -4,6 +4,18 @@ import { markElement, markElements } from "./mark";
 import { showMessageBig } from "./ui";
 import { select, selectElementsIdenticalTo } from "./selectors";
 
+export function cycleThroughElementsContainingChildren(selector, childSelector)
+{
+	if(selector.length && childSelector.length)
+	{
+		Nimbus.elementCycler = new Cyclable(select(selector, "hasChildrenOfType", childSelector).reverse());
+		const numElements = Nimbus.elementCycler.getLength();
+		showMessageBig(`${numElements} elements found`);
+		if(numElements)
+			goToNextElement();
+	}
+}
+
 export function setElementsToCycleThrough(selector, str)
 {
 	if(typeof selector === "string" && selector.length)

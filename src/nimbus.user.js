@@ -291,6 +291,7 @@ import {
 	goToLastHighlight,
 } from "./includes/navigate";
 import {
+	cycleThroughElementsContainingChildren,
 	deleteCurrentElement,
 	goToLastElement,
 	goToNextElement,
@@ -601,6 +602,7 @@ const availableFunctions = {
 	cycleFocusOverFormFields,
 	cycleHighlightTag,
 	cycleTheme,
+	cycleThroughElementsContainingChildren,
 	del,
 	deleteByClassOrIdContaining,
 	deleteBySelectorAndExactText,
