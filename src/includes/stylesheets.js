@@ -180,8 +180,8 @@ export const STYLE_SHOW_LINK_TARGET = `
 	:target::before { background: #000; color: #486; padding: 1px 5px; content: attr(id); font-weight: bold; }
 `;
 
-export const STYLE_NEGATIVE = `html { background: #080808; font-size: 20px; }
-html body, #nimbus body { background: #121212; color: rgba(100, 100, 100, 0.66); border: 0; font-size: 20px; font-family: "swis721 cn bt"; font-style: normal; line-height: 1.35; }
+export const STYLE_NEGATIVE = `html { background: #180000; font-size: 20px; }
+html body, #nimbus body { background: #200000; color: rgba(255, 0, 0, 0.66); border: 0; font-size: 20px; font-family: "swis721 cn bt"; font-style: normal; line-height: 1.35; }
 form { font-family: inherit; font-size: 20px; }
 
 body.pad100 { padding: 100px 200px; }
@@ -195,7 +195,7 @@ body.pad100 section { padding: 10px; border-width: 3px; border-style: solid; mar
 body.xwrap { width: 1200px; margin: 0 auto; padding: 100px 200px; }
 
 h1, h1[class], h2, h2[class], h3, h3[class], h4, h4[class], h5, h5[class], h6, h6[class]
-{ color: inherit; margin-top: 2px; margin-bottom: 2px; border: 0; font-family: "swis721 cn bt"; font-weight: normal; line-height: inherit; background: #111; }
+{ color: inherit; margin-top: 2px; margin-bottom: 2px; border: 0; font-family: "swis721 cn bt"; font-weight: normal; line-height: inherit; background: #100000; }
 body.pad100 h1, body.pad100 h1[class], body.pad100 h2, body.pad100 h2[class], body.pad100 h3, body.pad100 h3[class], body.pad100 h4, body.pad100 h4[class], body.pad100 h5, body.pad100 h5[class], body.pad100 h6, body.pad100 h6[class]
 { padding: 10px 1rem; margin: 2px 0 2px -1rem; }
 
@@ -206,99 +206,90 @@ body.pad100 h1, body.pad100 h1[class], body.pad100 h2, body.pad100 h2[class], bo
 .pad100 h5 { font-size: 1.2rem; }
 .pad100 h6 { font-size: 1.0rem; }
 
-section, quote, quoteauthor, body.pad100 ul li { border-color: rgba(100, 100, 100, 0.1); }
-footnote, quote, quoteauthor { display: block; margin: 2px 0; border-style: solid; border-width: 0 0 0 20px; color: rgba(100, 100, 100, 0.66); font-size: 1rem; }
-footnote { border-color: rgba(100, 100, 100, 0.25); }
-rp { border-color: rgba(100, 100, 100, 0.05); }
+section, quote, quoteauthor, body.pad100 ul li { border-color: rgba(100, 0, 0, 0.1); }
+footnote, quote, quoteauthor { display: block; margin: 2px 0; border-style: solid; border-width: 0 0 0 20px; color: rgba(100, 0, 0, 0.66); font-size: 1rem; }
+footnote { border-color: rgba(100, 0, 0, 0.25); }
+rp { border-color: rgba(100, 0, 0, 0.05); }
 
 quote { padding: 1rem 2rem; }
 quoteauthor { padding: 0.5rem 2rem; border-style: solid; text-align: right; }
 footnote { padding: 0.5em 10px; border-width: 0 0 0 10px; }
 documentheading { display: block; margin: 0 0 100px 0; padding: 10px 0; border-width: 10px 0; }
-slideshow { display: block; background: #111; padding: 10px; }
+slideshow { display: block; background: #170000; padding: 10px; }
 slideshow::after { content: " "; clear: both; display: block; }
 img { opacity: 0.5; }
 img:hover { opacity: 1; }
 
 hgroup, article, caption, blockquote, center, col, colgroup, div, div[class], form, li, main, noscript, ol, p, section, summary, ul, video
-{
-background: transparent;
-color: inherit;
-border: none;
-font-family: "swis721 cn bt";
-font-size: inherit;
-font-style: normal;
-line-height: inherit;
-}
-div[class*="modal"],
-div[class*="popover"]
-{ background: #151515; }
+	{ background: transparent; color: inherit; border: none; font-family: "swis721 cn bt"; font-size: inherit; font-style: normal; line-height: inherit; }
+div[class*="modal"], div[class*="popover"] { background: #151515; }
 section { background: inherit; color: inherit; }
-aside { background-color: #333; color: #808080; padding: 10px; }
+aside { background-color: #300; color: inherit; padding: 10px; }
 
-abbr, acronym, address, applet, area, audio, b, base, bdo, big, cite, code, command, datalist, del, details, dfn, dir, em, fieldset, font, i, ins, label, legend, link, mark, meter, optgroup, option, output, param, progress, q, rp, rt, ruby, s, select, small, source, strike, strong, time, title, u, var, wbr, xmp
+abbr, acronym, address, applet, area, audio, b, base, bdo, big, cite, code, command, datalist, del, details, dfn, dir, em,
+fieldset, font, i, ins, label, legend, link, mark, meter, optgroup, option, output, param, progress, q, rp, rt, ruby, s, select, small, source, strike, strong, time, title, u, var, wbr, xmp
 { background: inherit; color: inherit; font-family: inherit; font-size: inherit; font-style: normal; line-height: inherit; }
 sub, sup { font-size: 16px; font-family: inherit; line-height: 1.2; }
-header, header[class], footer, footer[class], nav, nav[class] { background: #111; }
+header, header[class], footer, footer[class], nav, nav[class] { background: #120000; }
 span, span[class] { font-family: inherit; font-size: inherit; line-height: inherit; color: inherit; background: inherit; }
 span.italic, span.txit { color: #CC0; }
 span.bold, span.txbd { color: #CC0; font-weight: bold; }
 
-hr { height: 4px; background: #111; border-color: #111; border-style: solid; border-width: 0; margin: 40px 0; }
-legend { background: #181818; }
+hr { height: 4px; background: #170000; border-color: #170000; border-style: solid; border-width: 0; margin: 40px 0; }
+legend { background: #110000; }
 container { border: 2px solid #F00; margin: 10px; display: block; padding: 10px; }
-figure { border: 0; background: #111; padding: 10px 0; margin: 2px 0 0 0; }
-figcaption { background: #111; color: #AAA; padding: 10px 20px; margin-left: 20px; }
+figure { border: 0; background: #170000; padding: 10px 0; margin: 2px 0 0 0; }
+figcaption { background: #170000; color: #AAA; padding: 10px 20px; margin-left: 20px; }
 annotation { background: #444; color: inherit; padding: 1rem 2rem; display: block; margin: 10px 0 10px -30px; border-style: solid; border-color: #AAA; border-width: 2px 2px 2px 20px; }
-ruby { margin: 10px 0; background: #C60; color: #FFF; padding: 20px 30px; display: block; font-size: 20px; border-left: 10px solid #F90; }
-rp { margin: 10px 0; background: #181818; color: #888; padding: 40px; display: block; font: 20px "swis721 cn bt"; border-style: solid; border-width: 50px 0; overflow-x: hidden; }
-rt { margin: 10px 0; padding: 20px; display: block; background: #181818; font: 12px Verdana; text-align: left; }
+ruby { margin: 10px 0; background: #000; color: #c70; padding: 20px 30px; display: block; font-size: 20px; border-left: 10px solid #F90; }
+rp { margin: 10px 0; background: #110000; color: #888; padding: 40px; display: block; font: 20px "swis721 cn bt"; border-style: solid; border-width: 50px 0; overflow-x: hidden; }
+rt { margin: 10px 0; padding: 20px; display: block; background: #110000; font: 12px Verdana; text-align: left; }
 rt:before { content: ""; display: block; width: 10px; height: 15px; border: 2px solid #808080; float: left; margin: -3px 20px 0 0; }
 
 button, select, textarea, input, input[class], input[type] { background: #151515; color: #909090; -moz-appearance: none; border-radius: 0; border: 0; font-family: inherit; font-size: 20px; }
 select, textarea { border: 0; box-shadow: none; }
 html input[type="checkbox"] { width: 24px; height: 24px; background: #242424; }
-button:hover, button:focus, input[type="submit"]:hover, input[type="submit"]:focus, input[type="button"]:hover, input[type="button"]:focus { background: #090909; color: #CCC; border-color: #FFF; }
-select:focus, textarea:focus, input:focus { color: #BBB; outline: 0; background: #0C0C0C; box-shadow: none; }
+button:hover, button:focus, input[type="submit"]:hover, input[type="submit"]:focus, input[type="button"]:hover, input[type="button"]:focus { background: #120000; color: #C00; border-color: #C00; }
+select:focus, textarea:focus, input:focus { color: #BBB; outline: 0; background: #0c0000; box-shadow: none; }
 html small textarea[class] { font: 12px Verdana; }
 span[class*="button"] { background: #151515; color: #909090; border: 0; border-radius: 0; }
 span[class*="button"]:hover, span[class*="button"]:focus { background: #090909; color: #CCC; }
 
-autocompleteinputwrapper input, autocompleteinputwrapper input[class] { font-size: 40px; color: #FFF; }
-autocompleteinputwrapper input div, autocompleteinputwrapper input[class] div { color: #FFF; }
+autocompleteinputwrapper input, autocompleteinputwrapper input[class] { font-size: 40px; color: #BBB; }
+autocompleteinputwrapper input div, autocompleteinputwrapper input[class] div { color: #BBB; }
 
 a, a:link, a[class], a[id] { color: #A60; text-decoration: none; text-shadow: none; font: inherit; border: 0; background: inherit; }
 a[class*="btn"] { background: #333; }
 button[class*="active"], a[class*="active"], a[class*="selected"] { outline: 2px solid #6c0; }
 a:visited, a:visited * { color: #840; text-decoration: none; }
 a:active, a:hover, a:focus, a:hover *, a:focus * { color: #C90; text-decoration: none; outline: 0; }
-.pagination a:link { font: bold 30px "swis721 cn bt"; border: 0; background: #111; padding: 10px; }
+.pagination a:link { font: bold 30px "swis721 cn bt"; border: 0; background: #170000; padding: 10px; }
 
 p { margin: 0; padding: 5px 0; }
-blockquote { margin: 0 0 6px 0; padding: 20px 40px; border-left: 10px solid #111;  }
+blockquote { margin: 0 0 6px 0; padding: 20px 40px; border-left: 10px solid #170000;  }
 blockquote blockquote { padding: 0 0 0 40px; }
 
 table { border-collapse: collapse; }
 table, tr, td, th { margin: 0; padding: 0; line-height: inherit; font: 20px/1.4 "swis721 cn bt"; color: inherit; border: 0; }
 table, tbody, tr, td { background: inherit; }
-thead, th { background: #111; }
-tr:nth-child(odd) td , tr:nth-child(odd) th { background-color: #181818; }
-tr:nth-child(even) td , tr:nth-child(even) th { background-color: #202020; }
+thead, th { background: #170000; }
+tr:nth-child(odd) td , tr:nth-child(odd) th { background-color: #080000; }
+tr:nth-child(even) td , tr:nth-child(even) th { background-color: #100000; }
 
-dl, dl[class] { border-left: 20px solid #111; background: #181818; font: inherit; line-height: inherit; }
-dt, dt[class] { padding: 0.5em 10px; margin: 2px 0; background: #181818; border-width: 0 0 0 20px; border-style: solid; border-color: #0C0C0C; font: inherit; line-height: inherit; }
-dd, dd[class] { padding: 0.25em 10px; margin: 2px 0; background: #202020; border-width: 0 0 0 60px; border-style: solid; border-color: #0C0C0C; font: inherit; line-height: inherit; }
-
-cite, u, em, i { font-weight: normal; font-style: normal; text-decoration: none; color: #AAA; }
-b, strong { font-weight: bold; font-style: normal; text-decoration: none; color: #AAA; }
+cite, u, em, i { font-weight: normal; font-style: normal; text-decoration: none; color: #B55; }
+b, strong { font-weight: bold; font-style: normal; text-decoration: none; color: #B55; }
 a u, a em, a i, a b, a strong, a div, a span { color: inherit; }
 small { font-size: 80%; }
+
+dl, dl[class] { border-style: solid; border-width: 0 0 0 20px; background: #110000; font: inherit; line-height: inherit; }
+dt, dt[class] { padding: 0.5em 10px; margin: 2px 0; background: #110000; border-width: 0 0 0 20px; border-style: solid; font: inherit; line-height: inherit; }
+dd, dd[class] { padding: 0.25em 10px; margin: 2px 0; background: #190000; border-width: 0 0 0 60px; border-style: solid; font: inherit; line-height: inherit; }
 
 code { font: inherit; padding: 1px 2px; background: #0C0C0C; color: #999; }
 tt { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #06C; }
 kbd { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #3E0; }
 samp { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #0CC; }
-pre { background: #0C0C0C; color: #909090; border-style: solid; border-width: 0 0 0 10px; border-color: #444; padding: 10px 20px; overflow-x: auto; }
+pre { background: #0C0C0C; color: #909090; border-style: solid; border-width: 0 0 0 10px; border-color: #400; padding: 10px 20px; overflow-x: auto; }
 pre p { margin: 0; padding: 0; }
 pre { font-family: "Swis721 Cn BT"; font-size: 18px; font-weight: bold; line-height: 1.2; }
 pre * { font: inherit; text-recoration: none; }
@@ -352,15 +343,15 @@ markyellow { background: #804800; color: #FF0; }
 markwhite { background: #000; color: #DDD; }
 
 user { background: #000; padding: 2px 10px; border-left: 10px solid #09F; margin: 0; }
-author { display: block; font-size: 24px; background: #111; color: #FFF; padding: 2px 10px; border-left: 10px solid #AF0; margin: 0; }
+author { display: block; font-size: 24px; background: #170000; color: #FFF; padding: 2px 10px; border-left: 10px solid #AF0; margin: 0; }
 reference, internalref { background: #000; color: #AAA; padding: 1px 5px; }
-comment { display: block; padding: 20px 40px; border-left: 10px solid #555; background: #181818; margin-bottom: 2px; }
+comment { display: block; padding: 20px 40px; border-style: solid; border-width: 0 0 0 10px; background: #110000; margin-bottom: 2px; }
 ind { display: block; padding-left: 50px; }
 warning, info, error { display: block; border-width: 2px 2px 2px 20px; border-style: solid; padding: 1rem 2rem; margin: 10px 0; }
 warning { background: #420; border-color: #C70; }
 info { background: #035; border-color: #07C; }
 error { background: #600; border-color: #D40; }
-tag { background: #333 !important; color: #888 !important; padding: 2px 4px !important; margin: 0 5px 0 0 !important; }
-
-.markd { box-shadow: inset 2px 2px #C00, inset -2px -2px #C00; background: #000; }
+tag { background: #333; color: #888; padding: 2px 4px; margin: 0 5px 0 0; }
+comment, section, article, main, footer, header, fieldset, dl, dt, dd, blockquote { border-color: rgba(255, 0, 0, 0.2); }
+.markd { box-shadow: inset 2px 2px #855, inset -2px -2px #855; background: #000; }
 `;
