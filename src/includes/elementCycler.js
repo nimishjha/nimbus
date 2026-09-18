@@ -13,7 +13,11 @@ export function cycleThroughElementsContainingChildren(selector, childSelector)
 		showMessageBig(`${numElements} elements found`);
 		if(numElements)
 			goToNextElement();
+		else
+			showMessageBig(`No ${selector} elements containing ${childSelector}`);
 	}
+	else
+		showMessageBig("Usage: cycleThroughElementsContainingChildren selector, childSelector");
 }
 
 export function setElementsToCycleThrough(selector, str)

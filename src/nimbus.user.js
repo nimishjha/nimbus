@@ -1102,6 +1102,7 @@ function handleKeyMenuCommand(str)
 			case "CC": getContentByParagraphCount(); break;
 			case "CD": cleanupDocument(); break;
 			case "CE": customPrompt("Count elements by selector").then(count); break;
+			case "CH": removeAllHighlights(); break;
 			case "CJ": toggleConsole("js"); break;
 			case "CS": toggleConsole("css"); break;
 			case "CO": makeOrderedList(); break;
@@ -1144,7 +1145,7 @@ function handleKeyMenuCommand(str)
 			case "HA": getSelectionOrUserInput("Highlight all occurrences of string", highlightAllMatchesInDocument, true); break;
 			case "HE": callFunctionWithArgs("Highlight elements by tag name containing text", highlightByTagNameAndText, 2); break;
 			case "HC": highlightCode(); break;
-			case "HR": removeAllHighlights(); break;
+			case "HR": hideReferences(); break;
 			case "HS": getSelectionOrUserInput("Highlight all occurrences of string (case-sensitive)", highlightAllMatchesInDocumentCaseSensitive, true); break;
 			case "HT": customPrompt("Highlight all text nodes matching").then(highlightAllTextNodesMatching); break;
 			case "HW": callFunctionWithArgs("Highlight all matches with word expansion", highlightAllMatchesInDocumentWithWordExpansion, 1); break;
