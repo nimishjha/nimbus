@@ -44,6 +44,7 @@ export function insertStyleHighlight()
 		markpurple { background: #180030; color: #60A; }
 		markyellow { background: #603000; color: #cc0; }
 		markwhite  { background: #000; color: #b0b0b0; }
+		::selection { background: #600; color: #000; }
 	`;
 	insertStyle(s, "styleHighlight", true);
 }
