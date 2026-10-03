@@ -219,12 +219,14 @@ export function setBodyOpacity(n)
 
 export function doWebsiteSpecificTasks()
 {
-	const commandElems = get("#website-specific-commands li");
-	if(!commandElems) return;
-	const commands = commandElems.map(elem => elem.textContent.trim());
-	del("#website-specific-commands");
-	for(const command of commands)
-		runCommand(command);
+	const commandElems = Array.from(document.querySelectorAll("#website-specific-commands li"));
+	if(commandElems.length)
+	{
+		const commands = commandElems.map(elem => elem.textContent.trim());
+		del("#website-specific-commands");
+		for(const command of commands)
+			runCommand(command);
+	}
 }
 
 export function hideReferences()

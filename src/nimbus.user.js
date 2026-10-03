@@ -655,6 +655,7 @@ const availableFunctions = {
 	enableClickToCollectUrls,
 	enableHyphensToDashesOnClick,
 	disableHyphensToDashesOnClick,
+	doWebsiteSpecificTasks,
 	enableConsoleLogs,
 	enDashToEmDash,
 	fixBody,
