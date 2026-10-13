@@ -46,8 +46,8 @@ export function groupElementsContainingSelection(tagName)
 
 export function groupAdjacentElements(selector, parentTag, childTag)
 {
-	const elems = get(selector);
-	if(!elems)
+	const elems = Array.from(document.querySelectorAll(selector));
+	if(!elems.length)
 		return;
 
 	const firstElemTagName = elems[0].tagName;

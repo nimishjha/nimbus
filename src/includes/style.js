@@ -38,7 +38,7 @@ export function insertStyleHighlight()
 		a.${Nimbus.markerClass}::after, span.${Nimbus.markerClass}::after { content: ""; display: inline; clear: none; }
 		mark, markgreen, markred, markblue, markpurple, markyellow, markwhite { padding: 3px 0; line-height: inherit; }
 		mark { background: #303336; color: #808488; }
-		markgreen  { background: #040; color: #0B0; }
+		markgreen  { background: #030; color: #0A0; }
 		markred    { background: #500; color: #E33; }
 		markblue   { background: #005; color: #66D; }
 		markpurple { background: #180030; color: #60A; }

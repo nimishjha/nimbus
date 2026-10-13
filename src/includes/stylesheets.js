@@ -289,7 +289,7 @@ code { font: inherit; padding: 1px 2px; background: #0C0C0C; color: #999; }
 tt { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #06C; }
 kbd { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #3E0; }
 samp { font: Consolas; padding: 1px 2px; background: #0C0C0C; color: #0CC; }
-pre { background: #0C0C0C; color: #909090; border-style: solid; border-width: 0 0 0 10px; border-color: #400; padding: 10px 20px; overflow-x: auto; }
+pre { background: #0c0000; color: rgba(255, 0, 0, 0.65); border-style: solid; border-width: 0 0 0 10px; border-color: rgba(255, 0, 0, 0.25); padding: 10px 20px; overflow-x: auto; }
 pre p { margin: 0; padding: 0; }
 pre { font-family: "Swis721 Cn BT"; font-size: 18px; font-weight: bold; line-height: 1.2; }
 pre * { font: inherit; text-recoration: none; }
