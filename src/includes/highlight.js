@@ -351,6 +351,12 @@ export function highlightSelection(mode = "sentence")
 
 	if(selection.anchorOffset === selection.focusOffset)
 	{
+		if(selection.anchorOffset === 0 || selection.anchorOffset === selection.anchorNode.textContent.length)
+		{
+			showMessageBig("Nothing selected");
+			return;
+		}
+
 		const range = document.createRange();
 		range.setStart(selection.anchorNode, selection.anchorOffset - 1);
 		range.setEnd(selection.anchorNode, selection.anchorOffset + 1);
