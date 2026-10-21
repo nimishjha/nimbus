@@ -546,6 +546,7 @@ import {
 	orderFootnotesByNonFootnoteRefs,
 } from "./includes/reference";
 import {
+	interlinkReferencesByAuthoritativeLinks,
 	interlinkReferencesByChapterAndFootnoteContainerSelectors,
 	interlinkReferencesByIndexInSections,
 	interlinkReferencesByTextInSections,
@@ -728,6 +729,7 @@ const availableFunctions = {
 	insertStyleHighlight,
 	inspect,
 	inspectImages,
+	interlinkReferencesByAuthoritativeLinks,
 	interlinkReferencesByChapterAndFootnoteContainerSelectors,
 	interlinkReferencesByIndexInSections,
 	interlinkReferencesByTextInSections,

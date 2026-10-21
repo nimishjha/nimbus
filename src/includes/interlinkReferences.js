@@ -2,7 +2,7 @@ import { Nimbus } from "./Nimbus";
 import { logSuccess, logError, logWarning, logInfo } from "./log";
 import { showMessageBig, showMessageError } from "./ui";
 import { createLinksByHrefLookup } from "./link";
-import { wrapElementInner } from "./element";
+import { wrapElement, wrapElementInner } from "./element";
 import { annotateElement } from "./dom";
 import { get } from "./selectors";
 import { REFERENCE_TAGNAME } from "./constants";
@@ -68,6 +68,15 @@ export function interlinkMultiple(link, backlinks, text, id)
 	}
 
 	return numInterlinked;
+}
+
+export function interlinkUsingTextAsId(primaryLink, secondaryLink, text)
+{
+	primaryLink.textContent = secondaryLink.textContent = text;
+	primaryLink.id = "r" + text;
+	secondaryLink.id = "s" + text;
+	primaryLink.setAttribute("href", "#" + secondaryLink.id);
+	secondaryLink.setAttribute("href", "#" + primaryLink.id);
 }
 
 export function interlinkReferencesByIndex(footnoteRefs, nonFootnoteRefs)
@@ -318,4 +327,50 @@ export function interlinkReferencesUsingFootnoteReferences()
 		}
 	}
 	showMessageBig(`${numInterlinked} reference groups interlinked`);
+}
+
+export function interlinkReferencesByAuthoritativeLinks(selector)
+{
+	if(typeof selector === "string" && selector.length)
+	{
+		const authLinks = document.querySelectorAll(selector);
+		if(authLinks.length)
+		{
+			let numAffected = 0;
+			let numNonLinkTargets = 0;
+			let numNoHrefs = 0;
+			for(let i = 0, ii = authLinks.length; i < ii; i++)
+			{
+				const refIndex = i + 1;
+				const authLink = authLinks[i];
+				const href = authLink.getAttribute("href");
+				if(href)
+				{
+					const target = document.querySelector(href);
+					if(target && target.tagName === "A")
+					{
+						if(target.parentNode && target.parentNode.tagName !== "REFERENCE")
+							wrapElement(target, "reference");
+						interlinkUsingTextAsId(authLink, target, refIndex);
+						numAffected++;
+					}
+					else
+						numNonLinkTargets++;
+				}
+				else
+				{
+					numNoHrefs++;
+				}
+			}
+			if(numNonLinkTargets)
+				logError(`${numNonLinkTargets} non-link targets`);
+			if(numNoHrefs)
+				logError(`${numNoHrefs} authoritative links did not have hrefs`);
+			showMessageBig(`${numAffected} links affected`);
+		}
+		else
+		{
+			showMessageError(`No elements matching ${selector}`);
+		}
+	}
 }
