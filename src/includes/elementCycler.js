@@ -12,7 +12,7 @@ export function cycleThroughElementsContainingChildren(selector, childSelector)
 		const numElements = Nimbus.elementCycler.getLength();
 		showMessageBig(`${numElements} elements found`);
 		if(numElements)
-			goToNextElement();
+			goToCurrentElement();
 		else
 			showMessageBig(`No ${selector} elements containing ${childSelector}`);
 	}
