@@ -131,10 +131,10 @@ export function proximitySearchWithinParagraphs(...args)
 	};
 
 	const highlightTagsByIndex = {
-		0: "kbd",
-		1: "tt",
-		2: "samp",
-		3: "code",
+		0: "hl1",
+		1: "hl2",
+		2: "hl3",
+		3: "hl4",
 	};
 
 	let numMultipleMatches = 0;
