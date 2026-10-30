@@ -973,7 +973,7 @@ const availableFunctions = {
 	unmarkElements,
 	unmarkFromBeginning,
 	unmarkFromEnd,
-	unwrapAll,
+	unWrapAll: unwrapAll,
 	unwrapAllExcept,
 	unwrapElement,
 	wrapAll,

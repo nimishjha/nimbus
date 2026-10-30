@@ -64,6 +64,7 @@ export function padLeft(str, width)
 
 export function padRight(str, width)
 {
+	if(str.length >= width) return str;
 	return str + ' '.repeat(width - str.length);
 }
 
