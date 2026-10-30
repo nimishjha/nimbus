@@ -5,25 +5,26 @@ import { ylog } from "./log";
 
 export function insertStyle(str, id, important)
 {
-	if(id && id.length && document.querySelector("#" + id))
-		del("#" + id);
+	const style = document.createElement("style");
+	style.type = "text/css";
+
+	if(id && id.length)
+	{
+		style.id = id;
+		const existingStyle = document.getElementById(id);
+		if(existingStyle)
+			existingStyle.remove();
+	}
+
 	if(important)
 		str = str.replace(/!important/g, " ").replace(/;/g, " !important;");
-	let head = document.querySelector("head");
+	str = "\n" + str.replace(/\n\t+/g, "\n");
+
+	const head = document.querySelector("head");
 	if(!head)
-	{
-		head = document.createElement("head");
-		document.documentElement.insertBefore(head, document.documentElement.firstChild);
-	}
-	const style = document.createElement("style");
-	const rules = document.createTextNode(str);
-	style.type = "text/css";
-	if(style.styleSheet)
-		style.styleSheet.cssText = rules.nodeValue;
-	else
-		style.appendChild(rules);
-	if(id && id.length)
-		style.id = id;
+		document.documentElement.insertBefore(document.createElement("head"), document.documentElement.firstChild);
+
+	style.appendChild(document.createTextNode(str));
 	head.appendChild(style);
 }
 
