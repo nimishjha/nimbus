@@ -3,6 +3,7 @@ import { forAll } from "./includes/misc";
 import { cleanupAttributes, deleteHtmlComments, cleanupHead } from "./includes/cleanup";
 import { removeAllAttributesOf, createElement } from "./includes/element";
 import { getTimestamp } from "./includes/misc";
+import { highlightInTextNodes } from "./includes/highlight";
 
 function appendMetadata()
 {
@@ -76,15 +77,16 @@ function replaceInTextNodesUnder(selector, searchString, replacementString)
 
 function main()
 {
-	window.get = get;
-	window.del = del;
-	window.getOne = getOne;
-	window.forAll = forAll;
-	window.cleanupDocument = cleanupDocument;
-	window.cleanupAttributes = cleanupAttributes;
 	window.appendMetadata = appendMetadata;
-	window.getXpathResultAsArray = getXpathResultAsArray;
+	window.cleanupAttributes = cleanupAttributes;
+	window.cleanupDocument = cleanupDocument;
+	window.del = del;
+	window.forAll = forAll;
+	window.get = get;
+	window.getOne = getOne;
 	window.getTextNodesUnderSelector = getTextNodesUnderSelector;
+	window.getXpathResultAsArray = getXpathResultAsArray;
+	window.highlightInTextNodes = highlightInTextNodes;
 	window.replaceInTextNodesUnder = replaceInTextNodesUnder;
 }
 
