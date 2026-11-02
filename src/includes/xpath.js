@@ -43,6 +43,11 @@ export function getTextNodesNotUnderPre()
 	return getXpathResultAsArray(`//text()[not(ancestor::pre)]`);
 }
 
+export function getEmptyTextNodesNotUnderPre()
+{
+	return getXpathResultAsArray(`//text()[not(ancestor::pre) and normalize-space() = '']`);
+}
+
 export function getTextNodesUnderSelector(tagName, strClass)
 {
 	let xpathString;

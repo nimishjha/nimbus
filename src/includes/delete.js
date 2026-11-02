@@ -2,7 +2,7 @@ import { Nimbus } from "./Nimbus";
 import { showMessageBig } from "./ui";
 import { get, del, selectByClassOrIdContaining, selectBySelectorAndRegex, getNodeContainingSelection, selectBySelectorAndNormalizedText, selectImagesSmallerThan } from "./selectors";
 import { getMarkedElements } from "./mark";
-import { getEmptyTextNodesUnderTagName } from "./xpath";
+import { getEmptyTextNodesUnderTagName, getEmptyTextNodesNotUnderPre } from "./xpath";
 import { getTextLength } from "./node";
 import { markElements } from "./mark";
 import { createLinkInWrapper } from "./element";
@@ -64,7 +64,7 @@ export function deleteImagePlaceholders()
 
 export function deleteEmptyTextNodes()
 {
-	deleteEmptyTextNodesUnderTagName("html");
+	del(getEmptyTextNodesNotUnderPre())
 }
 
 export function deleteEmptyTextNodesUnderTagName(tagName)

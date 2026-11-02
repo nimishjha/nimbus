@@ -7,9 +7,8 @@ import { containsAnyOfTheStrings, removeWhitespace, trimSpecialChars, normalizeS
 import { getXpathResultAsArray, getEmptyTextNodesUnderElement } from "./xpath";
 import { convertImageLinksToPlaceholders } from "./image";
 import { replaceElementsBySelector, replaceElementKeepingIdAndClass } from "./replaceElements";
-import { deleteEmptyElements, deleteEmptyBlockElements, deleteBySelectorAndRegex } from "./delete";
+import { deleteEmptyElements, deleteEmptyBlockElements, deleteBySelectorAndRegex, deleteEmptyTextNodes, deleteIframes } from "./delete";
 import { getTextLength } from "./node";
-import { deleteIframes } from "./delete";
 import { makeClassSelector, getTimestamp, createUniqueID } from "./misc";
 import { getBestImageSrc } from "./image";
 import { appendMetadata } from "./metadata";
@@ -736,10 +735,10 @@ export function removeRedundantDivs()
 {
 	let count = 0;
 	const divs = get("div");
+	deleteEmptyTextNodes();
 	for(let i = 0; i < divs.length; i++)
 	{
 		const div = divs[i];
-		del(getEmptyTextNodesUnderElement(div));
 		if(div.children.length === 1 && div.childNodes.length === 1 && Nimbus.BLOCK_TAGS_SET.has(div.firstChild.tagName))
 		{
 			unwrapElement(div);
