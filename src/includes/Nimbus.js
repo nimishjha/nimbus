@@ -73,4 +73,5 @@ export const Nimbus = {
 	showKeyCodes: false,
 	bestImagesData: [],
 	largeImagesData: [],
+	streamingImages: [],
 };

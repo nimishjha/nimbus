@@ -232,6 +232,7 @@ export function deletePersistedImages()
 {
 	clearTimeout(Nimbus.persistStreamingImagesTimeout);
 	del("#nimbusStreamingImageContainer");
+	Nimbus.streamingImages = [];
 }
 
 export function showSavedStreamingImages()
