@@ -26,6 +26,7 @@ export function insertStyle(str, id, important)
 
 	style.appendChild(document.createTextNode(str));
 	head.appendChild(style);
+	head.appendChild(document.createTextNode("\n"));
 }
 
 export function insertStyleHighlight()
