@@ -338,10 +338,17 @@ export function createSelector(elem)
 	return s;
 }
 
+function passSafeClasses(str)
+{
+	return !/[^A-Za-z0-9_-]/.exec(str);
+}
+
 export function createClassSelector(elem)
 {
 	if(elem.className && elem.className !== Nimbus.markerClass)
-		return "." + Array.from(elem.classList).join('.').replace(makeClassSelector(Nimbus.markerClass), "");
+	{
+		return "." + Array.from(elem.classList).filter(passSafeClasses).join('.').replace(makeClassSelector(Nimbus.markerClass), "");
+	}
 	return "";
 }
 
