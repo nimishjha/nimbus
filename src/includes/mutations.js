@@ -30,10 +30,16 @@ function nodeToString(node)
 	return "text node";
 }
 
+function clone(elem)
+{
+	const wrapper = document.createElement("section");
+	wrapper.appendChild(elem.cloneNode(true));
+	Nimbus.clonedNodesContainer.appendChild(wrapper);
+}
+
 function logMutations(mutations)
 {
 	const EXCLUDED_ATTRIBUTES_SET = new Set(["opacity"]);
-	function clone(elem) { Nimbus.clonedNodesContainer.appendChild(elem.cloneNode(true)); }
 	for(let i = 0, ii = mutations.length; i < ii; i++)
 	{
 		const mutation = mutations[i];
