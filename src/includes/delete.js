@@ -268,10 +268,19 @@ export function deleteImagesSmallerThan(pixelArea)
 	showMessageBig(`Deleted ${smallImages.length} images smaller than ${pixelArea} pixels`);
 }
 
+function deleteSmallSVGs()
+{
+	const svgs = document.querySelectorAll("svg");
+	for(const svg of svgs)
+		if(svg.outerHTML.length < 500)
+			svg.remove();
+}
+
 export function deleteSmallImages()
 {
 	deleteBySelectorAndText("img", "data:");
 	deleteBySelectorAndText("img", "emoji");
+	deleteSmallSVGs();
 	const nextThreshold = getNext(Nimbus.smallImageThreshold, Nimbus.smallImageThresholdList);
 	Nimbus.smallImageThreshold = nextThreshold;
 	deleteImagesSmallerThan(nextThreshold * nextThreshold);
