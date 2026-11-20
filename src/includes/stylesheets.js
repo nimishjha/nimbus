@@ -239,8 +239,8 @@ hr { height: 4px; background: #170000; border-color: #170000; border-style: soli
 legend { background: #110000; }
 container { border: 2px solid #F00; margin: 10px; display: block; padding: 10px; }
 figure { border: 0; background: #170000; padding: 10px 0; margin: 2px 0 0 0; }
-figcaption { background: #170000; color: #AAA; padding: 10px 20px; margin-left: 20px; }
-annotation { background: #444; color: inherit; padding: 1rem 2rem; display: block; margin: 10px 0 10px -30px; border-style: solid; border-color: #AAA; border-width: 2px 2px 2px 20px; }
+figcaption { background: #170000; color: inherit; padding: 10px 20px; margin-left: 20px; }
+annotation { background: #000; color: inherit; padding: 1rem 2rem; display: block; margin: 10px 0 10px -30px; border-style: solid; border-color: #900; border-width: 2px 2px 2px 20px; }
 ruby { margin: 10px 0; background: #000; color: #c70; padding: 20px 30px; display: block; font-size: 20px; border-left: 10px solid #F90; }
 rp { margin: 10px 0; background: #110000; color: #888; padding: 40px; display: block; font: 20px "swis721 cn bt"; border-style: solid; border-width: 50px 0; overflow-x: hidden; }
 rt { margin: 10px 0; padding: 20px; display: block; background: #110000; font: 12px Verdana; text-align: left; }

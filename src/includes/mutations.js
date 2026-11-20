@@ -99,12 +99,11 @@ export function toggleMutationObserver(watchAttributes, mutationFilterSelector =
 	del("#cloneContainer");
 	Nimbus.clonedNodesContainer = document.createElement("div");
 	Nimbus.clonedNodesContainer.id = "cloneContainer";
-	let config = { childList: true };
+	const config = { childList: true, subtree: true };
 	let message = "Observing mutations";
 	if(watchAttributes)
 	{
 		config.attributes = true;
-		config.subtree = true;
 		message += " with attributes";
 	}
 	if(mutationFilterSelector)
